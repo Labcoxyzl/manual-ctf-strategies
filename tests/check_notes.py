@@ -18,7 +18,11 @@ class Page(HTMLParser):
     def __init__(self, html):
         super().__init__()
         self.ids, self.links, self.headings = [], [], []
+        self.text = ""
         self.feed(html)
+
+    def handle_data(self, data):
+        self.text += data
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -34,6 +38,8 @@ def check_pages(outputs):
     errors = []
     pages = {str(name): Page(html) for name, html in outputs.items()}
     for name, page in pages.items():
+        if re.search(r"\b(?:kali|windows)-\d+\b", page.text):
+            errors.append(f"Visible internal inventory ID: {name}")
         if len(page.headings) < 1 or page.headings.count("h1") != 1:
             errors.append(f"Missing or duplicate document title: {name}")
         for anchor, count in Counter(page.ids).items():

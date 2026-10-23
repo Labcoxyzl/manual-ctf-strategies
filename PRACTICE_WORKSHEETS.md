@@ -1,6 +1,6 @@
 # Offline practice and answer checks
 
-These small exercises are authored for this refresher, not organiser challenges. The bundled files are synthetic and contain no captured user traffic or malware. Use a copy of the files. Commands assume the repository root as your working directory; installed tools on your travel laptop may differ from this research environment.
+Use copies of the bundled synthetic files; they contain no captured user traffic or malware. Run commands from the repository root. Check that the required tools work on your machine.
 
 Each block has a no-setup paper route. That route tests interpretation and recall, **not practical proficiency with the application**. If a lab will not start, complete the paper route and record the missing setup; do not count it as tool execution. Answers are below each exercise so you can cover them while attempting it.
 
@@ -33,7 +33,7 @@ tshark -r research/learning/practice/http-demo.pcap -q -z follow,tcp,ascii,0
 
 **Paper route:** Analyze this supplied transcript: client `192.0.2.10:40000` → server `192.0.2.20:80`; request `GET /clue.txt HTTP/1.1`; response `HTTP/1.1 200 OK`, body `CTF-refresher` followed by a newline. Identify the same fields and explain why a hostname in the Host header does not change the observed IP endpoints.
 
-**Check:** One HTTP request; source `192.0.2.10`, destination `192.0.2.20`, method `GET`, URI `/clue.txt`, stream `0`. The server returns `CTF-refresher\n` (14 bytes). These TShark results were executed and checked locally; Wireshark GUI and Zeek execution were not tested.
+**Check:** One HTTP request; source `192.0.2.10`, destination `192.0.2.20`, method `GET`, URI `/clue.txt`, stream `0`. The server returns `CTF-refresher\n` (14 bytes).
 
 <a id="block-3"></a>
 ## 3. Keep forensic coordinate systems separate
@@ -46,7 +46,7 @@ tshark -r research/learning/practice/http-demo.pcap -q -z follow,tcp,ascii,0
 
 **Optional execution:** Only if you already have a benign local disk image, use Autopsy to add it as a data source, locate a known file and export it to a new folder. Compare a hash of the export with your known original. Do not use a raw system disk as a training input. No disk image is bundled, so this is not a ready-to-run disk-recovery lab.
 
-**Check:** `2048 × 512 + 3 × 4096 = 1,060,864` bytes. `icat` uses a metadata address to retrieve file content; partition-offset units must match its documented sector convention. Deleted status does not guarantee recoverable content. File records need corroboration for attribution. The arithmetic is checked; Autopsy, MFTECmd and TSK execution are unperformed.
+**Check:** `2048 × 512 + 3 × 4096 = 1,060,864` bytes. `icat` uses a metadata address to retrieve file content; partition-offset units must match its documented sector convention. Deleted status does not guarantee recoverable content. File records need corroboration for attribution.
 
 **Practice caps (80 minutes total):** Allow up to 15 minutes for the original coordinate exercise, 15 for the command pass below, 25 for journal interpretation, 15 for a closed-note retry, and 10 to check answers and record corrections. These are planning caps, not measured completion times; finish early when the checks are met.
 
@@ -164,7 +164,7 @@ yara research/learning/practice/training.yar research/learning/practice/near-mis
 
 **Format-routing check:** Choose dnSpyEx for a .NET assembly, JADX for APK/DEX Java-like output, and pyinstxtractor-ng for extracting a PyInstaller package before considering bytecode decompilation. Decompilation is not guaranteed to recover original source.
 
-**Execution status:** YARA CLI was not available on the research PATH and was not installed. The text fixtures and rule logic were reviewed; actual YARA matching and capa/FLOSS execution remain untested. This exercise uses no malware.
+**Setup:** Install an approved YARA build before the executable exercise. The paper route checks rule logic only.
 
 <a id="block-7"></a>
 ## 7. Change one HTTP request and explain the response

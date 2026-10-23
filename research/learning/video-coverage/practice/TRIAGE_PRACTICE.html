@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="9f97cf7af539cd6ea2c5dd3a7e0cbacff62bf5643f336fcdca0deceb46d41ae1">
+  <link rel="icon" href="data:,">
+  <title>Bytes, encodings and PDF streams · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="../../../../index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Bytes, encodings and PDF streams</h1>
+<p>Run these exercises from the folder containing the supplied files, using copies. The files are synthetic and contain no JavaScript, macros or malicious payloads.</p>
+<h2>strings and xxd: choose the encoding and verify the offset</h2>
+<p>Read GNU's <a href="https://sourceware.org/binutils/docs/binutils/strings.html">strings options</a>, especially <code>-a</code>, <code>-n</code>, <code>-t</code> and <code>-e</code>. Use <a href="triage.bin">triage.bin</a>:</p>
+<pre><code class="language-sh">strings -a -t x triage.bin
+strings -a -e l -t x triage.bin
+xxd -s 0x10 -l 16 triage.bin
+xxd -s 0x40 -l 38 triage.bin
+</code></pre>
+<p><strong>Task:</strong> Explain why the default scan misses the second message, whether printed offsets are decimal or hexadecimal, and how the bytes confirm the proposed encoding. Increase minimum length with <code>-n</code> and predict which messages disappear. A printable URL/path is not evidence that a program used it.</p>
+<details>
+<summary>Check your answer</summary>
+<p>ASCII <code>route=/clue.txt</code> starts at hex offset <code>10</code>; UTF-16LE <code>destination=harbor</code> starts at hex offset <code>40</code>. The latter has alternating character and zero bytes. <code>-e l</code> selects 16-bit little-endian text, not a decryption algorithm. The xxd commands are byte-inspection instructions; their GUI equivalent is an approved hex viewer. Paper route: use the given offsets and encoding to predict the bytes before checking the file.</p>
+</details>
+<p><a id="qpdf-a-rendered-page-is-only-one-view"></a></p>
+<h2>qpdf: a rendered page is only one view</h2>
+<p>Read the <a href="https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection">qpdf inspection options</a>. The benign <a href="stream-demo.pdf">stream-demo.pdf</a> has one page and a compressed content stream at object 4. With qpdf already installed:</p>
+<pre><code class="language-sh">qpdf stream-demo.pdf --show-pages
+qpdf stream-demo.pdf --show-object=4
+qpdf stream-demo.pdf --show-object=4 --filtered-stream-data
+</code></pre>
+<p><strong>Task:</strong> Identify the page's content object, distinguish its dictionary from its decoded bytes, and explain why <code>--raw-stream-data</code> would differ. Do not combine unrelated inspection modes into the raw-byte output. No output PDF argument is needed for these inspection operations.</p>
+<details>
+<summary>Check your answer</summary>
+<p>The page references object <code>4 0</code>; its dictionary names <code>/FlateDecode</code>. Decoded bytes are <code>BT /F1 12 Tf 50 100 Td (CTF refresher) Tj ET</code> followed by a newline. The page displays <code>CTF refresher</code>; raw stream bytes are compressed. Selecting an object is not executing its content, and another PDF may use unsupported filters or a different object layout. This is an inspection exercise, not a promise to detect every malicious PDF.</p>
+<p>The qpdf commands remain untested. Paper route: choose the correct option for dictionary/raw/decoded output and compare with these known answers.</p>
+</details>
+</main>
+</body>
+</html>

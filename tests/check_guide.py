@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 import hashlib
 import json
+import re
 from pathlib import Path
 import urllib.error
 import urllib.parse
@@ -161,6 +162,8 @@ def check_catalog(guide, records=None, routes=None):
         if node["attrs"].get("data-source-ids") != row["id"]:
             errors.append(f"Wrong canonical source identity: {row['id']}")
         contains(node, row.get("challenge_use"), f"purpose: {row['id']}")
+        if by_id[row["id"]]["location"] == "installed in WSL":
+            contains(node, "Windows / WSL", f"WSL platform: {row['id']}")
         for caveat in row.get("caveats", []):
             contains(node, caveat, f"caveat: {row['id']}")
         for key in ("name", "version", "location", "remarks"):
@@ -185,7 +188,8 @@ def check_catalog(guide, records=None, routes=None):
         for key in ("title", "input", "expected", "fallback", "caveat", "verification"):
             if not isinstance(row.get(key), str) or not row[key].strip():
                 errors.append(f"Missing route {key}: {row['id']}")
-            contains(node, row.get(key), f"route {key}: {row['id']}")
+            if key != "verification":
+                contains(node, row.get(key), f"route {key}: {row['id']}")
         if not row.get("steps") or not all(isinstance(step, str) and step.strip() for step in row["steps"]):
             errors.append(f"Missing route steps: {row['id']}")
         for step in row.get("steps", []):
@@ -203,6 +207,8 @@ def check_catalog(guide, records=None, routes=None):
     for category in ROUTE_COUNTS:
         if category not in nodes or "#" + category not in guide.links:
             errors.append(f"Missing category/navigation: {category}")
+    if re.search(r'\b(?:kali|windows)-\d+\b', nodes["main"]["text"]):
+        errors.append("Internal approval IDs are visible in the guide")
     return errors, {"inventory_rows": len(inventory), "resource_rows": len(records), "route_rows": len(routes), "html_source_ids": len(guide.source_ids)}
 
 

@@ -20,6 +20,7 @@
     .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
     .skip:focus { transform:none; }
     main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
     h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
     h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
     h3 { font-size:1.1rem; }
@@ -35,9 +36,8 @@
     summary { cursor:pointer; font-weight:650; }
     img { max-width:100%; height:auto; }
     blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
-    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
     @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
-    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
   </style>
 </head>
 <body>
@@ -53,6 +53,5 @@
 </ul>
 <p>No local tool check establishes the organiser's installation or the travel laptop's readiness. No downloaded forensic image, video collection or malware set is included.</p>
 </main>
-  <footer><div class="wrap"><a href="README.md">Markdown source</a></div></footer>
 </body>
 </html>

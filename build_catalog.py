@@ -64,13 +64,17 @@ def references(items):
         for item in items) + '</ul>'
 
 
+def platform_label(tool):
+    return "Windows / WSL" if tool["location"] == "installed in WSL" else tool["platform"].title()
+
+
 def render_route(route, inventory):
     tools = ' · '.join(f'<a href="#tool-{tool_id}">{esc(inventory[tool_id]["name"])} '
-                       f'({tool_id})</a>' for tool_id in route["tool_ids"])
+                       f'({esc(platform_label(inventory[tool_id]))})</a>' for tool_id in route["tool_ids"])
     steps = ''.join(f'<li>{inline(step)}</li>' for step in route["steps"])
     body = ''.join(f'<p class="{field}"><strong>{label}:</strong> {inline(route[field])}</p>'
                    for field, label in (("expected", "Expected"), ("fallback", "If stuck"),
-                                        ("caveat", "Caveat"), ("verification", "Verification")))
+                                        ("caveat", "Note")))
     return (f'<details class="task-route" id="route-{route["id"]}">'
             f'<summary><span>{esc(route["title"])}</span><small>{inline(route["input"])}</small></summary>'
             f'<div class="route-body"><p class="route-tools">{tools}</p><ol class="steps">{steps}</ol>'
@@ -82,17 +86,15 @@ def render(tool, record):
                        for field, label in (("platform", "Platform"), ("version", "Version"),
                                             ("location", "Location"), ("remarks", "Remarks")))
     caveats = ''.join(f'<li>{inline(caveat)}</li>' for caveat in record["caveats"])
-    verification = ''.join(f'<li>{esc(item["title"])}: {esc(item["verification"])}</li>'
-                           for item in record["resources"])
-    platform = " · ".join(value for value in (tool["platform"].title(), tool["location"]) if value)
-    search_text = ' '.join([tool["name"], tool["id"], record["challenge_use"], *record["categories"]])
+    platform = platform_label(tool)
+    search_text = ' '.join([tool["name"], tool["id"], platform, record["challenge_use"], *record["categories"]])
     return (f'<article class="catalog-tool" id="tool-{tool["id"]}" data-source-ids="{tool["id"]}" '
             f'data-search="{esc(search_text)}"><h3>{esc(tool["name"])} '
-            f'<small>{tool["id"]}</small></h3><p class="platform">{esc(platform)}</p>'
+            f'</h3><p class="platform">{esc(platform)}</p>'
             f'<p>{esc(record["challenge_use"])}</p>'
             f'<ul class="caveats">{caveats}</ul>{references(record["resources"])}'
-            f'<details class="metadata"><summary>Platform and verification</summary>'
-            f'<dl>{metadata}</dl><ul>{verification}</ul></details></article>')
+            f'<details class="metadata"><summary>Version and installation</summary>'
+            f'<dl>{metadata}</dl></details></article>')
 
 
 class PageLinks(HTMLParser):

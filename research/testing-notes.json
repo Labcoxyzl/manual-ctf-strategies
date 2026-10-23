@@ -2,23 +2,23 @@
   "notes": 7,
   "errors": [],
   "input_sha256": {
-    "build_notes.py": "31bfe8693a30cbec36c923da6d1d2abb5e376147cd5385dabef7b95231f52bad",
-    "notes-template.html": "211e591ad5cd65420988d5f77aa645997ea8a2a9ad6e032dece70174115707b4",
-    "LEARNING_RESOURCES.md": "e88d2254a7c6cf509f1a21144c6edf703228029ffdfc1cd50366f3f9289da227",
-    "PRACTICE_WORKSHEETS.md": "41397ad0bd4be062d9d057bf605f73a9bc09c5ba7414fb05b10fc3510cdb1da8",
-    "APPROVED_TOOL_REFERENCES.md": "a667298c6c5bb0043fd51c8d7b01b7d868c101fb36d079437b6570acfa547eb4",
-    "RESOURCE_EVALUATION.md": "b522fa37836a429d93d9ebfa00a710fa8c33c1f67332641172f18d5df0675100",
-    "EVENT_SOURCES.md": "872b7d4f9623390b05581ac9c0ce7dbc62532fe2955fbab0d3f3e04ce4f46e12",
+    "build_notes.py": "c9a8f8bb122ef4f3af6ddd1b11c45f75ac44d04ab52f6720fee08216f5450cd0",
+    "notes-template.html": "dc514d98a02a0ee5ef12a3da7f5c938e96a1a98cda3deb670ecb3c2c11f773b8",
+    "LEARNING_RESOURCES.md": "705916555a3e1f33035dece7837d57d9ce844926ff469dbc4b0b51e8ed1a48b4",
+    "PRACTICE_WORKSHEETS.md": "ef2457f5c3c62979d1e7772f3fb24ddb3e1af0bdf0322dc7e2bde8d4d11c12bd",
+    "APPROVED_TOOL_REFERENCES.md": "38aa779d8bdfaf763815ec8b9c5fae305811b4fb20d7adcabe3a9991e95ad0d7",
+    "EVENT_SOURCES.md": "9dfd5f073d32fc60aed5ef9a2d3b652b7e63dfced9a0bb3695ff8f92dddb09f1",
     "research/learning/practice/README.md": "c45d11cdc2e399bbc97e1f2bb1da3d60cd8920cd92cc0c6e9ce74fcf0919d363",
-    "research/learning/review.md": "2e32b87799c0d8c8aa711d0bcd1d469f6205be6572bb920b00b1f9f5466d238f"
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md": "9f97cf7af539cd6ea2c5dd3a7e0cbacff62bf5643f336fcdca0deceb46d41ae1",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "28f85c5cfe6c274c8398c7ddf2b8bd8ded3bb5dad7e9ff751d4757f7187beacf"
   },
   "output_sha256": {
-    "LEARNING_RESOURCES.html": "2e2947cc3357d731ab4f9814ac21b7612990ee268fda0bd9d54f7cec02144ba2",
-    "PRACTICE_WORKSHEETS.html": "3e3f3ac7688a950d561b1361e46da21c75f2cafbd945b41d1e0cc50a6d39bdee",
-    "APPROVED_TOOL_REFERENCES.html": "5c9afa7581bd049a2bce4beb0f257bf1b23f728cd2f46f46a737e4de8226e402",
-    "RESOURCE_EVALUATION.html": "135ef381231bcefe4116432745e954cffba2ca632501ab01fc005fff06ffa3e7",
-    "EVENT_SOURCES.html": "6ad4166ec10a7cff0562ee3d349c889e94f2d42b27e7a0382d75cbb73acfe31c",
-    "research/learning/practice/README.html": "9c21a48d9ca6b1f68087751708aa1124b08e3dfb7d6629879e92d4ca8f8954a3",
-    "research/learning/review.html": "ede148a6fb5d1af8e7c22322d67311fc0dcdba7f679d0cd7a8ea71efd92010ac"
+    "LEARNING_RESOURCES.html": "399c60c6e02842642e89197661a8319f75b996c075ca8020b4e64a17a6f619a1",
+    "PRACTICE_WORKSHEETS.html": "03843c3e384777dcd81388c25d211c67d2e048a53d4df9b6c6fbc60e1d09666e",
+    "APPROVED_TOOL_REFERENCES.html": "a23e033a62c3e82fb73bad0eb350608f17ffa0ebbd29f90fde0f948d6b8d0e03",
+    "EVENT_SOURCES.html": "2a03ad0f7c651061bb838064b453b14aea04cb27f251bdbcdee74a101fc422b2",
+    "research/learning/practice/README.html": "88eb68bd027329ebb36cd366fff6b0073297573be67d264c50702b166ef1cd3e",
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.html": "d257faf81a3ce6f73bfa866da1ac9767f22083e5c11246b573341d416c2c7289",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.html": "1c6d13cb1ebaadaf3ecbbd65c45a52d9fe15b0ad2397b3eedfaf195cdc935b60"
   }
 }

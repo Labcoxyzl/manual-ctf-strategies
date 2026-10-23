@@ -67,7 +67,8 @@ for name in documents:
 guide = (ROOT / documents[0]).read_text()
 assert all(f'<a id="{rid}">' in guide for rid in resources)
 index = (ROOT / documents[1]).read_text()
-assert len(re.findall(r'^\| (?:windows|kali)-\d+:', index, re.M)) == 200
+assert Counter(re.findall(r'^\| <a id="((?:windows|kali)-\d+)"></a>', index, re.M)) == Counter(tools.keys())
+assert not re.search(r'^\| (?:windows|kali)-\d+:', index, re.M)
 
 # Known answers are independently recomputed, not read back from the guide.
 assert base64.b64decode("Q1RGLXJlZnJlc2hlcg==") == b"CTF-refresher"

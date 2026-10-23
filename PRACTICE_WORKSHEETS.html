@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="41397ad0bd4be062d9d057bf605f73a9bc09c5ba7414fb05b10fc3510cdb1da8">
+  <meta name="source-sha256" content="ef2457f5c3c62979d1e7772f3fb24ddb3e1af0bdf0322dc7e2bde8d4d11c12bd">
   <link rel="icon" href="data:,">
   <title>Offline practice and answer checks · Cyber SEA Game 2026</title>
   <style>
@@ -20,6 +20,7 @@
     .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
     .skip:focus { transform:none; }
     main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
     h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
     h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
     h3 { font-size:1.1rem; }
@@ -35,16 +36,15 @@
     summary { cursor:pointer; font-weight:650; }
     img { max-width:100%; height:auto; }
     blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
-    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
     @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
-    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
   </style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
   <main id="main" class="wrap" tabindex="-1"><h1>Offline practice and answer checks</h1>
-<p>These small exercises are authored for this refresher, not organiser challenges. The bundled files are synthetic and contain no captured user traffic or malware. Use a copy of the files. Commands assume the repository root as your working directory; installed tools on your travel laptop may differ from this research environment.</p>
+<p>Use copies of the bundled synthetic files; they contain no captured user traffic or malware. Run commands from the repository root. Check that the required tools work on your machine.</p>
 <p>Each block has a no-setup paper route. That route tests interpretation and recall, <strong>not practical proficiency with the application</strong>. If a lab will not start, complete the paper route and record the missing setup; do not count it as tool execution. Answers are below each exercise so you can cover them while attempting it.</p>
 <p><a id="block-1"></a></p>
 <h2>1. Identify before decoding</h2>
@@ -62,14 +62,115 @@ tshark -r research/learning/practice/http-demo.pcap -q -z follow,tcp,ascii,0
 </code></pre>
 <p><strong>Deliverable:</strong> A five-field request row, the body, and an explanation of which direction supplied it. For depth, compare packet bytes with reassembled content; then read the Zeek quickstart's expected logs and explain how a UID joins records. Executing Zeek is optional and needs its prepared binary.</p>
 <p><strong>Paper route:</strong> Analyze this supplied transcript: client <code>192.0.2.10:40000</code> → server <code>192.0.2.20:80</code>; request <code>GET /clue.txt HTTP/1.1</code>; response <code>HTTP/1.1 200 OK</code>, body <code>CTF-refresher</code> followed by a newline. Identify the same fields and explain why a hostname in the Host header does not change the observed IP endpoints.</p>
-<p><strong>Check:</strong> One HTTP request; source <code>192.0.2.10</code>, destination <code>192.0.2.20</code>, method <code>GET</code>, URI <code>/clue.txt</code>, stream <code>0</code>. The server returns <code>CTF-refresher\n</code> (14 bytes). These TShark results were executed and checked locally; Wireshark GUI and Zeek execution were not tested.</p>
+<p><strong>Check:</strong> One HTTP request; source <code>192.0.2.10</code>, destination <code>192.0.2.20</code>, method <code>GET</code>, URI <code>/clue.txt</code>, stream <code>0</code>. The server returns <code>CTF-refresher\n</code> (14 bytes).</p>
 <p><a id="block-3"></a></p>
 <h2>3. Keep forensic coordinate systems separate</h2>
 <p><strong>Diagnostic:</strong> Distinguish an image byte offset, partition sector offset, filesystem block number and inode/file metadata address. If any distinction is unclear, do the reading before trying recovery commands.</p>
 <p><strong>Paper exercise:</strong> A synthetic partition begins at sector 2048, sectors are 512 bytes, filesystem blocks are 4096 bytes, and a described data block has zero-based index 3 relative to the filesystem. Calculate its absolute byte offset. Separately, suppose <code>fls</code> reports a deleted file with metadata address 128; explain why 128 is not the block index and which input <code>icat</code> expects. Explain what the partition offset option must represent. Consult the selected official manuals rather than the superseded walkthrough.</p>
 <p><strong>Artifact interpretation:</strong> A hypothetical file record contains a name and timestamps. List two facts the record supports and two claims it cannot establish alone (for example, who deliberately deleted the file). Read the selected MFTECmd documentation's export example; identify the input artifact and output format. Do not treat a historical video as current evidence of <code>$LogFile</code> support.</p>
 <p><strong>Optional execution:</strong> Only if you already have a benign local disk image, use Autopsy to add it as a data source, locate a known file and export it to a new folder. Compare a hash of the export with your known original. Do not use a raw system disk as a training input. No disk image is bundled, so this is not a ready-to-run disk-recovery lab.</p>
-<p><strong>Check:</strong> <code>2048 × 512 + 3 × 4096 = 1,060,864</code> bytes. <code>icat</code> uses a metadata address to retrieve file content; partition-offset units must match its documented sector convention. Deleted status does not guarantee recoverable content. File records need corroboration for attribution. The arithmetic is checked; Autopsy, MFTECmd and TSK execution are unperformed.</p>
+<p><strong>Check:</strong> <code>2048 × 512 + 3 × 4096 = 1,060,864</code> bytes. <code>icat</code> uses a metadata address to retrieve file content; partition-offset units must match its documented sector convention. Deleted status does not guarantee recoverable content. File records need corroboration for attribution.</p>
+<p><strong>Practice caps (80 minutes total):</strong> Allow up to 15 minutes for the original coordinate exercise, 15 for the command pass below, 25 for journal interpretation, 15 for a closed-note retry, and 10 to check answers and record corrections. These are planning caps, not measured completion times; finish early when the checks are met.</p>
+<p><strong>Second case — supplied inputs:</strong> Everything in these tables is synthetic, normalized teaching data, not captured output from TSK or MFTECmd. Assume a single NTFS volume in <code>disk.dd</code>, starting at sector 4096 with 512-byte sectors. No such image is bundled. Metadata addresses in the file table are the addresses to use for this paper exercise; journal identity is the separate <code>(entry, sequence)</code> pair on this volume.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Metadata address</th>
+<th>Entry</th>
+<th>Sequence</th>
+<th>Name</th>
+<th>Listing status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>42-128-1</td>
+<td>42</td>
+<td>7</td>
+<td>final.txt</td>
+<td>Deleted</td>
+</tr>
+<tr>
+<td>43-128-1</td>
+<td>43</td>
+<td>2</td>
+<td>draft.txt</td>
+<td>Allocated</td>
+</tr>
+</tbody>
+</table></div>
+<p>The journal rows below are deliberately out of order. Order by event number, which represents journal order in this teaching case. Do not join records by filename alone.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Entry</th>
+<th>Sequence</th>
+<th>Reason</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>106</td>
+<td>42</td>
+<td>7</td>
+<td>Delete</td>
+<td>final.txt</td>
+</tr>
+<tr>
+<td>103</td>
+<td>42</td>
+<td>7</td>
+<td>RenameOldName</td>
+<td>draft.txt</td>
+</tr>
+<tr>
+<td>101</td>
+<td>42</td>
+<td>7</td>
+<td>Create</td>
+<td>draft.txt</td>
+</tr>
+<tr>
+<td>108</td>
+<td>42</td>
+<td>8</td>
+<td>Create</td>
+<td>unrelated.txt</td>
+</tr>
+<tr>
+<td>104</td>
+<td>42</td>
+<td>7</td>
+<td>RenameNewName</td>
+<td>final.txt</td>
+</tr>
+<tr>
+<td>102</td>
+<td>43</td>
+<td>2</td>
+<td>Create</td>
+<td>draft.txt</td>
+</tr>
+<tr>
+<td>105</td>
+<td>43</td>
+<td>2</td>
+<td>DataExtend</td>
+<td>draft.txt</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Command pass:</strong> Without running anything, write commands to list the image partitions, recursively list the selected filesystem, and attempt recovery of deleted <code>final.txt</code> to a new file outside the evidence. Convert the partition start to bytes, then identify which number belongs in <code>-o</code>. State what you would check before trusting an export. For the earlier MFTECmd reading, name a valid source artifact and the requested tabular export format.</p>
+<p><strong>Journal pass:</strong> Start from the deleted listing row. Write its complete identity and ordered event numbers; give the name transition and last supplied event for that identity. Identify the two traps in filtering only on <code>draft.txt</code> or only on entry 42. State whether the rows prove who deleted the file, whether its bytes survive, and what evidence would address each question. Close the answers and repeat the grouping, command and limitations before checking.</p>
+<p><strong>Second-case answer key:</strong></p>
+<ul>
+<li>Commands: <code>mmls disk.dd</code>; <code>fls -r -o 4096 disk.dd</code>; <code>icat -r -o 4096 disk.dd 42-128-1 &gt; recovered-final.txt</code>. Assume the destination is a new file in a separate working folder; shell redirection can overwrite an existing file. The partition starts at <code>4096 × 512 = 2,097,152</code> bytes, but <code>-o</code> takes <code>4096</code> sectors here. Recovery may fail or return incomplete/overwritten bytes; inspect content/format and compare with a known original hash if available. No known hash is supplied in this case.</li>
+<li>Target <code>(42, 7)</code> has events <code>101 → 103 → 104 → 106</code>: create <code>draft.txt</code>, rename it to <code>final.txt</code>, then delete <code>final.txt</code>. The two rename rows describe one rename, not two. Events <code>102, 105</code> belong to <code>(43, 2)</code>; event <code>108</code> belongs to <code>(42, 8)</code>, a different identity after entry reuse. The filename filter mixes distinct files and misses the target's renamed/deleted rows; entry-only grouping wrongly includes event 108.</li>
+<li>The supplied rows record a deletion event, not an actor or intention. Correlated audit/logon evidence would be needed for attribution; surviving file content and a checked extraction would address recovery. Neither conclusion follows from a name or deletion row alone. For MFTECmd, <code>$MFT</code> or <code>$UsnJrnl:$J</code> is a valid source artifact for the selected workflow, and CSV is the tabular export to inspect in Timeline Explorer; these normalized rows are not a claimed MFTECmd export.</li>
+</ul>
+<p>Award one check each for the three command shapes, offset units, full-key grouping, rename/delete order, separation of the other two identities, attribution limits, recovery limits, and MFTECmd input/output (10 checks). Rework any missing check with the answer covered. This remains a paper exercise; no forensic tool execution is claimed.</p>
 <p><a id="block-4"></a></p>
 <h2>4. Read memory evidence without overclaiming</h2>
 <p><strong>Diagnostic:</strong> Explain the difference between a process list and a parent/child tree, and why Volatility 2 profiles cannot simply be substituted into Volatility 3 instructions.</p>
@@ -78,6 +179,71 @@ tshark -r research/learning/practice/http-demo.pcap -q -z follow,tcp,ascii,0
 <p><strong>Setup failure drill:</strong> A plugin reports unsatisfied symbol requirements before producing output. Is that a negative forensic finding? Describe the online preflight step needed for a Windows image and why a fully cached page is not enough.</p>
 <p><strong>Optional execution:</strong> With an independently obtained benign memory image, resolve symbols while online, then run the tutorial's <code>windows.pslist</code> and <code>windows.pstree</code> operations offline. Compare the same PID/PPID pair in both outputs. No memory image or symbol set is bundled; this route has not been executed.</p>
 <p><strong>Check:</strong> <code>4 → 100 → 220 → 330</code> is the chain represented by the rows, though PID 4 has no supplied row. Names and ancestry are leads, not malware verdicts. A symbol error is a failed analysis, not evidence of absence. A local image, working Volatility and matching cached symbols are separate prerequisites.</p>
+<p><strong>Practice caps (50 minutes total):</strong> Allow up to 10 minutes for the original chain and setup drill, 15 for the contrasting views below, 10 for hypotheses and command selection, 10 for a closed-note retry, and 5 for answer checks. These are planning caps, not measured durations; do not pad a completed attempt.</p>
+<p><strong>Second case — contrasting views:</strong> Both tables are synthetic, normalized teaching data for one snapshot, not actual Volatility output. View A is a flat <code>pslist</code>-style listing. View B is a <code>pstree</code>-style rendering of the same supplied PID/PPID relationships; it is not independent corroboration. Neither view supplies process start times, command lines, paths or signatures.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>View A: PID</th>
+<th>PPID</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>500</td>
+<td>4</td>
+<td>services.exe</td>
+</tr>
+<tr>
+<td>620</td>
+<td>500</td>
+<td>helper.exe</td>
+</tr>
+<tr>
+<td>710</td>
+<td>620</td>
+<td>cmd.exe</td>
+</tr>
+<tr>
+<td>850</td>
+<td>799</td>
+<td>helper.exe</td>
+</tr>
+<tr>
+<td>910</td>
+<td>850</td>
+<td>cmd.exe</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>View B: represented chain</th>
+<th>Gap in supplied rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>500 services.exe → 620 helper.exe → 710 cmd.exe</td>
+<td>PID 4 has no row</td>
+</tr>
+<tr>
+<td>850 helper.exe → 910 cmd.exe</td>
+<td>PID 799 has no row</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Independent pass:</strong> Reconstruct PID 910's reported ancestry from View A before checking View B. List every missing parent row. Decide whether either <code>helper.exe</code> name lets you merge the branches or assign PID 910 to PID 500. Write two hypotheses for missing PID 799 and a distinguishing evidence request for each. State what remains unknown even when both views agree.</p>
+<p><strong>Command-selection pass:</strong> Assume the official tutorial's source checkout with <code>vol.py</code> and a prepared benign image called <code>memory.raw</code>. Write the help/discovery command, flat-list command and tree command in that order. Choose which process view makes ancestry easiest to inspect and which evidence you need to investigate a misleading executable name. Explain how a symbol failure changes the interpretation. Do not execute these placeholders; no image is supplied.</p>
+<p><strong>Second-case answer key:</strong></p>
+<ul>
+<li>The reported chain is <code>799 → 850 → 910</code>, with no supplied row for 799; PID 4 is also missing. The separate represented branch is <code>4 → 500 → 620 → 710</code>. There are five supplied processes and two missing parent identifiers. Identical names do not identify the same process; there is no supplied edge from 500 or 620 to 850 or 910.</li>
+<li>One hypothesis is that parent 799 exited before capture: seek process creation/termination records and start/exit times to test the chronology. Another is incomplete collection or enumeration: check capture/parser diagnostics and compare with additional process evidence, such as a pool-scan result. Neither hypothesis is established here, and a discrepancy alone would not prove a hidden malicious process. PID reuse also requires time-aware identity checks before treating a matching PID in another source as the historical parent.</li>
+<li>Commands: <code>python3 vol.py -h</code>; <code>python3 vol.py -f memory.raw windows.pslist</code>; <code>python3 vol.py -f memory.raw windows.pstree</code>. These follow the selected tutorial's CLI form; confirm the prepared installation's help before a real run. <code>pstree</code> makes relationships easier to see; it does not independently validate them. Investigating a name requires executable path/content and signature or hash checks, with command-line and timeline context. Agreement between these views establishes no actor, intent or malware verdict. A symbol failure means analysis did not complete, not that the snapshot contains no processes.</li>
+</ul>
+<p>Award one check each for the 910 chain, both missing parents, keeping same-named processes separate, rejecting unsupported ancestry to 500, each of the two hypotheses paired with evidence, the three-command sequence, choosing the tree view, requesting evidence beyond names, and interpreting a symbol failure (10 checks). Cover the key for the retry and correct each missed check. This checks paper interpretation and command recall only; no Volatility execution is claimed.</p>
 <p><a id="block-5"></a></p>
 <h2>5. Recover and verify a program's branch logic</h2>
 <p><strong>Diagnostic:</strong> Explain <code>strcmp</code>'s zero result and distinguish a function's return value from a conditional jump's sense. If fluent, skip one or both introductory videos and start with the executable.</p>
@@ -88,7 +254,7 @@ gdb /tmp/ctf-refresher-check
 </code></pre>
 <p>In GDB use <code>break main</code>, <code>run wrong</code>, <code>disassemble main</code>, and <code>next</code> to relate the condition to the branch. <code>print argc</code> checks the argument count. Import the same executable into Ghidra, locate <code>main</code>, inspect the comparison, rename the input and write pseudocode. Do not patch the program before explaining it. Finally compare with the source.</p>
 <p><strong>Deliverable:</strong> A three-case table: no user argument, wrong word, accepted word; include printed text and exit status. Explain which comparison decides success. Addresses and generated assembly vary by compiler and architecture; do not copy an address from the video.</p>
-<p><strong>Paper route:</strong> Save the C source and the selected LiveOverflow annotated disassembly before boarding. Draw the three branches from the C source, then trace one comparison/jump in the published disassembly. These are separate examples; do not assume identical addresses or passwords.</p>
+<p><strong>Paper route:</strong> Keep the bundled <a href="research/learning/practice/check_input.c">check_input.c</a>, and save the separate LiveOverflow <a href="https://raw.githubusercontent.com/LiveOverflow/liveoverflow_youtube/master/0x05_simple_crackme_intro_assembler/gdb_disassembly">gdb_disassembly</a> and <a href="https://raw.githubusercontent.com/LiveOverflow/liveoverflow_youtube/master/0x05_simple_crackme_intro_assembler/license_1.c">license_1.c</a> individually before boarding; saving only the repository directory page is insufficient. Draw the three branches from the C source, then trace one comparison/jump in the published disassembly. These are separate examples; do not assume identical addresses or passwords.</p>
 <p><strong>Check:</strong> No argument → <code>usage: check_input WORD</code>, status 2. <code>wrong</code> → <code>rejected</code>, status 1. <code>harbor</code> → <code>accepted</code>, status 0. The comparison is <code>strcmp(argv[1], &quot;harbor&quot;) == 0</code>. All three compiled cases and basic GDB execution were locally tested; Ghidra GUI was not. Delete <code>/tmp/ctf-refresher-check</code> after practice if desired.</p>
 <p><a id="block-6"></a></p>
 <h2>6. Turn static indicators into testable statements</h2>
@@ -98,8 +264,9 @@ gdb /tmp/ctf-refresher-check
 yara research/learning/practice/training.yar research/learning/practice/near-miss.txt
 </code></pre>
 <p><strong>Check:</strong> The first should print the rule name and file; the second should produce no match. Adding <code>harbor</code> without the marker should still fail. Paper route: evaluate those three cases by hand from the rule's condition. Read one capa verbose-output example and state the location you would inspect next; read one FLOSS decoded-string example and explain what an extracted URL does <strong>not</strong> prove about execution.</p>
+<p><strong>Full-word contrast (paper input):</strong> Evaluate the exact text <code>training-marker harbors</code>. Expected: <strong>no match</strong>. The marker is present, but <code>harbor</code> is followed by the letter <code>s</code>, so it is not a full word. Compare <code>training-marker harbor</code>, which should match. This pair distinguishes a <code>fullword</code> check from a substring-only rule; the missing-marker case alone cannot do that. These are supplied text cases, not YARA CLI results; no YARA CLI run is claimed.</p>
 <p><strong>Format-routing check:</strong> Choose dnSpyEx for a .NET assembly, JADX for APK/DEX Java-like output, and pyinstxtractor-ng for extracting a PyInstaller package before considering bytecode decompilation. Decompilation is not guaranteed to recover original source.</p>
-<p><strong>Execution status:</strong> YARA CLI was not available on the research PATH and was not installed. The text fixtures and rule logic were reviewed; actual YARA matching and capa/FLOSS execution remain untested. This exercise uses no malware.</p>
+<p><strong>Setup:</strong> Install an approved YARA build before the executable exercise. The paper route checks rule logic only.</p>
 <p><a id="block-7"></a></p>
 <h2>7. Change one HTTP request and explain the response</h2>
 <p><strong>Diagnostic:</strong> Write a minimal HTTP GET request with a Host header. Explain why changing a header is not the same as changing the URL path. If fluent, skip the introductory Repeater video.</p>
@@ -144,6 +311,5 @@ print(n, phi, d, c, pow(c, d, n))
 <p><strong>Assessment rubric:</strong> For each attempt, award one check each for selecting an appropriate approved tool, preserving the original input, giving the right command/action or accurate paper explanation, and interpreting the result without an unsupported claim. Any missing check means that workflow needs another pass; this is a study heuristic, not a validated proficiency score. Do not count reading an answer as a successful independent attempt.</p>
 <p><strong>Final note:</strong> Record two things you can now do, two unresolved questions, and any untested setup needed before competition. Actual learning gains depend on your attempts and feedback; this pack has not measured them.</p>
 </main>
-  <footer><div class="wrap"><a href="PRACTICE_WORKSHEETS.md">Markdown source</a></div></footer>
 </body>
 </html>

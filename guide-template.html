@@ -21,14 +21,14 @@
     header { background:#142e32; color:#fff; padding:18px 0 17px; }
     header p { margin:0; color:#c7e5dc; font-size:.82rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
     h1 { margin:6px 0 7px; font-size:clamp(1.65rem,3vw,2.4rem); line-height:1.12; letter-spacing:-.035em; }
-    header .sub { max-width:74ch; color:#e0eeea; font-size:.92rem; }
     nav { position:sticky; top:0; z-index:5; background:var(--paper); border-bottom:1px solid var(--line); }
     nav .wrap { display:flex; gap:5px; overflow-x:auto; padding-top:8px; padding-bottom:8px; scrollbar-width:thin; }
     nav a { flex:none; padding:6px 10px; border-radius:5px; color:var(--ink); font-size:.88rem; font-weight:650; text-decoration:none; }
     nav a:hover, nav a:focus-visible { background:var(--pale); }
     main { padding-top:17px !important; padding-bottom:36px !important; }
     .rules { border-left:4px solid var(--green); background:var(--pale); padding:9px 12px; font-size:.88rem; }
-    .rules p { margin:0; }
+    .rules summary { padding:0; }
+    .rules p { margin:8px 0 0; }
     .legend { margin:10px 0 17px; color:var(--muted); font-size:.82rem; }
     section, [id] { scroll-margin-top:80px; }
     section { margin:0 0 29px; }
@@ -41,13 +41,11 @@
     .steps { padding-left:24px; }
     .steps li + li { margin-top:6px; }
     .expected, .fallback, .caveat { font-size:.9rem; margin-top:8px; margin-bottom:8px; }
-    .verification { color:var(--muted); font-size:.78rem; }
     code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap:anywhere; }
     pre { overflow-x:auto; padding:10px; background:var(--paper); }
     .catalog > summary { color:var(--green); }
     .catalog-tool { display:grid; grid-template-columns:minmax(135px,.8fr) minmax(0,2fr); gap:8px 16px; padding:12px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
     .catalog-tool > h3 { grid-column:1; grid-row:1 / span 4; margin:0; font-size:1rem; }
-    .catalog-tool > h3 small { display:block; color:var(--muted); font-size:.78rem; font-weight:400; }
     .catalog-tool > :not(h3) { grid-column:2; margin-top:0; margin-bottom:0; }
     .caveats, .references { padding-left:20px; font-size:.85rem; }
     .references li + li { margin-top:3px; }
@@ -70,7 +68,7 @@
     @media (max-width:600px) { .catalog-tool { grid-template-columns:1fr; gap:5px; } .catalog-tool > h3 { grid-row:auto; } .catalog-tool > :not(h3) { grid-column:1; } }
     @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
     @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
-    @media print { nav, .search-controls, .skip { display:none; } header { color:var(--ink); background:none; } header p, header .sub { color:var(--ink); } .wrap { max-width:none; } a { color:var(--ink); } }
+    @media print { nav, .search-controls, .skip { display:none; } header { color:var(--ink); background:none; } header p { color:var(--ink); } .wrap { max-width:none; } a { color:var(--ink); } }
   </style>
 </head>
 <body>
@@ -78,28 +76,27 @@
   <header><div class="wrap">
     <p>Cyber SEA Game 2026</p>
     <h1>CTF field guide</h1>
-    <div class="sub">Choose your input. Follow a short route. Check the result.</div>
   </div></header>
   <nav aria-label="Challenge categories"><div class="wrap">
-    <a href="#forensics" aria-label="Digital Forensics">Forensics</a><a href="#malware" aria-label="Malware Analysis">Malware</a><a href="#web" aria-label="Web Security">Web</a><a href="#reversing" aria-label="Reverse Engineering">Reversing</a><a href="#osint">OSINT</a><a href="#crypto" aria-label="Cryptography">Crypto</a><a href="#misc" aria-label="Miscellaneous">Misc</a><a href="#tools">Tools</a>
+    <a href="#tools">Tools</a><a href="#forensics" aria-label="Digital Forensics">Forensics</a><a href="#malware" aria-label="Malware Analysis">Malware</a><a href="#web" aria-label="Web Security">Web</a><a href="#reversing" aria-label="Reverse Engineering">Reversing</a><a href="#osint">OSINT</a><a href="#crypto" aria-label="Cryptography">Crypto</a><a href="#misc" aria-label="Miscellaneous">Misc</a>
   </div></nav>
   <main id="main" class="wrap" tabindex="-1">
-    <div class="rules" role="note"><p>Keep challenge files local; do not upload them to online services. Generative AI must not generate solutions, code or scripts, or analyze challenges; automatically displayed search summaries are permitted. Unlisted standalone applications need organiser approval; personal commercial licences are prohibited. <a href="EVENT_SOURCES.html">Event rules and sources</a>.</p></div>
-    <p class="legend">For practice beforehand: <a href="LEARNING_RESOURCES.html">preparation guide</a>. External links need internet; this local guide works offline.</p>
-    <!-- guide:routes -->
     <section id="tools" aria-labelledby="tools-title">
       <h2 id="tools-title">Approved tool catalog</h2>
-      <p class="legend">All 200 approved entries, grouped by primary use. W = Windows · WSL = Windows Linux · K = Kali (best effort). Check each entry’s installed version, location and caveats.</p>
+      <p class="legend">200 approved entries, grouped by use. Check platform and version details; Kali availability is best effort.</p>
       <div class="search-controls" hidden>
         <label for="tool-search">Find an approved tool</label>
-        <div class="search-row"><input type="search" id="tool-search" autocomplete="off" placeholder="Name, ID, purpose or category"><button type="button" id="clear-search">Clear</button></div>
+        <div class="search-row"><input type="search" id="tool-search" autocomplete="off" placeholder="Tool name or task"><button type="button" id="clear-search">Clear</button></div>
         <p id="tool-count" role="status" aria-live="polite"></p>
       </div>
       <p id="no-results" hidden>No matching tools. Try fewer terms or clear the search.</p>
       <!-- guide:catalog -->
     </section>
+    <details class="rules"><summary>Competition rules · keep challenge files local</summary><p>Do not upload challenge files to online services. Generative AI must not generate solutions, code or scripts, or analyze challenges; automatically displayed search summaries are permitted. Unlisted standalone applications need organiser approval; personal commercial licences are prohibited. <a href="EVENT_SOURCES.html">Event rules and sources</a>.</p></details>
+    <p class="legend"><a href="LEARNING_RESOURCES.html">Preparation guide</a> · Saved pages work offline; external links need internet.</p>
+    <!-- guide:routes -->
   </main>
-  <footer><div class="wrap">Approved entries from the organiser’s 15 October tool review. Procedures marked source-reviewed have not been tested on the competition machines.</div></footer>
+  <footer><div class="wrap">Approved entries from the organiser’s 15 October tool review. Check procedures on the competition machines before relying on them.</div></footer>
   <script>
     const search = document.getElementById('tool-search');
     const catalogs = [...document.querySelectorAll('details.catalog')];

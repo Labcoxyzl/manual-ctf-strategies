@@ -11,8 +11,10 @@ from markdown_it import MarkdownIt
 ROOT = Path(__file__).resolve().parent
 NOTES = (
     "LEARNING_RESOURCES.md", "PRACTICE_WORKSHEETS.md",
-    "APPROVED_TOOL_REFERENCES.md", "RESOURCE_EVALUATION.md", "EVENT_SOURCES.md",
-    "research/learning/practice/README.md", "research/learning/review.md",
+    "APPROVED_TOOL_REFERENCES.md", "EVENT_SOURCES.md",
+    "research/learning/practice/README.md",
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.md",
 )
 
 

@@ -11,7 +11,7 @@ const htmlFile = htmlArg === -1 ? 'index.html' : process.argv[htmlArg + 1];
 const prefix = htmlFile === 'index.html' ? 'testing' : 'testing-preview';
 const url = pathToFileURL(path.join(root, htmlFile)).href;
 const categories = ['osint', 'reversing', 'forensics', 'crypto', 'misc', 'web', 'malware'];
-const noteSources = ['LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'RESOURCE_EVALUATION.md', 'EVENT_SOURCES.md', 'research/learning/practice/README.md', 'research/learning/review.md'];
+const noteSources = ['LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'EVENT_SOURCES.md', 'research/learning/practice/README.md', 'research/learning/video-coverage/practice/TRIAGE_PRACTICE.md', 'research/learning/video-coverage/practice/AUDIO_PRACTICE.md'];
 const noteFiles = ['build_notes.py', 'notes-template.html', ...noteSources, ...noteSources.map(name => name.replace(/\.md$/, '.html'))];
 const noteHashes = () => Object.fromEntries(noteFiles.map(name => [name, createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex')]));
 const visibleTools = page => page.locator('[data-source-ids]:visible');
@@ -44,6 +44,18 @@ async function unobscured(page, locator, label) {
       await page.route('**/*', route => /^https?:/.test(route.request().url()) ? route.abort() : route.continue());
       await page.context().setOffline(true);
       await page.goto(url);
+      const initialSearch = page.locator('#tool-search');
+      const searchBox = await initialSearch.boundingBox();
+      assert(searchBox && searchBox.y >= 0 && searchBox.y + searchBox.height <= height,
+        `tool search requires scrolling at ${width}×${height}`);
+      const toolsNav = await page.locator('nav a[href="#tools"]').boundingBox();
+      assert(toolsNav && toolsNav.x >= 0 && toolsNav.x + toolsNav.width <= width,
+        `tools navigation is off-screen at ${width}`);
+      const rules = page.locator('details.rules');
+      await rules.locator('summary').focus();
+      await page.keyboard.press('Enter');
+      assert(await rules.locator('p').isVisible(), 'competition rules cannot be expanded');
+      await page.keyboard.press('Enter');
       const details = page.locator('details.catalog');
       assert.equal(await details.count(), 7);
       for (let i = 0; i < 7; i++) {
@@ -83,7 +95,7 @@ async function unobscured(page, locator, label) {
         await page.keyboard.press('Space');
         assert(await route.locator('ol.steps').isVisible());
         assert((await route.locator('ol.steps > li').count()) > 0);
-        for (const field of ['expected', 'fallback', 'caveat', 'verification']) assert((await route.locator(`.${field}`).innerText()).trim());
+        for (const field of ['expected', 'fallback', 'caveat']) assert((await route.locator(`.${field}`).innerText()).trim());
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `expanded route overflow at ${width}`);
       // A route link must recover a target hidden by both a closed catalog and a conflicting filter.
@@ -111,7 +123,7 @@ async function unobscured(page, locator, label) {
       await page.locator('nav a[href="#forensics"]').click();
       if ([390, 1440].includes(width)) await page.screenshot({ path: path.join(root, `research/${prefix}-${width}.png`) });
       assert.deepEqual(errors, []);
-      report.cases.push({ width, height, offline_routes: 24, keyboard_expansion: 'pass', filter_success_empty_reset: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
+      report.cases.push({ width, height, offline_routes: 24, initial_search_visible: 'pass', tools_navigation_visible: 'pass', rules_keyboard_expansion: 'pass', keyboard_expansion: 'pass', filter_success_empty_reset: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
       await page.close();
     }
     const notes = await browser.newPage({ viewport: { width: 320, height: 900 } });

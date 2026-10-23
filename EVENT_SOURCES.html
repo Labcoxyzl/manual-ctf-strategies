@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="872b7d4f9623390b05581ac9c0ce7dbc62532fe2955fbab0d3f3e04ce4f46e12">
+  <meta name="source-sha256" content="9dfd5f073d32fc60aed5ef9a2d3b652b7e63dfced9a0bb3695ff8f92dddb09f1">
   <link rel="icon" href="data:,">
-  <title>Current Cyber SEA Game 2026 source material · Cyber SEA Game 2026</title>
+  <title>Event rules and tool availability · Cyber SEA Game 2026</title>
   <style>
     :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
     * { box-sizing:border-box; }
@@ -20,6 +20,7 @@
     .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
     .skip:focus { transform:none; }
     main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
     h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
     h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
     h3 { font-size:1.1rem; }
@@ -35,41 +36,17 @@
     summary { cursor:pointer; font-weight:650; }
     img { max-width:100%; height:auto; }
     blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
-    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
     @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
-    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
   </style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
-  <main id="main" class="wrap" tabindex="-1"><h1>Current Cyber SEA Game 2026 source material</h1>
-<p>These files were supplied on 19 October 2026 and take priority over the older tool-request workbook and assumptions in the lost site. They remain in Windows Downloads and have <strong>not</strong> been copied into this recovery directory.</p>
-<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
-<thead>
-<tr>
-<th>File</th>
-<th>Location</th>
-<th>SHA-256</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Tool review list</td>
-<td><code>/mnt/c/Users/Nicho/Downloads/AJCCBC_CTF2026_Tool_Review_List_261015r11.xlsx</code></td>
-<td><code>a7de8719aae3c344c1158e3489eb59543378bb34b1ba16661caef36b332eedaf</code></td>
-</tr>
-<tr>
-<td>Practice Environment Setup Guide</td>
-<td><code>/mnt/c/Users/Nicho/Downloads/Practice Environment Setup Guide.pdf</code></td>
-<td><code>41e085a678156514f20919134e68cc975e3e4c3cf92086caeda06872cb60165a</code></td>
-</tr>
-</tbody>
-</table></div>
-<p>The PDF metadata marks it <strong>Internal Use Only</strong>. Keep the original files and any account details out of a public repository.</p>
-<h2>Tool decisions from the review workbook</h2>
-<p>The workbook has three sheets with sequentially numbered rows: <strong>39 approved Windows entries</strong>, <strong>161 approved Kali entries</strong>, and <strong>82 unapproved entries</strong>. These counts refer to workbook rows, not unique tool packages across platforms. The Windows sheet says listed tools are pre-approved and available on competition PCs. The Kali sheet says its tools were installed on a best-effort basis and explicitly does not guarantee that every tool operates. The unapproved sheet lists tools that could not be installed for this event. Read each row's version, location, and remarks before writing a recipe; some Windows-list tools are installed in WSL.</p>
-<p>The lost site's October 14 guide matched 32 entries in an earlier request workbook. That result does not establish coverage of the current review list. In particular, the new sheets separate Windows and Kali and include a distinct unapproved list. The rebuild should derive the visible tool catalog and first-use checks from these current rows.</p>
+  <main id="main" class="wrap" tabindex="-1"><h1>Event rules and tool availability</h1>
+<p>Based on the organiser’s 15 October tool review workbook and Practice Environment Setup Guide supplied on 19 October 2026. The setup PDF is marked <strong>Internal Use Only</strong>; keep original documents and account details private.</p>
+<h2>Tool availability</h2>
+<p>The workbook has three sheets with sequentially numbered rows: <strong>39 approved Windows entries</strong>, <strong>161 approved Kali entries</strong>, and <strong>82 unapproved entries</strong>. These counts refer to workbook rows, not unique tool packages across platforms. The Windows sheet says listed tools are pre-approved and available on competition PCs. The Kali sheet says its tools were installed on a best-effort basis and explicitly does not guarantee that every tool operates. The unapproved sheet lists tools that could not be installed for this event. Check each entry’s version, location and remarks; some Windows-list tools are installed in WSL.</p>
 <h2>Competition and practice rules from the PDF</h2>
 <ul>
 <li><strong>Categories:</strong> Digital Forensics, Malware Analysis, Web Security, Reverse Engineering, OSINT, Cryptography, and Miscellaneous. The format is Jeopardy-style, flags are submitted through CTFd, and the challenge sets differ between 26 and 27 October. (pp. 2, 11)</li>
@@ -77,10 +54,8 @@
 <li><strong>Tool installation:</strong> Organisers provide approved tools and approved requests. Participants may add libraries, dependencies, plugins, and packages if unrelated to generative AI. A standalone application outside the approved list needs organiser approval. Personal licences for commercial software such as IDA are not allowed. (pp. 5, 21)</li>
 <li><strong>AI:</strong> Generative AI assistants may not be used to generate solutions, code, or scripts or analyze challenges. The guide permits viewing an automatically displayed AI summary in search results. (p. 8)</li>
 <li><strong>References and internet:</strong> Physical and electronic notes, personal GitHub repositories, and scripts created before the competition are allowed. Google Search and technical references are allowed. Internet is via hotel Wi-Fi, while CTFd and related services are restricted to approved networks. Uploading challenge files to online services is prohibited. External assistance and sharing challenge content outside the team are prohibited. (pp. 3, 6–7, 9, 21)</li>
-<li><strong>Practice access:</strong> Each team receives four accounts, one per participant. The practice portal and Kali access are described on pp. 14–19. Lab startup can take about 20 minutes and each account has at most three launches. Do not put account credentials in the rebuilt site or its logs. (pp. 14–19)</li>
+<li><strong>Practice access:</strong> Each team receives four accounts, one per participant. The practice portal and Kali access are described on pp. 14–19. Lab startup can take about 20 minutes and each account has at most three launches. Keep account credentials private. (pp. 14–19)</li>
 </ul>
-<p>The old site's offline design is still useful because it avoids depending on network availability, but the PDF permits specific online references and personal GitHub repositories. The rebuild should state the actual rule rather than claim all internet use is forbidden.</p>
 </main>
-  <footer><div class="wrap"><a href="EVENT_SOURCES.md">Markdown source</a></div></footer>
 </body>
 </html>

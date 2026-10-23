@@ -10,8 +10,13 @@ Read Audacity's [Spectrogram View](https://manual.audacityteam.org/man/spectrogr
 4. Compare transition boundaries near two, four and six seconds. Explain why the larger window separates frequencies better but makes abrupt changes less sharply localized in time. Do not confuse spectrogram color with a different encoding.
 5. Close the answer below and repeat. Your deliverable is a four-row time/frequency table and a statement of the resolution tradeoff.
 
-**Answer:** 0–2 s: 440 Hz; 2–4 s: 460 Hz; 4–6 s: both; 6–8 s: silence. At 8 kHz, the nominal FFT-bin spacing is 31.25 Hz for a 256-sample window and about 3.91 Hz for 2048 samples. Their window spans are 32 ms and 256 ms. Bin spacing alone does not guarantee two-tone separation: window shape, signal duration and strength also matter. Display estimates need not equal the generated frequencies exactly.
+<details>
+<summary>Check your answer</summary>
+
+0–2 s: 440 Hz; 2–4 s: 460 Hz; 4–6 s: both; 6–8 s: silence. At 8 kHz, the nominal FFT-bin spacing is 31.25 Hz for a 256-sample window and about 3.91 Hz for 2048 samples. Their window spans are 32 ms and 256 ms. Bin spacing alone does not guarantee two-tone separation: window shape, signal duration and strength also matter. Display estimates need not equal the generated frequencies exactly.
+
+</details>
 
 **Paper route:** Given the frequencies and sampling rate, calculate both bin spacings and time spans. Choose the larger window to investigate tones 20 Hz apart; choose the smaller window when timing a short click matters more. Explain one reason a blank display would be an inconclusive result.
 
-The WAV structure and its four frequency regions were independently checked from the actual samples; results are in [audio-check.json](audio-check.json). Audacity GUI operation was not tested. This exercises spectral inspection, not every audio encoding or SSTV decoding method.
+The WAV structure and frequencies were checked from its samples; Audacity GUI operation remains untested. This exercises spectral inspection, not every audio encoding or SSTV decoding method.
