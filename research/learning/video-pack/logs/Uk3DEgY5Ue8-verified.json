@@ -1,0 +1,20 @@
+{
+  "rank": 6,
+  "video_id": "Uk3DEgY5Ue8",
+  "file": "videos/06_Volatility3_Uk3DEgY5Ue8.mp4",
+  "bytes": 116238629,
+  "sha256": "8e3b0d2d9603127d5a8cf84ae87514910a54f2b0c9b7648f567a5b0483c8922b",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "und",
+  "duration_seconds": 1919.94195,
+  "sample_decode_seconds": [
+    1,
+    959.97,
+    1916.94
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/06_Volatility3_Uk3DEgY5Ue8.en.vtt"
+}

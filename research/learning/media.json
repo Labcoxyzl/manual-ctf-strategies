@@ -1,0 +1,314 @@
+{
+  "resources": [
+    {
+      "id": "media-1",
+      "title": "zsteg: detection and extraction examples",
+      "url": "https://github.com/zed-0xff/zsteg",
+      "type": "read",
+      "publisher": "zed-0xff",
+      "tool_ids": [
+        "windows-12"
+      ],
+      "learn": "Refresh PNG/BMP LSB scanning, channel/bit-order selection, and extracting a specific candidate with -E. Read Usage and Examples; distinguish candidate signatures from validated payloads.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "verification": "2026-10-22: Read upstream README usage and worked examples through Exa. No commands executed."
+    },
+    {
+      "id": "media-2",
+      "title": "Binwalk v3: embedded-file identification",
+      "url": "https://github.com/ReFirmLabs/binwalk",
+      "type": "read",
+      "publisher": "ReFirmLabs",
+      "tool_ids": [
+        "windows-13"
+      ],
+      "learn": "Refresh what signature scanning, extraction and entropy can tell you. Read the short README, then use installed --help for extraction options; avoid copying v2 recipes blindly.",
+      "priority": "core",
+      "study_minutes": 15,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Extraction also depends on locally installed helper programs.",
+      "verification": "2026-10-22: Read upstream README; current source is Rust-based v3. Workbook says Latest, so installed major version is unresolved. Guessed wiki/Usage URL did not contain usable documentation and was rejected."
+    },
+    {
+      "id": "media-3",
+      "title": "ExifTool: application documentation and reading examples",
+      "url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES",
+      "type": "read",
+      "publisher": "Phil Harvey / ExifTool",
+      "tool_ids": [
+        "windows-14"
+      ],
+      "learn": "Refresh metadata reading syntax and the distinction between reading and assignment-based writing; skim Reading Examples and retain a local copy for tag lookup.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "verification": "2026-10-22: Fetched official application documentation introduction and syntax; not the entire large reference. The interactive examples page was too thin to recommend."
+    },
+    {
+      "id": "media-4",
+      "title": "Stegseek: wordlist mode, seed mode and steghide compatibility",
+      "url": "https://github.com/RickdeJager/stegseek",
+      "type": "read",
+      "publisher": "Rick de Jager",
+      "tool_ids": [
+        "kali-135",
+        "kali-134"
+      ],
+      "learn": "Refresh wordlist extraction versus seed detection. Seed mode can recover an unencrypted payload; it does not generally bypass encryption. Compare steghide command syntax with stegseek --command syntax.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Save any intended wordlist beforehand; no wordlist or binaries downloaded here.",
+      "verification": "2026-10-22: Read upstream Using Stegseek, seed-mode limitations, help and compatibility sections. README documents 0.6; no performance promises adopted."
+    },
+    {
+      "id": "media-5",
+      "title": "Audacity: Spectrogram View",
+      "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "type": "read",
+      "publisher": "Audacity",
+      "tool_ids": [
+        "kali-10"
+      ],
+      "learn": "Refresh switching from waveform to spectrogram, frequency limits, gain/range, and window size. Understand the time-versus-frequency resolution tradeoff before interpreting a blank or blurred image.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "verification": "2026-10-22: Read official view, settings and resolution-tradeoff sections. Installed Audacity version is unspecified; menus may differ."
+    },
+    {
+      "id": "media-6",
+      "title": "FFmpeg: stream selection and streamcopy",
+      "url": "https://ffmpeg.org/ffmpeg.html",
+      "type": "read",
+      "publisher": "FFmpeg project",
+      "tool_ids": [
+        "kali-40"
+      ],
+      "learn": "Skim Description, Streamcopy and Stream selection. Refresh input/output option ordering and explicit -map selection so an audio or secondary stream is not missed during media extraction.",
+      "priority": "next",
+      "study_minutes": 30,
+      "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Check available codecs and installed help before departure.",
+      "verification": "2026-10-22: Read official synopsis, description, option scope and pipeline sections via Exa. This is a targeted reading assignment, not a claim that every example was tested."
+    },
+    {
+      "id": "media-7",
+      "title": "AperiSolve: local deployment and analyzer overview",
+      "url": "https://github.com/Zeecka/AperiSolve",
+      "type": "read",
+      "publisher": "Zeecka",
+      "tool_ids": [
+        "kali-7"
+      ],
+      "learn": "Recognize which individual tools and bit-layer views the platform combines. Read Key features and Quick start to understand local operation; direct tools remain useful when a deployment is unavailable.",
+      "priority": "reference",
+      "study_minutes": 15,
+      "offline": "Save README. Offline use requires an already working local deployment and dependencies; a git checkout alone is insufficient. Never upload event challenge files to the public service.",
+      "verification": "2026-10-22: Read upstream README including Docker Compose and localhost:5000. Current upstream lists analyzers beyond the assigned approved rows; this is not approval for those standalone tools. Organiser deployment not checked."
+    },
+    {
+      "id": "media-8",
+      "title": "MORSE CODE Steganography (2/2) BsidesCT CTF 2018",
+      "url": "https://www.youtube.com/watch?v=pJYyyz6HPbQ",
+      "type": "watch",
+      "publisher": "John Hammond",
+      "tool_ids": [
+        "kali-128",
+        "windows-14"
+      ],
+      "learn": "Watch an audio investigation using Sonic Visualiser and ExifTool to distinguish tone timing from other encodings; note how metadata redirects the investigation. Skim the later encoding detour if familiar.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Use YouTube-supported offline saving where available and test playback before flying. The walkthrough uses online decoders: retain the reasoning, but do not copy challenge-file uploads at this event.",
+      "verification": "2026-10-22: Inspected creator video metadata and full retrieved transcript via Exa, not playback. Transcript explicitly names Sonic Visualiser and ExifTool and includes online upload steps. Published 2018-11-06; historical UI."
+    },
+    {
+      "id": "media-9",
+      "title": "i hacked this photo \u2014 steghide refresher",
+      "url": "https://www.youtube.com/watch?v=sLkdtjJc6mc",
+      "type": "watch",
+      "publisher": "NetworkChuck",
+      "tool_ids": [
+        "kali-134"
+      ],
+      "learn": "Optional quick visual refresher for embedding and extracting a file with steghide. Archived chapter metadata places the relevant demonstration near 1:41\u20133:19; skip sponsorship and unrelated malware material.",
+      "priority": "next",
+      "study_minutes": 10,
+      "offline": "Use YouTube-supported offline saving where available and test playback. Existing approved steghide installation is enough for studying the basic workflow.",
+      "verification": "2026-10-22: YouTube oEmbed directly confirmed current title i hacked this photo and creator NetworkChuck. Main page fetch yielded no content. Archived creator-description metadata at https://archive.ventilaar.net/channel/UC9x0AN7BWHpCDHSm9NiJFJQ supplies old title how hackers hide stuff in photos and chapters. Metadata-only recommendation: neither video playback nor transcript inspected."
+    }
+  ],
+  "coverage": [
+    {
+      "tool_id": "windows-12",
+      "disposition": "core",
+      "resource_ids": [
+        "media-1"
+      ],
+      "reason": "Use the curated resource(s) for Inspect PNG/BMP hidden data."
+    },
+    {
+      "tool_id": "windows-13",
+      "disposition": "core",
+      "resource_ids": [
+        "media-2"
+      ],
+      "reason": "Use the curated resource(s) for Locate embedded files; verify installed major version."
+    },
+    {
+      "tool_id": "windows-14",
+      "disposition": "core",
+      "resource_ids": [
+        "media-3",
+        "media-8"
+      ],
+      "reason": "Use the curated resource(s) for Read file metadata."
+    },
+    {
+      "tool_id": "windows-19",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Decode barcodes locally. Existing reference: https://github.com/mchehab/zbar. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "windows-28",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Convert hex dumps. Existing reference: https://github.com/vim/vim/blob/master/runtime/doc/xxd.1. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-7",
+      "disposition": "reference",
+      "resource_ids": [
+        "media-7"
+      ],
+      "reason": "Use the curated resource(s) for Understand local image-analysis deployment."
+    },
+    {
+      "tool_id": "kali-10",
+      "disposition": "core",
+      "resource_ids": [
+        "media-5"
+      ],
+      "reason": "Use the curated resource(s) for Inspect audio frequency content."
+    },
+    {
+      "tool_id": "kali-40",
+      "disposition": "next",
+      "resource_ids": [
+        "media-6"
+      ],
+      "reason": "Use the curated resource(s) for Extract frames or audio from media."
+    },
+    {
+      "tool_id": "kali-42",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Identify unknown file formats. Existing reference: https://github.com/file/file. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-44",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Carve files from raw evidence. Existing reference: https://www.kali.org/tools/foremost/. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-51",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Inspect image channels and contrast. Existing reference: https://gmic.eu/reference/. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-67",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Inspect image channels and properties. Existing reference: https://imagemagick.org/command-line-processing/. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-74",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Check JPEG structure and integrity. Existing reference: https://github.com/tjko/jpeginfo. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-87",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Inspect media container and codec information. Existing reference: https://mediaarea.net/en/MediaInfo. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-100",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Extract data hidden using OpenStego. Existing reference: https://www.openstego.com/. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-108",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Inspect PNG structure and integrity. Existing reference: https://github.com/pnggroup/pngcheck. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-128",
+      "disposition": "next",
+      "resource_ids": [
+        "media-8"
+      ],
+      "reason": "Use the curated resource(s) for Inspect audio with spectrogram layers."
+    },
+    {
+      "tool_id": "kali-129",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Generate audio spectrograms with the workbook-reported SoX_ng build; confirm local command options. Existing reference: https://codeberg.org/sox_ng/sox_ng. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-133",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Decode SSTV audio; installed identity uncertain because workbook location lists the PySSTV encoder. Existing reference: https://github.com/colaclanth/sstv. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-134",
+      "disposition": "core",
+      "resource_ids": [
+        "media-4",
+        "media-9"
+      ],
+      "reason": "Use the curated resource(s) for Inspect and extract a steghide carrier."
+    },
+    {
+      "tool_id": "kali-135",
+      "disposition": "core",
+      "resource_ids": [
+        "media-4"
+      ],
+      "reason": "Use the curated resource(s) for Recover data from steghide carriers."
+    },
+    {
+      "tool_id": "kali-136",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Decode whitespace-based hidden data. Existing reference: https://www.darkside.com.au/snow/. Not freshly verified in this research pass."
+    },
+    {
+      "tool_id": "kali-137",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as task-driven lookup rather than add another flight lesson: Inspect image bit planes; installed StegSolve version and fork are unknown. Existing reference: https://github.com/Giotino/stegsolve. Not freshly verified in this research pass."
+    }
+  ],
+  "caveats": [
+    "Study minutes are estimates including skimming and notes, not video runtimes. Videos were not watched; verification distinguishes transcript inspection from metadata only.",
+    "Kali approval is best-effort availability, not a guarantee tools work. No installed version or offline execution was tested.",
+    "AperiSolve must run locally for event challenge files; no public upload. Tutorials may mention unapproved tools or online services; those are not added to the approved list.",
+    "SSTV row kali-133 names a decoder but location says PySSTV, an encoder; verify the actual installed package before relying on decoding.",
+    "SoX row kali-129 is a SoX_ng build; StegSolve fork/version is unknown; current pngcheck docs may describe a newer version. Keep these as references pending local checks.",
+    "No practice challenge assets, portal content, binaries or videos were downloaded."
+  ],
+  "search_notes": [
+    "Used Exa fetch for upstream documentation and creator transcript inspection. Initial three Exa searches stalled, so targeted web search located creator videos; direct Exa fetch and YouTube oEmbed then checked candidates.",
+    "Prioritized command refreshers and two short visual options over broad steganography courses. All 23 assigned workbook rows receive a disposition; niche utilities keep the manifest references.",
+    "Rejected generic channel links, random tool-list mirrors, a thin ExifTool interactive example page and a non-existent Binwalk wiki/Usage page. The NetworkChuck item is deliberately lower-confidence metadata-only and optional."
+  ]
+}

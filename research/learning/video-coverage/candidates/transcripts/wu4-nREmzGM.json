@@ -1,0 +1,2531 @@
+{
+  "id": "wu4-nREmzGM",
+  "duration_seconds": 1619,
+  "caption_sha256": "fec1dd814e283edf4896fa10c240b47f90f4bb1709d574edacadf84beb068bb4",
+  "entries": [
+    {
+      "seconds": 9,
+      "text": "hello everyone and welcome back to"
+    },
+    {
+      "seconds": 9,
+      "text": "another video and the introduction to"
+    },
+    {
+      "seconds": 11,
+      "text": "Windows forensics series this time we're"
+    },
+    {
+      "seconds": 14,
+      "text": "going to take a look at the ubiquitous"
+    },
+    {
+      "seconds": 15,
+      "text": "lnk or link file as well as a"
+    },
+    {
+      "seconds": 18,
+      "text": "lesser-known Windows feature called"
+    },
+    {
+      "seconds": 21,
+      "text": "jump lists so I'm guessing you're"
+    },
+    {
+      "seconds": 23,
+      "text": "already familiar with the former as link"
+    },
+    {
+      "seconds": 25,
+      "text": "files or Windows shortcut files have"
+    },
+    {
+      "seconds": 28,
+      "text": "been used in the Windows operating"
+    },
+    {
+      "seconds": 29,
+      "text": "system for a very long time a link file"
+    },
+    {
+      "seconds": 32,
+      "text": "is simply a metadata resource used by"
+    },
+    {
+      "seconds": 35,
+      "text": "the windows shell on the screen you'll"
+    },
+    {
+      "seconds": 38,
+      "text": "see an article from the forensics wiki"
+    },
+    {
+      "seconds": 40,
+      "text": "that provides a nice high-level overview"
+    },
+    {
+      "seconds": 41,
+      "text": "of this particular artifact including"
+    },
+    {
+      "seconds": 44,
+      "text": "information about the file format and"
+    },
+    {
+      "seconds": 45,
+      "text": "the metadata associated with it"
+    },
+    {
+      "seconds": 48,
+      "text": "it also mentions the file signature or"
+    },
+    {
+      "seconds": 50,
+      "text": "magic number for LNK files which is 0x"
+    },
+    {
+      "seconds": 53,
+      "text": "for C or for C zero zero zero zero zero"
+    },
+    {
+      "seconds": 58,
+      "text": "zero this is useful if we want to carve"
+    },
+    {
+      "seconds": 60,
+      "text": "for lnk files which we often do so"
+    },
+    {
+      "seconds": 65,
+      "text": "chances are you've manually created a"
+    },
+    {
+      "seconds": 67,
+      "text": "shortcut at some point to a program or"
+    },
+    {
+      "seconds": 69,
+      "text": "document and of course it should come as"
+    },
+    {
+      "seconds": 71,
+      "text": "no surprise that when you do that you're"
+    },
+    {
+      "seconds": 72,
+      "text": "creating an lnk file but did you know"
+    },
+    {
+      "seconds": 75,
+      "text": "that Windows also automatically creates"
+    },
+    {
+      "seconds": 77,
+      "text": "these files on a very frequent basis for"
+    },
+    {
+      "seconds": 80,
+      "text": "example when you open a document be it"
+    },
+    {
+      "seconds": 82,
+      "text": "local or remote a link file is"
+    },
+    {
+      "seconds": 84,
+      "text": "automatically created in fact link files"
+    },
+    {
+      "seconds": 86,
+      "text": "are also automatically created under"
+    },
+    {
+      "seconds": 88,
+      "text": "numerous other circumstances now you"
+    },
+    {
+      "seconds": 91,
+      "text": "might assume that there wouldn't be much"
+    },
+    {
+      "seconds": 93,
+      "text": "forensic value in a simple shortcut file"
+    },
+    {
+      "seconds": 95,
+      "text": "but you may be surprised to learn that"
+    },
+    {
+      "seconds": 98,
+      "text": "within those files an investigator can"
+    },
+    {
+      "seconds": 100,
+      "text": "expect to find the following items of"
+    },
+    {
+      "seconds": 102,
+      "text": "interest the original path of the target"
+    },
+    {
+      "seconds": 106,
+      "text": "file the timestamps associated with the"
+    },
+    {
+      "seconds": 109,
+      "text": "target file as well as for the link file"
+    },
+    {
+      "seconds": 112,
+      "text": "itself the size of the target file the"
+    },
+    {
+      "seconds": 117,
+      "text": "attributes associated with the target"
+    },
+    {
+      "seconds": 119,
+      "text": "file for example read-only hidden system"
+    },
+    {
+      "seconds": 122,
+      "text": "etc the system name volume name and"
+    },
+    {
+      "seconds": 126,
+      "text": "volume serial number and sometimes even"
+    },
+    {
+      "seconds": 129,
+      "text": "the MAC address yes the MAC address of"
+    },
+    {
+      "seconds": 132,
+      "text": "the system on which the link file is"
+    },
+    {
+      "seconds": 134,
+      "text": "present and information indicative of"
+    },
+    {
+      "seconds": 137,
+      "text": "whether or not the target resource is"
+    },
+    {
+      "seconds": 139,
+      "text": "local"
+    },
+    {
+      "seconds": 140,
+      "text": "we're located on a remote computer"
+    },
+    {
+      "seconds": 143,
+      "text": "additionally the creation time of the"
+    },
+    {
+      "seconds": 145,
+      "text": "link file itself will usually indicate"
+    },
+    {
+      "seconds": 149,
+      "text": "the date and time that the target file"
+    },
+    {
+      "seconds": 151,
+      "text": "was first opened and the modification"
+    },
+    {
+      "seconds": 154,
+      "text": "time will usually indicate the date and"
+    },
+    {
+      "seconds": 157,
+      "text": "time that the target file was last"
+    },
+    {
+      "seconds": 159,
+      "text": "opened also remember that even if a file"
+    },
+    {
+      "seconds": 163,
+      "text": "has been deleted or even securely"
+    },
+    {
+      "seconds": 165,
+      "text": "deleted a link file pointing to that"
+    },
+    {
+      "seconds": 167,
+      "text": "resource may still be present on the"
+    },
+    {
+      "seconds": 169,
+      "text": "system and parsing that would give us"
+    },
+    {
+      "seconds": 172,
+      "text": "all of this information about that file"
+    },
+    {
+      "seconds": 173,
+      "text": "even though the file itself may no"
+    },
+    {
+      "seconds": 175,
+      "text": "longer be present the next article I'll"
+    },
+    {
+      "seconds": 179,
+      "text": "show you is from magnet forensics it's"
+    },
+    {
+      "seconds": 181,
+      "text": "entitled forensic analysis of L&K files"
+    },
+    {
+      "seconds": 184,
+      "text": "and it goes into a little bit more depth"
+    },
+    {
+      "seconds": 186,
+      "text": "on this particular artifact I'll include"
+    },
+    {
+      "seconds": 188,
+      "text": "a link to this in the video's"
+    },
+    {
+      "seconds": 189,
+      "text": "description as well and I would highly"
+    },
+    {
+      "seconds": 191,
+      "text": "suggest that you review it next we're"
+    },
+    {
+      "seconds": 195,
+      "text": "going to talk about jump lists so jump"
+    },
+    {
+      "seconds": 200,
+      "text": "lists were introduced with Windows 7"
+    },
+    {
+      "seconds": 202,
+      "text": "have you ever right clicked on a program"
+    },
+    {
+      "seconds": 205,
+      "text": "in the windows taskbar and seen a"
+    },
+    {
+      "seconds": 207,
+      "text": "contextual menu that pops up in fact it"
+    },
+    {
+      "seconds": 209,
+      "text": "looks just like this"
+    },
+    {
+      "seconds": 211,
+      "text": "this is a jump list it was designed to"
+    },
+    {
+      "seconds": 215,
+      "text": "provide users with an easy way to access"
+    },
+    {
+      "seconds": 216,
+      "text": "recent documents associated with a"
+    },
+    {
+      "seconds": 219,
+      "text": "particular program as well as common"
+    },
+    {
+      "seconds": 222,
+      "text": "tasks associated with that application"
+    },
+    {
+      "seconds": 223,
+      "text": "so it turns out that there's two primary"
+    },
+    {
+      "seconds": 227,
+      "text": "flavors if you will of jump lists used"
+    },
+    {
+      "seconds": 231,
+      "text": "by the operating system one is called"
+    },
+    {
+      "seconds": 232,
+      "text": "automatic destinations the other custom"
+    },
+    {
+      "seconds": 235,
+      "text": "destinations now this all happens behind"
+    },
+    {
+      "seconds": 238,
+      "text": "the scenes and this kind of data is not"
+    },
+    {
+      "seconds": 240,
+      "text": "directly presented to the user but these"
+    },
+    {
+      "seconds": 243,
+      "text": "two flavors of jump lists are stored in"
+    },
+    {
+      "seconds": 246,
+      "text": "files with extensions of dot automatic"
+    },
+    {
+      "seconds": 249,
+      "text": "destinations - MS and dot custom"
+    },
+    {
+      "seconds": 253,
+      "text": "destinations - MS respectively"
+    },
+    {
+      "seconds": 256,
+      "text": "the former contains jump lists features"
+    },
+    {
+      "seconds": 258,
+      "text": "provided by the windows API that are"
+    },
+    {
+      "seconds": 261,
+      "text": "common across all applications whereas"
+    },
+    {
+      "seconds": 263,
+      "text": "the latter custom destinations provides"
+    },
+    {
+      "seconds": 266,
+      "text": "applications specific features that can"
+    },
+    {
+      "seconds": 268,
+      "text": "vary depending on how the developer of a"
+    },
+    {
+      "seconds": 270,
+      "text": "given application has chosen to"
+    },
+    {
+      "seconds": 272,
+      "text": "implement"
+    },
+    {
+      "seconds": 273,
+      "text": "so as you might imagine most of the time"
+    },
+    {
+      "seconds": 276,
+      "text": "we're going to focus our investigation"
+    },
+    {
+      "seconds": 278,
+      "text": "on the automatic destinations jump lists"
+    },
+    {
+      "seconds": 280,
+      "text": "but you need to be familiar with both"
+    },
+    {
+      "seconds": 282,
+      "text": "and know how to parse both automatic"
+    },
+    {
+      "seconds": 285,
+      "text": "destinations are actually object linking"
+    },
+    {
+      "seconds": 287,
+      "text": "and embedding oh le compound files CF"
+    },
+    {
+      "seconds": 291,
+      "text": "which is collectively referred to as Oh"
+    },
+    {
+      "seconds": 294,
+      "text": "le CF this is a proprietary technology"
+    },
+    {
+      "seconds": 297,
+      "text": "developed by Microsoft that allows"
+    },
+    {
+      "seconds": 299,
+      "text": "multiple data streams to be stored in a"
+    },
+    {
+      "seconds": 302,
+      "text": "single file this is also referred to as"
+    },
+    {
+      "seconds": 306,
+      "text": "a compound binary file and they're used"
+    },
+    {
+      "seconds": 309,
+      "text": "extensively within Microsoft Office"
+    },
+    {
+      "seconds": 311,
+      "text": "documents so basically think about a"
+    },
+    {
+      "seconds": 314,
+      "text": "file that contains multiple files within"
+    },
+    {
+      "seconds": 316,
+      "text": "it in the case of automatic destinations"
+    },
+    {
+      "seconds": 320,
+      "text": "jump lists each stream is actually its"
+    },
+    {
+      "seconds": 323,
+      "text": "own linked file which means that if we"
+    },
+    {
+      "seconds": 325,
+      "text": "extract the streams we can parse the"
+    },
+    {
+      "seconds": 328,
+      "text": "linked files like we would a normal link"
+    },
+    {
+      "seconds": 330,
+      "text": "file but the custom destination link"
+    },
+    {
+      "seconds": 333,
+      "text": "files however are different they're"
+    },
+    {
+      "seconds": 336,
+      "text": "usually created when a user pins a"
+    },
+    {
+      "seconds": 338,
+      "text": "particular program to the taskbar or"
+    },
+    {
+      "seconds": 340,
+      "text": "Start menu they are not in oh le CF"
+    },
+    {
+      "seconds": 343,
+      "text": "format and do not contain strings they"
+    },
+    {
+      "seconds": 347,
+      "text": "instead contain the shell link"
+    },
+    {
+      "seconds": 349,
+      "text": "structures the link file structures in a"
+    },
+    {
+      "seconds": 351,
+      "text": "sequential format one right after the"
+    },
+    {
+      "seconds": 354,
+      "text": "other kind of smushed together in a"
+    },
+    {
+      "seconds": 356,
+      "text": "single file we can actually use a file"
+    },
+    {
+      "seconds": 359,
+      "text": "carving utility to carve out the link"
+    },
+    {
+      "seconds": 361,
+      "text": "file data from a dot custom destination"
+    },
+    {
+      "seconds": 364,
+      "text": "stash ms file alternatively we could"
+    },
+    {
+      "seconds": 366,
+      "text": "also use the hex editor to examine those"
+    },
+    {
+      "seconds": 368,
+      "text": "files as well now like all the other"
+    },
+    {
+      "seconds": 371,
+      "text": "windows features we've looked at in"
+    },
+    {
+      "seconds": 372,
+      "text": "previous videos both link files and jump"
+    },
+    {
+      "seconds": 376,
+      "text": "lists were not included in the OS to aid"
+    },
+    {
+      "seconds": 378,
+      "text": "forensic investigators but we're sure"
+    },
+    {
+      "seconds": 381,
+      "text": "gonna take advantage of them because"
+    },
+    {
+      "seconds": 382,
+      "text": "there's a wealth of forensic data"
+    },
+    {
+      "seconds": 383,
+      "text": "associated with them so next we're going"
+    },
+    {
+      "seconds": 387,
+      "text": "to switch over to our Windows 10"
+    },
+    {
+      "seconds": 388,
+      "text": "analysis VM and we're going to take a"
+    },
+    {
+      "seconds": 390,
+      "text": "look at where in the operating system we"
+    },
+    {
+      "seconds": 392,
+      "text": "can find these artifacts and then we'll"
+    },
+    {
+      "seconds": 395,
+      "text": "look at the various tools available to"
+    },
+    {
+      "seconds": 397,
+      "text": "us to parse them so let's get started"
+    },
+    {
+      "seconds": 406,
+      "text": "okay so the first question we need to"
+    },
+    {
+      "seconds": 406,
+      "text": "answer is where should we look to find"
+    },
+    {
+      "seconds": 408,
+      "text": "these artifacts where will we look to"
+    },
+    {
+      "seconds": 411,
+      "text": "find link files and jump lists well as"
+    },
+    {
+      "seconds": 414,
+      "text": "you might imagine link files are"
+    },
+    {
+      "seconds": 415,
+      "text": "scattered throughout the windows file"
+    },
+    {
+      "seconds": 417,
+      "text": "system and can be located in any number"
+    },
+    {
+      "seconds": 419,
+      "text": "of places in fact it's not uncommon to"
+    },
+    {
+      "seconds": 421,
+      "text": "use a tool like ftk imager to create a"
+    },
+    {
+      "seconds": 423,
+      "text": "custom content image to grab star LNK"
+    },
+    {
+      "seconds": 426,
+      "text": "from a drive so that we would have all"
+    },
+    {
+      "seconds": 428,
+      "text": "the link files available to us to"
+    },
+    {
+      "seconds": 430,
+      "text": "forensic 8 that said most of the data"
+    },
+    {
+      "seconds": 433,
+      "text": "that we're going to be interested in is"
+    },
+    {
+      "seconds": 434,
+      "text": "going to be located in one of two"
+    },
+    {
+      "seconds": 436,
+      "text": "different places I'm currently in users"
+    },
+    {
+      "seconds": 439,
+      "text": "my username app data and in this path we"
+    },
+    {
+      "seconds": 443,
+      "text": "see the three folders we would expect to"
+    },
+    {
+      "seconds": 445,
+      "text": "find underneath app data local local low"
+    },
+    {
+      "seconds": 448,
+      "text": "and roaming as a quick refresher and the"
+    },
+    {
+      "seconds": 451,
+      "text": "windows xp days we had documents and"
+    },
+    {
+      "seconds": 454,
+      "text": "settings our user profiles were stored"
+    },
+    {
+      "seconds": 456,
+      "text": "underneath that location and then"
+    },
+    {
+      "seconds": 458,
+      "text": "underneath the user profile we had local"
+    },
+    {
+      "seconds": 460,
+      "text": "settings and application data now we"
+    },
+    {
+      "seconds": 463,
+      "text": "have users the user profile and"
+    },
+    {
+      "seconds": 466,
+      "text": "underneath that app data local app data"
+    },
+    {
+      "seconds": 469,
+      "text": "roaming and app data local low app data"
+    },
+    {
+      "seconds": 472,
+      "text": "local maps to what was local settings in"
+    },
+    {
+      "seconds": 475,
+      "text": "Windows XP app data roaming maps to what"
+    },
+    {
+      "seconds": 479,
+      "text": "was application data in Windows XP and"
+    },
+    {
+      "seconds": 482,
+      "text": "AppData local low has no equivalent in"
+    },
+    {
+      "seconds": 485,
+      "text": "Windows XP local low by the way is a"
+    },
+    {
+      "seconds": 489,
+      "text": "place where low integrity processes can"
+    },
+    {
+      "seconds": 491,
+      "text": "store data things like Internet Explorer"
+    },
+    {
+      "seconds": 494,
+      "text": "are running in protected mode we're"
+    },
+    {
+      "seconds": 496,
+      "text": "going to be interested in roaming"
+    },
+    {
+      "seconds": 499,
+      "text": "Microsoft Windows and recent you'll"
+    },
+    {
+      "seconds": 504,
+      "text": "notice it says recent items in Explorer"
+    },
+    {
+      "seconds": 507,
+      "text": "but the actual path as you can see here"
+    },
+    {
+      "seconds": 509,
+      "text": "is recent so again the full path is"
+    },
+    {
+      "seconds": 511,
+      "text": "users username app data roaming"
+    },
+    {
+      "seconds": 514,
+      "text": "Microsoft Windows recent and in this"
+    },
+    {
+      "seconds": 517,
+      "text": "location you'll see 38 items which at"
+    },
+    {
+      "seconds": 520,
+      "text": "first glance appear to be a combination"
+    },
+    {
+      "seconds": 522,
+      "text": "of JPEGs and Excel files and zip files"
+    },
+    {
+      "seconds": 525,
+      "text": "however they're all of type shortcut and"
+    },
+    {
+      "seconds": 528,
+      "text": "they're all about 1k in size if we spin"
+    },
+    {
+      "seconds": 532,
+      "text": "up a command prompt here and take a"
+    },
+    {
+      "seconds": 533,
+      "text": "closer look you'll notice they're all"
+    },
+    {
+      "seconds": 536,
+      "text": "L&K files"
+    },
+    {
+      "seconds": 537,
+      "text": "and for example we've got capture dot"
+    },
+    {
+      "seconds": 539,
+      "text": "PNG here which is actually captured PNG"
+    },
+    {
+      "seconds": 542,
+      "text": "LNK now with Windows 10 the actual"
+    },
+    {
+      "seconds": 547,
+      "text": "extension of the target file name is"
+    },
+    {
+      "seconds": 549,
+      "text": "included in the name of the link file"
+    },
+    {
+      "seconds": 551,
+      "text": "prior to Windows 10 this file for"
+    },
+    {
+      "seconds": 554,
+      "text": "example would have been captured lnk but"
+    },
+    {
+      "seconds": 557,
+      "text": "now it's captured P&G Ln case so again"
+    },
+    {
+      "seconds": 560,
+      "text": "the extension is included in the name of"
+    },
+    {
+      "seconds": 563,
+      "text": "the link file so that's an important"
+    },
+    {
+      "seconds": 566,
+      "text": "change starting with Windows 10 now what"
+    },
+    {
+      "seconds": 570,
+      "text": "about the other location that we would"
+    },
+    {
+      "seconds": 571,
+      "text": "find link files I mentioned there are"
+    },
+    {
+      "seconds": 572,
+      "text": "two primary locations well the other is"
+    },
+    {
+      "seconds": 575,
+      "text": "under Microsoft Office recent and again"
+    },
+    {
+      "seconds": 579,
+      "text": "that full path is users username app"
+    },
+    {
+      "seconds": 581,
+      "text": "data roaming Microsoft Office recent so"
+    },
+    {
+      "seconds": 587,
+      "text": "you'll certainly want to grab the files"
+    },
+    {
+      "seconds": 588,
+      "text": "located here as they would pertain to"
+    },
+    {
+      "seconds": 590,
+      "text": "Microsoft Office products so again those"
+    },
+    {
+      "seconds": 593,
+      "text": "are the two primary locations that we"
+    },
+    {
+      "seconds": 596,
+      "text": "would want to forensic 8 to find most of"
+    },
+    {
+      "seconds": 597,
+      "text": "our link file evidence so what about"
+    },
+    {
+      "seconds": 600,
+      "text": "jump lists well it turns out that jump"
+    },
+    {
+      "seconds": 604,
+      "text": "lists are back in the original path that"
+    },
+    {
+      "seconds": 606,
+      "text": "we took a look at under users username"
+    },
+    {
+      "seconds": 608,
+      "text": "app data roaming Microsoft Windows"
+    },
+    {
+      "seconds": 610,
+      "text": "recent there are actually a couple of"
+    },
+    {
+      "seconds": 612,
+      "text": "folders that you don't see in Windows"
+    },
+    {
+      "seconds": 614,
+      "text": "Explorer in fact you'll see them here"
+    },
+    {
+      "seconds": 616,
+      "text": "we've got automatic destinations and"
+    },
+    {
+      "seconds": 619,
+      "text": "custom destinations even if we turned on"
+    },
+    {
+      "seconds": 622,
+      "text": "hidden in system files and Explorer in"
+    },
+    {
+      "seconds": 625,
+      "text": "my experience these don't show up so if"
+    },
+    {
+      "seconds": 629,
+      "text": "I run dir slash ad just to show"
+    },
+    {
+      "seconds": 631,
+      "text": "directories again here they are and"
+    },
+    {
+      "seconds": 633,
+      "text": "within automatic destinations will see"
+    },
+    {
+      "seconds": 636,
+      "text": "the dot automatic destinations - MS"
+    },
+    {
+      "seconds": 639,
+      "text": "Files that we covered in the previous"
+    },
+    {
+      "seconds": 640,
+      "text": "section and under custom destinations"
+    },
+    {
+      "seconds": 643,
+      "text": "we'll see the dot custom destinations -"
+    },
+    {
+      "seconds": 645,
+      "text": "MS Files so next let's spin up a bash"
+    },
+    {
+      "seconds": 650,
+      "text": "prompt and take a closer look now for"
+    },
+    {
+      "seconds": 653,
+      "text": "those of you that have watched my"
+    },
+    {
+      "seconds": 654,
+      "text": "previous videos you know I am a Linux"
+    },
+    {
+      "seconds": 656,
+      "text": "UNIX Mac geek so bash for Windows I"
+    },
+    {
+      "seconds": 660,
+      "text": "think is an awesome feature especially"
+    },
+    {
+      "seconds": 662,
+      "text": "for forensic investigators so I would"
+    },
+    {
+      "seconds": 663,
+      "text": "highly recommend you check that out if"
+    },
+    {
+      "seconds": 665,
+      "text": "you haven't already so I'm in the same"
+    },
+    {
+      "seconds": 667,
+      "text": "path and I'm going to run file against"
+    },
+    {
+      "seconds": 669,
+      "text": "one of these"
+    },
+    {
+      "seconds": 671,
+      "text": "and when I do you'll notice it does find"
+    },
+    {
+      "seconds": 673,
+      "text": "the shell link header and it identifies"
+    },
+    {
+      "seconds": 675,
+      "text": "this as an MS Windows shortcut which is"
+    },
+    {
+      "seconds": 678,
+      "text": "exactly what we expect if I go into"
+    },
+    {
+      "seconds": 681,
+      "text": "automatic destinations and I pick one of"
+    },
+    {
+      "seconds": 684,
+      "text": "these files you'll notice it identifies"
+    },
+    {
+      "seconds": 687,
+      "text": "it as a composite document file v2 now"
+    },
+    {
+      "seconds": 691,
+      "text": "recall that automatic destinations are"
+    },
+    {
+      "seconds": 693,
+      "text": "actually object linking and embedding"
+    },
+    {
+      "seconds": 695,
+      "text": "compound files Oh le CF which is also"
+    },
+    {
+      "seconds": 698,
+      "text": "known as a compound binary file which is"
+    },
+    {
+      "seconds": 701,
+      "text": "also known as a composite document file"
+    },
+    {
+      "seconds": 703,
+      "text": "so this is the same thing so you'll"
+    },
+    {
+      "seconds": 706,
+      "text": "recall that these files have multiple"
+    },
+    {
+      "seconds": 708,
+      "text": "data streams stored in a single file now"
+    },
+    {
+      "seconds": 713,
+      "text": "let's take a look at custom destinations"
+    },
+    {
+      "seconds": 716,
+      "text": "and we'll run file against one of these"
+    },
+    {
+      "seconds": 719,
+      "text": "and you'll see it comes back and just"
+    },
+    {
+      "seconds": 721,
+      "text": "says data that's because custom"
+    },
+    {
+      "seconds": 724,
+      "text": "destination files are of course"
+    },
+    {
+      "seconds": 725,
+      "text": "different they are usually created when"
+    },
+    {
+      "seconds": 728,
+      "text": "a user pins a particular program to a"
+    },
+    {
+      "seconds": 729,
+      "text": "taskbar or Start menu but they are not"
+    },
+    {
+      "seconds": 732,
+      "text": "in oh le CF format they do not contain"
+    },
+    {
+      "seconds": 735,
+      "text": "streams and instead they contain the"
+    },
+    {
+      "seconds": 737,
+      "text": "shell link structures in a sequential"
+    },
+    {
+      "seconds": 739,
+      "text": "format with one stacked on top of"
+    },
+    {
+      "seconds": 741,
+      "text": "another all smushed together so that's"
+    },
+    {
+      "seconds": 743,
+      "text": "why this doesn't really identify it as"
+    },
+    {
+      "seconds": 745,
+      "text": "any specific type of file just data if"
+    },
+    {
+      "seconds": 748,
+      "text": "we used for most or some other type of"
+    },
+    {
+      "seconds": 750,
+      "text": "file carving utility we could actually"
+    },
+    {
+      "seconds": 752,
+      "text": "extract the link file data from these"
+    },
+    {
+      "seconds": 754,
+      "text": "files that's beyond the scope of this"
+    },
+    {
+      "seconds": 756,
+      "text": "video but it's something we might cover"
+    },
+    {
+      "seconds": 758,
+      "text": "in the future now the last thing I want"
+    },
+    {
+      "seconds": 761,
+      "text": "to show you before we move on to the"
+    },
+    {
+      "seconds": 763,
+      "text": "next section is a tool called exif tool"
+    },
+    {
+      "seconds": 765,
+      "text": "now you may be familiar with exif data"
+    },
+    {
+      "seconds": 768,
+      "text": "from JPEGs for example we could look at"
+    },
+    {
+      "seconds": 771,
+      "text": "exif data to find latitude and longitude"
+    },
+    {
+      "seconds": 773,
+      "text": "information present within pictures for"
+    },
+    {
+      "seconds": 775,
+      "text": "example now this tool can show us that"
+    },
+    {
+      "seconds": 777,
+      "text": "but it can also show us metadata"
+    },
+    {
+      "seconds": 779,
+      "text": "associated with a wide variety of files"
+    },
+    {
+      "seconds": 781,
+      "text": "so if I run EXIF tool without any"
+    },
+    {
+      "seconds": 784,
+      "text": "options just against capture PNG LNK"
+    },
+    {
+      "seconds": 787,
+      "text": "you'll see it comes back with a good bit"
+    },
+    {
+      "seconds": 789,
+      "text": "of data at the top we see information"
+    },
+    {
+      "seconds": 791,
+      "text": "pertaining to the link file itself"
+    },
+    {
+      "seconds": 793,
+      "text": "timestamps in the file size for the link"
+    },
+    {
+      "seconds": 795,
+      "text": "file but here we actually see some"
+    },
+    {
+      "seconds": 798,
+      "text": "interesting information about the target"
+    },
+    {
+      "seconds": 800,
+      "text": "the actual captured PNG file to which"
+    },
+    {
+      "seconds": 803,
+      "text": "the link file"
+    },
+    {
+      "seconds": 804,
+      "text": "pointing we see the attributes which"
+    },
+    {
+      "seconds": 807,
+      "text": "were just listed as archive or a we see"
+    },
+    {
+      "seconds": 809,
+      "text": "the timestamps associated with the"
+    },
+    {
+      "seconds": 811,
+      "text": "target itself not the link file you can"
+    },
+    {
+      "seconds": 814,
+      "text": "see they're clearly different this is"
+    },
+    {
+      "seconds": 815,
+      "text": "September the 23rd whereas this is"
+    },
+    {
+      "seconds": 817,
+      "text": "October the 10th we also see the actual"
+    },
+    {
+      "seconds": 820,
+      "text": "size of the target we also see the fact"
+    },
+    {
+      "seconds": 824,
+      "text": "that it was located on a fixed disc as"
+    },
+    {
+      "seconds": 827,
+      "text": "opposed to a removable disk we see the"
+    },
+    {
+      "seconds": 830,
+      "text": "base path where the file was originally"
+    },
+    {
+      "seconds": 832,
+      "text": "located the working directory and even"
+    },
+    {
+      "seconds": 833,
+      "text": "the name of the machine on which the"
+    },
+    {
+      "seconds": 835,
+      "text": "file was present and as I mentioned in"
+    },
+    {
+      "seconds": 837,
+      "text": "the previous section sometimes even the"
+    },
+    {
+      "seconds": 839,
+      "text": "MAC address of the machine on which the"
+    },
+    {
+      "seconds": 840,
+      "text": "file was present so all of this"
+    },
+    {
+      "seconds": 843,
+      "text": "information is present so again just by"
+    },
+    {
+      "seconds": 848,
+      "text": "running EXIF tool this simple tool with"
+    },
+    {
+      "seconds": 849,
+      "text": "no options against one of these little"
+    },
+    {
+      "seconds": 851,
+      "text": "1k linked files are actually half a K in"
+    },
+    {
+      "seconds": 854,
+      "text": "this case we've been able to extract"
+    },
+    {
+      "seconds": 855,
+      "text": "quite a bit of useful forensic data now"
+    },
+    {
+      "seconds": 859,
+      "text": "in the next section of the video we're"
+    },
+    {
+      "seconds": 861,
+      "text": "going to take a look at a couple of"
+    },
+    {
+      "seconds": 863,
+      "text": "tools from Eric Zimmerman to actually"
+    },
+    {
+      "seconds": 865,
+      "text": "parse the linked files we're going to"
+    },
+    {
+      "seconds": 867,
+      "text": "look at link explorer and the command"
+    },
+    {
+      "seconds": 870,
+      "text": "line version of that tool and actually"
+    },
+    {
+      "seconds": 872,
+      "text": "go through and parse a few of the link"
+    },
+    {
+      "seconds": 873,
+      "text": "files and see what kind of additional"
+    },
+    {
+      "seconds": 875,
+      "text": "data we can extract from them so let's"
+    },
+    {
+      "seconds": 878,
+      "text": "go ahead and move over to the next"
+    },
+    {
+      "seconds": 879,
+      "text": "section of the video so as we just saw"
+    },
+    {
+      "seconds": 886,
+      "text": "it is possible to use EXIF tool to parse"
+    },
+    {
+      "seconds": 889,
+      "text": "link file metadata but even if you"
+    },
+    {
+      "seconds": 891,
+      "text": "scripted it it doesn't scale well if you"
+    },
+    {
+      "seconds": 894,
+      "text": "had dozens or even hundreds of files to"
+    },
+    {
+      "seconds": 896,
+      "text": "parse you're going to want a different"
+    },
+    {
+      "seconds": 898,
+      "text": "more scalable solution"
+    },
+    {
+      "seconds": 900,
+      "text": "there are numerous tools both free and"
+    },
+    {
+      "seconds": 902,
+      "text": "commercial that can help us parse both"
+    },
+    {
+      "seconds": 904,
+      "text": "of these artifacts link files and jump"
+    },
+    {
+      "seconds": 907,
+      "text": "lists as I said in the last section"
+    },
+    {
+      "seconds": 909,
+      "text": "we're going to be looking at two tools"
+    },
+    {
+      "seconds": 911,
+      "text": "from Eric Zimmerman the first of those"
+    },
+    {
+      "seconds": 913,
+      "text": "tools is link Explorer"
+    },
+    {
+      "seconds": 915,
+      "text": "spelled LNK Explorer this is a command"
+    },
+    {
+      "seconds": 919,
+      "text": "line tool that is very easy to use we"
+    },
+    {
+      "seconds": 921,
+      "text": "can simply point it added directory"
+    },
+    {
+      "seconds": 923,
+      "text": "containing link files and it will"
+    },
+    {
+      "seconds": 924,
+      "text": "recursively parse that directory of"
+    },
+    {
+      "seconds": 926,
+      "text": "files and now put the results in one of"
+    },
+    {
+      "seconds": 928,
+      "text": "several different formats so you'll see"
+    },
+    {
+      "seconds": 931,
+      "text": "here that I have a command prompt open"
+    },
+    {
+      "seconds": 933,
+      "text": "and I'm currently in the C colon"
+    },
+    {
+      "seconds": 935,
+      "text": "backslash tools backslash lnk"
+    },
+    {
+      "seconds": 937,
+      "text": "explorer directory now there's nothing"
+    },
+    {
+      "seconds": 940,
+      "text": "special about this path this is actually"
+    },
+    {
+      "seconds": 942,
+      "text": "a standalone executable called le"
+    },
+    {
+      "seconds": 944,
+      "text": "cmd.exe so we can run link Explorer from"
+    },
+    {
+      "seconds": 947,
+      "text": "anywhere I've just chosen to organize my"
+    },
+    {
+      "seconds": 950,
+      "text": "digital forensics tools in the tools"
+    },
+    {
+      "seconds": 952,
+      "text": "directory so if I run ldcm d dot exe"
+    },
+    {
+      "seconds": 956,
+      "text": "without any options"
+    },
+    {
+      "seconds": 957,
+      "text": "we'll get the help output so let's"
+    },
+    {
+      "seconds": 960,
+      "text": "briefly take a look at each of these"
+    },
+    {
+      "seconds": 961,
+      "text": "options the D option can be used to"
+    },
+    {
+      "seconds": 964,
+      "text": "specify a directory of files that we"
+    },
+    {
+      "seconds": 967,
+      "text": "want to recursively process the F option"
+    },
+    {
+      "seconds": 971,
+      "text": "can be used to instead specify a single"
+    },
+    {
+      "seconds": 974,
+      "text": "file to process the q option will"
+    },
+    {
+      "seconds": 978,
+      "text": "suppress some of the output and this is"
+    },
+    {
+      "seconds": 981,
+      "text": "useful to speed up exporting to JSON or"
+    },
+    {
+      "seconds": 983,
+      "text": "CSV files the R option will only process"
+    },
+    {
+      "seconds": 988,
+      "text": "link files that point to removable"
+    },
+    {
+      "seconds": 990,
+      "text": "drives the all option will process all"
+    },
+    {
+      "seconds": 995,
+      "text": "files in a directory instead of just"
+    },
+    {
+      "seconds": 997,
+      "text": "those ending in lnk the next five"
+    },
+    {
+      "seconds": 1001,
+      "text": "options are output format options so"
+    },
+    {
+      "seconds": 1004,
+      "text": "we've got CSV which is actually a"
+    },
+    {
+      "seconds": 1007,
+      "text": "tab-separated formatted results file"
+    },
+    {
+      "seconds": 1009,
+      "text": "that's what we'll be using XML HTML JSON"
+    },
+    {
+      "seconds": 1014,
+      "text": "and then a more human readable layout"
+    },
+    {
+      "seconds": 1016,
+      "text": "for JSON and then the last four options"
+    },
+    {
+      "seconds": 1020,
+      "text": "are a little bit more advanced where we"
+    },
+    {
+      "seconds": 1021,
+      "text": "can suppress target ID list details we"
+    },
+    {
+      "seconds": 1024,
+      "text": "can suppress extra blocks information"
+    },
+    {
+      "seconds": 1026,
+      "text": "specify custom date and time formats and"
+    },
+    {
+      "seconds": 1029,
+      "text": "display higher precision timestamps we"
+    },
+    {
+      "seconds": 1031,
+      "text": "won't be using any of those so let's run"
+    },
+    {
+      "seconds": 1034,
+      "text": "le cmd.exe and we'll first specify the"
+    },
+    {
+      "seconds": 1038,
+      "text": "directory that contains our link file"
+    },
+    {
+      "seconds": 1039,
+      "text": "since this is the live system we'll just"
+    },
+    {
+      "seconds": 1041,
+      "text": "go into users my username app data"
+    },
+    {
+      "seconds": 1045,
+      "text": "roaming Microsoft Windows recent we use"
+    },
+    {
+      "seconds": 1052,
+      "text": "dash Q to suppress some of the output to"
+    },
+    {
+      "seconds": 1055,
+      "text": "standard out"
+    },
+    {
+      "seconds": 1056,
+      "text": "- CSV to specify the format that we want"
+    },
+    {
+      "seconds": 1061,
+      "text": "the results to be written in and then"
+    },
+    {
+      "seconds": 1063,
+      "text": "the directory to which we want those"
+    },
+    {
+      "seconds": 1065,
+      "text": "results written which will be our"
+    },
+    {
+      "seconds": 1066,
+      "text": "current working directory dot backslash"
+    },
+    {
+      "seconds": 1069,
+      "text": "so if we run that you'll notice that we"
+    },
+    {
+      "seconds": 1071,
+      "text": "get a message saying that it processed"
+    },
+    {
+      "seconds": 1072,
+      "text": "45 out of 45 files and it's already done"
+    },
+    {
+      "seconds": 1075,
+      "text": "and here you can see the location where"
+    },
+    {
+      "seconds": 1078,
+      "text": "the results have been written so let's"
+    },
+    {
+      "seconds": 1080,
+      "text": "load up Windows Explorer and browse to"
+    },
+    {
+      "seconds": 1083,
+      "text": "our tools directory go into link"
+    },
+    {
+      "seconds": 1085,
+      "text": "explorer and here's our TSV file which"
+    },
+    {
+      "seconds": 1087,
+      "text": "i've already associated with Microsoft"
+    },
+    {
+      "seconds": 1089,
+      "text": "Excel so we'll double click on that file"
+    },
+    {
+      "seconds": 1092,
+      "text": "and let's first clean this up a bit so"
+    },
+    {
+      "seconds": 1095,
+      "text": "we'll size all the columns to fit go"
+    },
+    {
+      "seconds": 1098,
+      "text": "ahead and enable filtering so we can"
+    },
+    {
+      "seconds": 1099,
+      "text": "filter the data and we'll also as a"
+    },
+    {
+      "seconds": 1101,
+      "text": "habit freeze the top row which is very"
+    },
+    {
+      "seconds": 1104,
+      "text": "useful if you've got multiple pages of"
+    },
+    {
+      "seconds": 1106,
+      "text": "output so as an example let's pick on"
+    },
+    {
+      "seconds": 1109,
+      "text": "our friend capture PNG lnk again now as"
+    },
+    {
+      "seconds": 1113,
+      "text": "we scroll across here and look at the"
+    },
+    {
+      "seconds": 1114,
+      "text": "collected data a lot of this you'll"
+    },
+    {
+      "seconds": 1116,
+      "text": "recognize from exif tool but there are a"
+    },
+    {
+      "seconds": 1118,
+      "text": "few additional pieces of information"
+    },
+    {
+      "seconds": 1119,
+      "text": "that we did not see with exit tool so"
+    },
+    {
+      "seconds": 1123,
+      "text": "first we've got the source timestamps"
+    },
+    {
+      "seconds": 1126,
+      "text": "for the link file itself then we've got"
+    },
+    {
+      "seconds": 1130,
+      "text": "the time stamps for the actual target"
+    },
+    {
+      "seconds": 1132,
+      "text": "the actual capture PNG file in this"
+    },
+    {
+      "seconds": 1134,
+      "text": "example then we've got the target's file"
+    },
+    {
+      "seconds": 1137,
+      "text": "size and its relative path it's working"
+    },
+    {
+      "seconds": 1141,
+      "text": "directory the attributes which again is"
+    },
+    {
+      "seconds": 1144,
+      "text": "just an A or archive the header Flags"
+    },
+    {
+      "seconds": 1147,
+      "text": "which specify the type of data contained"
+    },
+    {
+      "seconds": 1150,
+      "text": "within the link file the type of Drive"
+    },
+    {
+      "seconds": 1153,
+      "text": "on which the file is present which in"
+    },
+    {
+      "seconds": 1156,
+      "text": "this case is a fixed drive the volume"
+    },
+    {
+      "seconds": 1159,
+      "text": "serial number which we did not see with"
+    },
+    {
+      "seconds": 1161,
+      "text": "exit tool and in fact if I load up a"
+    },
+    {
+      "seconds": 1164,
+      "text": "command prompt here and run vol you'll"
+    },
+    {
+      "seconds": 1166,
+      "text": "notice that volume serial number does"
+    },
+    {
+      "seconds": 1168,
+      "text": "indeed match what we see here because"
+    },
+    {
+      "seconds": 1170,
+      "text": "this is the machine on which that file"
+    },
+    {
+      "seconds": 1173,
+      "text": "was present as we continue to scroll"
+    },
+    {
+      "seconds": 1176,
+      "text": "across we'll see volume label which is"
+    },
+    {
+      "seconds": 1178,
+      "text": "blank because there is no volume label"
+    },
+    {
+      "seconds": 1180,
+      "text": "on this particular drive the local path"
+    },
+    {
+      "seconds": 1183,
+      "text": "for the target file will also see some"
+    },
+    {
+      "seconds": 1188,
+      "text": "MFT related information the name of the"
+    },
+    {
+      "seconds": 1192,
+      "text": "machine on which the file was present"
+    },
+    {
+      "seconds": 1194,
+      "text": "the MAC address of the machine which"
+    },
+    {
+      "seconds": 1197,
+      "text": "again I had mentioned previously but we"
+    },
+    {
+      "seconds": 1199,
+      "text": "did not see with EXIF tool the"
+    },
+    {
+      "seconds": 1202,
+      "text": "vendor and what this is doing is it's"
+    },
+    {
+      "seconds": 1204,
+      "text": "taking the first 24 bits of the 48-bit"
+    },
+    {
+      "seconds": 1207,
+      "text": "MAC address which is called the Oh UI"
+    },
+    {
+      "seconds": 1209,
+      "text": "the organizationally unique identifier"
+    },
+    {
+      "seconds": 1211,
+      "text": "and attempting determine the"
+    },
+    {
+      "seconds": 1212,
+      "text": "manufacturer of the network interface"
+    },
+    {
+      "seconds": 1214,
+      "text": "card in this case it's actually a"
+    },
+    {
+      "seconds": 1216,
+      "text": "virtual NIC from VMware and it wasn't"
+    },
+    {
+      "seconds": 1218,
+      "text": "able to determine any vendor for that"
+    },
+    {
+      "seconds": 1220,
+      "text": "and then lastly a couple of extra fields"
+    },
+    {
+      "seconds": 1223,
+      "text": "here called tracker created and extra"
+    },
+    {
+      "seconds": 1226,
+      "text": "blocks present which we won't be using"
+    },
+    {
+      "seconds": 1227,
+      "text": "in this particular example but as you"
+    },
+    {
+      "seconds": 1230,
+      "text": "can see there is a wealth of information"
+    },
+    {
+      "seconds": 1231,
+      "text": "that was collected and displayed by this"
+    },
+    {
+      "seconds": 1234,
+      "text": "tool so I hope you see by looking at"
+    },
+    {
+      "seconds": 1237,
+      "text": "this the value that link files can have"
+    },
+    {
+      "seconds": 1240,
+      "text": "in our forensic investigations these"
+    },
+    {
+      "seconds": 1242,
+      "text": "tiny less than 1k files contain a wealth"
+    },
+    {
+      "seconds": 1245,
+      "text": "of information that will prove very very"
+    },
+    {
+      "seconds": 1248,
+      "text": "useful in fact as I stated earlier even"
+    },
+    {
+      "seconds": 1251,
+      "text": "if a file has been deleted or even"
+    },
+    {
+      "seconds": 1253,
+      "text": "securely deleted from a system a link"
+    },
+    {
+      "seconds": 1255,
+      "text": "file referencing that file may still be"
+    },
+    {
+      "seconds": 1257,
+      "text": "present and that in and of itself may be"
+    },
+    {
+      "seconds": 1260,
+      "text": "enough to provide the evidence that"
+    },
+    {
+      "seconds": 1261,
+      "text": "we're looking for so in the next and"
+    },
+    {
+      "seconds": 1265,
+      "text": "final section of the video we're going"
+    },
+    {
+      "seconds": 1267,
+      "text": "to take a look at the second tool which"
+    },
+    {
+      "seconds": 1269,
+      "text": "is called jump list Explorer so let's"
+    },
+    {
+      "seconds": 1272,
+      "text": "head over there next ok as we prepare to"
+    },
+    {
+      "seconds": 1278,
+      "text": "wrap up this video we're going to take a"
+    },
+    {
+      "seconds": 1280,
+      "text": "look at one final tool called jump list"
+    },
+    {
+      "seconds": 1282,
+      "text": "Explorer jump list Explorer has both a"
+    },
+    {
+      "seconds": 1285,
+      "text": "GUI based version of the tool as well as"
+    },
+    {
+      "seconds": 1287,
+      "text": "a command-line variant called jle CMD"
+    },
+    {
+      "seconds": 1290,
+      "text": "that works in much the same way as link"
+    },
+    {
+      "seconds": 1292,
+      "text": "Explorer Before we jump into that tool"
+    },
+    {
+      "seconds": 1295,
+      "text": "though no pun intended"
+    },
+    {
+      "seconds": 1296,
+      "text": "there's one additional piece of"
+    },
+    {
+      "seconds": 1298,
+      "text": "information with respect to jump lists"
+    },
+    {
+      "seconds": 1300,
+      "text": "that you need to know and that is that"
+    },
+    {
+      "seconds": 1302,
+      "text": "each application will have a unique app"
+    },
+    {
+      "seconds": 1304,
+      "text": "ID that will be included in the name of"
+    },
+    {
+      "seconds": 1307,
+      "text": "the dot automatic destinations - MS or"
+    },
+    {
+      "seconds": 1310,
+      "text": "dot custom destinations - MS jump list"
+    },
+    {
+      "seconds": 1313,
+      "text": "file in fact you've seen this before"
+    },
+    {
+      "seconds": 1315,
+      "text": "here are our automatic destinations jump"
+    },
+    {
+      "seconds": 1318,
+      "text": "lists on this VM and you'll see that the"
+    },
+    {
+      "seconds": 1321,
+      "text": "one highlighted starts with b8 a B and"
+    },
+    {
+      "seconds": 1323,
+      "text": "ends with a B - so that string is the"
+    },
+    {
+      "seconds": 1327,
+      "text": "app ID and in fact if we go back to this"
+    },
+    {
+      "seconds": 1329,
+      "text": "web page I've got pulled up and search"
+    },
+    {
+      "seconds": 1331,
+      "text": "for b8 a B you'll notice that it"
+    },
+    {
+      "seconds": 1334,
+      "text": "corresponds to Microsoft Excel 20"
+    },
+    {
+      "seconds": 1336,
+      "text": "sixteen 64-bit now this particular app"
+    },
+    {
+      "seconds": 1340,
+      "text": "ID list is certainly not the only one"
+    },
+    {
+      "seconds": 1342,
+      "text": "available on the internet but it is one"
+    },
+    {
+      "seconds": 1344,
+      "text": "of the most comprehensive ones that I"
+    },
+    {
+      "seconds": 1345,
+      "text": "found and I'll include a link to it in"
+    },
+    {
+      "seconds": 1347,
+      "text": "the video's description"
+    },
+    {
+      "seconds": 1349,
+      "text": "so as we jump into the demo for jump"
+    },
+    {
+      "seconds": 1351,
+      "text": "list Explorer I'm actually going to be"
+    },
+    {
+      "seconds": 1354,
+      "text": "picking on this jump list right here the"
+    },
+    {
+      "seconds": 1356,
+      "text": "b8a be jump list so first you'll notice"
+    },
+    {
+      "seconds": 1359,
+      "text": "I've got a command prompt pulled up and"
+    },
+    {
+      "seconds": 1360,
+      "text": "I'm in the jump list Explorer directory"
+    },
+    {
+      "seconds": 1362,
+      "text": "we'll go ahead and run the jle CMD"
+    },
+    {
+      "seconds": 1365,
+      "text": "command line version of the tool without"
+    },
+    {
+      "seconds": 1366,
+      "text": "any options and we see that the options"
+    },
+    {
+      "seconds": 1369,
+      "text": "that were present with link Explorer are"
+    },
+    {
+      "seconds": 1371,
+      "text": "present here as well for example we can"
+    },
+    {
+      "seconds": 1373,
+      "text": "specify a directory or a file and we"
+    },
+    {
+      "seconds": 1375,
+      "text": "have different options for the output"
+    },
+    {
+      "seconds": 1377,
+      "text": "format there are some additional options"
+    },
+    {
+      "seconds": 1380,
+      "text": "here as well but what we're going to do"
+    },
+    {
+      "seconds": 1382,
+      "text": "is run jle cmd.exe this time we'll"
+    },
+    {
+      "seconds": 1385,
+      "text": "specify an actual file with - f and"
+    },
+    {
+      "seconds": 1388,
+      "text": "we'll path to users my username app data"
+    },
+    {
+      "seconds": 1393,
+      "text": "roaming Microsoft Windows recent"
+    },
+    {
+      "seconds": 1398,
+      "text": "automatic destinations and again the b8a"
+    },
+    {
+      "seconds": 1401,
+      "text": "B file will use quiet mode we will write"
+    },
+    {
+      "seconds": 1407,
+      "text": "it in CSV format it's actually a TSV"
+    },
+    {
+      "seconds": 1409,
+      "text": "file as what it's going to output and"
+    },
+    {
+      "seconds": 1411,
+      "text": "then we'll save it to the current"
+    },
+    {
+      "seconds": 1413,
+      "text": "directory and you notice that the tab"
+    },
+    {
+      "seconds": 1415,
+      "text": "separated value file has been written"
+    },
+    {
+      "seconds": 1417,
+      "text": "right here now of course we can simply"
+    },
+    {
+      "seconds": 1420,
+      "text": "open up Windows Explorer and browse to"
+    },
+    {
+      "seconds": 1423,
+      "text": "that location and here is the data that"
+    },
+    {
+      "seconds": 1429,
+      "text": "was extracted from that particular jump"
+    },
+    {
+      "seconds": 1431,
+      "text": "list now instead of looking at this with"
+    },
+    {
+      "seconds": 1434,
+      "text": "Excel I'm actually going to switch over"
+    },
+    {
+      "seconds": 1436,
+      "text": "to the GUI based version of the tool so"
+    },
+    {
+      "seconds": 1438,
+      "text": "I can show you what that looks like and"
+    },
+    {
+      "seconds": 1439,
+      "text": "then we'll sift through some of this"
+    },
+    {
+      "seconds": 1440,
+      "text": "data so let's go ahead and close this"
+    },
+    {
+      "seconds": 1443,
+      "text": "and now let's run the GUI version of"
+    },
+    {
+      "seconds": 1446,
+      "text": "gentlest Explorer dot exe and we're"
+    },
+    {
+      "seconds": 1450,
+      "text": "going to go up to file load jump lists"
+    },
+    {
+      "seconds": 1453,
+      "text": "you'll see that I've already navigated"
+    },
+    {
+      "seconds": 1455,
+      "text": "to the automatic destinations directory"
+    },
+    {
+      "seconds": 1457,
+      "text": "and we'll again choose the B 8a B file"
+    },
+    {
+      "seconds": 1462,
+      "text": "so you'll notice that it neatly"
+    },
+    {
+      "seconds": 1465,
+      "text": "organizes all of this on the left side"
+    },
+    {
+      "seconds": 1467,
+      "text": "here you'll see the different street"
+    },
+    {
+      "seconds": 1469,
+      "text": "associated with link file data within"
+    },
+    {
+      "seconds": 1472,
+      "text": "this compound data file so here are 13"
+    },
+    {
+      "seconds": 1476,
+      "text": "strings and if we click on any one of"
+    },
+    {
+      "seconds": 1479,
+      "text": "them for example annual financial report"
+    },
+    {
+      "seconds": 1481,
+      "text": "we can see the target time stamps"
+    },
+    {
+      "seconds": 1484,
+      "text": "associated with this particular file"
+    },
+    {
+      "seconds": 1485,
+      "text": "along with the file size and the path"
+    },
+    {
+      "seconds": 1489,
+      "text": "and some additional information the same"
+    },
+    {
+      "seconds": 1491,
+      "text": "is true with the budget xlsx file and"
+    },
+    {
+      "seconds": 1494,
+      "text": "some of these other files here as well"
+    },
+    {
+      "seconds": 1496,
+      "text": "we can simply click on any of these"
+    },
+    {
+      "seconds": 1497,
+      "text": "streams and gather link file information"
+    },
+    {
+      "seconds": 1501,
+      "text": "for any of them and you'll notice that"
+    },
+    {
+      "seconds": 1502,
+      "text": "we even get data such as the host name"
+    },
+    {
+      "seconds": 1505,
+      "text": "of the machine the MAC address all kinds"
+    },
+    {
+      "seconds": 1508,
+      "text": "of information that is extremely"
+    },
+    {
+      "seconds": 1509,
+      "text": "valuable some of which is what we saw"
+    },
+    {
+      "seconds": 1511,
+      "text": "when we looked at individual link files"
+    },
+    {
+      "seconds": 1513,
+      "text": "which again this is basically the"
+    },
+    {
+      "seconds": 1515,
+      "text": "equivalent of that data stored in"
+    },
+    {
+      "seconds": 1517,
+      "text": "streams within this compound data file"
+    },
+    {
+      "seconds": 1520,
+      "text": "and this tool very very easily parses it"
+    },
+    {
+      "seconds": 1522,
+      "text": "now of course we could have done the"
+    },
+    {
+      "seconds": 1523,
+      "text": "same thing by using Microsoft Excel"
+    },
+    {
+      "seconds": 1526,
+      "text": "using the TSV file that we generated"
+    },
+    {
+      "seconds": 1529,
+      "text": "with the command line version of the"
+    },
+    {
+      "seconds": 1530,
+      "text": "tools but I just wanted to show you that"
+    },
+    {
+      "seconds": 1531,
+      "text": "this does have a GUI version available"
+    },
+    {
+      "seconds": 1534,
+      "text": "as well that neatly organizes all of"
+    },
+    {
+      "seconds": 1536,
+      "text": "this data so that pretty much wraps up"
+    },
+    {
+      "seconds": 1539,
+      "text": "this video the entire intent was to show"
+    },
+    {
+      "seconds": 1542,
+      "text": "you the forensic value of linked files"
+    },
+    {
+      "seconds": 1544,
+      "text": "and jump lists and I hope we've been"
+    },
+    {
+      "seconds": 1546,
+      "text": "able to accomplish that in this video as"
+    },
+    {
+      "seconds": 1548,
+      "text": "always I would like to thank you for"
+    },
+    {
+      "seconds": 1550,
+      "text": "taking time out of your day to watch"
+    },
+    {
+      "seconds": 1552,
+      "text": "this I would greatly appreciate any"
+    },
+    {
+      "seconds": 1554,
+      "text": "likes or shares and if you haven't"
+    },
+    {
+      "seconds": 1557,
+      "text": "already subscribed to the channel please"
+    },
+    {
+      "seconds": 1558,
+      "text": "do that that would greatly help me out"
+    },
+    {
+      "seconds": 1561,
+      "text": "again I'd like to thank you for taking"
+    },
+    {
+      "seconds": 1563,
+      "text": "the time to watch this and if you would"
+    },
+    {
+      "seconds": 1565,
+      "text": "like to contact me I'm available on"
+    },
+    {
+      "seconds": 1566,
+      "text": "twitter at davis richard g if you have"
+    },
+    {
+      "seconds": 1569,
+      "text": "any suggestions for future videos or"
+    },
+    {
+      "seconds": 1571,
+      "text": "comments or questions please feel free"
+    },
+    {
+      "seconds": 1573,
+      "text": "to reach out to me my intent is to"
+    },
+    {
+      "seconds": 1575,
+      "text": "continue the pace of creating one to two"
+    },
+    {
+      "seconds": 1578,
+      "text": "videos per month unfortunately I can't"
+    },
+    {
+      "seconds": 1580,
+      "text": "do it on a weekly basis as this does"
+    },
+    {
+      "seconds": 1582,
+      "text": "take quite a bit of time to put together"
+    },
+    {
+      "seconds": 1584,
+      "text": "especially when we get into more"
+    },
+    {
+      "seconds": 1585,
+      "text": "elaborate labs so again please continue"
+    },
+    {
+      "seconds": 1589,
+      "text": "to look for new videos every month or so"
+    },
+    {
+      "seconds": 1591,
+      "text": "there should be one or two thank you"
+    },
+    {
+      "seconds": 1594,
+      "text": "again and I will see you next time"
+    },
+    {
+      "seconds": 1602,
+      "text": "you"
+    },
+    {
+      "seconds": 1602,
+      "text": "[Music]"
+    }
+  ]
+}

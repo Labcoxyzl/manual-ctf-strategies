@@ -1,0 +1,28 @@
+{
+  "checked_on": "2026-10-23",
+  "captions_extracted": 8,
+  "full_caption_texts_reviewed": 8,
+  "core_recommendations": 6,
+  "optional_recommendations": 2,
+  "telegram_list_delivered": true,
+  "telegram_message_id": "2099",
+  "instagram_delivery": "not configured; user-authorized local fallback used",
+  "mp4_files_verified": 8,
+  "total_video_bytes": 706460852,
+  "limitations": [
+    "Automatic captions can misrecognize commands.",
+    "No full audiovisual viewing or target-device playback.",
+    "AV1/VP9 source codecs retained in some MP4 files."
+  ],
+  "readme_sha256": "7caac1bd3a5cf2399956dd77cf5e93636328fc265ed0bcc8303bc38d3fd7719d",
+  "expanded_collection": "../../../TOOL_LEARNING_COLLECTION.md",
+  "scope_note": "Eight-video starter pack; deeper full-matrix collection is separate.",
+  "subsequent_authorized_downloads": {
+    "new_files": 9,
+    "current_files": 17,
+    "new_bytes": 1522321991,
+    "index": "DOWNLOAD_INDEX.md",
+    "verification": "expanded-media-verification.json",
+    "original_eight_hashes_unchanged": true
+  }
+}

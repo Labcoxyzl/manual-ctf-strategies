@@ -1,0 +1,1352 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:06.960 --> 00:00:08.150 align:start position:0%
+ 
+in<00:00:07.120><c> this</c><00:00:07.279><c> tutorial</c>
+
+00:00:08.150 --> 00:00:08.160 align:start position:0%
+in this tutorial
+ 
+
+00:00:08.160 --> 00:00:10.709 align:start position:0%
+in this tutorial
+we'll<00:00:08.320><c> cover</c><00:00:08.720><c> how</c><00:00:08.960><c> to</c><00:00:09.120><c> resend</c><00:00:10.000><c> individual</c>
+
+00:00:10.709 --> 00:00:10.719 align:start position:0%
+we'll cover how to resend individual
+ 
+
+00:00:10.719 --> 00:00:12.390 align:start position:0%
+we'll cover how to resend individual
+http<00:00:11.440><c> requests</c>
+
+00:00:12.390 --> 00:00:12.400 align:start position:0%
+http requests
+ 
+
+00:00:12.400 --> 00:00:14.629 align:start position:0%
+http requests
+using<00:00:12.719><c> burp</c><00:00:12.960><c> repeater</c><00:00:14.160><c> and</c><00:00:14.240><c> we'll</c><00:00:14.400><c> look</c><00:00:14.559><c> at</c>
+
+00:00:14.629 --> 00:00:14.639 align:start position:0%
+using burp repeater and we'll look at
+ 
+
+00:00:14.639 --> 00:00:16.550 align:start position:0%
+using burp repeater and we'll look at
+various<00:00:15.120><c> related</c><00:00:15.599><c> workflows</c>
+
+00:00:16.550 --> 00:00:16.560 align:start position:0%
+various related workflows
+ 
+
+00:00:16.560 --> 00:00:18.630 align:start position:0%
+various related workflows
+and<00:00:16.960><c> options</c><00:00:17.520><c> that</c><00:00:17.680><c> you</c><00:00:17.760><c> can</c><00:00:17.920><c> use</c><00:00:18.160><c> to</c><00:00:18.320><c> support</c>
+
+00:00:18.630 --> 00:00:18.640 align:start position:0%
+and options that you can use to support
+ 
+
+00:00:18.640 --> 00:00:21.830 align:start position:0%
+and options that you can use to support
+your<00:00:18.800><c> testing</c>
+
+00:00:21.830 --> 00:00:21.840 align:start position:0%
+ 
+ 
+
+00:00:21.840 --> 00:00:24.790 align:start position:0%
+ 
+burp<00:00:22.080><c> suite</c><00:00:22.560><c> repeater</c><00:00:23.519><c> is</c><00:00:23.680><c> the</c><00:00:23.840><c> tool</c><00:00:24.480><c> that</c><00:00:24.640><c> you</c>
+
+00:00:24.790 --> 00:00:24.800 align:start position:0%
+burp suite repeater is the tool that you
+ 
+
+00:00:24.800 --> 00:00:25.589 align:start position:0%
+burp suite repeater is the tool that you
+can<00:00:24.960><c> use</c>
+
+00:00:25.589 --> 00:00:25.599 align:start position:0%
+can use
+ 
+
+00:00:25.599 --> 00:00:28.870 align:start position:0%
+can use
+to<00:00:25.760><c> resend</c><00:00:26.720><c> individual</c><00:00:27.279><c> requests</c><00:00:28.320><c> modify</c>
+
+00:00:28.870 --> 00:00:28.880 align:start position:0%
+to resend individual requests modify
+ 
+
+00:00:28.880 --> 00:00:29.509 align:start position:0%
+to resend individual requests modify
+them
+
+00:00:29.509 --> 00:00:29.519 align:start position:0%
+them
+ 
+
+00:00:29.519 --> 00:00:32.950 align:start position:0%
+them
+and<00:00:29.760><c> issue</c><00:00:30.080><c> them</c><00:00:30.560><c> over</c><00:00:30.800><c> and</c><00:00:30.960><c> over</c>
+
+00:00:32.950 --> 00:00:32.960 align:start position:0%
+and issue them over and over
+ 
+
+00:00:32.960 --> 00:00:35.270 align:start position:0%
+and issue them over and over
+the<00:00:33.120><c> easiest</c><00:00:33.440><c> way</c><00:00:33.840><c> to</c><00:00:33.920><c> use</c><00:00:34.160><c> burp</c><00:00:34.399><c> repeater</c><00:00:35.120><c> is</c>
+
+00:00:35.270 --> 00:00:35.280 align:start position:0%
+the easiest way to use burp repeater is
+ 
+
+00:00:35.280 --> 00:00:37.030 align:start position:0%
+the easiest way to use burp repeater is
+to<00:00:35.440><c> send</c><00:00:35.760><c> requests</c><00:00:36.399><c> to</c><00:00:36.640><c> it</c>
+
+00:00:37.030 --> 00:00:37.040 align:start position:0%
+to send requests to it
+ 
+
+00:00:37.040 --> 00:00:39.990 align:start position:0%
+to send requests to it
+from<00:00:37.360><c> other</c><00:00:37.600><c> tools</c><00:00:37.920><c> in</c><00:00:38.000><c> burp</c><00:00:39.120><c> so</c><00:00:39.440><c> burp</c><00:00:39.680><c> suite</c>
+
+00:00:39.990 --> 00:00:40.000 align:start position:0%
+from other tools in burp so burp suite
+ 
+
+00:00:40.000 --> 00:00:41.990 align:start position:0%
+from other tools in burp so burp suite
+you<00:00:40.160><c> can</c><00:00:40.399><c> send</c><00:00:40.719><c> requests</c><00:00:41.360><c> between</c>
+
+00:00:41.990 --> 00:00:42.000 align:start position:0%
+you can send requests between
+ 
+
+00:00:42.000 --> 00:00:46.069 align:start position:0%
+you can send requests between
+burp<00:00:42.320><c> tools</c><00:00:42.879><c> anywhere</c><00:00:43.200><c> that</c><00:00:43.360><c> you</c><00:00:43.440><c> see</c><00:00:43.600><c> them</c>
+
+00:00:46.069 --> 00:00:46.079 align:start position:0%
+ 
+ 
+
+00:00:46.079 --> 00:00:48.150 align:start position:0%
+ 
+so<00:00:46.239><c> i'm</c><00:00:46.320><c> going</c><00:00:46.399><c> to</c><00:00:46.559><c> launch</c><00:00:46.879><c> burp's</c><00:00:47.680><c> embedded</c>
+
+00:00:48.150 --> 00:00:48.160 align:start position:0%
+so i'm going to launch burp's embedded
+ 
+
+00:00:48.160 --> 00:00:50.069 align:start position:0%
+so i'm going to launch burp's embedded
+browser
+
+00:00:50.069 --> 00:00:50.079 align:start position:0%
+browser
+ 
+
+00:00:50.079 --> 00:00:54.069 align:start position:0%
+browser
+and<00:00:50.559><c> visit</c><00:00:50.960><c> a</c><00:00:51.120><c> website</c>
+
+00:00:54.069 --> 00:00:54.079 align:start position:0%
+ 
+ 
+
+00:00:54.079 --> 00:00:56.709 align:start position:0%
+ 
+the<00:00:54.239><c> request</c><00:00:54.480><c> is</c><00:00:54.640><c> intercepted</c><00:00:55.199><c> in</c><00:00:55.600><c> proxy</c><00:00:56.559><c> so</c>
+
+00:00:56.709 --> 00:00:56.719 align:start position:0%
+the request is intercepted in proxy so
+ 
+
+00:00:56.719 --> 00:00:58.869 align:start position:0%
+the request is intercepted in proxy so
+we<00:00:56.879><c> can</c><00:00:56.960><c> use</c><00:00:57.120><c> the</c><00:00:57.199><c> context</c><00:00:57.600><c> menu</c>
+
+00:00:58.869 --> 00:00:58.879 align:start position:0%
+we can use the context menu
+ 
+
+00:00:58.879 --> 00:01:01.910 align:start position:0%
+we can use the context menu
+and<00:00:59.039><c> select</c><00:00:59.359><c> center</c><00:00:59.680><c> repeater</c><00:01:00.320><c> from</c><00:01:00.559><c> here</c>
+
+00:01:01.910 --> 00:01:01.920 align:start position:0%
+and select center repeater from here
+ 
+
+00:01:01.920 --> 00:01:04.950 align:start position:0%
+and select center repeater from here
+or<00:01:02.079><c> if</c><00:01:02.160><c> we</c><00:01:02.320><c> prefer</c><00:01:03.760><c> we</c><00:01:03.920><c> can</c><00:01:04.080><c> go</c>
+
+00:01:04.950 --> 00:01:04.960 align:start position:0%
+or if we prefer we can go
+ 
+
+00:01:04.960 --> 00:01:07.750 align:start position:0%
+or if we prefer we can go
+to<00:01:05.119><c> the</c><00:01:05.280><c> http</c><00:01:05.760><c> history</c><00:01:06.720><c> we</c><00:01:06.960><c> click</c><00:01:07.200><c> on</c><00:01:07.439><c> any</c>
+
+00:01:07.750 --> 00:01:07.760 align:start position:0%
+to the http history we click on any
+ 
+
+00:01:07.760 --> 00:01:09.270 align:start position:0%
+to the http history we click on any
+request<00:01:08.080><c> that</c><00:01:08.159><c> we're</c><00:01:08.320><c> interested</c><00:01:08.720><c> in</c><00:01:08.960><c> again</c>
+
+00:01:09.270 --> 00:01:09.280 align:start position:0%
+request that we're interested in again
+ 
+
+00:01:09.280 --> 00:01:10.870 align:start position:0%
+request that we're interested in again
+use<00:01:09.439><c> the</c><00:01:09.520><c> context</c><00:01:09.920><c> menu</c>
+
+00:01:10.870 --> 00:01:10.880 align:start position:0%
+use the context menu
+ 
+
+00:01:10.880 --> 00:01:13.910 align:start position:0%
+use the context menu
+select<00:01:11.200><c> center</c><00:01:11.520><c> repeater</c><00:01:12.720><c> or</c><00:01:13.360><c> we</c><00:01:13.520><c> can</c><00:01:13.600><c> go</c>
+
+00:01:13.910 --> 00:01:13.920 align:start position:0%
+select center repeater or we can go
+ 
+
+00:01:13.920 --> 00:01:17.030 align:start position:0%
+select center repeater or we can go
+to<00:01:14.240><c> the</c><00:01:14.400><c> target</c><00:01:14.799><c> tab</c><00:01:15.840><c> and</c>
+
+00:01:17.030 --> 00:01:17.040 align:start position:0%
+to the target tab and
+ 
+
+00:01:17.040 --> 00:01:19.590 align:start position:0%
+to the target tab and
+select<00:01:17.360><c> an</c><00:01:17.520><c> item</c><00:01:17.920><c> that</c><00:01:18.080><c> we're</c><00:01:18.240><c> interested</c><00:01:18.799><c> in</c>
+
+00:01:19.590 --> 00:01:19.600 align:start position:0%
+select an item that we're interested in
+ 
+
+00:01:19.600 --> 00:01:20.390 align:start position:0%
+select an item that we're interested in
+and<00:01:19.759><c> do</c>
+
+00:01:20.390 --> 00:01:20.400 align:start position:0%
+and do
+ 
+
+00:01:20.400 --> 00:01:21.990 align:start position:0%
+and do
+send<00:01:20.560><c> to</c><00:01:20.720><c> repeater</c><00:01:21.040><c> from</c><00:01:21.200><c> the</c><00:01:21.439><c> context</c><00:01:21.759><c> menu</c>
+
+00:01:21.990 --> 00:01:22.000 align:start position:0%
+send to repeater from the context menu
+ 
+
+00:01:22.000 --> 00:01:23.830 align:start position:0%
+send to repeater from the context menu
+again<00:01:22.720><c> or</c><00:01:23.040><c> from</c><00:01:23.280><c> any</c>
+
+00:01:23.830 --> 00:01:23.840 align:start position:0%
+again or from any
+ 
+
+00:01:23.840 --> 00:01:26.550 align:start position:0%
+again or from any
+individual<00:01:24.720><c> request</c><00:01:25.119><c> panel</c><00:01:26.080><c> we</c><00:01:26.240><c> can</c><00:01:26.320><c> do</c><00:01:26.479><c> the</c>
+
+00:01:26.550 --> 00:01:26.560 align:start position:0%
+individual request panel we can do the
+ 
+
+00:01:26.560 --> 00:01:28.070 align:start position:0%
+individual request panel we can do the
+same
+
+00:01:28.070 --> 00:01:28.080 align:start position:0%
+same
+ 
+
+00:01:28.080 --> 00:01:30.630 align:start position:0%
+same
+so<00:01:28.240><c> if</c><00:01:28.320><c> we</c><00:01:28.400><c> send</c><00:01:28.560><c> a</c><00:01:28.640><c> request</c><00:01:28.960><c> to</c><00:01:29.119><c> repeater</c>
+
+00:01:30.630 --> 00:01:30.640 align:start position:0%
+so if we send a request to repeater
+ 
+
+00:01:30.640 --> 00:01:31.990 align:start position:0%
+so if we send a request to repeater
+there<00:01:30.880><c> it</c><00:01:30.960><c> appears</c>
+
+00:01:31.990 --> 00:01:32.000 align:start position:0%
+there it appears
+ 
+
+00:01:32.000 --> 00:01:33.590 align:start position:0%
+there it appears
+on<00:01:32.079><c> the</c><00:01:32.159><c> left</c><00:01:32.320><c> hand</c><00:01:32.560><c> side</c><00:01:33.040><c> in</c><00:01:33.119><c> the</c><00:01:33.200><c> request</c>
+
+00:01:33.590 --> 00:01:33.600 align:start position:0%
+on the left hand side in the request
+ 
+
+00:01:33.600 --> 00:01:35.429 align:start position:0%
+on the left hand side in the request
+panel<00:01:34.079><c> we</c><00:01:34.240><c> can</c><00:01:34.320><c> see</c><00:01:34.479><c> the</c><00:01:34.640><c> request</c>
+
+00:01:35.429 --> 00:01:35.439 align:start position:0%
+panel we can see the request
+ 
+
+00:01:35.439 --> 00:01:38.469 align:start position:0%
+panel we can see the request
+and<00:01:35.600><c> we</c><00:01:35.759><c> can</c><00:01:35.920><c> also</c><00:01:36.159><c> edit</c><00:01:36.400><c> it</c><00:01:38.000><c> we</c><00:01:38.159><c> can</c><00:01:38.240><c> click</c>
+
+00:01:38.469 --> 00:01:38.479 align:start position:0%
+and we can also edit it we can click
+ 
+
+00:01:38.479 --> 00:01:39.429 align:start position:0%
+and we can also edit it we can click
+send
+
+00:01:39.429 --> 00:01:39.439 align:start position:0%
+send
+ 
+
+00:01:39.439 --> 00:01:41.190 align:start position:0%
+send
+to<00:01:39.600><c> issue</c><00:01:39.840><c> the</c><00:01:39.920><c> request</c><00:01:40.720><c> and</c><00:01:40.799><c> then</c><00:01:41.040><c> on</c><00:01:41.119><c> the</c>
+
+00:01:41.190 --> 00:01:41.200 align:start position:0%
+to issue the request and then on the
+ 
+
+00:01:41.200 --> 00:01:43.190 align:start position:0%
+to issue the request and then on the
+right<00:01:41.360><c> hand</c><00:01:41.600><c> side</c><00:01:41.840><c> in</c><00:01:41.920><c> the</c><00:01:42.000><c> response</c><00:01:42.399><c> panel</c>
+
+00:01:43.190 --> 00:01:43.200 align:start position:0%
+right hand side in the response panel
+ 
+
+00:01:43.200 --> 00:01:45.109 align:start position:0%
+right hand side in the response panel
+we<00:01:43.360><c> can</c><00:01:43.439><c> see</c><00:01:43.680><c> the</c><00:01:43.759><c> response</c><00:01:44.240><c> that</c><00:01:44.399><c> came</c><00:01:44.640><c> back</c>
+
+00:01:45.109 --> 00:01:45.119 align:start position:0%
+we can see the response that came back
+ 
+
+00:01:45.119 --> 00:01:47.030 align:start position:0%
+we can see the response that came back
+from<00:01:45.360><c> the</c><00:01:45.439><c> server</c>
+
+00:01:47.030 --> 00:01:47.040 align:start position:0%
+from the server
+ 
+
+00:01:47.040 --> 00:01:50.230 align:start position:0%
+from the server
+if<00:01:47.200><c> we</c><00:01:47.280><c> want</c><00:01:47.759><c> we</c><00:01:47.920><c> can</c><00:01:48.479><c> send</c><00:01:48.640><c> the</c><00:01:48.799><c> request</c><00:01:50.000><c> over</c>
+
+00:01:50.230 --> 00:01:50.240 align:start position:0%
+if we want we can send the request over
+ 
+
+00:01:50.240 --> 00:01:51.670 align:start position:0%
+if we want we can send the request over
+and<00:01:50.399><c> over</c>
+
+00:01:51.670 --> 00:01:51.680 align:start position:0%
+and over
+ 
+
+00:01:51.680 --> 00:01:55.910 align:start position:0%
+and over
+we<00:01:51.840><c> can</c><00:01:52.720><c> edit</c><00:01:53.119><c> it</c><00:01:53.680><c> and</c><00:01:53.840><c> send</c><00:01:54.079><c> it</c><00:01:54.159><c> again</c>
+
+00:01:55.910 --> 00:01:55.920 align:start position:0%
+we can edit it and send it again
+ 
+
+00:01:55.920 --> 00:01:59.109 align:start position:0%
+we can edit it and send it again
+change<00:01:56.240><c> it</c><00:01:56.399><c> again</c><00:01:58.399><c> we</c><00:01:58.560><c> can</c><00:01:58.640><c> try</c><00:01:58.880><c> different</c>
+
+00:01:59.109 --> 00:01:59.119 align:start position:0%
+change it again we can try different
+ 
+
+00:01:59.119 --> 00:01:59.749 align:start position:0%
+change it again we can try different
+things
+
+00:01:59.749 --> 00:01:59.759 align:start position:0%
+things
+ 
+
+00:01:59.759 --> 00:02:01.109 align:start position:0%
+things
+get<00:02:00.000><c> different</c><00:02:00.159><c> status</c><00:02:00.560><c> codes</c><00:02:00.799><c> back</c>
+
+00:02:01.109 --> 00:02:01.119 align:start position:0%
+get different status codes back
+ 
+
+00:02:01.119 --> 00:02:03.350 align:start position:0%
+get different status codes back
+different<00:02:01.439><c> responses</c>
+
+00:02:03.350 --> 00:02:03.360 align:start position:0%
+different responses
+ 
+
+00:02:03.360 --> 00:02:05.350 align:start position:0%
+different responses
+next<00:02:03.600><c> to</c><00:02:03.759><c> the</c><00:02:03.920><c> send</c><00:02:04.159><c> and</c><00:02:04.240><c> cancel</c><00:02:04.640><c> button</c><00:02:05.200><c> we</c>
+
+00:02:05.350 --> 00:02:05.360 align:start position:0%
+next to the send and cancel button we
+ 
+
+00:02:05.360 --> 00:02:06.550 align:start position:0%
+next to the send and cancel button we
+have<00:02:05.520><c> these</c>
+
+00:02:06.550 --> 00:02:06.560 align:start position:0%
+have these
+ 
+
+00:02:06.560 --> 00:02:08.389 align:start position:0%
+have these
+back<00:02:06.799><c> and</c><00:02:06.880><c> forwards</c><00:02:07.280><c> buttons</c><00:02:07.920><c> where</c><00:02:08.160><c> we</c><00:02:08.239><c> can</c>
+
+00:02:08.389 --> 00:02:08.399 align:start position:0%
+back and forwards buttons where we can
+ 
+
+00:02:08.399 --> 00:02:10.389 align:start position:0%
+back and forwards buttons where we can
+walk<00:02:08.720><c> through</c><00:02:09.520><c> the</c><00:02:09.679><c> history</c>
+
+00:02:10.389 --> 00:02:10.399 align:start position:0%
+walk through the history
+ 
+
+00:02:10.399 --> 00:02:12.390 align:start position:0%
+walk through the history
+of<00:02:10.560><c> requests</c><00:02:10.959><c> that</c><00:02:11.120><c> we've</c><00:02:11.280><c> made</c><00:02:11.840><c> and</c><00:02:12.080><c> see</c><00:02:12.239><c> each</c>
+
+00:02:12.390 --> 00:02:12.400 align:start position:0%
+of requests that we've made and see each
+ 
+
+00:02:12.400 --> 00:02:14.150 align:start position:0%
+of requests that we've made and see each
+request<00:02:12.720><c> and</c><00:02:12.800><c> response</c>
+
+00:02:14.150 --> 00:02:14.160 align:start position:0%
+request and response
+ 
+
+00:02:14.160 --> 00:02:15.830 align:start position:0%
+request and response
+and<00:02:14.319><c> on</c><00:02:14.480><c> each</c><00:02:14.640><c> button</c><00:02:15.120><c> there's</c><00:02:15.280><c> a</c><00:02:15.360><c> little</c><00:02:15.599><c> drop</c>
+
+00:02:15.830 --> 00:02:15.840 align:start position:0%
+and on each button there's a little drop
+ 
+
+00:02:15.840 --> 00:02:17.510 align:start position:0%
+and on each button there's a little drop
+down<00:02:16.160><c> where</c><00:02:16.319><c> we</c><00:02:16.480><c> can</c><00:02:16.640><c> jump</c><00:02:16.879><c> straight</c><00:02:17.200><c> to</c><00:02:17.360><c> an</c>
+
+00:02:17.510 --> 00:02:17.520 align:start position:0%
+down where we can jump straight to an
+ 
+
+00:02:17.520 --> 00:02:17.910 align:start position:0%
+down where we can jump straight to an
+item
+
+00:02:17.910 --> 00:02:17.920 align:start position:0%
+item
+ 
+
+00:02:17.920 --> 00:02:20.630 align:start position:0%
+item
+in<00:02:18.080><c> our</c><00:02:18.160><c> history</c><00:02:19.280><c> if</c><00:02:19.440><c> we</c><00:02:19.520><c> want</c><00:02:19.760><c> to</c><00:02:20.319><c> send</c><00:02:20.480><c> that</c>
+
+00:02:20.630 --> 00:02:20.640 align:start position:0%
+in our history if we want to send that
+ 
+
+00:02:20.640 --> 00:02:22.470 align:start position:0%
+in our history if we want to send that
+request<00:02:20.959><c> again</c>
+
+00:02:22.470 --> 00:02:22.480 align:start position:0%
+request again
+ 
+
+00:02:22.480 --> 00:02:25.910 align:start position:0%
+request again
+but<00:02:22.640><c> repeater</c><00:02:23.280><c> can</c><00:02:23.440><c> also</c><00:02:23.840><c> handle</c><00:02:24.560><c> redirects</c>
+
+00:02:25.910 --> 00:02:25.920 align:start position:0%
+but repeater can also handle redirects
+ 
+
+00:02:25.920 --> 00:02:28.070 align:start position:0%
+but repeater can also handle redirects
+so<00:02:26.080><c> if</c><00:02:26.160><c> we</c><00:02:26.239><c> find</c><00:02:26.480><c> a</c><00:02:26.560><c> request</c><00:02:27.200><c> that</c><00:02:27.440><c> caused</c><00:02:28.000><c> a</c>
+
+00:02:28.070 --> 00:02:28.080 align:start position:0%
+so if we find a request that caused a
+ 
+
+00:02:28.080 --> 00:02:29.990 align:start position:0%
+so if we find a request that caused a
+redirection<00:02:28.720><c> response</c>
+
+00:02:29.990 --> 00:02:30.000 align:start position:0%
+redirection response
+ 
+
+00:02:30.000 --> 00:02:34.949 align:start position:0%
+redirection response
+and<00:02:30.319><c> send</c><00:02:30.800><c> that</c><00:02:30.959><c> to</c><00:02:31.120><c> repeater</c>
+
+00:02:34.949 --> 00:02:34.959 align:start position:0%
+ 
+ 
+
+00:02:34.959 --> 00:02:37.589 align:start position:0%
+ 
+here<00:02:35.200><c> we</c><00:02:35.280><c> can</c><00:02:35.440><c> see</c><00:02:35.920><c> the</c><00:02:36.080><c> server</c><00:02:36.400><c> replied</c><00:02:36.879><c> with</c>
+
+00:02:37.589 --> 00:02:37.599 align:start position:0%
+here we can see the server replied with
+ 
+
+00:02:37.599 --> 00:02:40.790 align:start position:0%
+here we can see the server replied with
+301<00:02:38.080><c> status</c><00:02:38.560><c> code</c><00:02:38.959><c> which</c><00:02:39.120><c> is</c><00:02:39.200><c> a</c><00:02:39.280><c> redirection</c>
+
+00:02:40.790 --> 00:02:40.800 align:start position:0%
+301 status code which is a redirection
+ 
+
+00:02:40.800 --> 00:02:42.550 align:start position:0%
+301 status code which is a redirection
+and<00:02:40.959><c> we</c><00:02:41.040><c> now</c><00:02:41.200><c> have</c><00:02:41.360><c> this</c><00:02:41.599><c> follow</c><00:02:42.000><c> redirection</c>
+
+00:02:42.550 --> 00:02:42.560 align:start position:0%
+and we now have this follow redirection
+ 
+
+00:02:42.560 --> 00:02:44.869 align:start position:0%
+and we now have this follow redirection
+button<00:02:43.280><c> if</c><00:02:43.440><c> we</c><00:02:43.519><c> click</c><00:02:43.760><c> that</c>
+
+00:02:44.869 --> 00:02:44.879 align:start position:0%
+button if we click that
+ 
+
+00:02:44.879 --> 00:02:47.030 align:start position:0%
+button if we click that
+but<00:02:45.120><c> we'll</c><00:02:45.440><c> update</c><00:02:45.760><c> the</c><00:02:45.840><c> request</c><00:02:46.400><c> on</c><00:02:46.560><c> the</c><00:02:46.640><c> left</c>
+
+00:02:47.030 --> 00:02:47.040 align:start position:0%
+but we'll update the request on the left
+ 
+
+00:02:47.040 --> 00:02:49.110 align:start position:0%
+but we'll update the request on the left
+to<00:02:47.200><c> be</c><00:02:47.680><c> the</c><00:02:47.840><c> redirected</c><00:02:48.400><c> request</c>
+
+00:02:49.110 --> 00:02:49.120 align:start position:0%
+to be the redirected request
+ 
+
+00:02:49.120 --> 00:02:51.750 align:start position:0%
+to be the redirected request
+and<00:02:49.360><c> it</c><00:02:49.519><c> will</c><00:02:49.680><c> show</c><00:02:50.160><c> the</c><00:02:50.319><c> response</c><00:02:50.879><c> from</c><00:02:51.040><c> that</c>
+
+00:02:51.750 --> 00:02:51.760 align:start position:0%
+and it will show the response from that
+ 
+
+00:02:51.760 --> 00:02:54.630 align:start position:0%
+and it will show the response from that
+on<00:02:51.920><c> the</c><00:02:52.000><c> right</c>
+
+00:02:54.630 --> 00:02:54.640 align:start position:0%
+ 
+ 
+
+00:02:54.640 --> 00:02:57.350 align:start position:0%
+ 
+if<00:02:54.800><c> we</c><00:02:54.959><c> want</c><00:02:55.440><c> we</c><00:02:55.599><c> can</c><00:02:55.760><c> do</c><00:02:56.000><c> this</c><00:02:56.400><c> automatically</c>
+
+00:02:57.350 --> 00:02:57.360 align:start position:0%
+if we want we can do this automatically
+ 
+
+00:02:57.360 --> 00:02:59.670 align:start position:0%
+if we want we can do this automatically
+so<00:02:57.519><c> if</c><00:02:57.599><c> we</c><00:02:57.680><c> go</c><00:02:57.840><c> to</c><00:02:57.920><c> the</c><00:02:58.000><c> repeater</c><00:02:58.400><c> menu</c>
+
+00:02:59.670 --> 00:02:59.680 align:start position:0%
+so if we go to the repeater menu
+ 
+
+00:02:59.680 --> 00:03:00.869 align:start position:0%
+so if we go to the repeater menu
+we<00:02:59.840><c> have</c><00:02:59.920><c> these</c><00:03:00.159><c> options</c><00:03:00.480><c> for</c><00:03:00.640><c> follow</c>
+
+00:03:00.869 --> 00:03:00.879 align:start position:0%
+we have these options for follow
+ 
+
+00:03:00.879 --> 00:03:04.630 align:start position:0%
+we have these options for follow
+redirections<00:03:02.239><c> if</c><00:03:02.319><c> we</c><00:03:02.480><c> turn</c><00:03:02.720><c> those</c><00:03:02.959><c> on</c>
+
+00:03:04.630 --> 00:03:04.640 align:start position:0%
+redirections if we turn those on
+ 
+
+00:03:04.640 --> 00:03:08.390 align:start position:0%
+redirections if we turn those on
+we<00:03:04.800><c> hit</c><00:03:05.040><c> send</c><00:03:05.760><c> this</c><00:03:06.000><c> time</c><00:03:07.120><c> but</c><00:03:07.440><c> automatically</c>
+
+00:03:08.390 --> 00:03:08.400 align:start position:0%
+we hit send this time but automatically
+ 
+
+00:03:08.400 --> 00:03:10.630 align:start position:0%
+we hit send this time but automatically
+follow<00:03:08.640><c> the</c><00:03:08.800><c> redirect</c><00:03:09.519><c> and</c><00:03:09.599><c> we</c><00:03:09.840><c> see</c><00:03:10.159><c> the</c><00:03:10.319><c> final</c>
+
+00:03:10.630 --> 00:03:10.640 align:start position:0%
+follow the redirect and we see the final
+ 
+
+00:03:10.640 --> 00:03:12.470 align:start position:0%
+follow the redirect and we see the final
+response<00:03:11.280><c> on</c><00:03:11.440><c> the</c><00:03:11.519><c> right</c>
+
+00:03:12.470 --> 00:03:12.480 align:start position:0%
+response on the right
+ 
+
+00:03:12.480 --> 00:03:14.710 align:start position:0%
+response on the right
+and<00:03:12.640><c> down</c><00:03:12.800><c> at</c><00:03:12.879><c> the</c><00:03:12.959><c> bottom</c><00:03:13.360><c> in</c><00:03:13.440><c> the</c><00:03:13.519><c> status</c><00:03:14.000><c> bar</c>
+
+00:03:14.710 --> 00:03:14.720 align:start position:0%
+and down at the bottom in the status bar
+ 
+
+00:03:14.720 --> 00:03:16.470 align:start position:0%
+and down at the bottom in the status bar
+that<00:03:14.959><c> tells</c><00:03:15.280><c> us</c><00:03:15.519><c> that</c><00:03:15.760><c> it</c><00:03:15.840><c> followed</c>
+
+00:03:16.470 --> 00:03:16.480 align:start position:0%
+that tells us that it followed
+ 
+
+00:03:16.480 --> 00:03:19.589 align:start position:0%
+that tells us that it followed
+one<00:03:16.840><c> redirection</c><00:03:19.040><c> there</c><00:03:19.200><c> are</c><00:03:19.280><c> some</c><00:03:19.440><c> other</c>
+
+00:03:19.589 --> 00:03:19.599 align:start position:0%
+one redirection there are some other
+ 
+
+00:03:19.599 --> 00:03:20.470 align:start position:0%
+one redirection there are some other
+handy<00:03:19.920><c> options</c>
+
+00:03:20.470 --> 00:03:20.480 align:start position:0%
+handy options
+ 
+
+00:03:20.480 --> 00:03:23.589 align:start position:0%
+handy options
+on<00:03:20.640><c> the</c><00:03:20.720><c> repeater</c><00:03:21.200><c> menu</c><00:03:22.400><c> so</c><00:03:22.640><c> by</c><00:03:22.800><c> default</c>
+
+00:03:23.589 --> 00:03:23.599 align:start position:0%
+on the repeater menu so by default
+ 
+
+00:03:23.599 --> 00:03:25.190 align:start position:0%
+on the repeater menu so by default
+but<00:03:23.760><c> repeater</c><00:03:24.239><c> will</c><00:03:24.400><c> update</c><00:03:24.720><c> the</c><00:03:24.799><c> content</c>
+
+00:03:25.190 --> 00:03:25.200 align:start position:0%
+but repeater will update the content
+ 
+
+00:03:25.200 --> 00:03:27.750 align:start position:0%
+but repeater will update the content
+length<00:03:25.920><c> as</c><00:03:26.159><c> you</c><00:03:26.400><c> edit</c><00:03:26.799><c> requests</c><00:03:27.519><c> if</c><00:03:27.599><c> you</c>
+
+00:03:27.750 --> 00:03:27.760 align:start position:0%
+length as you edit requests if you
+ 
+
+00:03:27.760 --> 00:03:29.509 align:start position:0%
+length as you edit requests if you
+prefer<00:03:28.080><c> you</c><00:03:28.239><c> can</c><00:03:28.319><c> turn</c><00:03:28.480><c> that</c><00:03:28.720><c> off</c>
+
+00:03:29.509 --> 00:03:29.519 align:start position:0%
+prefer you can turn that off
+ 
+
+00:03:29.519 --> 00:03:32.390 align:start position:0%
+prefer you can turn that off
+by<00:03:29.760><c> default</c><00:03:30.239><c> but</c><00:03:30.560><c> we'll</c><00:03:30.959><c> unpack</c><00:03:31.599><c> gzip</c><00:03:32.239><c> and</c>
+
+00:03:32.390 --> 00:03:32.400 align:start position:0%
+by default but we'll unpack gzip and
+ 
+
+00:03:32.400 --> 00:03:33.750 align:start position:0%
+by default but we'll unpack gzip and
+deflate<00:03:32.959><c> content</c>
+
+00:03:33.750 --> 00:03:33.760 align:start position:0%
+deflate content
+ 
+
+00:03:33.760 --> 00:03:35.589 align:start position:0%
+deflate content
+in<00:03:33.920><c> responses</c><00:03:34.640><c> if</c><00:03:34.799><c> you</c><00:03:34.879><c> prefer</c><00:03:35.200><c> you</c><00:03:35.280><c> can</c><00:03:35.360><c> turn</c>
+
+00:03:35.589 --> 00:03:35.599 align:start position:0%
+in responses if you prefer you can turn
+ 
+
+00:03:35.599 --> 00:03:37.030 align:start position:0%
+in responses if you prefer you can turn
+that<00:03:35.760><c> off</c>
+
+00:03:37.030 --> 00:03:37.040 align:start position:0%
+that off
+ 
+
+00:03:37.040 --> 00:03:39.589 align:start position:0%
+that off
+you<00:03:37.280><c> can</c><00:03:37.680><c> tell</c><00:03:37.920><c> about</c><00:03:38.159><c> whether</c><00:03:38.560><c> to</c><00:03:38.959><c> process</c>
+
+00:03:39.589 --> 00:03:39.599 align:start position:0%
+you can tell about whether to process
+ 
+
+00:03:39.599 --> 00:03:40.309 align:start position:0%
+you can tell about whether to process
+cookies
+
+00:03:40.309 --> 00:03:40.319 align:start position:0%
+cookies
+ 
+
+00:03:40.319 --> 00:03:43.509 align:start position:0%
+cookies
+in<00:03:40.480><c> redirects</c><00:03:41.760><c> you</c><00:03:41.920><c> can</c><00:03:42.400><c> change</c><00:03:42.799><c> the</c>
+
+00:03:43.509 --> 00:03:43.519 align:start position:0%
+in redirects you can change the
+ 
+
+00:03:43.519 --> 00:03:46.630 align:start position:0%
+in redirects you can change the
+view<00:03:44.319><c> of</c><00:03:44.480><c> repeater</c><00:03:45.280><c> so</c><00:03:45.440><c> you</c><00:03:45.599><c> can</c><00:03:45.840><c> have</c>
+
+00:03:46.630 --> 00:03:46.640 align:start position:0%
+view of repeater so you can have
+ 
+
+00:03:46.640 --> 00:03:49.430 align:start position:0%
+view of repeater so you can have
+top<00:03:46.799><c> bottom</c><00:03:47.120><c> split</c><00:03:48.000><c> or</c><00:03:48.480><c> other</c><00:03:48.720><c> views</c><00:03:49.200><c> if</c><00:03:49.280><c> you</c>
+
+00:03:49.430 --> 00:03:49.440 align:start position:0%
+top bottom split or other views if you
+ 
+
+00:03:49.440 --> 00:03:52.470 align:start position:0%
+top bottom split or other views if you
+prefer
+
+00:03:52.470 --> 00:03:52.480 align:start position:0%
+ 
+ 
+
+00:03:52.480 --> 00:03:55.589 align:start position:0%
+ 
+you<00:03:52.560><c> can</c><00:03:52.720><c> use</c><00:03:52.959><c> hotkeys</c><00:03:53.920><c> to</c><00:03:54.159><c> send</c><00:03:54.799><c> items</c><00:03:55.439><c> to</c>
+
+00:03:55.589 --> 00:03:55.599 align:start position:0%
+you can use hotkeys to send items to
+ 
+
+00:03:55.599 --> 00:03:56.070 align:start position:0%
+you can use hotkeys to send items to
+burp
+
+00:03:56.070 --> 00:03:56.080 align:start position:0%
+burp
+ 
+
+00:03:56.080 --> 00:03:59.270 align:start position:0%
+burp
+repeater<00:03:56.959><c> so</c><00:03:57.120><c> we</c><00:03:57.200><c> select</c><00:03:57.519><c> an</c><00:03:57.680><c> item</c><00:03:58.239><c> and</c><00:03:58.959><c> type</c>
+
+00:03:59.270 --> 00:03:59.280 align:start position:0%
+repeater so we select an item and type
+ 
+
+00:03:59.280 --> 00:03:59.830 align:start position:0%
+repeater so we select an item and type
+control
+
+00:03:59.830 --> 00:03:59.840 align:start position:0%
+control
+ 
+
+00:03:59.840 --> 00:04:04.309 align:start position:0%
+control
+r<00:04:00.799><c> or</c><00:04:01.040><c> command</c><00:04:01.439><c> r</c><00:04:02.000><c> on</c><00:04:02.239><c> mac</c>
+
+00:04:04.309 --> 00:04:04.319 align:start position:0%
+r or command r on mac
+ 
+
+00:04:04.319 --> 00:04:07.030 align:start position:0%
+r or command r on mac
+that<00:04:04.480><c> request</c><00:04:05.120><c> comes</c><00:04:05.439><c> into</c><00:04:05.599><c> repeater</c><00:04:06.799><c> we</c><00:04:06.879><c> can</c>
+
+00:04:07.030 --> 00:04:07.040 align:start position:0%
+that request comes into repeater we can
+ 
+
+00:04:07.040 --> 00:04:09.350 align:start position:0%
+that request comes into repeater we can
+also<00:04:07.200><c> use</c><00:04:07.439><c> control</c><00:04:07.760><c> space</c><00:04:08.239><c> or</c><00:04:08.400><c> command</c><00:04:08.799><c> space</c>
+
+00:04:09.350 --> 00:04:09.360 align:start position:0%
+also use control space or command space
+ 
+
+00:04:09.360 --> 00:04:12.869 align:start position:0%
+also use control space or command space
+to<00:04:09.599><c> issue</c><00:04:09.840><c> the</c><00:04:09.920><c> request</c><00:04:12.000><c> you</c><00:04:12.159><c> can</c><00:04:12.239><c> configure</c>
+
+00:04:12.869 --> 00:04:12.879 align:start position:0%
+to issue the request you can configure
+ 
+
+00:04:12.879 --> 00:04:16.390 align:start position:0%
+to issue the request you can configure
+burps<00:04:13.200><c> hotkeys</c><00:04:13.840><c> by</c><00:04:14.080><c> going</c><00:04:14.319><c> to</c><00:04:14.400><c> user</c><00:04:14.720><c> options</c>
+
+00:04:16.390 --> 00:04:16.400 align:start position:0%
+burps hotkeys by going to user options
+ 
+
+00:04:16.400 --> 00:04:19.270 align:start position:0%
+burps hotkeys by going to user options
+misc<00:04:17.199><c> and</c><00:04:17.840><c> editing</c><00:04:18.239><c> the</c><00:04:18.320><c> configured</c><00:04:18.799><c> hotkeys</c>
+
+00:04:19.270 --> 00:04:19.280 align:start position:0%
+misc and editing the configured hotkeys
+ 
+
+00:04:19.280 --> 00:04:22.150 align:start position:0%
+misc and editing the configured hotkeys
+here
+
+00:04:22.150 --> 00:04:22.160 align:start position:0%
+ 
+ 
+
+00:04:22.160 --> 00:04:24.870 align:start position:0%
+ 
+if<00:04:22.320><c> you</c><00:04:22.479><c> send</c><00:04:23.520><c> multiple</c><00:04:24.000><c> requests</c><00:04:24.720><c> to</c>
+
+00:04:24.870 --> 00:04:24.880 align:start position:0%
+if you send multiple requests to
+ 
+
+00:04:24.880 --> 00:04:26.950 align:start position:0%
+if you send multiple requests to
+repeater
+
+00:04:26.950 --> 00:04:26.960 align:start position:0%
+repeater
+ 
+
+00:04:26.960 --> 00:04:30.390 align:start position:0%
+repeater
+each<00:04:27.199><c> one</c><00:04:27.759><c> will</c><00:04:28.000><c> create</c><00:04:29.120><c> a</c><00:04:29.199><c> different</c><00:04:29.600><c> tab</c>
+
+00:04:30.390 --> 00:04:30.400 align:start position:0%
+each one will create a different tab
+ 
+
+00:04:30.400 --> 00:04:33.270 align:start position:0%
+each one will create a different tab
+in<00:04:30.560><c> repeater</c><00:04:31.759><c> where</c><00:04:32.000><c> you</c><00:04:32.080><c> can</c><00:04:32.240><c> work</c><00:04:32.880><c> so</c><00:04:33.120><c> each</c>
+
+00:04:33.270 --> 00:04:33.280 align:start position:0%
+in repeater where you can work so each
+ 
+
+00:04:33.280 --> 00:04:35.110 align:start position:0%
+in repeater where you can work so each
+tab<00:04:33.680><c> has</c><00:04:33.919><c> its</c><00:04:34.080><c> own</c><00:04:34.240><c> request</c><00:04:34.639><c> and</c><00:04:34.720><c> response</c>
+
+00:04:35.110 --> 00:04:35.120 align:start position:0%
+tab has its own request and response
+ 
+
+00:04:35.120 --> 00:04:37.030 align:start position:0%
+tab has its own request and response
+panels<00:04:35.600><c> it</c><00:04:35.680><c> has</c><00:04:35.840><c> its</c><00:04:36.080><c> own</c><00:04:36.240><c> history</c>
+
+00:04:37.030 --> 00:04:37.040 align:start position:0%
+panels it has its own history
+ 
+
+00:04:37.040 --> 00:04:38.870 align:start position:0%
+panels it has its own history
+so<00:04:37.199><c> you</c><00:04:37.280><c> can</c><00:04:37.440><c> work</c><00:04:37.680><c> independently</c><00:04:38.720><c> on</c>
+
+00:04:38.870 --> 00:04:38.880 align:start position:0%
+so you can work independently on
+ 
+
+00:04:38.880 --> 00:04:40.950 align:start position:0%
+so you can work independently on
+different<00:04:39.120><c> requests</c><00:04:40.000><c> this</c><00:04:40.240><c> is</c><00:04:40.320><c> really</c><00:04:40.560><c> handy</c>
+
+00:04:40.950 --> 00:04:40.960 align:start position:0%
+different requests this is really handy
+ 
+
+00:04:40.960 --> 00:04:42.230 align:start position:0%
+different requests this is really handy
+in<00:04:41.040><c> your</c><00:04:41.199><c> testing</c><00:04:41.600><c> workflow</c>
+
+00:04:42.230 --> 00:04:42.240 align:start position:0%
+in your testing workflow
+ 
+
+00:04:42.240 --> 00:04:44.550 align:start position:0%
+in your testing workflow
+if<00:04:42.479><c> you</c><00:04:42.720><c> are</c><00:04:42.960><c> testing</c><00:04:43.840><c> different</c><00:04:44.160><c> endpoints</c>
+
+00:04:44.550 --> 00:04:44.560 align:start position:0%
+if you are testing different endpoints
+ 
+
+00:04:44.560 --> 00:04:46.150 align:start position:0%
+if you are testing different endpoints
+of<00:04:44.639><c> the</c><00:04:44.720><c> application</c><00:04:45.360><c> different</c><00:04:45.680><c> features</c>
+
+00:04:46.150 --> 00:04:46.160 align:start position:0%
+of the application different features
+ 
+
+00:04:46.160 --> 00:04:47.749 align:start position:0%
+of the application different features
+and<00:04:46.320><c> you</c><00:04:46.400><c> want</c><00:04:46.639><c> to</c><00:04:46.880><c> play</c><00:04:47.040><c> with</c><00:04:47.199><c> one</c><00:04:47.360><c> request</c>
+
+00:04:47.749 --> 00:04:47.759 align:start position:0%
+and you want to play with one request
+ 
+
+00:04:47.759 --> 00:04:48.469 align:start position:0%
+and you want to play with one request
+for<00:04:47.840><c> a</c><00:04:47.919><c> bit</c>
+
+00:04:48.469 --> 00:04:48.479 align:start position:0%
+for a bit
+ 
+
+00:04:48.479 --> 00:04:50.230 align:start position:0%
+for a bit
+switch<00:04:48.800><c> and</c><00:04:48.880><c> work</c><00:04:49.120><c> on</c><00:04:49.199><c> something</c><00:04:49.520><c> else</c><00:04:50.080><c> you</c>
+
+00:04:50.230 --> 00:04:50.240 align:start position:0%
+switch and work on something else you
+ 
+
+00:04:50.240 --> 00:04:51.990 align:start position:0%
+switch and work on something else you
+can<00:04:50.400><c> then</c><00:04:50.880><c> keep</c><00:04:51.040><c> your</c><00:04:51.199><c> work</c><00:04:51.520><c> and</c><00:04:51.680><c> easily</c>
+
+00:04:51.990 --> 00:04:52.000 align:start position:0%
+can then keep your work and easily
+ 
+
+00:04:52.000 --> 00:04:54.070 align:start position:0%
+can then keep your work and easily
+switch<00:04:52.240><c> back</c>
+
+00:04:54.070 --> 00:04:54.080 align:start position:0%
+switch back
+ 
+
+00:04:54.080 --> 00:04:56.390 align:start position:0%
+switch back
+if<00:04:54.240><c> you</c><00:04:54.320><c> want</c><00:04:54.800><c> you</c><00:04:54.960><c> could</c><00:04:55.120><c> rename</c><00:04:55.680><c> tabs</c><00:04:56.240><c> by</c>
+
+00:04:56.390 --> 00:04:56.400 align:start position:0%
+if you want you could rename tabs by
+ 
+
+00:04:56.400 --> 00:04:57.990 align:start position:0%
+if you want you could rename tabs by
+clicking<00:04:56.720><c> on</c><00:04:56.800><c> the</c><00:04:56.880><c> tab</c><00:04:57.120><c> header</c>
+
+00:04:57.990 --> 00:04:58.000 align:start position:0%
+clicking on the tab header
+ 
+
+00:04:58.000 --> 00:05:00.950 align:start position:0%
+clicking on the tab header
+and<00:04:59.280><c> typing</c><00:04:59.680><c> in</c><00:05:00.160><c> a</c><00:05:00.240><c> different</c><00:05:00.560><c> name</c><00:05:00.720><c> for</c><00:05:00.880><c> the</c>
+
+00:05:00.950 --> 00:05:00.960 align:start position:0%
+and typing in a different name for the
+ 
+
+00:05:00.960 --> 00:05:01.350 align:start position:0%
+and typing in a different name for the
+tab
+
+00:05:01.350 --> 00:05:01.360 align:start position:0%
+tab
+ 
+
+00:05:01.360 --> 00:05:03.749 align:start position:0%
+tab
+this<00:05:01.600><c> lets</c><00:05:01.840><c> you</c><00:05:02.000><c> easily</c><00:05:02.400><c> label</c><00:05:03.199><c> your</c><00:05:03.360><c> tabs</c><00:05:03.680><c> so</c>
+
+00:05:03.749 --> 00:05:03.759 align:start position:0%
+this lets you easily label your tabs so
+ 
+
+00:05:03.759 --> 00:05:05.270 align:start position:0%
+this lets you easily label your tabs so
+you<00:05:03.919><c> can</c><00:05:04.000><c> come</c><00:05:04.160><c> back</c><00:05:04.320><c> to</c><00:05:04.400><c> them</c><00:05:04.720><c> and</c><00:05:04.880><c> remember</c>
+
+00:05:05.270 --> 00:05:05.280 align:start position:0%
+you can come back to them and remember
+ 
+
+00:05:05.280 --> 00:05:06.790 align:start position:0%
+you can come back to them and remember
+where<00:05:05.440><c> you</c><00:05:05.520><c> left</c><00:05:05.840><c> off</c>
+
+00:05:06.790 --> 00:05:06.800 align:start position:0%
+where you left off
+ 
+
+00:05:06.800 --> 00:05:09.510 align:start position:0%
+where you left off
+you<00:05:06.960><c> could</c><00:05:07.039><c> reorder</c><00:05:07.520><c> tabs</c><00:05:08.160><c> by</c><00:05:08.320><c> dragging</c><00:05:08.720><c> them</c>
+
+00:05:09.510 --> 00:05:09.520 align:start position:0%
+you could reorder tabs by dragging them
+ 
+
+00:05:09.520 --> 00:05:12.230 align:start position:0%
+you could reorder tabs by dragging them
+in<00:05:09.600><c> the</c><00:05:09.680><c> tab</c><00:05:09.919><c> header</c>
+
+00:05:12.230 --> 00:05:12.240 align:start position:0%
+in the tab header
+ 
+
+00:05:12.240 --> 00:05:13.670 align:start position:0%
+in the tab header
+if<00:05:12.320><c> you're</c><00:05:12.479><c> finished</c><00:05:12.720><c> with</c><00:05:12.880><c> the</c><00:05:12.960><c> tab</c><00:05:13.360><c> you</c><00:05:13.520><c> can</c>
+
+00:05:13.670 --> 00:05:13.680 align:start position:0%
+if you're finished with the tab you can
+ 
+
+00:05:13.680 --> 00:05:15.510 align:start position:0%
+if you're finished with the tab you can
+close<00:05:14.000><c> it</c><00:05:14.479><c> by</c><00:05:14.639><c> clicking</c><00:05:15.039><c> on</c>
+
+00:05:15.510 --> 00:05:15.520 align:start position:0%
+close it by clicking on
+ 
+
+00:05:15.520 --> 00:05:19.350 align:start position:0%
+close it by clicking on
+the<00:05:15.680><c> little</c><00:05:15.919><c> x</c><00:05:17.919><c> there's</c><00:05:18.240><c> one</c><00:05:18.400><c> more</c><00:05:18.639><c> way</c>
+
+00:05:19.350 --> 00:05:19.360 align:start position:0%
+the little x there's one more way
+ 
+
+00:05:19.360 --> 00:05:21.830 align:start position:0%
+the little x there's one more way
+to<00:05:20.160><c> start</c><00:05:20.560><c> off</c><00:05:20.720><c> with</c><00:05:20.880><c> both</c><00:05:21.039><c> repeater</c><00:05:21.520><c> and</c><00:05:21.680><c> that</c>
+
+00:05:21.830 --> 00:05:21.840 align:start position:0%
+to start off with both repeater and that
+ 
+
+00:05:21.840 --> 00:05:23.670 align:start position:0%
+to start off with both repeater and that
+is<00:05:22.000><c> you</c><00:05:22.160><c> can</c><00:05:22.400><c> click</c><00:05:22.720><c> on</c><00:05:22.960><c> these</c><00:05:23.199><c> little</c><00:05:23.440><c> three</c>
+
+00:05:23.670 --> 00:05:23.680 align:start position:0%
+is you can click on these little three
+ 
+
+00:05:23.680 --> 00:05:24.150 align:start position:0%
+is you can click on these little three
+dots
+
+00:05:24.150 --> 00:05:24.160 align:start position:0%
+dots
+ 
+
+00:05:24.160 --> 00:05:26.469 align:start position:0%
+dots
+to<00:05:24.320><c> create</c><00:05:24.880><c> a</c><00:05:24.960><c> new</c><00:05:25.199><c> tab</c><00:05:25.919><c> and</c><00:05:26.080><c> here</c><00:05:26.240><c> we're</c><00:05:26.400><c> going</c>
+
+00:05:26.469 --> 00:05:26.479 align:start position:0%
+to create a new tab and here we're going
+ 
+
+00:05:26.479 --> 00:05:27.270 align:start position:0%
+to create a new tab and here we're going
+to<00:05:26.639><c> say</c>
+
+00:05:27.270 --> 00:05:27.280 align:start position:0%
+to say
+ 
+
+00:05:27.280 --> 00:05:29.909 align:start position:0%
+to say
+type<00:05:27.919><c> http</c><00:05:28.639><c> because</c><00:05:28.880><c> we're</c><00:05:28.960><c> working</c><00:05:29.199><c> on</c><00:05:29.280><c> http</c>
+
+00:05:29.909 --> 00:05:29.919 align:start position:0%
+type http because we're working on http
+ 
+
+00:05:29.919 --> 00:05:30.950 align:start position:0%
+type http because we're working on http
+requests
+
+00:05:30.950 --> 00:05:30.960 align:start position:0%
+requests
+ 
+
+00:05:30.960 --> 00:05:32.550 align:start position:0%
+requests
+if<00:05:31.120><c> we</c><00:05:31.280><c> were</c><00:05:31.440><c> working</c><00:05:31.680><c> on</c><00:05:31.759><c> websockets</c><00:05:32.400><c> we</c>
+
+00:05:32.550 --> 00:05:32.560 align:start position:0%
+if we were working on websockets we
+ 
+
+00:05:32.560 --> 00:05:33.909 align:start position:0%
+if we were working on websockets we
+would<00:05:32.639><c> select</c><00:05:32.880><c> that</c><00:05:33.120><c> option</c><00:05:33.520><c> and</c><00:05:33.680><c> it</c><00:05:33.759><c> would</c>
+
+00:05:33.909 --> 00:05:33.919 align:start position:0%
+would select that option and it would
+ 
+
+00:05:33.919 --> 00:05:35.110 align:start position:0%
+would select that option and it would
+create<00:05:34.160><c> a</c><00:05:34.240><c> different</c><00:05:34.560><c> ui</c>
+
+00:05:35.110 --> 00:05:35.120 align:start position:0%
+create a different ui
+ 
+
+00:05:35.120 --> 00:05:37.270 align:start position:0%
+create a different ui
+for<00:05:35.280><c> working</c><00:05:35.600><c> on</c><00:05:35.680><c> websockets</c><00:05:36.240><c> messages</c><00:05:37.120><c> we'll</c>
+
+00:05:37.270 --> 00:05:37.280 align:start position:0%
+for working on websockets messages we'll
+ 
+
+00:05:37.280 --> 00:05:38.710 align:start position:0%
+for working on websockets messages we'll
+cover<00:05:37.520><c> websockets</c><00:05:38.000><c> testing</c>
+
+00:05:38.710 --> 00:05:38.720 align:start position:0%
+cover websockets testing
+ 
+
+00:05:38.720 --> 00:05:41.590 align:start position:0%
+cover websockets testing
+in<00:05:38.800><c> a</c><00:05:38.880><c> different</c><00:05:39.199><c> tutorial</c><00:05:40.960><c> so</c><00:05:41.199><c> we</c><00:05:41.280><c> click</c><00:05:41.520><c> on</c>
+
+00:05:41.590 --> 00:05:41.600 align:start position:0%
+in a different tutorial so we click on
+ 
+
+00:05:41.600 --> 00:05:43.029 align:start position:0%
+in a different tutorial so we click on
+http
+
+00:05:43.029 --> 00:05:43.039 align:start position:0%
+http
+ 
+
+00:05:43.039 --> 00:05:45.350 align:start position:0%
+http
+we<00:05:43.120><c> get</c><00:05:43.280><c> a</c><00:05:43.360><c> new</c><00:05:43.680><c> empty</c><00:05:44.000><c> tab</c><00:05:44.479><c> with</c><00:05:44.639><c> no</c><00:05:44.880><c> request</c>
+
+00:05:45.350 --> 00:05:45.360 align:start position:0%
+we get a new empty tab with no request
+ 
+
+00:05:45.360 --> 00:05:46.550 align:start position:0%
+we get a new empty tab with no request
+or<00:05:45.440><c> response</c>
+
+00:05:46.550 --> 00:05:46.560 align:start position:0%
+or response
+ 
+
+00:05:46.560 --> 00:05:48.629 align:start position:0%
+or response
+no<00:05:46.800><c> target</c><00:05:47.120><c> details</c><00:05:47.440><c> specified</c><00:05:48.160><c> so</c><00:05:48.320><c> we</c><00:05:48.479><c> could</c>
+
+00:05:48.629 --> 00:05:48.639 align:start position:0%
+no target details specified so we could
+ 
+
+00:05:48.639 --> 00:05:50.950 align:start position:0%
+no target details specified so we could
+configure<00:05:49.440><c> all</c><00:05:49.600><c> of</c><00:05:49.680><c> these</c><00:05:49.840><c> manually</c>
+
+00:05:50.950 --> 00:05:50.960 align:start position:0%
+configure all of these manually
+ 
+
+00:05:50.960 --> 00:05:52.150 align:start position:0%
+configure all of these manually
+but<00:05:51.120><c> there's</c><00:05:51.280><c> another</c><00:05:51.440><c> nice</c><00:05:51.680><c> little</c><00:05:51.840><c> feature</c>
+
+00:05:52.150 --> 00:05:52.160 align:start position:0%
+but there's another nice little feature
+ 
+
+00:05:52.160 --> 00:05:54.710 align:start position:0%
+but there's another nice little feature
+in<00:05:52.240><c> burp</c><00:05:52.880><c> if</c><00:05:53.120><c> you</c><00:05:53.680><c> have</c><00:05:53.840><c> a</c><00:05:53.919><c> url</c>
+
+00:05:54.710 --> 00:05:54.720 align:start position:0%
+in burp if you have a url
+ 
+
+00:05:54.720 --> 00:05:57.189 align:start position:0%
+in burp if you have a url
+that<00:05:54.880><c> you're</c><00:05:55.039><c> interested</c><00:05:55.520><c> in</c><00:05:56.720><c> if</c><00:05:56.800><c> you</c><00:05:56.960><c> copy</c>
+
+00:05:57.189 --> 00:05:57.199 align:start position:0%
+that you're interested in if you copy
+ 
+
+00:05:57.199 --> 00:05:59.510 align:start position:0%
+that you're interested in if you copy
+that<00:05:57.280><c> to</c><00:05:57.360><c> the</c><00:05:57.440><c> clipboard</c>
+
+00:05:59.510 --> 00:05:59.520 align:start position:0%
+that to the clipboard
+ 
+
+00:05:59.520 --> 00:06:02.710 align:start position:0%
+that to the clipboard
+you<00:05:59.680><c> can</c><00:05:59.840><c> then</c><00:06:00.000><c> select</c><00:06:00.479><c> paste</c><00:06:00.800><c> url</c><00:06:01.440><c> as</c><00:06:01.680><c> request</c>
+
+00:06:02.710 --> 00:06:02.720 align:start position:0%
+you can then select paste url as request
+ 
+
+00:06:02.720 --> 00:06:05.270 align:start position:0%
+you can then select paste url as request
+that<00:06:02.880><c> will</c><00:06:03.039><c> then</c><00:06:03.440><c> create</c><00:06:04.000><c> a</c><00:06:04.160><c> request</c><00:06:05.120><c> and</c>
+
+00:06:05.270 --> 00:06:05.280 align:start position:0%
+that will then create a request and
+ 
+
+00:06:05.280 --> 00:06:06.950 align:start position:0%
+that will then create a request and
+configure<00:06:05.759><c> the</c><00:06:05.840><c> target</c><00:06:06.160><c> details</c>
+
+00:06:06.950 --> 00:06:06.960 align:start position:0%
+configure the target details
+ 
+
+00:06:06.960 --> 00:06:10.710 align:start position:0%
+configure the target details
+from<00:06:07.120><c> that</c><00:06:07.280><c> url</c><00:06:08.319><c> and</c><00:06:08.479><c> you</c><00:06:08.560><c> can</c><00:06:08.639><c> then</c><00:06:08.880><c> send</c><00:06:09.120><c> it</c>
+
+00:06:10.710 --> 00:06:10.720 align:start position:0%
+from that url and you can then send it
+ 
+
+00:06:10.720 --> 00:06:13.990 align:start position:0%
+from that url and you can then send it
+so<00:06:10.880><c> that's</c><00:06:11.440><c> how</c><00:06:11.680><c> to</c><00:06:11.759><c> resend</c><00:06:12.720><c> individual</c><00:06:13.360><c> http</c>
+
+00:06:13.990 --> 00:06:14.000 align:start position:0%
+so that's how to resend individual http
+ 
+
+00:06:14.000 --> 00:06:15.670 align:start position:0%
+so that's how to resend individual http
+requests<00:06:14.319><c> with</c><00:06:14.479><c> birt</c><00:06:14.720><c> repeater</c>
+
+00:06:15.670 --> 00:06:15.680 align:start position:0%
+requests with birt repeater
+ 
+
+00:06:15.680 --> 00:06:18.830 align:start position:0%
+requests with birt repeater
+and<00:06:16.080><c> various</c><00:06:16.639><c> related</c><00:06:17.199><c> workflows</c><00:06:18.080><c> and</c>
+
+00:06:18.830 --> 00:06:18.840 align:start position:0%
+and various related workflows and
+ 
+
+00:06:18.840 --> 00:06:21.840 align:start position:0%
+and various related workflows and
+options
+

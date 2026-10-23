@@ -1,0 +1,159 @@
+{
+  "checked_at": "2026-10-19T05:48:23.663512+00:00",
+  "html_sha256": "7f87d3e474a7c9e16b8ca3b4eb76ad622865acc663ddee36254b0f2031e1a001",
+  "anchors": 248,
+  "ids": 14,
+  "errors": [],
+  "external_links": [
+    {
+      "url": "https://doc.sagemath.org/html/en/thematic_tutorials/numtheory_rsa.html",
+      "status": 200,
+      "final_url": "https://doc.sagemath.org/html/en/thematic_tutorials/numtheory_rsa.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.openssl.org/master/man1/openssl-enc/#examples",
+      "status": 200,
+      "final_url": "https://docs.openssl.org/master/man1/openssl-enc/#examples",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.python.org/3/library/zipfile.html#command-line-interface",
+      "status": 200,
+      "final_url": "https://docs.python.org/3/library/zipfile.html#command-line-interface",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://exiftool.org/exiftool_pod2.html#READING-EXAMPLES",
+      "status": 200,
+      "final_url": "https://exiftool.org/exiftool_pod2.html#READING-EXAMPLES",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://ffmpeg.org/ffmpeg.html#Advanced-options",
+      "status": 200,
+      "final_url": "https://ffmpeg.org/ffmpeg.html#Advanced-options",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+      "status": 200,
+      "final_url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/ReFirmLabs/binwalk#how-do-i-use-it",
+      "status": 200,
+      "final_url": "https://github.com/ReFirmLabs/binwalk#how-do-i-use-it",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/RsaCtfTool/RsaCtfTool#usage",
+      "status": 200,
+      "final_url": "https://github.com/RsaCtfTool/RsaCtfTool#usage",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/WithSecureOpenSource/chainsaw/wiki/Usage#examples",
+      "status": 200,
+      "final_url": "https://github.com/WithSecureOpenSource/chainsaw/wiki/Usage#examples",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/ffuf/ffuf#usage",
+      "status": 200,
+      "final_url": "https://github.com/ffuf/ffuf#usage",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/gchq/CyberChef#how-it-works",
+      "status": 200,
+      "final_url": "https://github.com/gchq/CyberChef#how-it-works",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/mandiant/capa#example",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/capa#example",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/skylot/jadx/wiki/jadx-gui-features-overview#find-usage",
+      "status": 200,
+      "final_url": "https://github.com/skylot/jadx/wiki/jadx-gui-features-overview#find-usage",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage#load-http-request-from-a-file",
+      "status": 200,
+      "final_url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage#load-http-request-from-a-file",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/zed-0xff/zsteg#examples",
+      "status": 200,
+      "final_url": "https://github.com/zed-0xff/zsteg#examples",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://jqlang.org/tutorial/",
+      "status": 200,
+      "final_url": "https://jqlang.org/tutorial/",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+      "status": 200,
+      "final_url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "status": 200,
+      "final_url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Sample-Session.html",
+      "status": 200,
+      "final_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Sample-Session.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://support.google.com/websearch/answer/2466433?gl=us&hl=en",
+      "status": 200,
+      "final_url": "https://support.google.com/websearch/answer/2466433?gl=us&hl=en",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "status": 200,
+      "final_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "status": 200,
+      "final_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html",
+      "outcome": "reachable"
+    }
+  ]
+}

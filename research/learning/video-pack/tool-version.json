@@ -1,0 +1,8 @@
+{
+  "caption_tool": "existing yt-dlp2026.03.17",
+  "download_tool": "/tmp/ctf-learning-yt-dlp-2026.10.21",
+  "version": "2026.10.21",
+  "source": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.10.21/yt-dlp",
+  "sha256": "b7af77f686e95f7845ce8d09d21957718febb8b48b30555adb9dd2292ad7bf14",
+  "global_installation_changed": false
+}

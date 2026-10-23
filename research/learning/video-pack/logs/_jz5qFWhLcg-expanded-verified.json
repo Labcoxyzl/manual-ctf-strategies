@@ -1,0 +1,21 @@
+{
+  "number": 16,
+  "video_id": "_jz5qFWhLcg",
+  "title": "Broken Access Control | Complete Guide",
+  "file": "videos/16_Broken_Access_Control__jz5qFWhLcg.mp4",
+  "bytes": 84858219,
+  "sha256": "8a20c2584eebaed14c8298dce12a7753a59dbcbb09738fa7c79cbdee3f8ad9bb",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 2372.429206,
+  "sample_decode_seconds": [
+    1,
+    1186.214603,
+    2369.429206
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/16_Broken_Access_Control__jz5qFWhLcg.en.vtt"
+}

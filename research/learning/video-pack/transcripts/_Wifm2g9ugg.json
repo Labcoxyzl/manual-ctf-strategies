@@ -1,0 +1,687 @@
+{
+  "video_id": "_Wifm2g9ugg",
+  "title": "How to resend individual requests with Burp Repeater",
+  "channel": "PortSwigger",
+  "duration_seconds": 390,
+  "caption_source": "research/learning/video-pack/captions/_Wifm2g9ugg.en-orig.vtt",
+  "caption_sha256": "120c395cd1d79408b6d5e2d125211d974f004fac86554cc51ddcdca203c6a144",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 8,
+      "text": "in this tutorial"
+    },
+    {
+      "seconds": 8,
+      "text": "we'll cover how to resend individual"
+    },
+    {
+      "seconds": 10,
+      "text": "http requests"
+    },
+    {
+      "seconds": 12,
+      "text": "using burp repeater and we'll look at"
+    },
+    {
+      "seconds": 14,
+      "text": "various related workflows"
+    },
+    {
+      "seconds": 16,
+      "text": "and options that you can use to support"
+    },
+    {
+      "seconds": 18,
+      "text": "your testing"
+    },
+    {
+      "seconds": 24,
+      "text": "burp suite repeater is the tool that you"
+    },
+    {
+      "seconds": 24,
+      "text": "can use"
+    },
+    {
+      "seconds": 25,
+      "text": "to resend individual requests modify"
+    },
+    {
+      "seconds": 28,
+      "text": "them"
+    },
+    {
+      "seconds": 29,
+      "text": "and issue them over and over"
+    },
+    {
+      "seconds": 32,
+      "text": "the easiest way to use burp repeater is"
+    },
+    {
+      "seconds": 35,
+      "text": "to send requests to it"
+    },
+    {
+      "seconds": 37,
+      "text": "from other tools in burp so burp suite"
+    },
+    {
+      "seconds": 40,
+      "text": "you can send requests between"
+    },
+    {
+      "seconds": 42,
+      "text": "burp tools anywhere that you see them"
+    },
+    {
+      "seconds": 48,
+      "text": "so i'm going to launch burp's embedded"
+    },
+    {
+      "seconds": 48,
+      "text": "browser"
+    },
+    {
+      "seconds": 50,
+      "text": "and visit a website"
+    },
+    {
+      "seconds": 56,
+      "text": "the request is intercepted in proxy so"
+    },
+    {
+      "seconds": 56,
+      "text": "we can use the context menu"
+    },
+    {
+      "seconds": 58,
+      "text": "and select center repeater from here"
+    },
+    {
+      "seconds": 61,
+      "text": "or if we prefer we can go"
+    },
+    {
+      "seconds": 64,
+      "text": "to the http history we click on any"
+    },
+    {
+      "seconds": 67,
+      "text": "request that we're interested in again"
+    },
+    {
+      "seconds": 69,
+      "text": "use the context menu"
+    },
+    {
+      "seconds": 70,
+      "text": "select center repeater or we can go"
+    },
+    {
+      "seconds": 73,
+      "text": "to the target tab and"
+    },
+    {
+      "seconds": 77,
+      "text": "select an item that we're interested in"
+    },
+    {
+      "seconds": 79,
+      "text": "and do"
+    },
+    {
+      "seconds": 80,
+      "text": "send to repeater from the context menu"
+    },
+    {
+      "seconds": 82,
+      "text": "again or from any"
+    },
+    {
+      "seconds": 83,
+      "text": "individual request panel we can do the"
+    },
+    {
+      "seconds": 86,
+      "text": "same"
+    },
+    {
+      "seconds": 88,
+      "text": "so if we send a request to repeater"
+    },
+    {
+      "seconds": 90,
+      "text": "there it appears"
+    },
+    {
+      "seconds": 92,
+      "text": "on the left hand side in the request"
+    },
+    {
+      "seconds": 93,
+      "text": "panel we can see the request"
+    },
+    {
+      "seconds": 95,
+      "text": "and we can also edit it we can click"
+    },
+    {
+      "seconds": 98,
+      "text": "send"
+    },
+    {
+      "seconds": 99,
+      "text": "to issue the request and then on the"
+    },
+    {
+      "seconds": 101,
+      "text": "right hand side in the response panel"
+    },
+    {
+      "seconds": 103,
+      "text": "we can see the response that came back"
+    },
+    {
+      "seconds": 105,
+      "text": "from the server"
+    },
+    {
+      "seconds": 107,
+      "text": "if we want we can send the request over"
+    },
+    {
+      "seconds": 110,
+      "text": "and over"
+    },
+    {
+      "seconds": 111,
+      "text": "we can edit it and send it again"
+    },
+    {
+      "seconds": 115,
+      "text": "change it again we can try different"
+    },
+    {
+      "seconds": 119,
+      "text": "things"
+    },
+    {
+      "seconds": 119,
+      "text": "get different status codes back"
+    },
+    {
+      "seconds": 121,
+      "text": "different responses"
+    },
+    {
+      "seconds": 123,
+      "text": "next to the send and cancel button we"
+    },
+    {
+      "seconds": 125,
+      "text": "have these"
+    },
+    {
+      "seconds": 126,
+      "text": "back and forwards buttons where we can"
+    },
+    {
+      "seconds": 128,
+      "text": "walk through the history"
+    },
+    {
+      "seconds": 130,
+      "text": "of requests that we've made and see each"
+    },
+    {
+      "seconds": 132,
+      "text": "request and response"
+    },
+    {
+      "seconds": 134,
+      "text": "and on each button there's a little drop"
+    },
+    {
+      "seconds": 135,
+      "text": "down where we can jump straight to an"
+    },
+    {
+      "seconds": 137,
+      "text": "item"
+    },
+    {
+      "seconds": 137,
+      "text": "in our history if we want to send that"
+    },
+    {
+      "seconds": 140,
+      "text": "request again"
+    },
+    {
+      "seconds": 142,
+      "text": "but repeater can also handle redirects"
+    },
+    {
+      "seconds": 145,
+      "text": "so if we find a request that caused a"
+    },
+    {
+      "seconds": 148,
+      "text": "redirection response"
+    },
+    {
+      "seconds": 150,
+      "text": "and send that to repeater"
+    },
+    {
+      "seconds": 157,
+      "text": "here we can see the server replied with"
+    },
+    {
+      "seconds": 157,
+      "text": "301 status code which is a redirection"
+    },
+    {
+      "seconds": 160,
+      "text": "and we now have this follow redirection"
+    },
+    {
+      "seconds": 162,
+      "text": "button if we click that"
+    },
+    {
+      "seconds": 164,
+      "text": "but we'll update the request on the left"
+    },
+    {
+      "seconds": 167,
+      "text": "to be the redirected request"
+    },
+    {
+      "seconds": 169,
+      "text": "and it will show the response from that"
+    },
+    {
+      "seconds": 171,
+      "text": "on the right"
+    },
+    {
+      "seconds": 177,
+      "text": "if we want we can do this automatically"
+    },
+    {
+      "seconds": 177,
+      "text": "so if we go to the repeater menu"
+    },
+    {
+      "seconds": 179,
+      "text": "we have these options for follow"
+    },
+    {
+      "seconds": 180,
+      "text": "redirections if we turn those on"
+    },
+    {
+      "seconds": 184,
+      "text": "we hit send this time but automatically"
+    },
+    {
+      "seconds": 188,
+      "text": "follow the redirect and we see the final"
+    },
+    {
+      "seconds": 190,
+      "text": "response on the right"
+    },
+    {
+      "seconds": 192,
+      "text": "and down at the bottom in the status bar"
+    },
+    {
+      "seconds": 194,
+      "text": "that tells us that it followed"
+    },
+    {
+      "seconds": 196,
+      "text": "one redirection there are some other"
+    },
+    {
+      "seconds": 199,
+      "text": "handy options"
+    },
+    {
+      "seconds": 200,
+      "text": "on the repeater menu so by default"
+    },
+    {
+      "seconds": 203,
+      "text": "but repeater will update the content"
+    },
+    {
+      "seconds": 205,
+      "text": "length as you edit requests if you"
+    },
+    {
+      "seconds": 207,
+      "text": "prefer you can turn that off"
+    },
+    {
+      "seconds": 209,
+      "text": "by default but we'll unpack gzip and"
+    },
+    {
+      "seconds": 212,
+      "text": "deflate content"
+    },
+    {
+      "seconds": 213,
+      "text": "in responses if you prefer you can turn"
+    },
+    {
+      "seconds": 215,
+      "text": "that off"
+    },
+    {
+      "seconds": 217,
+      "text": "you can tell about whether to process"
+    },
+    {
+      "seconds": 219,
+      "text": "cookies"
+    },
+    {
+      "seconds": 220,
+      "text": "in redirects you can change the"
+    },
+    {
+      "seconds": 223,
+      "text": "view of repeater so you can have"
+    },
+    {
+      "seconds": 226,
+      "text": "top bottom split or other views if you"
+    },
+    {
+      "seconds": 229,
+      "text": "prefer"
+    },
+    {
+      "seconds": 235,
+      "text": "you can use hotkeys to send items to"
+    },
+    {
+      "seconds": 235,
+      "text": "burp"
+    },
+    {
+      "seconds": 236,
+      "text": "repeater so we select an item and type"
+    },
+    {
+      "seconds": 239,
+      "text": "control"
+    },
+    {
+      "seconds": 239,
+      "text": "r or command r on mac"
+    },
+    {
+      "seconds": 244,
+      "text": "that request comes into repeater we can"
+    },
+    {
+      "seconds": 247,
+      "text": "also use control space or command space"
+    },
+    {
+      "seconds": 249,
+      "text": "to issue the request you can configure"
+    },
+    {
+      "seconds": 252,
+      "text": "burps hotkeys by going to user options"
+    },
+    {
+      "seconds": 256,
+      "text": "misc and editing the configured hotkeys"
+    },
+    {
+      "seconds": 259,
+      "text": "here"
+    },
+    {
+      "seconds": 264,
+      "text": "if you send multiple requests to"
+    },
+    {
+      "seconds": 264,
+      "text": "repeater"
+    },
+    {
+      "seconds": 266,
+      "text": "each one will create a different tab"
+    },
+    {
+      "seconds": 270,
+      "text": "in repeater where you can work so each"
+    },
+    {
+      "seconds": 273,
+      "text": "tab has its own request and response"
+    },
+    {
+      "seconds": 275,
+      "text": "panels it has its own history"
+    },
+    {
+      "seconds": 277,
+      "text": "so you can work independently on"
+    },
+    {
+      "seconds": 278,
+      "text": "different requests this is really handy"
+    },
+    {
+      "seconds": 280,
+      "text": "in your testing workflow"
+    },
+    {
+      "seconds": 282,
+      "text": "if you are testing different endpoints"
+    },
+    {
+      "seconds": 284,
+      "text": "of the application different features"
+    },
+    {
+      "seconds": 286,
+      "text": "and you want to play with one request"
+    },
+    {
+      "seconds": 287,
+      "text": "for a bit"
+    },
+    {
+      "seconds": 288,
+      "text": "switch and work on something else you"
+    },
+    {
+      "seconds": 290,
+      "text": "can then keep your work and easily"
+    },
+    {
+      "seconds": 292,
+      "text": "switch back"
+    },
+    {
+      "seconds": 294,
+      "text": "if you want you could rename tabs by"
+    },
+    {
+      "seconds": 296,
+      "text": "clicking on the tab header"
+    },
+    {
+      "seconds": 298,
+      "text": "and typing in a different name for the"
+    },
+    {
+      "seconds": 300,
+      "text": "tab"
+    },
+    {
+      "seconds": 301,
+      "text": "this lets you easily label your tabs so"
+    },
+    {
+      "seconds": 303,
+      "text": "you can come back to them and remember"
+    },
+    {
+      "seconds": 305,
+      "text": "where you left off"
+    },
+    {
+      "seconds": 306,
+      "text": "you could reorder tabs by dragging them"
+    },
+    {
+      "seconds": 309,
+      "text": "in the tab header"
+    },
+    {
+      "seconds": 312,
+      "text": "if you're finished with the tab you can"
+    },
+    {
+      "seconds": 313,
+      "text": "close it by clicking on"
+    },
+    {
+      "seconds": 315,
+      "text": "the little x there's one more way"
+    },
+    {
+      "seconds": 319,
+      "text": "to start off with both repeater and that"
+    },
+    {
+      "seconds": 321,
+      "text": "is you can click on these little three"
+    },
+    {
+      "seconds": 323,
+      "text": "dots"
+    },
+    {
+      "seconds": 324,
+      "text": "to create a new tab and here we're going"
+    },
+    {
+      "seconds": 326,
+      "text": "to say"
+    },
+    {
+      "seconds": 327,
+      "text": "type http because we're working on http"
+    },
+    {
+      "seconds": 329,
+      "text": "requests"
+    },
+    {
+      "seconds": 330,
+      "text": "if we were working on websockets we"
+    },
+    {
+      "seconds": 332,
+      "text": "would select that option and it would"
+    },
+    {
+      "seconds": 333,
+      "text": "create a different ui"
+    },
+    {
+      "seconds": 335,
+      "text": "for working on websockets messages we'll"
+    },
+    {
+      "seconds": 337,
+      "text": "cover websockets testing"
+    },
+    {
+      "seconds": 338,
+      "text": "in a different tutorial so we click on"
+    },
+    {
+      "seconds": 341,
+      "text": "http"
+    },
+    {
+      "seconds": 343,
+      "text": "we get a new empty tab with no request"
+    },
+    {
+      "seconds": 345,
+      "text": "or response"
+    },
+    {
+      "seconds": 346,
+      "text": "no target details specified so we could"
+    },
+    {
+      "seconds": 348,
+      "text": "configure all of these manually"
+    },
+    {
+      "seconds": 350,
+      "text": "but there's another nice little feature"
+    },
+    {
+      "seconds": 352,
+      "text": "in burp if you have a url"
+    },
+    {
+      "seconds": 354,
+      "text": "that you're interested in if you copy"
+    },
+    {
+      "seconds": 357,
+      "text": "that to the clipboard"
+    },
+    {
+      "seconds": 359,
+      "text": "you can then select paste url as request"
+    },
+    {
+      "seconds": 362,
+      "text": "that will then create a request and"
+    },
+    {
+      "seconds": 365,
+      "text": "configure the target details"
+    },
+    {
+      "seconds": 366,
+      "text": "from that url and you can then send it"
+    },
+    {
+      "seconds": 370,
+      "text": "so that's how to resend individual http"
+    },
+    {
+      "seconds": 374,
+      "text": "requests with birt repeater"
+    },
+    {
+      "seconds": 375,
+      "text": "and various related workflows and"
+    },
+    {
+      "seconds": 378,
+      "text": "options"
+    }
+  ]
+}

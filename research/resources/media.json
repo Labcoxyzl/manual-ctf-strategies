@@ -1,0 +1,596 @@
+[
+  {
+    "id": "windows-12",
+    "name": "zsteg",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "PNG/BMP pixel-bit steganography: enumerate plausible channels, then extract only a meaningful hit.",
+    "resources": [
+      {
+        "url": "https://github.com/zed-0xff/zsteg",
+        "title": "zsteg — documentation",
+        "kind": "primary-docs",
+        "why": "README examples pair channel/bit-order labels with extracted messages.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "False positives are common; a detected file signature alone is not a recovered payload."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: PNG/BMP. Expected: a reproducible channel/bit-order hit and extracted bytes whose content validates the hit. Scan a fixture with zsteg, select the evidenced channel/order, extract bytes and identify the output.",
+    "version": "Latest (Ruby gem)",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-13",
+    "name": "binwalk",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Find embedded files or compressed regions inside an unknown blob or firmware image.",
+    "resources": [
+      {
+        "url": "https://github.com/ReFirmLabs/binwalk",
+        "title": "binwalk — documentation",
+        "kind": "primary-docs",
+        "why": "Maintainer README and wiki distinguish v3 usage and link signature and extraction guidance.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      },
+      {
+        "url": "https://github.com/ReFirmLabs/binwalk/wiki",
+        "title": "Binwalk v3 usage wiki",
+        "kind": "primary-docs",
+        "why": "Task-oriented entry point for scan, extraction and entropy usage after the major version is known.",
+        "verification": "Opened now (2026-10-22); local version and extraction dependencies not checked."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Workbook says latest; determine v2 versus v3 before copying extraction options."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: firmware or unknown blob. Expected: candidate signatures with offsets and separately inspectable extracted files. Scan first; inspect offsets, then extract the selected embedded format into a separate directory.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-14",
+    "name": "ExifTool",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics",
+      "OSINT"
+    ],
+    "challenge_use": "Read metadata, comments, timestamps and location clues before deeper media analysis.",
+    "resources": [
+      {
+        "url": "https://github.com/exiftool/exiftool/blob/master/html/exiftool_pod.html",
+        "title": "ExifTool application manual (upstream repository)",
+        "kind": "primary-docs",
+        "why": "Upstream application manual explains duplicate and unknown tags and metadata-reading examples.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Windows-approved row runs in WSL. Keep the original unchanged; metadata can be forged."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: image or other supported file. Expected: grouped metadata including duplicate/unknown tags when present. Read duplicate and unknown tags with group names; treat dates and GPS as clues requiring corroboration.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-19",
+    "name": "ZBar",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Decode a visible or reconstructed QR/barcode locally.",
+    "resources": [
+      {
+        "url": "https://github.com/mchehab/zbar",
+        "title": "ZBar — documentation",
+        "kind": "primary-docs",
+        "why": "Maintainer repository establishes supported image barcode decoding and points to command documentation.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Windows-approved row runs in WSL. Failed decoding can reflect damage or unsupported symbology, not absence of a code."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Decode an image with zbarimg; keep the type-prefixed output before choosing raw payload output.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-28",
+    "name": "xxd",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics",
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect magic bytes or turn a supplied hexadecimal dump back into bytes.",
+    "resources": [
+      {
+        "url": "https://github.com/vim/vim/blob/master/runtime/doc/xxd.1",
+        "title": "xxd — documentation",
+        "kind": "primary-docs",
+        "why": "Vim-maintained xxd manual documents plain hex, reverse mode and worked examples; sufficient for this narrow utility.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Windows-approved row runs in WSL. Reverse mode can skip malformed text; inspect the reconstructed bytes."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Choose ordinary dump versus plain hexadecimal reverse mode, write a new output file, then identify it.",
+    "version": "Bundled with Vim",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "kali-7",
+    "name": "AperiSolve",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Aggregate local image metadata, bit-plane and embedded-file inspection when a working local deployment exists.",
+    "resources": [
+      {
+        "url": "https://github.com/Zeecka/AperiSolve",
+        "title": "AperiSolve — documentation",
+        "kind": "primary-docs",
+        "why": "Upstream Docker quick start explicitly documents localhost deployment.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Never upload challenge files to the public AperiSolve service. A source checkout does not prove a running deployment; avoid spending competition time rebuilding the stack."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  First verify the organiser-installed local service; use only that local instance to inspect a synthetic image.",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/AperiSolve)"
+  },
+  {
+    "id": "kali-10",
+    "name": "Audacity",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect audio for frequency-domain text, tones, pulses and channel differences.",
+    "resources": [
+      {
+        "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+        "title": "Audacity — documentation",
+        "kind": "primary-docs",
+        "why": "Official spectrogram guide explains switching views and frequency/window controls.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Default display settings can hide short events or high-frequency content; preserve the source audio."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: local audio file. Expected: visible time/frequency features; a readable pattern or consistent tones justifies a next decoder. Open audio, choose spectrogram view, adjust frequency range and window size, inspect channels separately.",
+    "version": "(not captured)",
+    "location": "/usr/bin/audacity"
+  },
+  {
+    "id": "kali-40",
+    "name": "FFmpeg",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Extract relevant audio/video streams or frames before inspecting hidden media content.",
+    "resources": [
+      {
+        "url": "https://ffmpeg.org/ffmpeg.html",
+        "title": "FFmpeg — documentation",
+        "kind": "primary-docs",
+        "why": "Official stream-selection examples explain automatic selection and explicit mapping.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Automatic stream selection can miss a second stream; stream copy and transcoding serve different purposes."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: audio/video container. Expected: explicitly selected stream or frame files suitable for independent inspection. List streams, select the relevant stream explicitly, export frames or audio to a new path.",
+    "version": "(not captured)",
+    "location": "apt (ffmpeg)"
+  },
+  {
+    "id": "kali-42",
+    "name": "file (libmagic)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Triage an unknown artifact by content instead of its filename extension.",
+    "resources": [
+      {
+        "url": "https://github.com/file/file",
+        "title": "file (libmagic) — documentation",
+        "kind": "primary-docs",
+        "why": "Maintainer mirror is enough for this basic identification utility; avoid a separate tutorial page.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Magic signatures are heuristic and may be misleading for truncated or polyglot files."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: unknown file. Expected: a content-based format description that selects the next tool. Identify the artifact, then route to format-specific inspection; compare a surprising result with its header bytes.",
+    "version": "5.47",
+    "location": ""
+  },
+  {
+    "id": "kali-44",
+    "name": "foremost",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Carve known file types from a raw image or combined binary after initial identification.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/foremost/",
+        "title": "foremost — documentation",
+        "kind": "distribution-docs",
+        "why": "Kali package page supplies a concrete image.dd carving example and output layout.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Carving may lose filenames and fragmented content; recovered headers do not guarantee complete files."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Select expected file types, carve into a fresh output directory, inspect audit information and recovered file integrity.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-51",
+    "name": "G'MIC (gmic)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Reveal low-contrast image content or inspect channels with an alternative image processor.",
+    "resources": [
+      {
+        "url": "https://gmic.eu/reference/normalize.html",
+        "title": "G'MIC normalize command and example",
+        "kind": "primary-docs",
+        "why": "Official normalize command page supplies a focused numeric-range example.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Keep as an alternative rather than another full image workflow; normalization modifies evidence pixels, so save a derived copy."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Use only when ImageMagick or the familiar viewer cannot express the needed channel/contrast operation.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-67",
+    "name": "ImageMagick",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect dimensions and channels and create derived images for visual analysis.",
+    "resources": [
+      {
+        "url": "https://imagemagick.org/command-line-processing/",
+        "title": "ImageMagick — documentation",
+        "kind": "primary-docs",
+        "why": "Official v7 command processing explains operator order and output handling.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Use ImageMagick 7 magick syntax. Transformations can destroy LSB evidence; keep the original for zsteg."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: image. Expected: properties and derived channel/contrast images that expose or rule out a visible pattern. Inspect properties; create separate channel or contrast-adjusted copies for visual inspection.",
+    "version": "7.1.2-27",
+    "location": ""
+  },
+  {
+    "id": "kali-74",
+    "name": "Jpeginfo",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Distinguish malformed or truncated JPEG structure from ordinary steganography clues.",
+    "resources": [
+      {
+        "url": "https://github.com/tjko/jpeginfo",
+        "title": "Jpeginfo — documentation",
+        "kind": "primary-docs",
+        "why": "Author repository identifies JPEG integrity checks and includes the command manual.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Do not use deletion options on evidence; a valid JPEG can still contain hidden data."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Run a read-only JPEG integrity check before attempting repair on a duplicate.",
+    "version": "1.7.1",
+    "location": ""
+  },
+  {
+    "id": "kali-87",
+    "name": "MediaInfo",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Read audio/video container, codec, stream and duration information to choose an extraction route.",
+    "resources": [
+      {
+        "url": "https://mediaarea.net/en/MediaInfo",
+        "title": "MediaInfo — documentation",
+        "kind": "primary-docs",
+        "why": "Official project page enumerates the media properties it reports; enough for the initial routing decision.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Use the local CLI, not MediaInfoOnline; project page does not validate installed-version command flags."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Inspect local media properties, then hand the relevant stream to FFmpeg or an audio viewer.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-100",
+    "name": "OpenStego",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Extract a payload when clues indicate an OpenStego image carrier.",
+    "resources": [
+      {
+        "url": "https://www.openstego.com/",
+        "title": "OpenStego — documentation",
+        "kind": "primary-docs",
+        "why": "Author homepage distinguishes data extraction from watermark verification.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Not a generic decoder for every LSB scheme; installed version is unknown."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Use data-hiding extraction with the supplied passphrase or clue-derived candidate on a fixture first.",
+    "version": "(not captured)",
+    "location": "GitHub .deb package"
+  },
+  {
+    "id": "kali-108",
+    "name": "pngcheck",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect PNG chunks, integrity failures and text metadata before pixel analysis.",
+    "resources": [
+      {
+        "url": "https://github.com/pnggroup/pngcheck",
+        "title": "pngcheck — documentation",
+        "kind": "primary-docs",
+        "why": "Maintainer repository identifies the current pngcheck development line and supported chunk extensions.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Repository targets pngcheck 4; installed version is unknown. Do not assume every current option exists locally."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: PNG. Expected: chunk/integrity findings that distinguish structure problems from pixel-level hypotheses. Inspect PNG structure and CRC failures; decide whether the next step is metadata reading, repair-on-copy or zsteg.",
+    "version": "(not captured)",
+    "location": "apt (pngcheck)"
+  },
+  {
+    "id": "kali-128",
+    "name": "Sonic Visualiser",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and measure audio spectrograms in separate panes/layers.",
+    "resources": [
+      {
+        "url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+        "title": "Sonic Visualiser — documentation",
+        "kind": "primary-docs",
+        "why": "Version-matched 5.2.1 official reference covers spectrogram properties and measurements.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Keep as the measurement-focused alternative to Audacity; no need to duplicate basic spectrogram instructions."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Use a spectrogram layer to compare channels or measure a tone after a first audio triage.",
+    "version": "5.2.1",
+    "location": ""
+  },
+  {
+    "id": "kali-129",
+    "name": "SoX (Sound eXchange)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Create repeatable audio spectrograms and manipulate channels using the installed SoX_ng build.",
+    "resources": [
+      {
+        "url": "https://codeberg.org/sox_ng/sox_ng",
+        "title": "SoX (Sound eXchange) — documentation",
+        "kind": "primary-docs",
+        "why": "Baseline upstream fork identity is retained because the current browse fetch was blocked.",
+        "verification": "Inherited verification: Workbook remarks explicitly identify SoX_ng build; upstream sox_ng repository confirms fork identity. Exact 14.7.1.2 options not exercised. Query recommendation; Google AI Overview not observed in this research lane. Current 2026-10-22 reopen blocked by robots.txt; no new content verification."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Workbook reports SoX_ng, not legacy SoX. Current source fetch blocked; exact installed options remain unverified."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Candidate only after local help confirms spectrogram and channel-selection syntax for SoX_ng 14.7.1.2.",
+    "version": "14.7.1.2",
+    "location": ""
+  },
+  {
+    "id": "kali-133",
+    "name": "sstv (command-line SSTV decoder)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Decode SSTV audio only if the installed executable is actually a decoder.",
+    "resources": [
+      {
+        "url": "https://github.com/colaclanth/sstv",
+        "title": "sstv (command-line SSTV decoder) — documentation",
+        "kind": "primary-docs",
+        "why": "Decoder README supplies WAV-to-PNG usage; PySSTV package description instead documents image-to-WAV generation.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      },
+      {
+        "url": "https://pypi.org/project/pySSTV/",
+        "title": "PySSTV package description and CLI",
+        "kind": "primary-docs",
+        "why": "Resolves the workbook ambiguity: this named package produces SSTV audio from images.",
+        "verification": "Opened now (2026-10-22); encoder direction and usage explicitly documented."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Workbook tool label says decoder but location says pip PySSTV, an encoder. Do not claim colaclanth/sstv is installed or separately approved."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Blocked pending identity check: compare the available command help/package with the decoder README before proposing WAV-to-image steps.",
+    "version": "(not captured)",
+    "location": "pip (PySSTV)"
+  },
+  {
+    "id": "kali-134",
+    "name": "steghide",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and extract a steghide carrier using a known or clue-derived passphrase.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/steghide/",
+        "title": "steghide — documentation",
+        "kind": "distribution-docs",
+        "why": "Kali command help lists info/extract, supported carrier formats and output-file selection.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Kali page version badge says 0.5.1 while embedded help says 0.6.0, matching workbook; validate local help. PNG is not a listed carrier."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: supported steghide carrier plus known passphrase. Expected: extracted bytes with an identifiable file type, or an explicit failure. Inspect carrier information, then extract with the supplied passphrase into a new output file.",
+    "version": "0.6.0",
+    "location": ""
+  },
+  {
+    "id": "kali-135",
+    "name": "stegseek",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Recover a steghide payload with a wordlist; use seed mode to detect steghide structure.",
+    "resources": [
+      {
+        "url": "https://github.com/RickdeJager/stegseek",
+        "title": "stegseek — documentation",
+        "kind": "primary-docs",
+        "why": "Author README explains wordlist mode and the important limits of seed-mode extraction, with a CTF demonstration.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Seed mode is not universal passwordless decryption: content recovery without a password requires unencrypted data."
+    ],
+    "recipe_candidate": "Candidate only; not executed. Input: evidenced steghide carrier and local candidate wordlist. Expected: recovered passphrase/payload on a match; seed mode may instead report embedding/encryption details. On an evidenced steghide carrier, try a bounded wordlist; use seed mode for detection and unencrypted-data recovery.",
+    "version": "0.6",
+    "location": ""
+  },
+  {
+    "id": "kali-136",
+    "name": "stegsnow (SNOW)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Decode trailing-space/tab steganography in text when whitespace is the clue.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/stegsnow/",
+        "title": "Kali stegsnow package usage",
+        "kind": "distribution-docs",
+        "why": "Kali package help confirms the stegsnow executable and extraction-related flags.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Text editors and copy/paste may strip the payload. Author homepage failed current fetch; distro help was reopened."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Preserve exact trailing whitespace; decode a fixture with matching compression/password settings before applying the recipe.",
+    "version": "(not captured)",
+    "location": "apt (stegsnow)"
+  },
+  {
+    "id": "kali-137",
+    "name": "StegSolve",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Visually inspect image bit planes and investigate a specific data-extraction hypothesis.",
+    "resources": [
+      {
+        "url": "https://github.com/Giotino/stegsolve",
+        "title": "StegSolve — documentation",
+        "kind": "fork-docs",
+        "why": "Modified fork README confirms channel-plane Data Extract changes and GUI improvements.",
+        "verification": "Opened now (2026-10-22): primary documentation or maintainer repository read; installed tool and candidate procedure not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Reference is a modified fork, not proof of the organiser-installed build. Requires a working graphical display; workbook records a headless launch failure."
+    ],
+    "recipe_candidate": "Candidate only; not executed.  Open an image locally, inspect candidate bit planes, then extract only an evidenced channel/order.",
+    "version": "(not captured)",
+    "location": ""
+  }
+]

@@ -1,0 +1,3083 @@
+{
+  "id": "YXnNO3TipvM",
+  "duration_seconds": 1578,
+  "caption_sha256": "3c12f2e26f7cebafc608c909f7ac2f5aa561a3a3bc140e9357ea797436b37f41",
+  "entries": [
+    {
+      "seconds": 1,
+      "text": "Oh a Labs is an awesome technical"
+    },
+    {
+      "seconds": 1,
+      "text": "YouTube channel about malware reverse"
+    },
+    {
+      "seconds": 4,
+      "text": "engineering and analysis and I reached"
+    },
+    {
+      "seconds": 6,
+      "text": "out to them and asked if they would be"
+    },
+    {
+      "seconds": 7,
+      "text": "interested in making a guest video for"
+    },
+    {
+      "seconds": 9,
+      "text": "Life overflow they cover topics I've"
+    },
+    {
+      "seconds": 12,
+      "text": "basically never covered here and I also"
+    },
+    {
+      "seconds": 14,
+      "text": "don't really know much about so I'm"
+    },
+    {
+      "seconds": 16,
+      "text": "super excited to present you a video"
+    },
+    {
+      "seconds": 18,
+      "text": "from them here in this video they will"
+    },
+    {
+      "seconds": 21,
+      "text": "walk us through an example of Fiske"
+    },
+    {
+      "seconds": 23,
+      "text": "aided malware and explain how you can"
+    },
+    {
+      "seconds": 25,
+      "text": "unpack it in order to get to the real"
+    },
+    {
+      "seconds": 27,
+      "text": "malware executable and along the way"
+    },
+    {
+      "seconds": 30,
+      "text": "they will explain a lot about Windows"
+    },
+    {
+      "seconds": 32,
+      "text": "how typical malware operates and also"
+    },
+    {
+      "seconds": 34,
+      "text": "how to use tools like x64 debug Ida or"
+    },
+    {
+      "seconds": 37,
+      "text": "PE Barre one thing for example I had no"
+    },
+    {
+      "seconds": 40,
+      "text": "clue about at all was the command a trip"
+    },
+    {
+      "seconds": 43,
+      "text": "to reveal hidden files so why don't you"
+    },
+    {
+      "seconds": 46,
+      "text": "give them a chance and see what you can"
+    },
+    {
+      "seconds": 48,
+      "text": "learn from this video"
+    },
+    {
+      "seconds": 49,
+      "text": "[Music]"
+    },
+    {
+      "seconds": 60,
+      "text": "hi folks and welcome to open analysis"
+    },
+    {
+      "seconds": 63,
+      "text": "live or live overflow or one of the"
+    },
+    {
+      "seconds": 66,
+      "text": "lives all the lives"
+    },
+    {
+      "seconds": 68,
+      "text": "I'm Sergey I'm Sean and you might"
+    },
+    {
+      "seconds": 70,
+      "text": "recognize us from our Channel over at"
+    },
+    {
+      "seconds": 72,
+      "text": "oil labs where we do a lot of videos on"
+    },
+    {
+      "seconds": 74,
+      "text": "malware analysis techniques different"
+    },
+    {
+      "seconds": 76,
+      "text": "tips and tricks and stuff like that to"
+    },
+    {
+      "seconds": 79,
+      "text": "help analyze malware so today what I"
+    },
+    {
+      "seconds": 80,
+      "text": "want to talk about is a type of"
+    },
+    {
+      "seconds": 82,
+      "text": "unpacking technique that you would use"
+    },
+    {
+      "seconds": 84,
+      "text": "to unpack malware that does self"
+    },
+    {
+      "seconds": 86,
+      "text": "injection so self injection is not as"
+    },
+    {
+      "seconds": 89,
+      "text": "common as remote process injection so"
+    },
+    {
+      "seconds": 92,
+      "text": "probably most of the crime where"
+    },
+    {
+      "seconds": 94,
+      "text": "criminal malware that's packed today"
+    },
+    {
+      "seconds": 96,
+      "text": "uses process injection where they spawn"
+    },
+    {
+      "seconds": 99,
+      "text": "a second process i suspended and then"
+    },
+    {
+      "seconds": 101,
+      "text": "they hollow out the code that's already"
+    },
+    {
+      "seconds": 103,
+      "text": "in the process and inject their own code"
+    },
+    {
+      "seconds": 105,
+      "text": "into it or they inject like a new thread"
+    },
+    {
+      "seconds": 107,
+      "text": "with a dll or something like that into"
+    },
+    {
+      "seconds": 109,
+      "text": "the second process and then it looks"
+    },
+    {
+      "seconds": 111,
+      "text": "like there's a benign process running"
+    },
+    {
+      "seconds": 113,
+      "text": "but really inside is there is their"
+    },
+    {
+      "seconds": 115,
+      "text": "malware so that's the most common method"
+    },
+    {
+      "seconds": 117,
+      "text": "of injection but we also see some"
+    },
+    {
+      "seconds": 120,
+      "text": "malware that still uses self injection"
+    },
+    {
+      "seconds": 122,
+      "text": "or PE overwrite techniques and this is"
+    },
+    {
+      "seconds": 124,
+      "text": "the case where the malicious payload is"
+    },
+    {
+      "seconds": 127,
+      "text": "unpacked and then injected into the same"
+    },
+    {
+      "seconds": 129,
+      "text": "process that the malware is spawned with"
+    },
+    {
+      "seconds": 131,
+      "text": "so there is no second process involved"
+    },
+    {
+      "seconds": 134,
+      "text": "basically they're just unpacking the"
+    },
+    {
+      "seconds": 135,
+      "text": "payload and then transferring the"
+    },
+    {
+      "seconds": 137,
+      "text": "execution to it so there's a couple"
+    },
+    {
+      "seconds": 138,
+      "text": "different ways that this could happen"
+    },
+    {
+      "seconds": 139,
+      "text": "they could unpack the payload into"
+    },
+    {
+      "seconds": 141,
+      "text": "memory somewhere and just transfer"
+    },
+    {
+      "seconds": 143,
+      "text": "execution directly to it that's common"
+    },
+    {
+      "seconds": 145,
+      "text": "also there is a way that where they"
+    },
+    {
+      "seconds": 148,
+      "text": "would basically unpack a dll and then"
+    },
+    {
+      "seconds": 150,
+      "text": "load the dll into their own process and"
+    },
+    {
+      "seconds": 152,
+      "text": "transfer execution to it I know the"
+    },
+    {
+      "seconds": 154,
+      "text": "third and probably most common way is a"
+    },
+    {
+      "seconds": 156,
+      "text": "section overwrite where they basically"
+    },
+    {
+      "seconds": 158,
+      "text": "unpack a small stub of code into memory"
+    },
+    {
+      "seconds": 160,
+      "text": "transfer execution to it then they"
+    },
+    {
+      "seconds": 163,
+      "text": "change the permissions on the sections"
+    },
+    {
+      "seconds": 166,
+      "text": "of the PE file of their process and they"
+    },
+    {
+      "seconds": 169,
+      "text": "write code into those sections and then"
+    },
+    {
+      "seconds": 171,
+      "text": "transfer execution back to the sections"
+    },
+    {
+      "seconds": 173,
+      "text": "of the P file and that's the type of"
+    },
+    {
+      "seconds": 175,
+      "text": "injection that we're gonna be talking"
+    },
+    {
+      "seconds": 176,
+      "text": "about today so we're gonna talk about PE"
+    },
+    {
+      "seconds": 177,
+      "text": "overwrite and of course the most common"
+    },
+    {
+      "seconds": 179,
+      "text": "Packer that uses the P of a right"
+    },
+    {
+      "seconds": 181,
+      "text": "technique is upx which probably most"
+    },
+    {
+      "seconds": 184,
+      "text": "reverse engineers that's the factor that"
+    },
+    {
+      "seconds": 185,
+      "text": "they learned"
+    },
+    {
+      "seconds": 186,
+      "text": "at first because it's it's a simple and"
+    },
+    {
+      "seconds": 189,
+      "text": "ubiquitous and with that it's basically"
+    },
+    {
+      "seconds": 191,
+      "text": "the same sort of idea as what we're"
+    },
+    {
+      "seconds": 193,
+      "text": "seeing here where they basically I stub"
+    },
+    {
+      "seconds": 196,
+      "text": "which basically unpack sorted crypts"
+    },
+    {
+      "seconds": 198,
+      "text": "some code writes that code into session"
+    },
+    {
+      "seconds": 201,
+      "text": "and then transfers execution back to it"
+    },
+    {
+      "seconds": 203,
+      "text": "now we're gonna talk about today is"
+    },
+    {
+      "seconds": 205,
+      "text": "something that's a little bit more"
+    },
+    {
+      "seconds": 206,
+      "text": "advanced it's not upx you can't use the"
+    },
+    {
+      "seconds": 208,
+      "text": "upx - deep tool - to unpack it"
+    },
+    {
+      "seconds": 211,
+      "text": "statically but it is kind of interesting"
+    },
+    {
+      "seconds": 213,
+      "text": "and and it's worthwhile to know these"
+    },
+    {
+      "seconds": 215,
+      "text": "techniques and then there's actually a"
+    },
+    {
+      "seconds": 217,
+      "text": "second stage - the malware were looking"
+    },
+    {
+      "seconds": 219,
+      "text": "at today which does unpack - DLL and"
+    },
+    {
+      "seconds": 221,
+      "text": "then load DLL type of self injection so"
+    },
+    {
+      "seconds": 224,
+      "text": "we're basically gonna cover both of"
+    },
+    {
+      "seconds": 225,
+      "text": "those today and the malware that I chose"
+    },
+    {
+      "seconds": 228,
+      "text": "is something called read a man I've"
+    },
+    {
+      "seconds": 231,
+      "text": "never heard of it before I just saw it"
+    },
+    {
+      "seconds": 233,
+      "text": "analyzed on malware traffic analysis net"
+    },
+    {
+      "seconds": 236,
+      "text": "Brad's excellent blog if you guys are"
+    },
+    {
+      "seconds": 238,
+      "text": "looking for samples to analyze"
+    },
+    {
+      "seconds": 239,
+      "text": "definitely head over there and check out"
+    },
+    {
+      "seconds": 241,
+      "text": "some of this work it's awesome you can"
+    },
+    {
+      "seconds": 243,
+      "text": "see different traffic patterns for"
+    },
+    {
+      "seconds": 245,
+      "text": "different malware and he always uploads"
+    },
+    {
+      "seconds": 246,
+      "text": "the sample so you can download them as"
+    },
+    {
+      "seconds": 249,
+      "text": "password-protected zip files so it's a"
+    },
+    {
+      "seconds": 251,
+      "text": "great resource to try and you know grab"
+    },
+    {
+      "seconds": 252,
+      "text": "samples to take a look at I've never"
+    },
+    {
+      "seconds": 254,
+      "text": "heard of read a man and this tutorial is"
+    },
+    {
+      "seconds": 256,
+      "text": "not going to analyze that malware at all"
+    },
+    {
+      "seconds": 257,
+      "text": "we're just gonna unpack it but the"
+    },
+    {
+      "seconds": 259,
+      "text": "reason why I chose it is because it's"
+    },
+    {
+      "seconds": 260,
+      "text": "kind of cool it only does self injection"
+    },
+    {
+      "seconds": 262,
+      "text": "and has two stages and the result is"
+    },
+    {
+      "seconds": 265,
+      "text": "like it's good for this tutorial but"
+    },
+    {
+      "seconds": 267,
+      "text": "also it's kind of cool because if you"
+    },
+    {
+      "seconds": 268,
+      "text": "run it in a sandbox you can see here"
+    },
+    {
+      "seconds": 271,
+      "text": "that it only has one process that's not"
+    },
+    {
+      "seconds": 273,
+      "text": "much so for those of us who do a lot of"
+    },
+    {
+      "seconds": 276,
+      "text": "our triage you're kind of used to seeing"
+    },
+    {
+      "seconds": 278,
+      "text": "a whole chain of processes with you know"
+    },
+    {
+      "seconds": 281,
+      "text": "the same name they keep on launching"
+    },
+    {
+      "seconds": 283,
+      "text": "themselves and launch other tools and"
+    },
+    {
+      "seconds": 285,
+      "text": "stuff this one's kind of cool and that"
+    },
+    {
+      "seconds": 286,
+      "text": "it only launches one process and it does"
+    },
+    {
+      "seconds": 288,
+      "text": "all the work inside that process so"
+    },
+    {
+      "seconds": 290,
+      "text": "that's we're gonna take a look at today"
+    },
+    {
+      "seconds": 292,
+      "text": "so with that let's pop over to our via"
+    },
+    {
+      "seconds": 293,
+      "text": "and get started okay so I've popped over"
+    },
+    {
+      "seconds": 296,
+      "text": "to my VM here and it just has a few"
+    },
+    {
+      "seconds": 297,
+      "text": "tools in here that we're going to use"
+    },
+    {
+      "seconds": 299,
+      "text": "maybe PE bear which is a pretty cool"
+    },
+    {
+      "seconds": 301,
+      "text": "tool from the hash crusade x64 debug and"
+    },
+    {
+      "seconds": 303,
+      "text": "a hex editor and if you guys are"
+    },
+    {
+      "seconds": 305,
+      "text": "interested in setting up a similar VM we"
+    },
+    {
+      "seconds": 307,
+      "text": "have some instructions on our Channel"
+    },
+    {
+      "seconds": 309,
+      "text": "and also blog post about how to set this"
+    },
+    {
+      "seconds": 311,
+      "text": "up for free you can get a temporary VM"
+    },
+    {
+      "seconds": 313,
+      "text": "license from Microsoft and we have a"
+    },
+    {
+      "seconds": 315,
+      "text": "one-click installer that will install"
+    },
+    {
+      "seconds": 317,
+      "text": "these tools for you guys if"
+    },
+    {
+      "seconds": 318,
+      "text": "so to get started with since I know that"
+    },
+    {
+      "seconds": 321,
+      "text": "this is going to be self-injection as we"
+    },
+    {
+      "seconds": 322,
+      "text": "just saw in the sandbox there's only one"
+    },
+    {
+      "seconds": 324,
+      "text": "process and it's malicious so there's"
+    },
+    {
+      "seconds": 326,
+      "text": "definitely not to be some self injection"
+    },
+    {
+      "seconds": 327,
+      "text": "here so that means that I'm going to"
+    },
+    {
+      "seconds": 329,
+      "text": "have to focus on the allocation of"
+    },
+    {
+      "seconds": 331,
+      "text": "memory and trying to figure out where"
+    },
+    {
+      "seconds": 333,
+      "text": "they actually allocate the unpacked"
+    },
+    {
+      "seconds": 335,
+      "text": "payload so let's open up exit for debug"
+    },
+    {
+      "seconds": 337,
+      "text": "here and I'll show you how I go about"
+    },
+    {
+      "seconds": 339,
+      "text": "doing this so we'll just drop our sample"
+    },
+    {
+      "seconds": 341,
+      "text": "over here now let me spawn some of those"
+    },
+    {
+      "seconds": 343,
+      "text": "diagrams where we talked about self"
+    },
+    {
+      "seconds": 344,
+      "text": "injection the first thing we want to do"
+    },
+    {
+      "seconds": 346,
+      "text": "is start monitoring all the allocations"
+    },
+    {
+      "seconds": 348,
+      "text": "of virtual memory so I'm going to put a"
+    },
+    {
+      "seconds": 350,
+      "text": "breakpoint on the return from the"
+    },
+    {
+      "seconds": 352,
+      "text": "virtual analog call and the reason why I"
+    },
+    {
+      "seconds": 355,
+      "text": "put on the return is because after"
+    },
+    {
+      "seconds": 357,
+      "text": "memory has been allocated and you return"
+    },
+    {
+      "seconds": 359,
+      "text": "from the API the EAX register so the"
+    },
+    {
+      "seconds": 361,
+      "text": "return from that function contains the"
+    },
+    {
+      "seconds": 363,
+      "text": "address of the newly allocated virtual"
+    },
+    {
+      "seconds": 366,
+      "text": "memory so instead of putting a"
+    },
+    {
+      "seconds": 367,
+      "text": "breakpoint on the beginning of function"
+    },
+    {
+      "seconds": 369,
+      "text": "I put a breakpoint on the return so"
+    },
+    {
+      "seconds": 371,
+      "text": "let's just use control G here to jump to"
+    },
+    {
+      "seconds": 374,
+      "text": "virtual analog and then I'm going to"
+    },
+    {
+      "seconds": 377,
+      "text": "follow these jump statements so we're at"
+    },
+    {
+      "seconds": 380,
+      "text": "the entry point here well actually kind"
+    },
+    {
+      "seconds": 383,
+      "text": "of interesting there's actually a"
+    },
+    {
+      "seconds": 384,
+      "text": "redirect to virtual analog we've covered"
+    },
+    {
+      "seconds": 386,
+      "text": "that in some other videos but basically"
+    },
+    {
+      "seconds": 388,
+      "text": "this is a shell a wrapper around virtual"
+    },
+    {
+      "seconds": 391,
+      "text": "analog so what we do is we sort of"
+    },
+    {
+      "seconds": 392,
+      "text": "highlight this press ENTER to jump into"
+    },
+    {
+      "seconds": 394,
+      "text": "it there's another jump here and then we"
+    },
+    {
+      "seconds": 396,
+      "text": "get into the kernel base DLL that has"
+    },
+    {
+      "seconds": 399,
+      "text": "the actual main code for virtual analog"
+    },
+    {
+      "seconds": 401,
+      "text": "just to cover it really quickly"
+    },
+    {
+      "seconds": 402,
+      "text": "kernel32.dll has wrapper that's called"
+    },
+    {
+      "seconds": 405,
+      "text": "virtual analog that you call in to you"
+    },
+    {
+      "seconds": 407,
+      "text": "but inside that wrapper they actually"
+    },
+    {
+      "seconds": 408,
+      "text": "call in to a dll called kernel base and"
+    },
+    {
+      "seconds": 410,
+      "text": "that contains the actual code for"
+    },
+    {
+      "seconds": 412,
+      "text": "virtual analog so that's what we've done"
+    },
+    {
+      "seconds": 413,
+      "text": "we've just jumped into the into the you"
+    },
+    {
+      "seconds": 416,
+      "text": "can see up here at the kernel base dll"
+    },
+    {
+      "seconds": 417,
+      "text": "and we're going to put a breakpoint on a"
+    },
+    {
+      "seconds": 419,
+      "text": "return here so we're just going to press"
+    },
+    {
+      "seconds": 421,
+      "text": "F to add that breakpoint and the second"
+    },
+    {
+      "seconds": 423,
+      "text": "thing we want to do is put a breakpoint"
+    },
+    {
+      "seconds": 424,
+      "text": "on virtual protect and the reason for"
+    },
+    {
+      "seconds": 426,
+      "text": "this is because if we're going to do"
+    },
+    {
+      "seconds": 428,
+      "text": "some self-injection they're gonna inject"
+    },
+    {
+      "seconds": 429,
+      "text": "code into their own process they're"
+    },
+    {
+      "seconds": 430,
+      "text": "probably gonna have to change the"
+    },
+    {
+      "seconds": 431,
+      "text": "protections of the memory segment so"
+    },
+    {
+      "seconds": 433,
+      "text": "that they can actually run the code and"
+    },
+    {
+      "seconds": 435,
+      "text": "this is doubly so for PE / rights so if"
+    },
+    {
+      "seconds": 438,
+      "text": "they're overriding a section generally"
+    },
+    {
+      "seconds": 440,
+      "text": "if we look at the permissions of the"
+    },
+    {
+      "seconds": 442,
+      "text": "section when it's loaded it won't have"
+    },
+    {
+      "seconds": 444,
+      "text": "write access because why would you need"
+    },
+    {
+      "seconds": 446,
+      "text": "to write here a few sections that's"
+    },
+    {
+      "seconds": 448,
+      "text": "obviously a trigger for any virus"
+    },
+    {
+      "seconds": 449,
+      "text": "anytime you sort of see right acts"
+    },
+    {
+      "seconds": 451,
+      "text": "permissions on a PE section it's"
+    },
+    {
+      "seconds": 453,
+      "text": "probably gonna be packed so a lot of"
+    },
+    {
+      "seconds": 454,
+      "text": "malware nowadays will actually load the"
+    },
+    {
+      "seconds": 456,
+      "text": "sections non writable just like a normal"
+    },
+    {
+      "seconds": 458,
+      "text": "PE and then they'll use a virtual"
+    },
+    {
+      "seconds": 459,
+      "text": "protect to change the right permissions"
+    },
+    {
+      "seconds": 461,
+      "text": "so we're gonna put a breakpoint on that"
+    },
+    {
+      "seconds": 462,
+      "text": "as well so I can just press ctrl-g to"
+    },
+    {
+      "seconds": 464,
+      "text": "goto it virtual protect to it and we're"
+    },
+    {
+      "seconds": 468,
+      "text": "gonna put a breakpoint on the entry"
+    },
+    {
+      "seconds": 469,
+      "text": "point to virtual protect because in this"
+    },
+    {
+      "seconds": 472,
+      "text": "case we actually just want to see what's"
+    },
+    {
+      "seconds": 473,
+      "text": "passed into it the first argument for"
+    },
+    {
+      "seconds": 476,
+      "text": "virtual protect will be the address of"
+    },
+    {
+      "seconds": 477,
+      "text": "the memory section that they're changing"
+    },
+    {
+      "seconds": 479,
+      "text": "the protections of so we'll just come in"
+    },
+    {
+      "seconds": 481,
+      "text": "here can do a right-click toggle the"
+    },
+    {
+      "seconds": 482,
+      "text": "break point instead of f2 you know why"
+    },
+    {
+      "seconds": 484,
+      "text": "not mix it up use a little bit of mouse"
+    },
+    {
+      "seconds": 485,
+      "text": "use a little bit of keyboard so now that"
+    },
+    {
+      "seconds": 487,
+      "text": "we have those two break points set we"
+    },
+    {
+      "seconds": 489,
+      "text": "can probably actually start running this"
+    },
+    {
+      "seconds": 491,
+      "text": "and seeing what happens I'm gonna just"
+    },
+    {
+      "seconds": 493,
+      "text": "expand the window a bit here give me a"
+    },
+    {
+      "seconds": 495,
+      "text": "bit more room to work with"
+    },
+    {
+      "seconds": 496,
+      "text": "all right so we'll just press r1 we hit"
+    },
+    {
+      "seconds": 498,
+      "text": "a breakpoint on the entry point which"
+    },
+    {
+      "seconds": 500,
+      "text": "x64 debug always sets so it's always"
+    },
+    {
+      "seconds": 503,
+      "text": "going to set a breakpoint on the entry"
+    },
+    {
+      "seconds": 504,
+      "text": "point for the PE file so that's not it"
+    },
+    {
+      "seconds": 507,
+      "text": "really of interest to us so let's"
+    },
+    {
+      "seconds": 508,
+      "text": "continue running here and we hit our"
+    },
+    {
+      "seconds": 510,
+      "text": "break point on return from virtual"
+    },
+    {
+      "seconds": 512,
+      "text": "analog so just like I said we can see in"
+    },
+    {
+      "seconds": 515,
+      "text": "the EAX register is the newly allocated"
+    },
+    {
+      "seconds": 516,
+      "text": "virtual memory can now right click on"
+    },
+    {
+      "seconds": 518,
+      "text": "this and following dump and now of"
+    },
+    {
+      "seconds": 520,
+      "text": "course we're showing the newly allocated"
+    },
+    {
+      "seconds": 522,
+      "text": "memory down here in our dump now what"
+    },
+    {
+      "seconds": 524,
+      "text": "we're gonna do is kind of a you know"
+    },
+    {
+      "seconds": 525,
+      "text": "this is a quick way to unpack but it"
+    },
+    {
+      "seconds": 527,
+      "text": "works like you know 9 times of 10 10"
+    },
+    {
+      "seconds": 530,
+      "text": "times over 10 almost always this works"
+    },
+    {
+      "seconds": 532,
+      "text": "basically we're gonna look to see what's"
+    },
+    {
+      "seconds": 534,
+      "text": "written into these sections we're going"
+    },
+    {
+      "seconds": 535,
+      "text": "to look to see whether it's something of"
+    },
+    {
+      "seconds": 537,
+      "text": "interest for us so let's continue to run"
+    },
+    {
+      "seconds": 539,
+      "text": "here we can see they've written some"
+    },
+    {
+      "seconds": 541,
+      "text": "stuff into it and I'm curious I think it"
+    },
+    {
+      "seconds": 543,
+      "text": "might actually be some code maybe a stub"
+    },
+    {
+      "seconds": 546,
+      "text": "of some sort where they're going to"
+    },
+    {
+      "seconds": 548,
+      "text": "actually do the unpacking in this code"
+    },
+    {
+      "seconds": 550,
+      "text": "and one trick here you can do is just"
+    },
+    {
+      "seconds": 551,
+      "text": "right click on it and do follow in"
+    },
+    {
+      "seconds": 553,
+      "text": "memory map and you can see where it's"
+    },
+    {
+      "seconds": 555,
+      "text": "been allocated here so it's just a code"
+    },
+    {
+      "seconds": 557,
+      "text": "segment it's sitting outside of our PE"
+    },
+    {
+      "seconds": 559,
+      "text": "file here so it's just sitting up here"
+    },
+    {
+      "seconds": 560,
+      "text": "it's got execute read/write privileges"
+    },
+    {
+      "seconds": 562,
+      "text": "so almost certainly they're going to"
+    },
+    {
+      "seconds": 564,
+      "text": "jump into that and start executing so"
+    },
+    {
+      "seconds": 566,
+      "text": "I'm not a big deal it's kind of what we"
+    },
+    {
+      "seconds": 567,
+      "text": "expected that's probably their stub and"
+    },
+    {
+      "seconds": 569,
+      "text": "the reason why we've stopped is we've"
+    },
+    {
+      "seconds": 570,
+      "text": "had another return from virtual Alex so"
+    },
+    {
+      "seconds": 573,
+      "text": "there's a second memory section that's"
+    },
+    {
+      "seconds": 574,
+      "text": "been allocated here so if we right click"
+    },
+    {
+      "seconds": 576,
+      "text": "and following them we're now tracking"
+    },
+    {
+      "seconds": 578,
+      "text": "two memory sections so let's continue to"
+    },
+    {
+      "seconds": 581,
+      "text": "execute here we hit a virtual protect"
+    },
+    {
+      "seconds": 583,
+      "text": "just kind"
+    },
+    {
+      "seconds": 584,
+      "text": "interesting and we also see there is a"
+    },
+    {
+      "seconds": 586,
+      "text": "PE file that's been written in here so"
+    },
+    {
+      "seconds": 588,
+      "text": "there we go anytime you see a PE file"
+    },
+    {
+      "seconds": 589,
+      "text": "written into a newly allocated memory"
+    },
+    {
+      "seconds": 592,
+      "text": "section it was probably a good idea to"
+    },
+    {
+      "seconds": 593,
+      "text": "dump that out and take a look at it so"
+    },
+    {
+      "seconds": 595,
+      "text": "that's definitely what we're gonna do"
+    },
+    {
+      "seconds": 596,
+      "text": "here so we're gonna right-click we're"
+    },
+    {
+      "seconds": 598,
+      "text": "gonna follow a memory map here and we're"
+    },
+    {
+      "seconds": 600,
+      "text": "going to right click here and we're"
+    },
+    {
+      "seconds": 602,
+      "text": "gonna dump to file and let's save it on"
+    },
+    {
+      "seconds": 604,
+      "text": "our desktop here so since that's a PE"
+    },
+    {
+      "seconds": 607,
+      "text": "file let's use PE beared take a look at"
+    },
+    {
+      "seconds": 609,
+      "text": "it so P bear pretty awesome tool for"
+    },
+    {
+      "seconds": 611,
+      "text": "quickly triaging the PE files we'll just"
+    },
+    {
+      "seconds": 614,
+      "text": "drag this in here and let's take a look"
+    },
+    {
+      "seconds": 616,
+      "text": "at the sections so sections everything"
+    },
+    {
+      "seconds": 618,
+      "text": "looks pretty legit and by that I mean it"
+    },
+    {
+      "seconds": 621,
+      "text": "doesn't look like there's anything too"
+    },
+    {
+      "seconds": 623,
+      "text": "messed up here it's got some imports"
+    },
+    {
+      "seconds": 625,
+      "text": "there's nothing wrong with it and what"
+    },
+    {
+      "seconds": 626,
+      "text": "I'm really looking for here is I'm"
+    },
+    {
+      "seconds": 628,
+      "text": "looking to see whether this PE file is"
+    },
+    {
+      "seconds": 630,
+      "text": "in its mapped format so if it's actually"
+    },
+    {
+      "seconds": 633,
+      "text": "being ready to be executed or if it's in"
+    },
+    {
+      "seconds": 634,
+      "text": "its unmad format which is the format"
+    },
+    {
+      "seconds": 636,
+      "text": "that exists on disk and the difference"
+    },
+    {
+      "seconds": 638,
+      "text": "is if you look at the section headers"
+    },
+    {
+      "seconds": 640,
+      "text": "here in the unmapped format these"
+    },
+    {
+      "seconds": 642,
+      "text": "sections will start at the raw addresses"
+    },
+    {
+      "seconds": 644,
+      "text": "and the matte format that will start at"
+    },
+    {
+      "seconds": 645,
+      "text": "the virtual addresses so sometimes if"
+    },
+    {
+      "seconds": 647,
+      "text": "you dump a PE file from memory and it's"
+    },
+    {
+      "seconds": 649,
+      "text": "in its matte format you'll actually have"
+    },
+    {
+      "seconds": 651,
+      "text": "to edit this table to make the raw"
+    },
+    {
+      "seconds": 653,
+      "text": "address along with the virtual address"
+    },
+    {
+      "seconds": 654,
+      "text": "now in this case it looks like we don't"
+    },
+    {
+      "seconds": 656,
+      "text": "have to do that everything looks fine"
+    },
+    {
+      "seconds": 657,
+      "text": "imports look fine so it looks like we've"
+    },
+    {
+      "seconds": 659,
+      "text": "actually dumped a legitimate exe file"
+    },
+    {
+      "seconds": 661,
+      "text": "normally what I would do at this point"
+    },
+    {
+      "seconds": 663,
+      "text": "is I'd actually I kill the debugger and"
+    },
+    {
+      "seconds": 665,
+      "text": "I would maybe open up an Ida and see if"
+    },
+    {
+      "seconds": 666,
+      "text": "there's any strings or anything like"
+    },
+    {
+      "seconds": 667,
+      "text": "that but what I'm gonna do because I've"
+    },
+    {
+      "seconds": 669,
+      "text": "done a pass through this once before is"
+    },
+    {
+      "seconds": 671,
+      "text": "I actually want to show you one more"
+    },
+    {
+      "seconds": 672,
+      "text": "thing here in the debugger so you can"
+    },
+    {
+      "seconds": 674,
+      "text": "see what they're actually gonna do with"
+    },
+    {
+      "seconds": 676,
+      "text": "this file so if we close a PE bear here"
+    },
+    {
+      "seconds": 678,
+      "text": "remember we broke on virtual protect"
+    },
+    {
+      "seconds": 680,
+      "text": "here so why don't we look and see what"
+    },
+    {
+      "seconds": 683,
+      "text": "they're trying to change the protections"
+    },
+    {
+      "seconds": 684,
+      "text": "of so on the stack here there's a return"
+    },
+    {
+      "seconds": 687,
+      "text": "and then this is the first argument so"
+    },
+    {
+      "seconds": 688,
+      "text": "that's the memory section that they're"
+    },
+    {
+      "seconds": 691,
+      "text": "gonna change the protections of and if"
+    },
+    {
+      "seconds": 692,
+      "text": "we look at that that's actually the"
+    },
+    {
+      "seconds": 694,
+      "text": "memory section where our if we look at"
+    },
+    {
+      "seconds": 696,
+      "text": "the memory map here where our PE file"
+    },
+    {
+      "seconds": 698,
+      "text": "was was loaded at so they're actually"
+    },
+    {
+      "seconds": 701,
+      "text": "gonna change the memory protections of"
+    },
+    {
+      "seconds": 703,
+      "text": "the P file that was loaded for this"
+    },
+    {
+      "seconds": 705,
+      "text": "process so this looks to me very much"
+    },
+    {
+      "seconds": 708,
+      "text": "like they're gonna do a P overwrite and"
+    },
+    {
+      "seconds": 710,
+      "text": "I'll probably walk you through one more"
+    },
+    {
+      "seconds": 712,
+      "text": "step in the debugger again we don't have"
+    },
+    {
+      "seconds": 714,
+      "text": "to go through all this because we"
+    },
+    {
+      "seconds": 715,
+      "text": "actually have the P file we just dumped"
+    },
+    {
+      "seconds": 717,
+      "text": "out from"
+    },
+    {
+      "seconds": 718,
+      "text": "so what they're gonna use they're"
+    },
+    {
+      "seconds": 719,
+      "text": "actually just gonna overwrite this PE"
+    },
+    {
+      "seconds": 721,
+      "text": "file the P file that spawned this"
+    },
+    {
+      "seconds": 722,
+      "text": "process they're going to just overwrite"
+    },
+    {
+      "seconds": 724,
+      "text": "it with the P file that we just dumped"
+    },
+    {
+      "seconds": 725,
+      "text": "out so there's no need to actually walk"
+    },
+    {
+      "seconds": 727,
+      "text": "through that because we have the payload"
+    },
+    {
+      "seconds": 729,
+      "text": "already but I do want to show you"
+    },
+    {
+      "seconds": 730,
+      "text": "something kind of interesting so if we"
+    },
+    {
+      "seconds": 732,
+      "text": "go back to our CPU view here and we just"
+    },
+    {
+      "seconds": 734,
+      "text": "run until you return from virtual"
+    },
+    {
+      "seconds": 736,
+      "text": "protect and then we step once to go back"
+    },
+    {
+      "seconds": 738,
+      "text": "into the code look at where this is"
+    },
+    {
+      "seconds": 739,
+      "text": "pointing so let's follow this memory so"
+    },
+    {
+      "seconds": 743,
+      "text": "it's actually being executed from that"
+    },
+    {
+      "seconds": 746,
+      "text": "little blob that we saw first injected"
+    },
+    {
+      "seconds": 748,
+      "text": "into a memory section so we were indeed"
+    },
+    {
+      "seconds": 750,
+      "text": "correct they've actually created this"
+    },
+    {
+      "seconds": 752,
+      "text": "section here they wrote some code into"
+    },
+    {
+      "seconds": 754,
+      "text": "it a loader stub then they use that code"
+    },
+    {
+      "seconds": 756,
+      "text": "to unpack the payload which we also"
+    },
+    {
+      "seconds": 759,
+      "text": "found in memory and then now there are"
+    },
+    {
+      "seconds": 761,
+      "text": "changes and protections of the PE file"
+    },
+    {
+      "seconds": 763,
+      "text": "because they're probably going to"
+    },
+    {
+      "seconds": 764,
+      "text": "overwrite it so what kind of interesting"
+    },
+    {
+      "seconds": 766,
+      "text": "again I won't walk through the actual"
+    },
+    {
+      "seconds": 768,
+      "text": "override because it doesn't matter to us"
+    },
+    {
+      "seconds": 770,
+      "text": "we've already dumped out the payload but"
+    },
+    {
+      "seconds": 771,
+      "text": "the next step here is to take a look at"
+    },
+    {
+      "seconds": 773,
+      "text": "that payload and see what's going on"
+    },
+    {
+      "seconds": 774,
+      "text": "okay so I've popped over to my other VM"
+    },
+    {
+      "seconds": 777,
+      "text": "that I use to analyze malware Ida and"
+    },
+    {
+      "seconds": 780,
+      "text": "I've opened up the dumped PE file in Ida"
+    },
+    {
+      "seconds": 783,
+      "text": "Pro here and when we open it up I see a"
+    },
+    {
+      "seconds": 785,
+      "text": "few things that are immediately to me"
+    },
+    {
+      "seconds": 787,
+      "text": "this looks like another packed file so"
+    },
+    {
+      "seconds": 789,
+      "text": "the first thing is if we look at the top"
+    },
+    {
+      "seconds": 791,
+      "text": "here we can see the Blues a little bit"
+    },
+    {
+      "seconds": 793,
+      "text": "of analyzed code and then we have this"
+    },
+    {
+      "seconds": 794,
+      "text": "giant bar this kind of yellow okay I"
+    },
+    {
+      "seconds": 799,
+      "text": "don't know what color this would really"
+    },
+    {
+      "seconds": 801,
+      "text": "be like some sort of ugly chartreuse"
+    },
+    {
+      "seconds": 803,
+      "text": "telling me that there's a lot of"
+    },
+    {
+      "seconds": 805,
+      "text": "unanalyzed data here anytime I see this"
+    },
+    {
+      "seconds": 807,
+      "text": "sort of thing and it--is profiler here"
+    },
+    {
+      "seconds": 810,
+      "text": "it immediately tells me that there's"
+    },
+    {
+      "seconds": 811,
+      "text": "something's wrong with this file also"
+    },
+    {
+      "seconds": 813,
+      "text": "the fact there's hardly any functions"
+    },
+    {
+      "seconds": 815,
+      "text": "and in the imports there's hardly any"
+    },
+    {
+      "seconds": 817,
+      "text": "imports here so it tells me this is"
+    },
+    {
+      "seconds": 818,
+      "text": "probably packed so let's take a closer"
+    },
+    {
+      "seconds": 820,
+      "text": "look at it and we'll see if we can't"
+    },
+    {
+      "seconds": 822,
+      "text": "figure out how it's packed one of the"
+    },
+    {
+      "seconds": 823,
+      "text": "ways to do this i guess there's two ways"
+    },
+    {
+      "seconds": 825,
+      "text": "so first would be just to dive in but"
+    },
+    {
+      "seconds": 827,
+      "text": "one of the easy ways or a quick trick"
+    },
+    {
+      "seconds": 829,
+      "text": "here would be to jump to the beginning"
+    },
+    {
+      "seconds": 831,
+      "text": "of this blob here so we just move the"
+    },
+    {
+      "seconds": 833,
+      "text": "cursor over here we can see it's in the"
+    },
+    {
+      "seconds": 835,
+      "text": "data section and it has an xref it has a"
+    },
+    {
+      "seconds": 837,
+      "text": "cross-reference so if you just"
+    },
+    {
+      "seconds": 839,
+      "text": "right-click and jump to the cross"
+    },
+    {
+      "seconds": 841,
+      "text": "references here sometimes you can"
+    },
+    {
+      "seconds": 842,
+      "text": "actually see where it's being unpacked"
+    },
+    {
+      "seconds": 844,
+      "text": "and yeah and we're lucky here so we"
+    },
+    {
+      "seconds": 846,
+      "text": "could see here's a rotate left and xor"
+    },
+    {
+      "seconds": 848,
+      "text": "loop that's using the"
+    },
+    {
+      "seconds": 851,
+      "text": "points to this address so if we just"
+    },
+    {
+      "seconds": 853,
+      "text": "name this address blob one so we can see"
+    },
+    {
+      "seconds": 856,
+      "text": "we move that into EAX and then we move"
+    },
+    {
+      "seconds": 858,
+      "text": "what looks like maybe a length into ECX"
+    },
+    {
+      "seconds": 860,
+      "text": "which we're using the dekor on this loop"
+    },
+    {
+      "seconds": 862,
+      "text": "here so that's probably the length of"
+    },
+    {
+      "seconds": 864,
+      "text": "the blob here in hex and when we move"
+    },
+    {
+      "seconds": 867,
+      "text": "into EDX here we move it looks like this"
+    },
+    {
+      "seconds": 870,
+      "text": "is a key so it looks like they've moved"
+    },
+    {
+      "seconds": 871,
+      "text": "a key into EDX they're using that to X"
+    },
+    {
+      "seconds": 874,
+      "text": "or with bytes from the blob they move"
+    },
+    {
+      "seconds": 877,
+      "text": "through the blob byte by byte and they"
+    },
+    {
+      "seconds": 879,
+      "text": "do a little X or than a rotate left of"
+    },
+    {
+      "seconds": 882,
+      "text": "the key so there's a standard you know"
+    },
+    {
+      "seconds": 885,
+      "text": "basic level basic encryption I can't say"
+    },
+    {
+      "seconds": 890,
+      "text": "that word so yeah this is just basic xor"
+    },
+    {
+      "seconds": 893,
+      "text": "encryption and so we've pretty much"
+    },
+    {
+      "seconds": 895,
+      "text": "already identified how they're going to"
+    },
+    {
+      "seconds": 897,
+      "text": "decrypt that blob let's look down here"
+    },
+    {
+      "seconds": 899,
+      "text": "so we know it's been moved into EAX"
+    },
+    {
+      "seconds": 901,
+      "text": "let's see what else they're doing here"
+    },
+    {
+      "seconds": 902,
+      "text": "so they allocate some memory oh here's"
+    },
+    {
+      "seconds": 905,
+      "text": "something interesting so you can see a"
+    },
+    {
+      "seconds": 906,
+      "text": "call to load library which is used to"
+    },
+    {
+      "seconds": 908,
+      "text": "load dll's"
+    },
+    {
+      "seconds": 909,
+      "text": "and if we scroll down I think yeah"
+    },
+    {
+      "seconds": 911,
+      "text": "there's gonna be a get process address"
+    },
+    {
+      "seconds": 913,
+      "text": "too"
+    },
+    {
+      "seconds": 913,
+      "text": "so this is very common when somebody is"
+    },
+    {
+      "seconds": 916,
+      "text": "going to do some dynamic API resolving"
+    },
+    {
+      "seconds": 918,
+      "text": "so you can see there's a bunch of bytes"
+    },
+    {
+      "seconds": 920,
+      "text": "being pushed into this buffer here and"
+    },
+    {
+      "seconds": 923,
+      "text": "then that buffer is pushed as an"
+    },
+    {
+      "seconds": 924,
+      "text": "argument to load library so anytime you"
+    },
+    {
+      "seconds": 927,
+      "text": "see this this is what we would call"
+    },
+    {
+      "seconds": 928,
+      "text": "stack strings this looks like they're"
+    },
+    {
+      "seconds": 930,
+      "text": "building a string byte by byte and you"
+    },
+    {
+      "seconds": 932,
+      "text": "can actually just hover over these bytes"
+    },
+    {
+      "seconds": 934,
+      "text": "and press R and turn them into"
+    },
+    {
+      "seconds": 936,
+      "text": "characters so you can read what they are"
+    },
+    {
+      "seconds": 938,
+      "text": "so it looks like they're building the"
+    },
+    {
+      "seconds": 940,
+      "text": "string ntdll they're passing that to"
+    },
+    {
+      "seconds": 943,
+      "text": "load library then the return from that"
+    },
+    {
+      "seconds": 945,
+      "text": "is going to be pushed and to get"
+    },
+    {
+      "seconds": 947,
+      "text": "processed address so they're gonna load"
+    },
+    {
+      "seconds": 949,
+      "text": "Oh something kind of funny that's not"
+    },
+    {
+      "seconds": 952,
+      "text": "get processed address that's good"
+    },
+    {
+      "seconds": 954,
+      "text": "procedure address yeah for some reason"
+    },
+    {
+      "seconds": 956,
+      "text": "it's always stuck my mind as they press"
+    },
+    {
+      "seconds": 958,
+      "text": "this address it's not in this procedure"
+    },
+    {
+      "seconds": 959,
+      "text": "address obviously they're not getting"
+    },
+    {
+      "seconds": 961,
+      "text": "anything from the process they're"
+    },
+    {
+      "seconds": 962,
+      "text": "getting a procedure so they basically"
+    },
+    {
+      "seconds": 964,
+      "text": "try to find the address of an API for a"
+    },
+    {
+      "seconds": 967,
+      "text": "procedure from ntdll dll and we can use"
+    },
+    {
+      "seconds": 970,
+      "text": "our same trick here this looks like"
+    },
+    {
+      "seconds": 971,
+      "text": "another stack string yes we just press"
+    },
+    {
+      "seconds": 973,
+      "text": "our and oh this is interesting so this"
+    },
+    {
+      "seconds": 977,
+      "text": "is our TL decompress buffer which is a"
+    },
+    {
+      "seconds": 979,
+      "text": "API used to decompress stuff so sort of"
+    },
+    {
+      "seconds": 982,
+      "text": "like unzip and so I think what they"
+    },
+    {
+      "seconds": 984,
+      "text": "actually be doing here so e^x is the"
+    },
+    {
+      "seconds": 987,
+      "text": "return from get proc address so that's"
+    },
+    {
+      "seconds": 988,
+      "text": "gonna have the API address for our TLD"
+    },
+    {
+      "seconds": 992,
+      "text": "compress buffer so let's see where they"
+    },
+    {
+      "seconds": 994,
+      "text": "move that move it into EDX and they call"
+    },
+    {
+      "seconds": 996,
+      "text": "it here so let's just put a RTL"
+    },
+    {
+      "seconds": 999,
+      "text": "decompress and so that's what they're"
+    },
+    {
+      "seconds": 1003,
+      "text": "calling here so for RTL decompress"
+    },
+    {
+      "seconds": 1004,
+      "text": "buffer the first argument here is the"
+    },
+    {
+      "seconds": 1006,
+      "text": "type of compression algorithm that's"
+    },
+    {
+      "seconds": 1009,
+      "text": "used the second argument is the buffer"
+    },
+    {
+      "seconds": 1011,
+      "text": "that's going to contain the decompressed"
+    },
+    {
+      "seconds": 1013,
+      "text": "data then the size of the decompressed"
+    },
+    {
+      "seconds": 1015,
+      "text": "data then the compressed data the buffer"
+    },
+    {
+      "seconds": 1017,
+      "text": "that contains the compressed data and"
+    },
+    {
+      "seconds": 1019,
+      "text": "the length of that compressed data so"
+    },
+    {
+      "seconds": 1021,
+      "text": "ECX we saw here is actually blob 1 so"
+    },
+    {
+      "seconds": 1025,
+      "text": "they're gonna decompress it with our TLD"
+    },
+    {
+      "seconds": 1027,
+      "text": "compress buffer after they've decrypted"
+    },
+    {
+      "seconds": 1029,
+      "text": "it and they're gonna store it in this LP"
+    },
+    {
+      "seconds": 1031,
+      "text": "buffer address this so most likely this"
+    },
+    {
+      "seconds": 1034,
+      "text": "is going to be a PE file let's just"
+    },
+    {
+      "seconds": 1036,
+      "text": "follow this through a little bit we can"
+    },
+    {
+      "seconds": 1037,
+      "text": "see what are they doing here so they're"
+    },
+    {
+      "seconds": 1039,
+      "text": "doing a get temp file so they're going"
+    },
+    {
+      "seconds": 1041,
+      "text": "to create a path to a temporary file and"
+    },
+    {
+      "seconds": 1044,
+      "text": "then there's probably gonna be a create"
+    },
+    {
+      "seconds": 1045,
+      "text": "file yeah so there's Crede file here so"
+    },
+    {
+      "seconds": 1047,
+      "text": "they're gonna actually create that temp"
+    },
+    {
+      "seconds": 1048,
+      "text": "file and then they're gonna write"
+    },
+    {
+      "seconds": 1050,
+      "text": "through the file and what are they write"
+    },
+    {
+      "seconds": 1051,
+      "text": "to it they're gonna write the buffer"
+    },
+    {
+      "seconds": 1053,
+      "text": "that they just decompressed ok so I'm"
+    },
+    {
+      "seconds": 1055,
+      "text": "going to use that X or decryption"
+    },
+    {
+      "seconds": 1056,
+      "text": "routine to decrypt this buffer then"
+    },
+    {
+      "seconds": 1058,
+      "text": "they're going to use our fill decompress"
+    },
+    {
+      "seconds": 1060,
+      "text": "buffer to decompress it then they're"
+    },
+    {
+      "seconds": 1062,
+      "text": "going to create a temp file and they're"
+    },
+    {
+      "seconds": 1063,
+      "text": "gonna write it to the temp file now what"
+    },
+    {
+      "seconds": 1065,
+      "text": "are they gonna do next here I have a"
+    },
+    {
+      "seconds": 1067,
+      "text": "sneaking suspicion they might actually"
+    },
+    {
+      "seconds": 1069,
+      "text": "this might be a very old trick so they"
+    },
+    {
+      "seconds": 1073,
+      "text": "are going to take the temp file move it"
+    },
+    {
+      "seconds": 1076,
+      "text": "into the X pushy access argument to load"
+    },
+    {
+      "seconds": 1078,
+      "text": "library so they're going to then load"
+    },
+    {
+      "seconds": 1081,
+      "text": "the temp file as a dll into this process"
+    },
+    {
+      "seconds": 1084,
+      "text": "and then probably they're going to pass"
+    },
+    {
+      "seconds": 1086,
+      "text": "execution to it what's this get proc"
+    },
+    {
+      "seconds": 1088,
+      "text": "address here where is the library okay"
+    },
+    {
+      "seconds": 1091,
+      "text": "so they're gonna load that top file as a"
+    },
+    {
+      "seconds": 1093,
+      "text": "DLL and then they're going to get a proc"
+    },
+    {
+      "seconds": 1096,
+      "text": "address so they're gonna get the address"
+    },
+    {
+      "seconds": 1097,
+      "text": "of one of the exports for that DLL and"
+    },
+    {
+      "seconds": 1100,
+      "text": "what is the export name that they're"
+    },
+    {
+      "seconds": 1101,
+      "text": "gonna get something called you'll all"
+    },
+    {
+      "seconds": 1104,
+      "text": "get class object ok well I guess maybe"
+    },
+    {
+      "seconds": 1108,
+      "text": "the DLL that unpack DLL is gonna have an"
+    },
+    {
+      "seconds": 1110,
+      "text": "export called deal allocate class object"
+    },
+    {
+      "seconds": 1112,
+      "text": "which they're going to get the address"
+    },
+    {
+      "seconds": 1114,
+      "text": "for which is coming back in EAX and"
+    },
+    {
+      "seconds": 1117,
+      "text": "gonna call it down here so we're gonna"
+    },
+    {
+      "seconds": 1118,
+      "text": "call this jump - I'm loaded okay and so"
+    },
+    {
+      "seconds": 1126,
+      "text": "what are they gonna do they're going to"
+    },
+    {
+      "seconds": 1127,
+      "text": "push this as an argument to that call so"
+    },
+    {
+      "seconds": 1132,
+      "text": "let's see what they're pushing but"
+    },
+    {
+      "seconds": 1139,
+      "text": "they're gonna push host space than a"
+    },
+    {
+      "seconds": 1141,
+      "text": "bunch of zeros as an argument to that"
+    },
+    {
+      "seconds": 1144,
+      "text": "deal when they call it into it and then"
+    },
+    {
+      "seconds": 1146,
+      "text": "they just exit so that's all there is to"
+    },
+    {
+      "seconds": 1147,
+      "text": "this Packer this is something that's"
+    },
+    {
+      "seconds": 1149,
+      "text": "really not used very often anymore"
+    },
+    {
+      "seconds": 1151,
+      "text": "because in order for them to unpack the"
+    },
+    {
+      "seconds": 1153,
+      "text": "sample they have to actually write the"
+    },
+    {
+      "seconds": 1155,
+      "text": "sample to disk unpacked and of course"
+    },
+    {
+      "seconds": 1158,
+      "text": "with modern antivirus you know if you're"
+    },
+    {
+      "seconds": 1160,
+      "text": "writing on tax example of disks they're"
+    },
+    {
+      "seconds": 1162,
+      "text": "automatically gonna check it so this is"
+    },
+    {
+      "seconds": 1163,
+      "text": "actually a pretty archaic way of"
+    },
+    {
+      "seconds": 1165,
+      "text": "unpacking stuff you don't see too often"
+    },
+    {
+      "seconds": 1167,
+      "text": "and it's also one of the reasons why I"
+    },
+    {
+      "seconds": 1168,
+      "text": "wanted to cover it cuz I think it's kind"
+    },
+    {
+      "seconds": 1170,
+      "text": "of cool you know I want to learn a"
+    },
+    {
+      "seconds": 1171,
+      "text": "little bit of the history of how Packers"
+    },
+    {
+      "seconds": 1172,
+      "text": "used to work so there's two ways now to"
+    },
+    {
+      "seconds": 1174,
+      "text": "proceed basically we could try and write"
+    },
+    {
+      "seconds": 1176,
+      "text": "our own little Python algorithm to do"
+    },
+    {
+      "seconds": 1178,
+      "text": "the decryption then we could find out"
+    },
+    {
+      "seconds": 1180,
+      "text": "what the decompression algorithm is"
+    },
+    {
+      "seconds": 1182,
+      "text": "that's used and we could be compress it"
+    },
+    {
+      "seconds": 1184,
+      "text": "using a tool or we can take the lazy way"
+    },
+    {
+      "seconds": 1186,
+      "text": "because we know they're actually gonna"
+    },
+    {
+      "seconds": 1187,
+      "text": "write the unpacked dll to disk"
+    },
+    {
+      "seconds": 1189,
+      "text": "we just open up our debugger again run"
+    },
+    {
+      "seconds": 1191,
+      "text": "through this put a breakpoint on the"
+    },
+    {
+      "seconds": 1193,
+      "text": "load library and find out where the"
+    },
+    {
+      "seconds": 1196,
+      "text": "unpack dll is written and just grab that"
+    },
+    {
+      "seconds": 1198,
+      "text": "so why don't we hop over to our debugger"
+    },
+    {
+      "seconds": 1201,
+      "text": "again and we'll see if we can't unpack"
+    },
+    {
+      "seconds": 1202,
+      "text": "this real quick okay so we're back in"
+    },
+    {
+      "seconds": 1204,
+      "text": "our debugger here I'm just gonna rename"
+    },
+    {
+      "seconds": 1206,
+      "text": "this dump with an exe extension on the"
+    },
+    {
+      "seconds": 1208,
+      "text": "end of it now you don't have to do that"
+    },
+    {
+      "seconds": 1210,
+      "text": "I just do it because it gets a little"
+    },
+    {
+      "seconds": 1211,
+      "text": "bit cleaner but you don't need to"
+    },
+    {
+      "seconds": 1213,
+      "text": "because if you littered in X 64 debug"
+    },
+    {
+      "seconds": 1214,
+      "text": "it'll actually just automatically load"
+    },
+    {
+      "seconds": 1216,
+      "text": "it as a PE so you don't need to but"
+    },
+    {
+      "seconds": 1217,
+      "text": "again I just think it's cleaner so let's"
+    },
+    {
+      "seconds": 1219,
+      "text": "open up xx for debug here drag in our"
+    },
+    {
+      "seconds": 1222,
+      "text": "file so likely spawn Ida you want to add"
+    },
+    {
+      "seconds": 1224,
+      "text": "a breakpoint on the library because then"
+    },
+    {
+      "seconds": 1226,
+      "text": "you can see where they've dumped the dll"
+    },
+    {
+      "seconds": 1228,
+      "text": "to disk what the temp file path is but"
+    },
+    {
+      "seconds": 1231,
+      "text": "if you add a breakpoint on load library"
+    },
+    {
+      "seconds": 1233,
+      "text": "right now before the exe is fully"
+    },
+    {
+      "seconds": 1235,
+      "text": "initialized and you're probably gonna"
+    },
+    {
+      "seconds": 1236,
+      "text": "end up loading a bunch of other deals"
+    },
+    {
+      "seconds": 1238,
+      "text": "that are needed for execution so what I"
+    },
+    {
+      "seconds": 1240,
+      "text": "like to do is just run until we hit the"
+    },
+    {
+      "seconds": 1242,
+      "text": "entry point or the exe so you've got the"
+    },
+    {
+      "seconds": 1245,
+      "text": "entry point here and now we can add a"
+    },
+    {
+      "seconds": 1246,
+      "text": "breakpoint"
+    },
+    {
+      "seconds": 1248,
+      "text": "load library so let's just come in here"
+    },
+    {
+      "seconds": 1250,
+      "text": "and we'll press ctrl-g we'll do a load"
+    },
+    {
+      "seconds": 1252,
+      "text": "library and we're gonna go load library"
+    },
+    {
+      "seconds": 1255,
+      "text": "W because there are two versions of"
+    },
+    {
+      "seconds": 1258,
+      "text": "windows API calls that take in a string"
+    },
+    {
+      "seconds": 1260,
+      "text": "argument so any windows API call it"
+    },
+    {
+      "seconds": 1263,
+      "text": "takes in a string argument is gonna have"
+    },
+    {
+      "seconds": 1264,
+      "text": "two versions of it so it's gonna have an"
+    },
+    {
+      "seconds": 1266,
+      "text": "A and a W a stands for ASCII and W"
+    },
+    {
+      "seconds": 1268,
+      "text": "stands for white string the a calls are"
+    },
+    {
+      "seconds": 1271,
+      "text": "actually just wrappers all they do is"
+    },
+    {
+      "seconds": 1272,
+      "text": "transform all the string arguments into"
+    },
+    {
+      "seconds": 1275,
+      "text": "white strings and then they call the W"
+    },
+    {
+      "seconds": 1276,
+      "text": "argument so we always just put"
+    },
+    {
+      "seconds": 1278,
+      "text": "breakpoints on double use because"
+    },
+    {
+      "seconds": 1279,
+      "text": "they're always going to be called"
+    },
+    {
+      "seconds": 1280,
+      "text": "whereas the A's may not always be called"
+    },
+    {
+      "seconds": 1282,
+      "text": "so let's put a breakpoint on it so we"
+    },
+    {
+      "seconds": 1285,
+      "text": "just jump to it here going to f2 to put"
+    },
+    {
+      "seconds": 1288,
+      "text": "a breakpoint on it and now we can run"
+    },
+    {
+      "seconds": 1289,
+      "text": "and see when it's hit so it's being hit"
+    },
+    {
+      "seconds": 1291,
+      "text": "immediately because again there's almost"
+    },
+    {
+      "seconds": 1293,
+      "text": "no code in this Packer and we can see"
+    },
+    {
+      "seconds": 1295,
+      "text": "the first argument to load library is"
+    },
+    {
+      "seconds": 1297,
+      "text": "the path to the deal that's being loaded"
+    },
+    {
+      "seconds": 1299,
+      "text": "and in this case it is a temp file and"
+    },
+    {
+      "seconds": 1302,
+      "text": "let's just expand this a little bit so"
+    },
+    {
+      "seconds": 1303,
+      "text": "we can see it temp folder EE 54 TMP so"
+    },
+    {
+      "seconds": 1307,
+      "text": "if we open up our browser here and go"
+    },
+    {
+      "seconds": 1310,
+      "text": "into the temp % TMP and we're not going"
+    },
+    {
+      "seconds": 1313,
+      "text": "to see it there because probably what"
+    },
+    {
+      "seconds": 1315,
+      "text": "they've done is they've hidden it so"
+    },
+    {
+      "seconds": 1317,
+      "text": "here's kind of a trick if you can't see"
+    },
+    {
+      "seconds": 1319,
+      "text": "it in the file browser but we know it"
+    },
+    {
+      "seconds": 1320,
+      "text": "exists obviously because we can see it"
+    },
+    {
+      "seconds": 1322,
+      "text": "here and what you can do is you can open"
+    },
+    {
+      "seconds": 1324,
+      "text": "up a command shell and browse into that"
+    },
+    {
+      "seconds": 1327,
+      "text": "directory so CD into first sign temp and"
+    },
+    {
+      "seconds": 1329,
+      "text": "then in % temp where you know the file"
+    },
+    {
+      "seconds": 1332,
+      "text": "exists you can use the attrib command"
+    },
+    {
+      "seconds": 1334,
+      "text": "attr ib and it's gonna list all files"
+    },
+    {
+      "seconds": 1337,
+      "text": "that have special attributes so in this"
+    },
+    {
+      "seconds": 1340,
+      "text": "case we can see the EE 54 temp file has"
+    },
+    {
+      "seconds": 1343,
+      "text": "been set as a system file it's hidden"
+    },
+    {
+      "seconds": 1345,
+      "text": "and it's an archive file so we can"
+    },
+    {
+      "seconds": 1347,
+      "text": "actually use the attrib command to"
+    },
+    {
+      "seconds": 1349,
+      "text": "remove those attributes so we can"
+    },
+    {
+      "seconds": 1351,
+      "text": "actually see it in our file browser here"
+    },
+    {
+      "seconds": 1352,
+      "text": "so we just do a trip - hidden - system"
+    },
+    {
+      "seconds": 1357,
+      "text": "and then the path to it here which is EE"
+    },
+    {
+      "seconds": 1360,
+      "text": "5 for TMP and now if we look here it"
+    },
+    {
+      "seconds": 1366,
+      "text": "showed up because this actually beats up"
+    },
+    {
+      "seconds": 1367,
+      "text": "and removed"
+    },
+    {
+      "seconds": 1368,
+      "text": "so again if you know there's a file that"
+    },
+    {
+      "seconds": 1370,
+      "text": "exists that's been dropped by malware"
+    },
+    {
+      "seconds": 1371,
+      "text": "and a directory can't really rely on the"
+    },
+    {
+      "seconds": 1373,
+      "text": "file browser to find it because of"
+    },
+    {
+      "seconds": 1375,
+      "text": "course it might be hidden on set as a"
+    },
+    {
+      "seconds": 1377,
+      "text": "system file so you can't change"
+    },
+    {
+      "seconds": 1379,
+      "text": "hidden attribute so what you have to do"
+    },
+    {
+      "seconds": 1380,
+      "text": "is use those at your commands of course"
+    },
+    {
+      "seconds": 1382,
+      "text": "there's lots of other like sysinternals"
+    },
+    {
+      "seconds": 1383,
+      "text": "tools which will just list all files so"
+    },
+    {
+      "seconds": 1385,
+      "text": "you know if you're doing real incident"
+    },
+    {
+      "seconds": 1387,
+      "text": "response you'd probably use those but in"
+    },
+    {
+      "seconds": 1389,
+      "text": "a pinch a trip works just fine so now"
+    },
+    {
+      "seconds": 1391,
+      "text": "that we have that file we can actually"
+    },
+    {
+      "seconds": 1393,
+      "text": "just open it up in our PE bear here and"
+    },
+    {
+      "seconds": 1396,
+      "text": "take a look and see what it is so we"
+    },
+    {
+      "seconds": 1397,
+      "text": "open it up here so everything's looking"
+    },
+    {
+      "seconds": 1399,
+      "text": "pretty normal here if we go to our"
+    },
+    {
+      "seconds": 1401,
+      "text": "section headers you know everything"
+    },
+    {
+      "seconds": 1402,
+      "text": "looks pretty normal here and if we look"
+    },
+    {
+      "seconds": 1404,
+      "text": "at our imports it has some imports yeah"
+    },
+    {
+      "seconds": 1407,
+      "text": "pretty pretty decent amount of imports"
+    },
+    {
+      "seconds": 1408,
+      "text": "oh it's probably unpacked now if you"
+    },
+    {
+      "seconds": 1410,
+      "text": "look at the discrepancy between the size"
+    },
+    {
+      "seconds": 1412,
+      "text": "of the raw text section and the virtual"
+    },
+    {
+      "seconds": 1415,
+      "text": "text section you can see the virtual"
+    },
+    {
+      "seconds": 1417,
+      "text": "text section is quite a bit larger than"
+    },
+    {
+      "seconds": 1419,
+      "text": "the raw one that's telling me that"
+    },
+    {
+      "seconds": 1420,
+      "text": "probably so again you can look at the"
+    },
+    {
+      "seconds": 1422,
+      "text": "comparison here so you can see the raw"
+    },
+    {
+      "seconds": 1424,
+      "text": "text section is very small but when it's"
+    },
+    {
+      "seconds": 1426,
+      "text": "mapped you can see it's very large so"
+    },
+    {
+      "seconds": 1428,
+      "text": "that's telling me that there's probably"
+    },
+    {
+      "seconds": 1429,
+      "text": "gonna be some monkey business going on"
+    },
+    {
+      "seconds": 1431,
+      "text": "when you've load that file but again we"
+    },
+    {
+      "seconds": 1433,
+      "text": "know what arguments they're loading it"
+    },
+    {
+      "seconds": 1434,
+      "text": "with because we saw an Ida we saw the"
+    },
+    {
+      "seconds": 1436,
+      "text": "export that they were calling and we can"
+    },
+    {
+      "seconds": 1437,
+      "text": "always check here to see and the exports"
+    },
+    {
+      "seconds": 1440,
+      "text": "do they have that export that we saw and"
+    },
+    {
+      "seconds": 1442,
+      "text": "of course they have it right here DLL"
+    },
+    {
+      "seconds": 1444,
+      "text": "gate class object so we've now unpacked"
+    },
+    {
+      "seconds": 1447,
+      "text": "this file and that's pretty much all"
+    },
+    {
+      "seconds": 1448,
+      "text": "there is to it now unfortunately with"
+    },
+    {
+      "seconds": 1450,
+      "text": "this malware like I said the unpacked"
+    },
+    {
+      "seconds": 1453,
+      "text": "file so this is actually in fact there"
+    },
+    {
+      "seconds": 1454,
+      "text": "is some extra stuff going on with it"
+    },
+    {
+      "seconds": 1457,
+      "text": "that's kind of tricky if you load it up"
+    },
+    {
+      "seconds": 1458,
+      "text": "you'll see there are no strings in it"
+    },
+    {
+      "seconds": 1460,
+      "text": "and there's a bunch of other like hidden"
+    },
+    {
+      "seconds": 1461,
+      "text": "stuff so it isn't super clean to load an"
+    },
+    {
+      "seconds": 1464,
+      "text": "Ida and just see what's going on you're"
+    },
+    {
+      "seconds": 1465,
+      "text": "gonna have to do some extra work but"
+    },
+    {
+      "seconds": 1467,
+      "text": "we're not gonna cover that in this video"
+    },
+    {
+      "seconds": 1468,
+      "text": "because I only want to cover the"
+    },
+    {
+      "seconds": 1469,
+      "text": "self-injection part of it"
+    },
+    {
+      "seconds": 1470,
+      "text": "however if anyone's interested in taking"
+    },
+    {
+      "seconds": 1472,
+      "text": "a look at the smell where I think it"
+    },
+    {
+      "seconds": 1473,
+      "text": "looks kind of interesting it looks like"
+    },
+    {
+      "seconds": 1475,
+      "text": "something that might be kind of cool you"
+    },
+    {
+      "seconds": 1476,
+      "text": "can see they actually use crypto domains"
+    },
+    {
+      "seconds": 1478,
+      "text": "to resolve their c2s"
+    },
+    {
+      "seconds": 1481,
+      "text": "and there's some there's some fancy"
+    },
+    {
+      "seconds": 1482,
+      "text": "stuff in there I think it's kind of cool"
+    },
+    {
+      "seconds": 1483,
+      "text": "if anyone's to take a look at it you"
+    },
+    {
+      "seconds": 1486,
+      "text": "guys can give me up a Twitter or"
+    },
+    {
+      "seconds": 1487,
+      "text": "whatever with your analysis I'd love to"
+    },
+    {
+      "seconds": 1489,
+      "text": "see what you guys do but that does wrap"
+    },
+    {
+      "seconds": 1491,
+      "text": "up the unpacking part for this tutorial"
+    },
+    {
+      "seconds": 1492,
+      "text": "so basically two types of injection one"
+    },
+    {
+      "seconds": 1495,
+      "text": "is a P such an override where we kind of"
+    },
+    {
+      "seconds": 1498,
+      "text": "circumvented that by dumping the PE file"
+    },
+    {
+      "seconds": 1500,
+      "text": "out of a buffer before they even had a"
+    },
+    {
+      "seconds": 1501,
+      "text": "chance to write it into the sections so"
+    },
+    {
+      "seconds": 1503,
+      "text": "it was a clean dump and the second part"
+    },
+    {
+      "seconds": 1505,
+      "text": "was a dll that was unpacked and written"
+    },
+    {
+      "seconds": 1507,
+      "text": "to disk which we then just went and"
+    },
+    {
+      "seconds": 1509,
+      "text": "collected so if you ever come across"
+    },
+    {
+      "seconds": 1511,
+      "text": "an hour where you know it's malicious"
+    },
+    {
+      "seconds": 1513,
+      "text": "and you know it's packed but you only"
+    },
+    {
+      "seconds": 1515,
+      "text": "see it's running one process there's no"
+    },
+    {
+      "seconds": 1516,
+      "text": "extra processes being spawned this is"
+    },
+    {
+      "seconds": 1518,
+      "text": "the way you would attack it you would"
+    },
+    {
+      "seconds": 1520,
+      "text": "basically put those breakpoints on"
+    },
+    {
+      "seconds": 1521,
+      "text": "virtual alot which will protect you look"
+    },
+    {
+      "seconds": 1523,
+      "text": "for what was being injected see if you"
+    },
+    {
+      "seconds": 1525,
+      "text": "can spot a PU file dump it out take a"
+    },
+    {
+      "seconds": 1526,
+      "text": "look at an eye test see if you have to"
+    },
+    {
+      "seconds": 1528,
+      "text": "do a second stage so that's pretty much"
+    },
+    {
+      "seconds": 1529,
+      "text": "the process that you use and like I say"
+    },
+    {
+      "seconds": 1531,
+      "text": "it works you know pretty much nine times"
+    },
+    {
+      "seconds": 1532,
+      "text": "out of ten probably more often that it's"
+    },
+    {
+      "seconds": 1534,
+      "text": "pretty rare that you see a self"
+    },
+    {
+      "seconds": 1536,
+      "text": "injection that doesn't use one of these"
+    },
+    {
+      "seconds": 1537,
+      "text": "techniques so hopefully that was"
+    },
+    {
+      "seconds": 1538,
+      "text": "interesting and hopefully you find it"
+    },
+    {
+      "seconds": 1539,
+      "text": "useful as you guys are going through and"
+    },
+    {
+      "seconds": 1541,
+      "text": "looking at now we're also a huge thanks"
+    },
+    {
+      "seconds": 1543,
+      "text": "to Fabian for doing this club with us"
+    },
+    {
+      "seconds": 1545,
+      "text": "and supporting our channel obviously"
+    },
+    {
+      "seconds": 1547,
+      "text": "we're huge fans of lime overflow over at"
+    },
+    {
+      "seconds": 1549,
+      "text": "a labs so a real treat to go to a sort"
+    },
+    {
+      "seconds": 1552,
+      "text": "of club with him so hopefully you guys"
+    },
+    {
+      "seconds": 1553,
+      "text": "enjoyed it until next time keep"
+    },
+    {
+      "seconds": 1555,
+      "text": "explosive in the canvas behind the"
+    },
+    {
+      "seconds": 1556,
+      "text": "malware stay curious"
+    },
+    {
+      "seconds": 1558,
+      "text": "[Music]"
+    },
+    {
+      "seconds": 1565,
+      "text": "you"
+    },
+    {
+      "seconds": 1565,
+      "text": "[Applause]"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+"""Build the standalone field guide from approved inventory and reviewed resources."""
+import html
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import re
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parent
+CATEGORIES = {
+    "forensics": "Digital Forensics", "malware": "Malware Analysis",
+    "web": "Web Security", "reversing": "Reverse Engineering",
+    "osint": "OSINT", "crypto": "Cryptography", "misc": "Miscellaneous",
+}
+RESOURCE_FILES = ("forensics", "web-network", "reverse", "media", "crypto-foundations")
+esc = html.escape
+
+
+def inline(text):
+    return re.sub(r'`([^`]+)`', r'<code>\1</code>', esc(text))
+
+
+def validate_reference(reference):
+    url = urlsplit(reference["url"])
+    assert url.scheme in {"http", "https"} and url.netloc, reference
+    assert reference["title"].strip(), reference
+
+
+def load_data():
+    inventory = json.loads((ROOT / "research/inventory.json").read_text())["tools"]
+    resources = []
+    for name in RESOURCE_FILES:
+        resources.extend(json.loads((ROOT / f"research/resources/{name}.json").read_text()))
+    routes = json.loads((ROOT / "research/routes.json").read_text())
+    by_id = {record["id"]: record for record in resources}
+    approved = {tool["id"] for tool in inventory}
+    assert len(inventory) == len(approved) == len(resources) == len(by_id) == 200
+    assert set(by_id) == approved
+    assert all(re.fullmatch(r'(windows|kali)-\d+', tool_id) for tool_id in approved)
+    for record in resources:
+        assert record["categories"] and set(record["categories"]) <= set(CATEGORIES.values()), record["id"]
+        assert record["challenge_use"].strip(), record["id"]
+        assert 1 <= len(record["resources"]) <= 3, record["id"]
+        for reference in record["resources"]:
+            validate_reference(reference)
+            assert reference["verification"].strip(), record["id"]
+    assert len(routes) == len({route["id"] for route in routes}) == 24
+    assert {route["category"] for route in routes} == set(CATEGORIES)
+    for route in routes:
+        assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]
+        for field in ("title", "input", "expected", "fallback", "caveat", "verification"):
+            assert isinstance(route[field], str) and route[field].strip(), (route["id"], field)
+        assert route["tool_ids"] and set(route["tool_ids"]) <= approved, route["id"]
+        assert route["steps"] and all(isinstance(step, str) and step.strip() for step in route["steps"])
+        assert route["references"], route["id"]
+        for reference in route["references"]:
+            validate_reference(reference)
+    return inventory, by_id, routes
+
+
+def references(items):
+    return '<ul class="references">' + ''.join(
+        f'<li><a href="{esc(item["url"])}">{esc(item["title"])}</a></li>'
+        for item in items) + '</ul>'
+
+
+def render_route(route, inventory):
+    tools = ' · '.join(f'<a href="#tool-{tool_id}">{esc(inventory[tool_id]["name"])} '
+                       f'({tool_id})</a>' for tool_id in route["tool_ids"])
+    steps = ''.join(f'<li>{inline(step)}</li>' for step in route["steps"])
+    body = ''.join(f'<p class="{field}"><strong>{label}:</strong> {inline(route[field])}</p>'
+                   for field, label in (("expected", "Expected"), ("fallback", "If stuck"),
+                                        ("caveat", "Caveat"), ("verification", "Verification")))
+    return (f'<details class="task-route" id="route-{route["id"]}">'
+            f'<summary><span>{esc(route["title"])}</span><small>{inline(route["input"])}</small></summary>'
+            f'<div class="route-body"><p class="route-tools">{tools}</p><ol class="steps">{steps}</ol>'
+            f'{body}{references(route["references"])}</div></details>')
+
+
+def render(tool, record):
+    metadata = ''.join(f'<dt>{label}</dt><dd>{esc(str(tool[field])) or "Not specified"}</dd>'
+                       for field, label in (("platform", "Platform"), ("version", "Version"),
+                                            ("location", "Location"), ("remarks", "Remarks")))
+    caveats = ''.join(f'<li>{inline(caveat)}</li>' for caveat in record["caveats"])
+    verification = ''.join(f'<li>{esc(item["title"])}: {esc(item["verification"])}</li>'
+                           for item in record["resources"])
+    platform = " · ".join(value for value in (tool["platform"].title(), tool["location"]) if value)
+    search_text = ' '.join([tool["name"], tool["id"], record["challenge_use"], *record["categories"]])
+    return (f'<article class="catalog-tool" id="tool-{tool["id"]}" data-source-ids="{tool["id"]}" '
+            f'data-search="{esc(search_text)}"><h3>{esc(tool["name"])} '
+            f'<small>{tool["id"]}</small></h3><p class="platform">{esc(platform)}</p>'
+            f'<p>{esc(record["challenge_use"])}</p>'
+            f'<ul class="caveats">{caveats}</ul>{references(record["resources"])}'
+            f'<details class="metadata"><summary>Platform and verification</summary>'
+            f'<dl>{metadata}</dl><ul>{verification}</ul></details></article>')
+
+
+class PageLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.ids = []
+        self.fragments = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if "id" in attrs:
+            self.ids.append(attrs["id"])
+        if attrs.get("href", "").startswith("#"):
+            self.fragments.append(attrs["href"][1:])
+
+
+def render_page(template, inventory, resources, routes):
+    by_id = {tool["id"]: tool for tool in inventory}
+    route_sections, catalogs = [], []
+    for slug, name in CATEGORIES.items():
+        category_routes = '\n'.join(render_route(route, by_id) for route in routes if route["category"] == slug)
+        route_sections.append(f'<section id="{slug}" aria-labelledby="{slug}-title">'
+                              f'<h2 id="{slug}-title">{name}</h2>{category_routes}</section>')
+        tools = sorted((tool for tool in inventory if resources[tool["id"]]["categories"][0] == name),
+                       key=lambda tool: tool["name"].casefold())
+        entries = '\n'.join(render(tool, resources[tool["id"]]) for tool in tools)
+        catalogs.append(f'<details class="catalog" data-category="{slug}">'
+                        f'<summary>{name} ({len(tools)})</summary>{entries}</details>')
+    for marker, blocks in (("routes", route_sections), ("catalog", catalogs)):
+        marker = f'<!-- guide:{marker} -->'
+        assert template.count(marker) == 1, marker
+        template = template.replace(marker, '\n'.join(blocks))
+    links = PageLinks()
+    links.feed(template)
+    assert len(links.ids) == len(set(links.ids)), "Duplicate HTML ids"
+    assert set(links.fragments) <= set(links.ids), set(links.fragments) - set(links.ids)
+    assert {item for item in links.ids if re.fullmatch(r"tool-(windows|kali)-\d+", item)} == {f'tool-{tool_id}' for tool_id in by_id}
+    return template
+
+
+def main():
+    from build_notes import render_notes
+
+    inventory, resources, routes = load_data()
+    page = render_page((ROOT / "guide-template.html").read_text(), inventory, resources, routes)
+    notes = render_notes()
+    for filename, content in notes.items():
+        (ROOT / filename).write_text(content)
+    for filename in ("index.html", "keyword-preview.html"):
+        (ROOT / filename).write_text(page)
+    print(f"Rendered {len(inventory)} approved entries and {len(routes)} task routes in {len(CATEGORIES)} categories")
+
+
+if __name__ == "__main__":
+    main()

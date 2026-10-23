@@ -1,0 +1,41 @@
+# Independent free-access audit
+
+Reviewed 2026-10-23; integration delta rechecked the same day. The current machine-readable ledger covers all 261 resource records, including 180 depth=reference records. There are 181 `ref:` IDs because `ref:kali-119` is an upgraded workflow. The current ledger records 19 targeted fresh verifications, 242 reused-evidence assessments and no unresolved required learning route. The preserved 259-record baseline had 13 fresh verifications, 243 reused assessments and 3 unresolved original endpoints. The baseline collection SHA-256 is `17e6e9a89510b7be8d1bd3ec02d493534f5d3a22a741401671fcd8c940e8215e`; individual record hashes permit a focused recheck after integration changes.
+
+The review distinguishes free learning content from software licensing and hosted execution. All resource records and their access/evidence claims were assessed; this was not 259 new page retrievals. Existing substantive primary-source observations were reused, with fresh Exa or direct unauthenticated retrieval for weak evidence, commercial-edition ambiguities and blocked pages. An HTTP status alone was not treated as instructional evidence. A public reference remains a reference; a repository identity or index does not prove deeper teaching.
+
+## Material findings sent for integration
+
+- **Sublime Text:** Public learning documentation is free, but [the vendor download page](https://www.sublimetext.com/download) requires a license for continued use after evaluation, despite no enforced evaluation time limit. Keep the exact approved row and public guide, disclose the execution condition, and offer the already approved VS Code or Notepad++ for ordinary editing/search. The actual [multiple-selection instructions](https://www.sublimetext.com/docs/multiple_selection_with_the_keyboard.html) were read, rather than endorsing only the index.
+- **BinDiff:** The [old manual](https://www.zynamics.com/bindiff/manual/) contains historical purchase wording and IDA-specific installation/walkthroughs. Current [upstream BinDiff](https://github.com/google/bindiff) is open source and supports Ghidra; [BinExport](https://github.com/google/binexport) identifies the exporter dependency. Keep conceptual matching instruction, but restrict the execution route to compatible prepared Ghidra/BinExport or supplied exports. Do not require paid/unapproved IDA or Binary Ninja. No extension installation or compatibility test occurred.
+- **GNU endpoints:** The original wget, gzip and tar pages remain unavailable through Exa and direct retrieval timed out. This is an access limitation, not evidence of a paywall. Actual free Debian-distributed manuals were read: [wget](https://manpages.debian.org/bookworm/wget/wget.1.en.html), [gzip](https://manpages.debian.org/bookworm/gzip/gzip.1.en.html), [tar](https://manpages.debian.org/bookworm/tar/tar.1.en.html). These are the smallest replacements; package-version differences remain relevant. The baseline ledger keeps original endpoints unresolved while recording independently verified alternatives.
+
+## Ambiguities resolved by actual text
+
+[Adobe attachment help](https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html) returned substantive text through direct GET, although Exa exposed only navigation. The article gives Windows/macOS Attachments-panel and Open Attachment steps. This supports a free public viewer-reference example; it does not establish that every Acrobat editing feature is free.
+
+[Obsidian internal links](https://help.obsidian.md/links) now yields actual wikilink/Markdown, folder-path and create-link instructions, superseding the earlier title-only observation. Its [license overview](https://obsidian.md/license) permits free use for all purposes and downloading without an account; optional services remain separate.
+
+[DBeaver Community](https://dbeaver.io/about/), [SQLCipher Community](https://www.zetetic.net/sqlcipher/open-source/) and [MediaInfo](https://mediaarea.net/en/MediaInfo) explicitly describe free/open-source local editions. Their paid editions/support/store options are not requirements for the selected public reading. [RARLAB](https://www.rarlab.com/rar_add.htm) identifies command-line freeware UnRAR; that must not be confused with the RAR/WinRAR product. [Kali cabextract](https://www.kali.org/tools/cabextract/) provided actual options, including list/test/no-overwrite/output-directory, closing the earlier search-only evidence gap.
+
+[PortSwigger Academy](https://portswigger.net/web-security) states its lessons and labs are free and identifies Burp Community as a free tool route. Reading public lessons/solutions is separate from account-based hosted execution. Saved HTML does not preserve a hosted target. Existing authored paper and loopback exercises provide account-free local alternatives; no lab was launched.
+
+## Video and offline distinctions
+
+All 17 retained metadata files were independently read: each reports public availability, age limit zero and available formats. These are retained extraction observations, not a new playback or region-eligibility test. The eight original MP4s exist in `research/learning/video-pack/videos`; they are already local and require no new purchase or Premium subscription to use those files. The nine added videos have not been downloaded. Local captions and relevant free reading alternatives provide text routes; external reading pages must still be saved before travel.
+
+The retained primary review of [YouTube computer downloads](https://support.google.com/youtube/answer/11977233?hl=en) establishes the documented Download-button route requires signed-in paid Premium where available. This describes that particular service route, not a new cost for the eight existing files, and does not establish actual playback eligibility for any of the 17 videos.
+
+Local audio, byte/encoding and PDF exercise text was read. The no-account paper routes are already present; optional application execution needs the stated tools and inputs. Other saved-page rendering, media playback, GUI behavior, external sample retrieval and travel-device readiness remain untested. No accounts, purchases, video downloads, installs, external messages or portal launches were performed.
+
+## Integration delta: findings resolved
+
+The current collection SHA-256 is `d97b95ed626e65dd46ca9132955d11c1ab1ba1bc735f655f6f63d93d0447c417`. Nine changed/new records were checked against the current source. The ledger preserves their previous assessments and the retired duplicate Autopsy record.
+
+- The three GNU learning URLs now point directly to the free Debian manuals already read in this audit. Historical GNU endpoint failures remain explicitly inconclusive; no required current route is blocked by them.
+- Sublime now distinguishes free documentation/evaluation from licensed continued use and gives approved free editing alternatives.
+- BinDiff now points to the current upstream README and Ghidra export instructions, excludes IDA/Binary Ninja and commercial yFiles GUI source-building, and requires a compatible prepared build/exports. An independent direct read of the current README confirmed the disassembler and yFiles conditions. Ghidra Version Tracking is offered if BinDiff preparation is unavailable; no purchase is a collection prerequisite.
+- Duplicate Autopsy4.20 reading is merged into the previously inspected4.22 route; harmless local logical files and no-image recall avoid a new dataset/account requirement.
+- The three new local capability routes were read in full: Ncat/Nping, the oletools suite and Volatility layer/symbol troubleshooting. All provide account-free paper or bounded local steps. Their primary-source and execution evidence is attributed to the parent reviewer; this reviewer did not rerun their tools. Nping and Volatility execution remain explicitly untested; matching symbols/debug information and supported images are genuine preparation limits.
+
+No unresolved required paid route remains. This closes the material free-access findings, while preserving the limits on actual playback, installed-tool compatibility, optional forensic inputs and saved-page rendering. The 17-video evidence and eight-existing/nine-undownloaded distinction remain valid.

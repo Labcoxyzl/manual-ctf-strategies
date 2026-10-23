@@ -1,0 +1,21 @@
+{
+  "number": 11,
+  "video_id": "wu4-nREmzGM",
+  "title": "LNK Files and Jump Lists",
+  "file": "videos/11_LNK_Jump_Lists_wu4-nREmzGM.mp4",
+  "bytes": 307927686,
+  "sha256": "644b0f3ca1dcd304fa4118122cb04fd21505097d0a808d7bed3b1e1a90cd9ed8",
+  "width": 3840,
+  "height": 2160,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "und",
+  "duration_seconds": 1619.359637,
+  "sample_decode_seconds": [
+    1,
+    809.6798185,
+    1616.359637
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/11_LNK_Jump_Lists_wu4-nREmzGM.en.vtt"
+}

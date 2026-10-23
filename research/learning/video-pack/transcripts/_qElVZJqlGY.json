@@ -1,0 +1,2587 @@
+{
+  "video_id": "_qElVZJqlGY",
+  "title": "Introduction to MFTECmd - NTFS MFT and Journal Forensics",
+  "channel": "13Cubed",
+  "duration_seconds": 1321,
+  "caption_source": "research/learning/video-pack/captions/_qElVZJqlGY.en-orig.vtt",
+  "caption_sha256": "730c72e4b49370a74e09671d6d4688f2841142d70b9faa9f39bade763bf63ac9",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 7,
+      "text": "welcome to 13"
+    },
+    {
+      "seconds": 7,
+      "text": "cubed in this episode we're going to"
+    },
+    {
+      "seconds": 9,
+      "text": "take a look at a tool from eric"
+    },
+    {
+      "seconds": 10,
+      "text": "zimmerman called"
+    },
+    {
+      "seconds": 11,
+      "text": "mfte cmd which can help us parse the"
+    },
+    {
+      "seconds": 15,
+      "text": "ntfs"
+    },
+    {
+      "seconds": 16,
+      "text": "mft or master file table and file system"
+    },
+    {
+      "seconds": 19,
+      "text": "journals"
+    },
+    {
+      "seconds": 20,
+      "text": "but first let's take a step back and"
+    },
+    {
+      "seconds": 22,
+      "text": "review some important concepts relating"
+    },
+    {
+      "seconds": 24,
+      "text": "to file system journaling"
+    },
+    {
+      "seconds": 26,
+      "text": "now if some of this sounds familiar to"
+    },
+    {
+      "seconds": 28,
+      "text": "you we actually covered much of this in"
+    },
+    {
+      "seconds": 30,
+      "text": "a previous"
+    },
+    {
+      "seconds": 31,
+      "text": "13 cubed episode called ntfs journal"
+    },
+    {
+      "seconds": 34,
+      "text": "forensics but"
+    },
+    {
+      "seconds": 35,
+      "text": "even if you've watched that stay with me"
+    },
+    {
+      "seconds": 37,
+      "text": "because this episode will cover many of"
+    },
+    {
+      "seconds": 39,
+      "text": "those concepts in more detail"
+    },
+    {
+      "seconds": 41,
+      "text": "firstly though what is file system"
+    },
+    {
+      "seconds": 44,
+      "text": "journaling"
+    },
+    {
+      "seconds": 45,
+      "text": "well at a high level it's a"
+    },
+    {
+      "seconds": 46,
+      "text": "transactional record of all the changes"
+    },
+    {
+      "seconds": 48,
+      "text": "made"
+    },
+    {
+      "seconds": 48,
+      "text": "to a volume in the event of a crash or"
+    },
+    {
+      "seconds": 51,
+      "text": "power failure"
+    },
+    {
+      "seconds": 52,
+      "text": "the operating system can use the"
+    },
+    {
+      "seconds": 54,
+      "text": "information stored in these journals to"
+    },
+    {
+      "seconds": 56,
+      "text": "roll back or undo changes and pick up"
+    },
+    {
+      "seconds": 59,
+      "text": "where it left off"
+    },
+    {
+      "seconds": 60,
+      "text": "the overall goal is to maintain the"
+    },
+    {
+      "seconds": 62,
+      "text": "integrity of the file system and to"
+    },
+    {
+      "seconds": 64,
+      "text": "hopefully prevent catastrophic events"
+    },
+    {
+      "seconds": 66,
+      "text": "from occurring"
+    },
+    {
+      "seconds": 68,
+      "text": "in that previous episode i mentioned we"
+    },
+    {
+      "seconds": 70,
+      "text": "used advanced ntfs"
+    },
+    {
+      "seconds": 72,
+      "text": "journal parser or anjp to look at this"
+    },
+    {
+      "seconds": 76,
+      "text": "information"
+    },
+    {
+      "seconds": 77,
+      "text": "but as of this recording that tool is no"
+    },
+    {
+      "seconds": 79,
+      "text": "longer available"
+    },
+    {
+      "seconds": 80,
+      "text": "many of you reached out to me asking if"
+    },
+    {
+      "seconds": 82,
+      "text": "i knew of a suitable alternative"
+    },
+    {
+      "seconds": 84,
+      "text": "which is what prompted me to make this"
+    },
+    {
+      "seconds": 86,
+      "text": "episode"
+    },
+    {
+      "seconds": 88,
+      "text": "so we're going to be looking at mfte cmd"
+    },
+    {
+      "seconds": 90,
+      "text": "which can help us"
+    },
+    {
+      "seconds": 91,
+      "text": "parse some of these artifacts and fill"
+    },
+    {
+      "seconds": 94,
+      "text": "the void"
+    },
+    {
+      "seconds": 95,
+      "text": "if this is your first time taking a look"
+    },
+    {
+      "seconds": 97,
+      "text": "at this though you may be wondering"
+    },
+    {
+      "seconds": 99,
+      "text": "why should i care i mean seriously why"
+    },
+    {
+      "seconds": 101,
+      "text": "is this even forensically relevant to"
+    },
+    {
+      "seconds": 103,
+      "text": "begin with"
+    },
+    {
+      "seconds": 105,
+      "text": "well the answer is it's because we can"
+    },
+    {
+      "seconds": 106,
+      "text": "use the journals to find evidence of"
+    },
+    {
+      "seconds": 108,
+      "text": "things like"
+    },
+    {
+      "seconds": 108,
+      "text": "file creations deletions renames and"
+    },
+    {
+      "seconds": 112,
+      "text": "more"
+    },
+    {
+      "seconds": 113,
+      "text": "the journals may be one of the only ways"
+    },
+    {
+      "seconds": 115,
+      "text": "to prove that a file"
+    },
+    {
+      "seconds": 116,
+      "text": "once existed on a machine even in some"
+    },
+    {
+      "seconds": 119,
+      "text": "cases where anti-forensics was used"
+    },
+    {
+      "seconds": 122,
+      "text": "so it's a big deal the first of the two"
+    },
+    {
+      "seconds": 125,
+      "text": "journals we're going to talk about"
+    },
+    {
+      "seconds": 127,
+      "text": "is called the usn journal the actual"
+    },
+    {
+      "seconds": 130,
+      "text": "file is dollar usn jrnl"
+    },
+    {
+      "seconds": 133,
+      "text": "and it's stored under the dollar extend"
+    },
+    {
+      "seconds": 136,
+      "text": "directory"
+    },
+    {
+      "seconds": 137,
+      "text": "there's actually a couple of alternate"
+    },
+    {
+      "seconds": 138,
+      "text": "data streams within"
+    },
+    {
+      "seconds": 140,
+      "text": "dollar usn jrnl and they are dollar j"
+    },
+    {
+      "seconds": 143,
+      "text": "and dollar max but it's"
+    },
+    {
+      "seconds": 144,
+      "text": "dollar j that contains the meat the"
+    },
+    {
+      "seconds": 146,
+      "text": "actual data we're after"
+    },
+    {
+      "seconds": 149,
+      "text": "dollar j is stored as a sparse file"
+    },
+    {
+      "seconds": 152,
+      "text": "so it can appear to be multiple"
+    },
+    {
+      "seconds": 153,
+      "text": "gigabytes in size"
+    },
+    {
+      "seconds": 156,
+      "text": "now when you think of usn journal think"
+    },
+    {
+      "seconds": 159,
+      "text": "high"
+    },
+    {
+      "seconds": 159,
+      "text": "level changes this provides an efficient"
+    },
+    {
+      "seconds": 162,
+      "text": "change monitoring solution so"
+    },
+    {
+      "seconds": 166,
+      "text": "it may come as no surprise that backup"
+    },
+    {
+      "seconds": 169,
+      "text": "or"
+    },
+    {
+      "seconds": 169,
+      "text": "antivirus software can use this to"
+    },
+    {
+      "seconds": 172,
+      "text": "monitor"
+    },
+    {
+      "seconds": 172,
+      "text": "changes or deltas to files"
+    },
+    {
+      "seconds": 176,
+      "text": "the information unfortunately may only"
+    },
+    {
+      "seconds": 179,
+      "text": "last days"
+    },
+    {
+      "seconds": 180,
+      "text": "to weeks on busy systems"
+    },
+    {
+      "seconds": 183,
+      "text": "the typical size is 32 megs"
+    },
+    {
+      "seconds": 187,
+      "text": "and some example operation codes or op"
+    },
+    {
+      "seconds": 190,
+      "text": "codes associated with"
+    },
+    {
+      "seconds": 191,
+      "text": "usn journal are things like file create"
+    },
+    {
+      "seconds": 194,
+      "text": "file delete rename old name and so on"
+    },
+    {
+      "seconds": 198,
+      "text": "pretty sure that just by the name alone"
+    },
+    {
+      "seconds": 200,
+      "text": "you can determine what those things"
+    },
+    {
+      "seconds": 202,
+      "text": "mean like what do you think file delete"
+    },
+    {
+      "seconds": 204,
+      "text": "means"
+    },
+    {
+      "seconds": 206,
+      "text": "all right now let's talk about dollar"
+    },
+    {
+      "seconds": 208,
+      "text": "log file"
+    },
+    {
+      "seconds": 210,
+      "text": "dollar log file is located in the volume"
+    },
+    {
+      "seconds": 212,
+      "text": "root so it's not"
+    },
+    {
+      "seconds": 213,
+      "text": "inside of that dollar extend directory"
+    },
+    {
+      "seconds": 216,
+      "text": "now this one tracks detailed low-level"
+    },
+    {
+      "seconds": 220,
+      "text": "transactional changes for ntfs"
+    },
+    {
+      "seconds": 224,
+      "text": "it provides file system integrity and"
+    },
+    {
+      "seconds": 226,
+      "text": "resilience"
+    },
+    {
+      "seconds": 227,
+      "text": "and it records the actual data that"
+    },
+    {
+      "seconds": 229,
+      "text": "changed"
+    },
+    {
+      "seconds": 230,
+      "text": "but it may only last hours to days on"
+    },
+    {
+      "seconds": 233,
+      "text": "the primary boot drive"
+    },
+    {
+      "seconds": 235,
+      "text": "the typical size is 64 megs and some of"
+    },
+    {
+      "seconds": 239,
+      "text": "its example operation codes include"
+    },
+    {
+      "seconds": 241,
+      "text": "things like"
+    },
+    {
+      "seconds": 241,
+      "text": "add index entry allocation initialize"
+    },
+    {
+      "seconds": 244,
+      "text": "file records segment etc so just"
+    },
+    {
+      "seconds": 248,
+      "text": "by the names of the op codes alone you"
+    },
+    {
+      "seconds": 250,
+      "text": "can see that it sounds more detailed"
+    },
+    {
+      "seconds": 252,
+      "text": "right"
+    },
+    {
+      "seconds": 253,
+      "text": "and there are also more opcodes"
+    },
+    {
+      "seconds": 255,
+      "text": "associated with this journal"
+    },
+    {
+      "seconds": 256,
+      "text": "which makes sense because as i said"
+    },
+    {
+      "seconds": 259,
+      "text": "dollar log file"
+    },
+    {
+      "seconds": 260,
+      "text": "is more detailed and low level whereas"
+    },
+    {
+      "seconds": 263,
+      "text": "dollar usn journal"
+    },
+    {
+      "seconds": 265,
+      "text": "is high level"
+    },
+    {
+      "seconds": 268,
+      "text": "so the both of them together as you saw"
+    },
+    {
+      "seconds": 270,
+      "text": "don't have extremely long"
+    },
+    {
+      "seconds": 272,
+      "text": "life spans but fortunate for us we can"
+    },
+    {
+      "seconds": 275,
+      "text": "sometimes use"
+    },
+    {
+      "seconds": 276,
+      "text": "volume shadow copies to extend that"
+    },
+    {
+      "seconds": 279,
+      "text": "event horizon"
+    },
+    {
+      "seconds": 280,
+      "text": "in other words we can pick these"
+    },
+    {
+      "seconds": 281,
+      "text": "journals out of volume shadows that may"
+    },
+    {
+      "seconds": 284,
+      "text": "exist on the system and pull this"
+    },
+    {
+      "seconds": 286,
+      "text": "historical data"
+    },
+    {
+      "seconds": 288,
+      "text": "this could provide increased visibility"
+    },
+    {
+      "seconds": 290,
+      "text": "over weeks or maybe even months"
+    },
+    {
+      "seconds": 292,
+      "text": "if you're lucky all right so you're here"
+    },
+    {
+      "seconds": 296,
+      "text": "for the demo"
+    },
+    {
+      "seconds": 296,
+      "text": "it's one thing to look at some text on a"
+    },
+    {
+      "seconds": 298,
+      "text": "slide but it's a whole other thing to"
+    },
+    {
+      "seconds": 300,
+      "text": "see it"
+    },
+    {
+      "seconds": 301,
+      "text": "in action and this is what you guys are"
+    },
+    {
+      "seconds": 303,
+      "text": "looking for"
+    },
+    {
+      "seconds": 304,
+      "text": "so we're going to be using cape to"
+    },
+    {
+      "seconds": 306,
+      "text": "acquire the ntfs"
+    },
+    {
+      "seconds": 308,
+      "text": "master file table or the mft and"
+    },
+    {
+      "seconds": 311,
+      "text": "the journals we're then going to use"
+    },
+    {
+      "seconds": 313,
+      "text": "mfte cmd"
+    },
+    {
+      "seconds": 315,
+      "text": "to parse the mft and the usn journal"
+    },
+    {
+      "seconds": 318,
+      "text": "but wait a minute what about the dollar"
+    },
+    {
+      "seconds": 321,
+      "text": "log file"
+    },
+    {
+      "seconds": 322,
+      "text": "did i mess up and leave it off the slide"
+    },
+    {
+      "seconds": 325,
+      "text": "no"
+    },
+    {
+      "seconds": 326,
+      "text": "and the reason for that is because as of"
+    },
+    {
+      "seconds": 327,
+      "text": "this recording mfte"
+    },
+    {
+      "seconds": 329,
+      "text": "cmd does not yet parse dollar log file"
+    },
+    {
+      "seconds": 334,
+      "text": "it will in the future but as i'm"
+    },
+    {
+      "seconds": 336,
+      "text": "recording this it does not"
+    },
+    {
+      "seconds": 337,
+      "text": "when you look at the help associated"
+    },
+    {
+      "seconds": 339,
+      "text": "with mft ecmd you'll actually"
+    },
+    {
+      "seconds": 341,
+      "text": "see dollar log file listed as an option"
+    },
+    {
+      "seconds": 344,
+      "text": "but again it's"
+    },
+    {
+      "seconds": 344,
+      "text": "not here yet we'll then analyze the"
+    },
+    {
+      "seconds": 348,
+      "text": "results in"
+    },
+    {
+      "seconds": 349,
+      "text": "timeline explorer which if you've"
+    },
+    {
+      "seconds": 350,
+      "text": "watched 13 cubed episodes before you'll"
+    },
+    {
+      "seconds": 352,
+      "text": "know it's one of my favorite forensics"
+    },
+    {
+      "seconds": 354,
+      "text": "tools"
+    },
+    {
+      "seconds": 355,
+      "text": "and that's pretty much it so let's get"
+    },
+    {
+      "seconds": 358,
+      "text": "started"
+    },
+    {
+      "seconds": 360,
+      "text": "okay we're in the windows 10 virtual"
+    },
+    {
+      "seconds": 362,
+      "text": "machine that we're going to be using for"
+    },
+    {
+      "seconds": 364,
+      "text": "the demo and you'll notice that i have"
+    },
+    {
+      "seconds": 365,
+      "text": "an explorer window"
+    },
+    {
+      "seconds": 366,
+      "text": "opened and we're looking at the tools"
+    },
+    {
+      "seconds": 368,
+      "text": "cape directory"
+    },
+    {
+      "seconds": 370,
+      "text": "these are the files that are part of a"
+    },
+    {
+      "seconds": 371,
+      "text": "normal cape distribution"
+    },
+    {
+      "seconds": 373,
+      "text": "you'll see the directories documentation"
+    },
+    {
+      "seconds": 375,
+      "text": "modules targets"
+    },
+    {
+      "seconds": 376,
+      "text": "and a few files including the cape"
+    },
+    {
+      "seconds": 378,
+      "text": "binaries themselves"
+    },
+    {
+      "seconds": 380,
+      "text": "but what i want to draw your attention"
+    },
+    {
+      "seconds": 381,
+      "text": "to is the targets directory"
+    },
+    {
+      "seconds": 383,
+      "text": "because i want to talk to you about how"
+    },
+    {
+      "seconds": 385,
+      "text": "we're going to grab the forensic"
+    },
+    {
+      "seconds": 387,
+      "text": "artifacts that we're after"
+    },
+    {
+      "seconds": 389,
+      "text": "if we take a look at the targets we're"
+    },
+    {
+      "seconds": 391,
+      "text": "going to find that there are"
+    },
+    {
+      "seconds": 393,
+      "text": "several pre-existing ones that will help"
+    },
+    {
+      "seconds": 395,
+      "text": "us grab these artifacts"
+    },
+    {
+      "seconds": 396,
+      "text": "so if i open this up within this"
+    },
+    {
+      "seconds": 398,
+      "text": "location you're going to see"
+    },
+    {
+      "seconds": 400,
+      "text": "several different directories that"
+    },
+    {
+      "seconds": 402,
+      "text": "nicely organize the types of targets"
+    },
+    {
+      "seconds": 404,
+      "text": "that we have"
+    },
+    {
+      "seconds": 406,
+      "text": "and if we take a look at the windows"
+    },
+    {
+      "seconds": 408,
+      "text": "directory that's the first thing i want"
+    },
+    {
+      "seconds": 409,
+      "text": "to draw your attention to because there"
+    },
+    {
+      "seconds": 411,
+      "text": "are three cape targets"
+    },
+    {
+      "seconds": 413,
+      "text": "in this location that i'll highlight"
+    },
+    {
+      "seconds": 414,
+      "text": "here for you that's"
+    },
+    {
+      "seconds": 416,
+      "text": "dollar j dollar log file and dollar mft"
+    },
+    {
+      "seconds": 419,
+      "text": "those are the three files that make up"
+    },
+    {
+      "seconds": 421,
+      "text": "the trifecta of what we're after"
+    },
+    {
+      "seconds": 424,
+      "text": "the same three files that we'd used in"
+    },
+    {
+      "seconds": 426,
+      "text": "the anjp"
+    },
+    {
+      "seconds": 427,
+      "text": "utility in that previous 13 cubed"
+    },
+    {
+      "seconds": 429,
+      "text": "episode but as mentioned"
+    },
+    {
+      "seconds": 430,
+      "text": "dollar log file as of this recording is"
+    },
+    {
+      "seconds": 433,
+      "text": "not yet supported by mft ecmd"
+    },
+    {
+      "seconds": 435,
+      "text": "nonetheless it wouldn't hurt to grab it"
+    },
+    {
+      "seconds": 437,
+      "text": "anyway because at some point"
+    },
+    {
+      "seconds": 439,
+      "text": "the tool will support that artifact but"
+    },
+    {
+      "seconds": 441,
+      "text": "check this out"
+    },
+    {
+      "seconds": 442,
+      "text": "let's go back and go into the compound"
+    },
+    {
+      "seconds": 444,
+      "text": "directory here"
+    },
+    {
+      "seconds": 445,
+      "text": "as it sounds compound would be a target"
+    },
+    {
+      "seconds": 448,
+      "text": "that is made up of"
+    },
+    {
+      "seconds": 450,
+      "text": "other targets a target of targets if you"
+    },
+    {
+      "seconds": 452,
+      "text": "will"
+    },
+    {
+      "seconds": 453,
+      "text": "and if you look at this one you'll see"
+    },
+    {
+      "seconds": 455,
+      "text": "one named filesystem.tcape"
+    },
+    {
+      "seconds": 458,
+      "text": "hmm i wonder what's in there well let's"
+    },
+    {
+      "seconds": 460,
+      "text": "go ahead and open it up"
+    },
+    {
+      "seconds": 462,
+      "text": "at the top you'll see the standard"
+    },
+    {
+      "seconds": 463,
+      "text": "metadata that's part of any cape"
+    },
+    {
+      "seconds": 465,
+      "text": "target or module configuration file but"
+    },
+    {
+      "seconds": 468,
+      "text": "check this out below that the first"
+    },
+    {
+      "seconds": 471,
+      "text": "three artifacts that we see"
+    },
+    {
+      "seconds": 472,
+      "text": "are dollar mft dollar log file and"
+    },
+    {
+      "seconds": 475,
+      "text": "dollar j"
+    },
+    {
+      "seconds": 476,
+      "text": "again dollar j is that alternate data"
+    },
+    {
+      "seconds": 478,
+      "text": "stream that's part of the"
+    },
+    {
+      "seconds": 479,
+      "text": "usn jrnl file that's where the meat of"
+    },
+    {
+      "seconds": 482,
+      "text": "the data"
+    },
+    {
+      "seconds": 483,
+      "text": "lives that we're after so we can just"
+    },
+    {
+      "seconds": 486,
+      "text": "use"
+    },
+    {
+      "seconds": 487,
+      "text": "file system as the cape target that's"
+    },
+    {
+      "seconds": 490,
+      "text": "the bottom line here"
+    },
+    {
+      "seconds": 491,
+      "text": "that's the only target we need to use to"
+    },
+    {
+      "seconds": 493,
+      "text": "grab the artifacts that we're after"
+    },
+    {
+      "seconds": 494,
+      "text": "so let's go ahead and go up to our"
+    },
+    {
+      "seconds": 496,
+      "text": "windows terminal and you'll notice that"
+    },
+    {
+      "seconds": 497,
+      "text": "i have an administrative powershell"
+    },
+    {
+      "seconds": 499,
+      "text": "command prompt opened"
+    },
+    {
+      "seconds": 500,
+      "text": "i'm going to run cape.exe the t source"
+    },
+    {
+      "seconds": 504,
+      "text": "is going to be"
+    },
+    {
+      "seconds": 504,
+      "text": "c colon of course our target as just"
+    },
+    {
+      "seconds": 508,
+      "text": "mentioned will be"
+    },
+    {
+      "seconds": 509,
+      "text": "file system the destination i'm just"
+    },
+    {
+      "seconds": 512,
+      "text": "going to put"
+    },
+    {
+      "seconds": 512,
+      "text": "on this demo user's desktop"
+    },
+    {
+      "seconds": 516,
+      "text": "i'm also going to go ahead and instruct"
+    },
+    {
+      "seconds": 518,
+      "text": "cape to create a"
+    },
+    {
+      "seconds": 519,
+      "text": "vhdx container we do have to specify"
+    },
+    {
+      "seconds": 522,
+      "text": "some kind of identifier for the"
+    },
+    {
+      "seconds": 523,
+      "text": "container here"
+    },
+    {
+      "seconds": 524,
+      "text": "i'll just use demo and by default this"
+    },
+    {
+      "seconds": 527,
+      "text": "will be"
+    },
+    {
+      "seconds": 528,
+      "text": "zipped compressed so again the target"
+    },
+    {
+      "seconds": 531,
+      "text": "source or t source is c colon the single"
+    },
+    {
+      "seconds": 534,
+      "text": "target we are using"
+    },
+    {
+      "seconds": 535,
+      "text": "is that compound target called file"
+    },
+    {
+      "seconds": 538,
+      "text": "system"
+    },
+    {
+      "seconds": 538,
+      "text": "the destination is the desktop we're"
+    },
+    {
+      "seconds": 541,
+      "text": "telling kate to create a vhdx file"
+    },
+    {
+      "seconds": 544,
+      "text": "and it will be zipped by default so as"
+    },
+    {
+      "seconds": 547,
+      "text": "you can see we're off to the races cape"
+    },
+    {
+      "seconds": 549,
+      "text": "is doing its thing"
+    },
+    {
+      "seconds": 550,
+      "text": "and i'm not going to sit here and make"
+    },
+    {
+      "seconds": 552,
+      "text": "you wait on this i'm going to fast"
+    },
+    {
+      "seconds": 554,
+      "text": "forward this"
+    },
+    {
+      "seconds": 555,
+      "text": "and then we'll pick up from there and as"
+    },
+    {
+      "seconds": 558,
+      "text": "you can see this took"
+    },
+    {
+      "seconds": 559,
+      "text": "just over 45 seconds to complete as"
+    },
+    {
+      "seconds": 562,
+      "text": "listed right here all right so we should"
+    },
+    {
+      "seconds": 565,
+      "text": "now have the data"
+    },
+    {
+      "seconds": 566,
+      "text": "on our desktop so let's go ahead and"
+    },
+    {
+      "seconds": 568,
+      "text": "minimize this windows terminal"
+    },
+    {
+      "seconds": 570,
+      "text": "and as you can see we have a couple of"
+    },
+    {
+      "seconds": 572,
+      "text": "files here really it's just the zip file"
+    },
+    {
+      "seconds": 574,
+      "text": "that we're after we do of course have"
+    },
+    {
+      "seconds": 575,
+      "text": "the"
+    },
+    {
+      "seconds": 576,
+      "text": "log but that guy right there is what we"
+    },
+    {
+      "seconds": 578,
+      "text": "need to take and move over to"
+    },
+    {
+      "seconds": 580,
+      "text": "our analysis workstation so that we can"
+    },
+    {
+      "seconds": 582,
+      "text": "continue our demo"
+    },
+    {
+      "seconds": 583,
+      "text": "so let's do exactly that"
+    },
+    {
+      "seconds": 587,
+      "text": "all right i have moved the zip file from"
+    },
+    {
+      "seconds": 589,
+      "text": "the virtual machine"
+    },
+    {
+      "seconds": 590,
+      "text": "onto the desktop of our analysis"
+    },
+    {
+      "seconds": 592,
+      "text": "workstation and you'll see it"
+    },
+    {
+      "seconds": 594,
+      "text": "right over here let's go ahead and unzip"
+    },
+    {
+      "seconds": 596,
+      "text": "this so that we can expose the vhdx file"
+    },
+    {
+      "seconds": 599,
+      "text": "within it"
+    },
+    {
+      "seconds": 600,
+      "text": "so i'll just use the contextual menu"
+    },
+    {
+      "seconds": 602,
+      "text": "option for 7-zip"
+    },
+    {
+      "seconds": 603,
+      "text": "extracting it to its own directory let's"
+    },
+    {
+      "seconds": 605,
+      "text": "go ahead and open this up"
+    },
+    {
+      "seconds": 607,
+      "text": "and there's that vhdx file all i need to"
+    },
+    {
+      "seconds": 609,
+      "text": "do is double-click this"
+    },
+    {
+      "seconds": 611,
+      "text": "and windows should automatically mount"
+    },
+    {
+      "seconds": 613,
+      "text": "it and assign the next available drive"
+    },
+    {
+      "seconds": 614,
+      "text": "letter"
+    },
+    {
+      "seconds": 615,
+      "text": "of f colon in this case if we go into"
+    },
+    {
+      "seconds": 618,
+      "text": "dollar extend you'll see dollar j which"
+    },
+    {
+      "seconds": 620,
+      "text": "is part of the dollar usn jrnl"
+    },
+    {
+      "seconds": 622,
+      "text": "and there's dollar mft those are the two"
+    },
+    {
+      "seconds": 625,
+      "text": "artifacts that we are specifically"
+    },
+    {
+      "seconds": 627,
+      "text": "interested in"
+    },
+    {
+      "seconds": 628,
+      "text": "and of course you'll see the other"
+    },
+    {
+      "seconds": 629,
+      "text": "artifacts available there as well within"
+    },
+    {
+      "seconds": 631,
+      "text": "that vhdx"
+    },
+    {
+      "seconds": 633,
+      "text": "let's pop open the windows terminal you"
+    },
+    {
+      "seconds": 635,
+      "text": "will see that i have an administrative"
+    },
+    {
+      "seconds": 636,
+      "text": "command prompt and i'm in the tools"
+    },
+    {
+      "seconds": 639,
+      "text": "zimmerman directory let's run mfte cmd"
+    },
+    {
+      "seconds": 642,
+      "text": "without any options and go up to the top"
+    },
+    {
+      "seconds": 644,
+      "text": "and take a look at the most important"
+    },
+    {
+      "seconds": 646,
+      "text": "option which is dash"
+    },
+    {
+      "seconds": 647,
+      "text": "f using dash f you can specify that"
+    },
+    {
+      "seconds": 650,
+      "text": "dollar mft or dollar j you will see"
+    },
+    {
+      "seconds": 653,
+      "text": "dollar log file listed even though it's"
+    },
+    {
+      "seconds": 655,
+      "text": "not yet supported"
+    },
+    {
+      "seconds": 656,
+      "text": "at the bottom we have some examples of"
+    },
+    {
+      "seconds": 658,
+      "text": "how to use it but if you've used other"
+    },
+    {
+      "seconds": 660,
+      "text": "zimmerman tools they'll be quite"
+    },
+    {
+      "seconds": 661,
+      "text": "familiar with the syntax"
+    },
+    {
+      "seconds": 663,
+      "text": "pretty straightforward we'll clear the"
+    },
+    {
+      "seconds": 665,
+      "text": "screen and go ahead and"
+    },
+    {
+      "seconds": 667,
+      "text": "point at first the dollar mft"
+    },
+    {
+      "seconds": 670,
+      "text": "so we'll use dash f and we'll point to f"
+    },
+    {
+      "seconds": 672,
+      "text": "colon backslash"
+    },
+    {
+      "seconds": 674,
+      "text": "c slash dollar mft"
+    },
+    {
+      "seconds": 677,
+      "text": "okay so far so good dash dash csv will"
+    },
+    {
+      "seconds": 680,
+      "text": "specify the location"
+    },
+    {
+      "seconds": 682,
+      "text": "into which we would like the csv file"
+    },
+    {
+      "seconds": 684,
+      "text": "created csvf will specify that"
+    },
+    {
+      "seconds": 687,
+      "text": "name of the csv file in this case"
+    },
+    {
+      "seconds": 689,
+      "text": "mft.csv"
+    },
+    {
+      "seconds": 691,
+      "text": "and well that's it that's all we really"
+    },
+    {
+      "seconds": 694,
+      "text": "have to specify"
+    },
+    {
+      "seconds": 695,
+      "text": "now you'll notice that i've pressed"
+    },
+    {
+      "seconds": 697,
+      "text": "enter and this is in real time so i"
+    },
+    {
+      "seconds": 699,
+      "text": "haven't sped this up or anything"
+    },
+    {
+      "seconds": 700,
+      "text": "but while i'm talking it's chewing"
+    },
+    {
+      "seconds": 703,
+      "text": "through that mft"
+    },
+    {
+      "seconds": 704,
+      "text": "and you'll see the processed message"
+    },
+    {
+      "seconds": 706,
+      "text": "showing it took just under nine seconds"
+    },
+    {
+      "seconds": 709,
+      "text": "and it found about 274 000 mft"
+    },
+    {
+      "seconds": 712,
+      "text": "file records so that's it it's written"
+    },
+    {
+      "seconds": 715,
+      "text": "the mft csv file"
+    },
+    {
+      "seconds": 717,
+      "text": "all we have to do now is process our"
+    },
+    {
+      "seconds": 720,
+      "text": "other artifact"
+    },
+    {
+      "seconds": 721,
+      "text": "which is the dollar j file so same deal"
+    },
+    {
+      "seconds": 724,
+      "text": "dash f point to that which is in dollar"
+    },
+    {
+      "seconds": 727,
+      "text": "extend"
+    },
+    {
+      "seconds": 728,
+      "text": "slash dollar j once again we'll use dash"
+    },
+    {
+      "seconds": 731,
+      "text": "dash"
+    },
+    {
+      "seconds": 732,
+      "text": "csv to specify the directory into which"
+    },
+    {
+      "seconds": 735,
+      "text": "we want that csv file written"
+    },
+    {
+      "seconds": 737,
+      "text": "again being the desktop and then for the"
+    },
+    {
+      "seconds": 740,
+      "text": "csvf"
+    },
+    {
+      "seconds": 740,
+      "text": "file name i'll just call this i don't"
+    },
+    {
+      "seconds": 743,
+      "text": "know usnjrnl.csv"
+    },
+    {
+      "seconds": 746,
+      "text": "which is a little more meaningful than"
+    },
+    {
+      "seconds": 747,
+      "text": "just dollar j dot csv or j.csv"
+    },
+    {
+      "seconds": 751,
+      "text": "all right so that's pretty much it"
+    },
+    {
+      "seconds": 754,
+      "text": "there's usn journal"
+    },
+    {
+      "seconds": 755,
+      "text": "it took just over one second to process"
+    },
+    {
+      "seconds": 759,
+      "text": "it pulled out looks like 276 000 entries"
+    },
+    {
+      "seconds": 764,
+      "text": "and that's all there is to running mft"
+    },
+    {
+      "seconds": 766,
+      "text": "ecmd"
+    },
+    {
+      "seconds": 767,
+      "text": "in the final section what we're going to"
+    },
+    {
+      "seconds": 769,
+      "text": "do is grab these csv files"
+    },
+    {
+      "seconds": 772,
+      "text": "pop them open in timeline explorer and"
+    },
+    {
+      "seconds": 774,
+      "text": "take a look at what we have"
+    },
+    {
+      "seconds": 776,
+      "text": "so let's jump into the final section of"
+    },
+    {
+      "seconds": 778,
+      "text": "the demo now"
+    },
+    {
+      "seconds": 780,
+      "text": "we're now in timeline explorer and the"
+    },
+    {
+      "seconds": 782,
+      "text": "first thing i'd like to direct your"
+    },
+    {
+      "seconds": 783,
+      "text": "attention to"
+    },
+    {
+      "seconds": 784,
+      "text": "are the two tabs in the top left you'll"
+    },
+    {
+      "seconds": 787,
+      "text": "notice that we have"
+    },
+    {
+      "seconds": 788,
+      "text": "both csv files opened and we're"
+    },
+    {
+      "seconds": 791,
+      "text": "currently looking at"
+    },
+    {
+      "seconds": 792,
+      "text": "mft.csv so"
+    },
+    {
+      "seconds": 795,
+      "text": "let's start by taking a quick look at"
+    },
+    {
+      "seconds": 797,
+      "text": "the available"
+    },
+    {
+      "seconds": 798,
+      "text": "column headers of which there are quite"
+    },
+    {
+      "seconds": 801,
+      "text": "a few"
+    },
+    {
+      "seconds": 802,
+      "text": "so we have the mft entry and sequence"
+    },
+    {
+      "seconds": 804,
+      "text": "number along with the mft parent"
+    },
+    {
+      "seconds": 806,
+      "text": "entry and sequence numbers we have the"
+    },
+    {
+      "seconds": 809,
+      "text": "parent path"
+    },
+    {
+      "seconds": 809,
+      "text": "and file name which are of course very"
+    },
+    {
+      "seconds": 811,
+      "text": "important the file"
+    },
+    {
+      "seconds": 813,
+      "text": "size and then we have the first of"
+    },
+    {
+      "seconds": 815,
+      "text": "several columns containing"
+    },
+    {
+      "seconds": 817,
+      "text": "timestamps so let's scroll over and take"
+    },
+    {
+      "seconds": 818,
+      "text": "a look at these"
+    },
+    {
+      "seconds": 820,
+      "text": "notice that we have two columns for"
+    },
+    {
+      "seconds": 822,
+      "text": "created"
+    },
+    {
+      "seconds": 823,
+      "text": "two for last modified two for mft"
+    },
+    {
+      "seconds": 826,
+      "text": "last record changed and two for accessed"
+    },
+    {
+      "seconds": 829,
+      "text": "so that is going to be our"
+    },
+    {
+      "seconds": 831,
+      "text": "b m c"
+    },
+    {
+      "seconds": 835,
+      "text": "and a time stamps if you're familiar"
+    },
+    {
+      "seconds": 837,
+      "text": "with the macb"
+    },
+    {
+      "seconds": 838,
+      "text": "nomenclature the ones with hex 10 are"
+    },
+    {
+      "seconds": 842,
+      "text": "our dollar"
+    },
+    {
+      "seconds": 842,
+      "text": "standard underscore information"
+    },
+    {
+      "seconds": 844,
+      "text": "timestamps and the ones with hex"
+    },
+    {
+      "seconds": 846,
+      "text": "30 are our dollar file underscore name"
+    },
+    {
+      "seconds": 850,
+      "text": "timestamps remember that standard"
+    },
+    {
+      "seconds": 852,
+      "text": "information timestamps are those that"
+    },
+    {
+      "seconds": 854,
+      "text": "are"
+    },
+    {
+      "seconds": 854,
+      "text": "accessible by the windows api that's"
+    },
+    {
+      "seconds": 856,
+      "text": "what you're looking at with windows"
+    },
+    {
+      "seconds": 858,
+      "text": "explorer for example"
+    },
+    {
+      "seconds": 859,
+      "text": "whereas the file name timestamps are in"
+    },
+    {
+      "seconds": 861,
+      "text": "theory only accessible by the windows"
+    },
+    {
+      "seconds": 863,
+      "text": "kernel"
+    },
+    {
+      "seconds": 864,
+      "text": "so often we can compare standard"
+    },
+    {
+      "seconds": 866,
+      "text": "information and file name"
+    },
+    {
+      "seconds": 867,
+      "text": "and if we see a discrepancy there as in"
+    },
+    {
+      "seconds": 870,
+      "text": "this column which does a lot of it for"
+    },
+    {
+      "seconds": 872,
+      "text": "you"
+    },
+    {
+      "seconds": 872,
+      "text": "where the standard information is less"
+    },
+    {
+      "seconds": 874,
+      "text": "than the file name"
+    },
+    {
+      "seconds": 875,
+      "text": "that might be indications of time"
+    },
+    {
+      "seconds": 877,
+      "text": "stopping though not everything that"
+    },
+    {
+      "seconds": 880,
+      "text": "would appear here means it's evil"
+    },
+    {
+      "seconds": 881,
+      "text": "because some of this"
+    },
+    {
+      "seconds": 882,
+      "text": "is naturally occurring behavior on a"
+    },
+    {
+      "seconds": 884,
+      "text": "windows system"
+    },
+    {
+      "seconds": 885,
+      "text": "also notice there is a column for sub"
+    },
+    {
+      "seconds": 888,
+      "text": "second zeros here"
+    },
+    {
+      "seconds": 889,
+      "text": "what that means is because of the"
+    },
+    {
+      "seconds": 891,
+      "text": "extremely high precision"
+    },
+    {
+      "seconds": 893,
+      "text": "used by windows with regards to file"
+    },
+    {
+      "seconds": 896,
+      "text": "system timestamps which"
+    },
+    {
+      "seconds": 898,
+      "text": "by the way is hundreds of nanoseconds to"
+    },
+    {
+      "seconds": 900,
+      "text": "lapsed since"
+    },
+    {
+      "seconds": 901,
+      "text": "january the first 1601 if we happen to"
+    },
+    {
+      "seconds": 905,
+      "text": "see a time stamp"
+    },
+    {
+      "seconds": 906,
+      "text": "with seven zeros in other words the sub"
+    },
+    {
+      "seconds": 909,
+      "text": "seconds are"
+    },
+    {
+      "seconds": 910,
+      "text": "all zeros well that would be a little"
+    },
+    {
+      "seconds": 912,
+      "text": "odd don't you think"
+    },
+    {
+      "seconds": 914,
+      "text": "that can certainly indicate time"
+    },
+    {
+      "seconds": 915,
+      "text": "stopping because what do you think the"
+    },
+    {
+      "seconds": 917,
+      "text": "chances are that a"
+    },
+    {
+      "seconds": 918,
+      "text": "file would have a creation or a"
+    },
+    {
+      "seconds": 921,
+      "text": "modification time"
+    },
+    {
+      "seconds": 922,
+      "text": "that had exactly occurred in the all"
+    },
+    {
+      "seconds": 927,
+      "text": "zeros sub second precision in other"
+    },
+    {
+      "seconds": 929,
+      "text": "words all seven digits were zeros"
+    },
+    {
+      "seconds": 931,
+      "text": "that is probably not going to happen and"
+    },
+    {
+      "seconds": 934,
+      "text": "that in and of itself"
+    },
+    {
+      "seconds": 935,
+      "text": "is behavior that may indicate time"
+    },
+    {
+      "seconds": 938,
+      "text": "stopping occurred"
+    },
+    {
+      "seconds": 939,
+      "text": "so we have two different columns there"
+    },
+    {
+      "seconds": 941,
+      "text": "that can help you quickly"
+    },
+    {
+      "seconds": 942,
+      "text": "look through things that might indicate"
+    },
+    {
+      "seconds": 944,
+      "text": "time stopping"
+    },
+    {
+      "seconds": 945,
+      "text": "one other important thing to note here"
+    },
+    {
+      "seconds": 947,
+      "text": "and you may have already been thinking"
+    },
+    {
+      "seconds": 948,
+      "text": "this as you're watching the video"
+    },
+    {
+      "seconds": 950,
+      "text": "but notice that there are quite a few"
+    },
+    {
+      "seconds": 952,
+      "text": "timestamps that are missing they're just"
+    },
+    {
+      "seconds": 954,
+      "text": "blank"
+    },
+    {
+      "seconds": 955,
+      "text": "well first off the ones that are missing"
+    },
+    {
+      "seconds": 957,
+      "text": "are in the columns with hex"
+    },
+    {
+      "seconds": 959,
+      "text": "30 at the end which as a reminder are"
+    },
+    {
+      "seconds": 962,
+      "text": "our dollar"
+    },
+    {
+      "seconds": 963,
+      "text": "file underscore name timestamps when you"
+    },
+    {
+      "seconds": 966,
+      "text": "see this"
+    },
+    {
+      "seconds": 967,
+      "text": "it means that the timestamp that would"
+    },
+    {
+      "seconds": 968,
+      "text": "have been in that location"
+    },
+    {
+      "seconds": 970,
+      "text": "is exactly the same as the corresponding"
+    },
+    {
+      "seconds": 973,
+      "text": "time stamp"
+    },
+    {
+      "seconds": 974,
+      "text": "in the adjacent hex 10 column"
+    },
+    {
+      "seconds": 977,
+      "text": "in other words the dollar file"
+    },
+    {
+      "seconds": 979,
+      "text": "underscore name timestamp that would"
+    },
+    {
+      "seconds": 980,
+      "text": "have been there"
+    },
+    {
+      "seconds": 981,
+      "text": "is the same as the dollar standard"
+    },
+    {
+      "seconds": 983,
+      "text": "underscore information timestamp"
+    },
+    {
+      "seconds": 985,
+      "text": "adjacent to it so it's left blank this"
+    },
+    {
+      "seconds": 988,
+      "text": "provides"
+    },
+    {
+      "seconds": 989,
+      "text": "several benefits including a much"
+    },
+    {
+      "seconds": 991,
+      "text": "smaller overall file size"
+    },
+    {
+      "seconds": 993,
+      "text": "but the primary benefit is less noise to"
+    },
+    {
+      "seconds": 996,
+      "text": "have to walk through"
+    },
+    {
+      "seconds": 997,
+      "text": "when looking for entries where the two"
+    },
+    {
+      "seconds": 999,
+      "text": "time stamps don't match"
+    },
+    {
+      "seconds": 1000,
+      "text": "so it's just kind of an automatic focus"
+    },
+    {
+      "seconds": 1003,
+      "text": "into that area"
+    },
+    {
+      "seconds": 1004,
+      "text": "because that implies those time stamps"
+    },
+    {
+      "seconds": 1006,
+      "text": "don't match if you see a value there"
+    },
+    {
+      "seconds": 1008,
+      "text": "otherwise it would be blank so i just"
+    },
+    {
+      "seconds": 1011,
+      "text": "wanted to point that out"
+    },
+    {
+      "seconds": 1012,
+      "text": "because that may be a question that you"
+    },
+    {
+      "seconds": 1014,
+      "text": "have as you look through this data"
+    },
+    {
+      "seconds": 1016,
+      "text": "all right before we move away from the"
+    },
+    {
+      "seconds": 1018,
+      "text": "mft let me do a quick search to show you"
+    },
+    {
+      "seconds": 1020,
+      "text": "how easy it is to look for something"
+    },
+    {
+      "seconds": 1022,
+      "text": "within the mft so under parent path here"
+    },
+    {
+      "seconds": 1024,
+      "text": "i'm going to specify the"
+    },
+    {
+      "seconds": 1026,
+      "text": "desktop directory for our demo user and"
+    },
+    {
+      "seconds": 1028,
+      "text": "you can see that we have"
+    },
+    {
+      "seconds": 1030,
+      "text": "four hits the last of which does not"
+    },
+    {
+      "seconds": 1033,
+      "text": "have the"
+    },
+    {
+      "seconds": 1033,
+      "text": "in use check mark next to it which means"
+    },
+    {
+      "seconds": 1036,
+      "text": "it's an"
+    },
+    {
+      "seconds": 1037,
+      "text": "unallocated mft entry one that is"
+    },
+    {
+      "seconds": 1039,
+      "text": "available for"
+    },
+    {
+      "seconds": 1040,
+      "text": "reuse and that's actually from a"
+    },
+    {
+      "seconds": 1042,
+      "text": "previous vhdx file that was on the"
+    },
+    {
+      "seconds": 1044,
+      "text": "desktop"
+    },
+    {
+      "seconds": 1045,
+      "text": "that i since deleted you can see the"
+    },
+    {
+      "seconds": 1047,
+      "text": "file size and if we scroll to the right"
+    },
+    {
+      "seconds": 1049,
+      "text": "you can see those same timestamp columns"
+    },
+    {
+      "seconds": 1052,
+      "text": "that we already covered"
+    },
+    {
+      "seconds": 1054,
+      "text": "so very easy to search through the mft"
+    },
+    {
+      "seconds": 1056,
+      "text": "to get a snapshot in time"
+    },
+    {
+      "seconds": 1058,
+      "text": "view of what was present on the file"
+    },
+    {
+      "seconds": 1061,
+      "text": "system"
+    },
+    {
+      "seconds": 1062,
+      "text": "all right so now let's go ahead and move"
+    },
+    {
+      "seconds": 1064,
+      "text": "over to the usn"
+    },
+    {
+      "seconds": 1066,
+      "text": "journal and here the column headers are"
+    },
+    {
+      "seconds": 1069,
+      "text": "pretty self-explanatory"
+    },
+    {
+      "seconds": 1070,
+      "text": "but there's one in particular that i"
+    },
+    {
+      "seconds": 1072,
+      "text": "want to point out to you"
+    },
+    {
+      "seconds": 1074,
+      "text": "and that is the update reasons column"
+    },
+    {
+      "seconds": 1078,
+      "text": "that's where you're going to find those"
+    },
+    {
+      "seconds": 1080,
+      "text": "op codes as you saw"
+    },
+    {
+      "seconds": 1081,
+      "text": "in the intro for this episode remember"
+    },
+    {
+      "seconds": 1084,
+      "text": "things like file create"
+    },
+    {
+      "seconds": 1085,
+      "text": "file delete rename old name rename new"
+    },
+    {
+      "seconds": 1088,
+      "text": "name well that's where you'll see those"
+    },
+    {
+      "seconds": 1089,
+      "text": "op codes and where you can easily"
+    },
+    {
+      "seconds": 1092,
+      "text": "filter on them so pretty neat to be able"
+    },
+    {
+      "seconds": 1094,
+      "text": "to know"
+    },
+    {
+      "seconds": 1095,
+      "text": "where that is and actually be able to"
+    },
+    {
+      "seconds": 1097,
+      "text": "see those specific operations in the"
+    },
+    {
+      "seconds": 1099,
+      "text": "journal"
+    },
+    {
+      "seconds": 1100,
+      "text": "we could filter for example on file"
+    },
+    {
+      "seconds": 1102,
+      "text": "delete and see"
+    },
+    {
+      "seconds": 1103,
+      "text": "the files that were deleted all right so"
+    },
+    {
+      "seconds": 1106,
+      "text": "let's go ahead and in the top right i'm"
+    },
+    {
+      "seconds": 1109,
+      "text": "going to type in apg.exe which"
+    },
+    {
+      "seconds": 1111,
+      "text": "is the name of an executable i placed on"
+    },
+    {
+      "seconds": 1114,
+      "text": "this demo system"
+    },
+    {
+      "seconds": 1115,
+      "text": "it's a password generation utility not"
+    },
+    {
+      "seconds": 1117,
+      "text": "that that's important"
+    },
+    {
+      "seconds": 1118,
+      "text": "but at the very top you'll see the file"
+    },
+    {
+      "seconds": 1120,
+      "text": "create update reason"
+    },
+    {
+      "seconds": 1122,
+      "text": "and at the very bottom you see one"
+    },
+    {
+      "seconds": 1123,
+      "text": "called rename old"
+    },
+    {
+      "seconds": 1125,
+      "text": "name but notice the entry number"
+    },
+    {
+      "seconds": 1129,
+      "text": "let's go ahead and filter on everything"
+    },
+    {
+      "seconds": 1131,
+      "text": "with that same"
+    },
+    {
+      "seconds": 1132,
+      "text": "entry number and get rid of our search"
+    },
+    {
+      "seconds": 1134,
+      "text": "now"
+    },
+    {
+      "seconds": 1135,
+      "text": "so now we're looking for everything on"
+    },
+    {
+      "seconds": 1137,
+      "text": "the file system with that entry number"
+    },
+    {
+      "seconds": 1140,
+      "text": "so i'm going to highlight this for you"
+    },
+    {
+      "seconds": 1141,
+      "text": "so it'll make more sense but if we"
+    },
+    {
+      "seconds": 1144,
+      "text": "scroll all the way to the right here and"
+    },
+    {
+      "seconds": 1145,
+      "text": "then all the way down"
+    },
+    {
+      "seconds": 1147,
+      "text": "check out the story that can be told"
+    },
+    {
+      "seconds": 1150,
+      "text": "with what you're looking at"
+    },
+    {
+      "seconds": 1152,
+      "text": "at the very top we have apg.exe and we"
+    },
+    {
+      "seconds": 1155,
+      "text": "have a"
+    },
+    {
+      "seconds": 1155,
+      "text": "file create update reason and then at"
+    },
+    {
+      "seconds": 1158,
+      "text": "the very bottom"
+    },
+    {
+      "seconds": 1159,
+      "text": "we have a file delete for demo2.exe"
+    },
+    {
+      "seconds": 1164,
+      "text": "so what has happened here well it turned"
+    },
+    {
+      "seconds": 1167,
+      "text": "out"
+    },
+    {
+      "seconds": 1168,
+      "text": "that what i did was i placed apg.exe"
+    },
+    {
+      "seconds": 1171,
+      "text": "onto the file system i then renamed it"
+    },
+    {
+      "seconds": 1175,
+      "text": "to demo.exe then renamed that to"
+    },
+    {
+      "seconds": 1179,
+      "text": "demo2.exe"
+    },
+    {
+      "seconds": 1180,
+      "text": "and then deleted it and everything i"
+    },
+    {
+      "seconds": 1183,
+      "text": "just said there"
+    },
+    {
+      "seconds": 1184,
+      "text": "can be told through what you're seeing"
+    },
+    {
+      "seconds": 1186,
+      "text": "on screen"
+    },
+    {
+      "seconds": 1187,
+      "text": "you can see the file creation you can"
+    },
+    {
+      "seconds": 1190,
+      "text": "see"
+    },
+    {
+      "seconds": 1191,
+      "text": "the renaming from the old name of"
+    },
+    {
+      "seconds": 1193,
+      "text": "apg.exe to the new name"
+    },
+    {
+      "seconds": 1195,
+      "text": "of demo.exe and then you can see the"
+    },
+    {
+      "seconds": 1198,
+      "text": "rename again"
+    },
+    {
+      "seconds": 1199,
+      "text": "from the old name of demo.exe to the new"
+    },
+    {
+      "seconds": 1201,
+      "text": "name of demo2.exe"
+    },
+    {
+      "seconds": 1204,
+      "text": "pretty neat right and all we did for"
+    },
+    {
+      "seconds": 1206,
+      "text": "that as a reminder was we"
+    },
+    {
+      "seconds": 1208,
+      "text": "searched for a particular file apg.exe"
+    },
+    {
+      "seconds": 1211,
+      "text": "we found its entry number and then we"
+    },
+    {
+      "seconds": 1215,
+      "text": "filtered on that entry number getting"
+    },
+    {
+      "seconds": 1217,
+      "text": "rid of that previous search in other"
+    },
+    {
+      "seconds": 1218,
+      "text": "words"
+    },
+    {
+      "seconds": 1219,
+      "text": "show me everything not just apg but"
+    },
+    {
+      "seconds": 1221,
+      "text": "everything"
+    },
+    {
+      "seconds": 1222,
+      "text": "that has that matching entry number and"
+    },
+    {
+      "seconds": 1225,
+      "text": "there we saw"
+    },
+    {
+      "seconds": 1226,
+      "text": "all of that evidence so i hope you see"
+    },
+    {
+      "seconds": 1228,
+      "text": "how useful"
+    },
+    {
+      "seconds": 1230,
+      "text": "these artifacts can be both the mft and"
+    },
+    {
+      "seconds": 1233,
+      "text": "the usn journal all right so that wraps"
+    },
+    {
+      "seconds": 1237,
+      "text": "up this episode"
+    },
+    {
+      "seconds": 1238,
+      "text": "and just to quickly recap what we did"
+    },
+    {
+      "seconds": 1242,
+      "text": "we started out by using cape and we used"
+    },
+    {
+      "seconds": 1245,
+      "text": "a"
+    },
+    {
+      "seconds": 1245,
+      "text": "compound cape target called file system"
+    },
+    {
+      "seconds": 1248,
+      "text": "to go after the artifacts in which we"
+    },
+    {
+      "seconds": 1250,
+      "text": "were interested"
+    },
+    {
+      "seconds": 1252,
+      "text": "specifically the dollar mft in the"
+    },
+    {
+      "seconds": 1255,
+      "text": "dollar usn jrnl or even more"
+    },
+    {
+      "seconds": 1258,
+      "text": "specifically"
+    },
+    {
+      "seconds": 1259,
+      "text": "the alternate data stream dollar j"
+    },
+    {
+      "seconds": 1262,
+      "text": "within the"
+    },
+    {
+      "seconds": 1262,
+      "text": "dollar usn jrnl so"
+    },
+    {
+      "seconds": 1266,
+      "text": "that was pretty easy very easy to obtain"
+    },
+    {
+      "seconds": 1268,
+      "text": "that with cape we ended up creating it"
+    },
+    {
+      "seconds": 1270,
+      "text": "in"
+    },
+    {
+      "seconds": 1270,
+      "text": "a zipped vhdx file we then took that zip"
+    },
+    {
+      "seconds": 1274,
+      "text": "file over to our analysis machine"
+    },
+    {
+      "seconds": 1276,
+      "text": "unzipped it mounted it pointed mfte cmd"
+    },
+    {
+      "seconds": 1280,
+      "text": "at it"
+    },
+    {
+      "seconds": 1280,
+      "text": "to generate the two csvs then we popped"
+    },
+    {
+      "seconds": 1283,
+      "text": "open those two csvs in timeline explorer"
+    },
+    {
+      "seconds": 1286,
+      "text": "and started our analysis and that's"
+    },
+    {
+      "seconds": 1288,
+      "text": "pretty much it"
+    },
+    {
+      "seconds": 1290,
+      "text": "i hope you found this information useful"
+    },
+    {
+      "seconds": 1292,
+      "text": "and as always i'd like to thank you for"
+    },
+    {
+      "seconds": 1294,
+      "text": "watching"
+    },
+    {
+      "seconds": 1295,
+      "text": "thank you for subscribing and i'll catch"
+    },
+    {
+      "seconds": 1297,
+      "text": "you in the next"
+    },
+    {
+      "seconds": 1298,
+      "text": "13 cubed episode"
+    }
+  ]
+}

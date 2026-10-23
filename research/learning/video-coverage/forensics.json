@@ -1,0 +1,2319 @@
+{
+  "reviewed_on": "2026-10-23",
+  "scope": "All 71 assigned approved rows. Essential is an inferred high-yield preparation priority, not an organiser mandate. Video depth measures actual teaching, not resource titles, approval status, or total duration. Read resources already cover some gaps; this audit concerns video coverage.",
+  "rows": [
+    {
+      "tool_id": "windows-3",
+      "family": "PDF and document examination",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Extract text attachments or rendered pages",
+        "Distinguish visible content from embedded objects",
+        "Compare alternate views"
+      ],
+      "reason": "These support the document workflow; short targeted demonstrations can complement object-level analysis.",
+      "learning_resource_ids": [
+        "ref:windows-3"
+      ],
+      "coverage_disposition": "Support: These support the document workflow; short targeted demonstrations can complement object-level analysis. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-11",
+      "family": "Binary and file triage",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "reason": "Foundational triage applies across many forensic challenges; only a brief ExifTool example appears in the current pack.",
+      "learning_resource_ids": [
+        "ref:windows-11"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-15",
+      "family": "PDF and document examination",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Extract text attachments or rendered pages",
+        "Distinguish visible content from embedded objects",
+        "Compare alternate views"
+      ],
+      "reason": "These support the document workflow; short targeted demonstrations can complement object-level analysis.",
+      "learning_resource_ids": [
+        "ref:windows-15"
+      ],
+      "coverage_disposition": "Support: These support the document workflow; short targeted demonstrations can complement object-level analysis. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-23",
+      "family": "Disk and filesystem investigation",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Partition offsets and filesystem selection",
+        "Recover deleted files and validate contents",
+        "Build a timeline and correlate artifacts"
+      ],
+      "reason": "High-yield disk-image workflow is absent from the current videos; MFT parsing alone does not teach image examination.",
+      "learning_resource_ids": [
+        "forensics-1",
+        "forensics-mmls",
+        "forensics-current-worksheets"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-26",
+      "family": "PDF and document examination",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect PDF objects streams and attachments",
+        "Decode or expose object streams",
+        "Verify extracted payloads against source structure"
+      ],
+      "reason": "Document forensics is a meaningful gap; no current video addresses structured PDF examination.",
+      "learning_resource_ids": [
+        "forensics-6"
+      ],
+      "coverage_disposition": "qpdf inspection/stream/attachment semantics are substantively reviewed; integrate the reverse-lane worked document case to complete practical document coverage."
+    },
+    {
+      "tool_id": "windows-29",
+      "family": "Disk containers and recovery",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize image containers and convert or expose them safely",
+        "Distinguish metadata recovery from carving",
+        "Work from evidence copies"
+      ],
+      "reason": "Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility.",
+      "learning_resource_ids": [
+        "ref:windows-29"
+      ],
+      "coverage_disposition": "Support: Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-31",
+      "family": "Memory investigation",
+      "priority": "essential",
+      "video_depth": "workflow",
+      "current_video_ids": [
+        "Uk3DEgY5Ue8"
+      ],
+      "missing_skills": [
+        "Diagnose symbol and layer failures",
+        "Cross-check process lists and scans",
+        "Investigate suspicious memory and validate extracted artifacts"
+      ],
+      "reason": "Current video teaches a coherent first memory workflow but lacks deeper anomaly investigation and failure handling.",
+      "learning_resource_ids": [
+        "forensics-3",
+        "forensics-4",
+        "forensics-current-worksheets"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-32",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:windows-32"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-34",
+      "family": "Disk and filesystem investigation",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Partition offsets and filesystem selection",
+        "Recover deleted files and validate contents",
+        "Build a timeline and correlate artifacts"
+      ],
+      "reason": "High-yield disk-image workflow is absent from the current videos; MFT parsing alone does not teach image examination.",
+      "learning_resource_ids": [
+        "forensics-2",
+        "forensics-autopsy-workflow"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-35",
+      "family": "Binary and file triage",
+      "priority": "alternative",
+      "video_depth": "incidental",
+      "current_video_ids": [
+        "Uk3DEgY5Ue8"
+      ],
+      "missing_skills": [
+        "Navigate offsets and encodings",
+        "Compare headers against structure",
+        "Make controlled edits on copies when needed"
+      ],
+      "reason": "HxD is briefly used to inspect a dumped SQLite header; alternative hex viewers do not need individual long courses.",
+      "learning_resource_ids": [
+        "ref:windows-35"
+      ],
+      "coverage_disposition": "Alternative: HxD is briefly used to inspect a dumped SQLite header; alternative hex viewers do not need individual long courses. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-39",
+      "family": "Windows artifact correlation",
+      "priority": "essential",
+      "video_depth": "workflow",
+      "current_video_ids": [
+        "_qElVZJqlGY"
+      ],
+      "missing_skills": [
+        "RegistryExplorer and RECmd hive interpretation",
+        "PECmd Prefetch execution evidence",
+        "LECmd and JLECmd user activity",
+        "Amcache and Shimcache interpretation limits",
+        "EvtxECmd and multi-artifact timeline correlation"
+      ],
+      "reason": "Umbrella row contains many consequential parsers; existing MFTECmd and Timeline Explorer instruction covers only one artifact family.",
+      "learning_resource_ids": [
+        "forensics-5",
+        "forensics-pecmd",
+        "forensics-jlecmd",
+        "forensics-current-worksheets",
+        "forensics-deeper-video-2",
+        "forensics-deeper-video-3",
+        "forensics-artifact-interpretation"
+      ],
+      "coverage_disposition": "MFTECmd journal workflow plus registry/USB lesson, LNK/JumpList lesson and PECmd companion cover major Windows artifact branches. Microsoft artifact guide addresses Amcache/Shimcache presence-versus-execution and timestamp limits. Chainsaw supplies practical event-log analysis; EvtxECmd remains an alternative parser lookup under the umbrella row."
+    },
+    {
+      "tool_id": "kali-4",
+      "family": "Browser and platform artifact suites",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported extraction layout",
+        "Parse browser mobile or macOS artifacts",
+        "Correlate source records and timestamps"
+      ],
+      "reason": "Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency.",
+      "learning_resource_ids": [
+        "ref:kali-4"
+      ],
+      "coverage_disposition": "Specialist: Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-14",
+      "family": "Bulk extraction and carving",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Choose scanners or signatures",
+        "Recover candidate artifacts",
+        "Validate boundaries false positives and missing metadata"
+      ],
+      "reason": "Useful fallback when normal filesystem interpretation fails; no current video demonstrates these tools.",
+      "learning_resource_ids": [
+        "ref:kali-14"
+      ],
+      "coverage_disposition": "Support: Useful fallback when normal filesystem interpretation fails; no current video demonstrates these tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-15",
+      "family": "Binary and file triage",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Navigate offsets and encodings",
+        "Compare headers against structure",
+        "Make controlled edits on copies when needed"
+      ],
+      "reason": "HxD is briefly used to inspect a dumped SQLite header; alternative hex viewers do not need individual long courses.",
+      "learning_resource_ids": [
+        "ref:kali-15"
+      ],
+      "coverage_disposition": "Alternative: HxD is briefly used to inspect a dumped SQLite header; alternative hex viewers do not need individual long courses. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-20",
+      "family": "Windows event and registry analysis",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Targeted EVTX search",
+        "Interpret event context and detection false positives",
+        "Correlate timestamps with filesystem and execution evidence"
+      ],
+      "reason": "One representative event-log workflow is high yield; this does not make every overlapping event tool essential.",
+      "learning_resource_ids": [
+        "forensics-7"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-25",
+      "family": "Structured artifact databases",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Browse schemas and query data",
+        "Understand deleted-record recovery limits",
+        "Validate timestamps and results"
+      ],
+      "reason": "GUI or recovery alternatives to the same database investigation skills; do not require a separate full course each.",
+      "learning_resource_ids": [
+        "ref:kali-25"
+      ],
+      "coverage_disposition": "Alternative: GUI or recovery alternatives to the same database investigation skills; do not require a separate full course each. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-32",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-32"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-34",
+      "family": "Disk containers and recovery",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize image containers and convert or expose them safely",
+        "Distinguish metadata recovery from carving",
+        "Work from evidence copies"
+      ],
+      "reason": "Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility.",
+      "learning_resource_ids": [
+        "ref:kali-34"
+      ],
+      "coverage_disposition": "Support: Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-45",
+      "family": "Structured artifact databases",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Browse schemas and query data",
+        "Understand deleted-record recovery limits",
+        "Validate timestamps and results"
+      ],
+      "reason": "GUI or recovery alternatives to the same database investigation skills; do not require a separate full course each.",
+      "learning_resource_ids": [
+        "ref:kali-45"
+      ],
+      "coverage_disposition": "Alternative: GUI or recovery alternatives to the same database investigation skills; do not require a separate full course each. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-49",
+      "family": "Repository evidence",
+      "priority": "support",
+      "video_depth": "incidental",
+      "current_video_ids": [
+        "Uk3DEgY5Ue8"
+      ],
+      "missing_skills": [
+        "Inspect history branches and deleted content",
+        "Search historical secrets and validate matches"
+      ],
+      "reason": "Git appears only as installation support; repository forensics and Gitleaks scanning are not taught.",
+      "learning_resource_ids": [
+        "ref:kali-49"
+      ],
+      "coverage_disposition": "Support: Git appears only as installation support; repository forensics and Gitleaks scanning are not taught. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-50",
+      "family": "Repository evidence",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect history branches and deleted content",
+        "Search historical secrets and validate matches"
+      ],
+      "reason": "Git appears only as installation support; repository forensics and Gitleaks scanning are not taught.",
+      "learning_resource_ids": [
+        "ref:kali-50"
+      ],
+      "coverage_disposition": "Support: Git appears only as installation support; repository forensics and Gitleaks scanning are not taught. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-61",
+      "family": "Windows event and registry analysis",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Select appropriate rules or registry plugins",
+        "Verify parsed fields against original records",
+        "Correlate findings with other artifacts"
+      ],
+      "reason": "Hayabusa and RegRipper are useful alternatives to related event and registry parsers, not extra mandatory curricula.",
+      "learning_resource_ids": [
+        "ref:kali-61"
+      ],
+      "coverage_disposition": "Alternative: Hayabusa and RegRipper are useful alternatives to related event and registry parsers, not extra mandatory curricula. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-63",
+      "family": "Browser and platform artifact suites",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported extraction layout",
+        "Parse browser mobile or macOS artifacts",
+        "Correlate source records and timestamps"
+      ],
+      "reason": "Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency.",
+      "learning_resource_ids": [
+        "ref:kali-63"
+      ],
+      "coverage_disposition": "Specialist: Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-66",
+      "family": "Browser and platform artifact suites",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported extraction layout",
+        "Parse browser mobile or macOS artifacts",
+        "Correlate source records and timestamps"
+      ],
+      "reason": "Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency.",
+      "learning_resource_ids": [
+        "ref:kali-66"
+      ],
+      "coverage_disposition": "Specialist: Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-80",
+      "family": "Structured artifact databases",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize ESE mail or encrypted database formats",
+        "Supply required keys or related files",
+        "Export and validate records"
+      ],
+      "reason": "Artifact-specific extensions that are best learned when the input format demands them.",
+      "learning_resource_ids": [
+        "ref:kali-80"
+      ],
+      "coverage_disposition": "Specialist: Artifact-specific extensions that are best learned when the input format demands them. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-86",
+      "family": "Browser and platform artifact suites",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported extraction layout",
+        "Parse browser mobile or macOS artifacts",
+        "Correlate source records and timestamps"
+      ],
+      "reason": "Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency.",
+      "learning_resource_ids": [
+        "ref:kali-86"
+      ],
+      "coverage_disposition": "Specialist: Platform-specific parsers have no current video coverage; install approval does not imply likely challenge frequency. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-89",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-89"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-92",
+      "family": "PDF and document examination",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Extract text attachments or rendered pages",
+        "Distinguish visible content from embedded objects",
+        "Compare alternate views"
+      ],
+      "reason": "These support the document workflow; short targeted demonstrations can complement object-level analysis.",
+      "learning_resource_ids": [
+        "ref:kali-92"
+      ],
+      "coverage_disposition": "Support: These support the document workflow; short targeted demonstrations can complement object-level analysis. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-106",
+      "family": "Structured artifact databases",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize ESE mail or encrypted database formats",
+        "Supply required keys or related files",
+        "Export and validate records"
+      ],
+      "reason": "Artifact-specific extensions that are best learned when the input format demands them.",
+      "learning_resource_ids": [
+        "ref:kali-106"
+      ],
+      "coverage_disposition": "Specialist: Artifact-specific extensions that are best learned when the input format demands them. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-107",
+      "family": "Timeline automation",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Choose parsers and time ranges",
+        "Normalize timestamps",
+        "Reduce noise and validate source events"
+      ],
+      "reason": "Useful scale-up after artifact basics; no current video teaches Plaso.",
+      "learning_resource_ids": [
+        "ref:kali-107"
+      ],
+      "coverage_disposition": "Support: Useful scale-up after artifact basics; no current video teaches Plaso. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-112",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-112"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-115",
+      "family": "Disk containers and recovery",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize image containers and convert or expose them safely",
+        "Distinguish metadata recovery from carving",
+        "Work from evidence copies"
+      ],
+      "reason": "Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility.",
+      "learning_resource_ids": [
+        "ref:kali-115"
+      ],
+      "coverage_disposition": "Support: Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-118",
+      "family": "Windows event and registry analysis",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Select appropriate rules or registry plugins",
+        "Verify parsed fields against original records",
+        "Correlate findings with other artifacts"
+      ],
+      "reason": "Hayabusa and RegRipper are useful alternatives to related event and registry parsers, not extra mandatory curricula.",
+      "learning_resource_ids": [
+        "ref:kali-118"
+      ],
+      "coverage_disposition": "Alternative: Hayabusa and RegRipper are useful alternatives to related event and registry parsers, not extra mandatory curricula. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-130",
+      "family": "Structured artifact databases",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize ESE mail or encrypted database formats",
+        "Supply required keys or related files",
+        "Export and validate records"
+      ],
+      "reason": "Artifact-specific extensions that are best learned when the input format demands them.",
+      "learning_resource_ids": [
+        "ref:kali-130"
+      ],
+      "coverage_disposition": "Specialist: Artifact-specific extensions that are best learned when the input format demands them. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-131",
+      "family": "Structured artifact databases",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect schemas and query relationships",
+        "Convert timestamps correctly",
+        "Preserve WAL and related files",
+        "Validate database completeness"
+      ],
+      "reason": "SQLite recurs in browser and application artifacts. Vol3 extracts a SQLite file but does not teach querying it.",
+      "learning_resource_ids": [
+        "forensics-8",
+        "forensics-current-worksheets",
+        "forensics-artifact-interpretation"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-143",
+      "family": "Disk containers and recovery",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize image containers and convert or expose them safely",
+        "Distinguish metadata recovery from carving",
+        "Work from evidence copies"
+      ],
+      "reason": "Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility.",
+      "learning_resource_ids": [
+        "ref:kali-143"
+      ],
+      "coverage_disposition": "Support: Supports disk investigations; a focused recipe and one exercise can be sufficient, not a separate course for each utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-151",
+      "family": "Memory legacy alternative",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Volatility 2 profiles and plugin syntax",
+        "Select legacy framework only for compatible evidence"
+      ],
+      "reason": "Alternative for older supported images; Volatility 3 syntax is not interchangeable.",
+      "learning_resource_ids": [
+        "ref:kali-151"
+      ],
+      "coverage_disposition": "Alternative: Alternative for older supported images; Volatility 3 syntax is not interchangeable. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-152",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-152"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-153",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-153"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-154",
+      "family": "Memory extensions and credentials",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "reason": "Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools.",
+      "learning_resource_ids": [
+        "ref:kali-154"
+      ],
+      "coverage_disposition": "Specialist: Useful when evidence requires it; base Volatility coverage does not establish competence with these separate plugins or tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-12",
+      "family": "Image steganography",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Select channels bit planes and extraction order",
+        "Distinguish steghide containers from generic LSB",
+        "Validate extracted payloads and password candidates"
+      ],
+      "reason": "Entire image-stego extraction workflow is missing from current videos; multiple complementary techniques matter.",
+      "learning_resource_ids": [
+        "media-1"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-13",
+      "family": "Binary and file triage",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "reason": "Foundational triage applies across many forensic challenges; only a brief ExifTool example appears in the current pack.",
+      "learning_resource_ids": [
+        "media-2"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-14",
+      "family": "Binary and file triage",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "pJYyyz6HPbQ"
+      ],
+      "missing_skills": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "reason": "Foundational triage applies across many forensic challenges; only a brief ExifTool example appears in the current pack.",
+      "learning_resource_ids": [
+        "media-3",
+        "media-8",
+        "forensics-deeper-video-3"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-19",
+      "family": "Image integrity and transforms",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "reason": "Supports a hypothesis-driven image workflow, with no need for a course on every transform utility.",
+      "learning_resource_ids": [
+        "ref:windows-19"
+      ],
+      "coverage_disposition": "Support: Supports a hypothesis-driven image workflow, with no need for a course on every transform utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-28",
+      "family": "Binary and file triage",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "reason": "Foundational triage applies across many forensic challenges; only a brief ExifTool example appears in the current pack.",
+      "learning_resource_ids": [
+        "ref:windows-28"
+      ],
+      "coverage_disposition": "Essential triage primitive: concise primary syntax reference plus header/type reasoning in the Volatility/LNK lessons suffices for this utility; no separate long course needed. Practice checking a known file and comparing its header/extension."
+    },
+    {
+      "tool_id": "kali-7",
+      "family": "Image steganography",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect channels and bit planes locally",
+        "Understand format and algorithm compatibility",
+        "Validate extracted data"
+      ],
+      "reason": "Alternative helpers or format-specific tools; local-only handling is required for event challenge files.",
+      "learning_resource_ids": [
+        "media-7"
+      ],
+      "coverage_disposition": "Alternative: Alternative helpers or format-specific tools; local-only handling is required for event challenge files. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-10",
+      "family": "Audio investigation",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Configure spectrogram frequency and window settings",
+        "Separate channels and inspect timing",
+        "Decode tones or hidden imagery locally and validate"
+      ],
+      "reason": "Current audio video briefly recognizes Morse but does not teach an effective offline audio workflow.",
+      "learning_resource_ids": [
+        "media-5"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-40",
+      "family": "Media extraction and conversion",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect streams codecs and channels",
+        "Extract without accidental quality loss",
+        "Convert only as required for analysis"
+      ],
+      "reason": "These utilities support audio/video investigation; no current video demonstrates their actual commands.",
+      "learning_resource_ids": [
+        "media-6"
+      ],
+      "coverage_disposition": "Support: These utilities support audio/video investigation; no current video demonstrates their actual commands. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-42",
+      "family": "Binary and file triage",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "reason": "Foundational triage applies across many forensic challenges; only a brief ExifTool example appears in the current pack.",
+      "learning_resource_ids": [
+        "forensics-deeper-video-3"
+      ],
+      "coverage_disposition": "Essential triage primitive: concise primary syntax reference plus header/type reasoning in the Volatility/LNK lessons suffices for this utility; no separate long course needed. Practice checking a known file and comparing its header/extension."
+    },
+    {
+      "tool_id": "kali-44",
+      "family": "Bulk extraction and carving",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Choose scanners or signatures",
+        "Recover candidate artifacts",
+        "Validate boundaries false positives and missing metadata"
+      ],
+      "reason": "Useful fallback when normal filesystem interpretation fails; no current video demonstrates these tools.",
+      "learning_resource_ids": [
+        "ref:kali-44"
+      ],
+      "coverage_disposition": "Support: Useful fallback when normal filesystem interpretation fails; no current video demonstrates these tools. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-51",
+      "family": "Image integrity and transforms",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "reason": "Supports a hypothesis-driven image workflow, with no need for a course on every transform utility.",
+      "learning_resource_ids": [
+        "ref:kali-51"
+      ],
+      "coverage_disposition": "Support: Supports a hypothesis-driven image workflow, with no need for a course on every transform utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-67",
+      "family": "Image integrity and transforms",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "reason": "Supports a hypothesis-driven image workflow, with no need for a course on every transform utility.",
+      "learning_resource_ids": [
+        "ref:kali-67"
+      ],
+      "coverage_disposition": "Support: Supports a hypothesis-driven image workflow, with no need for a course on every transform utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-74",
+      "family": "Image integrity and transforms",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "reason": "Supports a hypothesis-driven image workflow, with no need for a course on every transform utility.",
+      "learning_resource_ids": [
+        "ref:kali-74"
+      ],
+      "coverage_disposition": "Support: Supports a hypothesis-driven image workflow, with no need for a course on every transform utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-87",
+      "family": "Media extraction and conversion",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect streams codecs and channels",
+        "Extract without accidental quality loss",
+        "Convert only as required for analysis"
+      ],
+      "reason": "These utilities support audio/video investigation; no current video demonstrates their actual commands.",
+      "learning_resource_ids": [
+        "ref:kali-87"
+      ],
+      "coverage_disposition": "Support: These utilities support audio/video investigation; no current video demonstrates their actual commands. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-100",
+      "family": "Image steganography",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect channels and bit planes locally",
+        "Understand format and algorithm compatibility",
+        "Validate extracted data"
+      ],
+      "reason": "Alternative helpers or format-specific tools; local-only handling is required for event challenge files.",
+      "learning_resource_ids": [
+        "ref:kali-100"
+      ],
+      "coverage_disposition": "Alternative: Alternative helpers or format-specific tools; local-only handling is required for event challenge files. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-108",
+      "family": "Image integrity and transforms",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "reason": "Supports a hypothesis-driven image workflow, with no need for a course on every transform utility.",
+      "learning_resource_ids": [
+        "ref:kali-108"
+      ],
+      "coverage_disposition": "Support: Supports a hypothesis-driven image workflow, with no need for a course on every transform utility. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-128",
+      "family": "Audio investigation",
+      "priority": "alternative",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "pJYyyz6HPbQ"
+      ],
+      "missing_skills": [
+        "Use spectrogram settings and layer controls",
+        "Inspect channel or frequency-specific evidence",
+        "Reproduce decoding locally"
+      ],
+      "reason": "Current video gives a brief visual inspection only; Sonic Visualiser can substitute for parts of the Audacity workflow.",
+      "learning_resource_ids": [
+        "media-8"
+      ],
+      "coverage_disposition": "Alternative: Current video gives a brief visual inspection only; Sonic Visualiser can substitute for parts of the Audacity workflow. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-129",
+      "family": "Media extraction and conversion",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect streams codecs and channels",
+        "Extract without accidental quality loss",
+        "Convert only as required for analysis"
+      ],
+      "reason": "These utilities support audio/video investigation; no current video demonstrates their actual commands.",
+      "learning_resource_ids": [
+        "ref:kali-129"
+      ],
+      "coverage_disposition": "Support: These utilities support audio/video investigation; no current video demonstrates their actual commands. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-133",
+      "family": "Specialized signal decoding",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize SSTV or whitespace carriers",
+        "Use compatible decoding settings",
+        "Verify reconstructed content"
+      ],
+      "reason": "Specific carrier types, absent from current videos, warrant short targeted practice if encountered.",
+      "learning_resource_ids": [
+        "ref:kali-133"
+      ],
+      "coverage_disposition": "Specialist: Specific carrier types, absent from current videos, warrant short targeted practice if encountered. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-134",
+      "family": "Image steganography",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Select channels bit planes and extraction order",
+        "Distinguish steghide containers from generic LSB",
+        "Validate extracted payloads and password candidates"
+      ],
+      "reason": "Entire image-stego extraction workflow is missing from current videos; multiple complementary techniques matter.",
+      "learning_resource_ids": [
+        "media-4"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-135",
+      "family": "Image steganography",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Select channels bit planes and extraction order",
+        "Distinguish steghide containers from generic LSB",
+        "Validate extracted payloads and password candidates"
+      ],
+      "reason": "Entire image-stego extraction workflow is missing from current videos; multiple complementary techniques matter.",
+      "learning_resource_ids": [
+        "media-4"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-136",
+      "family": "Specialized signal decoding",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Recognize SSTV or whitespace carriers",
+        "Use compatible decoding settings",
+        "Verify reconstructed content"
+      ],
+      "reason": "Specific carrier types, absent from current videos, warrant short targeted practice if encountered.",
+      "learning_resource_ids": [
+        "ref:kali-136"
+      ],
+      "coverage_disposition": "Specialist: Specific carrier types, absent from current videos, warrant short targeted practice if encountered. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-137",
+      "family": "Image steganography",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Inspect channels and bit planes locally",
+        "Understand format and algorithm compatibility",
+        "Validate extracted data"
+      ],
+      "reason": "Alternative helpers or format-specific tools; local-only handling is required for event challenge files.",
+      "learning_resource_ids": [
+        "ref:kali-137"
+      ],
+      "coverage_disposition": "Alternative: Alternative helpers or format-specific tools; local-only handling is required for event challenge files. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-2",
+      "family": "Packet investigation",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Filter and correlate conversations",
+        "Reassemble streams and export objects",
+        "Extract fields reproducibly",
+        "Investigate DNS HTTP and other protocol evidence"
+      ],
+      "reason": "No current video teaches Wireshark or TShark. Volatility network output is not packet analysis.",
+      "learning_resource_ids": [
+        "web-network-5",
+        "web-network-8",
+        "forensics-current-worksheets",
+        "forensics-deeper-video-1"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "windows-16",
+      "family": "Specialized network protocols",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify CAN or RTP evidence and formats",
+        "Parse or reconstruct relevant messages",
+        "Distinguish offline inspection from replay"
+      ],
+      "reason": "Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved.",
+      "learning_resource_ids": [
+        "ref:windows-16"
+      ],
+      "coverage_disposition": "Specialist: Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-17",
+      "family": "Specialized network protocols",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify CAN or RTP evidence and formats",
+        "Parse or reconstruct relevant messages",
+        "Distinguish offline inspection from replay"
+      ],
+      "reason": "Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved.",
+      "learning_resource_ids": [
+        "ref:windows-17"
+      ],
+      "coverage_disposition": "Specialist: Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-18",
+      "family": "Packet investigation",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Read saved PCAPs with appropriate filters",
+        "Correlate Zeek log identifiers and protocol records",
+        "Preserve extraction provenance"
+      ],
+      "reason": "Useful scalable companions to Wireshark; each need not become a separate long course.",
+      "learning_resource_ids": [
+        "web-network-7"
+      ],
+      "coverage_disposition": "Support: Useful scalable companions to Wireshark; each need not become a separate long course. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "windows-36",
+      "family": "Packet investigation",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Filter and correlate conversations",
+        "Reassemble streams and export objects",
+        "Extract fields reproducibly",
+        "Investigate DNS HTTP and other protocol evidence"
+      ],
+      "reason": "No current video teaches Wireshark or TShark. Volatility network output is not packet analysis.",
+      "learning_resource_ids": [
+        "web-network-6",
+        "web-network-8",
+        "forensics-current-worksheets"
+      ],
+      "coverage_disposition": "Study the mapped worked workflow and targeted sections; existing video gap is historical, not a claim that guides are absent. Practice on supplied synthetic cases or source examples. Capability-specific remaining limits are listed in each resource."
+    },
+    {
+      "tool_id": "kali-122",
+      "family": "Specialized network protocols",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Identify CAN or RTP evidence and formats",
+        "Parse or reconstruct relevant messages",
+        "Distinguish offline inspection from replay"
+      ],
+      "reason": "Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved.",
+      "learning_resource_ids": [
+        "ref:kali-122"
+      ],
+      "coverage_disposition": "Specialist: Narrow protocol-specific tools; do not inflate the essential curriculum merely because tools are approved. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-142",
+      "family": "Packet investigation",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Read saved PCAPs with appropriate filters",
+        "Correlate Zeek log identifiers and protocol records",
+        "Preserve extraction provenance"
+      ],
+      "reason": "Useful scalable companions to Wireshark; each need not become a separate long course.",
+      "learning_resource_ids": [
+        "ref:kali-142"
+      ],
+      "coverage_disposition": "Support: Useful scalable companions to Wireshark; each need not become a separate long course. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    },
+    {
+      "tool_id": "kali-161",
+      "family": "Packet investigation",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": [
+        "Import capture data",
+        "Query correlated network records",
+        "Pivot back to original packets"
+      ],
+      "reason": "Alternative exploration interface; no current video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-161"
+      ],
+      "coverage_disposition": "Alternative: Alternative exploration interface; no current video coverage. The linked tool-specific primary reference is the concise learning route; related conceptual lessons do not claim identical syntax or behavior."
+    }
+  ],
+  "families": [
+    {
+      "name": "Disk and filesystem investigation",
+      "tool_ids": [
+        "windows-23",
+        "windows-34"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Partition offsets and filesystem selection",
+        "Recover deleted files and validate contents",
+        "Build a timeline and correlate artifacts"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Disk containers and recovery",
+      "tool_ids": [
+        "windows-29",
+        "kali-34",
+        "kali-115",
+        "kali-143"
+      ],
+      "priority": "support",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Recognize image containers and convert or expose them safely",
+        "Distinguish metadata recovery from carving",
+        "Work from evidence copies"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Memory investigation",
+      "tool_ids": [
+        "windows-31"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-31: workflow",
+      "gap": [
+        "Diagnose symbol and layer failures",
+        "Cross-check process lists and scans",
+        "Investigate suspicious memory and validate extracted artifacts"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Memory extensions and credentials",
+      "tool_ids": [
+        "windows-32",
+        "kali-32",
+        "kali-89",
+        "kali-112",
+        "kali-152",
+        "kali-153",
+        "kali-154"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Identify supported image and OS prerequisites",
+        "Load matching symbols or plugins",
+        "Validate recovered key or credential material"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Memory legacy alternative",
+      "tool_ids": [
+        "kali-151"
+      ],
+      "priority": "alternative",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Volatility 2 profiles and plugin syntax",
+        "Select legacy framework only for compatible evidence"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Windows artifact correlation",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-39: workflow",
+      "gap": [
+        "RegistryExplorer and RECmd hive interpretation",
+        "PECmd Prefetch execution evidence",
+        "LECmd and JLECmd user activity",
+        "Amcache and Shimcache interpretation limits",
+        "EvtxECmd and multi-artifact timeline correlation"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Windows event and registry analysis",
+      "tool_ids": [
+        "kali-20",
+        "kali-61",
+        "kali-118"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Targeted EVTX search",
+        "Interpret event context and detection false positives",
+        "Correlate timestamps with filesystem and execution evidence"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Timeline automation",
+      "tool_ids": [
+        "kali-107"
+      ],
+      "priority": "support",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Choose parsers and time ranges",
+        "Normalize timestamps",
+        "Reduce noise and validate source events"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Structured artifact databases",
+      "tool_ids": [
+        "kali-131",
+        "kali-25",
+        "kali-45",
+        "kali-80",
+        "kali-106",
+        "kali-130"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Inspect schemas and query relationships",
+        "Convert timestamps correctly",
+        "Preserve WAL and related files",
+        "Validate database completeness"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Browser and platform artifact suites",
+      "tool_ids": [
+        "kali-4",
+        "kali-63",
+        "kali-66",
+        "kali-86"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Identify supported extraction layout",
+        "Parse browser mobile or macOS artifacts",
+        "Correlate source records and timestamps"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Repository evidence",
+      "tool_ids": [
+        "kali-49",
+        "kali-50"
+      ],
+      "priority": "support",
+      "current_coverage": "kali-49: incidental",
+      "gap": [
+        "Inspect history branches and deleted content",
+        "Search historical secrets and validate matches"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "PDF and document examination",
+      "tool_ids": [
+        "windows-26",
+        "windows-3",
+        "windows-15",
+        "kali-92"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Inspect PDF objects streams and attachments",
+        "Decode or expose object streams",
+        "Verify extracted payloads against source structure"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Binary and file triage",
+      "tool_ids": [
+        "windows-11",
+        "windows-13",
+        "windows-14",
+        "windows-28",
+        "kali-42",
+        "windows-35",
+        "kali-15"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-14: intro; windows-35: incidental",
+      "gap": [
+        "Identify true file types and embedded signatures",
+        "Inspect offsets and encodings",
+        "Extract candidates and verify their structure"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Bulk extraction and carving",
+      "tool_ids": [
+        "kali-14",
+        "kali-44"
+      ],
+      "priority": "support",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Choose scanners or signatures",
+        "Recover candidate artifacts",
+        "Validate boundaries false positives and missing metadata"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Image steganography",
+      "tool_ids": [
+        "windows-12",
+        "kali-134",
+        "kali-135",
+        "kali-7",
+        "kali-100",
+        "kali-137"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Select channels bit planes and extraction order",
+        "Distinguish steghide containers from generic LSB",
+        "Validate extracted payloads and password candidates"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Image integrity and transforms",
+      "tool_ids": [
+        "windows-19",
+        "kali-51",
+        "kali-67",
+        "kali-74",
+        "kali-108"
+      ],
+      "priority": "support",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Check image structure and corruption",
+        "Apply deliberate channel transforms",
+        "Recover and verify barcode data"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Audio investigation",
+      "tool_ids": [
+        "kali-10",
+        "kali-128"
+      ],
+      "priority": "essential",
+      "current_coverage": "kali-128: intro",
+      "gap": [
+        "Configure spectrogram frequency and window settings",
+        "Separate channels and inspect timing",
+        "Decode tones or hidden imagery locally and validate"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Media extraction and conversion",
+      "tool_ids": [
+        "kali-40",
+        "kali-87",
+        "kali-129"
+      ],
+      "priority": "support",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Inspect streams codecs and channels",
+        "Extract without accidental quality loss",
+        "Convert only as required for analysis"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Specialized signal decoding",
+      "tool_ids": [
+        "kali-133",
+        "kali-136"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Recognize SSTV or whitespace carriers",
+        "Use compatible decoding settings",
+        "Verify reconstructed content"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    },
+    {
+      "name": "Packet investigation",
+      "tool_ids": [
+        "windows-2",
+        "windows-36",
+        "windows-18",
+        "kali-142",
+        "kali-161"
+      ],
+      "priority": "essential",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Filter and correlate conversations",
+        "Reassemble streams and export objects",
+        "Extract fields reproducibly",
+        "Investigate DNS HTTP and other protocol evidence"
+      ],
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Specialized network protocols",
+      "tool_ids": [
+        "windows-16",
+        "windows-17",
+        "kali-122"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No tool-specific video coverage",
+      "gap": [
+        "Identify CAN or RTP evidence and formats",
+        "Parse or reconstruct relevant messages",
+        "Distinguish offline inspection from replay"
+      ],
+      "desired_video_depth": "workflow or focused reference; no separate course required for every utility"
+    }
+  ],
+  "current_video_assessments": [
+    {
+      "video_id": "_qElVZJqlGY",
+      "depth": "workflow",
+      "timestamps": [
+        {
+          "range": "00:41\u201304:52",
+          "evidence": "Explains USN versus LogFile and retention."
+        },
+        {
+          "range": "10:33\u201312:46",
+          "evidence": "Parses MFT and USN to CSV with MFTECmd."
+        },
+        {
+          "range": "13:00\u201317:41",
+          "evidence": "Timeline Explorer columns, SI/FN timestamps and deleted MFT entries."
+        },
+        {
+          "range": "17:44\u201320:33",
+          "evidence": "Follows creation, two renames and deletion through USN entry filtering."
+        }
+      ],
+      "gap": "Good narrow workflow; not a broad Zimmerman course. Does not teach Prefetch, LNK/JumpLists, Amcache, registry or EVTX correlation. Acquisition uses KAPE outside this approved-tool mapping. Historical LogFile support statement is obsolete; avoid treating timestamp anomalies alone as proof."
+    },
+    {
+      "video_id": "Uk3DEgY5Ue8",
+      "depth": "workflow",
+      "timestamps": [
+        {
+          "range": "02:10\u201302:40",
+          "evidence": "Git clone/update for installation only, incidental Git coverage."
+        },
+        {
+          "range": "13:11\u201318:31",
+          "evidence": "Uses PID then handles, filters browser history and dumps a specific file."
+        },
+        {
+          "range": "18:36\u201319:09",
+          "evidence": "HxD checks SQLite header and URLs; recommends an unspecified SQLite viewer but does not demonstrate SQL."
+        },
+        {
+          "range": "20:12\u201323:47",
+          "evidence": "Command lines and network connections correlated to processes."
+        },
+        {
+          "range": "23:49\u201330:16",
+          "evidence": "Hash dump, UserAssist, hive extraction and registry key queries."
+        }
+      ],
+      "gap": "A substantive first investigation, but no deeper memory anomalies, symbol troubleshooting, Linux/macOS analysis or community-plugin workflow. A header check does not prove extracted-file completeness."
+    },
+    {
+      "video_id": "pJYyyz6HPbQ",
+      "depth": "intro",
+      "timestamps": [
+        {
+          "range": "01:11\u201301:39",
+          "evidence": "Sonic Visualiser displays long/short waveform bursts; revises DTMF hypothesis to Morse."
+        },
+        {
+          "range": "01:49\u201302:10",
+          "evidence": "ExifTool metadata exposes an encoder URL."
+        },
+        {
+          "range": "02:15\u201304:28",
+          "evidence": "Uploads audio to online Morse decoders and discusses prosigns."
+        },
+        {
+          "range": "04:32\u201307:49",
+          "evidence": "Base32 padding and ROT47 exploration, with final solution aided by organiser clarification."
+        }
+      ],
+      "gap": "Useful reasoning example, not an offline audio toolkit lesson. No spectrogram tuning, channel isolation or local tone decoding. Event files cannot be uploaded to decoder services."
+    }
+  ],
+  "candidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=eQItiKZpuSc",
+      "title": "SF19US - 22 Analyzing Windows malware traffic w/ Wireshark Part 1",
+      "creator": "SharkFest Wireshark Developer and User Conference; Brad Duncan",
+      "duration_seconds": 5333,
+      "content_evidence": {
+        "basis": "Substantive Exa-fetched creator-video transcript read, including setup, host identification and LokiBot/Azorult case passages; not audiovisual review. Duration from indexed creator-video metadata, not fresh yt-dlp verification.",
+        "observed": "Custom HTTP-host/TLS-SNI columns and display filters; DHCP/NetBIOS/Kerberos host and user identification; follow TCP stream to inspect LokiBot POST contents and deceptive HTTP404 replies; Azorult infection-chain analysis and executable recognition. This is a guided multi-PCAP workshop, not merely a tool tour."
+      },
+      "access": "Public YouTube video; workshop references malware-traffic-analysis.net/2019/SharkFest/ for materials. Materials not downloaded or executed.",
+      "caveats": [
+        "2019 malware and UI examples; verify current field names.",
+        "PCAPs may contain real malware; static packet analysis only for study.",
+        "Does not teach TShark automation; that gap remains."
+      ],
+      "tool_ids": [
+        "windows-2"
+      ],
+      "duration_verification": "Integration owner directly verified YouTube info.json metadata, 2026-10-23."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VYROU-ZwZX8",
+      "title": "Introduction to Windows Forensics",
+      "creator": "13Cubed",
+      "duration_seconds": 3873,
+      "content_evidence": {
+        "basis": "Substantive Exa-fetched creator-video transcript read; no timing verification or audiovisual review.",
+        "observed": "Loads offline hives in Registry Explorer; explains MRUs, UserAssist and persistence locations; uses ShellBags Explorer to locate a deleted path; links USB serial numbers across SYSTEM and SOFTWARE hives, resolves active ControlSet via Select, maps volume identifiers and mount letter. These demonstrated correlations add real breadth beyond MFTECmd."
+      },
+      "access": "Public YouTube video; creator references a downloadable cheat sheet.",
+      "caveats": [
+        "2017 material: verify modern Windows artifact behavior; automatic RegBack backups and other historical details must not be assumed current.",
+        "This expands artifact breadth and evidentiary reasoning but is still foundational, not comprehensive advanced DFIR.",
+        "Contains other acquisition/commercial tools that are not automatically approved."
+      ],
+      "tool_ids": [
+        "windows-39"
+      ],
+      "duration_verification": "Integration owner directly verified YouTube info.json metadata, 2026-10-23."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=wu4-nREmzGM",
+      "title": "LNK Files and Jump Lists",
+      "creator": "13Cubed",
+      "duration_seconds": 1619,
+      "content_evidence": {
+        "basis": "Full Exa creator transcript read; indexed duration not fresh metadata verification.",
+        "observed": "ExifTool reads LNK metadata, LECmd recursively exports records, then JLECmd and JumpListExplorer examine embedded streams. Distinguishes source and target timestamps, identifies volume serial and AppID; demonstrates metadata preserved after target deletion."
+      },
+      "access": "Free public YouTube stream; no purchase required.",
+      "caveats": [
+        "2018 interface and TSV export wording; current CLI is separate companion.",
+        "Other tools are mentioned: retain approved ExifTool and Zimmerman sections only."
+      ],
+      "tool_ids": [
+        "windows-39",
+        "windows-14",
+        "kali-42"
+      ]
+    }
+  ],
+  "evidence_files": [
+    "research/learning/video-pack/video-review.json",
+    "research/learning/video-pack/transcripts/_qElVZJqlGY.md",
+    "research/learning/video-pack/transcripts/Uk3DEgY5Ue8.md",
+    "research/learning/video-pack/transcripts/pJYyyz6HPbQ.md",
+    "research/learning-resources.json",
+    "EVENT_SOURCES.md"
+  ],
+  "learning_resources": [
+    {
+      "id": "media-1",
+      "title": "zsteg: detection and extraction examples",
+      "url": "https://github.com/zed-0xff/zsteg",
+      "kind": "read",
+      "tool_ids": [
+        "windows-12"
+      ],
+      "demonstrated_skills": [
+        "Refresh PNG/BMP LSB scanning, channel/bit-order selection, and extracting a specific candidate with -E. Read Usage and Examples",
+        "distinguish candidate signatures from validated payloads."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Only PNG/BMP techniques shown; validate extracted files and do not trust every file signature.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "evidence": "Exa README read2026-10-23: -a/-E, channels/bits/order, simpleLSB, cats multiple-results and zlib examples. False-positive file signatures appear alongside actual messages."
+    },
+    {
+      "id": "media-2",
+      "title": "Binwalk: file analysis and extraction",
+      "url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction",
+      "kind": "read",
+      "tool_ids": [
+        "windows-13"
+      ],
+      "demonstrated_skills": [
+        "Refresh scan, extraction and recursive extraction",
+        "interpret confidence rather than trusting every signature. Use installed help to confirm major-version options."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Extraction also depends on locally installed helper programs.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Extraction also depends on locally installed helper programs.",
+      "evidence": "2026-10-22: Read upstream usage page and linked carving/limitations documentation; no tool execution. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "media-3",
+      "title": "ExifTool: application documentation and reading examples",
+      "url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES",
+      "kind": "read",
+      "tool_ids": [
+        "windows-14"
+      ],
+      "demonstrated_skills": [
+        "Refresh metadata reading syntax and the distinction between reading and assignment-based writing",
+        "skim Reading Examples and retain a local copy for tag lookup."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "evidence": "2026-10-22: Fetched official application documentation introduction and syntax; not the entire large reference. The interactive examples page was too thin to recommend. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "media-4",
+      "title": "Stegseek: wordlist mode, seed mode and steghide compatibility",
+      "url": "https://github.com/RickdeJager/stegseek",
+      "kind": "read",
+      "tool_ids": [
+        "kali-134",
+        "kali-135"
+      ],
+      "demonstrated_skills": [
+        "Refresh wordlist extraction versus seed detection. Seed mode can recover an unencrypted payload",
+        "it does not generally bypass encryption. Compare steghide command syntax with stegseek --command syntax."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Seed mode is not universal encrypted-payload recovery; failed wordlist does not prove no content.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Save any intended wordlist beforehand; no wordlist or binaries downloaded here.",
+      "evidence": "Exa README read2026-10-23: wordlist mode versus --seed; seed reveals format/encryption metadata and only recovers content without password when unencrypted. Includes X-MAS2020 example description."
+    },
+    {
+      "id": "media-5",
+      "title": "Audacity: Spectrogram View",
+      "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "kind": "read",
+      "tool_ids": [
+        "kali-10"
+      ],
+      "demonstrated_skills": [
+        "Refresh switching from waveform to spectrogram, frequency limits, gain/range, and window size. Understand the time-versus-frequency resolution tradeoff before interpreting a blank or blurred image."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Teaches spectral inspection rather than a full CTF solve. Use own known tone/click sample to verify settings and preserve original audio.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available.",
+      "evidence": "Exa manual read2026-10-23: artificial2000Hz track, gain/range colors,256-versus2048 FFT windows, click merging, leakage/window types,22000Hz max-frequency example."
+    },
+    {
+      "id": "media-6",
+      "title": "FFmpeg: stream selection and streamcopy",
+      "url": "https://ffmpeg.org/ffmpeg.html",
+      "kind": "read",
+      "tool_ids": [
+        "kali-40"
+      ],
+      "demonstrated_skills": [
+        "Skim Description, Streamcopy and Stream selection. Refresh input/output option ordering and explicit -map selection so an audio or secondary stream is not missed during media extraction."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Check available codecs and installed help before departure.",
+      "access": "Free public source. Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Check available codecs and installed help before departure.",
+      "evidence": "2026-10-22: Read official synopsis, description, option scope and pipeline sections via Exa. This is a targeted reading assignment, not a claim that every example was tested. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "media-7",
+      "title": "AperiSolve: local deployment and analyzer overview",
+      "url": "https://github.com/Zeecka/AperiSolve",
+      "kind": "read",
+      "tool_ids": [
+        "kali-7"
+      ],
+      "demonstrated_skills": [
+        "Recognize which individual tools and bit-layer views the platform combines. Read Key features and Quick start to understand local operation",
+        "direct tools remain useful when a deployment is unavailable."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save README. Offline use requires an already working local deployment and dependencies; a git checkout alone is insufficient. Never upload event challenge files to the public service.",
+      "access": "Free public source. Save README. Offline use requires an already working local deployment and dependencies; a git checkout alone is insufficient. Never upload event challenge files to the public service.",
+      "evidence": "2026-10-22: Read upstream README including Docker Compose and localhost:5000. Current upstream lists analyzers beyond the assigned approved rows; this is not approval for those standalone tools. Organiser deployment not checked. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "media-8",
+      "title": "MORSE CODE Steganography (2/2) BsidesCT CTF 2018",
+      "url": "https://www.youtube.com/watch?v=pJYyyz6HPbQ",
+      "kind": "watch",
+      "tool_ids": [
+        "kali-128",
+        "windows-14"
+      ],
+      "demonstrated_skills": [
+        "Watch an audio investigation using Sonic Visualiser and ExifTool to distinguish tone timing from other encodings",
+        "note how metadata redirects the investigation. Skim the later encoding detour if familiar."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Use YouTube-supported offline saving where available and test playback before flying. The walkthrough uses online decoders: retain the reasoning, but do not copy challenge-file uploads at this event.",
+      "access": "Free public source. Use YouTube-supported offline saving where available and test playback before flying. The walkthrough uses online decoders: retain the reasoning, but do not copy challenge-file uploads at this event.",
+      "evidence": "2026-10-22: Inspected creator video metadata and full retrieved transcript via Exa, not playback. Transcript explicitly names Sonic Visualiser and ExifTool and includes online upload steps. Published 2018-11-06; historical UI. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "web-network-5",
+      "title": "Wireshark: display filters and following protocol streams",
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+      "kind": "read",
+      "tool_ids": [
+        "windows-2"
+      ],
+      "demonstrated_skills": [
+        "Refresh protocol/field filters, equality and logical operators",
+        "then follow a stream and inspect each direction using the linked official stream guide."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save display-filter guide and https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html with figures. Free text; no account. Saved-PCAP practice requires an installed Wireshark and downloaded sample.",
+      "access": "Free public source. Save display-filter guide and https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html with figures. Free text; no account. Saved-PCAP practice requires an installed Wireshark and downloaded sample.",
+      "evidence": "2026-10-22: Read substantive official filter and stream instructions; compared with old video transcript. UI and exercises not executed. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "web-network-6",
+      "title": "TShark manual: saved captures and display filters",
+      "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "kind": "read",
+      "tool_ids": [
+        "windows-36"
+      ],
+      "demonstrated_skills": [
+        "Focus on -r to read a PCAP, -Y for Wireshark display filters and -T fields/-e for repeatable field extraction. Distinguish display filters from capture filters."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Do not apply capture-filter syntax as display-filter syntax. SavedPCAP exercise does not prove livecapture privileges.",
+      "access": "Free public source. Save manual and sample PCAP; run locally after checking TShark is installed. No live network needed for saved-capture analysis.",
+      "evidence": "Exa manpage read2026-10-23: saved capture -r, display -Y versus capture -f, -T fields/-e/-E, two-pass -2 and reassembly dependencies. Pair actual local PCAPworksheet."
+    },
+    {
+      "id": "web-network-7",
+      "title": "Zeek quick start: turn a PCAP into correlated logs",
+      "url": "https://docs.zeek.org/en/current/quickstart.html",
+      "kind": "practice",
+      "tool_ids": [
+        "windows-18"
+      ],
+      "demonstrated_skills": [
+        "Use the supplied quickstart.pcap to produce conn.log, http.log and weird.log, then correlate them by uid. Stop before the live-traffic section for airplane practice."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save the guide and linked quickstart.pcap in advance; verify Zeek in WSL and local analysis before departure. The live-traffic exercise uses external HTTP and is not flight practice.",
+      "access": "Free public source. Save the guide and linked quickstart.pcap in advance; verify Zeek in WSL and local analysis before departure. The live-traffic exercise uses external HTTP and is not flight practice.",
+      "evidence": "2026-10-22: Fetched the saved-PCAP exercise, expected logs and UID explanation. Sample not downloaded and commands not executed. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "web-network-8",
+      "title": "Wireshark http.cap: match one HTTP request to its response",
+      "url": "https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http",
+      "kind": "practice",
+      "tool_ids": [
+        "windows-2",
+        "windows-36"
+      ],
+      "demonstrated_skills": [
+        "Use the named http.cap sample, not the whole catalog: find a request, record endpoints/method/host/URI, follow its TCP stream, identify response status, and reproduce selected fields with TShark. Optional transfer exercise after the bundled synthetic capture",
+        "no download is required for the core block."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save http.cap from https://wiki.wireshark.org/uploads/27707187aeb30df68e70c8fb9d614981/http.cap plus official filter/stream pages before travel. No account or lab server is required. Artifact was not downloaded or executed during this review.",
+      "access": "Free public source. Save http.cap from https://wiki.wireshark.org/uploads/27707187aeb30df68e70c8fb9d614981/http.cap plus official filter/stream pages before travel. No account or lab server is required. Artifact was not downloaded or executed during this review.",
+      "evidence": "2026-10-22: Inspected catalog HTML, exact http.cap link and description (simple HTTP request/response); artifact contents not independently tested. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "forensics-1",
+      "title": "Sleuth Kit: list files and recover by metadata address",
+      "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "kind": "read",
+      "tool_ids": [
+        "windows-23"
+      ],
+      "demonstrated_skills": [
+        "Use mmls to identify a filesystem start sector, pass that sector to fls -o, and pass a discovered metadata address to icat -o. Distinguish a sector offset from a byte offset."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save fls plus https://www.sleuthkit.org/sleuthkit/man/mmls.html and https://www.sleuthkit.org/sleuthkit/man/icat.html . The supplied paper drill needs no disk image. Executing requires an installed Sleuth Kit and a separately staged compatible image.",
+      "access": "Free public source. Save fls plus https://www.sleuthkit.org/sleuthkit/man/mmls.html and https://www.sleuthkit.org/sleuthkit/man/icat.html . The supplied paper drill needs no disk image. Executing requires an installed Sleuth Kit and a separately staged compatible image.",
+      "evidence": "2026-10-22: Read official fls, mmls and icat arguments/examples. Replaces the historical FS Analysis page whose extracted/original-image coordinates are inconsistent. No commands executed against a disk image. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "forensics-2",
+      "title": "Autopsy Quick Start Guide",
+      "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html",
+      "kind": "read",
+      "tool_ids": [
+        "windows-34"
+      ],
+      "demonstrated_skills": [
+        "Create a single-user case, add a raw/E01 image, choose ingest modules, search keywords, inspect extracted browser activity and export an interesting file."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save the 4.22.0 guide with screenshots. The required recall exercise uses no image; optional hands-on work can use a newly created folder of harmless text files as a logical data source. Installed Autopsy and sufficient local case storage are required for execution.",
+      "access": "Free public source. Save the 4.22.0 guide with screenshots. The required recall exercise uses no image; optional hands-on work can use a newly created folder of harmless text files as a logical data source. Installed Autopsy and sufficient local case storage are required for execution.",
+      "evidence": "2026-10-22: Compared 4.20.0 and 4.22.0 quick-start text; read case creation, logical-file input, keyword ingest, result navigation and export steps. No GUI execution; installed release unknown. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "forensics-3",
+      "title": "Volatility 3: Windows Tutorial",
+      "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "kind": "read",
+      "tool_ids": [
+        "windows-31"
+      ],
+      "demonstrated_skills": [
+        "Understand plugin syntax and compare pslist with pstree to reconstruct processes and parent-child relationships in a Windows memory dump."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Introductory plugin walkthrough; preserve symbol/network prerequisites; deep anomaly interpretation remains further study.",
+      "access": "Free public source. Save the page. Stage the memory image and resolve its symbols while online, then test the chosen commands offline: Windows symbol files may otherwise require Microsoft downloads. Volatility does not acquire memory.",
+      "evidence": "Exa official WindowsTutorial read2026-10-23: PragyanCTF22 dump examples with pslist/pstree/hashdump output and automaticPDB explanation."
+    },
+    {
+      "id": "forensics-4",
+      "title": "Introduction to Memory Forensics with Volatility 3",
+      "url": "https://www.youtube.com/watch?v=Uk3DEgY5Ue8",
+      "kind": "watch",
+      "tool_ids": [
+        "windows-31"
+      ],
+      "demonstrated_skills": [
+        "See the workflow from memory information to processes, handles, connections, extracted files and registry artifacts",
+        "use the official Windows tutorial for current command spelling."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save using a permitted platform offline feature and confirm playback before departure; availability can depend on account and region. Save the companion notes at https://dfir.science/2022/02/Introduction-to-Memory-Forensics-with-Volatility-3 . Its practice-image link is optional and was not downloaded or tested.",
+      "access": "Free public source. Save using a permitted platform offline feature and confirm playback before departure; availability can depend on account and region. Save the companion notes at https://dfir.science/2022/02/Introduction-to-Memory-Forensics-with-Volatility-3 . Its practice-image link is optional and was not downloaded or tested.",
+      "evidence": "2026-10-22: Read the creator companion page and inspected its HTML embedding this exact YouTube ID; YouTube fetch confirmed title and 2022 publication date but provided no transcript. Not watched. Companion command notes contain apparent typos including windows.registay and windows.dumpfile, so do not use them as a verbatim command sheet. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "forensics-5",
+      "title": "Introduction to MFTECmd - NTFS MFT and Journal Forensics",
+      "url": "https://www.youtube.com/watch?v=_qElVZJqlGY",
+      "kind": "watch",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "demonstrated_skills": [
+        "Learn what $MFT and $UsnJrnl can reveal about file creation, deletion and renaming",
+        "follow MFTECmd CSV parsing at 10:33 and Timeline Explorer analysis at 13:00."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Save through a permitted platform offline feature and check playback. For practice, bring already extracted $MFT/$J files and the required Zimmerman tools/runtime. Skip the 06:00 KAPE acquisition chapter unless that separate tool is independently confirmed approved.",
+      "access": "Free public source. Save through a permitted platform offline feature and check playback. For practice, bring already extracted $MFT/$J files and the required Zimmerman tools/runtime. Skip the 06:00 KAPE acquisition chapter unless that separate tool is independently confirmed approved.",
+      "evidence": "2026-10-22: Fetched title, channel, description, chapter markers and transcript excerpts. The video demonstrates MFTECmd and Timeline Explorer and discusses a historical $LogFile limitation; no claim of current installed support. Not watched. Prior retained learning-pack evaluation, not a claim of a fresh full-page read for every source."
+    },
+    {
+      "id": "forensics-6",
+      "title": "qpdf: PDF inspection options",
+      "url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "kind": "read",
+      "tool_ids": [
+        "windows-26"
+      ],
+      "demonstrated_skills": [
+        "Move beyond visible page text: inspect PDF objects and attachments, distinguish compressed stream bytes from decoded stream data, and recognize the inspection-mode invocation."
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Syntax and interpretation are covered; worked document case supplied separately by reverse lane. Valid syntax does not establish harmless content; normal rewrites remove orphaned objects.",
+      "access": "Free public source. Save the PDF Inspection section. Hands-on use needs installed qpdf and local sample PDFs; retain original files and use inspection operations. Unsupported stream filters may prevent decoding.",
+      "evidence": "Exa full PDFInspection section read2026-10-23: --check limits; --show-xref/--show-object; raw versus filtered stream output; --list-attachments and --show-attachment key; binary stdout warning."
+    },
+    {
+      "id": "forensics-7",
+      "title": "Chainsaw: searching and hunting Windows event logs",
+      "url": "https://github.com/WithSecureOpenSource/chainsaw#examples",
+      "kind": "read",
+      "tool_ids": [
+        "kali-20"
+      ],
+      "demonstrated_skills": [
+        "Search EVTX files by string or event field, then compare those results with Sigma-based hunting using a mapping file and time filters. Start with search before loading a large ruleset."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "README search prose mistypes4014; actual command uses correct4104. Rules need supplied mappings. Detections require review; not proof by label. No event sample was executed.",
+      "access": "Free public source. Save README examples and, for a local exercise, stage a small EVTX set plus matching rules and mapping files. Check the installed 2.16.5 help against the current README. No hosted backend is needed for the documented local-file workflow.",
+      "evidence": "Exa README read2026-10-23: string/regex/TAU search examples; Sigma mapping and time-window hunt; sample Defender1116/1117, clearedSecurity1102 and Sysmon detections."
+    },
+    {
+      "id": "forensics-8",
+      "title": "SQLite command-line shell: inspect schema and records",
+      "url": "https://sqlite.org/cli.html",
+      "kind": "read",
+      "tool_ids": [
+        "kali-131"
+      ],
+      "demonstrated_skills": [
+        "Read Getting Started, dot-commands, output formats and Querying the database schema",
+        "use .tables and .schema before querying an unfamiliar artifact database."
+      ],
+      "depth": "workflow",
+      "prerequisites": "Approved tool and compatible local input; use the stated focus sections.",
+      "limitations": "Do not use destructive .open --new on evidence. Timestamp epochs and WAL recovery need artifact-specific knowledge, not generic schema inspection.",
+      "access": "Free public source. Save these sections, not the whole manual as a study assignment. Use a local copy of a database and preserve any supplied WAL/SHM companions. This is SQLite CLI instruction, not deleted-record recovery or SQLCipher decryption.",
+      "evidence": "Exa SQLiteCLI read2026-10-23: toy create/insert/select, .tables/.schema and equivalent sqlite_schema queries, .open --readonly, output choices. Pair worksheet9 toy query."
+    },
+    {
+      "id": "forensics-autopsy-workflow",
+      "title": "Autopsy case-to-results workflow",
+      "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.20.0/quick_start_guide.html",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-34"
+      ],
+      "demonstrated_skills": [
+        "Choose image versus logical source",
+        "Select ingest modules intentionally",
+        "Search keywords and inspect text hex and images",
+        "Pivot hits to original directory",
+        "Extract results",
+        "Open timelines and interpret partial ingest results"
+      ],
+      "depth": "workflow",
+      "prerequisites": "Windows Autopsy and a local disk image or logical test folder.",
+      "limitations": "Version4.20 documentation; exact UI may differ. Do not credit listed modules as standalone instruction for all underlying tools. No image was downloaded or analysis executed.",
+      "access": "Free public reading; no account required; page can be saved for offline reference.",
+      "evidence": "2026-10-23 full guide read: Cases/DataSources, module behavior, AnalysisBasics, and WebArtifacts/KnownBadHash/Media example use cases. Keyword searches before indexing completes see only indexed material."
+    },
+    {
+      "id": "forensics-mmls",
+      "title": "TSK partition layout and sector units",
+      "url": "https://www.sleuthkit.org/sleuthkit/man/mmls.html",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-23"
+      ],
+      "demonstrated_skills": [
+        "Choose image type and sector size",
+        "Read partition layout and unallocated ranges",
+        "Distinguish partition offset from filesystem metadata address"
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Disk image and worksheet3.",
+      "limitations": "A reference plus exact examples, not an end-to-end disk case. Pair existing fls/icat resources and worksheet.",
+      "access": "Free public reading; no account required; page can be saved for offline reference.",
+      "evidence": "2026-10-23 manual read: -b specifies device sector size, default512 unless image provides value; partition output is sectors; examples show mmls disk_image.dd and nested partition offset."
+    },
+    {
+      "id": "forensics-pecmd",
+      "title": "PECmd input selection and exports",
+      "url": "https://github.com/EricZimmerman/PECmd",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "demonstrated_skills": [
+        "Choose individual prefetch versus recursive directory",
+        "Export CSV and JSON",
+        "Inspect compressed Windows prefetch bytes",
+        "Interpret optional VSS/ADS platform limitations"
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "Prefetch files and artifact interpretation from 13Cubed Windows lesson.",
+      "limitations": "Newer README options may not exist in organiser build. Current docs are not evidence that --ads or .NET10 is installed; check local help. Prefetch theory in the 2017 video uses another tool: apply concepts using PECmd here.",
+      "access": "Free public reading; no account required; page can be saved for offline reference.",
+      "evidence": "2026-10-23 README read: -f/-d examples, csv/json exports, Win10 decompressed-byte output and Windows-only flags."
+    },
+    {
+      "id": "forensics-jlecmd",
+      "title": "JLECmd current options companion",
+      "url": "https://github.com/EricZimmerman/JLECmd",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "demonstrated_skills": [
+        "Parse automatic/custom destinations",
+        "Export tabular records",
+        "Include detailed LNK fields",
+        "Extract contained LNKs for LECmd",
+        "Interpret application-ID mapping"
+      ],
+      "depth": "targeted instruction",
+      "prerequisites": "LNK/JumpList creator lesson and sample artifacts.",
+      "limitations": "Use installed help; older video calls output TSV whereas current --csv is CSV. Do not infer file open intent from a single timestamp.",
+      "access": "Free public reading; no account required; page can be saved for offline reference.",
+      "evidence": "2026-10-23 README read: -d/-f examples, --ld/--fd, --dumpTo, --appIds, and format-specific input restrictions."
+    },
+    {
+      "id": "forensics-current-worksheets",
+      "title": "Local closed-note forensic and packet cases",
+      "url": "PRACTICE_WORKSHEETS.md",
+      "kind": "practice",
+      "tool_ids": [
+        "windows-23",
+        "windows-39",
+        "windows-31",
+        "windows-2",
+        "windows-36",
+        "kali-131"
+      ],
+      "demonstrated_skills": [
+        "Keep disk coordinates separate",
+        "Group NTFS journal identities correctly",
+        "Interpret memory facts without overclaiming",
+        "Query synthetic database",
+        "Reconstruct packet conversation"
+      ],
+      "depth": "practice",
+      "prerequisites": "Read relevant primary guide, then cover answers.",
+      "limitations": "Synthetic teaching evidence, not a forensic disk or RAM capture. Disk/Autopsy/MFTECmd execution unperformed. Packet input and prior local checks are documented separately.",
+      "access": "Local free reading; included http-demo.pcap is offline.",
+      "evidence": "2026-10-23 local worksheet sections3/4 and practiceREADME read. Two disk cases include metadata IDs, full NTFS identity keys, offset calculations and answer checks."
+    },
+    {
+      "id": "forensics-deeper-video-1",
+      "title": "SF19US - 22 Analyzing Windows malware traffic w/ Wireshark Part 1",
+      "url": "https://www.youtube.com/watch?v=eQItiKZpuSc",
+      "kind": "video",
+      "tool_ids": [
+        "windows-2"
+      ],
+      "demonstrated_skills": [
+        "Custom HTTP-host/TLS-SNI columns and display filters",
+        "DHCP/NetBIOS/Kerberos host and user identification",
+        "follow TCP stream to inspect LokiBot POST contents and deceptive HTTP404 replies",
+        "Azorult infection-chain analysis and executable recognition. This is a guided multi-PCAP workshop, not merely a tool tour."
+      ],
+      "depth": "workflow with substantive interpretation",
+      "prerequisites": "Basic tool familiarity and local practice material if following along.",
+      "limitations": [
+        "2019 malware and UI examples; verify current field names.",
+        "PCAPs may contain real malware; static packet analysis only for study.",
+        "Does not teach TShark automation; that gap remains."
+      ],
+      "access": "Free public streaming; offline video-download permission/access not established. Captions/metadata are being independently verified by integration owner.",
+      "evidence": "Substantive Exa-fetched creator-video transcript read, including setup, host identification and LokiBot/Azorult case passages; not audiovisual review. Duration from indexed creator-video metadata, not fresh yt-dlp verification.",
+      "duration_seconds": 5333,
+      "runtime_status": "Integration owner directly verified YouTube info.json metadata,2026-10-23."
+    },
+    {
+      "id": "forensics-deeper-video-2",
+      "title": "Introduction to Windows Forensics",
+      "url": "https://www.youtube.com/watch?v=VYROU-ZwZX8",
+      "kind": "video",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "demonstrated_skills": [
+        "Loads offline hives in Registry Explorer",
+        "explains MRUs, UserAssist and persistence locations",
+        "uses ShellBags Explorer to locate a deleted path",
+        "links USB serial numbers across SYSTEM and SOFTWARE hives, resolves active ControlSet via Select, maps volume identifiers and mount letter. These demonstrated correlations add real breadth beyond MFTECmd."
+      ],
+      "depth": "workflow with substantive interpretation",
+      "prerequisites": "Basic tool familiarity and local practice material if following along.",
+      "limitations": [
+        "2017 material: verify modern Windows artifact behavior; automatic RegBack backups and other historical details must not be assumed current.",
+        "This expands artifact breadth and evidentiary reasoning but is still foundational, not comprehensive advanced DFIR.",
+        "Contains other acquisition/commercial tools that are not automatically approved."
+      ],
+      "access": "Free public streaming; offline video-download permission/access not established. Captions/metadata are being independently verified by integration owner.",
+      "evidence": "Substantive Exa-fetched creator-video transcript read; no timing verification or audiovisual review.",
+      "duration_seconds": 3873,
+      "runtime_status": "Integration owner directly verified YouTube info.json metadata,2026-10-23."
+    },
+    {
+      "id": "forensics-deeper-video-3",
+      "title": "LNK Files and Jump Lists",
+      "url": "https://www.youtube.com/watch?v=wu4-nREmzGM",
+      "kind": "video",
+      "tool_ids": [
+        "windows-39",
+        "windows-14",
+        "kali-42"
+      ],
+      "demonstrated_skills": [
+        "ExifTool reads LNK metadata, LECmd recursively exports records, then JLECmd and JumpListExplorer examine embedded streams. Distinguishes source and target timestamps, identifies volume serial and AppID",
+        "demonstrates metadata preserved after target deletion."
+      ],
+      "depth": "workflow with substantive interpretation",
+      "prerequisites": "Basic tool familiarity and local practice material if following along.",
+      "limitations": [
+        "2018 interface and TSV export wording; current CLI is separate companion.",
+        "Other tools are mentioned: retain approved ExifTool and Zimmerman sections only."
+      ],
+      "access": "Free public streaming; offline video-download permission/access not established. Captions/metadata are being independently verified by integration owner.",
+      "evidence": "Full Exa creator transcript read; indexed duration not fresh metadata verification.",
+      "duration_seconds": 1619,
+      "runtime_status": "Indexed metadata only; integration owner verifying."
+    },
+    {
+      "id": "forensics-artifact-interpretation",
+      "title": "Microsoft Incident Response: artifact facts, pitfalls and applications",
+      "url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/final/en-us/microsoft-brand/documents/IR-Guidebook-Final.pdf",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-39",
+        "kali-131"
+      ],
+      "demonstrated_skills": [
+        "Separate Amcache/modern Shimcache presence from execution",
+        "Interpret cache position versus file modification timestamp",
+        "Recognize Amcache partial-file SHA1 limitation",
+        "Correlate Prefetch, ShellBags and browser records without overclaiming"
+      ],
+      "depth": "targeted interpretation",
+      "prerequisites": "Registry and artifact parser workflows from selected lessons; a known OS version.",
+      "limitations": "Conceptual reference, not CLI instruction. Read selected Amcache, Shimcache, Prefetch, ShellBags and browser pages, not the entire collection. Treat timing/rename interpretations as hypotheses to corroborate; no single artifact proves intent.",
+      "access": "Free public downloadable PDF; no account required.",
+      "evidence": "2026-10-23 Exa full guide read. Amcache section states presence only and first31457280-byte SHA1; Shimcache section distinguishes modification from execution time and Windows10+ limitations; Prefetch discusses path/arguments hash and last8 executions; ShellBags notes GUI-only folder tracking; browser guide identifies SQLite inputs and compatibility checks."
+    }
+  ],
+  "remaining_required_integration": [
+    "Link reverse-lane worked PDF/Office case to windows-26 and relevant document support rows.",
+    "Parent must verify new candidate durations and caption timestamps; indexed lengths cannot count as fully verified video runtime.",
+    "For audio practice use a known local tone/click sample with Audacity guide; no automated online uploads or unverified promise of advanced decoding coverage."
+  ],
+  "important_limits": [
+    "Video gaps and missing_skills record the original eight-video pack, not the enriched all-format collection.",
+    "No local forensic tools were installed or executed in this lane. No full audiovisual playback review.",
+    "References for specialist/support/alternative tools reuse original evidence notes rather than claiming fresh research for every row."
+  ],
+  "excluded_resources": [
+    {
+      "url": "https://wiki.sleuthkit.org/FS-Analysis/",
+      "reason": "Not recommended as a copyable lesson: its dd source mixes original and blkls coordinates; its manual-recovery example selects the wrong displayed inode group. Use current mmls/fls/icat manuals and local worksheet3 instead."
+    }
+  ],
+  "reference_id_convention": "ref:<tool_id> resolves to the exact original reference.docs_url in forensics-input.json (no new course record); prior reference.evidence_note is retained evidence."
+}

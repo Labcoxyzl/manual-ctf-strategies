@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-10-19T05:52:25.997405+00:00",
+  "html_file": "keyword-preview.html",
+  "html_sha256": "5552d18c1f32473981b296d6201c0a7d6c5f7326dda700772cd34087a8f6dc11",
+  "anchors": 456,
+  "ids": 214,
+  "errors": [],
+  "inventory_rows": 200,
+  "query_rows": 200,
+  "category_rows": 7,
+  "html_source_ids": 200,
+  "input_sha256": {
+    "research/inventory.json": "d4e8f647ffc71eac3ca307f9b542bf553fa3385c70d95fde8e90ebab41bb4f0f",
+    "research/categories.json": "b2ae4bd4d3fa04e6ac638b4196c0e1d70e23b5d9c4d85b55d1e7b8751cebd9ae",
+    "research/queries-a.json": "71eb7f7303c04abc017648fb742436e6c6e2ddc33d656786f29c8f1070bd94ea",
+    "research/queries-b.json": "d8e3de84964ba2c1ca7604e56449a21786d5178dcfea48cfc1f193c70d35a18a",
+    "research/queries-c.json": "e291851206bb2eec2e45703449722ad8bc0311e81b55b86bbe6d49a848d25468"
+  }
+}

@@ -1,0 +1,427 @@
+{
+  "checked_on": "2026-10-22",
+  "evaluations": [
+    {
+      "id": "reverse-1",
+      "decision": "shorten",
+      "rationale": "Strong annotated exercises, but project/server/plugin exposition duplicates beginner orientation and consumes refresher time. Keep it as a task-indexed guide.",
+      "focus": "Import/auto-analysis, decompiler, references, rename/type correction, function graph. Skip installation, server and window customization unless blocked.",
+      "prerequisites": "Basic C control flow and recognition of executable formats; running Ghidra only for optional lab.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html"
+      },
+      "study_minutes": 25,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+          "inspected": "2026-10-22: Inspected official explanatory notes and Exercises 1\u20133, import language selection, layered auto-analysis and error-bookmark guidance.",
+          "limitation": "Guide startup names and screenshots can differ from approved Ghidra 12.1.4."
+        }
+      ]
+    },
+    {
+      "id": "reverse-2",
+      "decision": "shorten",
+      "rationale": "Clear end-to-end argument-check demonstration, but first half overlaps reverse-1. Make it a visual alternative, not an additional mandatory introduction.",
+      "focus": "Choose this OR the basic Ghidra guide if navigation is rusty; focus on correcting main signature and deriving the three input conditions.",
+      "prerequisites": "Basic C expressions, argv and zero-based indexing.",
+      "access": {
+        "viewing": "Public page retrieved without sign-in; video playback not tested.",
+        "cost": "Free online viewing; computer offline video uses paid YouTube Premium where available.",
+        "registration": "No sign-in used to inspect page; Premium downloads require signed-in account.",
+        "offline": "Video download eligibility/playback unverified. Use the free reading/practice alternative, saved before flying.",
+        "free_alternative_url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html"
+      },
+      "study_minutes": 15,
+      "published_runtime_minutes": null,
+      "runtime_note": "Published runtime not verified; study allocation is not runtime.",
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=fTGTnrgjuGA",
+          "inspected": "2026-10-22: Inspected complete retrieved creator transcript through successful input; conditions include argument count, string length and character index.",
+          "limitation": "2019 UI; skip obsolete scrolling patch and blanket analyzer advice. Transcript read, video not watched."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233?hl=en",
+          "inspected": "2026-10-22: official desktop download steps require signed-in Premium account; availability and reconnection restrictions disclosed.",
+          "limitation": "No purchase, account or download test."
+        }
+      ]
+    },
+    {
+      "id": "reverse-3",
+      "decision": "shorten",
+      "rationale": "Relevant plain-GDB companion, but source/disassembly give better verifiable offline learning. Keep optional only when a visual explanation helps.",
+      "focus": "Use alongside reverse-4, not instead of attempting its branch exercise. Review disassemble main and connect conditional jumps to the source.",
+      "prerequisites": "Basic x86-64 registers, cmp/test and conditional branches; use guide notes if rusty.",
+      "access": {
+        "viewing": "Public page retrieved without sign-in; video playback not tested.",
+        "cost": "Free online viewing; computer offline video uses paid YouTube Premium where available.",
+        "registration": "No sign-in used to inspect page; Premium downloads require signed-in account.",
+        "offline": "Video download eligibility/playback unverified. Use the free reading/practice alternative, saved before flying.",
+        "free_alternative_url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler"
+      },
+      "study_minutes": 15,
+      "published_runtime_minutes": null,
+      "runtime_note": "Published runtime not verified; study allocation is not runtime.",
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=VroEiMOJPm8",
+          "inspected": "2026-10-22: Original video title fetched; author source and actual saved GDB disassembly inspected substantively. Official GDB stepping explanation inspected separately.",
+          "limitation": "Full original-video transcript/playback unavailable; video teaching quality not fully verified. Companion contents support the recommendation; published runtime unknown."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/LiveOverflow/liveoverflow_youtube/master/0x05_simple_crackme_intro_assembler/gdb_disassembly",
+          "inspected": "2026-10-22: Original video title fetched; author source and actual saved GDB disassembly inspected substantively. Official GDB stepping explanation inspected separately.",
+          "limitation": "Full original-video transcript/playback unavailable; video teaching quality not fully verified. Companion contents support the recommendation; published runtime unknown."
+        },
+        {
+          "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Continuing-and-Stepping.html",
+          "inspected": "2026-10-22: Original video title fetched; author source and actual saved GDB disassembly inspected substantively. Official GDB stepping explanation inspected separately.",
+          "limitation": "Full original-video transcript/playback unavailable; video teaching quality not fully verified. Companion contents support the recommendation; published runtime unknown."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233?hl=en",
+          "inspected": "2026-10-22: official desktop download steps require signed-in Premium account; availability and reconnection restrictions disclosed.",
+          "limitation": "No purchase, account or download test."
+        }
+      ]
+    },
+    {
+      "id": "reverse-4",
+      "decision": "retain",
+      "rationale": "Best hands-on anchor: short inspectable benign source, a complete disassembly and a deterministic answer key. Works without compiling or downloading executable samples.",
+      "focus": "Reconstruct branch graph and output cases from disassembly before opening license_1.c. Then verify one dynamic hypothesis if a local lab is already prepared.",
+      "prerequisites": "C argv/argc and strcmp; x86-64 argument registers and zero/nonzero return reasoning.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler"
+      },
+      "study_minutes": 35,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler",
+          "inspected": "2026-10-22: Read complete C source and complete creator disassembly. The first conditional tests argc==2; strcmp return is tested at main+74 and branches at main+76.",
+          "limitation": "Old fixed addresses are only valid for published artifact. Its disassembly does not reveal the expected string bytes; obtain exact key from source or a prepared binary string inspection."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/LiveOverflow/liveoverflow_youtube/master/0x05_simple_crackme_intro_assembler/license_1.c",
+          "inspected": "2026-10-22: Read complete C source and complete creator disassembly. The first conditional tests argc==2; strcmp return is tested at main+74 and branches at main+76.",
+          "limitation": "Old fixed addresses are only valid for published artifact. Its disassembly does not reveal the expected string bytes; obtain exact key from source or a prepared binary string inspection."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/LiveOverflow/liveoverflow_youtube/master/0x05_simple_crackme_intro_assembler/gdb_disassembly",
+          "inspected": "2026-10-22: Read complete C source and complete creator disassembly. The first conditional tests argc==2; strcmp return is tested at main+74 and branches at main+76.",
+          "limitation": "Old fixed addresses are only valid for published artifact. Its disassembly does not reveal the expected string bytes; obtain exact key from source or a prepared binary string inspection."
+        }
+      ]
+    },
+    {
+      "id": "reverse-5",
+      "decision": "replace",
+      "rationale": "Pin the same useful short guide to the exact approved capa 9.4.0 version rather than teaching from moving master.",
+      "focus": "Default versus -v/-vv, nested matches and -t filtering; ignore alternate commercial/cloud backends.",
+      "prerequisites": "Know what strings, disassembly and an address are; no malware execution needed.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/mandiant/capa/blob/master/doc/usage.md"
+      },
+      "study_minutes": 15,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://raw.githubusercontent.com/mandiant/capa/v9.4.0/doc/usage.md",
+          "inspected": "2026-10-22: Fetched exact v9.4.0 usage document: explains nested rule example, -v/-vv and tag/function filters.",
+          "limitation": "No installed executable tested. Page links may point to master even though its own text is version-pinned."
+        }
+      ],
+      "replacement": {
+        "id": "reverse-5",
+        "title": "capa 9.4.0 usage: interpret capability matches",
+        "url": "https://github.com/mandiant/capa/blob/v9.4.0/doc/usage.md",
+        "type": "read",
+        "publisher": "Mandiant / FLARE",
+        "tool_ids": [
+          "kali-19"
+        ],
+        "learn": "Read default versus verbose output and rule filtering; use match locations as leads for investigation rather than treating a capability label as a complete explanation.",
+        "priority": "core",
+        "study_minutes": 15,
+        "offline": "Save the usage page; inspect its printed examples on the plane. CLI reading needs no live malware. Skip cloud uploads, IDA/Binary Ninja backends and sandbox integration for this study path.",
+        "verification": "2026-10-22: substantively inspected raw v9.4.0 usage text; matches approved version. Execution not tested.",
+        "lane": "reverse"
+      }
+    },
+    {
+      "id": "reverse-6",
+      "decision": "shorten",
+      "rationale": "The string-type explanation is high value; the moving usage page now contains many layout/tag/report controls that do not earn flight time for an unknown installed version.",
+      "focus": "Default extraction plus static/stack/tight/decoded distinctions; one string-type selection example. Skip tag databases, HTML viewer and new filtering controls.",
+      "prerequisites": "Know why a plain-text string scan can miss runtime-constructed values.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md"
+      },
+      "study_minutes": 15,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+          "inspected": "2026-10-22: Read usage and upstream README with definitions and CLI examples. README distinguishes stack construction from tight/decoded strings.",
+          "limitation": "FLOSS version is not captured in workbook; check local help before using switches. Do not infer that absence of strings proves absence of behavior."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/mandiant/flare-floss/master/README.md",
+          "inspected": "2026-10-22: Read usage and upstream README with definitions and CLI examples. README distinguishes stack construction from tight/decoded strings.",
+          "limitation": "FLOSS version is not captured in workbook; check local help before using switches. Do not infer that absence of strings proves absence of behavior."
+        }
+      ]
+    },
+    {
+      "id": "reverse-7",
+      "decision": "retain",
+      "rationale": "Concrete syntax and small examples support an independent benign drill with a checkable truth table. No need for a separate video.",
+      "focus": "strings/condition, ASCII case sensitivity, nocase, hex wildcards and all-of logic. Skip exotic modifiers/modules on first pass.",
+      "prerequisites": "Boolean AND/OR and elementary byte/hex representation.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://yara.readthedocs.io/en/stable/writingrules.html"
+      },
+      "study_minutes": 25,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+          "inspected": "2026-10-22: Read initial syntax, strings, wildcards, jumps, text, nocase and wide sections. Common constructs used in proposed exercise are basic YARA 4 syntax.",
+          "limitation": "Stable docs may differ from approved 4.5.8; proposed basic exercise avoids newer syntax."
+        }
+      ]
+    },
+    {
+      "id": "reverse-8",
+      "decision": "shorten",
+      "rationale": "README is a capability list, not a worked .NET lesson. Keep five-minute format routing and navigation reference; do not imply assembly-editing competence from reading it.",
+      "focus": "Entry point, string search, find callers, IL versus C# and breakpoint/locals capabilities.",
+      "prerequisites": "Recognize .NET assemblies; basic C# syntax helps.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/dnSpyEx/dnSpy"
+      },
+      "study_minutes": 5,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://github.com/dnSpyEx/dnSpy",
+          "inspected": "2026-10-22: Read debugger, assembly editor, hex editor and Other/navigation sections plus Windows-oriented build instructions.",
+          "limitation": "GIFs not played. No benign managed lab prepared; Unity debugging needs extra components outside this minimal reading path."
+        }
+      ]
+    },
+    {
+      "id": "reverse-9",
+      "decision": "shorten",
+      "rationale": "README shows inputs and useful GUI actions but is dominated by flags. GUI wiki alternative was checked; it adds little beyond screenshots and three actions, so retain concise upstream orientation.",
+      "focus": "APK/DEX input; decoded manifest/resources; search, go-to-declaration, find usage; decompilation can be incomplete.",
+      "prerequisites": "Recognize APK/DEX and simple Java syntax; prepared Java/JADX only for execution.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/skylot/jadx"
+      },
+      "study_minutes": 10,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://raw.githubusercontent.com/skylot/jadx/master/README.md",
+          "inspected": "2026-10-22: Read README warnings, input formats, GUI capabilities and Java requirement; compared GUI features overview explaining goto declaration, find usage and package exclusion.",
+          "limitation": "Moving README may differ from approved 1.5.6; no APK or screenshots executed."
+        },
+        {
+          "url": "https://github.com/skylot/jadx/wiki/jadx-gui-features-overview",
+          "inspected": "2026-10-22: Read README warnings, input formats, GUI capabilities and Java requirement; compared GUI features overview explaining goto declaration, find usage and package exclusion.",
+          "limitation": "Moving README may differ from approved 1.5.6; no APK or screenshots executed."
+        }
+      ]
+    },
+    {
+      "id": "reverse-10",
+      "decision": "shorten",
+      "rationale": "Useful packaging-versus-bytecode distinction; short usage README does not justify twenty minutes or promise successful decompilation.",
+      "focus": "Extract locally; distinguish extraction from recovered source; identify bytecode version before choosing decompiler. Avoid the README example that immediately executes extracted code.",
+      "prerequisites": "Understand executable container versus Python bytecode; simple Python familiarity.",
+      "access": {
+        "viewing": "Public substantive text retrieved without sign-in.",
+        "cost": "Free reading and saving public text.",
+        "registration": "None for reading or saving the linked text.",
+        "offline": "Save the specific page and any needed figures before flying; open saved copy with networking disabled. Reading offline does not establish a working lab.",
+        "free_alternative_url": "https://github.com/pyinstxtractor/pyinstxtractor-ng"
+      },
+      "study_minutes": 10,
+      "published_runtime_minutes": null,
+      "runtime_note": "Not a video.",
+      "evidence": [
+        {
+          "url": "https://raw.githubusercontent.com/pyinstxtractor/pyinstxtractor-ng/main/README.md",
+          "inspected": "2026-10-22: Read full pyinstxtractor-ng README and uncompyle6 supported-bytecode/runtime distinction. uncompyle6 README states input bytecode through Python 3.8 despite newer host runtime support.",
+          "limitation": "Extractor version unknown; latest --info availability unverified locally. No extracted code executed."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/rocky/python-uncompyle6/master/README.rst",
+          "inspected": "2026-10-22: Read full pyinstxtractor-ng README and uncompyle6 supported-bytecode/runtime distinction. uncompyle6 README states input bytecode through Python 3.8 despite newer host runtime support.",
+          "limitation": "Extractor version unknown; latest --info availability unverified locally. No extracted code executed."
+        }
+      ]
+    }
+  ],
+  "block_suggestions": [
+    {
+      "block": 5,
+      "minutes": 240,
+      "outcome": "Independently locate an input check, explain branch conditions and choose a debugger observation that can falsify your guess.",
+      "diagnostic": "In 10 minutes, inspect gdb_disassembly only: mark the two conditional branches, identify the strcmp call, and state why testing EAX after it selects success/failure. If correct, skip both intro videos and begin the exercise.",
+      "allocation": [
+        {
+          "minutes": 10,
+          "task": "Diagnostic"
+        },
+        {
+          "minutes": 35,
+          "task": "Selected Ghidra guide or video, plus GDB command reference as needed"
+        },
+        {
+          "minutes": 60,
+          "task": "Attempt branch reconstruction and output table without source"
+        },
+        {
+          "minutes": 60,
+          "task": "Prepared benign Ghidra/GDB lab OR paper hypothesis/trace exercise"
+        },
+        {
+          "minutes": 45,
+          "task": "Correct mistakes against source and repeat with notes closed"
+        },
+        {
+          "minutes": 30,
+          "task": "Write a compact navigation/debugging checklist"
+        }
+      ],
+      "resources": [
+        "reverse-1",
+        "reverse-2",
+        "reverse-3",
+        "reverse-4"
+      ],
+      "preparation": "Save both raw companion files separately; keep source hidden until assessment. A paper exercise requires only saved files. Optional lab requires a locally compiled or otherwise vetted benign program, working Ghidra/GDB and dependencies checked before departure.",
+      "exercise": "From published disassembly, draw branches at main+19 and main+76. Predict output classes for no argument, one wrong argument, one correct argument, and two arguments. Explain which operation reveals the unknown correct string; do not pretend the disassembly listing contains its bytes. Choose an observation immediately after strcmp that distinguishes a correct input from a bypassed branch.",
+      "assessment": "argc must equal 2 (program name counts); otherwise Usage. With exactly one argument, the program prints Checking License and then WRONG or Access Granted according to strcmp==0. The provided source supplies the exact key. test eax,eax followed by jne selects WRONG when EAX is nonzero. Setting a register to force success is a bypass, not proof you recovered the key. For an optional live lab, record input, strcmp return and observed branch; do not reuse published addresses after recompilation.",
+      "offline_fallback": "Paper-only: annotate the supplied disassembly and compare all four output cases against license_1.c. This assesses control-flow reasoning, not demonstrated GUI/debugger operation.",
+      "execution_status": "Source/disassembly inspected; lab and learner exercise not executed."
+    },
+    {
+      "block": 6,
+      "minutes": 120,
+      "outcome": "Choose capability matching, string recovery or signature scanning appropriately, and route .NET/Android/Python files to the right approved family.",
+      "diagnostic": "In five minutes explain: why a capability match is not proof of execution; why strings can miss text; why extracting a PyInstaller archive does not imply decompiled Python.",
+      "allocation": [
+        {
+          "minutes": 5,
+          "task": "Diagnostic"
+        },
+        {
+          "minutes": 30,
+          "task": "capa and FLOSS focused reading"
+        },
+        {
+          "minutes": 20,
+          "task": "YARA syntax selection"
+        },
+        {
+          "minutes": 35,
+          "task": "Benign rule exercise and assessment"
+        },
+        {
+          "minutes": 20,
+          "task": ".NET/Android/Python routing references"
+        },
+        {
+          "minutes": 10,
+          "task": "Closed-note recall"
+        }
+      ],
+      "resources": [
+        "reverse-5",
+        "reverse-6",
+        "reverse-7",
+        "reverse-8",
+        "reverse-9",
+        "reverse-10"
+      ],
+      "preparation": "Save selected Markdown/YARA sections. Optional rule execution needs working YARA checked beforehand; paper truth-table work needs no lab or sample malware.",
+      "exercise": "Write a YARA rule with $a=\"alpha\" nocase and $b=\"token\" and condition $a and $b. Predict matches for four ASCII text files: A=\"ALPHA token\", B=\"alpha TOKEN\", C=\"token alone\", D=\"alphabet token\". Then explain why the default capa output can hide a nested set-registry-value match under persistence, and which verbosity flags expose more evidence.",
+      "assessment": "A and D match; B fails because token remains case sensitive, and C lacks alpha. D exposes a substring false positive: explain whether adding fullword to alpha would fit the intended question. Optional CLI: save four .txt files plus rule.yar, run yara rule.yar A.txt (repeat each file), and compare emitted rule names with the table. capa -v exposes nested matches, -vv explains matching evidence; a match is not proof the action actually ran.",
+      "offline_fallback": "Compute the rule truth table from saved YARA docs and answer the capa nested-match question from the pinned guide. No malware, portal, network or tool execution is required.",
+      "execution_status": "Documentation inspected and expected answers derived; YARA not executed."
+    }
+  ],
+  "family_rationales": [
+    {
+      "family": ".NET",
+      "rationale": "dnSpyEx is the sole selected managed-code routing reference. Native Ghidra/GDB proficiency does not establish .NET expertise; keep a short reference until a real managed assembly warrants a separate lab."
+    },
+    {
+      "family": "Android/Java",
+      "rationale": "JADX orientation covers APK/DEX and manifest/resource navigation. Apktool, dex2jar, Android Studio, Bytecode Viewer and Fernflower retain exact approved-row references; separate overlapping introductions would crowd out practice. APK modification/emulation and native JNI need a separate prepared lab."
+    },
+    {
+      "family": "Python packaging/decompilation",
+      "rationale": "pyinstxtractor-ng is a short extraction reference; pycdc/uncompyle6/unpyc3 remain bytecode-version-specific references, not interchangeable guarantees. Read supported input versions rather than inferring support from the host Python runtime."
+    },
+    {
+      "family": "Alternative native debuggers/disassemblers",
+      "rationale": "Ghidra and stock GDB provide the core workflow. x64dbg/OllyDbg/Cutter/radare2 and GEF/peda/pwndbg remain approved reference choices; no need to relearn the same branch task in every interface."
+    },
+    {
+      "family": "Specialist malware/document/network tools",
+      "rationale": "capa/FLOSS/YARA establish static triage roles. Existing approved references for Didier tools, oletools, FakeNet-NG, AutoIt and format-specific unpackers remain available; no live-malware plane lab is required or proposed."
+    },
+    {
+      "family": "Symbolic execution and ROP",
+      "rationale": "angr/ROPgadget remain references for a challenge that actually needs path constraints or gadgets. General native input-check recovery is a prerequisite; adding advanced courses without a diagnostic gap would dilute this refresher."
+    }
+  ],
+  "limits": [
+    "Reused already inspected substantive source where valid and fetched additional exact-version/primary material. No videos played, runtimes verified, labs executed or offline files tested.",
+    "No selected resource added merely to increase count. One version-pinned replacement; seven resources shortened, two retained.",
+    "All 51 reverse-family inventory rows remain untouched in the integration files; evaluation does not edit their mappings."
+  ]
+}

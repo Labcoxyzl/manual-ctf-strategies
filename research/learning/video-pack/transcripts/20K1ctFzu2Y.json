@@ -1,0 +1,531 @@
+{
+  "video_id": "20K1ctFzu2Y",
+  "title": "CTFlearn: RSA Beginner",
+  "channel": "Almond Force",
+  "duration_seconds": 344,
+  "caption_source": "research/learning/video-pack/captions/20K1ctFzu2Y.en-orig.vtt",
+  "caption_sha256": "75380c85e76b095d5d78e13b887ccfc73e51108dd2cd8ee8b866ec130f463781",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 17,
+      "text": "hello world welcome back to another CTF"
+    },
+    {
+      "seconds": 17,
+      "text": "learn challenge video in this video"
+    },
+    {
+      "seconds": 20,
+      "text": "we'll be walking through the"
+    },
+    {
+      "seconds": 21,
+      "text": "cryptography challenge RSA beginner"
+    },
+    {
+      "seconds": 23,
+      "text": "let's get into it I found this scribbled"
+    },
+    {
+      "seconds": 25,
+      "text": "on a piece of paper can you make sense"
+    },
+    {
+      "seconds": 27,
+      "text": "of it and they give us a link to what's"
+    },
+    {
+      "seconds": 30,
+      "text": "on the paper so let's go ahead and look"
+    },
+    {
+      "seconds": 32,
+      "text": "at"
+    },
+    {
+      "seconds": 39,
+      "text": "that and we have the values of EC and n"
+    },
+    {
+      "seconds": 39,
+      "text": "and those are clearly indicative of an"
+    },
+    {
+      "seconds": 41,
+      "text": "RSA Cipher so we're going to copy those"
+    },
+    {
+      "seconds": 43,
+      "text": "and paste them into our solv script over"
+    },
+    {
+      "seconds": 46,
+      "text": "here on the right and we'll go ahead and"
+    },
+    {
+      "seconds": 48,
+      "text": "set those variables"
+    },
+    {
+      "seconds": 51,
+      "text": "up like"
+    },
+    {
+      "seconds": 53,
+      "text": "so and now we need to solve for the"
+    },
+    {
+      "seconds": 56,
+      "text": "cipher text which is C now the first"
+    },
+    {
+      "seconds": 58,
+      "text": "step we need to do is figure out what p"
+    },
+    {
+      "seconds": 59,
+      "text": "and QR now there is a tool called the"
+    },
+    {
+      "seconds": 61,
+      "text": "RSA CF tool that can easily solve this"
+    },
+    {
+      "seconds": 63,
+      "text": "for you but I'm going to show you the"
+    },
+    {
+      "seconds": 65,
+      "text": "manual way so you can get a feel for how"
+    },
+    {
+      "seconds": 67,
+      "text": "RSA is actually solved now no RSA is"
+    },
+    {
+      "seconds": 70,
+      "text": "ever going to be this simple in real"
+    },
+    {
+      "seconds": 72,
+      "text": "life but at least you'll know how the"
+    },
+    {
+      "seconds": 74,
+      "text": "algorithm Works we're going to start"
+    },
+    {
+      "seconds": 77,
+      "text": "with n because that's how we're going to"
+    },
+    {
+      "seconds": 79,
+      "text": "derive p and q n is the modulus and it"
+    },
+    {
+      "seconds": 81,
+      "text": "is equal to P * Q so if we can factor in"
+    },
+    {
+      "seconds": 85,
+      "text": "we get our p and Q now there is an easy"
+    },
+    {
+      "seconds": 88,
+      "text": "way to factor this and we can go to the"
+    },
+    {
+      "seconds": 91,
+      "text": "sage cell server and this is just an"
+    },
+    {
+      "seconds": 93,
+      "text": "online version of sage maath if your"
+    },
+    {
+      "seconds": 96,
+      "text": "modulus gets to a certain length or the"
+    },
+    {
+      "seconds": 98,
+      "text": "number that you want to factor gets to a"
+    },
+    {
+      "seconds": 100,
+      "text": "certain length the website Sage math"
+    },
+    {
+      "seconds": 102,
+      "text": "isn't going to be able to compute it and"
+    },
+    {
+      "seconds": 103,
+      "text": "you'll have to do a local factorization"
+    },
+    {
+      "seconds": 105,
+      "text": "with a local install of sage maath to"
+    },
+    {
+      "seconds": 107,
+      "text": "have access to your host devices"
+    },
+    {
+      "seconds": 109,
+      "text": "hopefully more powerful resources but in"
+    },
+    {
+      "seconds": 111,
+      "text": "this case we can use this site because"
+    },
+    {
+      "seconds": 113,
+      "text": "the N isn't so big that it can't Factor"
+    },
+    {
+      "seconds": 115,
+      "text": "it so we're going to copy in and the"
+    },
+    {
+      "seconds": 118,
+      "text": "function we're going to type in is"
+    },
+    {
+      "seconds": 119,
+      "text": "Factor"
+    },
+    {
+      "seconds": 120,
+      "text": "not in all caps but lowercase Factor"
+    },
+    {
+      "seconds": 124,
+      "text": "open parentheses paste our modulus in"
+    },
+    {
+      "seconds": 127,
+      "text": "there close parentheses and then we're"
+    },
+    {
+      "seconds": 129,
+      "text": "going to click evaluate and it'll take"
+    },
+    {
+      "seconds": 131,
+      "text": "it a few"
+    },
+    {
+      "seconds": 137,
+      "text": "seconds and there we go we have this"
+    },
+    {
+      "seconds": 137,
+      "text": "number times this number and it doesn't"
+    },
+    {
+      "seconds": 139,
+      "text": "matter which one is p and which one is q"
+    },
+    {
+      "seconds": 142,
+      "text": "but these two numbers will be our p and"
+    },
+    {
+      "seconds": 144,
+      "text": "Q values so we'll set P equal to the"
+    },
+    {
+      "seconds": 149,
+      "text": "first value value that we got"
+    },
+    {
+      "seconds": 156,
+      "text": "back and Q equal"
+    },
+    {
+      "seconds": 156,
+      "text": "to the second value we got back all"
+    },
+    {
+      "seconds": 159,
+      "text": "right now we're ready for the next step"
+    },
+    {
+      "seconds": 162,
+      "text": "we need to calculate fi and the way to"
+    },
+    {
+      "seconds": 165,
+      "text": "calculate F or the totient is T"
+    },
+    {
+      "seconds": 168,
+      "text": "="
+    },
+    {
+      "seconds": 171,
+      "text": "pus1 time q- one like so and you'll see"
+    },
+    {
+      "seconds": 177,
+      "text": "why we need that here in a moment we"
+    },
+    {
+      "seconds": 179,
+      "text": "need t to calculate D and D is going to"
+    },
+    {
+      "seconds": 182,
+      "text": "be the exponent we use to actually"
+    },
+    {
+      "seconds": 184,
+      "text": "decrypt the cipher text so now we need"
+    },
+    {
+      "seconds": 187,
+      "text": "to calculate D and we can do that by"
+    },
+    {
+      "seconds": 189,
+      "text": "doing D equals and we're going to use"
+    },
+    {
+      "seconds": 190,
+      "text": "the pal function and we're going to do"
+    },
+    {
+      "seconds": 193,
+      "text": "the inverse of e which is e to"
+    },
+    {
+      "seconds": 196,
+      "text": "the1 mod T and the third value in the"
+    },
+    {
+      "seconds": 201,
+      "text": "pal function is always modulo so that'll"
+    },
+    {
+      "seconds": 205,
+      "text": "be our D and now we can actually decode"
+    },
+    {
+      "seconds": 207,
+      "text": "the cipher text so we can do"
+    },
+    {
+      "seconds": 211,
+      "text": "print pal C to the"
+    },
+    {
+      "seconds": 214,
+      "text": "D mod in and that's how you get your"
+    },
+    {
+      "seconds": 217,
+      "text": "final flag output so we're going to run"
+    },
+    {
+      "seconds": 231,
+      "text": "this and we get our flag back a decimal"
+    },
+    {
+      "seconds": 231,
+      "text": "version of our flag we actually need to"
+    },
+    {
+      "seconds": 232,
+      "text": "convert this to asky now you can use an"
+    },
+    {
+      "seconds": 235,
+      "text": "online converter but I'm going to show"
+    },
+    {
+      "seconds": 236,
+      "text": "you a way to do it in Python so how we"
+    },
+    {
+      "seconds": 239,
+      "text": "can go about turning this decimal value"
+    },
+    {
+      "seconds": 242,
+      "text": "into asy is we can do DEC for the"
+    },
+    {
+      "seconds": 245,
+      "text": "decrypted plane text equals that and"
+    },
+    {
+      "seconds": 248,
+      "text": "then we're going to say hex DEC like so"
+    },
+    {
+      "seconds": 252,
+      "text": "and if we run"
+    },
+    {
+      "seconds": 254,
+      "text": "that we're going to see that we get a"
+    },
+    {
+      "seconds": 256,
+      "text": "hexadecimal string now we don't want"
+    },
+    {
+      "seconds": 258,
+      "text": "those first two characters so we're"
+    },
+    {
+      "seconds": 260,
+      "text": "going to parse those off by doing this"
+    },
+    {
+      "seconds": 263,
+      "text": "it's a little substring technique that"
+    },
+    {
+      "seconds": 265,
+      "text": "you can do in Python it's called slicing"
+    },
+    {
+      "seconds": 267,
+      "text": "and that's basically just saying from"
+    },
+    {
+      "seconds": 269,
+      "text": "the index of two to the rest of the"
+    },
+    {
+      "seconds": 271,
+      "text": "string slice the portion from the index"
+    },
+    {
+      "seconds": 274,
+      "text": "of two which would be six down here to"
+    },
+    {
+      "seconds": 276,
+      "text": "the end of the string so it's only going"
+    },
+    {
+      "seconds": 278,
+      "text": "to get this part of the string and we"
+    },
+    {
+      "seconds": 280,
+      "text": "can go ahead and show what it looks like"
+    },
+    {
+      "seconds": 282,
+      "text": "when that is the case that way you can"
+    },
+    {
+      "seconds": 284,
+      "text": "just visualize it now we have to convert"
+    },
+    {
+      "seconds": 286,
+      "text": "this heximal string to asky and the way"
+    },
+    {
+      "seconds": 289,
+      "text": "to do that is we're going to do bytes."
+    },
+    {
+      "seconds": 292,
+      "text": "from hex like so and what this does is"
+    },
+    {
+      "seconds": 296,
+      "text": "it takes our hex string converts it to"
+    },
+    {
+      "seconds": 298,
+      "text": "asking and then converts it to B"
+    },
+    {
+      "seconds": 300,
+      "text": "so you're going to get a B in front of"
+    },
+    {
+      "seconds": 302,
+      "text": "it which is fine nothing wrong with that"
+    },
+    {
+      "seconds": 303,
+      "text": "but we'll throw in an extra little dcode"
+    },
+    {
+      "seconds": 305,
+      "text": "here that way we lose the B and we can"
+    },
+    {
+      "seconds": 307,
+      "text": "just copy and paste the flag as is so"
+    },
+    {
+      "seconds": 310,
+      "text": "now we'll run"
+    },
+    {
+      "seconds": 312,
+      "text": "that and there's our flag RSA is awesome"
+    },
+    {
+      "seconds": 316,
+      "text": "so we'll copy"
+    },
+    {
+      "seconds": 319,
+      "text": "that paste it in and submit all right if"
+    },
+    {
+      "seconds": 324,
+      "text": "you enjoyed the video drop a like And"
+    },
+    {
+      "seconds": 325,
+      "text": "subscribe to the channel to show your"
+    },
+    {
+      "seconds": 327,
+      "text": "support turn on post notifications to"
+    },
+    {
+      "seconds": 328,
+      "text": "get regular in of cyber content directly"
+    },
+    {
+      "seconds": 331,
+      "text": "into your feed check out our patreon"
+    },
+    {
+      "seconds": 333,
+      "text": "join our Discord and follow us on"
+    },
+    {
+      "seconds": 334,
+      "text": "Twitter links in the description box"
+    },
+    {
+      "seconds": 336,
+      "text": "down below and leave any feedback or"
+    },
+    {
+      "seconds": 338,
+      "text": "questions in the comments section down"
+    },
+    {
+      "seconds": 339,
+      "text": "below this is Al mil thanks for watching"
+    },
+    {
+      "seconds": 342,
+      "text": "goodbye world"
+    }
+  ]
+}

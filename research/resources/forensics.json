@@ -1,0 +1,1050 @@
+[
+  {
+    "id": "windows-3",
+    "name": "PDF Viewer",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Inspect PDF text and attachments; viewer identity is unspecified",
+    "resources": [
+      {
+        "url": "https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html",
+        "title": "PDF Viewer — official documentation",
+        "kind": "primary",
+        "why": "Inspect PDF pages, properties and attachments before object-level analysis.",
+        "verification": "Inherited reference; not reopened in this pass. Adobe attachment help opened 2026-10-19. Workbook specifies any PDF viewer, not an exact installed product; Adobe wording is an example to adapt. AI Overview not measured."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Viewer unspecified; Adobe attachment UI is only an example.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Inspect PDF pages, properties and attachments before object-level analysis.",
+    "platform": "windows",
+    "version": "Any current version",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "windows-11",
+    "name": "strings",
+    "categories": [
+      "Digital Forensics",
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Extract readable strings",
+    "resources": [
+      {
+        "url": "https://sourceware.org/binutils/docs/binutils/strings.html",
+        "title": "strings — official documentation",
+        "kind": "primary",
+        "why": "Triage unknown bytes with ASCII and UTF-16LE strings, retaining hexadecimal offsets.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Strings are clues, not proof of executed behavior; use -a for all bytes.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied binary -> extract ASCII and UTF-16LE strings with hexadecimal offsets -> candidate paths, URLs or messages to inspect at those offsets; strings alone do not prove behavior.",
+    "platform": "windows",
+    "version": "Bundled with GNU Binutils",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-15",
+    "name": "pdftotext (Poppler utils)",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Extract PDF text",
+    "resources": [
+      {
+        "url": "https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html",
+        "title": "pdftotext (Poppler utils) — official documentation",
+        "kind": "primary",
+        "why": "Extract PDF text with layout preserved; compare extracted text with rendered pages.",
+        "verification": "Inherited reference; not reopened in this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Image-only pages need a separately approved OCR tool; extraction is not OCR.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Extract PDF text with layout preserved; compare extracted text with rendered pages.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-23",
+    "name": "The Sleuth Kit",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect filesystem images",
+    "resources": [
+      {
+        "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+        "title": "The Sleuth Kit — official documentation",
+        "kind": "primary",
+        "why": "Disk image: identify partition start, list files with fls, recover selected inode with icat.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Offsets are sectors; recursive fls does not traverse deleted directories.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied raw disk image -> identify partition start, list files with fls using the sector offset, recover a selected inode with icat -> file paths/inodes and recovered bytes; deleted content may be incomplete.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-26",
+    "name": "qpdf",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Inspect PDF objects and streams",
+    "resources": [
+      {
+        "url": "https://qpdf.readthedocs.io/en/stable/cli.html",
+        "title": "qpdf — official documentation",
+        "kind": "primary",
+        "why": "PDF: inspect attachments and object streams; decode a selected stream after locating its object.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Write transformed output separately; rewriting can remove orphaned objects.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied PDF -> enumerate attachments and objects, inspect a selected decoded stream -> attachment names or readable stream content that can be compared with the rendered document.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-29",
+    "name": "fsck.fat (dosfstools)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Check FAT structure without repair",
+    "resources": [
+      {
+        "url": "https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in",
+        "title": "fsck.fat (dosfstools) — upstream repository",
+        "kind": "primary",
+        "why": "Check a FAT image with fsck.fat -n to identify structural damage.",
+        "verification": "Inherited reference; not reopened in this pass. Primary dosfstools fsck.fat manpage read 2026-10-19 confirms -n checks errors without writing. Query uses non-modifying check. Installed behavior and AI Overview not measured."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Repair modes modify evidence; start with non-writing checks.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Check a FAT image with fsck.fat -n to identify structural damage.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-31",
+    "name": "volatility3",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect Windows memory images",
+    "resources": [
+      {
+        "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+        "title": "volatility3 — official documentation",
+        "kind": "primary",
+        "why": "Memory: identify Windows image, inspect process tree and command lines, then extract the relevant artifact.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Volatility 3 uses symbols rather than Volatility 2 profiles; symbols may require network/cache preparation.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied Windows memory image with compatible symbols -> inspect image information, process tree and process command lines -> PID/parent relationships and command arguments identifying an artifact for targeted extraction.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-32",
+    "name": "OpenSSH-Session-Key-Recovery",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Recover SSH session keys from supported memory evidence",
+    "resources": [
+      {
+        "url": "https://github.com/fox-it/OpenSSH-Session-Key-Recovery",
+        "title": "OpenSSH-Session-Key-Recovery — upstream repository",
+        "kind": "primary",
+        "why": "Pair supported Linux memory evidence with SSH traffic; recover session material through the matching plugin and symbols.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Requires compatible OpenSSH structures, memory and capture; not general SSH decryption.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Pair supported Linux memory evidence with SSH traffic; recover session material through the matching plugin and symbols.",
+    "platform": "windows",
+    "version": "",
+    "location": "installed in volatility3"
+  },
+  {
+    "id": "windows-34",
+    "name": "Autopsy",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect forensic images",
+    "resources": [
+      {
+        "url": "https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html",
+        "title": "Autopsy — official documentation",
+        "kind": "primary",
+        "why": "Add image as a data source; enable only relevant ingest modules, then inspect keywords and deleted files.",
+        "verification": "Inherited reference; not reopened in this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Full ingest can be slow; documentation pinned to 4.22.0 may differ from installed release.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Add image as a data source; enable only relevant ingest modules, then inspect keywords and deleted files.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "windows-35",
+    "name": "HxD",
+    "categories": [
+      "Digital Forensics",
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Inspect bytes in a hex editor",
+    "resources": [
+      {
+        "url": "https://mh-nexus.de/en/hxd/",
+        "title": "HxD — official documentation",
+        "kind": "primary",
+        "why": "Inspect file signatures and byte offsets; compare suspect file regions visually.",
+        "verification": "Inherited reference; not reopened in this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Use evidence copies before editing or saving.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Inspect file signatures and byte offsets; compare suspect file regions visually.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "windows-39",
+    "name": "Eric Zimmerman's Tools",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Select an artifact-specific Windows parser",
+    "resources": [
+      {
+        "url": "https://ericzimmerman.github.io/",
+        "title": "Eric Zimmerman's Tools — official documentation",
+        "kind": "primary",
+        "why": "Select parser by artifact: MFTECmd for MFT, EvtxECmd for EVTX, RECmd for registry; export focused results.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Collection is many binaries; installed subset and .NET requirements must be checked.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied Windows $MFT, EVTX file or registry hive -> select MFTECmd, EvtxECmd or RECmd respectively and export focused records -> artifact-specific paths, event fields or registry values with timestamps for correlation.",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "kali-4",
+    "name": "ALEAPP (Android Logs Events And Protobuf Parser)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse Android forensic artifacts",
+    "resources": [
+      {
+        "url": "https://github.com/abrignoni/ALEAPP",
+        "title": "ALEAPP (Android Logs Events And Protobuf Parser) — upstream repository",
+        "kind": "primary",
+        "why": "Parse an Android extraction and inspect only artifact families relevant to the question.",
+        "verification": "Inherited reference; not reopened in this pass. Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Workbook records no installation information; support depends on app/schema version.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Parse an Android extraction and inspect only artifact families relevant to the question.",
+    "platform": "kali",
+    "version": "-",
+    "location": ""
+  },
+  {
+    "id": "kali-14",
+    "name": "bulk_extractor",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Extract forensic features from bulk data",
+    "resources": [
+      {
+        "url": "https://github.com/simsong/bulk_extractor",
+        "title": "bulk_extractor — upstream repository",
+        "kind": "primary",
+        "why": "Extract emails, URLs and other forensic features from an unstructured image; pivot using reported offsets.",
+        "verification": "Inherited reference; not reopened in this pass. Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Bulk results can be noisy and costly; begin with known artifact parsers when possible.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Extract emails, URLs and other forensic features from an unstructured image; pivot using reported offsets.",
+    "platform": "kali",
+    "version": "2.1.1",
+    "location": ""
+  },
+  {
+    "id": "kali-15",
+    "name": "bvi",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect binary data",
+    "resources": [
+      {
+        "url": "https://bvi.sourceforge.net/",
+        "title": "bvi — official documentation",
+        "kind": "primary",
+        "why": "Open binary data read-only and search for a byte pattern at an offset.",
+        "verification": "Inherited reference; not reopened in this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Interactive terminal needed; workbook version check failed outside a terminal.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Open binary data read-only and search for a byte pattern at an offset.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-20",
+    "name": "Chainsaw",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Search Windows event logs",
+    "resources": [
+      {
+        "url": "https://github.com/WithSecureOpenSource/chainsaw",
+        "title": "Chainsaw — upstream repository",
+        "kind": "primary",
+        "why": "EVTX: search a specific event/string first; hunt with Sigma rules and the matching mapping if needed.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Rule and mapping versions matter; hits are leads, not confirmed malicious events.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied EVTX directory plus a target event ID or string -> focused Chainsaw search; use matching Sigma rules/mapping only if needed -> matching event records with timestamps and host/user fields to verify in context.",
+    "platform": "kali",
+    "version": "2.16.5",
+    "location": ""
+  },
+  {
+    "id": "kali-25",
+    "name": "DB Browser for SQLite",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect SQLite records",
+    "resources": [
+      {
+        "url": "https://sqlitebrowser.org/",
+        "title": "DB Browser for SQLite — official documentation",
+        "kind": "primary",
+        "why": "Browse SQLite tables and schema, then run a focused SELECT query.",
+        "verification": "Inherited reference; not reopened in this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Keep DB and WAL together; avoid Write Changes on evidence.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Browse SQLite tables and schema, then run a focused SELECT query.",
+    "platform": "kali",
+    "version": "3.13.1",
+    "location": ""
+  },
+  {
+    "id": "kali-32",
+    "name": "dwarf2json",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Generate Linux memory-analysis symbols.",
+    "resources": [
+      {
+        "url": "https://github.com/volatilityfoundation/dwarf2json",
+        "title": "dwarf2json — upstream repository",
+        "kind": "primary",
+        "why": "Generate Volatility 3 Linux symbols from matching vmlinux debug data and optional System.map.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Exact kernel build matters; large DWARF inputs require at least 8 GB RAM per upstream.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Generate Volatility 3 Linux symbols from matching vmlinux debug data and optional System.map.",
+    "platform": "kali",
+    "version": "0.9.0",
+    "location": ""
+  },
+  {
+    "id": "kali-34",
+    "name": "ewf-tools (libewf)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Read or export an E01 disk image.",
+    "resources": [
+      {
+        "url": "https://github.com/libyal/libewf",
+        "title": "ewf-tools (libewf) — upstream repository",
+        "kind": "primary",
+        "why": "Identify E01 metadata, expose or export raw image, then use filesystem tools.",
+        "verification": "Inherited reference; not reopened in this pass. Opened libyal upstream EWF library repository; historic installed release may differ from current documentation."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Recorded 20140816 release is old; verify available commands against local help.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Identify E01 metadata, expose or export raw image, then use filesystem tools.",
+    "platform": "kali",
+    "version": "20140816",
+    "location": ""
+  },
+  {
+    "id": "kali-45",
+    "name": "FQLite",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect deleted SQLite records.",
+    "resources": [
+      {
+        "url": "https://github.com/pawlaszczyk/fqlite",
+        "title": "FQLite — upstream repository",
+        "kind": "primary",
+        "why": "Recover deleted SQLite rows from freelists, unallocated cells and associated WAL/journal evidence.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Recovery depends on surviving bytes; retain source DB and sidecars together.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Recover deleted SQLite rows from freelists, unallocated cells and associated WAL/journal evidence.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/fqlite/bin/fqlite (symlinked to /usr/local/bin)"
+  },
+  {
+    "id": "kali-49",
+    "name": "Git",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Trace file history in a local repository.",
+    "resources": [
+      {
+        "url": "https://git-scm.com/docs/git-log",
+        "title": "Git — official documentation",
+        "kind": "primary",
+        "why": "Inspect supplied repository history, diffs and deleted file versions for challenge clues.",
+        "verification": "Inherited reference; not reopened in this pass. Opened official git-log manual; exact installed patch release not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Work locally; do not push or expose recovered secrets.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Inspect supplied repository history, diffs and deleted file versions for challenge clues.",
+    "platform": "kali",
+    "version": "2.53.0",
+    "location": ""
+  },
+  {
+    "id": "kali-50",
+    "name": "Gitleaks",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Locate exposed secrets in local repository history.",
+    "resources": [
+      {
+        "url": "https://github.com/gitleaks/gitleaks",
+        "title": "Gitleaks — upstream repository",
+        "kind": "primary",
+        "why": "Scan supplied repository history for likely embedded secrets, then verify context in the relevant commit.",
+        "verification": "Inherited reference; not reopened in this pass. Opened upstream README; query uses current command names and redaction; installed build version is unknown."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "False positives and redaction settings need review; do not publish detected values.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Scan supplied repository history for likely embedded secrets, then verify context in the relevant commit.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-61",
+    "name": "Hayabusa",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Build a Windows event timeline.",
+    "resources": [
+      {
+        "url": "https://github.com/Yamato-Security/hayabusa",
+        "title": "Hayabusa — upstream repository",
+        "kind": "primary",
+        "why": "Generate a focused EVTX timeline and filter by event, host and time window.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Alternative to Chainsaw for timeline-led work; avoid duplicating broad hunts.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Generate a focused EVTX timeline and filter by event, host and time window.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-63",
+    "name": "Hindsight (pyhindsight)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse a saved browser profile.",
+    "resources": [
+      {
+        "url": "https://github.com/RyanDFIR/hindsight",
+        "title": "Hindsight (pyhindsight) — upstream repository",
+        "kind": "primary",
+        "why": "Parse a copied browser profile into a timeline of visits, downloads and stored artifacts.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Current upstream browser support may exceed the installed version; supply complete relevant profile files.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Parse a copied browser profile into a timeline of visits, downloads and stored artifacts.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (pyhindsight)"
+  },
+  {
+    "id": "kali-66",
+    "name": "iLEAPP (iOS Logs, Events, And Plists Parser)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse iOS forensic artifacts.",
+    "resources": [
+      {
+        "url": "https://github.com/abrignoni/iLEAPP",
+        "title": "iLEAPP (iOS Logs, Events, And Plists Parser) — upstream repository",
+        "kind": "primary",
+        "why": "Parse an iOS extraction for app, message and device artifacts.",
+        "verification": "Inherited reference; not reopened in this pass. Opened upstream iLEAPP repository; workbook records no installation information, so local availability is unverified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Not an acquisition tool; encrypted or unsupported artifacts require appropriate evidence/key material.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Parse an iOS extraction for app, message and device artifacts.",
+    "platform": "kali",
+    "version": "-",
+    "location": ""
+  },
+  {
+    "id": "kali-80",
+    "name": "libesedb tools",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect Windows ESE database tables.",
+    "resources": [
+      {
+        "url": "https://github.com/libyal/libesedb",
+        "title": "libesedb tools — upstream repository",
+        "kind": "primary",
+        "why": "Identify an ESE database and export its tables for targeted inspection.",
+        "verification": "Inherited reference; not reopened in this pass. Opened libyal repository identifying ESE EDB tools; avoids confusing EDB with other database formats."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "ESE .edb differs from other EDB formats; table schemas are application-specific.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Identify an ESE database and export its tables for targeted inspection.",
+    "platform": "kali",
+    "version": "20240420",
+    "location": ""
+  },
+  {
+    "id": "kali-86",
+    "name": "mac_apt",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse macOS artifacts from saved evidence.",
+    "resources": [
+      {
+        "url": "https://github.com/ydkhatri/mac_apt",
+        "title": "mac_apt — upstream repository",
+        "kind": "primary",
+        "why": "Select macOS artifact plugins against a supported saved image or extracted artifact set.",
+        "verification": "Inherited reference; not reopened in this pass. Opened author mac_apt repository; installed revision and image support not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Image format and macOS version support depend on installed revision.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Select macOS artifact plugins against a supported saved image or extracted artifact set.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/mac_apt)"
+  },
+  {
+    "id": "kali-89",
+    "name": "mimikatz",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Understand offline Windows authentication-dump analysis.",
+    "resources": [
+      {
+        "url": "https://github.com/gentilkiwi/mimikatz/wiki",
+        "title": "mimikatz — upstream repository",
+        "kind": "primary",
+        "why": "Read the offline minidump workflow when the challenge explicitly supplies Windows authentication memory.",
+        "verification": "Inherited reference; not reopened in this pass. Opened author wiki; workbook lists Windows binary under Wine, which does not establish Windows LSASS access or plugin functionality."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Wine binary presence does not establish functionality; architecture and Windows build compatibility matter.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Read the offline minidump workflow when the challenge explicitly supplies Windows authentication memory.",
+    "platform": "kali",
+    "version": "2.2.0",
+    "location": "Wine (Windows binary)"
+  },
+  {
+    "id": "kali-92",
+    "name": "mupdf-tools (mutool)",
+    "categories": [
+      "Digital Forensics",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Inspect PDF objects and extract resources.",
+    "resources": [
+      {
+        "url": "https://mupdf.readthedocs.io/en/latest/tools/mutool.html",
+        "title": "mupdf-tools (mutool) — official documentation",
+        "kind": "primary",
+        "why": "PDF: show object structure or extract embedded images/fonts to a separate directory.",
+        "verification": "Inherited reference; not reopened in this pass. Opened corrected official MuPDF tools/mutool page confirming extract and show commands; current docs are 1.28.5 rather than recorded 1.27."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Latest docs may differ from recorded 1.27.0; extraction is not text OCR.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "PDF: show object structure or extract embedded images/fonts to a separate directory.",
+    "platform": "kali",
+    "version": "1.27.0",
+    "location": ""
+  },
+  {
+    "id": "kali-106",
+    "name": "pff-tools (libpff)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and extract Outlook personal-folder data.",
+    "resources": [
+      {
+        "url": "https://github.com/libyal/libpff",
+        "title": "pff-tools (libpff) — upstream repository",
+        "kind": "primary",
+        "why": "Inspect PST/OST metadata and export relevant messages and attachments.",
+        "verification": "Inherited reference; not reopened in this pass. libyal README identifies PFF/OFF formats and Outlook data; exact pffexport options need installed help. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Check local pffexport help and format support; preserve original mailbox.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Inspect PST/OST metadata and export relevant messages and attachments.",
+    "platform": "kali",
+    "version": "20231205",
+    "location": ""
+  },
+  {
+    "id": "kali-107",
+    "name": "Plaso (log2timeline, psort, pinfo)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Build a forensic timeline from artifacts.",
+    "resources": [
+      {
+        "url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html",
+        "title": "Plaso (log2timeline, psort, pinfo) — official documentation",
+        "kind": "primary",
+        "why": "Build a timeline from a selected artifact set, inspect storage metadata, export a filtered interval.",
+        "verification": "Inherited reference; not reopened in this pass. Plaso log2timeline documentation gives storage-file examples; retrieved documentation is newer than workbook release. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Whole-image parsing costs time; normalize time zones and retain parser provenance.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Build a timeline from a selected artifact set, inspect storage metadata, export a filtered interval.",
+    "platform": "kali",
+    "version": "20260119-1kali1",
+    "location": ""
+  },
+  {
+    "id": "kali-112",
+    "name": "pypykatz",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse a supplied Windows memory dump.",
+    "resources": [
+      {
+        "url": "https://github.com/skelsec/pypykatz",
+        "title": "pypykatz — upstream repository",
+        "kind": "primary",
+        "why": "Parse a supplied Windows minidump offline when authentication artifacts are relevant.",
+        "verification": "Inherited reference; not reopened in this pass. skelsec README documents minidump and LSASS processing; query is for supplied offline evidence. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Requires supported dump/build; avoid printing recovered secrets into public reports.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Parse a supplied Windows minidump offline when authentication artifacts are relevant.",
+    "platform": "kali",
+    "version": "0.6.13",
+    "location": ""
+  },
+  {
+    "id": "kali-115",
+    "name": "qemu-img (qemu-utils)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Identify and convert virtual disk formats.",
+    "resources": [
+      {
+        "url": "https://www.qemu.org/docs/master/tools/qemu-img.html",
+        "title": "qemu-img (qemu-utils) — official documentation",
+        "kind": "primary",
+        "why": "Identify a virtual-disk format and convert a copy to raw for filesystem analysis.",
+        "verification": "Inherited reference; not reopened in this pass. Official qemu-img manual describes offline disk image conversion; master docs may differ from workbook release. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Do not modify an image in use; allocate enough output space and retain backing-chain evidence.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Identify a virtual-disk format and convert a copy to raw for filesystem analysis.",
+    "platform": "kali",
+    "version": "11.0.3",
+    "location": ""
+  },
+  {
+    "id": "kali-118",
+    "name": "RegRipper",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Extract artifacts from offline Windows registry hives.",
+    "resources": [
+      {
+        "url": "https://github.com/keydet89/RegRipper3.0",
+        "title": "RegRipper — upstream repository",
+        "kind": "primary",
+        "why": "Identify registry hive and run a relevant RegRipper 3 plugin; interpret timestamps in context.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "RegRipper does not automatically replay hive transaction logs; do not silently omit them.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied offline Windows registry hive -> identify hive type and run the relevant RegRipper 3 plugin -> plugin-specific keys, values and available timestamps; transaction-log changes are not automatically included.",
+    "platform": "kali",
+    "version": "3.0",
+    "location": ""
+  },
+  {
+    "id": "kali-130",
+    "name": "SQLCipher Community Edition — CLI",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Open a SQLCipher database with its known key and settings.",
+    "resources": [
+      {
+        "url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/",
+        "title": "SQLCipher Community Edition — CLI — official documentation",
+        "kind": "primary",
+        "why": "Open an encrypted SQLite artifact using a known key and the correct SQLCipher compatibility settings.",
+        "verification": "Inherited reference; not reopened in this pass. Zetetic SQLCipher API documents PRAGMA key and compatibility settings; SQLCipher 4 retained to avoid SQLite-only answers. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Not a password cracker; a wrong compatibility setting can look like a wrong key.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Open an encrypted SQLite artifact using a known key and the correct SQLCipher compatibility settings.",
+    "platform": "kali",
+    "version": "SQLite 3.53.4 / SQLCipher 4.18.0",
+    "location": ""
+  },
+  {
+    "id": "kali-131",
+    "name": "sqlite3",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect a SQLite database without changing it.",
+    "resources": [
+      {
+        "url": "https://sqlite.org/cli.html",
+        "title": "sqlite3 — official documentation",
+        "kind": "primary",
+        "why": "Open SQLite read-only; inspect tables/schema and query the few records that answer the challenge.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Preserve WAL sidecars; SQL timestamps may need application-specific conversion.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Candidate, not executed: supplied SQLite database with available WAL sidecar -> open read-only, inspect tables/schema and run a focused SELECT -> matching rows and application timestamp fields; interpret timestamp encoding before correlating events.",
+    "platform": "kali",
+    "version": "3.53.4",
+    "location": ""
+  },
+  {
+    "id": "kali-143",
+    "name": "TestDisk and PhotoRec",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Recover files from a disk image.",
+    "resources": [
+      {
+        "url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step",
+        "title": "TestDisk and PhotoRec — official documentation",
+        "kind": "primary",
+        "why": "Recover named files with filesystem metadata first; use PhotoRec carving when metadata is unusable.",
+        "verification": "Opened now on 2026-10-22; documentation inspected, installed tool not run."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Carving loses names/paths and can be noisy; recover to another destination, never the source.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Recover named files with filesystem metadata first; use PhotoRec carving when metadata is unusable.",
+    "platform": "kali",
+    "version": "7.2",
+    "location": ""
+  },
+  {
+    "id": "kali-151",
+    "name": "Volatility 2",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Identify a memory image profile and inspect processes.",
+    "resources": [
+      {
+        "url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference",
+        "title": "Volatility 2 — upstream repository",
+        "kind": "primary",
+        "why": "For supported legacy memory, identify the matching profile before process/network/artifact plugins.",
+        "verification": "Inherited reference; not reopened in this pass. Volatility 2 command reference lists imageinfo, pslist and netscan; query explicitly distinguishes version 2. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Volatility 2 is legacy and profile-based; do not paste Volatility 3 commands into it.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "For supported legacy memory, identify the matching profile before process/network/artifact plugins.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/volatility)"
+  },
+  {
+    "id": "kali-152",
+    "name": "Volatility 2 community plugins",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Load community plugins for Volatility 2.",
+    "resources": [
+      {
+        "url": "https://github.com/volatilityfoundation/community",
+        "title": "Volatility 2 community plugins — upstream repository",
+        "kind": "primary",
+        "why": "Choose one Volatility 2 community plugin only when core plugins cannot parse the target artifact.",
+        "verification": "Inherited reference; not reopened in this pass. Volatility Foundation community repository identifies community plugins; individual compatibility is not guaranteed. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Plugin-specific dependencies and compatibility are unverified; no blanket functionality claim.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Choose one Volatility 2 community plugin only when core plugins cannot parse the target artifact.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/community)"
+  },
+  {
+    "id": "kali-153",
+    "name": "Volatility 2 profiles (Linux and macOS)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Match Linux or macOS profiles to memory images.",
+    "resources": [
+      {
+        "url": "https://github.com/volatilityfoundation/profiles",
+        "title": "Volatility 2 profiles (Linux and macOS) — upstream repository",
+        "kind": "primary",
+        "why": "Find an exact Linux/macOS Volatility 2 profile matching supplied memory.",
+        "verification": "Inherited reference; not reopened in this pass. Volatility Foundation profiles README gives Linux/macOS overlay directories and matching-profile requirements. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "A similarly named kernel is insufficient; profile availability does not guarantee a match.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Find an exact Linux/macOS Volatility 2 profile matching supplied memory.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/profiles)"
+  },
+  {
+    "id": "kali-154",
+    "name": "Volatility 3 community plugins (community3)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Load Volatility 3 community plugins; check each plugin against the installed release.",
+    "resources": [
+      {
+        "url": "https://github.com/volatilityfoundation/community3",
+        "title": "Volatility 3 community plugins (community3) — upstream repository",
+        "kind": "primary",
+        "why": "Load a specific Volatility 3 community plugin for an otherwise unsupported artifact.",
+        "verification": "Inherited reference; not reopened in this pass. Volatility Foundation community3 README warns plugins may be incompatible with current Volatility 3. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Upstream warns plugins may be incompatible with current Volatility 3; test the exact plugin.",
+      "Recorded platform/version is an approval-list fact, not a successful runtime check."
+    ],
+    "recipe_candidate": "Load a specific Volatility 3 community plugin for an otherwise unsupported artifact.",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/community3)"
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "rank": 4,
+  "video_id": "VroEiMOJPm8",
+  "file": "videos/04_GDB_VroEiMOJPm8.mp4",
+  "bytes": 184778439,
+  "sha256": "e528d7700f5b8e24f1f877431c77a4527a0aa14bf6a71b969b5c8684e6f78ed0",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 542.8361,
+  "sample_decode_seconds": [
+    1,
+    271.42,
+    539.84
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/04_GDB_VroEiMOJPm8.en.vtt"
+}

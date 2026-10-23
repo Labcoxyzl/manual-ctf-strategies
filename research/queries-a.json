@@ -1,0 +1,596 @@
+[
+  {
+    "id": "windows-1",
+    "category": "crypto",
+    "query": "CyberChef decode Base64 then XOR recipe examples",
+    "alternate_query": "CyberChef magic operation detect encoding examples",
+    "docs_url": "https://github.com/gchq/CyberChef",
+    "purpose": "Build a decoding recipe",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-2",
+    "category": "forensics",
+    "query": "Wireshark display filters follow TCP stream examples",
+    "alternate_query": "Wireshark export HTTP objects pcap examples",
+    "docs_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html",
+    "purpose": "Inspect packet conversations",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-3",
+    "category": "forensics",
+    "query": "Adobe Acrobat Reader view PDF attachments examples",
+    "alternate_query": "PDF viewer find text document properties attachments",
+    "docs_url": "https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html",
+    "purpose": "Inspect PDF text and attachments; viewer identity is unspecified",
+    "evidence_note": "Adobe attachment help opened 2026-10-19. Workbook specifies any PDF viewer, not an exact installed product; Adobe wording is an example to adapt. AI Overview not measured."
+  },
+  {
+    "id": "windows-4",
+    "category": "misc",
+    "query": "OpenVPN Connect import ovpn profile Windows examples",
+    "alternate_query": "OpenVPN Connect connection log troubleshooting Windows",
+    "docs_url": "https://openvpn.net/connect-docs/import-profile.html",
+    "purpose": "Connect using an approved VPN profile",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-5",
+    "category": "web",
+    "query": "Chrome DevTools Network inspect request response headers examples",
+    "alternate_query": "Chrome DevTools copy request as cURL examples",
+    "docs_url": "https://developer.chrome.com/docs/devtools/network/",
+    "purpose": "Inspect browser requests",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-6",
+    "category": "misc",
+    "query": "Windows WSL list distributions run Linux command examples",
+    "alternate_query": "WSL access Windows files mnt c examples",
+    "docs_url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+    "purpose": "Use the installed Linux environment",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-7",
+    "category": "misc",
+    "query": "Python 3 struct unpack binary file examples",
+    "alternate_query": "Python 3 bytes fromhex byteorder examples",
+    "docs_url": "https://docs.python.org/3/library/struct.html",
+    "purpose": "Parse binary data",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-8",
+    "category": "misc",
+    "query": "astral uv create virtual environment install package examples",
+    "alternate_query": "uv pip install python interpreter examples",
+    "docs_url": "https://docs.astral.sh/uv/pip/environments/",
+    "purpose": "Manage Python environments",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-9",
+    "category": "reversing",
+    "query": "GDB break main run info registers disassemble examples",
+    "alternate_query": "GDB x examine memory breakpoint examples",
+    "docs_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html",
+    "purpose": "Debug native binaries",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-10",
+    "category": "reversing",
+    "query": "GNU objdump disassemble Intel syntax sections examples",
+    "alternate_query": "objdump -d -M intel ELF examples",
+    "docs_url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+    "purpose": "Inspect disassembly and sections",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-11",
+    "category": "forensics",
+    "query": "GNU strings show offsets minimum length encoding examples",
+    "alternate_query": "GNU strings UTF-16 little endian -e l examples",
+    "docs_url": "https://sourceware.org/binutils/docs/binutils/strings.html",
+    "purpose": "Extract readable strings",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-12",
+    "category": "forensics",
+    "query": "zsteg PNG BMP LSB extract payload examples",
+    "alternate_query": "zsteg -a -E b1 rgb lsb examples",
+    "docs_url": "https://github.com/zed-0xff/zsteg",
+    "purpose": "Inspect PNG/BMP hidden data",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-13",
+    "category": "forensics",
+    "query": "Binwalk v3 scan extract embedded files examples",
+    "alternate_query": "Binwalk version 2 versus 3 extraction command",
+    "docs_url": "https://github.com/ReFirmLabs/binwalk",
+    "purpose": "Locate embedded files; verify installed major version",
+    "evidence_note": "ReFirmLabs repository identifies current Binwalk v3; workbook only says latest. Queries explicitly distinguish v2/v3; determine installed major version before using options. AI Overview not measured."
+  },
+  {
+    "id": "windows-14",
+    "category": "forensics",
+    "query": "ExifTool read all metadata duplicate tags examples",
+    "alternate_query": "ExifTool -a -u -g1 metadata examples",
+    "docs_url": "https://github.com/exiftool/exiftool",
+    "purpose": "Read file metadata",
+    "evidence_note": "Primary ExifTool repository opened 2026-10-19; exiftool.org fetch returned 403. Query targets metadata reading; installed version and AI Overview not measured."
+  },
+  {
+    "id": "windows-15",
+    "category": "forensics",
+    "query": "Poppler pdftotext preserve layout PDF text examples",
+    "alternate_query": "pdftotext -layout -enc UTF-8 examples",
+    "docs_url": "https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html",
+    "purpose": "Extract PDF text",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-16",
+    "category": "misc",
+    "query": "linux can-utils candump canplayer log format examples",
+    "alternate_query": "can-utils candump vcan0 log examples",
+    "docs_url": "https://github.com/linux-can/can-utils",
+    "purpose": "Read CAN bus logs",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-17",
+    "category": "misc",
+    "query": "cannelloni CAN Ethernet UDP tunnel command examples",
+    "alternate_query": "mguentner cannelloni vcan interface usage examples",
+    "docs_url": "https://github.com/mguentner/cannelloni",
+    "purpose": "Understand CAN tunneling",
+    "evidence_note": "Primary mguentner repository read 2026-10-19: CAN-over-Ethernet tunnel, UDP examples and virtual CAN setup. Workbook mkschreder URL did not fetch. Installed fork/version unverified; AI Overview not measured."
+  },
+  {
+    "id": "windows-18",
+    "category": "forensics",
+    "query": "Zeek read pcap generate conn.log http.log examples",
+    "alternate_query": "Zeek -r pcap local log output examples",
+    "docs_url": "https://docs.zeek.org/en/current/quickstart.html",
+    "purpose": "Produce protocol logs from packet captures",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-19",
+    "category": "forensics",
+    "query": "ZBar zbarimg decode QR barcode image examples",
+    "alternate_query": "zbarimg --raw QR code examples",
+    "docs_url": "https://github.com/mchehab/zbar",
+    "purpose": "Decode barcodes locally",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-20",
+    "category": "web",
+    "query": "Burp Suite Community Repeater edit resend HTTP request examples",
+    "alternate_query": "Burp Community Proxy HTTP history send to Repeater examples",
+    "docs_url": "https://portswigger.net/burp/documentation/desktop/tools/repeater",
+    "purpose": "Inspect and replay web requests",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-21",
+    "category": "misc",
+    "query": "jq select map nested JSON fields examples",
+    "alternate_query": "jq raw output arrays filter examples",
+    "docs_url": "https://jqlang.org/manual/",
+    "purpose": "Filter JSON",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-22",
+    "category": "reversing",
+    "query": "Ghidra decompiler import ELF analyze rename function examples",
+    "alternate_query": "Ghidra find references strings decompiler tutorial",
+    "docs_url": "https://github.com/NationalSecurityAgency/ghidra",
+    "purpose": "Inspect program logic",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-23",
+    "category": "forensics",
+    "query": "Sleuth Kit fls icat recover deleted file disk image examples",
+    "alternate_query": "Sleuth Kit mmls partition offset fls examples",
+    "docs_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+    "purpose": "Inspect filesystem images",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-24",
+    "category": "crypto",
+    "query": "OpenSSL 3 enc decrypt aes salt pbkdf2 examples",
+    "alternate_query": "OpenSSL 3 enc list ciphers parameters examples",
+    "docs_url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+    "purpose": "Understand symmetric decryption parameters",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-25",
+    "category": "misc",
+    "query": "xz list archive decompress keep original examples",
+    "alternate_query": "xz --list --decompress --keep examples",
+    "docs_url": "https://tukaani.org/xz/man/xz.1.html",
+    "purpose": "Inspect and decompress XZ data",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-26",
+    "category": "forensics",
+    "query": "qpdf qdf object streams inspect PDF examples",
+    "alternate_query": "qpdf --show-object --filtered-stream-data examples",
+    "docs_url": "https://qpdf.readthedocs.io/en/stable/cli.html",
+    "purpose": "Inspect PDF objects and streams",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-27",
+    "category": "reversing",
+    "query": "LLVM llvm-mc disassemble hex bytes x86 examples",
+    "alternate_query": "llvm-mc --assemble --show-encoding triple examples",
+    "docs_url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+    "purpose": "Translate assembly and machine code",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-28",
+    "category": "forensics",
+    "query": "xxd reverse hex dump binary examples",
+    "alternate_query": "xxd -r -p plain hex examples",
+    "docs_url": "https://github.com/vim/vim/blob/master/runtime/doc/xxd.1",
+    "purpose": "Convert hex dumps",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-29",
+    "category": "forensics",
+    "query": "dosfstools fsck.fat -n read only filesystem check examples",
+    "alternate_query": "fsck.fat no action FAT image examples",
+    "docs_url": "https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in",
+    "purpose": "Check FAT structure without repair",
+    "evidence_note": "Primary dosfstools fsck.fat manpage read 2026-10-19 confirms -n checks errors without writing. Query uses non-modifying check. Installed behavior and AI Overview not measured."
+  },
+  {
+    "id": "windows-30",
+    "category": "crypto",
+    "query": "RsaCtfTool public key factor decrypt file examples",
+    "alternate_query": "RsaCtfTool attack list publickey usage examples",
+    "docs_url": "https://github.com/RsaCtfTool/RsaCtfTool",
+    "purpose": "Study RSA attack prerequisites",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-31",
+    "category": "forensics",
+    "query": "Volatility 3 windows.info windows.pslist memory image examples",
+    "alternate_query": "Volatility 3 symbols windows.dumpfiles examples",
+    "docs_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+    "purpose": "Inspect Windows memory images",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-32",
+    "category": "forensics",
+    "query": "fox-it OpenSSH-Session-Key-Recovery volatility3 plugin usage",
+    "alternate_query": "OpenSSH Session Key Recovery memory keys decrypt pcap prerequisites",
+    "docs_url": "https://github.com/fox-it/OpenSSH-Session-Key-Recovery",
+    "purpose": "Recover SSH session keys from supported memory evidence",
+    "evidence_note": "fox-it primary repository and author blog read 2026-10-19. Repository documents Volatility3 -p plugin path and -s openssh32/openssh64 symbols, plus separate Volatility2 files. Installed compatibility and AI Overview unverified."
+  },
+  {
+    "id": "windows-33",
+    "category": "reversing",
+    "query": "x64dbg breakpoint run follow dump memory examples",
+    "alternate_query": "x64dbg conditional breakpoint expressions examples",
+    "docs_url": "https://help.x64dbg.com/en/latest/gui/tips.html",
+    "purpose": "Debug Windows executables",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-34",
+    "category": "forensics",
+    "query": "Autopsy add disk image data source ingest modules examples",
+    "alternate_query": "Autopsy keyword search deleted files timeline examples",
+    "docs_url": "https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html",
+    "purpose": "Inspect forensic images",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-35",
+    "category": "forensics",
+    "query": "HxD hex editor search byte sequence compare files examples",
+    "alternate_query": "HxD read only hex view offsets examples",
+    "docs_url": "https://mh-nexus.de/en/hxd/",
+    "purpose": "Inspect bytes in a hex editor",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-36",
+    "category": "forensics",
+    "query": "TShark read pcap display filter extract fields examples",
+    "alternate_query": "tshark -r -Y -T fields -e examples",
+    "docs_url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+    "purpose": "Extract packet fields",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-37",
+    "category": "misc",
+    "query": "Notepad++ regular expression search capture groups examples",
+    "alternate_query": "Notepad++ extended search line endings examples",
+    "docs_url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+    "purpose": "Search structured text",
+    "evidence_note": "Official user-manual source opened 2026-10-19 after rendered manual fetch failed. Query targets search modes; AI Overview not measured."
+  },
+  {
+    "id": "windows-38",
+    "category": "reversing",
+    "query": "dnSpyEx debug .NET assembly breakpoint decompile examples",
+    "alternate_query": "dnSpyEx navigate assembly CSharp decompiler examples",
+    "docs_url": "https://github.com/dnSpyEx/dnSpy",
+    "purpose": "Inspect managed assemblies",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "windows-39",
+    "category": "forensics",
+    "query": "Eric Zimmerman tools MFTECmd parse MFT CSV examples",
+    "alternate_query": "Eric Zimmerman EvtxECmd parse EVTX CSV examples",
+    "docs_url": "https://ericzimmerman.github.io/",
+    "purpose": "Select an artifact-specific Windows parser",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-1",
+    "category": "misc",
+    "query": ".NET SDK 6 dotnet build run project examples",
+    "alternate_query": "dotnet 6 CLI list sdks examples",
+    "docs_url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+    "purpose": "Build and run managed projects",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-2",
+    "category": "misc",
+    "query": "7-Zip 7z list extract archive command examples",
+    "alternate_query": "7z l x output directory examples",
+    "docs_url": "https://7-zip.org/",
+    "purpose": "Inspect and extract archives",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-3",
+    "category": "misc",
+    "query": "aircrack-ng 1.7 offline WPA handshake wordlist capture examples",
+    "alternate_query": "aircrack-ng capture file handshake prerequisites",
+    "docs_url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+    "purpose": "Understand offline wireless capture analysis",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-4",
+    "category": "forensics",
+    "query": "ALEAPP Android extraction folder parse artifacts report examples",
+    "alternate_query": "ALEAPP aleapp.py input directory output report examples",
+    "docs_url": "https://github.com/abrignoni/ALEAPP",
+    "purpose": "Parse Android forensic artifacts",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-5",
+    "category": "reversing",
+    "query": "Android Studio debug prebuilt APK native libraries examples",
+    "alternate_query": "Android Studio APK Analyzer inspect DEX resources examples",
+    "docs_url": "https://developer.android.com/studio/debug/apk-debugger",
+    "purpose": "Inspect Android packages",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-6",
+    "category": "reversing",
+    "query": "angr symbolic execution SimulationManager explore find avoid examples",
+    "alternate_query": "angr entry_state symbolic stdin constraints examples",
+    "docs_url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+    "purpose": "Study path constraints and symbolic execution",
+    "evidence_note": "Primary Simulation Managers chapter read 2026-10-19 confirms explore(find, avoid), entry_state and found stash. Installed version and AI Overview not measured."
+  },
+  {
+    "id": "kali-7",
+    "category": "forensics",
+    "query": "AperiSolve self hosted local image analysis usage",
+    "alternate_query": "Zeecka AperiSolve docker local deployment examples",
+    "docs_url": "https://github.com/Zeecka/AperiSolve",
+    "purpose": "Understand local image-analysis deployment",
+    "evidence_note": "Primary Zeecka repository read 2026-10-19 confirms Docker Compose self-hosting and localhost:5000. Query concerns local deployment because challenge-file upload is prohibited. Approved local deployment status and AI Overview unverified."
+  },
+  {
+    "id": "kali-8",
+    "category": "reversing",
+    "query": "Apktool 2.7 decode APK resources smali examples",
+    "alternate_query": "apktool 2 d APK output directory examples",
+    "docs_url": "https://apktool.org/docs/cli-parameters/",
+    "purpose": "Decode Android resources and smali",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-9",
+    "category": "reversing",
+    "query": "electron asar CLI list extract archive examples",
+    "alternate_query": "@electron/asar 4 extract-file command examples",
+    "docs_url": "https://github.com/electron/asar",
+    "purpose": "Inspect Electron archives",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-10",
+    "category": "forensics",
+    "query": "Audacity spectrogram view settings hidden audio tones examples",
+    "alternate_query": "Audacity spectrogram frequency range window size examples",
+    "docs_url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+    "purpose": "Inspect audio frequency content",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-11",
+    "category": "malware",
+    "query": "AutoIt-Ripper extract compiled AutoIt executable examples",
+    "alternate_query": "nazywam autoit-ripper CLI usage examples",
+    "docs_url": "https://github.com/nazywam/AutoIt-Ripper",
+    "purpose": "Extract compiled AutoIt scripts",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-12",
+    "category": "reversing",
+    "query": "BinDiff 8 compare binaries matched functions examples",
+    "alternate_query": "BinDiff 8 similarity confidence function matches manual",
+    "docs_url": "https://www.zynamics.com/bindiff/manual/",
+    "purpose": "Compare compiled program versions",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-13",
+    "category": "crypto",
+    "query": "bkcrack known plaintext ZIP attack minimum bytes examples",
+    "alternate_query": "bkcrack 1.8.1 decrypt archive known plaintext examples",
+    "docs_url": "https://github.com/kimci86/bkcrack",
+    "purpose": "Understand ZIP known-plaintext recovery",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-14",
+    "category": "forensics",
+    "query": "bulk_extractor scan disk image feature files examples",
+    "alternate_query": "bulk_extractor 2 scanners output report examples",
+    "docs_url": "https://github.com/simsong/bulk_extractor",
+    "purpose": "Extract forensic features from bulk data",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-15",
+    "category": "forensics",
+    "query": "bvi binary editor hex search read only examples",
+    "alternate_query": "bvi -R binary view hexadecimal search examples",
+    "docs_url": "https://bvi.sourceforge.net/",
+    "purpose": "Inspect binary data",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-16",
+    "category": "reversing",
+    "query": "Bytecode Viewer 2.13 Java JAR decompile search examples",
+    "alternate_query": "Konloch Bytecode Viewer APK DEX decompiler examples",
+    "docs_url": "https://github.com/Konloch/bytecode-viewer",
+    "purpose": "Inspect Java bytecode",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-17",
+    "category": "misc",
+    "query": "bzip2 decompress keep original file examples",
+    "alternate_query": "bzip2 -dc output stream examples",
+    "docs_url": "https://sourceware.org/bzip2/manual/manual.html",
+    "purpose": "Decompress BZip2 data",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-18",
+    "category": "misc",
+    "query": "cabextract list extract CAB archive examples",
+    "alternate_query": "cabextract -l -d directory examples",
+    "docs_url": "https://www.kali.org/tools/cabextract/",
+    "purpose": "Inspect Microsoft cabinet archives",
+    "evidence_note": "Kali package reference search 2026-10-19 exposes cabextract -l and -d; upstream website failed retrieval. Primary source repository is kyz/libmspack/cabextract. AI Overview not measured."
+  },
+  {
+    "id": "kali-19",
+    "category": "malware",
+    "query": "Mandiant capa 9 capabilities executable analysis examples",
+    "alternate_query": "capa -vv verbose rule matches examples",
+    "docs_url": "https://github.com/mandiant/capa",
+    "purpose": "Identify executable capabilities",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-20",
+    "category": "forensics",
+    "query": "Chainsaw 2 hunt EVTX Sigma mapping examples",
+    "alternate_query": "WithSecure chainsaw search event log examples",
+    "docs_url": "https://github.com/WithSecureOpenSource/chainsaw",
+    "purpose": "Search Windows event logs",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-21",
+    "category": "reversing",
+    "query": "checksec 2.6.0 --file= ELF RELRO canary NX PIE examples",
+    "alternate_query": "checksec bash 2.6.0 security properties executable examples",
+    "docs_url": "https://github.com/slimm609/checksec/releases",
+    "purpose": "Identify executable protections",
+    "evidence_note": "Primary releases read 2026-10-19 list 2.6.0 and historical equals-only options; current main uses a newer Go CLI. Queries pin workbook Bash 2.6.0 to avoid incompatible syntax. Installed behavior and AI Overview unverified."
+  },
+  {
+    "id": "kali-22",
+    "category": "crypto",
+    "query": "jvdsn crypto-attacks Sage RSA attack prerequisites examples",
+    "alternate_query": "crypto-attacks attacks rsa known partial key usage",
+    "docs_url": "https://github.com/jvdsn/crypto-attacks",
+    "purpose": "Find mathematical attack implementations",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-23",
+    "category": "web",
+    "query": "curl HTTP request headers cookies redirect examples",
+    "alternate_query": "curl --include --data --cookie request examples",
+    "docs_url": "https://curl.se/docs/manpage.html",
+    "purpose": "Inspect and reproduce HTTP requests",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-24",
+    "category": "reversing",
+    "query": "Cutter reverse engineering graph disassembly decompiler examples",
+    "alternate_query": "Cutter Rizin strings cross references tutorial",
+    "docs_url": "https://github.com/rizinorg/cutter",
+    "purpose": "Inspect program control flow",
+    "evidence_note": "Primary rizinorg/Cutter repository opened 2026-10-19 identifies Rizin-powered reverse engineering platform; old graph-menu URL failed. Installed version and AI Overview not measured."
+  },
+  {
+    "id": "kali-25",
+    "category": "forensics",
+    "query": "DB Browser for SQLite open database browse data execute SQL examples",
+    "alternate_query": "DB Browser SQLite read only database examples",
+    "docs_url": "https://sqlitebrowser.org/",
+    "purpose": "Inspect SQLite records",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-26",
+    "category": "misc",
+    "query": "DBeaver Community SQL editor execute query examples",
+    "alternate_query": "DBeaver open SQLite database connection examples",
+    "docs_url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+    "purpose": "Query local databases",
+    "evidence_note": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  },
+  {
+    "id": "kali-27",
+    "category": "malware",
+    "query": "Detect It Easy DIE identify PE packer compiler examples",
+    "alternate_query": "Detect It Easy diec command line scan file examples",
+    "docs_url": "https://github.com/horsicq/Detect-It-Easy",
+    "purpose": "Identify binary formats and packers",
+    "evidence_note": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+  }
+]

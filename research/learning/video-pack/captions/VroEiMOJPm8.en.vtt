@@ -1,0 +1,747 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:10.440 --> 00:00:11.920
+I have written a small C program.
+
+00:00:11.920 --> 00:00:14.660
+It’s supposed to be a simple license check.
+
+00:00:14.660 --> 00:00:21.410
+So you can execute it and you can supply a
+key as argument and it will be checked.
+
+00:00:21.410 --> 00:00:25.440
+Our goal is to crack this program so we don’t
+have to use a valid license key.
+
+00:00:25.440 --> 00:00:29.330
+I have made this program available through
+a github repository.
+
+00:00:29.330 --> 00:00:37.780
+You can download it from github.com/liveoverflow/liveoverflow_youtube
+or you can install ‘git’ with ‘sudo
+
+00:00:37.780 --> 00:00:43.460
+apt-get install git’ and get the whole repository
+with ‘git clone’ and the address you can
+
+00:00:43.460 --> 00:00:44.600
+see on github.
+
+00:00:44.600 --> 00:00:47.850
+We will probably talk more about what git
+is later.
+
+00:00:47.850 --> 00:00:52.390
+For now it’s enough to know, that this is
+a way how developers can program together
+
+00:00:52.390 --> 00:00:53.649
+on a project.
+
+00:00:53.649 --> 00:00:57.159
+And I use it to share some stuff.
+
+00:00:57.159 --> 00:01:01.489
+To have a look at the binary assembler code,
+we can use a program called gdb.
+
+00:01:01.489 --> 00:01:04.260
+The GNU Debugger.
+
+00:01:04.260 --> 00:01:07.330
+So type ‘gdb’ and the path to the binary.
+
+00:01:07.330 --> 00:01:10.550
+So every C program has a main function, remember?
+
+00:01:10.550 --> 00:01:15.370
+So let’s type in ‘disassemble main’
+which will display all assembler instructions
+
+00:01:15.370 --> 00:01:17.280
+from the main function.
+
+00:01:17.280 --> 00:01:19.970
+But urgh, do you see how ugly that looks?
+
+00:01:19.970 --> 00:01:23.360
+That’s the horrible at&amp;t syntax.
+
+00:01:23.360 --> 00:01:26.830
+So type in ‘set disassembly-flavor intel’.
+
+00:01:26.830 --> 00:01:29.400
+Remember that you can use tab completion here
+as well.
+
+00:01:29.400 --> 00:01:33.850
+Now ‘disassemble main’ again, and now
+it’s much more readable.
+
+00:01:33.850 --> 00:01:34.850
+Ok.
+
+00:01:34.850 --> 00:01:35.850
+So.
+
+00:01:35.850 --> 00:01:37.290
+It looks complicated.
+
+00:01:37.290 --> 00:01:39.480
+But you can ignore most of it.
+
+00:01:39.480 --> 00:01:41.270
+First of all get a high-level view of it.
+
+00:01:41.270 --> 00:01:45.800
+It doesn’t make sense to start going through
+this instruction by instruction.
+
+00:01:45.800 --> 00:01:48.720
+This main function obviously calls other functions.
+
+00:01:48.720 --> 00:01:53.140
+So just draw a mental picture of the rough
+control flow.
+
+00:01:53.140 --> 00:01:56.210
+I will actually print out this assembler code
+and use a pen.
+
+00:01:56.210 --> 00:02:00.720
+That’s how I did it in the beginning and
+still do it when I encounter more complex
+
+00:02:00.720 --> 00:02:01.990
+code.
+
+00:02:01.990 --> 00:02:08.200
+And remember to just ignore most of the stuff,
+concentrate on the actual flow.
+
+00:02:08.200 --> 00:02:12.409
+So at the start it arrives at a compare with
+the number 2.
+
+00:02:12.409 --> 00:02:15.310
+And afterwards a ‘jump not equal’.
+
+00:02:15.310 --> 00:02:23.730
+So something is checked if it is 2.
+
+00:02:23.730 --> 00:02:27.300
+If that is the case, we proceed to a ‘printf’.
+
+00:02:27.300 --> 00:02:31.980
+Which we know is a function to display text.
+
+00:02:31.980 --> 00:02:39.810
+Then comes a ‘strcmp’, if you don’t
+know that function, read the man page of it.
+
+00:02:39.810 --> 00:02:45.990
+‘man 3 strcmp’ - so this compares two
+strings and returns 0 if both strings were
+
+00:02:45.990 --> 00:02:49.510
+the same.
+
+00:02:49.510 --> 00:03:00.410
+After that call we see another ‘jump not
+equal’ so if the zero flag is not set, there
+
+00:03:00.410 --> 00:03:03.230
+will be a ‘puts’ call.
+
+00:03:03.230 --> 00:03:14.080
+Use the man page to figure out what it does,
+but it just prints text like printf.
+
+00:03:14.080 --> 00:03:19.200
+So if the original compare with the number
+2 was not true, then it would jump to this
+
+00:03:19.200 --> 00:03:23.790
+address 0x400623, which is at offset main+102.
+
+00:03:23.790 --> 00:03:30.290
+So in that case it prints some other text
+with ‘puts’ and exits.
+
+00:03:30.290 --> 00:03:34.630
+I always add the addresses, or at least part
+of the address, from important locations,
+
+00:03:34.630 --> 00:03:37.209
+so I know where I am.
+
+00:03:37.209 --> 00:03:40.800
+This will help you later when we step through
+the program.
+
+00:03:40.800 --> 00:03:42.550
+Now we have one branch missing.
+
+00:03:42.550 --> 00:03:46.710
+If this compare was incorrect, this branch
+would jump to offset main+90.
+
+00:03:46.710 --> 00:03:52.390
+Which also just prints text.
+
+00:03:52.390 --> 00:03:57.910
+Some jumps are still missing, but you can
+add them to get a nice control-flow graph.
+
+00:03:57.910 --> 00:04:01.460
+Now let’s actually execute this and step
+through it.
+
+00:04:01.460 --> 00:04:05.780
+You can then draw which path through the graph
+you have taken on your paper.
+
+00:04:05.780 --> 00:04:11.800
+To do do this we first set a breakpoint at
+the start of main with ‘break *main’.
+
+00:04:11.800 --> 00:04:16.220
+Breakpoint is set, now use ‘run’ to start
+the program.
+
+00:04:16.220 --> 00:04:20.100
+Starting program and we hit the breakpoint
+1 at this address.
+
+00:04:20.100 --> 00:04:24.879
+A breakpoint is a point where execution stops.
+
+00:04:24.879 --> 00:04:27.580
+Now look at the registers with ‘info registers’.
+
+00:04:27.580 --> 00:04:34.520
+Here you can see that RIP, the instruction
+pointer, points to the first address in main.
+
+00:04:34.520 --> 00:04:38.250
+Now use ‘si’ to step one instruction.
+
+00:04:38.250 --> 00:04:39.990
+Now we are at a new address in main.
+
+00:04:39.990 --> 00:04:44.000
+‘info registers’ and you see the changed
+instruction pointer.
+
+00:04:44.000 --> 00:04:50.030
+So now just step through it all and follow
+the addresses in your control graph.
+
+00:04:50.030 --> 00:04:54.780
+But use ‘ni’ instead of ‘si’, because
+‘si’ would step into function calls.
+
+00:04:54.780 --> 00:05:07.500
+But we only want to step through this main
+function and not follow stuff like ‘puts’.
+
+00:05:07.500 --> 00:05:10.300
+Ok did you notice when we jumped?
+
+00:05:10.300 --> 00:05:16.160
+The jump was at 5d0, and then the next instruction
+was at 623.
+
+00:05:16.160 --> 00:05:24.840
+So we followed the jump, which means whatever
+was compared to 2, was not 2.
+
+00:05:24.840 --> 00:05:31.380
+And then the program printed the Usage information
+after 628, which was the last ‘puts’ call.
+
+00:05:31.380 --> 00:05:35.350
+So we can write down, that this ‘puts’
+prints the ‘Usage’ information.
+
+00:05:35.350 --> 00:05:41.560
+Now it’s pretty clear, that we didn’t
+pass a key to this program.
+
+00:05:41.560 --> 00:05:46.480
+Which means the check was looking at the arguments
+if we supplied a license key.
+
+00:05:46.480 --> 00:05:55.250
+So let’s run the program again, but this
+time with a random license key.
+
+00:05:55.250 --> 00:05:57.160
+Yes we want to start the program again.
+
+00:05:57.160 --> 00:06:00.500
+Now do the same.
+
+00:06:00.500 --> 00:06:02.169
+‘ni’, ‘ni’.
+
+00:06:02.169 --> 00:06:06.130
+Now we are at 5d0 again, will we jump this
+time?
+
+00:06:06.130 --> 00:06:07.130
+No!
+
+00:06:07.130 --> 00:06:08.130
+cool!
+
+00:06:08.130 --> 00:06:11.510
+So the next branch we expect is at 609.
+
+00:06:11.510 --> 00:06:15.880
+Let’s ‘ni’ and see what happens.
+
+00:06:15.880 --> 00:06:17.710
+AH!
+
+00:06:17.710 --> 00:06:18.710
+Another print text.
+
+00:06:18.710 --> 00:06:24.960
+So that ‘printf’ is the info that a license
+key will be checked.
+
+00:06:24.960 --> 00:06:27.160
+‘ni’.
+
+00:06:27.160 --> 00:06:28.790
+Now comes the branch.
+
+00:06:28.790 --> 00:06:34.080
+Ok we arrived at 609, let’s see where we
+are afterwards.
+
+00:06:34.080 --> 00:06:36.000
+At 617.
+
+00:06:36.000 --> 00:06:40.500
+So we did jump, which means that the strcmp
+failed.
+
+00:06:40.500 --> 00:06:45.060
+And when we continue with ‘ni’ we see
+that it’s wrong.
+
+00:06:45.060 --> 00:06:46.060
+Ok.
+
+00:06:46.060 --> 00:06:52.200
+Let’s set a breakpoint just before the last
+compare and run the program again.
+
+00:06:52.200 --> 00:06:57.490
+Remember that you can easily copy&amp;paste values
+in the terminal by simply marking something
+
+00:06:57.490 --> 00:06:59.790
+and pressing your mousewheel.
+
+00:06:59.790 --> 00:07:02.300
+Now ‘run’ again.
+
+00:07:02.300 --> 00:07:03.970
+Breakpoint 1.
+
+00:07:03.970 --> 00:07:05.290
+Now ‘continue’.
+
+00:07:05.290 --> 00:07:10.360
+This will run the program normally again,
+until we hit the next breakpoint.
+
+00:07:10.360 --> 00:07:14.320
+Now stopped before we execute the ‘test
+eax, eax’.
+
+00:07:14.320 --> 00:07:20.770
+EAX just refers to the first 32bit of the
+64bit RAX register.
+
+00:07:20.770 --> 00:07:23.430
+So it’s value is hex 0xE.
+
+00:07:23.430 --> 00:07:31.710
+Let’s set this to 0, which would indicate
+that the ‘strcmp’ was correct and returned
+
+00:07:31.710 --> 00:07:32.710
+a 0.
+
+00:07:32.710 --> 00:07:37.460
+‘set $eax=0’. ‘info registers’ and
+you can see that it’s now 0.
+
+00:07:37.460 --> 00:07:43.020
+Now use ‘ni’ again to step and follow
+your control path.
+
+00:07:43.020 --> 00:07:48.150
+‘Access Granted!’
+
+00:07:48.150 --> 00:07:50.720
+YAY!
+
+00:07:50.720 --> 00:07:53.830
+We circumvented the license check!
+
+00:07:53.830 --> 00:07:58.150
+It think that’s pretty cool!
+
+00:07:58.150 --> 00:08:04.050
+And you can always write your own little C
+program trying to make it more secure, and
+
+00:08:04.050 --> 00:08:05.810
+then crack it yourself again.
+
+00:08:05.810 --> 00:08:11.510
+You will notice that it’s impossible to
+make a program uncrackable.
+
+00:08:11.510 --> 00:08:14.419
+Those kind of challenges are called ‘crackme’.
+
+00:08:14.419 --> 00:08:17.470
+People create small programs that have to
+be cracked.
+
+00:08:17.470 --> 00:08:20.490
+Or more often you have to create a valid keygen.
+
+00:08:20.490 --> 00:08:26.699
+If you think something like this is fun, checkout
+http://crackmes.de/.
+
+00:08:26.699 --> 00:08:30.230
+Creating control graphs like we just did is
+pretty useful.
+
+00:08:30.230 --> 00:08:33.979
+That’s why there are some programs that
+do that for us.
+
+00:08:33.979 --> 00:08:39.800
+Here are three different examples of this
+specific control graph.
+
+00:08:39.800 --> 00:08:48.390
+First is HopperApp, second is IDAPro and the
+last one is from radare2.
+
+00:08:48.390 --> 00:08:53.160
+See you hopefully next time when we use some
+different tools to explore this licence check
+
+00:08:53.160 --> 00:08:54.160
+binary a bit more.
+
+00:08:54.160 --> 00:08:55.160
+Let’s figure out together the basic concepts
+of a CPU.
+
+00:08:55.160 --> 00:08:56.160
+Computers have different memory to store stuff
+- so first we need something to store the
+
+00:08:56.160 --> 00:08:57.160
+machine code in.
+
+00:08:57.160 --> 00:08:58.160
+Let’s take a spreadsheet and imagine that
+this is memory.
+
+00:08:58.160 --> 00:08:59.160
+You can store values in it and each memory
+cell has an address, which is the number on
+
+00:08:59.160 --> 00:09:00.160
+the left.
+
+00:09:00.160 --> 00:09:01.160
+And I will use the 2nd column to write some
+comments in there.
+
+00:09:01.160 --> 00:09:02.160
+As you can see there are some hexadecimal
+numbers stored in this memory.
+
+00:09:02.160 --> 00:09:03.160
+And at first it looks very random, but that
+is our machine code and soon you will understand
+
+00:09:03.160 --> 00:09:04.160
+this.
+
+00:09:04.160 --> 00:09:05.160
+So the first thing the CPU needs to have is
+something to keep track where in memory the
+
+00:09:05.160 --> 00:09:06.160
+CPU currently is.
+
+00:09:06.160 --> 00:09:07.160
+Which means we shoud add a little storage
+for our CPU and call it the “Instruction
+
+00:09:07.160 --> 00:09:08.160
+Pointer”.
+
+00:09:08.160 --> 00:09:09.160
+This little storage area will contain the
+address of memory the CPU is looking at the
+
+00:09:09.160 --> 00:09:10.160
+moment.
+
+00:09:10.160 --> 00:09:11.160
+So obviously our program starts from the top,
+so the address will be 1.
+
+00:09:11.160 --> 00:09:12.160
+Now let’s start the CPU, it looks at address
+1 and reads 48, AA, 14.
+
+00:09:12.160 --> 00:09:13.160
+But what do those numbers mean?
+
+00:09:13.160 --> 00:09:14.160
+The CPU knows that 48 means it has to MOVE
+data around.
+
+00:09:14.160 --> 00:09:15.160
+The AA means the destination of that move.
+
+00:09:15.160 --> 00:09:16.160
+and the 14 is the source.
+
+00:09:16.160 --> 00:09:17.160
+So in address 14 we can see the number 42.
+
+00:09:17.160 --> 00:09:18.160
+And the destination is another small storage
+unit inside the CPU.
+
+00:09:18.160 --> 00:09:19.160
+So the CPU will move the 42 into it’s small
+storage area called AA.
+
+00:09:19.160 --> 00:09:20.160
+So this instruction is done, and the CPU increases
+the Instruction pointer by one.
+
+00:09:20.160 --> 00:09:21.160
+And we start over.
+
+00:09:21.160 --> 00:09:22.160
+The CPU reads the current value at the address
+of it’s instruction pointer.
+
+00:09:22.160 --> 00:09:23.160
+So it reads 48 again which means move, and
+this time it’s moving the content of address
+
+00:09:23.160 --> 00:09:24.160
+15 into the small storage BB.
+
+00:09:24.160 --> 00:09:25.160
+Notice how I use brackets around the 15.
+
+00:09:25.160 --> 00:09:26.160
+This indicates that 15 is an address, and
+we actually reference the content of 15, which
+
+00:09:26.160 --> 00:09:27.160
+is 66.
+
+00:09:27.160 --> 00:09:28.160
+And not the number 15 itself.
+
+00:09:28.160 --> 00:09:29.160
+Instruction done, increase the Instruction
+pointer.
+
+00:09:29.160 --> 00:09:30.160
+The next address contains 83, AA and BB.
+
+00:09:30.160 --> 00:09:31.160
+The CPU knows that 83 means COMPARE.
+
+00:09:31.160 --> 00:09:32.160
+And it compares the values in AA and BB.
+
+00:09:32.160 --> 00:09:33.160
+Now it has to somehow remember the result
+of this compare.
+
+00:09:33.160 --> 00:09:34.160
+So let’s add another small storage that
+stores this result.
+
+00:09:34.160 --> 00:09:35.160
+We call it Zero Flag.
+
+00:09:35.160 --> 00:09:36.160
+You know what an intelligent way is to compare
+two numbers?
+
+00:09:36.160 --> 00:09:37.160
+If you subtract them from each other and their
+result is 0, they were the same.
+
+00:09:37.160 --> 00:09:38.160
+If the result is not zero, they were different.
+
+00:09:38.160 --> 00:09:39.160
+So this is what the CPU does.
+
+00:09:39.160 --> 00:09:40.160
+66-42 is 24, so that’s not 0.
+
+00:09:40.160 --> 00:09:41.160
+So we set the zero flag to false.
+
+00:09:41.160 --> 00:09:42.160
+Instruction done, next one is at address 4.
+
+00:09:42.160 --> 00:09:43.160
+The CPU reads a 75 and 07.
+
+00:09:43.160 --> 00:09:44.160
+75 Stands for JUMP If not equal.
+
+00:09:44.160 --> 00:09:45.160
+And 07 is the address where to jump to.
+
+00:09:45.160 --> 00:09:46.160
+So the CPU checks the state of the Zero Flag.
+
+00:09:46.160 --> 00:09:47.160
+And The Zero flag is set to FALSE, so the
+previous compare was not equal.
+
+00:09:47.160 --> 00:09:48.160
+Which means it jumps to the destination 07.
+
+00:09:48.160 --> 00:09:49.160
+A jump is easy.
+
+00:09:49.160 --> 00:09:50.160
+The CPU just sets its Instruction Pointer
+to 07.
+
+00:09:50.160 --> 00:09:51.160
+Ok so the next instruction is at address 7.
+
+00:09:51.160 --> 00:09:52.160
+And it reads E8 and 17.
+
+00:09:52.160 --> 00:09:53.160
+E8 In this case stands for print a text.
+
+00:09:53.160 --> 00:09:54.160
+And the text can be found at address 17.
+
+00:09:54.160 --> 00:09:55.160
+But 17 doesn’t contain text?
+
+00:09:55.160 --> 00:09:56.160
+Well, for a computer everything is numbers.
+
+00:09:56.160 --> 00:09:57.160
+Like those instructions the CPU executes,
+they are just numbers.
+
+00:09:57.160 --> 00:09:58.160
+So text is made out of numbers too.
+
+00:09:58.160 --> 00:09:59.160
+Remember how I brushed over ASCII values in
+a previous video?
+
+00:09:59.160 --> 00:10:00.160
+Now it’s the time to pull up the ascii man
+page again.
+
+00:10:00.160 --> 00:10:01.160
+So type ‘man ascii’ In the terminal.
+
+00:10:01.160 --> 00:10:02.160
+Now try to find hex 4E and 4F.
+
+00:10:02.160 --> 00:10:03.160
+Haa.. ok.
+
+00:10:03.160 --> 00:10:04.160
+So they stand for ‘N’ and ‘O’.
+
+00:10:04.160 --> 00:10:05.160
+Which means the computer will print ‘NO’.
+
+00:10:05.160 --> 00:10:06.160
+So looks like this code simply compares two
+numbers.
+
+00:10:06.160 --> 00:10:07.160
+I will not go over the case when those two
+numbers are the same, but you should try it
+
+00:10:07.160 --> 00:10:08.160
+yourself.
+
+00:10:08.160 --> 00:10:09.160
+That’s crazy, huh?
+
+00:10:09.160 --> 00:10:10.160
+CPU simply reads the memory sequentially and
+does whatever it reads.
+
+00:10:10.160 --> 00:10:11.160
+And programmers can build crazy complex stuff
+with that.
+
+00:10:11.160 --> 00:10:12.160
+Now let me change the text a little bit so
+it reflects more the reality of how we write
+
+00:10:12.160 --> 00:10:13.160
+assembler.
+
+00:10:13.160 --> 00:10:14.160
+Basically just abbreviation of it.
+
+00:10:14.160 --> 00:10:15.160
+Also don’t get confused with the order of
+parameters.
+
+00:10:15.160 --> 00:10:16.160
+simply think of it like a variable assignment
+in programming.
+
+00:10:16.160 --> 00:10:17.160
+This was a very simple example, but the real
+world is not much different.
+
+00:10:17.160 --> 00:10:18.160
+People just came up with a lot more instructions
+that might be interesting and wrote complex
+
+00:10:18.160 --> 00:10:19.160
+code to solve hard problems.
+
+00:10:19.160 --> 00:10:19.169
+But at their core they are simple like that.
+

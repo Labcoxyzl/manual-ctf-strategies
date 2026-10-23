@@ -1,0 +1,20 @@
+{
+  "rank": 5,
+  "video_id": "_qElVZJqlGY",
+  "file": "videos/05_MFTECmd__qElVZJqlGY.mp4",
+  "bytes": 157646133,
+  "sha256": "684283ce8dc389e9948b50b25a7f515ee5c0b02bdea9fb09327291e13830ede9",
+  "width": 3840,
+  "height": 2160,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 1321.12254,
+  "sample_decode_seconds": [
+    1,
+    660.56,
+    1318.12
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/05_MFTECmd__qElVZJqlGY.en.vtt"
+}

@@ -1,0 +1,21 @@
+{
+  "number": 17,
+  "video_id": "XkLCEhEJuSI",
+  "title": "Password Cracking with Hashcat",
+  "file": "videos/17_Hashcat_XkLCEhEJuSI.mp4",
+  "bytes": 185542293,
+  "sha256": "0a32c6d6fc4abd1c1b84754576ba10b766cad6d805860db756ac644401b4f933",
+  "width": 3840,
+  "height": 2160,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 1838.811429,
+  "sample_decode_seconds": [
+    1,
+    919.4057145,
+    1835.811429
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/17_Hashcat_XkLCEhEJuSI.en.vtt"
+}

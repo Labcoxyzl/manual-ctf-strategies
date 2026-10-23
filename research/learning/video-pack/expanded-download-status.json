@@ -1,0 +1,74 @@
+[
+  {
+    "number": 9,
+    "video_id": "eQItiKZpuSc",
+    "title": "SF19US - 22 Analyzing Windows malware traffic w/ Wireshark [Part 1](Brad Duncan)",
+    "file": "research/learning/video-pack/videos/09_Wireshark_Malware_Traffic_eQItiKZpuSc.mp4",
+    "exit_code": 0,
+    "bytes": 211439129
+  },
+  {
+    "number": 10,
+    "video_id": "VYROU-ZwZX8",
+    "title": "Introduction to Windows Forensics",
+    "file": "research/learning/video-pack/videos/10_Windows_Forensics_VYROU-ZwZX8.mp4",
+    "exit_code": 0,
+    "bytes": 245823964
+  },
+  {
+    "number": 11,
+    "video_id": "wu4-nREmzGM",
+    "title": "LNK Files and Jump Lists",
+    "file": "research/learning/video-pack/videos/11_LNK_Jump_Lists_wu4-nREmzGM.mp4",
+    "exit_code": 0,
+    "bytes": 307927686
+  },
+  {
+    "number": 12,
+    "video_id": "RFG5FuqY0CE",
+    "title": "HackadayU: Reverse Engineering with Ghidra Class 3",
+    "file": "research/learning/video-pack/videos/12_Ghidra_Class_3_RFG5FuqY0CE.mp4",
+    "exit_code": 0,
+    "bytes": 146734594
+  },
+  {
+    "number": 13,
+    "video_id": "5QBXNF7FKxM",
+    "title": "HackadayU: Reverse Engineering with Ghidra Class 4",
+    "file": "research/learning/video-pack/videos/13_Ghidra_Class_4_5QBXNF7FKxM.mp4",
+    "exit_code": 0,
+    "bytes": 132611319
+  },
+  {
+    "number": 14,
+    "video_id": "YXnNO3TipvM",
+    "title": "Unpacking Redaman Malware & Basics of Self-Injection Packers - ft. OALabs",
+    "file": "research/learning/video-pack/videos/14_x64dbg_Redaman_YXnNO3TipvM.mp4",
+    "exit_code": 0,
+    "bytes": 80923793
+  },
+  {
+    "number": 15,
+    "video_id": "dLIbkg_8O68",
+    "title": "Malware Analysis - Unpacking NetWiredRC With DnSpy",
+    "file": "research/learning/video-pack/videos/15_dnSpy_Unpacking_dLIbkg_8O68.mp4",
+    "exit_code": 0,
+    "bytes": 126460994
+  },
+  {
+    "number": 16,
+    "video_id": "_jz5qFWhLcg",
+    "title": "Broken Access Control | Complete Guide",
+    "file": "research/learning/video-pack/videos/16_Broken_Access_Control__jz5qFWhLcg.mp4",
+    "exit_code": 0,
+    "bytes": 84858219
+  },
+  {
+    "number": 17,
+    "video_id": "XkLCEhEJuSI",
+    "title": "Password Cracking with Hashcat",
+    "file": "research/learning/video-pack/videos/17_Hashcat_XkLCEhEJuSI.mp4",
+    "exit_code": 0,
+    "bytes": 185542293
+  }
+]

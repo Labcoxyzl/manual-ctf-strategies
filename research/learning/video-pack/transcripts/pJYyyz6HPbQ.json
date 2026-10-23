@@ -1,0 +1,995 @@
+{
+  "video_id": "pJYyyz6HPbQ",
+  "title": "MORSE CODE Steganography (2/2) BsidesCT CTF 2018",
+  "channel": "John Hammond",
+  "duration_seconds": 569,
+  "caption_source": "research/learning/video-pack/captions/pJYyyz6HPbQ.en-orig.vtt",
+  "caption_sha256": "f16216ceb2f9d2dc27e34cefb29320892f0b455b1f87957f51830ea672d842e8",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 2,
+      "text": "hey YouTube this is a video right up for"
+    },
+    {
+      "seconds": 2,
+      "text": "the challenge odors are like onions from"
+    },
+    {
+      "seconds": 4,
+      "text": "the b-sides Connecticut captial flag"
+    },
+    {
+      "seconds": 6,
+      "text": "competition in this tech Onaga fee"
+    },
+    {
+      "seconds": 8,
+      "text": "category the challenge prompt here is"
+    },
+    {
+      "seconds": 10,
+      "text": "sometimes things on what they seem"
+    },
+    {
+      "seconds": 12,
+      "text": "sometimes things are would they seem"
+    },
+    {
+      "seconds": 14,
+      "text": "damn that's confusing regardless this is"
+    },
+    {
+      "seconds": 16,
+      "text": "a thing so this challenge is brought to"
+    },
+    {
+      "seconds": 18,
+      "text": "you by a friend ordinate SEC DSM and"
+    },
+    {
+      "seconds": 20,
+      "text": "we're giving a download here the hint"
+    },
+    {
+      "seconds": 21,
+      "text": "did not come out until later on in the"
+    },
+    {
+      "seconds": 23,
+      "text": "game and I never solved this during the"
+    },
+    {
+      "seconds": 26,
+      "text": "competition and no one else did in fact"
+    },
+    {
+      "seconds": 28,
+      "text": "the first solve is from just a couple"
+    },
+    {
+      "seconds": 30,
+      "text": "minutes ago like the last hour well I"
+    },
+    {
+      "seconds": 33,
+      "text": "was just trying to get this right and go"
+    },
+    {
+      "seconds": 35,
+      "text": "ahead and submit it now so let's go"
+    },
+    {
+      "seconds": 37,
+      "text": "ahead and dive in we have that MPEG or"
+    },
+    {
+      "seconds": 39,
+      "text": "mp3 files to download sorry and it is"
+    },
+    {
+      "seconds": 42,
+      "text": "simply that it is an audio file we can"
+    },
+    {
+      "seconds": 44,
+      "text": "go ahead and play it I'll use M player"
+    },
+    {
+      "seconds": 45,
+      "text": "and I don't know if you can hear that"
+    },
+    {
+      "seconds": 47,
+      "text": "right now but it's a lot of beeping it's"
+    },
+    {
+      "seconds": 50,
+      "text": "stupid stuff originally I thought oh"
+    },
+    {
+      "seconds": 52,
+      "text": "this is DTMF tones cuz I wasn't really"
+    },
+    {
+      "seconds": 55,
+      "text": "paying attention or listening it's DTMF"
+    },
+    {
+      "seconds": 57,
+      "text": "and then I wanted to go ahead and decode"
+    },
+    {
+      "seconds": 60,
+      "text": "them but for some reason this site is"
+    },
+    {
+      "seconds": 61,
+      "text": "down and I feel horrible about that"
+    },
+    {
+      "seconds": 64,
+      "text": "because I don't know any other resources"
+    },
+    {
+      "seconds": 65,
+      "text": "to decode DTMF tones it's not important"
+    },
+    {
+      "seconds": 71,
+      "text": "because this isn't actually that that's"
+    },
+    {
+      "seconds": 73,
+      "text": "not the correct lead for this if you"
+    },
+    {
+      "seconds": 75,
+      "text": "actually open this up in another utility"
+    },
+    {
+      "seconds": 76,
+      "text": "like sonic visualizer or something to"
+    },
+    {
+      "seconds": 78,
+      "text": "really be able to actually look at the"
+    },
+    {
+      "seconds": 80,
+      "text": "file let's see okay I've got it in"
+    },
+    {
+      "seconds": 82,
+      "text": "download that's good enough this kind of"
+    },
+    {
+      "seconds": 85,
+      "text": "looks like Morse code and maybe that's"
+    },
+    {
+      "seconds": 90,
+      "text": "harder to tell harder to determine but"
+    },
+    {
+      "seconds": 91,
+      "text": "you can see these some waves are long in"
+    },
+    {
+      "seconds": 94,
+      "text": "some ways that are short etc so okay if"
+    },
+    {
+      "seconds": 96,
+      "text": "it's just the same tone beeping over and"
+    },
+    {
+      "seconds": 98,
+      "text": "over again and just varying in lengths"
+    },
+    {
+      "seconds": 99,
+      "text": "maybe this is in fact Morse code so I"
+    },
+    {
+      "seconds": 102,
+      "text": "figured well let's go ahead and play"
+    },
+    {
+      "seconds": 103,
+      "text": "with that let's go ahead and figure that"
+    },
+    {
+      "seconds": 104,
+      "text": "out let's use a Morse code decoder maybe"
+    },
+    {
+      "seconds": 107,
+      "text": "audio file wave so I just went to this"
+    },
+    {
+      "seconds": 109,
+      "text": "site online actually if you do some"
+    },
+    {
+      "seconds": 111,
+      "text": "reconnaissance on the file if you just"
+    },
+    {
+      "seconds": 112,
+      "text": "like where to use EXIF tool I think on"
+    },
+    {
+      "seconds": 115,
+      "text": "that yeah you can see okay it's got a"
+    },
+    {
+      "seconds": 117,
+      "text": "title it's got an artist it's got a band"
+    },
+    {
+      "seconds": 119,
+      "text": "these are specific people that had put"
+    },
+    {
+      "seconds": 121,
+      "text": "this together"
+    },
+    {
+      "seconds": 122,
+      "text": "looks like besides I always reference in"
+    },
+    {
+      "seconds": 124,
+      "text": "here maybe this challenge was originally"
+    },
+    {
+      "seconds": 125,
+      "text": "put there but it says hey this was"
+    },
+    {
+      "seconds": 127,
+      "text": "encoded by this URL and it discusses"
+    },
+    {
+      "seconds": 130,
+      "text": "their their page and also fine let's"
+    },
+    {
+      "seconds": 132,
+      "text": "just jump"
+    },
+    {
+      "seconds": 133,
+      "text": "and use this because that's the correct"
+    },
+    {
+      "seconds": 135,
+      "text": "page that we're on here if we wanted to"
+    },
+    {
+      "seconds": 136,
+      "text": "it says if you've arrived here you might"
+    },
+    {
+      "seconds": 138,
+      "text": "prefer the newer streamlined version"
+    },
+    {
+      "seconds": 139,
+      "text": "which adapts to the speed and frequency"
+    },
+    {
+      "seconds": 141,
+      "text": "of the Morse code over it doesn't give"
+    },
+    {
+      "seconds": 142,
+      "text": "us a whole lot of options and this one"
+    },
+    {
+      "seconds": 144,
+      "text": "does we can actually select something"
+    },
+    {
+      "seconds": 146,
+      "text": "specifically that we want to look at so"
+    },
+    {
+      "seconds": 147,
+      "text": "I'll go ahead and upload a file here"
+    },
+    {
+      "seconds": 150,
+      "text": "I'll put this in the b-sides CTF thing"
+    },
+    {
+      "seconds": 154,
+      "text": "stag ogres are like onions and upload it"
+    },
+    {
+      "seconds": 158,
+      "text": "cool so if we were to play here or move"
+    },
+    {
+      "seconds": 162,
+      "text": "down a little very very bottom it"
+    },
+    {
+      "seconds": 164,
+      "text": "actually gives us the message that it's"
+    },
+    {
+      "seconds": 166,
+      "text": "trying to read out this whole hit do it"
+    },
+    {
+      "seconds": 169,
+      "text": "I'll hit the Go button and it'll slowly"
+    },
+    {
+      "seconds": 171,
+      "text": "process I hope I think I may have to"
+    },
+    {
+      "seconds": 175,
+      "text": "have set like apply or play or something"
+    },
+    {
+      "seconds": 179,
+      "text": "yeah I had I struggled with this one"
+    },
+    {
+      "seconds": 181,
+      "text": "which is why I went to the newer version"
+    },
+    {
+      "seconds": 183,
+      "text": "but this one is this this original page"
+    },
+    {
+      "seconds": 185,
+      "text": "is a lot better for giving us something"
+    },
+    {
+      "seconds": 187,
+      "text": "when you specify to tone and I don't"
+    },
+    {
+      "seconds": 191,
+      "text": "know if you let me do this or not"
+    },
+    {
+      "seconds": 192,
+      "text": "yeah hit the stop button maybe my"
+    },
+    {
+      "seconds": 196,
+      "text": "internet connection is just crap and"
+    },
+    {
+      "seconds": 198,
+      "text": "that's why I can't process this very"
+    },
+    {
+      "seconds": 199,
+      "text": "easily let's try this dream streamlined"
+    },
+    {
+      "seconds": 202,
+      "text": "version I'll upload this guy hit play"
+    },
+    {
+      "seconds": 206,
+      "text": "and okay audio is on trying to process"
+    },
+    {
+      "seconds": 210,
+      "text": "some of this stuff let me turn that down"
+    },
+    {
+      "seconds": 216,
+      "text": "and we get this text that's coming out"
+    },
+    {
+      "seconds": 219,
+      "text": "of it the other message is that you"
+    },
+    {
+      "seconds": 220,
+      "text": "actually be able to receive from this if"
+    },
+    {
+      "seconds": 222,
+      "text": "you looked at it with two-tone or with"
+    },
+    {
+      "seconds": 224,
+      "text": "other things it says this is like 20 wpm"
+    },
+    {
+      "seconds": 228,
+      "text": "with a higher frequency etc I'm in at"
+    },
+    {
+      "seconds": 231,
+      "text": "the very end it looks like it's getting"
+    },
+    {
+      "seconds": 233,
+      "text": "us bTW"
+    },
+    {
+      "seconds": 240,
+      "text": "yeah bTW and what does a I don't forget"
+    },
+    {
+      "seconds": 240,
+      "text": "the proper terminology it was in fro"
+    },
+    {
+      "seconds": 242,
+      "text": "sign or something Morse code yeah yeah"
+    },
+    {
+      "seconds": 250,
+      "text": "Pro signs for Morse code yeah so BTW is"
+    },
+    {
+      "seconds": 253,
+      "text": "like starting a new new thing"
+    },
+    {
+      "seconds": 265,
+      "text": "I don't want to say like paragraph or"
+    },
+    {
+      "seconds": 265,
+      "text": "break through but okay break yeah break"
+    },
+    {
+      "seconds": 268,
+      "text": "so what I looked at that I realize okay"
+    },
+    {
+      "seconds": 272,
+      "text": "same as character equal signs or"
+    },
+    {
+      "seconds": 273,
+      "text": "something and I thought that's peculiar"
+    },
+    {
+      "seconds": 274,
+      "text": "because when I look at this clearly this"
+    },
+    {
+      "seconds": 277,
+      "text": "this is hard to determine its base64 but"
+    },
+    {
+      "seconds": 279,
+      "text": "I know it may vary will be another base"
+    },
+    {
+      "seconds": 281,
+      "text": "like a lot of column cop capital letters"
+    },
+    {
+      "seconds": 284,
+      "text": "is like base 32 so I didn't process"
+    },
+    {
+      "seconds": 287,
+      "text": "immediately that the BT or the the"
+    },
+    {
+      "seconds": 289,
+      "text": "breaks were referring to equal signs but"
+    },
+    {
+      "seconds": 291,
+      "text": "when I look at it later on it makes so"
+    },
+    {
+      "seconds": 293,
+      "text": "much more sense to me so I didn't see"
+    },
+    {
+      "seconds": 297,
+      "text": "the hint originally at the time as well"
+    },
+    {
+      "seconds": 298,
+      "text": "it wasn't out at that point but had I"
+    },
+    {
+      "seconds": 301,
+      "text": "seen it earlier I might have had a"
+    },
+    {
+      "seconds": 302,
+      "text": "better luck with this because that is in"
+    },
+    {
+      "seconds": 304,
+      "text": "fact something that made look like base"
+    },
+    {
+      "seconds": 306,
+      "text": "32 so let's go ahead and import base 64"
+    },
+    {
+      "seconds": 310,
+      "text": "in Python base 64 and Python that module"
+    },
+    {
+      "seconds": 313,
+      "text": "does in fact have a be 32 in code and"
+    },
+    {
+      "seconds": 316,
+      "text": "decode set of functions so we can base"
+    },
+    {
+      "seconds": 318,
+      "text": "32 decode i'll give it this and maybe i"
+    },
+    {
+      "seconds": 321,
+      "text": "had wrong padding there yep okay so"
+    },
+    {
+      "seconds": 323,
+      "text": "throw another equal sign on there you"
+    },
+    {
+      "seconds": 324,
+      "text": "can see it's trying to try to throw"
+    },
+    {
+      "seconds": 325,
+      "text": "something else in there and we're given"
+    },
+    {
+      "seconds": 327,
+      "text": "this right interesting"
+    },
+    {
+      "seconds": 330,
+      "text": "peculiar i have no idea what this is I"
+    },
+    {
+      "seconds": 332,
+      "text": "have literally no idea what this is I"
+    },
+    {
+      "seconds": 333,
+      "text": "thought it was base 85 or the 58 stuff"
+    },
+    {
+      "seconds": 336,
+      "text": "and then eventually looking at the hint"
+    },
+    {
+      "seconds": 338,
+      "text": "once it got released it says oh not all"
+    },
+    {
+      "seconds": 341,
+      "text": "your not all your base are 64 and I"
+    },
+    {
+      "seconds": 344,
+      "text": "agreed with this that this made sense in"
+    },
+    {
+      "seconds": 347,
+      "text": "my mind from what we had already figured"
+    },
+    {
+      "seconds": 348,
+      "text": "out okay Suman assumingly base 32 and I"
+    },
+    {
+      "seconds": 352,
+      "text": "screwed around with like oh add more"
+    },
+    {
+      "seconds": 353,
+      "text": "equal signs subtract equal signs just"
+    },
+    {
+      "seconds": 356,
+      "text": "twink mudge and and fudge some of the"
+    },
+    {
+      "seconds": 358,
+      "text": "characters in here but I was given this"
+    },
+    {
+      "seconds": 361,
+      "text": "at the end of day didn't know what to do"
+    },
+    {
+      "seconds": 363,
+      "text": "with it had no idea what it was kept"
+    },
+    {
+      "seconds": 364,
+      "text": "trying to play with it blah blah blah"
+    },
+    {
+      "seconds": 366,
+      "text": "the competition ended everything was"
+    },
+    {
+      "seconds": 368,
+      "text": "over and I figured we asked the guys"
+    },
+    {
+      "seconds": 370,
+      "text": "what is this thing and they tell these"
+    },
+    {
+      "seconds": 372,
+      "text": "oh it's Rob 47 and like what is that not"
+    },
+    {
+      "seconds": 376,
+      "text": "like base 37 or anything base 47 I found"
+    },
+    {
+      "seconds": 381,
+      "text": "it and read a little about it and it's a"
+    },
+    {
+      "seconds": 382,
+      "text": "it's peculiar because how do you looked"
+    },
+    {
+      "seconds": 384,
+      "text": "at like literally the rot13 like a"
+    },
+    {
+      "seconds": 386,
+      "text": "regular Caesar cipher thing on Wikipedia"
+    },
+    {
+      "seconds": 388,
+      "text": "they actually talk about rod 47 and the"
+    },
+    {
+      "seconds": 390,
+      "text": "variation ii it says oh it's a"
+    },
+    {
+      "seconds": 392,
+      "text": "derivative of rot13 where it"
+    },
+    {
+      "seconds": 394,
+      "text": "is scrambling the basic letters it also"
+    },
+    {
+      "seconds": 396,
+      "text": "treats numbers and common symbols as"
+    },
+    {
+      "seconds": 398,
+      "text": "part of the translation series instead"
+    },
+    {
+      "seconds": 400,
+      "text": "of using just a to z alphabet it uses"
+    },
+    {
+      "seconds": 402,
+      "text": "all the characters like everything in"
+    },
+    {
+      "seconds": 404,
+      "text": "ASCII so you can get some interesting"
+    },
+    {
+      "seconds": 406,
+      "text": "craft very cool right I'd never heard of"
+    },
+    {
+      "seconds": 409,
+      "text": "this a night and I definitely want to"
+    },
+    {
+      "seconds": 411,
+      "text": "add this to like my CTF katana thing if"
+    },
+    {
+      "seconds": 413,
+      "text": "you haven't seen that that's a cool"
+    },
+    {
+      "seconds": 414,
+      "text": "thing go ahead and check out John"
+    },
+    {
+      "seconds": 416,
+      "text": "Hammond github CTF katana has a lot of"
+    },
+    {
+      "seconds": 418,
+      "text": "references and resources for our CTF"
+    },
+    {
+      "seconds": 420,
+      "text": "stuff I definitely do add this into it"
+    },
+    {
+      "seconds": 422,
+      "text": "because I just thought it was very very"
+    },
+    {
+      "seconds": 423,
+      "text": "cool if you just go ahead and go to a"
+    },
+    {
+      "seconds": 425,
+      "text": "rot 47 decoder track one down online"
+    },
+    {
+      "seconds": 428,
+      "text": "build something interesting stuff we can"
+    },
+    {
+      "seconds": 431,
+      "text": "go ahead and submit this pace it in idle"
+    },
+    {
+      "seconds": 435,
+      "text": "where'd you go is it all gone did I lose"
+    },
+    {
+      "seconds": 438,
+      "text": "it all gosh dang it"
+    },
+    {
+      "seconds": 439,
+      "text": "alright let's read let's redo that I may"
+    },
+    {
+      "seconds": 442,
+      "text": "have closed out of it like a fool I"
+    },
+    {
+      "seconds": 452,
+      "text": "don't even have the whole thing to copy"
+    },
+    {
+      "seconds": 452,
+      "text": "and paste in for equal signs what I use"
+    },
+    {
+      "seconds": 457,
+      "text": "60 for my bed 32 there we go cool let's"
+    },
+    {
+      "seconds": 463,
+      "text": "go ahead and throw this into raw 47"
+    },
+    {
+      "seconds": 465,
+      "text": "decrypt it it says from SEC DSM with"
+    },
+    {
+      "seconds": 469,
+      "text": "love that is the flag that is what we"
+    },
+    {
+      "seconds": 472,
+      "text": "should submit and that is what would"
+    },
+    {
+      "seconds": 474,
+      "text": "give us 500 points except none of us got"
+    },
+    {
+      "seconds": 477,
+      "text": "it during the competition no one that"
+    },
+    {
+      "seconds": 479,
+      "text": "was playing figured this out but after"
+    },
+    {
+      "seconds": 481,
+      "text": "having that conversation with the"
+    },
+    {
+      "seconds": 482,
+      "text": "creator's afterwards we realized it was"
+    },
+    {
+      "seconds": 484,
+      "text": "rod 47 very cool I'd never heard of that"
+    },
+    {
+      "seconds": 487,
+      "text": "before so hey maybe that's a nugget for"
+    },
+    {
+      "seconds": 489,
+      "text": "you too hope you guys enjoyed this thank"
+    },
+    {
+      "seconds": 491,
+      "text": "you guys for watching and before I go I"
+    },
+    {
+      "seconds": 494,
+      "text": "want to give a quick shout out to the"
+    },
+    {
+      "seconds": 495,
+      "text": "people that support me on patreon so"
+    },
+    {
+      "seconds": 497,
+      "text": "thank you guys so much $1 a month or"
+    },
+    {
+      "seconds": 499,
+      "text": "more on patreon will give you a special"
+    },
+    {
+      "seconds": 500,
+      "text": "shout-out just like this at the end of"
+    },
+    {
+      "seconds": 502,
+      "text": "every video you got your name added to"
+    },
+    {
+      "seconds": 503,
+      "text": "the list get your name up in lights it's"
+    },
+    {
+      "seconds": 505,
+      "text": "just a feel-good feeling it feels like"
+    },
+    {
+      "seconds": 507,
+      "text": "you're helping people in the world"
+    },
+    {
+      "seconds": 508,
+      "text": "helping some guy just trying to make his"
+    },
+    {
+      "seconds": 509,
+      "text": "own path it's cool five dollars or more"
+    },
+    {
+      "seconds": 514,
+      "text": "on patreon will give you early access to"
+    },
+    {
+      "seconds": 515,
+      "text": "everything that are at least on YouTube"
+    },
+    {
+      "seconds": 516,
+      "text": "before it goes live so I like to record"
+    },
+    {
+      "seconds": 518,
+      "text": "some videos in bulk but I'm going on a"
+    },
+    {
+      "seconds": 520,
+      "text": "street feeling good actually being"
+    },
+    {
+      "seconds": 521,
+      "text": "productive for once and I will let them"
+    },
+    {
+      "seconds": 524,
+      "text": "sit in a shared Google Drive so that"
+    },
+    {
+      "seconds": 527,
+      "text": "anyone can access them"
+    },
+    {
+      "seconds": 528,
+      "text": "while I'm waiting on YouTube to"
+    },
+    {
+      "seconds": 530,
+      "text": "gradually release them on a schedule so"
+    },
+    {
+      "seconds": 532,
+      "text": "slowly but surely if you want the"
+    },
+    {
+      "seconds": 534,
+      "text": "content right when it's ready right when"
+    },
+    {
+      "seconds": 536,
+      "text": "it's hot right when I've got stuff"
+    },
+    {
+      "seconds": 537,
+      "text": "recorded that's the way to do it and it"
+    },
+    {
+      "seconds": 538,
+      "text": "helps me out I'm grateful and I thank"
+    },
+    {
+      "seconds": 540,
+      "text": "you for your help and support if you did"
+    },
+    {
+      "seconds": 543,
+      "text": "like this video please do like comment"
+    },
+    {
+      "seconds": 545,
+      "text": "and subscribe join our discord server"
+    },
+    {
+      "seconds": 546,
+      "text": "link in the description it is a cool"
+    },
+    {
+      "seconds": 548,
+      "text": "community full of CTF players"
+    },
+    {
+      "seconds": 549,
+      "text": "programmers and hackers it's slowing"
+    },
+    {
+      "seconds": 551,
+      "text": "down we got a lot of people in there and"
+    },
+    {
+      "seconds": 552,
+      "text": "hopefully the the life will come out of"
+    },
+    {
+      "seconds": 554,
+      "text": "it again but we'll jump in the next CTF"
+    },
+    {
+      "seconds": 557,
+      "text": "right I think square CTF is coming up"
+    },
+    {
+      "seconds": 558,
+      "text": "this this weekend I'll be besides"
+    },
+    {
+      "seconds": 560,
+      "text": "Delaware give another talk playing pros"
+    },
+    {
+      "seconds": 562,
+      "text": "versus Joe's again"
+    },
+    {
+      "seconds": 563,
+      "text": "cool cool stuff so All Right see you"
+    },
+    {
+      "seconds": 566,
+      "text": "guys another video I love you I'll talk"
+    },
+    {
+      "seconds": 568,
+      "text": "to you later"
+    }
+  ]
+}

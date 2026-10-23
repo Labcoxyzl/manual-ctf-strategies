@@ -1,0 +1,1355 @@
+{
+  "id": "dLIbkg_8O68",
+  "duration_seconds": 1625,
+  "caption_sha256": "cdba20480215dce2e107296b4dd2d14f9a53df6bbd112a7031c6a40975adb82e",
+  "entries": [
+    {
+      "seconds": 2,
+      "text": "hello and welcome to malware analysis"
+    },
+    {
+      "seconds": 2,
+      "text": "for hedgehogs one of the videos with the"
+    },
+    {
+      "seconds": 5,
+      "text": "most views is the dotnet unpacking video"
+    },
+    {
+      "seconds": 9,
+      "text": "where I unpacked a nanoka read and I"
+    },
+    {
+      "seconds": 14,
+      "text": "don't think it's quite the be good"
+    },
+    {
+      "seconds": 16,
+      "text": "because I was I was quite confused why"
+    },
+    {
+      "seconds": 19,
+      "text": "while using the inspire the reason is"
+    },
+    {
+      "seconds": 24,
+      "text": "that I used an old version of it and I"
+    },
+    {
+      "seconds": 26,
+      "text": "was expecting features that this old"
+    },
+    {
+      "seconds": 28,
+      "text": "version didn't have so I would like to"
+    },
+    {
+      "seconds": 32,
+      "text": "make an update on how to use the ends by"
+    },
+    {
+      "seconds": 36,
+      "text": "the new version of it probably actually"
+    },
+    {
+      "seconds": 40,
+      "text": "you don't even need dotnet unpacker"
+    },
+    {
+      "seconds": 43,
+      "text": "or mega dump anymore because now you can"
+    },
+    {
+      "seconds": 47,
+      "text": "use the inspire to dump the memory"
+    },
+    {
+      "seconds": 50,
+      "text": "yourself but we will just see how how we"
+    },
+    {
+      "seconds": 54,
+      "text": "use the inspire web this sample so"
+    },
+    {
+      "seconds": 57,
+      "text": "that's our sample right here just the"
+    },
+    {
+      "seconds": 61,
+      "text": "way I usually get it without an"
+    },
+    {
+      "seconds": 63,
+      "text": "extension and without or any information"
+    },
+    {
+      "seconds": 66,
+      "text": "on it and most of the time I like to"
+    },
+    {
+      "seconds": 70,
+      "text": "check it first with well where is it P"
+    },
+    {
+      "seconds": 75,
+      "text": "studio all products and Eliza or"
+    },
+    {
+      "seconds": 77,
+      "text": "anything similar just to take a look"
+    },
+    {
+      "seconds": 80,
+      "text": "into if if it's a PFR of course"
+    },
+    {
+      "seconds": 85,
+      "text": "so no PE studio has a GUI that protects"
+    },
+    {
+      "seconds": 91,
+      "text": "analyzer doesn't have so it's most of"
+    },
+    {
+      "seconds": 94,
+      "text": "the time easier to see the important"
+    },
+    {
+      "seconds": 97,
+      "text": "stuff and let's check this okay this is"
+    },
+    {
+      "seconds": 104,
+      "text": "well firstly this is not a table net"
+    },
+    {
+      "seconds": 107,
+      "text": "file it has several imports that doesn't"
+    },
+    {
+      "seconds": 109,
+      "text": "it fry it usually just has one import"
+    },
+    {
+      "seconds": 111,
+      "text": "and also if you look at those strings in"
+    },
+    {
+      "seconds": 116,
+      "text": "here it doesn't look like a typical"
+    },
+    {
+      "seconds": 118,
+      "text": "dotnet file which would use functions"
+    },
+    {
+      "seconds": 122,
+      "text": "related to dotnet but this looks like a"
+    },
+    {
+      "seconds": 128,
+      "text": "sfx file you see the debug pass here"
+    },
+    {
+      "seconds": 131,
+      "text": "also here that this is an serve"
+    },
+    {
+      "seconds": 136,
+      "text": "extracting executable and also the"
+    },
+    {
+      "seconds": 140,
+      "text": "archive is in the overlay and usually"
+    },
+    {
+      "seconds": 145,
+      "text": "all the all this executable does is"
+    },
+    {
+      "seconds": 149,
+      "text": "unpacking the archive and the overlay"
+    },
+    {
+      "seconds": 152,
+      "text": "maybe doing some installation on running"
+    },
+    {
+      "seconds": 155,
+      "text": "something yeah so you can simply unpack"
+    },
+    {
+      "seconds": 161,
+      "text": "this with seven 7-zip so we will just do"
+    },
+    {
+      "seconds": 166,
+      "text": "that right here okay three files these"
+    },
+    {
+      "seconds": 172,
+      "text": "this I don't want to convict it so I"
+    },
+    {
+      "seconds": 177,
+      "text": "should use my disarm script here but I"
+    },
+    {
+      "seconds": 179,
+      "text": "didn't install it on this machine"
+    },
+    {
+      "seconds": 180,
+      "text": "because I prepare them that just right"
+    },
+    {
+      "seconds": 183,
+      "text": "before I make the video so okay but this"
+    },
+    {
+      "seconds": 186,
+      "text": "had an interesting I can already and"
+    },
+    {
+      "seconds": 188,
+      "text": "those are just some unknown binary files"
+    },
+    {
+      "seconds": 191,
+      "text": "which we should look at okay and this to"
+    },
+    {
+      "seconds": 199,
+      "text": "know this doesn't make much sense here"
+    },
+    {
+      "seconds": 206,
+      "text": "but it has patterns it has if it's"
+    },
+    {
+      "seconds": 209,
+      "text": "something that's encrypted it's likely"
+    },
+    {
+      "seconds": 212,
+      "text": "not as not grips a graphically save"
+    },
+    {
+      "seconds": 216,
+      "text": "encryption because of the patterns and"
+    },
+    {
+      "seconds": 221,
+      "text": "like if this would be X or you would you"
+    },
+    {
+      "seconds": 224,
+      "text": "might conclude that these parts here are"
+    },
+    {
+      "seconds": 228,
+      "text": "the key usually the key will show and"
+    },
+    {
+      "seconds": 232,
+      "text": "the zero areas of the file"
+    },
+    {
+      "seconds": 234,
+      "text": "okay what's this it's also just stuff"
+    },
+    {
+      "seconds": 239,
+      "text": "and we can't do anything with it looks"
+    },
+    {
+      "seconds": 244,
+      "text": "pretty dense too and if you put this in"
+    },
+    {
+      "seconds": 247,
+      "text": "protects analyzer you would probably see"
+    },
+    {
+      "seconds": 250,
+      "text": "a high entropy image here yeah"
+    },
+    {
+      "seconds": 254,
+      "text": "okay mostly but not not every it's not"
+    },
+    {
+      "seconds": 258,
+      "text": "everywhere so okay yeah and the other"
+    },
+    {
+      "seconds": 267,
+      "text": "one no that okay no I just confused them"
+    },
+    {
+      "seconds": 275,
+      "text": "this is the one where I said we have"
+    },
+    {
+      "seconds": 277,
+      "text": "these parents which might be an EXO on"
+    },
+    {
+      "seconds": 282,
+      "text": "Krypton so you see that there is"
+    },
+    {
+      "seconds": 284,
+      "text": "although there are high entropy areas"
+    },
+    {
+      "seconds": 286,
+      "text": "there are also some low entropy area so"
+    },
+    {
+      "seconds": 289,
+      "text": "there's still kind of a structure in"
+    },
+    {
+      "seconds": 292,
+      "text": "this file and for that one I think it"
+    },
+    {
+      "seconds": 296,
+      "text": "should be yeah this is how most safe"
+    },
+    {
+      "seconds": 302,
+      "text": "encryption would look like or even"
+    },
+    {
+      "seconds": 304,
+      "text": "compression but I don't know what it is"
+    },
+    {
+      "seconds": 307,
+      "text": "so that's checked our dot exe file okay"
+    },
+    {
+      "seconds": 315,
+      "text": "we don't need those anymore yes please"
+    },
+    {
+      "seconds": 333,
+      "text": "that's sort of netfile we already see"
+    },
+    {
+      "seconds": 333,
+      "text": "here that the signature is there and"
+    },
+    {
+      "seconds": 335,
+      "text": "also the one and single import that's"
+    },
+    {
+      "seconds": 338,
+      "text": "usually done foot on that five of em is"
+    },
+    {
+      "seconds": 340,
+      "text": "corridor dr and here you can see some"
+    },
+    {
+      "seconds": 346,
+      "text": "yeah doesn't that typical functions and"
+    },
+    {
+      "seconds": 349,
+      "text": "system reflection is quite typical for"
+    },
+    {
+      "seconds": 351,
+      "text": "for injectors before for the nets packed"
+    },
+    {
+      "seconds": 356,
+      "text": "file said use reflection to run the"
+    },
+    {
+      "seconds": 361,
+      "text": "packed file inside so yeah let's take a"
+    },
+    {
+      "seconds": 367,
+      "text": "look at it with ad compiler"
+    },
+    {
+      "seconds": 380,
+      "text": "okay this is the metadata information"
+    },
+    {
+      "seconds": 380,
+      "text": "and it's already not that well if I"
+    },
+    {
+      "seconds": 387,
+      "text": "would see this I would immediately"
+    },
+    {
+      "seconds": 388,
+      "text": "assume it's malware because alleged"
+    },
+    {
+      "seconds": 392,
+      "text": "files do not use like random strings"
+    },
+    {
+      "seconds": 394,
+      "text": "normally I mean there are always"
+    },
+    {
+      "seconds": 396,
+      "text": "exceptions of people who like to protect"
+    },
+    {
+      "seconds": 400,
+      "text": "the files and web protection that's kind"
+    },
+    {
+      "seconds": 403,
+      "text": "of malware like what most of the time"
+    },
+    {
+      "seconds": 407,
+      "text": "it's it's really malware if you see this"
+    },
+    {
+      "seconds": 422,
+      "text": "yeah okay let's just say it's not here's"
+    },
+    {
+      "seconds": 422,
+      "text": "a late call that's that's probably where"
+    },
+    {
+      "seconds": 428,
+      "text": "the packed files called"
+    },
+    {
+      "seconds": 430,
+      "text": "now the question is where's the peck"
+    },
+    {
+      "seconds": 433,
+      "text": "file okay that looks good there's"
+    },
+    {
+      "seconds": 440,
+      "text": "something that's worth remembering is"
+    },
+    {
+      "seconds": 443,
+      "text": "that 77 and 90 our m and that so this"
+    },
+    {
+      "seconds": 448,
+      "text": "looks like and of the people that's safe"
+    },
+    {
+      "seconds": 452,
+      "text": "right here in the byte array because it"
+    },
+    {
+      "seconds": 457,
+      "text": "starts with M zet then there are zeros"
+    },
+    {
+      "seconds": 460,
+      "text": "mostly and then there's the ms-dos image"
+    },
+    {
+      "seconds": 462,
+      "text": "message I assume it is I am NOT able to"
+    },
+    {
+      "seconds": 466,
+      "text": "see the matrix but the pattern really"
+    },
+    {
+      "seconds": 470,
+      "text": "looks like it the cool thing with the"
+    },
+    {
+      "seconds": 475,
+      "text": "net is if you like to unpack it"
+    },
+    {
+      "seconds": 478,
+      "text": "statically you can just use fun sense"
+    },
+    {
+      "seconds": 481,
+      "text": "Visual Studio to copy and paste the"
+    },
+    {
+      "seconds": 486,
+      "text": "compiled code in there and unpack it"
+    },
+    {
+      "seconds": 490,
+      "text": "this way we will just do it here Visual"
+    },
+    {
+      "seconds": 493,
+      "text": "C sharp"
+    },
+    {
+      "seconds": 494,
+      "text": "Alec C sharp more"
+    },
+    {
+      "seconds": 498,
+      "text": "there's no basic I can just I can just"
+    },
+    {
+      "seconds": 501,
+      "text": "pass it better read it faster okay let's"
+    },
+    {
+      "seconds": 508,
+      "text": "create the project"
+    },
+    {
+      "seconds": 511,
+      "text": "I'm copying this"
+    },
+    {
+      "seconds": 530,
+      "text": "now just remove this we don't need that"
+    },
+    {
+      "seconds": 530,
+      "text": "and we don't need that stuff okay"
+    },
+    {
+      "seconds": 548,
+      "text": "and we will create an array here this is"
+    },
+    {
+      "seconds": 548,
+      "text": "all byte array and then we will just"
+    },
+    {
+      "seconds": 556,
+      "text": "write this stuff - I think it's follow I"
+    },
+    {
+      "seconds": 562,
+      "text": "hate the autocorrection foul raids Oh"
+    },
+    {
+      "seconds": 567,
+      "text": "bytes I guess then it should be the path"
+    },
+    {
+      "seconds": 571,
+      "text": "and then it should be the byte array and"
+    },
+    {
+      "seconds": 576,
+      "text": "for the path"
+    },
+    {
+      "seconds": 599,
+      "text": "double slashes desktop dump one yeah and"
+    },
+    {
+      "seconds": 599,
+      "text": "I think it needs an import yes and it"
+    },
+    {
+      "seconds": 604,
+      "text": "tells me system IO we will use that"
+    },
+    {
+      "seconds": 607,
+      "text": "import okay and if I run it it should"
+    },
+    {
+      "seconds": 611,
+      "text": "create our dumped file on the desktop if"
+    },
+    {
+      "seconds": 616,
+      "text": "I did everything correct let's check and"
+    },
+    {
+      "seconds": 624,
+      "text": "it didn't"
+    },
+    {
+      "seconds": 626,
+      "text": "oh it took a while Fela okay I made some"
+    },
+    {
+      "seconds": 634,
+      "text": "mistake in the past okay"
+    },
+    {
+      "seconds": 692,
+      "text": "go wasn't that oh wait I really hate"
+    },
+    {
+      "seconds": 692,
+      "text": "that I think the the error message was"
+    },
+    {
+      "seconds": 696,
+      "text": "not related at all to what's to the"
+    },
+    {
+      "seconds": 699,
+      "text": "course and that's something I really"
+    },
+    {
+      "seconds": 702,
+      "text": "hate okay but now"
+    },
+    {
+      "seconds": 707,
+      "text": "yeah and now it worked okay that's our"
+    },
+    {
+      "seconds": 713,
+      "text": "dump dump file and if you check this in"
+    },
+    {
+      "seconds": 717,
+      "text": "the hex editor you can see that it's"
+    },
+    {
+      "seconds": 720,
+      "text": "indeed I'm starting with MZ and here's"
+    },
+    {
+      "seconds": 723,
+      "text": "this program cannot be run in DOS mode"
+    },
+    {
+      "seconds": 726,
+      "text": "stop message okay it's quite small the"
+    },
+    {
+      "seconds": 731,
+      "text": "first small how much is that okay only"
+    },
+    {
+      "seconds": 738,
+      "text": "four keep kilobytes that's not much"
+    },
+    {
+      "seconds": 744,
+      "text": "I guess we will have to unpack further"
+    },
+    {
+      "seconds": 746,
+      "text": "and let's check this far"
+    },
+    {
+      "seconds": 757,
+      "text": "them"
+    },
+    {
+      "seconds": 757,
+      "text": "okay yeah interesting now we could now"
+    },
+    {
+      "seconds": 763,
+      "text": "proceed doing the same thing we already"
+    },
+    {
+      "seconds": 767,
+      "text": "did like we could now just copy and"
+    },
+    {
+      "seconds": 769,
+      "text": "paste the code and run it so unpack it"
+    },
+    {
+      "seconds": 773,
+      "text": "basically yeah with our code statically"
+    },
+    {
+      "seconds": 778,
+      "text": "but there's a faster way and that's"
+    },
+    {
+      "seconds": 781,
+      "text": "using the inspire and I will just do"
+    },
+    {
+      "seconds": 783,
+      "text": "that now let's check first what what"
+    },
+    {
+      "seconds": 787,
+      "text": "happens here that's the main method and"
+    },
+    {
+      "seconds": 793,
+      "text": "it reads all bytes from every - and"
+    },
+    {
+      "seconds": 798,
+      "text": "here's array array is created from the"
+    },
+    {
+      "seconds": 802,
+      "text": "data in here and it applies the split"
+    },
+    {
+      "seconds": 806,
+      "text": "method on that on that so it was split"
+    },
+    {
+      "seconds": 810,
+      "text": "here and it was split here and that"
+    },
+    {
+      "seconds": 814,
+      "text": "means array array"
+    },
+    {
+      "seconds": 831,
+      "text": "I think due to the split this should be"
+    },
+    {
+      "seconds": 831,
+      "text": "arrayed too because it splits twice at"
+    },
+    {
+      "seconds": 836,
+      "text": "that point and array 0 is this array 0"
+    },
+    {
+      "seconds": 843,
+      "text": "is used here okay no I could be wrong"
+    },
+    {
+      "seconds": 847,
+      "text": "though okay here's a retu now it gets a"
+    },
+    {
+      "seconds": 850,
+      "text": "bit confusing but let's just unpack it"
+    },
+    {
+      "seconds": 853,
+      "text": "it looks like it's reading this file"
+    },
+    {
+      "seconds": 856,
+      "text": "here and then it calls the decrypt with"
+    },
+    {
+      "seconds": 861,
+      "text": "the key array 0 which is this and then"
+    },
+    {
+      "seconds": 865,
+      "text": "decrypt the data and afterwards called"
+    },
+    {
+      "seconds": 868,
+      "text": "assembly load on the decrypted far so"
+    },
+    {
+      "seconds": 871,
+      "text": "that means this file contains our packed"
+    },
+    {
+      "seconds": 877,
+      "text": "file yeah"
+    },
+    {
+      "seconds": 900,
+      "text": "to them"
+    },
+    {
+      "seconds": 900,
+      "text": "okay"
+    },
+    {
+      "seconds": 902,
+      "text": "and we also know where we need to set"
+    },
+    {
+      "seconds": 905,
+      "text": "our break point because at this point"
+    },
+    {
+      "seconds": 907,
+      "text": "this is the byte array that's passed to"
+    },
+    {
+      "seconds": 912,
+      "text": "the decrypt function and here dwell in"
+    },
+    {
+      "seconds": 914,
+      "text": "this loop decrypt the data and at this"
+    },
+    {
+      "seconds": 917,
+      "text": "point it should be in memory and in a"
+    },
+    {
+      "seconds": 923,
+      "text": "decrypted State okay so we add the break"
+    },
+    {
+      "seconds": 926,
+      "text": "point here and run it and that's"
+    },
+    {
+      "seconds": 930,
+      "text": "something that we couldn't do with this"
+    },
+    {
+      "seconds": 933,
+      "text": "old version of the Nspire"
+    },
+    {
+      "seconds": 934,
+      "text": "now we see here the locals local"
+    },
+    {
+      "seconds": 937,
+      "text": "variables and their contents so yes"
+    },
+    {
+      "seconds": 941,
+      "text": "please expand it it says it's too big"
+    },
+    {
+      "seconds": 943,
+      "text": "but it shows some symbols and it starts"
+    },
+    {
+      "seconds": 946,
+      "text": "with 45 a and those are the m and that"
+    },
+    {
+      "seconds": 950,
+      "text": "again this time in hex instead of dead"
+    },
+    {
+      "seconds": 954,
+      "text": "similares but it's again a packed part"
+    },
+    {
+      "seconds": 960,
+      "text": "of executable as I what assume we can"
+    },
+    {
+      "seconds": 964,
+      "text": "now right click here show in memory and"
+    },
+    {
+      "seconds": 968,
+      "text": "it has already selected that memory area"
+    },
+    {
+      "seconds": 972,
+      "text": "and now we can just save the selection"
+    },
+    {
+      "seconds": 975,
+      "text": "to disk dump to be safe and that's it we"
+    },
+    {
+      "seconds": 983,
+      "text": "don't want to run it here now we have"
+    },
+    {
+      "seconds": 988,
+      "text": "another dump right there"
+    },
+    {
+      "seconds": 1002,
+      "text": "that's the second dump and it's oh it's"
+    },
+    {
+      "seconds": 1002,
+      "text": "okay you could see it already here"
+    },
+    {
+      "seconds": 1004,
+      "text": "powered by smart assembly that means it"
+    },
+    {
+      "seconds": 1006,
+      "text": "has used in an obfuscator"
+    },
+    {
+      "seconds": 1008,
+      "text": "and this version this office cater can"
+    },
+    {
+      "seconds": 1014,
+      "text": "be defeated using D for that so let's"
+    },
+    {
+      "seconds": 1018,
+      "text": "just use that you just need to drag and"
+    },
+    {
+      "seconds": 1024,
+      "text": "drop it in there yeah detected smart"
+    },
+    {
+      "seconds": 1027,
+      "text": "assembly and"
+    },
+    {
+      "seconds": 1036,
+      "text": "where is the clean here it's a clean"
+    },
+    {
+      "seconds": 1036,
+      "text": "damp and now we can just use that one to"
+    },
+    {
+      "seconds": 1042,
+      "text": "check okay"
+    },
+    {
+      "seconds": 1051,
+      "text": "looks much better than already now"
+    },
+    {
+      "seconds": 1051,
+      "text": "here's some more there are some more"
+    },
+    {
+      "seconds": 1055,
+      "text": "things going on than just unpacking it"
+    },
+    {
+      "seconds": 1059,
+      "text": "has some anti well it tries to detect"
+    },
+    {
+      "seconds": 1066,
+      "text": "certain tools like fiddler and it tries"
+    },
+    {
+      "seconds": 1070,
+      "text": "to detect VMware and VirtualBox so it"
+    },
+    {
+      "seconds": 1076,
+      "text": "would probably not run if it does this"
+    },
+    {
+      "seconds": 1078,
+      "text": "which is interesting but it that also"
+    },
+    {
+      "seconds": 1085,
+      "text": "depends on certain settings it's some of"
+    },
+    {
+      "seconds": 1088,
+      "text": "those you see the if all of the if"
+    },
+    {
+      "seconds": 1091,
+      "text": "statements right here check some kind of"
+    },
+    {
+      "seconds": 1094,
+      "text": "settings that can be set and so it's"
+    },
+    {
+      "seconds": 1097,
+      "text": "probably created by a builder to do this"
+    },
+    {
+      "seconds": 1109,
+      "text": "and here you see get prog address which"
+    },
+    {
+      "seconds": 1109,
+      "text": "is typically and load library typically"
+    },
+    {
+      "seconds": 1112,
+      "text": "used by backers okay so I guess we we"
+    },
+    {
+      "seconds": 1118,
+      "text": "have to unpack again let's just do that"
+    },
+    {
+      "seconds": 1136,
+      "text": "next layer and this is really not that"
+    },
+    {
+      "seconds": 1136,
+      "text": "uncommon that you have multiple layers"
+    },
+    {
+      "seconds": 1141,
+      "text": "it's not really problem but it's"
+    },
+    {
+      "seconds": 1144,
+      "text": "annoying having so many layers of text"
+    },
+    {
+      "seconds": 1148,
+      "text": "files and I hear this is the string"
+    },
+    {
+      "seconds": 1151,
+      "text": "that's used to set the settings of this"
+    },
+    {
+      "seconds": 1155,
+      "text": "and if you want to you can kind of we'll"
+    },
+    {
+      "seconds": 1159,
+      "text": "try to analyze it and see what this all"
+    },
+    {
+      "seconds": 1162,
+      "text": "means by checking the if statements but"
+    },
+    {
+      "seconds": 1167,
+      "text": "yeah let's just try to unpack it for now"
+    },
+    {
+      "seconds": 1172,
+      "text": "will step into well here there's a split"
+    },
+    {
+      "seconds": 1176,
+      "text": "on those"
+    },
+    {
+      "seconds": 1196,
+      "text": "and I don't know what it does here but"
+    },
+    {
+      "seconds": 1196,
+      "text": "here you can see it reads all bites from"
+    },
+    {
+      "seconds": 1199,
+      "text": "something let's see if we get okay I"
+    },
+    {
+      "seconds": 1208,
+      "text": "think I should go into this one we will"
+    },
+    {
+      "seconds": 1212,
+      "text": "add a breakpoint does it go back there"
+    },
+    {
+      "seconds": 1217,
+      "text": "come on okay"
+    },
+    {
+      "seconds": 1220,
+      "text": "we will started again"
+    },
+    {
+      "seconds": 1228,
+      "text": "step into"
+    },
+    {
+      "seconds": 1228,
+      "text": "the breakpoint still set yeah please sir"
+    },
+    {
+      "seconds": 1231,
+      "text": "and step into them"
+    },
+    {
+      "seconds": 1250,
+      "text": "hmm he's also some kind of array would"
+    },
+    {
+      "seconds": 1250,
+      "text": "just"
+    },
+    {
+      "seconds": 1278,
+      "text": "now that I started it multiple times it"
+    },
+    {
+      "seconds": 1278,
+      "text": "might not unpack probably so I'm not"
+    },
+    {
+      "seconds": 1284,
+      "text": "quite sure if I have to repeat this I'm"
+    },
+    {
+      "seconds": 1309,
+      "text": "and it returns here well maybe we can"
+    },
+    {
+      "seconds": 1309,
+      "text": "also gather to this point"
+    },
+    {
+      "seconds": 1323,
+      "text": "okay what's this"
+    },
+    {
+      "seconds": 1323,
+      "text": "yes please expand"
+    },
+    {
+      "seconds": 1354,
+      "text": "Wow we have several arrays and here is"
+    },
+    {
+      "seconds": 1354,
+      "text": "some encoded stuff and here yes please"
+    },
+    {
+      "seconds": 1358,
+      "text": "show it's also some encoded stuff"
+    },
+    {
+      "seconds": 1369,
+      "text": "step into"
+    },
+    {
+      "seconds": 1369,
+      "text": "please"
+    },
+    {
+      "seconds": 1371,
+      "text": "and here it does see decoding Wow hey"
+    },
+    {
+      "seconds": 1375,
+      "text": "great let's check this"
+    },
+    {
+      "seconds": 1380,
+      "text": "that's not decoded it's also Airy I'm"
+    },
+    {
+      "seconds": 1384,
+      "text": "not sure where is the array"
+    },
+    {
+      "seconds": 1399,
+      "text": "yes please oh now look at this"
+    },
+    {
+      "seconds": 1399,
+      "text": "I'm not quite sure but the naming here"
+    },
+    {
+      "seconds": 1402,
+      "text": "why it's called a e0 but he is again for"
+    },
+    {
+      "seconds": 1409,
+      "text": "the 5a that's the MZ and I guess it's in"
+    },
+    {
+      "seconds": 1415,
+      "text": "this area but really I don't know what's"
+    },
+    {
+      "seconds": 1417,
+      "text": "named this way okay we will show it here"
+    },
+    {
+      "seconds": 1422,
+      "text": "and then save the selection and we have"
+    },
+    {
+      "seconds": 1430,
+      "text": "our sir dump three safe"
+    },
+    {
+      "seconds": 1436,
+      "text": "okay let's please stop it's probably not"
+    },
+    {
+      "seconds": 1440,
+      "text": "also running in the background of"
+    },
+    {
+      "seconds": 1441,
+      "text": "malware but I have no internet"
+    },
+    {
+      "seconds": 1443,
+      "text": "connection"
+    },
+    {
+      "seconds": 1443,
+      "text": "nothing should happen this is our damped"
+    },
+    {
+      "seconds": 1448,
+      "text": "far and we'd take a look at it I guess"
+    },
+    {
+      "seconds": 1467,
+      "text": "this is not a Dannette executable"
+    },
+    {
+      "seconds": 1467,
+      "text": "anymore oh yeah this is how it looks"
+    },
+    {
+      "seconds": 1471,
+      "text": "like the enemy it has an overlay of just"
+    },
+    {
+      "seconds": 1476,
+      "text": "zeros in it so it might be that it well"
+    },
+    {
+      "seconds": 1481,
+      "text": "that might be caused by a bug when"
+    },
+    {
+      "seconds": 1483,
+      "text": "riding or something just okay but not"
+    },
+    {
+      "seconds": 1492,
+      "text": "much interesting stuff here it doesn't"
+    },
+    {
+      "seconds": 1493,
+      "text": "look back though if you look at those"
+    },
+    {
+      "seconds": 1498,
+      "text": "looks quite normal"
+    },
+    {
+      "seconds": 1500,
+      "text": "so maybe we are at the end now and yeah"
+    },
+    {
+      "seconds": 1504,
+      "text": "that's good"
+    },
+    {
+      "seconds": 1506,
+      "text": "if you see this it's it's password"
+    },
+    {
+      "seconds": 1510,
+      "text": "stealer credential stealer"
+    },
+    {
+      "seconds": 1512,
+      "text": "so here tries to read passwords from"
+    },
+    {
+      "seconds": 1520,
+      "text": "from Santa bird and from its Aloha here"
+    },
+    {
+      "seconds": 1525,
+      "text": "you see the sign ons s Co ID from I"
+    },
+    {
+      "seconds": 1528,
+      "text": "guess from Missoula and maybe also the"
+    },
+    {
+      "seconds": 1536,
+      "text": "internet history that's been stolen"
+    },
+    {
+      "seconds": 1538,
+      "text": "I'd look credentials maybe - and this is"
+    },
+    {
+      "seconds": 1543,
+      "text": "quite typical for key loggers because"
+    },
+    {
+      "seconds": 1547,
+      "text": "they have to lock the keys that you"
+    },
+    {
+      "seconds": 1549,
+      "text": "press and they would do this this way"
+    },
+    {
+      "seconds": 1554,
+      "text": "yeah so I looked up this uploaded it to"
+    },
+    {
+      "seconds": 1561,
+      "text": "very stable and it showed is net wire"
+    },
+    {
+      "seconds": 1567,
+      "text": "c-vector"
+    },
+    {
+      "seconds": 1574,
+      "text": "I'm not sure that it is exactly that"
+    },
+    {
+      "seconds": 1574,
+      "text": "better but I guess so I haven't seen it"
+    },
+    {
+      "seconds": 1578,
+      "text": "before and so I cannot really recognize"
+    },
+    {
+      "seconds": 1583,
+      "text": "it from from my experience okay and"
+    },
+    {
+      "seconds": 1589,
+      "text": "that's it we unpack this file in"
+    },
+    {
+      "seconds": 1591,
+      "text": "well let's say four layers the first was"
+    },
+    {
+      "seconds": 1596,
+      "text": "this SFX and then we had to dotnet"
+    },
+    {
+      "seconds": 1600,
+      "text": "layers and then we had the last one was"
+    },
+    {
+      "seconds": 1606,
+      "text": "this okay it's read of net layers okay"
+    },
+    {
+      "seconds": 1614,
+      "text": "yeah if you have any questions please"
+    },
+    {
+      "seconds": 1616,
+      "text": "post them below and thank you for"
+    },
+    {
+      "seconds": 1621,
+      "text": "watching"
+    }
+  ]
+}

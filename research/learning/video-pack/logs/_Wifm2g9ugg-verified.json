@@ -1,0 +1,20 @@
+{
+  "rank": 1,
+  "video_id": "_Wifm2g9ugg",
+  "file": "videos/01_Burp_Repeater__Wifm2g9ugg.mp4",
+  "bytes": 20696586,
+  "sha256": "f45835dc988e2449625694365351d4f0cc009aa01bc8b9bdfe6580a0fb6ac7b0",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 389.770159,
+  "sample_decode_seconds": [
+    1,
+    194.89,
+    386.77
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/01_Burp_Repeater__Wifm2g9ugg.en.vtt"
+}

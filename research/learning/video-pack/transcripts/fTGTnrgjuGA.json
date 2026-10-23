@@ -1,0 +1,1083 @@
+{
+  "video_id": "fTGTnrgjuGA",
+  "title": "Ghidra quickstart & tutorial: Solving a simple crackme",
+  "channel": "stacksmashing",
+  "duration_seconds": 690,
+  "caption_source": "research/learning/video-pack/captions/fTGTnrgjuGA.en-orig.vtt",
+  "caption_sha256": "7d0d88339aa2afe9388d2a64b356fcdc031f7a97c17c451344418ea5c0bfed0b",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 2,
+      "text": "welcome to this short introduction into"
+    },
+    {
+      "seconds": 2,
+      "text": "the JIRA software reverse engineering"
+    },
+    {
+      "seconds": 4,
+      "text": "suite in this video we will look at"
+    },
+    {
+      "seconds": 7,
+      "text": "cracking a simple crackme called easy"
+    },
+    {
+      "seconds": 9,
+      "text": "reverse from the website crack missed"
+    },
+    {
+      "seconds": 11,
+      "text": "one download the file and extract it"
+    },
+    {
+      "seconds": 14,
+      "text": "using the password crack miss dot one"
+    },
+    {
+      "seconds": 25,
+      "text": "when you run the binary for example on a"
+    },
+    {
+      "seconds": 25,
+      "text": "virtual machine you can see that it"
+    },
+    {
+      "seconds": 26,
+      "text": "expects a password and that password is"
+    },
+    {
+      "seconds": 29,
+      "text": "exactly what we are going to try to"
+    },
+    {
+      "seconds": 31,
+      "text": "reverse-engineer using jira so let's go"
+    },
+    {
+      "seconds": 36,
+      "text": "ahead and start right well the first"
+    },
+    {
+      "seconds": 38,
+      "text": "time you start I draw you'll be greeted"
+    },
+    {
+      "seconds": 40,
+      "text": "by the short License Agreement just to"
+    },
+    {
+      "seconds": 42,
+      "text": "degree because nobody reads those anyway"
+    },
+    {
+      "seconds": 52,
+      "text": "once dry dryer has"
+    },
+    {
+      "seconds": 52,
+      "text": "the project manager window we will throw"
+    },
+    {
+      "seconds": 55,
+      "text": "away the other windows because we don't"
+    },
+    {
+      "seconds": 57,
+      "text": "care about those and focus on the"
+    },
+    {
+      "seconds": 58,
+      "text": "project manager we create a new project"
+    },
+    {
+      "seconds": 61,
+      "text": "by hitting file new project and select a"
+    },
+    {
+      "seconds": 63,
+      "text": "non shared project then we select a"
+    },
+    {
+      "seconds": 66,
+      "text": "project directory and give our project a"
+    },
+    {
+      "seconds": 70,
+      "text": "nice name"
+    },
+    {
+      "seconds": 79,
+      "text": "you can see our project is now in the"
+    },
+    {
+      "seconds": 79,
+      "text": "project manager to import a binary we"
+    },
+    {
+      "seconds": 82,
+      "text": "can either use file import file or we"
+    },
+    {
+      "seconds": 84,
+      "text": "can simply drag and drop the file into"
+    },
+    {
+      "seconds": 86,
+      "text": "the project manager this will bring up"
+    },
+    {
+      "seconds": 90,
+      "text": "the import dialog where we need to"
+    },
+    {
+      "seconds": 92,
+      "text": "ensure that the format was detected"
+    },
+    {
+      "seconds": 94,
+      "text": "correctly and that the other binary"
+    },
+    {
+      "seconds": 96,
+      "text": "information such as the architecture and"
+    },
+    {
+      "seconds": 99,
+      "text": "the bit size was detected correctly for"
+    },
+    {
+      "seconds": 101,
+      "text": "example you might want to change the"
+    },
+    {
+      "seconds": 103,
+      "text": "compiler here or under certain"
+    },
+    {
+      "seconds": 105,
+      "text": "circumstances even select an entirely"
+    },
+    {
+      "seconds": 107,
+      "text": "different architecture"
+    },
+    {
+      "seconds": 113,
+      "text": "in this case we are happy with what"
+    },
+    {
+      "seconds": 113,
+      "text": "Hydra detected and we'll just hit okay"
+    },
+    {
+      "seconds": 116,
+      "text": "and let dry dry import the binary"
+    },
+    {
+      "seconds": 122,
+      "text": "once the import is done it will bring up"
+    },
+    {
+      "seconds": 122,
+      "text": "this short import results summary where"
+    },
+    {
+      "seconds": 124,
+      "text": "you can see the number of functions"
+    },
+    {
+      "seconds": 126,
+      "text": "symbols and other data you can also see"
+    },
+    {
+      "seconds": 129,
+      "text": "that the Lipsy was not found and that"
+    },
+    {
+      "seconds": 131,
+      "text": "there are six unresolved external"
+    },
+    {
+      "seconds": 133,
+      "text": "symbols we don't care about these in"
+    },
+    {
+      "seconds": 135,
+      "text": "this case and so we just hit OK"
+    },
+    {
+      "seconds": 142,
+      "text": "afterwards"
+    },
+    {
+      "seconds": 142,
+      "text": "click on our binary to start the code"
+    },
+    {
+      "seconds": 144,
+      "text": "browser the first thing the code browser"
+    },
+    {
+      "seconds": 147,
+      "text": "will ask us is whether we want to"
+    },
+    {
+      "seconds": 149,
+      "text": "analyze the binary we had yes and this"
+    },
+    {
+      "seconds": 151,
+      "text": "will bring up the analysis options in"
+    },
+    {
+      "seconds": 153,
+      "text": "here you can see that Hydra comes with a"
+    },
+    {
+      "seconds": 156,
+      "text": "ton of analyzers for example an ASCII"
+    },
+    {
+      "seconds": 158,
+      "text": "string analyzer that tries to detect"
+    },
+    {
+      "seconds": 161,
+      "text": "ASCII strings in your binary we could"
+    },
+    {
+      "seconds": 163,
+      "text": "change some options for example the"
+    },
+    {
+      "seconds": 164,
+      "text": "minimum string length but we'll just"
+    },
+    {
+      "seconds": 166,
+      "text": "leave it on default in this case we'll"
+    },
+    {
+      "seconds": 169,
+      "text": "also leave all the other analyzers on"
+    },
+    {
+      "seconds": 171,
+      "text": "default the only thing we are going to"
+    },
+    {
+      "seconds": 173,
+      "text": "enable is the decompiler parameter ID"
+    },
+    {
+      "seconds": 175,
+      "text": "just because it often improves our D"
+    },
+    {
+      "seconds": 178,
+      "text": "compilation results hit the analyze"
+    },
+    {
+      "seconds": 181,
+      "text": "button and you will be able to see the"
+    },
+    {
+      "seconds": 183,
+      "text": "progress in the bottom right and you"
+    },
+    {
+      "seconds": 185,
+      "text": "will also see some of your eye elements"
+    },
+    {
+      "seconds": 187,
+      "text": "slowly updating on a small binary like"
+    },
+    {
+      "seconds": 190,
+      "text": "this analysis is pretty fast but on a"
+    },
+    {
+      "seconds": 192,
+      "text": "bigger one you might wait a couple of"
+    },
+    {
+      "seconds": 194,
+      "text": "minutes so let's maximize the window and"
+    },
+    {
+      "seconds": 196,
+      "text": "start exploring the main window in the"
+    },
+    {
+      "seconds": 199,
+      "text": "code browser is called the listing"
+    },
+    {
+      "seconds": 201,
+      "text": "window"
+    },
+    {
+      "seconds": 202,
+      "text": "it contains your disassembly listing"
+    },
+    {
+      "seconds": 204,
+      "text": "your data and can even display images"
+    },
+    {
+      "seconds": 207,
+      "text": "and so on if you click for example a"
+    },
+    {
+      "seconds": 209,
+      "text": "function in the listing window you might"
+    },
+    {
+      "seconds": 210,
+      "text": "notice that other elements update in"
+    },
+    {
+      "seconds": 213,
+      "text": "accordance to what you selected if you"
+    },
+    {
+      "seconds": 216,
+      "text": "are having trouble with scrolling in the"
+    },
+    {
+      "seconds": 218,
+      "text": "listing window there's already a patch"
+    },
+    {
+      "seconds": 220,
+      "text": "available on github with a simple drag"
+    },
+    {
+      "seconds": 222,
+      "text": "and drop jar file you can put into your"
+    },
+    {
+      "seconds": 225,
+      "text": "chaya installation if you're missing the"
+    },
+    {
+      "seconds": 228,
+      "text": "colorful navigation bar from either you"
+    },
+    {
+      "seconds": 231,
+      "text": "can enable a similar function by going"
+    },
+    {
+      "seconds": 233,
+      "text": "to the arrow in the top right and"
+    },
+    {
+      "seconds": 235,
+      "text": "selecting show overview this will show a"
+    },
+    {
+      "seconds": 239,
+      "text": "colorful overview indicating strings and"
+    },
+    {
+      "seconds": 241,
+      "text": "data to the right of your listing view"
+    },
+    {
+      "seconds": 243,
+      "text": "if you hover over a jump or a data"
+    },
+    {
+      "seconds": 246,
+      "text": "target a small pop-up will show up you"
+    },
+    {
+      "seconds": 249,
+      "text": "can disable this one by clicking the"
+    },
+    {
+      "seconds": 250,
+      "text": "small pop-up button in the menu bar but"
+    },
+    {
+      "seconds": 253,
+      "text": "I personally keep it enabled most of the"
+    },
+    {
+      "seconds": 255,
+      "text": "time the next important window is the"
+    },
+    {
+      "seconds": 258,
+      "text": "decompile window where you will find the"
+    },
+    {
+      "seconds": 260,
+      "text": "D compilation result for the function"
+    },
+    {
+      "seconds": 262,
+      "text": "you have currently selected in your"
+    },
+    {
+      "seconds": 263,
+      "text": "listing the next window is the program"
+    },
+    {
+      "seconds": 267,
+      "text": "trees window which contains the"
+    },
+    {
+      "seconds": 268,
+      "text": "different sections from the binary for"
+    },
+    {
+      "seconds": 270,
+      "text": "example the BSS and the data segment"
+    },
+    {
+      "seconds": 273,
+      "text": "underneath it is the symbol tree window"
+    },
+    {
+      "seconds": 275,
+      "text": "which contains the imports exports"
+    },
+    {
+      "seconds": 277,
+      "text": "functions labels classes and namespaces"
+    },
+    {
+      "seconds": 280,
+      "text": "found in the program"
+    },
+    {
+      "seconds": 282,
+      "text": "underneath the symbol tree is the data"
+    },
+    {
+      "seconds": 284,
+      "text": "type manager where we can manage data"
+    },
+    {
+      "seconds": 287,
+      "text": "types and so on but we will ignore that"
+    },
+    {
+      "seconds": 289,
+      "text": "in this video then underneath the"
+    },
+    {
+      "seconds": 292,
+      "text": "listing we have the console window which"
+    },
+    {
+      "seconds": 294,
+      "text": "we will also not use in this video"
+    },
+    {
+      "seconds": 296,
+      "text": "normally it contains the output of"
+    },
+    {
+      "seconds": 297,
+      "text": "scripts and other stuff"
+    },
+    {
+      "seconds": 305,
+      "text": "another important window in Hydra is the"
+    },
+    {
+      "seconds": 305,
+      "text": "bytes window which is basically the"
+    },
+    {
+      "seconds": 306,
+      "text": "hexton window so it allows you to"
+    },
+    {
+      "seconds": 308,
+      "text": "explore your binary in hex format we'll"
+    },
+    {
+      "seconds": 311,
+      "text": "make it a bit bigger by dragging the"
+    },
+    {
+      "seconds": 313,
+      "text": "title bar of it into our listing view"
+    },
+    {
+      "seconds": 316,
+      "text": "this will merge the two windows into a"
+    },
+    {
+      "seconds": 319,
+      "text": "single one and you will be able to"
+    },
+    {
+      "seconds": 321,
+      "text": "switch between them using the tabs on"
+    },
+    {
+      "seconds": 323,
+      "text": "the bottom of the screen I also like to"
+    },
+    {
+      "seconds": 326,
+      "text": "enable the S key view of the hex stamp"
+    },
+    {
+      "seconds": 329,
+      "text": "by clicking the small wrench and"
+    },
+    {
+      "seconds": 330,
+      "text": "enabling the S key view"
+    },
+    {
+      "seconds": 337,
+      "text": "if you want to create a new split you"
+    },
+    {
+      "seconds": 337,
+      "text": "can simply drag the title bar of a"
+    },
+    {
+      "seconds": 339,
+      "text": "window until a small arrow appears drop"
+    },
+    {
+      "seconds": 342,
+      "text": "the window there and it will create a"
+    },
+    {
+      "seconds": 344,
+      "text": "new split if you want to have a window"
+    },
+    {
+      "seconds": 346,
+      "text": "as a separate window simply drag it out"
+    },
+    {
+      "seconds": 348,
+      "text": "until a small window icon appears if you"
+    },
+    {
+      "seconds": 353,
+      "text": "ever accidentally close a window you can"
+    },
+    {
+      "seconds": 355,
+      "text": "bring it back by simply selecting it"
+    },
+    {
+      "seconds": 357,
+      "text": "from the window menu"
+    },
+    {
+      "seconds": 363,
+      "text": "so let's get started with reverse"
+    },
+    {
+      "seconds": 363,
+      "text": "engineering this crackme"
+    },
+    {
+      "seconds": 365,
+      "text": "research the symbol tree for the main"
+    },
+    {
+      "seconds": 367,
+      "text": "function which is basically the entry"
+    },
+    {
+      "seconds": 369,
+      "text": "point into our program we double-click"
+    },
+    {
+      "seconds": 372,
+      "text": "it and this will bring both the listing"
+    },
+    {
+      "seconds": 374,
+      "text": "entity compiler into our main function"
+    },
+    {
+      "seconds": 377,
+      "text": "as you can see the decompiler try to"
+    },
+    {
+      "seconds": 380,
+      "text": "infer the signature of the main function"
+    },
+    {
+      "seconds": 382,
+      "text": "the good thing is that the C standard"
+    },
+    {
+      "seconds": 385,
+      "text": "defines exactly how the main function"
+    },
+    {
+      "seconds": 387,
+      "text": "signature looks like and so we can just"
+    },
+    {
+      "seconds": 389,
+      "text": "copy it from the C standard we go back"
+    },
+    {
+      "seconds": 393,
+      "text": "into Jireh right click this function"
+    },
+    {
+      "seconds": 395,
+      "text": "signature and hit edit function"
+    },
+    {
+      "seconds": 397,
+      "text": "signature we can simply paste in the"
+    },
+    {
+      "seconds": 400,
+      "text": "signature from the C standard and you"
+    },
+    {
+      "seconds": 402,
+      "text": "can see that the types and the names"
+    },
+    {
+      "seconds": 404,
+      "text": "were taken over from our pasted"
+    },
+    {
+      "seconds": 407,
+      "text": "signature one problem though is that the"
+    },
+    {
+      "seconds": 410,
+      "text": "square brackets of the arc V argument"
+    },
+    {
+      "seconds": 413,
+      "text": "were not treated as an array but instead"
+    },
+    {
+      "seconds": 415,
+      "text": "as part of our function name so we need"
+    },
+    {
+      "seconds": 417,
+      "text": "to edit the function signature again and"
+    },
+    {
+      "seconds": 419,
+      "text": "change it to be a pointer to a pointer"
+    },
+    {
+      "seconds": 423,
+      "text": "so we hit OK and we can see that this"
+    },
+    {
+      "seconds": 426,
+      "text": "cleaned up our D compilation result"
+    },
+    {
+      "seconds": 428,
+      "text": "massively if we hit undo which you've"
+    },
+    {
+      "seconds": 432,
+      "text": "been missing for years have you been"
+    },
+    {
+      "seconds": 433,
+      "text": "using either we can see how with the D"
+    },
+    {
+      "seconds": 436,
+      "text": "compilation result was much worse before"
+    },
+    {
+      "seconds": 438,
+      "text": "we adjusted the types compared to either"
+    },
+    {
+      "seconds": 442,
+      "text": "where you spend a lot of time in the"
+    },
+    {
+      "seconds": 444,
+      "text": "graph you enjoy are the main focus is"
+    },
+    {
+      "seconds": 446,
+      "text": "the decompile view and the listing view"
+    },
+    {
+      "seconds": 448,
+      "text": "so you want to make sure that you use"
+    },
+    {
+      "seconds": 451,
+      "text": "the correct types wherever possible just"
+    },
+    {
+      "seconds": 453,
+      "text": "to help the decompiler get you a great"
+    },
+    {
+      "seconds": 456,
+      "text": "result so let's start going through our"
+    },
+    {
+      "seconds": 459,
+      "text": "main function line by line we ignore the"
+    },
+    {
+      "seconds": 461,
+      "text": "declaration of SOR 1 and look at our if"
+    },
+    {
+      "seconds": 464,
+      "text": "Clause which checks the number of"
+    },
+    {
+      "seconds": 465,
+      "text": "arguments supplied to the program as you"
+    },
+    {
+      "seconds": 468,
+      "text": "can see if you select something in the D"
+    },
+    {
+      "seconds": 470,
+      "text": "compiler it also gets selected in the"
+    },
+    {
+      "seconds": 473,
+      "text": "listing in this case the number of"
+    },
+    {
+      "seconds": 476,
+      "text": "arguments needs to be 2"
+    },
+    {
+      "seconds": 478,
+      "text": "this means that we need to supply one"
+    },
+    {
+      "seconds": 480,
+      "text": "argument to our program as the first"
+    },
+    {
+      "seconds": 483,
+      "text": "argument that is always given into AC"
+    },
+    {
+      "seconds": 485,
+      "text": "program is the program name to document"
+    },
+    {
+      "seconds": 488,
+      "text": "this we want to add a comment to this"
+    },
+    {
+      "seconds": 490,
+      "text": "line so we either right-click and select"
+    },
+    {
+      "seconds": 492,
+      "text": "comments or"
+    },
+    {
+      "seconds": 494,
+      "text": "we simply hit the semi-colon key this"
+    },
+    {
+      "seconds": 496,
+      "text": "will bring up a window where you can"
+    },
+    {
+      "seconds": 498,
+      "text": "enter different types of comments for"
+    },
+    {
+      "seconds": 500,
+      "text": "example an end-of-line comment which"
+    },
+    {
+      "seconds": 503,
+      "text": "we'll just put in as your l comment"
+    },
+    {
+      "seconds": 505,
+      "text": "right now a pre comment a post comment a"
+    },
+    {
+      "seconds": 511,
+      "text": "repeatable comment which we will ignore"
+    },
+    {
+      "seconds": 513,
+      "text": "for now and the plate comment we hit ok"
+    },
+    {
+      "seconds": 516,
+      "text": "and we can see that only the pre comment"
+    },
+    {
+      "seconds": 518,
+      "text": "appears in our decompile view but if we"
+    },
+    {
+      "seconds": 521,
+      "text": "go into you the listing view we can see"
+    },
+    {
+      "seconds": 524,
+      "text": "that our post comment appears underneath"
+    },
+    {
+      "seconds": 525,
+      "text": "the instruction the UL comment appeared"
+    },
+    {
+      "seconds": 529,
+      "text": "behind the instruction the big plate"
+    },
+    {
+      "seconds": 531,
+      "text": "comment appeared above the instruction"
+    },
+    {
+      "seconds": 534,
+      "text": "in a nice block and the pre comment"
+    },
+    {
+      "seconds": 536,
+      "text": "appeared right on top of the instruction"
+    },
+    {
+      "seconds": 538,
+      "text": "so let's remove all the comments we just"
+    },
+    {
+      "seconds": 541,
+      "text": "created and replace the pre comment with"
+    },
+    {
+      "seconds": 543,
+      "text": "something more useful so for example in"
+    },
+    {
+      "seconds": 547,
+      "text": "this case we wanted to say check if we"
+    },
+    {
+      "seconds": 549,
+      "text": "have one argument remember that our c"
+    },
+    {
+      "seconds": 552,
+      "text": "equals two means we have one argument"
+    },
+    {
+      "seconds": 555,
+      "text": "and not two arguments the next line is a"
+    },
+    {
+      "seconds": 559,
+      "text": "string length and so because we see that"
+    },
+    {
+      "seconds": 562,
+      "text": "the string length is running on the"
+    },
+    {
+      "seconds": 564,
+      "text": "first argument supplied to the program"
+    },
+    {
+      "seconds": 566,
+      "text": "we can give as ba one a more useful name"
+    },
+    {
+      "seconds": 569,
+      "text": "for example arc 1 or argument 1 length"
+    },
+    {
+      "seconds": 573,
+      "text": "for that we can simply you right click"
+    },
+    {
+      "seconds": 576,
+      "text": "on s bar 1 and select rename' variable"
+    },
+    {
+      "seconds": 578,
+      "text": "or we simply hit the L key the next line"
+    },
+    {
+      "seconds": 583,
+      "text": "is again an if clause that checks if"
+    },
+    {
+      "seconds": 585,
+      "text": "argument 1 length is equal to 10 and so"
+    },
+    {
+      "seconds": 588,
+      "text": "we will document this by again hitting"
+    },
+    {
+      "seconds": 590,
+      "text": "the semicolon key and adding a comment"
+    },
+    {
+      "seconds": 593,
+      "text": "so we remember what exactly is going on"
+    },
+    {
+      "seconds": 595,
+      "text": "here"
+    },
+    {
+      "seconds": 597,
+      "text": "and then we can already go up to the"
+    },
+    {
+      "seconds": 601,
+      "text": "next line which checks whether the fifth"
+    },
+    {
+      "seconds": 605,
+      "text": "character because we start indexing by"
+    },
+    {
+      "seconds": 609,
+      "text": "0f argument one is an add character and"
+    },
+    {
+      "seconds": 613,
+      "text": "so again we will enter a comment to"
+    },
+    {
+      "seconds": 616,
+      "text": "document what we found and hit ok"
+    },
+    {
+      "seconds": 624,
+      "text": "let's increase the size of the D"
+    },
+    {
+      "seconds": 624,
+      "text": "compilation window a bit and you can see"
+    },
+    {
+      "seconds": 626,
+      "text": "that once we go through these three if"
+    },
+    {
+      "seconds": 629,
+      "text": "clauses we get our flag printed out"
+    },
+    {
+      "seconds": 632,
+      "text": "otherwise it will display the usage of"
+    },
+    {
+      "seconds": 635,
+      "text": "the program so we can double click on"
+    },
+    {
+      "seconds": 637,
+      "text": "this and we can see the D compilation"
+    },
+    {
+      "seconds": 639,
+      "text": "results for the usage function which"
+    },
+    {
+      "seconds": 642,
+      "text": "simply prints the program name and"
+    },
+    {
+      "seconds": 644,
+      "text": "afterwards exits by clicking the back"
+    },
+    {
+      "seconds": 647,
+      "text": "button we go back to where we just left"
+    },
+    {
+      "seconds": 649,
+      "text": "and we are pretty confident and having"
+    },
+    {
+      "seconds": 652,
+      "text": "figured out what exactly we need to do"
+    },
+    {
+      "seconds": 654,
+      "text": "to solve this crack knee we need one"
+    },
+    {
+      "seconds": 657,
+      "text": "argument we need a string length of the"
+    },
+    {
+      "seconds": 659,
+      "text": "argument of 10 and we need to have an"
+    },
+    {
+      "seconds": 662,
+      "text": "add character at the fifth place so"
+    },
+    {
+      "seconds": 664,
+      "text": "let's go ahead and test this in the"
+    },
+    {
+      "seconds": 666,
+      "text": "terminal we go again into our linux"
+    },
+    {
+      "seconds": 669,
+      "text": "shell execute the program and then have"
+    },
+    {
+      "seconds": 672,
+      "text": "one two three four and at sign six seven"
+    },
+    {
+      "seconds": 675,
+      "text": "eight nine ten we hit return and yes"
+    },
+    {
+      "seconds": 678,
+      "text": "we've cracked our first crack me using"
+    },
+    {
+      "seconds": 680,
+      "text": "Deidra and that without reading a single"
+    },
+    {
+      "seconds": 682,
+      "text": "line of assembly I hope you enjoyed this"
+    },
+    {
+      "seconds": 685,
+      "text": "short introduction and that you will"
+    },
+    {
+      "seconds": 687,
+      "text": "tune in for more in the future"
+    }
+  ]
+}

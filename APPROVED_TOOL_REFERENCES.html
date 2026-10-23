@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="a667298c6c5bb0043fd51c8d7b01b7d868c101fb36d079437b6570acfa547eb4">
+  <link rel="icon" href="data:,">
+  <title>All approved tools: study and reference index · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>All approved tools: study and reference index</h1>
+<p>Use the <a href="LEARNING_RESOURCES.html">24-hour guide</a> first. All <strong>200 organiser-approved rows</strong> are retained with their original per-tool references. Counts are rows, not distinct packages. Core/next/reference describe study priority, not approval status.</p>
+<p>Version/location notes are organiser data, not verified local behavior. Existing reference link checks are from October 19; not all 200 references were re-researched. The unspecified PDF Viewer uses an illustrative Adobe reference whose earlier access probe returned HTTP 403. Curated lesson evidence is separate.</p>
+<h2>Windows list (some run in WSL)</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Approved row / tool</th>
+<th>Use it for</th>
+<th>Study</th>
+<th>Documentation</th>
+<th>Organiser version / location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>windows-1: <strong>CyberChef</strong></td>
+<td>Build a decoding recipe</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-1">crypto-foundations-1</a>, <a href="LEARNING_RESOURCES.html#crypto-foundations-2">crypto-foundations-2</a></td>
+<td><a href="https://github.com/gchq/CyberChef">Reference</a></td>
+<td>Latest (browser-based, no install) / Bookmark</td>
+</tr>
+<tr>
+<td>windows-2: <strong>Wireshark</strong></td>
+<td>Inspect packet conversations</td>
+<td>core: <a href="LEARNING_RESOURCES.html#web-network-5">web-network-5</a>, <a href="LEARNING_RESOURCES.html#web-network-8">web-network-8</a></td>
+<td><a href="https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html">Reference</a></td>
+<td>Latest / installed in Windows</td>
+</tr>
+<tr>
+<td>windows-3: <strong>PDF Viewer</strong></td>
+<td>Inspect PDF text and attachments; viewer identity is unspecified</td>
+<td>reference</td>
+<td><a href="https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html">Reference</a></td>
+<td>Any current version / installed in Windows</td>
+</tr>
+<tr>
+<td>windows-4: <strong>OpenVPN Client</strong></td>
+<td>Connect using an approved VPN profile</td>
+<td>reference</td>
+<td><a href="https://openvpn.net/connect-docs/import-profile.html">Reference</a></td>
+<td>Latest / installed in Windows</td>
+</tr>
+<tr>
+<td>windows-5: <strong>Google Chrome</strong></td>
+<td>Inspect browser requests</td>
+<td>reference</td>
+<td><a href="https://developer.chrome.com/docs/devtools/network/">Reference</a></td>
+<td>Latest / installed in Windows</td>
+</tr>
+<tr>
+<td>windows-6: <strong>Windows Subsystem for Linux (WSL)</strong></td>
+<td>Use the installed Linux environment</td>
+<td>reference</td>
+<td><a href="https://learn.microsoft.com/en-us/windows/wsl/basic-commands">Reference</a></td>
+<td>Latest / installed in Windows</td>
+</tr>
+<tr>
+<td>windows-7: <strong>Python 3</strong></td>
+<td>Parse binary data</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-3">crypto-foundations-3</a></td>
+<td><a href="https://docs.python.org/3/library/struct.html">Reference</a></td>
+<td>Latest 3.x — confirm exact version before install / installed in WSL / Libraries may be added freely EXCEPT any AI/ML-related library (e.g. no LLM, machine-learning, or generative-AI frameworks).</td>
+</tr>
+<tr>
+<td>windows-8: <strong>uv</strong></td>
+<td>Manage Python environments</td>
+<td>reference</td>
+<td><a href="https://docs.astral.sh/uv/pip/environments/">Reference</a></td>
+<td>Latest / installed in WSL / Same rule as Python 3 — any library OK except AI/ML-related packages</td>
+</tr>
+<tr>
+<td>windows-9: <strong>gdb</strong></td>
+<td>Debug native binaries</td>
+<td>core: <a href="LEARNING_RESOURCES.html#reverse-3">reverse-3</a>, <a href="LEARNING_RESOURCES.html#reverse-4">reverse-4</a></td>
+<td><a href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html">Reference</a></td>
+<td>Latest (distro package) / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-10: <strong>objdump</strong></td>
+<td>Inspect disassembly and sections</td>
+<td>reference</td>
+<td><a href="https://sourceware.org/binutils/docs/binutils/objdump.html">Reference</a></td>
+<td>Bundled with GNU Binutils / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-11: <strong>strings</strong></td>
+<td>Extract readable strings</td>
+<td>reference</td>
+<td><a href="https://sourceware.org/binutils/docs/binutils/strings.html">Reference</a></td>
+<td>Bundled with GNU Binutils / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-12: <strong>zsteg</strong></td>
+<td>Inspect PNG/BMP hidden data</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-1">media-1</a></td>
+<td><a href="https://github.com/zed-0xff/zsteg">Reference</a></td>
+<td>Latest (Ruby gem) / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-13: <strong>binwalk</strong></td>
+<td>Locate embedded files; verify installed major version</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-2">media-2</a></td>
+<td><a href="https://github.com/ReFirmLabs/binwalk">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-14: <strong>ExifTool</strong></td>
+<td>Read file metadata</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-3">media-3</a>, <a href="LEARNING_RESOURCES.html#media-8">media-8</a></td>
+<td><a href="https://github.com/exiftool/exiftool">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-15: <strong>pdftotext (Poppler utils)</strong></td>
+<td>Extract PDF text</td>
+<td>reference</td>
+<td><a href="https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-16: <strong>can-utils</strong></td>
+<td>Read CAN bus logs</td>
+<td>reference</td>
+<td><a href="https://github.com/linux-can/can-utils">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-17: <strong>cannelloni</strong></td>
+<td>Understand CAN tunneling</td>
+<td>reference</td>
+<td><a href="https://github.com/mguentner/cannelloni">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-18: <strong>zeek</strong></td>
+<td>Produce protocol logs from packet captures</td>
+<td>next: <a href="LEARNING_RESOURCES.html#web-network-7">web-network-7</a></td>
+<td><a href="https://docs.zeek.org/en/current/quickstart.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-19: <strong>ZBar</strong></td>
+<td>Decode barcodes locally</td>
+<td>reference</td>
+<td><a href="https://github.com/mchehab/zbar">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-20: <strong>Burp Suite Community Edition</strong></td>
+<td>Inspect and replay web requests</td>
+<td>core: <a href="LEARNING_RESOURCES.html#web-network-1">web-network-1</a>, <a href="LEARNING_RESOURCES.html#web-network-2">web-network-2</a></td>
+<td><a href="https://portswigger.net/burp/documentation/desktop/tools/repeater">Reference</a></td>
+<td>2026.4.x (confirm latest at install time) / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-21: <strong>jq</strong></td>
+<td>Filter JSON</td>
+<td>reference</td>
+<td><a href="https://jqlang.org/manual/">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-22: <strong>Ghidra</strong></td>
+<td>Inspect program logic</td>
+<td>core: <a href="LEARNING_RESOURCES.html#reverse-1">reverse-1</a>, <a href="LEARNING_RESOURCES.html#reverse-2">reverse-2</a>, <a href="LEARNING_RESOURCES.html#reverse-4">reverse-4</a></td>
+<td><a href="https://github.com/NationalSecurityAgency/ghidra">Reference</a></td>
+<td>12.1.4 / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-23: <strong>The Sleuth Kit</strong></td>
+<td>Inspect filesystem images</td>
+<td>core: <a href="LEARNING_RESOURCES.html#forensics-1">forensics-1</a></td>
+<td><a href="https://www.sleuthkit.org/sleuthkit/man/fls.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-24: <strong>OpenSSL</strong></td>
+<td>Understand symmetric decryption parameters</td>
+<td>reference</td>
+<td><a href="https://docs.openssl.org/3.0/man1/openssl-enc/">Reference</a></td>
+<td>Latest 3.x / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-25: <strong>xz</strong></td>
+<td>Inspect and decompress XZ data</td>
+<td>reference</td>
+<td><a href="https://tukaani.org/xz/man/xz.1.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-26: <strong>qpdf</strong></td>
+<td>Inspect PDF objects and streams</td>
+<td>next: <a href="LEARNING_RESOURCES.html#forensics-6">forensics-6</a></td>
+<td><a href="https://qpdf.readthedocs.io/en/stable/cli.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-27: <strong>llvm-mc (LLVM tools)</strong></td>
+<td>Translate assembly and machine code</td>
+<td>reference</td>
+<td><a href="https://llvm.org/docs/CommandGuide/llvm-mc.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-28: <strong>xxd</strong></td>
+<td>Convert hex dumps</td>
+<td>reference</td>
+<td><a href="https://github.com/vim/vim/blob/master/runtime/doc/xxd.1">Reference</a></td>
+<td>Bundled with Vim / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-29: <strong>fsck.fat (dosfstools)</strong></td>
+<td>Check FAT structure without repair</td>
+<td>reference</td>
+<td><a href="https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-30: <strong>RsaCtfTool</strong></td>
+<td>Study RSA attack prerequisites</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-4">crypto-foundations-4</a></td>
+<td><a href="https://github.com/RsaCtfTool/RsaCtfTool">Reference</a></td>
+<td>Latest (GitHub script, run via Python 3) / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-31: <strong>volatility3</strong></td>
+<td>Inspect Windows memory images</td>
+<td>core: <a href="LEARNING_RESOURCES.html#forensics-3">forensics-3</a>, <a href="LEARNING_RESOURCES.html#forensics-4">forensics-4</a></td>
+<td><a href="https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html">Reference</a></td>
+<td>Latest / installed in WSL</td>
+</tr>
+<tr>
+<td>windows-32: <strong>OpenSSH-Session-Key-Recovery</strong></td>
+<td>Recover SSH session keys from supported memory evidence</td>
+<td>reference</td>
+<td><a href="https://github.com/fox-it/OpenSSH-Session-Key-Recovery">Reference</a></td>
+<td>installed in volatility3 / Plugin for Volatility3</td>
+</tr>
+<tr>
+<td>windows-33: <strong>x64dbg</strong></td>
+<td>Debug Windows executables</td>
+<td>reference</td>
+<td><a href="https://help.x64dbg.com/en/latest/gui/tips.html">Reference</a></td>
+<td>Latest / installed in Windows / Portable zip (snapshot_*.zip). Extract and run; no installer.</td>
+</tr>
+<tr>
+<td>windows-34: <strong>Autopsy</strong></td>
+<td>Inspect forensic images</td>
+<td>core: <a href="LEARNING_RESOURCES.html#forensics-2">forensics-2</a></td>
+<td><a href="https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html">Reference</a></td>
+<td>Latest / installed in Windows / MSI installer (bundles Java and The Sleuth Kit). Administrator rights required.</td>
+</tr>
+<tr>
+<td>windows-35: <strong>HxD</strong></td>
+<td>Inspect bytes in a hex editor</td>
+<td>reference</td>
+<td><a href="https://mh-nexus.de/en/hxd/">Reference</a></td>
+<td>Latest / installed in Windows / Installer or portable edition.</td>
+</tr>
+<tr>
+<td>windows-36: <strong>tshark</strong></td>
+<td>Extract packet fields</td>
+<td>core: <a href="LEARNING_RESOURCES.html#web-network-6">web-network-6</a>, <a href="LEARNING_RESOURCES.html#web-network-8">web-network-8</a></td>
+<td><a href="https://www.wireshark.org/docs/man-pages/tshark.html">Reference</a></td>
+<td>Latest / installed in Windows / Included in the Wireshark installer (TShark component).</td>
+</tr>
+<tr>
+<td>windows-37: <strong>Notepad++</strong></td>
+<td>Search structured text</td>
+<td>reference</td>
+<td><a href="https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md">Reference</a></td>
+<td>Latest / installed in Windows / Installer (x64). A portable edition is also available.</td>
+</tr>
+<tr>
+<td>windows-38: <strong>dnSpyEx (dnSpy)</strong></td>
+<td>Inspect managed assemblies</td>
+<td>reference: <a href="LEARNING_RESOURCES.html#reverse-8">reverse-8</a></td>
+<td><a href="https://github.com/dnSpyEx/dnSpy">Reference</a></td>
+<td>Latest / installed in Windows / Portable zip. Use dnSpy-net-win64.zip (self-contained; no .NET installation needed).</td>
+</tr>
+<tr>
+<td>windows-39: <strong>Eric Zimmerman's Tools</strong></td>
+<td>Select an artifact-specific Windows parser</td>
+<td>core: <a href="LEARNING_RESOURCES.html#forensics-5">forensics-5</a></td>
+<td><a href="https://ericzimmerman.github.io/">Reference</a></td>
+<td>Latest / installed in Windows / Run Get-ZimmermanTools.ps1 to download the tools. Internet access and the .NET Desktop Runtime are required.</td>
+</tr>
+</tbody>
+</table></div>
+<h2>Kali list (best-effort availability)</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Approved row / tool</th>
+<th>Use it for</th>
+<th>Study</th>
+<th>Documentation</th>
+<th>Organiser version / location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kali-1: <strong>.NET SDK</strong></td>
+<td>Build and run managed projects</td>
+<td>reference</td>
+<td><a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet">Reference</a></td>
+<td>6.0.400</td>
+</tr>
+<tr>
+<td>kali-2: <strong>7-Zip (7z)</strong></td>
+<td>Inspect and extract archives</td>
+<td>reference</td>
+<td><a href="https://7-zip.org/">Reference</a></td>
+<td>26.02</td>
+</tr>
+<tr>
+<td>kali-3: <strong>aircrack-ng</strong></td>
+<td>Understand offline wireless capture analysis</td>
+<td>reference</td>
+<td><a href="https://www.aircrack-ng.org/doku.php?id=aircrack-ng">Reference</a></td>
+<td>1.7</td>
+</tr>
+<tr>
+<td>kali-4: <strong>ALEAPP (Android Logs Events And Protobuf Parser)</strong></td>
+<td>Parse Android forensic artifacts</td>
+<td>reference</td>
+<td><a href="https://github.com/abrignoni/ALEAPP">Reference</a></td>
+<td>- / No installation information recorded</td>
+</tr>
+<tr>
+<td>kali-5: <strong>Android Studio</strong></td>
+<td>Inspect Android packages</td>
+<td>reference</td>
+<td><a href="https://developer.android.com/studio/debug/apk-debugger">Reference</a></td>
+<td>- / No installation information recorded</td>
+</tr>
+<tr>
+<td>kali-6: <strong>angr</strong></td>
+<td>Study path constraints and symbolic execution</td>
+<td>reference</td>
+<td><a href="https://docs.angr.io/en/latest/core-concepts/pathgroups.html">Reference</a></td>
+<td>(not captured) / pipx (angr)</td>
+</tr>
+<tr>
+<td>kali-7: <strong>AperiSolve</strong></td>
+<td>Understand local image-analysis deployment</td>
+<td>reference: <a href="LEARNING_RESOURCES.html#media-7">media-7</a></td>
+<td><a href="https://github.com/Zeecka/AperiSolve">Reference</a></td>
+<td>(not captured) / git (/opt/tools/AperiSolve)</td>
+</tr>
+<tr>
+<td>kali-8: <strong>Apktool</strong></td>
+<td>Decode Android resources and smali</td>
+<td>reference</td>
+<td><a href="https://apktool.org/docs/cli-parameters/">Reference</a></td>
+<td>2.7.0-dirty</td>
+</tr>
+<tr>
+<td>kali-9: <strong>asar (@electron/asar)</strong></td>
+<td>Inspect Electron archives</td>
+<td>reference</td>
+<td><a href="https://github.com/electron/asar">Reference</a></td>
+<td>4.3.1</td>
+</tr>
+<tr>
+<td>kali-10: <strong>Audacity</strong></td>
+<td>Inspect audio frequency content</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-5">media-5</a></td>
+<td><a href="https://manual.audacityteam.org/man/spectrogram_view.html">Reference</a></td>
+<td>(not captured) / /usr/bin/audacity</td>
+</tr>
+<tr>
+<td>kali-11: <strong>AutoIt-Ripper</strong></td>
+<td>Extract compiled AutoIt scripts</td>
+<td>reference</td>
+<td><a href="https://github.com/nazywam/AutoIt-Ripper">Reference</a></td>
+<td>(not captured) / pipx (autoit-ripper)</td>
+</tr>
+<tr>
+<td>kali-12: <strong>BinDiff</strong></td>
+<td>Compare compiled program versions</td>
+<td>reference</td>
+<td><a href="https://www.zynamics.com/bindiff/manual/">Reference</a></td>
+<td>8 / Build @568181968 (Sep 25 2023)</td>
+</tr>
+<tr>
+<td>kali-13: <strong>bkcrack</strong></td>
+<td>Understand ZIP known-plaintext recovery</td>
+<td>next: <a href="LEARNING_RESOURCES.html#crypto-foundations-8">crypto-foundations-8</a></td>
+<td><a href="https://github.com/kimci86/bkcrack">Reference</a></td>
+<td>1.8.1 (2025-10-25)</td>
+</tr>
+<tr>
+<td>kali-14: <strong>bulk_extractor</strong></td>
+<td>Extract forensic features from bulk data</td>
+<td>reference</td>
+<td><a href="https://github.com/simsong/bulk_extractor">Reference</a></td>
+<td>2.1.1</td>
+</tr>
+<tr>
+<td>kali-15: <strong>bvi</strong></td>
+<td>Inspect binary data</td>
+<td>reference</td>
+<td><a href="https://bvi.sourceforge.net/">Reference</a></td>
+<td>(not captured) / Interactive tool; the version check returned 'Input is not from a terminal'</td>
+</tr>
+<tr>
+<td>kali-16: <strong>Bytecode Viewer</strong></td>
+<td>Inspect Java bytecode</td>
+<td>reference</td>
+<td><a href="https://github.com/Konloch/bytecode-viewer">Reference</a></td>
+<td>2.13.2 / Fat Jar</td>
+</tr>
+<tr>
+<td>kali-17: <strong>bzip2</strong></td>
+<td>Decompress BZip2 data</td>
+<td>reference</td>
+<td><a href="https://sourceware.org/bzip2/manual/manual.html">Reference</a></td>
+<td>1.0.8</td>
+</tr>
+<tr>
+<td>kali-18: <strong>cabextract</strong></td>
+<td>Inspect Microsoft cabinet archives</td>
+<td>reference</td>
+<td><a href="https://www.kali.org/tools/cabextract/">Reference</a></td>
+<td>1.11</td>
+</tr>
+<tr>
+<td>kali-19: <strong>capa</strong></td>
+<td>Identify executable capabilities</td>
+<td>core: <a href="LEARNING_RESOURCES.html#reverse-5">reverse-5</a></td>
+<td><a href="https://github.com/mandiant/capa">Reference</a></td>
+<td>9.4.0</td>
+</tr>
+<tr>
+<td>kali-20: <strong>Chainsaw</strong></td>
+<td>Search Windows event logs</td>
+<td>next: <a href="LEARNING_RESOURCES.html#forensics-7">forensics-7</a></td>
+<td><a href="https://github.com/WithSecureOpenSource/chainsaw">Reference</a></td>
+<td>2.16.5</td>
+</tr>
+<tr>
+<td>kali-21: <strong>checksec</strong></td>
+<td>Identify executable protections</td>
+<td>reference</td>
+<td><a href="https://github.com/slimm609/checksec/releases">Reference</a></td>
+<td>2.6.0</td>
+</tr>
+<tr>
+<td>kali-22: <strong>crypto-attacks</strong></td>
+<td>Find mathematical attack implementations</td>
+<td>reference</td>
+<td><a href="https://github.com/jvdsn/crypto-attacks">Reference</a></td>
+<td>(not captured) / git (/opt/tools/crypto-attacks)</td>
+</tr>
+<tr>
+<td>kali-23: <strong>curl</strong></td>
+<td>Inspect and reproduce HTTP requests</td>
+<td>core: <a href="LEARNING_RESOURCES.html#web-network-3">web-network-3</a></td>
+<td><a href="https://curl.se/docs/manpage.html">Reference</a></td>
+<td>8.21.0</td>
+</tr>
+<tr>
+<td>kali-24: <strong>Cutter</strong></td>
+<td>Inspect program control flow</td>
+<td>reference</td>
+<td><a href="https://github.com/rizinorg/cutter">Reference</a></td>
+<td>(not captured) / AppImage (/opt/tools/cutter.AppImage) / The GUI needs FUSE</td>
+</tr>
+<tr>
+<td>kali-25: <strong>DB Browser for SQLite</strong></td>
+<td>Inspect SQLite records</td>
+<td>reference</td>
+<td><a href="https://sqlitebrowser.org/">Reference</a></td>
+<td>3.13.1</td>
+</tr>
+<tr>
+<td>kali-26: <strong>DBeaver Community Edition</strong></td>
+<td>Query local databases</td>
+<td>reference</td>
+<td><a href="https://dbeaver.com/docs/dbeaver/SQL-Execution/">Reference</a></td>
+<td>26.1.3</td>
+</tr>
+<tr>
+<td>kali-27: <strong>Detect It Easy (DIE)</strong></td>
+<td>Identify binary formats and packers</td>
+<td>reference</td>
+<td><a href="https://github.com/horsicq/Detect-It-Easy">Reference</a></td>
+<td>3.21</td>
+</tr>
+<tr>
+<td>kali-28: <strong>dex2jar</strong></td>
+<td>Convert Android bytecode to a JAR for Java analysis.</td>
+<td>reference</td>
+<td><a href="https://github.com/pxb1988/dex2jar">Reference</a></td>
+<td>2.1-nightly-28</td>
+</tr>
+<tr>
+<td>kali-29: <strong>Didier Stevens Beta tools (onedump.py)</strong></td>
+<td>Inspect objects in a OneNote document.</td>
+<td>reference</td>
+<td><a href="https://github.com/DidierStevens/Beta/blob/master/onedump.py">Reference</a></td>
+<td>(not captured) / git (/opt/tools/Beta)</td>
+</tr>
+<tr>
+<td>kali-30: <strong>Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others)</strong></td>
+<td>Triage Office macros and PDF objects.</td>
+<td>reference</td>
+<td><a href="https://github.com/DidierStevens/DidierStevensSuite">Reference</a></td>
+<td>(not captured) / git (/opt/tools/DidierStevensSuite)</td>
+</tr>
+<tr>
+<td>kali-31: <strong>Docker Engine and Compose plugin</strong></td>
+<td>Run and inspect a local container lab.</td>
+<td>reference</td>
+<td><a href="https://docs.docker.com/compose/">Reference</a></td>
+<td>28.5.2+dfsg4</td>
+</tr>
+<tr>
+<td>kali-32: <strong>dwarf2json</strong></td>
+<td>Generate Linux memory-analysis symbols.</td>
+<td>reference</td>
+<td><a href="https://github.com/volatilityfoundation/dwarf2json">Reference</a></td>
+<td>0.9.0</td>
+</tr>
+<tr>
+<td>kali-33: <strong>Eclipse Temurin JDK (OpenJDK)</strong></td>
+<td>Run Java tools and inspect class bytecode.</td>
+<td>reference</td>
+<td><a href="https://adoptium.net/temurin">Reference</a></td>
+<td>25.0.4 (2026-07-21) / Reported as 'openjdk'</td>
+</tr>
+<tr>
+<td>kali-34: <strong>ewf-tools (libewf)</strong></td>
+<td>Read or export an E01 disk image.</td>
+<td>reference</td>
+<td><a href="https://github.com/libyal/libewf">Reference</a></td>
+<td>20140816</td>
+</tr>
+<tr>
+<td>kali-35: <strong>Exploit-DB / searchsploit (offline archive)</strong></td>
+<td>Search the local Exploit-DB archive.</td>
+<td>reference</td>
+<td><a href="https://www.exploit-db.com/searchsploit">Reference</a></td>
+<td>2026-08-19 / Version is the archive date</td>
+</tr>
+<tr>
+<td>kali-36: <strong>factordb-python</strong></td>
+<td>Look up known integer factors.</td>
+<td>reference</td>
+<td><a href="https://github.com/ryosan-470/factordb-python">Reference</a></td>
+<td>(not captured) / pip (factordb-python)</td>
+</tr>
+<tr>
+<td>kali-37: <strong>FakeNet-NG</strong></td>
+<td>Observe network behavior in a malware lab.</td>
+<td>reference</td>
+<td><a href="https://github.com/mandiant/flare-fakenet-ng">Reference</a></td>
+<td>(not captured) / /opt/tools/flare-fakenet-ng (fakenet in PATH)</td>
+</tr>
+<tr>
+<td>kali-38: <strong>Fernflower</strong></td>
+<td>Decompile Java classes and JARs.</td>
+<td>reference</td>
+<td><a href="https://github.com/JetBrains/fernflower/blob/master/README.md">Reference</a></td>
+<td>(not captured) / /opt/tools/fernflower/build/libs/fernflower.jar (/usr/local/bin/fernflower)</td>
+</tr>
+<tr>
+<td>kali-39: <strong>Feroxbuster</strong></td>
+<td>Find web paths in an authorized lab.</td>
+<td>reference</td>
+<td><a href="https://github.com/epi052/feroxbuster">Reference</a></td>
+<td>2.13.1</td>
+</tr>
+<tr>
+<td>kali-40: <strong>FFmpeg</strong></td>
+<td>Extract frames or audio from media.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#media-6">media-6</a></td>
+<td><a href="https://ffmpeg.org/ffmpeg.html">Reference</a></td>
+<td>(not captured) / apt (ffmpeg)</td>
+</tr>
+<tr>
+<td>kali-41: <strong>ffuf</strong></td>
+<td>Compare web responses during controlled fuzzing.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#web-network-4">web-network-4</a></td>
+<td><a href="https://github.com/ffuf/ffuf">Reference</a></td>
+<td>2.1.0-dev</td>
+</tr>
+<tr>
+<td>kali-42: <strong>file (libmagic)</strong></td>
+<td>Identify unknown file formats.</td>
+<td>reference</td>
+<td><a href="https://github.com/file/file">Reference</a></td>
+<td>5.47</td>
+</tr>
+<tr>
+<td>kali-43: <strong>FLOSS (FLARE Obfuscated String Solver)</strong></td>
+<td>Recover obscured strings from binaries.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#reverse-6">reverse-6</a></td>
+<td><a href="https://github.com/mandiant/flare-floss">Reference</a></td>
+<td>(not captured) / pipx (flare-floss)</td>
+</tr>
+<tr>
+<td>kali-44: <strong>foremost</strong></td>
+<td>Carve files from raw evidence.</td>
+<td>reference</td>
+<td><a href="https://www.kali.org/tools/foremost/">Reference</a></td>
+<td>(not captured) / Installed; version not captured</td>
+</tr>
+<tr>
+<td>kali-45: <strong>FQLite</strong></td>
+<td>Inspect deleted SQLite records.</td>
+<td>reference</td>
+<td><a href="https://github.com/pawlaszczyk/fqlite">Reference</a></td>
+<td>(not captured) / /opt/fqlite/bin/fqlite (symlinked to /usr/local/bin)</td>
+</tr>
+<tr>
+<td>kali-46: <strong>Frida</strong></td>
+<td>Observe runtime function calls.</td>
+<td>reference</td>
+<td><a href="https://frida.re/docs/javascript-api/">Reference</a></td>
+<td>17.23.3</td>
+</tr>
+<tr>
+<td>kali-47: <strong>GCC, G++ and build tools (build-essential, make, CMake, pkg-config)</strong></td>
+<td>Build small local programs with debug information.</td>
+<td>reference</td>
+<td><a href="https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html">Reference</a></td>
+<td>15.3.0 / Debian gcc 15.3.0-2</td>
+</tr>
+<tr>
+<td>kali-48: <strong>GEF (GDB Enhanced Features)</strong></td>
+<td>Inspect register and stack state in GDB.</td>
+<td>reference</td>
+<td><a href="https://hugsy.github.io/gef/">Reference</a></td>
+<td>(not captured) / /opt/tools/gef.py / Load with: gdb -x /opt/tools/gef.py. Not auto-sourced, to avoid a clash with peda</td>
+</tr>
+<tr>
+<td>kali-49: <strong>Git</strong></td>
+<td>Trace file history in a local repository.</td>
+<td>reference</td>
+<td><a href="https://git-scm.com/docs/git-log">Reference</a></td>
+<td>2.53.0</td>
+</tr>
+<tr>
+<td>kali-50: <strong>Gitleaks</strong></td>
+<td>Locate exposed secrets in local repository history.</td>
+<td>reference</td>
+<td><a href="https://github.com/gitleaks/gitleaks">Reference</a></td>
+<td>(not captured) / The tool does not report a version (set at build time)</td>
+</tr>
+<tr>
+<td>kali-51: <strong>G'MIC (gmic)</strong></td>
+<td>Inspect image channels and contrast.</td>
+<td>reference</td>
+<td><a href="https://gmic.eu/reference/">Reference</a></td>
+<td>(not captured) / Version not captured (the command started the G'MIC interpreter)</td>
+</tr>
+<tr>
+<td>kali-52: <strong>GNU Wget</strong></td>
+<td>Save public files for local analysis.</td>
+<td>reference</td>
+<td><a href="https://www.gnu.org/software/wget/manual/wget.html">Reference</a></td>
+<td>1.25.0</td>
+</tr>
+<tr>
+<td>kali-53: <strong>Go</strong></td>
+<td>Build or run local Go utilities.</td>
+<td>reference</td>
+<td><a href="https://go.dev/doc/cmd">Reference</a></td>
+<td>1.26.5</td>
+</tr>
+<tr>
+<td>kali-54: <strong>Gobuster</strong></td>
+<td>Discover web directories or virtual hosts.</td>
+<td>reference</td>
+<td><a href="https://github.com/OJ/gobuster">Reference</a></td>
+<td>3.8.2</td>
+</tr>
+<tr>
+<td>kali-55: <strong>GoReSym</strong></td>
+<td>Recover symbols in a Go binary.</td>
+<td>reference</td>
+<td><a href="https://github.com/mandiant/GoReSym">Reference</a></td>
+<td>(not captured) / go install (github.com/mandiant/GoReSym@latest)</td>
+</tr>
+<tr>
+<td>kali-56: <strong>GTFOBins (offline copy)</strong></td>
+<td>Interpret permitted binary functions in a CTF lab.</td>
+<td>reference</td>
+<td><a href="https://gtfobins.org/">Reference</a></td>
+<td>(not captured) / git (/opt/tools/GTFOBins.github.io)</td>
+</tr>
+<tr>
+<td>kali-57: <strong>gzip</strong></td>
+<td>Unpack and check gzip files.</td>
+<td>reference</td>
+<td><a href="https://www.gnu.org/software/gzip/manual/gzip.html">Reference</a></td>
+<td>1.13</td>
+</tr>
+<tr>
+<td>kali-58: <strong>HackTricks (offline copy)</strong></td>
+<td>Find a technique checklist for a lab task.</td>
+<td>reference</td>
+<td><a href="https://github.com/HackTricks-wiki/hacktricks">Reference</a></td>
+<td>(not captured) / git (/opt/tools/hacktricks)</td>
+</tr>
+<tr>
+<td>kali-59: <strong>hashcat</strong></td>
+<td>Match hash formats and choose a recovery mode.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-6">crypto-foundations-6</a></td>
+<td><a href="https://hashcat.net/wiki/doku.php?id=example_hashes">Reference</a></td>
+<td>7.1.2</td>
+</tr>
+<tr>
+<td>kali-60: <strong>hashid</strong></td>
+<td>Suggest possible hash formats.</td>
+<td>reference</td>
+<td><a href="https://github.com/psypanda/hashID">Reference</a></td>
+<td>3.1.4</td>
+</tr>
+<tr>
+<td>kali-61: <strong>Hayabusa</strong></td>
+<td>Build a Windows event timeline.</td>
+<td>reference</td>
+<td><a href="https://github.com/Yamato-Security/hayabusa">Reference</a></td>
+<td>(not captured) / Version not captured (the --version option is not supported)</td>
+</tr>
+<tr>
+<td>kali-62: <strong>hcxtools</strong></td>
+<td>Convert captured wireless authentication data.</td>
+<td>reference</td>
+<td><a href="https://github.com/ZerBea/hcxtools">Reference</a></td>
+<td>7.1.2 / Version of hcxpcapngtool</td>
+</tr>
+<tr>
+<td>kali-63: <strong>Hindsight (pyhindsight)</strong></td>
+<td>Parse a saved browser profile.</td>
+<td>reference</td>
+<td><a href="https://github.com/RyanDFIR/hindsight">Reference</a></td>
+<td>(not captured) / pipx (pyhindsight)</td>
+</tr>
+<tr>
+<td>kali-64: <strong>hlextend</strong></td>
+<td>Explore hash length extension with generic examples.</td>
+<td>reference</td>
+<td><a href="https://github.com/stephenbradshaw/hlextend">Reference</a></td>
+<td>(not captured) / Python module (/usr/local/lib/python3.14/dist-packages/hlextend.py)</td>
+</tr>
+<tr>
+<td>kali-65: <strong>Hydra</strong></td>
+<td>Understand form authentication test syntax.</td>
+<td>reference</td>
+<td><a href="https://github.com/vanhauser-thc/thc-hydra">Reference</a></td>
+<td>(not captured) / Installed; version not captured</td>
+</tr>
+<tr>
+<td>kali-66: <strong>iLEAPP (iOS Logs, Events, And Plists Parser)</strong></td>
+<td>Parse iOS forensic artifacts.</td>
+<td>reference</td>
+<td><a href="https://github.com/abrignoni/iLEAPP">Reference</a></td>
+<td>- / No installation information recorded</td>
+</tr>
+<tr>
+<td>kali-67: <strong>ImageMagick</strong></td>
+<td>Inspect image channels and properties.</td>
+<td>reference</td>
+<td><a href="https://imagemagick.org/command-line-processing/">Reference</a></td>
+<td>7.1.2-27</td>
+</tr>
+<tr>
+<td>kali-68: <strong>Impacket</strong></td>
+<td>Work with SMB and network protocol examples.</td>
+<td>reference</td>
+<td><a href="https://github.com/fortra/impacket">Reference</a></td>
+<td>0.14.0</td>
+</tr>
+<tr>
+<td>kali-69: <strong>innoextract</strong></td>
+<td>Unpack an Inno Setup installer.</td>
+<td>reference</td>
+<td><a href="https://constexpr.org/innoextract/">Reference</a></td>
+<td>dev build</td>
+</tr>
+<tr>
+<td>kali-70: <strong>internet_detector</strong></td>
+<td>Simulate internet services in a malware lab.</td>
+<td>reference</td>
+<td><a href="https://www.inetsim.org/">Reference</a></td>
+<td>(not captured) / apt (inetsim) / Provided by the apt package 'inetsim'</td>
+</tr>
+<tr>
+<td>kali-71: <strong>IPython</strong></td>
+<td>Explore Python objects and run small scripts.</td>
+<td>reference</td>
+<td><a href="https://ipython.readthedocs.io/en/stable/interactive/tutorial.html">Reference</a></td>
+<td>9.17.1</td>
+</tr>
+<tr>
+<td>kali-72: <strong>jadx (jadx-gui)</strong></td>
+<td>Inspect Android application logic.</td>
+<td>reference: <a href="LEARNING_RESOURCES.html#reverse-9">reverse-9</a></td>
+<td><a href="https://github.com/skylot/jadx">Reference</a></td>
+<td>1.5.6</td>
+</tr>
+<tr>
+<td>kali-73: <strong>John the Ripper (jumbo)</strong></td>
+<td>Prepare and recover passwords from local test data.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-7">crypto-foundations-7</a></td>
+<td><a href="https://www.openwall.com/john/doc/">Reference</a></td>
+<td>1.9.0-Jumbo-1</td>
+</tr>
+<tr>
+<td>kali-74: <strong>Jpeginfo</strong></td>
+<td>Check JPEG structure and integrity.</td>
+<td>reference</td>
+<td><a href="https://github.com/tjko/jpeginfo">Reference</a></td>
+<td>1.7.1</td>
+</tr>
+<tr>
+<td>kali-75: <strong>js-beautify</strong></td>
+<td>Format compressed JavaScript for inspection.</td>
+<td>reference</td>
+<td><a href="https://github.com/beautifier/js-beautify">Reference</a></td>
+<td>2.0.3</td>
+</tr>
+<tr>
+<td>kali-76: <strong>js-deobfuscator</strong></td>
+<td>Simplify JavaScript string arrays and proxy functions.</td>
+<td>reference</td>
+<td><a href="https://github.com/ben-sb/javascript-deobfuscator">Reference</a></td>
+<td>(not captured) / npm (js-deobfuscator)</td>
+</tr>
+<tr>
+<td>kali-77: <strong>jwt_tool</strong></td>
+<td>Inspect and test JSON Web Tokens.</td>
+<td>reference</td>
+<td><a href="https://github.com/ticarpi/jwt_tool">Reference</a></td>
+<td>(not captured) / /opt/tools/jwt_tool (/usr/local/bin/jwt_tool)</td>
+</tr>
+<tr>
+<td>kali-78: <strong>Katana</strong></td>
+<td>Discover in-scope URLs and application routes.</td>
+<td>reference</td>
+<td><a href="https://docs.projectdiscovery.io/opensource/katana/usage">Reference</a></td>
+<td>(not captured) / go install (github.com/projectdiscovery/katana/cmd/katana@latest)</td>
+</tr>
+<tr>
+<td>kali-79: <strong>legion</strong></td>
+<td>Organize network discovery in a lab.</td>
+<td>reference</td>
+<td><a href="https://github.com/Abacus-Group-RTO/legion">Reference</a></td>
+<td>0.7.0</td>
+</tr>
+<tr>
+<td>kali-80: <strong>libesedb tools</strong></td>
+<td>Inspect Windows ESE database tables.</td>
+<td>reference</td>
+<td><a href="https://github.com/libyal/libesedb">Reference</a></td>
+<td>20240420 / Version of esedbexport</td>
+</tr>
+<tr>
+<td>kali-81: <strong>LibreOffice</strong></td>
+<td>Convert documents to inspectable formats.</td>
+<td>reference</td>
+<td><a href="https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html">Reference</a></td>
+<td>26.8.0.3</td>
+</tr>
+<tr>
+<td>kali-82: <strong>lrzip</strong></td>
+<td>Unpack long-range compressed files.</td>
+<td>reference</td>
+<td><a href="https://github.com/ckolivas/lrzip">Reference</a></td>
+<td>0.660</td>
+</tr>
+<tr>
+<td>kali-83: <strong>ltrace</strong></td>
+<td>Observe dynamic library calls.</td>
+<td>reference</td>
+<td><a href="https://ltrace.org/">Reference</a></td>
+<td>0.7.91</td>
+</tr>
+<tr>
+<td>kali-84: <strong>lz4</strong></td>
+<td>Unpack LZ4 data.</td>
+<td>reference</td>
+<td><a href="https://github.com/lz4/lz4">Reference</a></td>
+<td>1.10.0</td>
+</tr>
+<tr>
+<td>kali-85: <strong>lzip</strong></td>
+<td>Unpack and check lzip files.</td>
+<td>reference</td>
+<td><a href="https://www.nongnu.org/lzip/manual/lzip_manual.html">Reference</a></td>
+<td>1.26</td>
+</tr>
+<tr>
+<td>kali-86: <strong>mac_apt</strong></td>
+<td>Parse macOS artifacts from saved evidence.</td>
+<td>reference</td>
+<td><a href="https://github.com/ydkhatri/mac_apt">Reference</a></td>
+<td>(not captured) / git (/opt/tools/mac_apt)</td>
+</tr>
+<tr>
+<td>kali-87: <strong>MediaInfo</strong></td>
+<td>Inspect media container and codec information.</td>
+<td>reference</td>
+<td><a href="https://mediaarea.net/en/MediaInfo">Reference</a></td>
+<td>(not captured) / Version not captured</td>
+</tr>
+<tr>
+<td>kali-88: <strong>Metasploit Framework</strong></td>
+<td>Navigate module documentation in a local lab.</td>
+<td>reference</td>
+<td><a href="https://docs.metasploit.com/">Reference</a></td>
+<td>6.5.2-dev</td>
+</tr>
+<tr>
+<td>kali-89: <strong>mimikatz</strong></td>
+<td>Understand offline Windows authentication-dump analysis.</td>
+<td>reference</td>
+<td><a href="https://github.com/gentilkiwi/mimikatz/wiki">Reference</a></td>
+<td>2.2.0 / Wine (Windows binary)</td>
+</tr>
+<tr>
+<td>kali-90: <strong>Miniforge3 (conda)</strong></td>
+<td>Create a separate dependency environment.</td>
+<td>reference</td>
+<td><a href="https://github.com/conda-forge/miniforge">Reference</a></td>
+<td>(not captured) / /home/kali/miniforge3</td>
+</tr>
+<tr>
+<td>kali-91: <strong>multimon-ng</strong></td>
+<td>Decode supported audio modulation formats.</td>
+<td>reference</td>
+<td><a href="https://github.com/EliasOenal/multimon-ng">Reference</a></td>
+<td>(not captured) / apt (multimon-ng)</td>
+</tr>
+<tr>
+<td>kali-92: <strong>mupdf-tools (mutool)</strong></td>
+<td>Inspect PDF objects and extract resources.</td>
+<td>reference</td>
+<td><a href="https://mupdf.readthedocs.io/en/latest/tools/mutool.html">Reference</a></td>
+<td>1.27.0</td>
+</tr>
+<tr>
+<td>kali-93: <strong>NASM (Netwide Assembler)</strong></td>
+<td>Assemble or inspect x86 instructions.</td>
+<td>reference</td>
+<td><a href="https://www.nasm.us/docs.html">Reference</a></td>
+<td>3.01</td>
+</tr>
+<tr>
+<td>kali-94: <strong>Nmap (with Ncat / Nping)</strong></td>
+<td>Identify services and inspect network connectivity.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#web-network-9">web-network-9</a></td>
+<td><a href="https://www.kali.org/tools/nmap/">Reference</a></td>
+<td>7.99</td>
+</tr>
+<tr>
+<td>kali-95: <strong>Node.js (with npm)</strong></td>
+<td>Convert binary representations in JavaScript.</td>
+<td>reference</td>
+<td><a href="https://nodejs.org/docs/latest-v24.x/api/buffer.html">Reference</a></td>
+<td>24.21.0</td>
+</tr>
+<tr>
+<td>kali-96: <strong>obfuscator-io-deobfuscator</strong></td>
+<td>Recover readable JavaScript from Obfuscator.io output.</td>
+<td>reference</td>
+<td><a href="https://github.com/ben-sb/obfuscator-io-deobfuscator">Reference</a></td>
+<td>1.0.6</td>
+</tr>
+<tr>
+<td>kali-97: <strong>Obsidian</strong></td>
+<td>Organize investigation notes with links.</td>
+<td>reference</td>
+<td><a href="https://help.obsidian.md/links">Reference</a></td>
+<td>(not captured) / Version not captured; startup reported that ~/.config/obsidian/obsidian.json does not exist</td>
+</tr>
+<tr>
+<td>kali-98: <strong>oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf)</strong></td>
+<td>Inspect Office documents and extract macros or embedded objects.</td>
+<td>reference</td>
+<td><a href="https://github.com/decalage2/oletools">Reference</a></td>
+<td>(not captured) / pipx (oletools)</td>
+</tr>
+<tr>
+<td>kali-99: <strong>OllyDbg</strong></td>
+<td>Debug 32-bit Windows executables.</td>
+<td>reference</td>
+<td><a href="https://www.ollydbg.de/quickst.htm">Reference</a></td>
+<td>1.10-1kali5 / Wine (Windows binary)</td>
+</tr>
+<tr>
+<td>kali-100: <strong>OpenStego</strong></td>
+<td>Extract data hidden using OpenStego.</td>
+<td>reference</td>
+<td><a href="https://www.openstego.com/">Reference</a></td>
+<td>(not captured) / GitHub .deb package</td>
+</tr>
+<tr>
+<td>kali-101: <strong>padding-oracle-attacker</strong></td>
+<td>Understand the tool's padding oracle input and response options.</td>
+<td>reference</td>
+<td><a href="https://github.com/KishanBagaria/padding-oracle-attacker">Reference</a></td>
+<td>(not captured) / Version not captured (the command printed a banner only)</td>
+</tr>
+<tr>
+<td>kali-102: <strong>PARI/GP</strong></td>
+<td>Explore modular arithmetic and discrete logarithms.</td>
+<td>reference</td>
+<td><a href="https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html">Reference</a></td>
+<td>2.17.4</td>
+</tr>
+<tr>
+<td>kali-103: <strong>PayloadsAllTheThings (offline copy)</strong></td>
+<td>Find a structured web vulnerability reference.</td>
+<td>reference</td>
+<td><a href="https://github.com/swisskyrepo/PayloadsAllTheThings">Reference</a></td>
+<td>(not captured) / git (/opt/tools/PayloadsAllTheThings)</td>
+</tr>
+<tr>
+<td>kali-104: <strong>peda</strong></td>
+<td>Inspect debugging state and cyclic-pattern offsets.</td>
+<td>reference</td>
+<td><a href="https://github.com/longld/peda">Reference</a></td>
+<td>(not captured) / /opt/tools/peda (sourced in ~/.gdbinit)</td>
+</tr>
+<tr>
+<td>kali-105: <strong>peepdf-3</strong></td>
+<td>Inspect PDF objects and streams.</td>
+<td>reference</td>
+<td><a href="https://github.com/digitalsleuth/peepdf-3">Reference</a></td>
+<td>(not captured) / pipx (peepdf-3)</td>
+</tr>
+<tr>
+<td>kali-106: <strong>pff-tools (libpff)</strong></td>
+<td>Inspect and extract Outlook personal-folder data.</td>
+<td>reference</td>
+<td><a href="https://github.com/libyal/libpff">Reference</a></td>
+<td>20231205 / Version of pffexport</td>
+</tr>
+<tr>
+<td>kali-107: <strong>Plaso (log2timeline, psort, pinfo)</strong></td>
+<td>Build a forensic timeline from artifacts.</td>
+<td>reference</td>
+<td><a href="https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html">Reference</a></td>
+<td>20260119-1kali1</td>
+</tr>
+<tr>
+<td>kali-108: <strong>pngcheck</strong></td>
+<td>Inspect PNG structure and integrity.</td>
+<td>reference</td>
+<td><a href="https://github.com/pnggroup/pngcheck">Reference</a></td>
+<td>(not captured) / apt (pngcheck)</td>
+</tr>
+<tr>
+<td>kali-109: <strong>pwndbg</strong></td>
+<td>Inspect binary debugging state and offsets.</td>
+<td>reference</td>
+<td><a href="https://pwndbg.re/stable/commands/">Reference</a></td>
+<td>(not captured) / /opt/tools/pwndbg / setup.sh completed</td>
+</tr>
+<tr>
+<td>kali-110: <strong>pycdc (Decompyle++)</strong></td>
+<td>Decompile or disassemble Python bytecode.</td>
+<td>reference</td>
+<td><a href="https://github.com/zrax/pycdc">Reference</a></td>
+<td>(not captured) / Version not captured (no --version option)</td>
+</tr>
+<tr>
+<td>kali-111: <strong>pyinstxtractor-ng</strong></td>
+<td>Extract files bundled by PyInstaller.</td>
+<td>reference: <a href="LEARNING_RESOURCES.html#reverse-10">reverse-10</a></td>
+<td><a href="https://github.com/pyinstxtractor/pyinstxtractor-ng">Reference</a></td>
+<td>(not captured) / pipx (pyinstxtractor-ng)</td>
+</tr>
+<tr>
+<td>kali-112: <strong>pypykatz</strong></td>
+<td>Parse a supplied Windows memory dump.</td>
+<td>reference</td>
+<td><a href="https://github.com/skelsec/pypykatz">Reference</a></td>
+<td>0.6.13</td>
+</tr>
+<tr>
+<td>kali-113: <strong>Python 2.7</strong></td>
+<td>Read binary records in legacy Python scripts.</td>
+<td>reference</td>
+<td><a href="https://docs.python.org/2.7/library/struct.html">Reference</a></td>
+<td>2.7.18</td>
+</tr>
+<tr>
+<td>kali-114: <strong>Python 3.11 (via uv)</strong></td>
+<td>Select Python 3.11 through uv; workbook records no installation information.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-3">crypto-foundations-3</a></td>
+<td><a href="https://docs.astral.sh/uv/guides/install-python/">Reference</a></td>
+<td>- / No installation information recorded</td>
+</tr>
+<tr>
+<td>kali-115: <strong>qemu-img (qemu-utils)</strong></td>
+<td>Identify and convert virtual disk formats.</td>
+<td>reference</td>
+<td><a href="https://www.qemu.org/docs/master/tools/qemu-img.html">Reference</a></td>
+<td>11.0.3</td>
+</tr>
+<tr>
+<td>kali-116: <strong>radare2</strong></td>
+<td>Locate and disassemble binary functions.</td>
+<td>reference</td>
+<td><a href="https://book.rada.re/analysis/intro.html">Reference</a></td>
+<td>6.0.5</td>
+</tr>
+<tr>
+<td>kali-117: <strong>rat-king-parser</strong></td>
+<td>Extract configuration from supported RAT families.</td>
+<td>reference</td>
+<td><a href="https://github.com/jeFF0Falltrades/rat_king_parser">Reference</a></td>
+<td>4.2.4</td>
+</tr>
+<tr>
+<td>kali-118: <strong>RegRipper</strong></td>
+<td>Extract artifacts from offline Windows registry hives.</td>
+<td>reference</td>
+<td><a href="https://github.com/keydet89/RegRipper3.0">Reference</a></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>kali-119: <strong>ripgrep (rg)</strong></td>
+<td>Search text and selectively include hidden or binary files.</td>
+<td>reference</td>
+<td><a href="https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md">Reference</a></td>
+<td>15.2.0</td>
+</tr>
+<tr>
+<td>kali-120: <strong>rockyou.txt (Kali 'wordlists' package)</strong></td>
+<td>Locate the approved password dictionary.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-6">crypto-foundations-6</a>, <a href="LEARNING_RESOURCES.html#crypto-foundations-7">crypto-foundations-7</a></td>
+<td><a href="https://www.kali.org/tools/wordlists/">Reference</a></td>
+<td>(not captured) / /usr/share/wordlists/rockyou.txt</td>
+</tr>
+<tr>
+<td>kali-121: <strong>ROPgadget</strong></td>
+<td>Find instruction gadgets in a binary.</td>
+<td>reference</td>
+<td><a href="https://github.com/JonathanSalwan/ROPgadget">Reference</a></td>
+<td>7.7</td>
+</tr>
+<tr>
+<td>kali-122: <strong>rtptools (rtpdump, rtpplay and others)</strong></td>
+<td>Inspect or replay RTP recordings.</td>
+<td>reference</td>
+<td><a href="https://github.com/irtlab/rtptools">Reference</a></td>
+<td>(not captured) / /opt/tools/rtptools / Built from source</td>
+</tr>
+<tr>
+<td>kali-123: <strong>Rust (rustup, rustc, cargo)</strong></td>
+<td>Build and run a Rust analysis utility.</td>
+<td>reference</td>
+<td><a href="https://doc.rust-lang.org/book/ch01-03-hello-cargo.html">Reference</a></td>
+<td>1.95.0 (2026-04-14) / Built from a source tarball</td>
+</tr>
+<tr>
+<td>kali-124: <strong>rustscan</strong></td>
+<td>Understand port discovery and scanner options.</td>
+<td>reference</td>
+<td><a href="https://github.com/RustScan/RustScan/wiki/Usage">Reference</a></td>
+<td>2.4.1</td>
+</tr>
+<tr>
+<td>kali-125: <strong>SageMath</strong></td>
+<td>Explore discrete logarithms; workbook records no installation information.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#crypto-foundations-3">crypto-foundations-3</a>, <a href="LEARNING_RESOURCES.html#crypto-foundations-5">crypto-foundations-5</a></td>
+<td><a href="https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html">Reference</a></td>
+<td>- / No installation information recorded</td>
+</tr>
+<tr>
+<td>kali-126: <strong>SecLists</strong></td>
+<td>Select a wordlist suited to a web discovery task.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#web-network-4">web-network-4</a></td>
+<td><a href="https://github.com/danielmiessler/SecLists">Reference</a></td>
+<td>(not captured) / /usr/bin/seclists</td>
+</tr>
+<tr>
+<td>kali-127: <strong>socat</strong></td>
+<td>Connect standard input to a TCP service.</td>
+<td>reference</td>
+<td><a href="https://www.kali.org/tools/socat/">Reference</a></td>
+<td>1.8.1.3</td>
+</tr>
+<tr>
+<td>kali-128: <strong>Sonic Visualiser</strong></td>
+<td>Inspect audio with spectrogram layers.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#media-8">media-8</a></td>
+<td><a href="https://www.sonicvisualiser.org/doc/reference/5.2.1/en/">Reference</a></td>
+<td>5.2.1</td>
+</tr>
+<tr>
+<td>kali-129: <strong>SoX (Sound eXchange)</strong></td>
+<td>Generate audio spectrograms with the workbook-reported SoX_ng build; confirm local command options.</td>
+<td>reference</td>
+<td><a href="https://codeberg.org/sox_ng/sox_ng">Reference</a></td>
+<td>14.7.1.2 / SoX_ng build</td>
+</tr>
+<tr>
+<td>kali-130: <strong>SQLCipher Community Edition — CLI</strong></td>
+<td>Open a SQLCipher database with its known key and settings.</td>
+<td>reference</td>
+<td><a href="https://www.zetetic.net/sqlcipher/sqlcipher-api/">Reference</a></td>
+<td>SQLite 3.53.4 / SQLCipher 4.18.0</td>
+</tr>
+<tr>
+<td>kali-131: <strong>sqlite3</strong></td>
+<td>Inspect a SQLite database without changing it.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#forensics-8">forensics-8</a></td>
+<td><a href="https://sqlite.org/cli.html">Reference</a></td>
+<td>3.53.4</td>
+</tr>
+<tr>
+<td>kali-132: <strong>sqlmap</strong></td>
+<td>Understand sqlmap options for an authorized test request.</td>
+<td>reference</td>
+<td><a href="https://github.com/sqlmapproject/sqlmap/wiki/Usage">Reference</a></td>
+<td>1.10.8 (stable)</td>
+</tr>
+<tr>
+<td>kali-133: <strong>sstv (command-line SSTV decoder)</strong></td>
+<td>Decode SSTV audio; installed identity uncertain because workbook location lists the PySSTV encoder.</td>
+<td>reference</td>
+<td><a href="https://github.com/colaclanth/sstv">Reference</a></td>
+<td>(not captured) / pip (PySSTV); decoder name / PySSTV encoder installation mismatch</td>
+</tr>
+<tr>
+<td>kali-134: <strong>steghide</strong></td>
+<td>Inspect and extract a steghide carrier.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-4">media-4</a></td>
+<td><a href="https://www.kali.org/tools/steghide/">Reference</a></td>
+<td>0.6.0</td>
+</tr>
+<tr>
+<td>kali-135: <strong>stegseek</strong></td>
+<td>Recover data from steghide carriers.</td>
+<td>core: <a href="LEARNING_RESOURCES.html#media-4">media-4</a></td>
+<td><a href="https://github.com/RickdeJager/stegseek">Reference</a></td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>kali-136: <strong>stegsnow (SNOW)</strong></td>
+<td>Decode whitespace-based hidden data.</td>
+<td>reference</td>
+<td><a href="https://www.darkside.com.au/snow/">Reference</a></td>
+<td>(not captured) / apt (stegsnow)</td>
+</tr>
+<tr>
+<td>kali-137: <strong>StegSolve</strong></td>
+<td>Inspect image bit planes; installed StegSolve version and fork are unknown.</td>
+<td>reference</td>
+<td><a href="https://github.com/Giotino/stegsolve">Reference</a></td>
+<td>(not captured) / Version not captured (GUI tool; it was started without a display)</td>
+</tr>
+<tr>
+<td>kali-138: <strong>strace</strong></td>
+<td>Observe a program's file and system-call behavior.</td>
+<td>reference</td>
+<td><a href="https://strace.io/">Reference</a></td>
+<td>7.0</td>
+</tr>
+<tr>
+<td>kali-139: <strong>Subfinder</strong></td>
+<td>Collect publicly reported subdomains.</td>
+<td>reference</td>
+<td><a href="https://docs.projectdiscovery.io/tools/subfinder/usage">Reference</a></td>
+<td>2.16.0</td>
+</tr>
+<tr>
+<td>kali-140: <strong>Sublime Text</strong></td>
+<td>Search source and notes in an editor.</td>
+<td>reference</td>
+<td><a href="https://www.sublimetext.com/docs/">Reference</a></td>
+<td>Build 4215</td>
+</tr>
+<tr>
+<td>kali-141: <strong>tar</strong></td>
+<td>List and extract archive members.</td>
+<td>reference</td>
+<td><a href="https://www.gnu.org/software/tar/manual/html_node/extract.html">Reference</a></td>
+<td>1.35</td>
+</tr>
+<tr>
+<td>kali-142: <strong>tcpdump</strong></td>
+<td>Inspect captured packets with filters.</td>
+<td>reference</td>
+<td><a href="https://www.tcpdump.org/manpages/tcpdump.1.html">Reference</a></td>
+<td>4.99.6</td>
+</tr>
+<tr>
+<td>kali-143: <strong>TestDisk and PhotoRec</strong></td>
+<td>Recover files from a disk image.</td>
+<td>reference</td>
+<td><a href="https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step">Reference</a></td>
+<td>7.2</td>
+</tr>
+<tr>
+<td>kali-144: <strong>unar</strong></td>
+<td>List and extract supported archive formats.</td>
+<td>reference</td>
+<td><a href="https://theunarchiver.com/command-line">Reference</a></td>
+<td>1.10.8</td>
+</tr>
+<tr>
+<td>kali-145: <strong>uncompyle6</strong></td>
+<td>Recover source from supported Python bytecode.</td>
+<td>reference</td>
+<td><a href="https://github.com/rocky/python-uncompyle6">Reference</a></td>
+<td>3.9.3</td>
+</tr>
+<tr>
+<td>kali-146: <strong>unpyc3 (unpyc37-3.10)</strong></td>
+<td>Decompile supported Python bytecode; this fork has only minimal Python 3.10 support.</td>
+<td>reference</td>
+<td><a href="https://github.com/greyblue9/unpyc37-3.10">Reference</a></td>
+<td>(not captured) / git (/opt/tools/unpyc3)</td>
+</tr>
+<tr>
+<td>kali-147: <strong>unrar</strong></td>
+<td>List, test and extract RAR archives.</td>
+<td>reference</td>
+<td><a href="https://www.rarlab.com/rar_add.htm">Reference</a></td>
+<td>(not captured) / /usr/bin/unrar</td>
+</tr>
+<tr>
+<td>kali-148: <strong>unzip</strong></td>
+<td>List and extract ZIP members.</td>
+<td>reference</td>
+<td><a href="https://infozip.sourceforge.net/UnZip.html">Reference</a></td>
+<td>6.0-30</td>
+</tr>
+<tr>
+<td>kali-149: <strong>UPX</strong></td>
+<td>Check and unpack a UPX-packed executable.</td>
+<td>reference</td>
+<td><a href="https://github.com/upx/upx/blob/devel/doc/upx-doc.txt">Reference</a></td>
+<td>4.2.4</td>
+</tr>
+<tr>
+<td>kali-150: <strong>Visual Studio Code</strong></td>
+<td>Search and edit analysis code.</td>
+<td>reference</td>
+<td><a href="https://code.visualstudio.com/docs/editor/codebasics">Reference</a></td>
+<td>1.141.2</td>
+</tr>
+<tr>
+<td>kali-151: <strong>Volatility 2</strong></td>
+<td>Identify a memory image profile and inspect processes.</td>
+<td>reference</td>
+<td><a href="https://github.com/volatilityfoundation/volatility/wiki/Command-Reference">Reference</a></td>
+<td>(not captured) / git (/opt/tools/volatility)</td>
+</tr>
+<tr>
+<td>kali-152: <strong>Volatility 2 community plugins</strong></td>
+<td>Load community plugins for Volatility 2.</td>
+<td>reference</td>
+<td><a href="https://github.com/volatilityfoundation/community">Reference</a></td>
+<td>(not captured) / git (/opt/tools/community)</td>
+</tr>
+<tr>
+<td>kali-153: <strong>Volatility 2 profiles (Linux and macOS)</strong></td>
+<td>Match Linux or macOS profiles to memory images.</td>
+<td>reference</td>
+<td><a href="https://github.com/volatilityfoundation/profiles">Reference</a></td>
+<td>(not captured) / git (/opt/tools/profiles)</td>
+</tr>
+<tr>
+<td>kali-154: <strong>Volatility 3 community plugins (community3)</strong></td>
+<td>Load Volatility 3 community plugins; check each plugin against the installed release.</td>
+<td>reference</td>
+<td><a href="https://github.com/volatilityfoundation/community3">Reference</a></td>
+<td>(not captured) / git (/opt/tools/community3)</td>
+</tr>
+<tr>
+<td>kali-155: <strong>VS Code extension: C/C++ (ms-vscode.cpptools)</strong></td>
+<td>Configure C/C++ source debugging.</td>
+<td>reference</td>
+<td><a href="https://code.visualstudio.com/docs/cpp/cpp-debug">Reference</a></td>
+<td>(not captured) / VS Code extension (ms-vscode.cpptools)</td>
+</tr>
+<tr>
+<td>kali-156: <strong>VS Code extension: Python (ms-python.python)</strong></td>
+<td>Select a Python interpreter for analysis scripts.</td>
+<td>reference</td>
+<td><a href="https://code.visualstudio.com/docs/python/environments">Reference</a></td>
+<td>(not captured) / VS Code extension (ms-python.python)</td>
+</tr>
+<tr>
+<td>kali-157: <strong>YARA</strong></td>
+<td>Create signatures and scan sample files.</td>
+<td>next: <a href="LEARNING_RESOURCES.html#reverse-7">reverse-7</a></td>
+<td><a href="https://yara.readthedocs.io/en/stable/writingrules.html">Reference</a></td>
+<td>4.5.8</td>
+</tr>
+<tr>
+<td>kali-158: <strong>yara-python (and YARA on Linux)</strong></td>
+<td>Compile YARA rules and scan files from Python.</td>
+<td>reference</td>
+<td><a href="https://yara.readthedocs.io/en/stable/yarapython.html">Reference</a></td>
+<td>(not captured) / pip (yara-python)</td>
+</tr>
+<tr>
+<td>kali-159: <strong>zip</strong></td>
+<td>Package files into ZIP archives.</td>
+<td>reference</td>
+<td><a href="https://infozip.sourceforge.net/Zip.html">Reference</a></td>
+<td>(not captured) / Installed; version not captured</td>
+</tr>
+<tr>
+<td>kali-160: <strong>zstd</strong></td>
+<td>Inspect and decompress Zstandard data.</td>
+<td>reference</td>
+<td><a href="https://github.com/facebook/zstd/blob/dev/programs/README.md">Reference</a></td>
+<td>1.5.7</td>
+</tr>
+<tr>
+<td>kali-161: <strong>Zui (formerly Brim)</strong></td>
+<td>Explore imported network-capture data.</td>
+<td>reference</td>
+<td><a href="https://github.com/brimdata/zui">Reference</a></td>
+<td>(not captured) / Version not captured (the command only printed a startup message)</td>
+</tr>
+</tbody>
+</table></div>
+<h2>Why some families stay reference-only</h2>
+<p>The 24-hour path teaches representative workflows. These decisions preserve distinct tools and their limitations instead of treating a shared category as complete coverage.</p>
+<h3>File triage and media</h3>
+<ul>
+<li>ZBar, xxd, file and foremost are short task-driven identification/conversion/carving lookups. They support triage but do not each justify another long lesson; keep each existing reference and consult it when QR, hex, unknown-format or carving evidence appears.</li>
+<li>Image channels and integrity remain an important reference family. zsteg does not replace visual bit-plane inspection or PNG/JPEG validation. Keep ImageMagick/G’MIC channel manipulation, StegSolve bit planes and pngcheck/jpeginfo integrity references; prioritise these on a challenge with damaged headers, CRC errors or visible channel clues. Installed fork/version remains relevant.</li>
+<li>MediaInfo and SoX_ng overlap common inspection covered by FFmpeg/Audacity; keep reference-only to avoid repeat lessons. SSTV is a distinct narrow encoding and must remain discoverable, but the decoder-versus-PySSTV package mismatch prevents treating execution as a dependable flight prerequisite.</li>
+<li>OpenStego-specific and SNOW whitespace extraction are recognisable narrow branches. Retain existing direct references and lookup triggers; generic PNG LSB or audio study does not imply mastery of these formats.</li>
+<li>AperiSolve is reference-only because local deployment preparation is substantial and its analyzer set overlaps individually taught tools; public upload is forbidden for event artifacts.</li>
+<li>Sonic Visualiser is covered by the free reading alternative and optional audio investigation, rather than a duplicate full audio-editor lesson. Its v5.2.1 reference matches the workbook version.</li>
+</ul>
+<h3>Web and network evidence</h3>
+<ul>
+<li>Burp/curl/ffuf form one inspect-replay-enumerate workflow; Feroxbuster/Gobuster/Katana stay reference-only to avoid repeating discovery introductions.</li>
+<li>SQLmap and jwt_tool are vulnerability-specific lookups after identifying relevant SQL/JWT evidence; PayloadsAllTheThings remains indexed reference, not cover-to-cover reading.</li>
+<li>Nmap gets a short state/service refresher; RustScan/Legion repeat reconnaissance setup, and Impacket/Metasploit/Hydra require a specific service/target, so retain their exact approved references.</li>
+<li>CAN utilities/cannelloni and RTP tools need matching bus/media artifacts; wireless Aircrack/hcxtools need captures and protocol prerequisites. Keep references rather than requiring hardware/live work on a plane.</li>
+<li>Subfinder is the sole OSINT entry in this lane and needs network-backed passive sources; explicitly reference-only.</li>
+<li>tcpdump and Zui overlap the selected packet workflow; retain their tool-specific references. OpenVPN setup and Chrome DevTools remain utility lookups.</li>
+<li>Community manual tools are usable; Professional scanner, Collaborator, full Intruder and saved project files must not be implied by the training plan. Supplemental ffufme/Docker home practice does not expand event approval.</li>
+</ul>
+<h3>Filesystem, memory and artifact analysis</h3>
+<ul>
+<li>Keep ALEAPP/iLEAPP/mac_apt reference-only: input acquisition formats and OS versions determine useful parsers, and no corresponding evidence set is assumed. Trigger: a supplied Android/iOS/macOS extraction. First consult the row repository for accepted input layout and output reports; generic disk lessons do not teach these tools.</li>
+<li>SQLite schema/query training is transferable but not a substitute for Hindsight browser artifacts, FQLite deleted-record recovery or SQLCipher keys/settings. Keep these interfaces reference-only; use the input-specific parser when ordinary SQLite inspection cannot answer the question. Preserve supplied database companions; no guarantee deleted records survive.</li>
+<li>Autopsy and the MFTECmd/Chainsaw lessons cover artifact selection and output reasoning, not standalone RegRipper, Plaso or Hayabusa operation. Keep row docs: choose RegRipper for a specific hive, Plaso for cross-artifact timelines, Hayabusa as the alternate EVTX workflow rather than learning two event hunters during the first pass.</li>
+<li>Volatility 2, its profiles/plugins and Volatility 3 symbols/plugins are separate compatibility paths. The core teaches only approved windows-31 Volatility 3. Linux symbol generation, SSH-session recovery and credential artifacts stay reference-only until the evidence requires them; no promise that installed plugins support a particular image.</li>
+<li>Keep EWF/qemu-img/ESE/PFF and bulk/carving/FAT-check docs as format-triggered references. They solve different obstacles, not mandatory extra stages for every challenge. Filesystem-aware TSK triage comes first; carving may lose names/paths and cannot guarantee recovery.</li>
+<li>Preserve each row reference without a separate course. qpdf covers structural PDF inspection; it does not teach every viewer or mutool. strings retains its GNU documentation after the old TSK lesson is replaced. Git/Gitleaks are evidence-specific history/search workflows, not part of the disk-memory sequence.</li>
+</ul>
+<h3>Reversing and static triage</h3>
+<ul>
+<li>dnSpyEx is the sole selected managed-code routing reference. Native Ghidra/GDB proficiency does not establish .NET expertise; keep a short reference until a real managed assembly warrants a separate lab.</li>
+<li>JADX orientation covers APK/DEX and manifest/resource navigation. Apktool, dex2jar, Android Studio, Bytecode Viewer and Fernflower retain exact approved-row references; separate overlapping introductions would crowd out practice. APK modification/emulation and native JNI need a separate prepared lab.</li>
+<li>pyinstxtractor-ng is a short extraction reference; pycdc/uncompyle6/unpyc3 remain bytecode-version-specific references, not interchangeable guarantees. Read supported input versions rather than inferring support from the host Python runtime.</li>
+<li>Ghidra and stock GDB provide the core workflow. x64dbg/OllyDbg/Cutter/radare2 and GEF/peda/pwndbg remain approved reference choices; no need to relearn the same branch task in every interface.</li>
+<li>capa/FLOSS/YARA establish static triage roles. Existing approved references for Didier tools, oletools, FakeNet-NG, AutoIt and format-specific unpackers remain available; no live-malware plane lab is required or proposed.</li>
+<li>angr/ROPgadget remain references for a challenge that actually needs path constraints or gadgets. General native input-check recovery is a prerequisite; adding advanced courses without a diagnostic gap would dilute this refresher.</li>
+</ul>
+<h3>Encodings, crypto and passwords</h3>
+<ul>
+<li>crypto-attacks remains a searchable implementation/test-vector library. Specialized lattice tuning is outside the scheduled refresher; removal from study does not remove approval or its inventory reference.</li>
+<li>factordb-python is network-dependent and unnecessary for the tiny local RSA fixture. Keep reference only; approval is not authorization to transmit event challenge material.</li>
+<li>hlextend and padding-oracle-attacker are pattern-specific helpers needing a vulnerable construction/oracle. General RSA/hash exercises do not cover them; retain exact upstream references and state this gap instead of claiming broad cryptographic mastery.</li>
+<li>PARI/GP is an alternative number-theory runtime; Sage/Python cover this block’s arithmetic. Use the existing reference if a supplied solver specifically needs GP.</li>
+<li>hashid is triage, not proof of algorithm identity; check context and known format examples before selecting a cracking mode.</li>
+<li>rockyou is a wordlist, not a separate tool course. The three-word fixture teaches candidate handling without downloading a large corpus.</li>
+<li>OpenSSL remains reference-only for explicit cipher, key, IV and salt parameters; the curated block does not claim AES/OpenSSL coverage.</li>
+<li>multimon-ng signal decoding needs an appropriate recorded signal and modulation knowledge; reference-only pending a matching challenge, not covered by the crypto refresh.</li>
+<li>GTFOBins and HackTricks offline copies are broad lookups, not sequential course material. Preserve references and use matching sections when a concrete binary or technique appears.</li>
+<li>Runtimes, editors, archive utilities and environment/data helpers are supporting tools. Preserve every existing row-specific reference; use the participant’s familiar editor/runtime and a small archive exercise rather than parallel language or editor courses. Python 2 differs from the Python 3.8+ inverse example.</li>
+</ul>
+</main>
+  <footer><div class="wrap"><a href="APPROVED_TOOL_REFERENCES.md">Markdown source</a></div></footer>
+</body>
+</html>

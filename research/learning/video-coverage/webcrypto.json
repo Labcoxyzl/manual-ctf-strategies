@@ -1,0 +1,3667 @@
+{
+  "reviewed_on": "2026-10-23",
+  "scope": "78 assigned approved rows; priorities are inferred study value, not organiser mandates. Written resources and worksheets are not video coverage. No claim that every approved tool needs a dedicated video.",
+  "rows": [
+    {
+      "tool_id": "windows-1",
+      "family": "Layered decoding",
+      "priority": "essential",
+      "video_depth": "workflow",
+      "current_video_ids": [
+        "UtqmiI7k9lU"
+      ],
+      "missing_skills": "Binary versus text, XOR parameters, recipe checkpoints and validation; Magic false positives.",
+      "reason": "High-yield cross-category decoding workflow; priority is an inference from event categories, not an organiser mandate. 01:15\u201303:22 recipe ordering/reversal; 03:24\u201306:23 layered ROT13/Base64/Gunzip/binary/hex. Narrow but real workflow, not advanced cryptanalysis.",
+      "learning_resource_ids": [
+        "crypto-foundations-1",
+        "crypto-foundations-2"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "windows-6",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:windows-6"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-7",
+      "family": "Python problem solving",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "20K1ctFzu2Y",
+        "Uk3DEgY5Ue8"
+      ],
+      "missing_skills": "Bytes/integers and endianness; file parsing and JSON; struct; small reproducible scripts; assertions and local dependencies.",
+      "reason": "One RSA script teaches a tiny subset. Duplicate Windows/WSL and Kali rows do not require duplicate courses. 02:39\u201305:12 computes totient/inverse/decryption and bytes conversion in Python. This does not establish general scripting proficiency. Volatility video 00:30\u201305:00 adds incidental interpreter/dependency use, not Python language teaching.",
+      "learning_resource_ids": [
+        "crypto-foundations-3",
+        "crypto-depth-common-modulus",
+        "crypto-depth-recover-modulus",
+        "utility-depth-python-io"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "windows-8",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:windows-8"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-21",
+      "family": "JSON and text processing",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "jq selection, nested arrays and raw output; rg scoped searches, regex and pipelines.",
+      "reason": "Cross-category evidence extraction is high yield; short applied exercises can replace a full course.",
+      "learning_resource_ids": [
+        "utility-depth-jq"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "windows-24",
+      "family": "Cryptographic primitives",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Inspect keys/certificates; enc cipher, salt, IV, padding and KDF parameters; preserve binary output; verify decrypted results.",
+      "reason": "OpenSSL decryption depends on exact parameters; no current video teaches its commands.",
+      "learning_resource_ids": [
+        "crypto-depth-openssl"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "windows-25",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:windows-25"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-30",
+      "family": "RSA attack selection",
+      "priority": "essential",
+      "video_depth": "incidental",
+      "current_video_ids": [
+        "20K1ctFzu2Y"
+      ],
+      "missing_skills": "Read key/number inputs; shared factors, low exponent and close-prime prerequisites; local Sage integer operations; failed attacks; validate plaintext.",
+      "reason": "RSA intro only covers an easy factorable modulus. SageCell use is not a local Sage setup or RsaCtfTool demonstration. 01:00\u201301:07 names RsaCtfTool, then explicitly chooses manual mathematics. No tool invocation.",
+      "learning_resource_ids": [
+        "crypto-foundations-4"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "windows-37",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:windows-37"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-1",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-1"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-2",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-2"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-13",
+      "family": "ZIP known plaintext",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "ZipCrypto versus AES; matching compression and known plaintext offsets; recover keys and decrypt; distinguish known plaintext from password guessing.",
+      "reason": "A distinct attack prerequisite deserves a focused worked example; existing written practice is not video coverage.",
+      "learning_resource_ids": [
+        "crypto-foundations-8"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-17",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-17"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-18",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-18"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-22",
+      "family": "Specialist mathematical attacks",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Select attacks from proven prerequisites; adapt parameters; run local examples and independently validate outputs.",
+      "reason": "crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "learning_resource_ids": [
+        "ref:kali-22"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-26",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-26"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-31",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-31"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-36",
+      "family": "External factoring client",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Understand external requests and factor status; validate returned factors; use local alternatives for event data.",
+      "reason": "FactorDB is an online service; event challenge uploads are prohibited. Do not count online factoring as an event-ready workflow.",
+      "learning_resource_ids": [
+        "ref:kali-36"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-47",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-47"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-52",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-52"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-53",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-53"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-56",
+      "family": "Offline references",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Search locally, check version and vulnerability prerequisites, adapt examples only after understanding evidence.",
+      "reason": "References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "learning_resource_ids": [
+        "ref:kali-56"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-57",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-57"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-58",
+      "family": "Offline references",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Search locally, check version and vulnerability prerequisites, adapt examples only after understanding evidence.",
+      "reason": "References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "learning_resource_ids": [
+        "ref:kali-58"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-59",
+      "family": "Password recovery",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Extract and identify hash formats; select modes; dictionary/rules/masks; verify results; potfiles and workload limits.",
+      "reason": "Learn one complete cracking workflow plus the alternative tool where archive/hash format support differs.",
+      "learning_resource_ids": [
+        "crypto-foundations-6",
+        "crypto-depth-rules"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-60",
+      "family": "Cracking inputs",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Validate candidate hash identification; select small relevant wordlists; understand format/rule compatibility.",
+      "reason": "Identifiers and wordlists support a workflow; they do not warrant separate long courses.",
+      "learning_resource_ids": [
+        "ref:kali-60"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-64",
+      "family": "Specialist mathematical attacks",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Select attacks from proven prerequisites; adapt parameters; run local examples and independently validate outputs.",
+      "reason": "crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "learning_resource_ids": [
+        "ref:kali-64"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-71",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-71"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-73",
+      "family": "Password recovery",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Extract and identify hash formats; select modes; dictionary/rules/masks; verify results; potfiles and workload limits.",
+      "reason": "Learn one complete cracking workflow plus the alternative tool where archive/hash format support differs.",
+      "learning_resource_ids": [
+        "crypto-foundations-7"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-81",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-81"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-82",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-82"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-84",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-84"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-85",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-85"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-90",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-90"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-91",
+      "family": "Wireless and radio",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Understand capture/format prerequisites and protocol-specific decode or recovery workflows.",
+      "reason": "Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "learning_resource_ids": [
+        "ref:kali-91"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-95",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-95"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-97",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-97"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-101",
+      "family": "Specialist mathematical attacks",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Select attacks from proven prerequisites; adapt parameters; run local examples and independently validate outputs.",
+      "reason": "crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "learning_resource_ids": [
+        "ref:kali-101"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-102",
+      "family": "Specialist mathematical attacks",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Select attacks from proven prerequisites; adapt parameters; run local examples and independently validate outputs.",
+      "reason": "crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "learning_resource_ids": [
+        "ref:kali-102"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-113",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-113"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-114",
+      "family": "Python problem solving",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "20K1ctFzu2Y",
+        "Uk3DEgY5Ue8"
+      ],
+      "missing_skills": "Bytes/integers and endianness; file parsing and JSON; struct; small reproducible scripts; assertions and local dependencies.",
+      "reason": "One RSA script teaches a tiny subset. Duplicate Windows/WSL and Kali rows do not require duplicate courses. 02:39\u201305:12 computes totient/inverse/decryption and bytes conversion in Python. This does not establish general scripting proficiency. Volatility video 00:30\u201305:00 adds incidental interpreter/dependency use, not Python language teaching.",
+      "learning_resource_ids": [
+        "crypto-foundations-3",
+        "crypto-depth-common-modulus",
+        "crypto-depth-recover-modulus",
+        "utility-depth-python-io"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-119",
+      "family": "JSON and text processing",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "jq selection, nested arrays and raw output; rg scoped searches, regex and pipelines.",
+      "reason": "Cross-category evidence extraction is high yield; short applied exercises can replace a full course. Existing ripgrep guide teaches concrete search options; practice on local evidence text rather than add a dedicated course.",
+      "learning_resource_ids": [
+        "ref:kali-119"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-120",
+      "family": "Cracking inputs",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Validate candidate hash identification; select small relevant wordlists; understand format/rule compatibility.",
+      "reason": "Identifiers and wordlists support a workflow; they do not warrant separate long courses.",
+      "learning_resource_ids": [
+        "crypto-foundations-6",
+        "crypto-foundations-7",
+        "crypto-depth-rules"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-123",
+      "family": "Runtime and build support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "reason": "Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "learning_resource_ids": [
+        "ref:kali-123"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-125",
+      "family": "RSA attack selection",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "20K1ctFzu2Y"
+      ],
+      "missing_skills": "Read key/number inputs; shared factors, low exponent and close-prime prerequisites; local Sage integer operations; failed attacks; validate plaintext.",
+      "reason": "RSA intro only covers an easy factorable modulus. SageCell use is not a local Sage setup or RsaCtfTool demonstration. 01:28\u201302:22 factors a weak modulus through online SageCell. No local Sage workflow or attack selection.",
+      "learning_resource_ids": [
+        "crypto-foundations-3",
+        "crypto-foundations-5",
+        "crypto-depth-common-modulus",
+        "crypto-depth-recover-modulus"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-140",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-140"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-141",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-141"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-144",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-144"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-147",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-147"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-148",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-148"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-150",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-150"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-155",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-155"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-156",
+      "family": "Editors and local databases",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "reason": "Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "learning_resource_ids": [
+        "ref:kali-156"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-159",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-159"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-160",
+      "family": "Archives and downloads",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "reason": "Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "learning_resource_ids": [
+        "ref:kali-160"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-4",
+      "family": "Browser and access support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Verify approved access and browser proxy/certificate configuration; inspect requests with browser tools.",
+      "reason": "OpenVPN is access infrastructure; Burp embedded browser is not proof of standalone Google Chrome training.",
+      "learning_resource_ids": [
+        "ref:windows-4"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-5",
+      "family": "Browser and access support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Verify approved access and browser proxy/certificate configuration; inspect requests with browser tools.",
+      "reason": "OpenVPN is access infrastructure; Burp embedded browser is not proof of standalone Google Chrome training.",
+      "learning_resource_ids": [
+        "ref:windows-5"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "windows-20",
+      "family": "Manual HTTP and authentication",
+      "priority": "essential",
+      "video_depth": "workflow",
+      "current_video_ids": [
+        "_Wifm2g9ugg"
+      ],
+      "missing_skills": "Scope and intercept setup; cookies/session replay; compare two users and unauthenticated requests; access-control and injection hypotheses; request encoding.",
+      "reason": "Approved edition is Community: prioritize manual Proxy/Repeater/Decoder workflows, not Pro scanner automation. 00:48\u201302:20 capture/edit/send/history; 02:22\u201303:40 redirects and cookie options; 04:24\u201306:06 tabs and URL-to-request. No vulnerability investigation or session methodology.",
+      "learning_resource_ids": [
+        "web-network-1",
+        "web-network-2",
+        "web-depth-access",
+        "web-depth-idor",
+        "web-depth-reset",
+        "web-depth-jwt"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-3",
+      "family": "Wireless and radio",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Understand capture/format prerequisites and protocol-specific decode or recovery workflows.",
+      "reason": "Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "learning_resource_ids": [
+        "ref:kali-3"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-23",
+      "family": "HTTP scripting and discovery",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "curl headers, bodies, cookie jars and redirects; ffuf placeholders, wordlists, authenticated requests, baseline and false-positive filtering.",
+      "reason": "High-yield request reproduction and bounded discovery; current Burp video does not teach these CLI tools.",
+      "learning_resource_ids": [
+        "web-network-3"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-35",
+      "family": "Offline references",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Search locally, check version and vulnerability prerequisites, adapt examples only after understanding evidence.",
+      "reason": "References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "learning_resource_ids": [
+        "ref:kali-35"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-39",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-39"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    },
+    {
+      "tool_id": "kali-41",
+      "family": "HTTP scripting and discovery",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "curl headers, bodies, cookie jars and redirects; ffuf placeholders, wordlists, authenticated requests, baseline and false-positive filtering.",
+      "reason": "High-yield request reproduction and bounded discovery; current Burp video does not teach these CLI tools.",
+      "learning_resource_ids": [
+        "web-network-4"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-54",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-54"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    },
+    {
+      "tool_id": "kali-62",
+      "family": "Wireless and radio",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Understand capture/format prerequisites and protocol-specific decode or recovery workflows.",
+      "reason": "Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "learning_resource_ids": [
+        "ref:kali-62"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-65",
+      "family": "Service exploitation and transport",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Interpret protocol/auth prerequisites; configure credentials, targets and transport; validate outcome in a local lab.",
+      "reason": "Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "learning_resource_ids": [
+        "ref:kali-65"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-68",
+      "family": "Service exploitation and transport",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Interpret protocol/auth prerequisites; configure credentials, targets and transport; validate outcome in a local lab.",
+      "reason": "Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "learning_resource_ids": [
+        "ref:kali-68"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-77",
+      "family": "JWT analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Decode versus verify, signing algorithms/key assumptions, token modification and server-side acceptance checks.",
+      "reason": "Useful when a JWT is present; no existing video establishes jwt_tool proficiency.",
+      "learning_resource_ids": [
+        "web-depth-jwt"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-78",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-78"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    },
+    {
+      "tool_id": "kali-79",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-79"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    },
+    {
+      "tool_id": "kali-88",
+      "family": "Service exploitation and transport",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Interpret protocol/auth prerequisites; configure credentials, targets and transport; validate outcome in a local lab.",
+      "reason": "Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "learning_resource_ids": [
+        "ref:kali-88"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-94",
+      "family": "Services and connections",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Scope ports and scan types; distinguish service guesses from evidence; version results, targeted scripts, saved output; Ncat connections.",
+      "reason": "Service discovery is high yield for network-exposed challenges. Ncat/Nping bundled in one approval row need separate command lookup.",
+      "learning_resource_ids": [
+        "web-network-9"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-103",
+      "family": "Offline references",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Search locally, check version and vulnerability prerequisites, adapt examples only after understanding evidence.",
+      "reason": "References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "learning_resource_ids": [
+        "ref:kali-103"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-124",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-124"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    },
+    {
+      "tool_id": "kali-126",
+      "family": "Cracking inputs",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Validate candidate hash identification; select small relevant wordlists; understand format/rule compatibility.",
+      "reason": "Identifiers and wordlists support a workflow; they do not warrant separate long courses.",
+      "learning_resource_ids": [
+        "web-network-4"
+      ],
+      "coverage_disposition": "support_reference"
+    },
+    {
+      "tool_id": "kali-127",
+      "family": "Service exploitation and transport",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Interpret protocol/auth prerequisites; configure credentials, targets and transport; validate outcome in a local lab.",
+      "reason": "Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "learning_resource_ids": [
+        "ref:kali-127"
+      ],
+      "coverage_disposition": "conditional_specialist"
+    },
+    {
+      "tool_id": "kali-132",
+      "family": "SQL injection",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recognize and manually validate injection; pass request files/cookies to sqlmap; constrain enumeration and interpret negative or noisy results.",
+      "reason": "Automated tooling needs an established injection context and an authorized target, not blind default invocation.",
+      "learning_resource_ids": [
+        "web-depth-sqlmap"
+      ],
+      "coverage_disposition": "workflow_instruction"
+    },
+    {
+      "tool_id": "kali-139",
+      "family": "Alternative discovery tools",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "reason": "Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "learning_resource_ids": [
+        "ref:kali-139"
+      ],
+      "coverage_disposition": "overlapping_alternative"
+    }
+  ],
+  "families": [
+    {
+      "name": "Layered decoding",
+      "tool_ids": [
+        "windows-1"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-1: workflow (UtqmiI7k9lU)",
+      "gap": "Binary versus text, XOR parameters, recipe checkpoints and validation; Magic false positives.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Manual HTTP and authentication",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-20: workflow (_Wifm2g9ugg)",
+      "gap": "Scope and intercept setup; cookies/session replay; compare two users and unauthenticated requests; access-control and injection hypotheses; request encoding.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "HTTP scripting and discovery",
+      "tool_ids": [
+        "kali-23",
+        "kali-41"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "curl headers, bodies, cookie jars and redirects; ffuf placeholders, wordlists, authenticated requests, baseline and false-positive filtering.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "SQL injection",
+      "tool_ids": [
+        "kali-132"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Recognize and manually validate injection; pass request files/cookies to sqlmap; constrain enumeration and interpret negative or noisy results.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "JWT analysis",
+      "tool_ids": [
+        "kali-77"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Decode versus verify, signing algorithms/key assumptions, token modification and server-side acceptance checks.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Services and connections",
+      "tool_ids": [
+        "kali-94"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Scope ports and scan types; distinguish service guesses from evidence; version results, targeted scripts, saved output; Ncat connections.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Password recovery",
+      "tool_ids": [
+        "kali-59",
+        "kali-73"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Extract and identify hash formats; select modes; dictionary/rules/masks; verify results; potfiles and workload limits.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Cracking inputs",
+      "tool_ids": [
+        "kali-60",
+        "kali-120",
+        "kali-126"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Validate candidate hash identification; select small relevant wordlists; understand format/rule compatibility.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "ZIP known plaintext",
+      "tool_ids": [
+        "kali-13"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "ZipCrypto versus AES; matching compression and known plaintext offsets; recover keys and decrypt; distinguish known plaintext from password guessing.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "RSA attack selection",
+      "tool_ids": [
+        "windows-30",
+        "kali-125"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-30: incidental (20K1ctFzu2Y); kali-125: intro (20K1ctFzu2Y)",
+      "gap": "Read key/number inputs; shared factors, low exponent and close-prime prerequisites; local Sage integer operations; failed attacks; validate plaintext.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Cryptographic primitives",
+      "tool_ids": [
+        "windows-24"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Inspect keys/certificates; enc cipher, salt, IV, padding and KDF parameters; preserve binary output; verify decrypted results.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Specialist mathematical attacks",
+      "tool_ids": [
+        "kali-22",
+        "kali-64",
+        "kali-101",
+        "kali-102"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Select attacks from proven prerequisites; adapt parameters; run local examples and independently validate outputs.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "External factoring client",
+      "tool_ids": [
+        "kali-36"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Understand external requests and factor status; validate returned factors; use local alternatives for event data.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "Python problem solving",
+      "tool_ids": [
+        "windows-7",
+        "kali-114"
+      ],
+      "priority": "essential",
+      "current_coverage": "windows-7: intro (20K1ctFzu2Y, Uk3DEgY5Ue8); kali-114: intro (20K1ctFzu2Y, Uk3DEgY5Ue8)",
+      "gap": "Bytes/integers and endianness; file parsing and JSON; struct; small reproducible scripts; assertions and local dependencies.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "JSON and text processing",
+      "tool_ids": [
+        "windows-21",
+        "kali-119"
+      ],
+      "priority": "essential",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "jq selection, nested arrays and raw output; rg scoped searches, regex and pipelines.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Runtime and build support",
+      "tool_ids": [
+        "windows-6",
+        "windows-8",
+        "kali-1",
+        "kali-31",
+        "kali-47",
+        "kali-53",
+        "kali-71",
+        "kali-90",
+        "kali-95",
+        "kali-113",
+        "kali-123"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Confirm installed versions, invoke existing scripts/builds, paths and environments; diagnose missing dependencies; Docker lab lifecycle where needed.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "Archives and downloads",
+      "tool_ids": [
+        "windows-25",
+        "kali-2",
+        "kali-17",
+        "kali-18",
+        "kali-52",
+        "kali-57",
+        "kali-82",
+        "kali-84",
+        "kali-85",
+        "kali-141",
+        "kali-144",
+        "kali-147",
+        "kali-148",
+        "kali-159",
+        "kali-160"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Identify formats, list before extraction, preserve originals, handle nested archives and output paths.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "Editors and local databases",
+      "tool_ids": [
+        "windows-37",
+        "kali-26",
+        "kali-81",
+        "kali-97",
+        "kali-140",
+        "kali-150",
+        "kali-155",
+        "kali-156"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Use an existing editor for search/run tasks; inspect local database tables and query results when relevant.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "Browser and access support",
+      "tool_ids": [
+        "windows-4",
+        "windows-5"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Verify approved access and browser proxy/certificate configuration; inspect requests with browser tools.",
+      "desired_video_depth": "intro"
+    },
+    {
+      "name": "Alternative discovery tools",
+      "tool_ids": [
+        "kali-39",
+        "kali-54",
+        "kali-78",
+        "kali-79",
+        "kali-124",
+        "kali-139"
+      ],
+      "priority": "alternative",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Learn equivalent filtering/scope options only if selected for a concrete discovery task.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Service exploitation and transport",
+      "tool_ids": [
+        "kali-65",
+        "kali-68",
+        "kali-88",
+        "kali-127"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Interpret protocol/auth prerequisites; configure credentials, targets and transport; validate outcome in a local lab.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Wireless and radio",
+      "tool_ids": [
+        "kali-3",
+        "kali-62",
+        "kali-91"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Understand capture/format prerequisites and protocol-specific decode or recovery workflows.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Offline references",
+      "tool_ids": [
+        "kali-35",
+        "kali-56",
+        "kali-58",
+        "kali-103"
+      ],
+      "priority": "support",
+      "current_coverage": "No substantive current video coverage.",
+      "gap": "Search locally, check version and vulnerability prerequisites, adapt examples only after understanding evidence.",
+      "desired_video_depth": "intro"
+    }
+  ],
+  "current_video_assessments": [
+    {
+      "video_id": "_Wifm2g9ugg",
+      "video_depth": "workflow",
+      "timestamp_evidence": "00:48\u201302:20 capture/edit/send/history; 02:22\u201303:40 redirects; 04:24\u201306:06 tabs/URL requests",
+      "gap": "No complete authentication/access-control investigation."
+    },
+    {
+      "video_id": "UtqmiI7k9lU",
+      "video_depth": "workflow",
+      "timestamp_evidence": "01:15\u201303:22 recipe ordering; 03:24\u201306:23 layered decoding",
+      "gap": "No key/IV/KDF reasoning, XOR analysis or comprehensive recipe validation."
+    },
+    {
+      "video_id": "20K1ctFzu2Y",
+      "video_depth": "intro",
+      "timestamp_evidence": "01:00 RsaCtfTool name only; 01:28\u201302:22 online SageCell factor; 02:39\u201305:12 Python decrypt/bytes",
+      "gap": "No RsaCtfTool execution, local Sage or attack selection. Do not upload event data to online SageCell."
+    }
+  ],
+  "candidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=_jz5qFWhLcg",
+      "video_id": "_jz5qFWhLcg",
+      "title": "Broken Access Control | Complete Guide",
+      "creator": "Rana Khalil",
+      "duration_seconds": 2372,
+      "tool_ids": [
+        "windows-20"
+      ],
+      "content_evidence": "Exa fetched creator chapters and substantive transcript:02:25 identity/session/authorization distinction;22:50 finding;30:29 exploitation;34:40 mitigation. Theory complements manual labs; not itself a complete lab.",
+      "access": "Free YouTube stream; paid Academy promotion is optional. Offline video access not established.",
+      "caveats": "Metadata duration from Exa; parent independently checking captions/runtime. Skip00:28\u201301:39 course promotion."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XkLCEhEJuSI",
+      "video_id": "XkLCEhEJuSI",
+      "title": "Password Cracking with Hashcat",
+      "creator": "pentestTV",
+      "duration_seconds": 1839,
+      "tool_ids": [
+        "kali-59",
+        "kali-120"
+      ],
+      "content_evidence": "Creator chapters03:00 setup;05:29 wordlist;15:45 rules;20:46 masks;27:52 benchmark. Transcript inspected includes self-created hash, mode diagnosis, --show, potfile behavior and failed simple-wordlist control before rules.",
+      "access": "Free YouTube stream; locally generated toy hashes need no paid sample download. Offline video access not established.",
+      "caveats": "Skip installation and GPU comparison. Preserve existing potfiles; use isolated lab output. GPU performance is not a promise for organiser laptop. Parent checking captions/runtime."
+    }
+  ],
+  "learning_resources": [
+    {
+      "id": "web-network-1",
+      "title": "Burp: reissue requests and investigate unexpected input",
+      "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+      "kind": "read",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "skills": "Move a request from Proxy history into Repeater; change one parameter, compare responses and recognize useful error disclosure. Follow the linked Proxy/scope prerequisites first.",
+      "depth": "workflow",
+      "prerequisites": "HTTP request/response basics; for execution, Burp Community, prepared browser proxy and reachable Academy lab.",
+      "limits": "Content inspected; local execution not performed.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading. Hosted Academy exercise requires a free account.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children. Hosted lab execution cannot run from saved HTML.",
+        "free_alternative_url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests"
+      },
+      "content_evidence": [
+        {
+          "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+          "inspected": "2026-10-22: Read step-by-step parameter editing, response history, error disclosure and free Academy account requirement; reuse earlier substantive fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://portswigger.net/burp/communitydownload",
+          "inspected": "2026-10-22: Read official Community vs Professional comparison; reused valid earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "web-network-2",
+      "title": "How to resend individual requests with Burp Repeater",
+      "url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+      "kind": "watch",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "skills": "Short demonstration of the manual request-edit-send-compare loop, history, redirects and tabs. Pair with the current written tutorial because the 2020 interface differs.",
+      "depth": "intro",
+      "prerequisites": "Basic HTTP; reading resource 1 is sufficient without playback.",
+      "limits": "Not watched; metadata runtime is distinct from study estimate.",
+      "access": {
+        "viewing": "Public YouTube page/transcript retrieved; playback not tested.",
+        "cost": "Ordinary viewing is public; official desktop offline workflow requires paid YouTube Premium. No purchase needed for curriculum.",
+        "registration": "No account created; download workflow requires signed-in Premium account.",
+        "offline": "Free offline video entitlement not established; use free saved reading instead.",
+        "free_alternative_url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests"
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+          "inspected": "2026-10-22: Read original PortSwigger metadata and transcript. Published runtime 06:30; 2020 interface. Reuse prior fetch.",
+          "limitation": "Not watched; metadata runtime is distinct from study estimate."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Read official desktop Premium download/sign-in and offline-availability requirements.",
+          "limitation": "No subscription or offline playback tested."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "web-network-3",
+      "title": "Everything curl: Command line HTTP",
+      "url": "https://everything.curl.dev/http/",
+      "kind": "read",
+      "tool_ids": [
+        "kali-23"
+      ],
+      "skills": "Read the Customize headers and Cookies subsections: reproduce HTTP requests, replace headers and retain session state with a cookie jar. Useful when a browser hides request details.",
+      "depth": "workflow",
+      "prerequisites": "Know method, URL, headers and body; execution requires curl and a prepared target.",
+      "limits": "Content inspected; local execution not performed.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save [Customize headers](https://everything.curl.dev/http/modify/headers.html), [Writing cookies](https://everything.curl.dev/http/cookies/writing.html), [Simple POST](https://everything.curl.dev/http/post/simple.html) and [Responses](https://everything.curl.dev/http/response.html) before departure. Reading works offline; HTTP execution needs a previously prepared local service.",
+        "free_alternative_url": "https://everything.curl.dev/http/"
+      },
+      "content_evidence": [
+        {
+          "url": "https://everything.curl.dev/http/modify/headers.html",
+          "inspected": "2026-10-22: Read replacement/removal of headers and examples; reused earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/cookies/writing.html",
+          "inspected": "2026-10-22: Read -c cookie output/-b input and session-cookie retention; reused earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/post/simple.html",
+          "inspected": "2026-10-22: Read -d form body, multiple fields, @file/newline and --data-raw behavior.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/response.html",
+          "inspected": "2026-10-22: Read response classes and distinction between curl transfer success and HTTP status failure.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "web-network-4",
+      "title": "ffuf upstream examples: discovery, filters and bounded runs",
+      "url": "https://github.com/ffuf/ffuf",
+      "kind": "read",
+      "tool_ids": [
+        "kali-41",
+        "kali-126"
+      ],
+      "skills": "Place FUZZ in a path, Host header or parameter; filter uninteresting sizes/statuses and bound runs. SecLists supplies candidate input, but learning response comparison matters more than collecting more wordlists.",
+      "depth": "workflow",
+      "prerequisites": "Complete manual-request work first; local wordlist and reachable target for execution.",
+      "limits": "Content inspected; local execution not performed.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://github.com/ffuf/ffuf"
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/ffuf/ffuf",
+          "inspected": "2026-10-22: Read content/vhost/GET/POST examples and time bounds; reuse prior fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://github.com/ffuf/ffuf/wiki",
+          "inspected": "2026-10-22: Compared upstream wiki: explicit input/marker prerequisites and newer sniper-mode section. Keep stable basics rather than new features.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://github.com/adamtlangley/ffufme",
+          "inspected": "2026-10-22: Read Docker build/run and hosted alternative; reuse prior fetch.",
+          "limitation": "Not built; supplementary home practice, not an approved event application claim."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "web-network-9",
+      "title": "Nmap reference: interpret ports, services and saved results",
+      "url": "https://nmap.org/book/man.html",
+      "kind": "read",
+      "tool_ids": [
+        "kali-94"
+      ],
+      "skills": "Read port states, service/version detection and output sections. Learn what open, closed and filtered do and do not establish before selecting a service-specific tool.",
+      "depth": "workflow",
+      "prerequisites": "Basic TCP ports; actual scanning requires a prepared authorized local target.",
+      "limits": "Content inspected; local execution not performed.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://nmap.org/book/man.html"
+      },
+      "content_evidence": [
+        {
+          "url": "https://nmap.org/book/man.html",
+          "inspected": "2026-10-22: Read port states and representative scan output; reuse earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://nmap.org/book/man-version-detection.html",
+          "inspected": "2026-10-22: Read difference between port database guesses and active service probing.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://nmap.org/book/man-output.html",
+          "inspected": "2026-10-22: Read normal/XML file output syntax and file overwrite/append discussion.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-1",
+      "title": "CyberChef: how recipes work and worked examples",
+      "url": "https://github.com/gchq/CyberChef",
+      "kind": "read",
+      "tool_ids": [
+        "windows-1"
+      ],
+      "skills": "Learn the input/recipe/output workflow; follow Base64, hexdump, compression and nested-encoding examples. Start here before trying random operations.",
+      "depth": "workflow",
+      "prerequisites": "Comfort with encodings versus encryption; local CyberChef needed only for interactive practice.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/gchq/CyberChef"
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/gchq/CyberChef",
+          "inspected": "2026-10-22: Refetched substantive README interface, worked examples, local execution and recipe-saving sections.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-2",
+      "title": "Cryptography Lab 5: Cooking with the Cyberchef",
+      "url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+      "kind": "watch",
+      "tool_ids": [
+        "windows-1"
+      ],
+      "skills": "A short visual introduction to reversible recipes, Base64, octal and a multi-step obfuscation exercise. The simple typed-text example can be recreated without the course.",
+      "depth": "intro",
+      "prerequisites": "None beyond the CyberChef basics; later course lab file not supplied.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Publicly accessible creator video; metadata/transcript inspected, playback not tested.",
+        "cost": "Free streaming; desktop offline feature is paid YouTube Premium.",
+        "registration": "No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads.",
+        "offline": "Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.",
+        "free_alternative_url": "https://github.com/gchq/CyberChef"
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+          "inspected": "2026-10-22: Reused previously inspected Level Effect description and substantive transcript covering reverse/Base64/octal and the course-file transition; no playback.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Official desktop download steps require a signed-in YouTube Premium account; downloaded videos need periodic reconnection.",
+          "limitation": "Regional and per-video availability not tested; no subscription purchased."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-3",
+      "title": "CTFlearn: RSA Beginner",
+      "url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+      "kind": "watch",
+      "tool_ids": [
+        "windows-7",
+        "kali-114",
+        "kali-125"
+      ],
+      "skills": "Follow n, e and c through factorization, totient, modular inverse and Python byte conversion. This explains the prerequisites behind automated RSA tools.",
+      "depth": "intro",
+      "prerequisites": "Integer arithmetic and Python pow; Sage optional for the tiny fixture.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Publicly accessible creator video; metadata/transcript inspected, playback not tested.",
+        "cost": "Free streaming; desktop offline feature is paid YouTube Premium.",
+        "registration": "No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads.",
+        "offline": "Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.",
+        "free_alternative_url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html"
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+          "inspected": "2026-10-22: Reused previously inspected creator transcript: derives factors, phi and d, decrypts with Python, and uses SageCell for factorization.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Official desktop download steps require a signed-in YouTube Premium account; downloaded videos need periodic reconnection.",
+          "limitation": "Regional and per-video availability not tested; no subscription purchased."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-4",
+      "title": "RsaCtfTool: usage and attack prerequisites",
+      "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "kind": "read",
+      "tool_ids": [
+        "windows-30"
+      ],
+      "skills": "Learn public-key inspection, selected attacks and decryption inputs; distinguish close-prime, small-exponent and shared-factor situations from unfactorable keys.",
+      "depth": "workflow",
+      "prerequisites": "Basic RSA n/e/c/p/q/phi/d; local Python 3.9+ and tool dependencies if executing; Sage only for supported attacks that need it.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/RsaCtfTool/RsaCtfTool"
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+          "inspected": "2026-10-22: Refetched README requirements, usage, factorization table, online FactorDB examples and network test markers.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-5",
+      "title": "SageMath tutorial: number theory",
+      "url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+      "kind": "read",
+      "tool_ids": [
+        "kali-125"
+      ],
+      "skills": "Work through modular rings, gcd, factor, inverse_mod and CRT examples. Compare Sage syntax with the provided Python equivalents.",
+      "depth": "workflow",
+      "prerequisites": "Modular arithmetic; local Sage for Sage commands. Python pow(...,-1,...) can cover the small RSA exercise without Sage.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html"
+      },
+      "content_evidence": [
+        {
+          "url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+          "inspected": "2026-10-22: Refetched official tutorial with explicit outputs for modular rings, factor, inverse_mod and CRT; inspected the transition into advanced sections.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-6",
+      "title": "hashcat: dictionary attacks with a tiny wordlist",
+      "url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+      "kind": "read",
+      "tool_ids": [
+        "kali-59",
+        "kali-120"
+      ],
+      "skills": "Read dictionary Description and the first command. Use -m 0 (raw MD5) with -a 0 and a three-word list; compare with -a 3 and a constrained mask. Use local help for installed-version flags; skip page suggestions for newer modes.",
+      "depth": "workflow",
+      "prerequisites": "Hash format identification; working hashcat backend for execution, otherwise use the Python known-answer fallback.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack"
+      },
+      "content_evidence": [
+        {
+          "url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+          "inspected": "2026-10-22: Fetched official dictionary page including the plain wordlist command and rules discussion; compared official mask page examples and version caveats.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-7",
+      "title": "John the Ripper: usage examples",
+      "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+      "kind": "read",
+      "tool_ids": [
+        "kali-73",
+        "kali-120"
+      ],
+      "skills": "Learn single mode, wordlist rules and --show; understand why selecting candidates matters more than immediately running exhaustive incremental search.",
+      "depth": "workflow",
+      "prerequisites": "John Jumbo for raw-md5; no real account files needed. Verify the local format is present before flight.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://www.openwall.com/john/doc/EXAMPLES.shtml"
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+          "inspected": "2026-10-22: Refetched complete usage sections through wordlists, pot display, sessions, restore and incremental limits.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "crypto-foundations-8",
+      "title": "bkcrack 1.8.1: stored-plaintext ZIP recovery",
+      "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+      "kind": "practice",
+      "tool_ids": [
+        "kali-13"
+      ],
+      "skills": "Read archive metadata, stored-file known plaintext, internal-key recovery and password removal. Work from the printed metadata if the sample archive was not prepared.",
+      "depth": "workflow",
+      "prerequisites": "ZipCrypto versus AES; stored versus deflated members; local bkcrack 1.8.1 plus public example only if executing.",
+      "limits": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed.",
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md"
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+          "inspected": "2026-10-22: Fetched v1.8.1 tutorial and raw Markdown to recover the XML prefix stripped by rendered extraction; verified the exact 20-byte prefix and expected internal keys. Repository README previously inspected for 12 known bytes including 8 contiguous.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "status": "reuse_existing"
+    },
+    {
+      "id": "web-depth-access",
+      "title": "Access control: concepts and request-level failure cases",
+      "url": "https://portswigger.net/web-security/access-control",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "skills": "Distinguish identity, session and authorization; test horizontal/vertical controls, method/header discrepancies and leakage before redirects.",
+      "depth": "workflow",
+      "prerequisites": "Basic HTTP and shell.",
+      "limits": "Community Proxy/Repeater suffices; skip Pro scanner prompts. Hosted labs need an account.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://portswigger.net/web-security/access-control",
+          "inspected": "2026-10-23: Read worked URL/header examples, role cookies, unpredictable IDs and response-body leaks."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "web-depth-idor",
+      "title": "Burp lab: controlled ID parameter",
+      "url": "https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter",
+      "kind": "practice",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "skills": "Baseline own account request, send to Repeater, change ID, inspect another account response.",
+      "depth": "workflow",
+      "prerequisites": "Basic HTTP and shell.",
+      "limits": "Reading inspected; execution not performed.",
+      "access": {
+        "viewing": "Public lab instructions and complete solution.",
+        "cost": "Free.",
+        "registration": "Free Academy account required for hosted execution; none for reading.",
+        "offline": "Saved solution remains readable; hosted target does not work offline."
+      },
+      "content_evidence": [
+        {
+          "url": "https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter",
+          "inspected": "2026-10-23: Read all five solution steps; explicit request capture, parameter mutation and success condition."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "web-depth-reset",
+      "title": "Burp lab: password reset broken logic",
+      "url": "https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-broken-logic",
+      "kind": "practice",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "skills": "Trace reset workflow, remove token from URL and body, verify missing validation, change account parameter and verify resulting login.",
+      "depth": "workflow",
+      "prerequisites": "Basic HTTP and shell.",
+      "limits": "Reading inspected; execution not performed.",
+      "access": {
+        "viewing": "Public lab instructions and complete solution.",
+        "cost": "Free.",
+        "registration": "Free Academy account required for hosted execution; none for reading.",
+        "offline": "Saved solution remains readable; hosted target does not work offline."
+      },
+      "content_evidence": [
+        {
+          "url": "https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-broken-logic",
+          "inspected": "2026-10-23: Read all seven solution steps including a legitimate reset control and final login verification."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "web-depth-sqlmap",
+      "title": "sqlmap request preservation and result comparison",
+      "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-132"
+      ],
+      "skills": "Load raw HTTP request with -r, retain cookies and POST body, constrain parameters, compare stable true/false markers, enumerate only relevant tables.",
+      "depth": "workflow",
+      "prerequisites": "Basic HTTP and shell.",
+      "limits": "Moving wiki includes newer options than approved version; retain stable -r/-p/--cookie/--string/--code workflow. Requires local deliberately vulnerable target; not executed.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+          "inspected": "2026-10-23: Read Load HTTP request from a file example; HTTP Cookie header workflow; Page comparison section explains dynamic-content failure and manual marker selection."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "web-depth-jwt",
+      "title": "JWT testing methodology with jwt_tool and Burp",
+      "url": "https://github.com/ticarpi/jwt_tool/wiki/Attack-Methodology",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-77",
+        "windows-20"
+      ],
+      "skills": "Establish repeatable token-bearing request; remove and corrupt token as controls; test expiry, tamper claims and evaluate weak-key prerequisites.",
+      "depth": "workflow",
+      "prerequisites": "Basic HTTP and shell.",
+      "limits": "Source loosely calls HMAC symmetric encryption: it is a MAC. Do not equate a changed page with conclusive signature validation; check auth outcomes and other credentials. Trigger: application uses JWT.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/ticarpi/jwt_tool/wiki/Attack-Methodology",
+          "inspected": "2026-10-23: Read workflow through weak HMAC keys, -T tamper mode and -C dictionary example; explicitly recommends free Burp."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "crypto-depth-openssl",
+      "title": "OpenSSL 3 decryption parameters and validation",
+      "url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-24"
+      ],
+      "skills": "Choose cipher, binary/Base64 handling, raw key+IV versus password/KDF, salt compatibility and output validation.",
+      "depth": "workflow",
+      "prerequisites": "Symmetric encryption basics and known encryption parameters.",
+      "limits": "enc does not support GCM/CCM; valid padding is not proof of correct plaintext. Certificate/key inspection remains a separate conditional lookup.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+          "inspected": "2026-10-23: Read -K/-iv/-pbkdf2/-iter/-a definitions and Notes including 3.0 -S changes and padding false positives."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "crypto-depth-rules",
+      "title": "Hashcat rule transformations and controlled candidate generation",
+      "url": "https://hashcat.net/wiki/doku.php?id=rule_based_attack",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-59",
+        "kali-120"
+      ],
+      "skills": "Build candidate transformations, inspect expected output, distinguish rule syntax from regex and other cracking tools.",
+      "depth": "workflow",
+      "prerequisites": "Known hash format, tiny wordlist, existing hashcat workflow.",
+      "limits": "Moving documentation mentions newer modes; use stable -a 0 with -r supported by installed build. Do not assume John rules are interchangeable.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://hashcat.net/wiki/doku.php?id=rule_based_attack",
+          "inspected": "2026-10-23: Read input/rule/output tables, compatibility caveat and reject-rule limitations."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "crypto-depth-common-modulus",
+      "title": "RSA common-modulus prerequisites and derivation",
+      "url": "https://cryptohack.gitbook.io/cryptobook/untitled/common-modulus-attack",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-125",
+        "windows-7",
+        "kali-114"
+      ],
+      "skills": "Recognize same plaintext/modulus under coprime exponents, use Bezout coefficients and handle negative exponents with modular inverse.",
+      "depth": "workflow",
+      "prerequisites": "RSA and extended Euclid; local Sage/Python.",
+      "limits": "Not a Sage CLI tutorial; pair with existing Sage number theory chapter. Source conditions assume a particular coefficient sign; whichever ciphertext needs inversion must be invertible.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://cryptohack.gitbook.io/cryptobook/untitled/common-modulus-attack",
+          "inspected": "2026-10-23: Read Conditions of the attack and full algebraic derivation with inverse case."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "crypto-depth-recover-modulus",
+      "title": "RSA modulus recovery: gcd and ambiguity",
+      "url": "https://cryptohack.gitbook.io/cryptobook/untitled/recovering-the-modulus",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-125",
+        "windows-7",
+        "kali-114"
+      ],
+      "skills": "Use known plaintext/ciphertext pairs; gcd differences; recognize extra common-factor ambiguity and need more pairs.",
+      "depth": "workflow",
+      "prerequisites": "RSA modular arithmetic and known pairs.",
+      "limits": "Python ints already have arbitrary precision; gmpy2 is optional for this concept. Large exact powers can consume resources; start with toy pairs.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://cryptohack.gitbook.io/cryptobook/untitled/recovering-the-modulus",
+          "inspected": "2026-10-23: Read derivation, caveat gcd(k1,k2) may exceed 1, and complete recover_n example."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "utility-depth-jq",
+      "title": "jq applied JSON filtering tutorial",
+      "url": "https://jqlang.org/tutorial/",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-21"
+      ],
+      "skills": "Read JSON arrays, select nested fields, transform objects and distinguish streams from arrays.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and JSON.",
+      "limits": "Use saved generic JSON for offline study; external API availability unnecessary.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://jqlang.org/tutorial/",
+          "inspected": "2026-10-23: Read curl API sample, .[0], nested object projection, .[] and pipe explanations."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "utility-depth-python-io",
+      "title": "Python 3.11 binary files and JSON",
+      "url": "https://docs.python.org/3.11/tutorial/inputoutput.html#reading-and-writing-files",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-7",
+        "kali-114"
+      ],
+      "skills": "Use binary file modes, with blocks, bounded reads, seek and JSON serialization.",
+      "depth": "workflow",
+      "prerequisites": "Basic Python values, loops and functions.",
+      "limits": "Selected 3.11 docs match Kali row; Windows latest3.x unspecified. This is applied IO instruction, not a full programming course.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.python.org/3.11/tutorial/inputoutput.html#reading-and-writing-files",
+          "inspected": "2026-10-23: Read sections7.2\u20137.2.2 including newline-corruption warning, seek/read example and json.dump/load."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-6",
+      "title": "Windows Subsystem for Linux (WSL): focused reference",
+      "url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-6"
+      ],
+      "skills": "Use the installed Linux environment",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-8",
+      "title": "uv: focused reference",
+      "url": "https://docs.astral.sh/uv/pip/environments/",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-8"
+      ],
+      "skills": "Manage Python environments",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.astral.sh/uv/pip/environments/",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-25",
+      "title": "xz: focused reference",
+      "url": "https://tukaani.org/xz/man/xz.1.html",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-25"
+      ],
+      "skills": "Inspect and decompress XZ data",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://tukaani.org/xz/man/xz.1.html",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-37",
+      "title": "Notepad++: focused reference",
+      "url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-37"
+      ],
+      "skills": "Search structured text",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+          "inspected": "2026-10-23: Official user-manual source opened 2026-10-19 after rendered manual fetch failed. Query targets search modes; AI Overview not measured."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-1",
+      "title": ".NET SDK: focused reference",
+      "url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-1"
+      ],
+      "skills": "Build and run managed projects",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-2",
+      "title": "7-Zip (7z): focused reference",
+      "url": "https://7-zip.org/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-2"
+      ],
+      "skills": "Inspect and extract archives",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://7-zip.org/",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-17",
+      "title": "bzip2: focused reference",
+      "url": "https://sourceware.org/bzip2/manual/manual.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-17"
+      ],
+      "skills": "Decompress BZip2 data",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://sourceware.org/bzip2/manual/manual.html",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-18",
+      "title": "cabextract: focused reference",
+      "url": "https://www.kali.org/tools/cabextract/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-18"
+      ],
+      "skills": "Inspect Microsoft cabinet archives",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.kali.org/tools/cabextract/",
+          "inspected": "2026-10-23: Kali package reference search 2026-10-19 exposes cabextract -l and -d; upstream website failed retrieval. Primary source repository is kyz/libmspack/cabextract. AI Overview not measured."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-22",
+      "title": "crypto-attacks: focused reference",
+      "url": "https://github.com/jvdsn/crypto-attacks",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-22"
+      ],
+      "skills": "Find mathematical attack implementations",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/jvdsn/crypto-attacks",
+          "inspected": "2026-10-23: Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-26",
+      "title": "DBeaver Community Edition: focused reference",
+      "url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-26"
+      ],
+      "skills": "Query local databases",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-31",
+      "title": "Docker Engine and Compose plugin: focused reference",
+      "url": "https://docs.docker.com/compose/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-31"
+      ],
+      "skills": "Run and inspect a local container lab.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.docker.com/compose/",
+          "inspected": "2026-10-23: Opened Docker Compose docs; plugin syntax is docker compose; recorded Engine version does not identify Compose version."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-36",
+      "title": "factordb-python: focused reference",
+      "url": "https://github.com/ryosan-470/factordb-python",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-36"
+      ],
+      "skills": "Look up known integer factors.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. FactorDB is an online service; event challenge uploads are prohibited. Do not count online factoring as an event-ready workflow.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/ryosan-470/factordb-python",
+          "inspected": "2026-10-23: Opened upstream FactorDB client repository; calls use an external service, so examples must use generic numbers."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-47",
+      "title": "GCC, G++ and build tools (build-essential, make, CMake, pkg-config): focused reference",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-47"
+      ],
+      "skills": "Build small local programs with debug information.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+          "inspected": "2026-10-23: Opened GCC debugging-options manual; bundled Make CMake and pkg-config are separate tools and their versions are not established."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-52",
+      "title": "GNU Wget: focused reference",
+      "url": "https://www.gnu.org/software/wget/manual/wget.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-52"
+      ],
+      "skills": "Save public files for local analysis.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.gnu.org/software/wget/manual/wget.html",
+          "inspected": "2026-10-23: Official GNU manual appeared in search with 1.25.0 title; full page fetch failed in web and Exa."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-53",
+      "title": "Go: focused reference",
+      "url": "https://go.dev/doc/cmd",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-53"
+      ],
+      "skills": "Build or run local Go utilities.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://go.dev/doc/cmd",
+          "inspected": "2026-10-23: Opened official Go command documentation after pkg.go.dev fetch failed; workbook release not independently verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-56",
+      "title": "GTFOBins (offline copy): focused reference",
+      "url": "https://gtfobins.org/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-56"
+      ],
+      "skills": "Interpret permitted binary functions in a CTF lab.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://gtfobins.org/",
+          "inspected": "2026-10-23: Opened official GTFOBins page, redirected from github.io; offline copy revision is unknown."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-57",
+      "title": "gzip: focused reference",
+      "url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-57"
+      ],
+      "skills": "Unpack and check gzip files.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+          "inspected": "2026-10-23: GNU manual search result confirms decompress and keep options; full web and Exa fetch failed; current manual newer than recorded 1.13."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-58",
+      "title": "HackTricks (offline copy): focused reference",
+      "url": "https://github.com/HackTricks-wiki/hacktricks",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-58"
+      ],
+      "skills": "Find a technique checklist for a lab task.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/HackTricks-wiki/hacktricks",
+          "inspected": "2026-10-23: Opened official HackTricks repository after book fetch failed; offline copy revision unknown and query selects one task."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-60",
+      "title": "hashid: focused reference",
+      "url": "https://github.com/psypanda/hashID",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-60"
+      ],
+      "skills": "Suggest possible hash formats.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Identifiers and wordlists support a workflow; they do not warrant separate long courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/psypanda/hashID",
+          "inspected": "2026-10-23: Opened upstream hashID repository; candidates are suggestions rather than proof of algorithm."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-64",
+      "title": "hlextend: focused reference",
+      "url": "https://github.com/stephenbradshaw/hlextend",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-64"
+      ],
+      "skills": "Explore hash length extension with generic examples.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/stephenbradshaw/hlextend",
+          "inspected": "2026-10-23: Opened author repository identifying a pure Python length-extension module; does not imply HMAC is vulnerable."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-71",
+      "title": "IPython: focused reference",
+      "url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-71"
+      ],
+      "skills": "Explore Python objects and run small scripts.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+          "inspected": "2026-10-23: Opened official IPython tutorial whose title reports 9.17.1; availability on competition host not tested."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-81",
+      "title": "LibreOffice: focused reference",
+      "url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-81"
+      ],
+      "skills": "Convert documents to inspectable formats.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+          "inspected": "2026-10-23: Opened official startup-parameters page; installed release not independently verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-82",
+      "title": "lrzip: focused reference",
+      "url": "https://github.com/ckolivas/lrzip",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-82"
+      ],
+      "skills": "Unpack long-range compressed files.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/ckolivas/lrzip",
+          "inspected": "2026-10-23: Opened upstream Long Range Zip repository; file format qualifier distinguishes it from zip archives."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-84",
+      "title": "lz4: focused reference",
+      "url": "https://github.com/lz4/lz4",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-84"
+      ],
+      "skills": "Unpack LZ4 data.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/lz4/lz4",
+          "inspected": "2026-10-23: Opened official LZ4 repository; command-line frame files differ from raw LZ4 blocks."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-85",
+      "title": "lzip: focused reference",
+      "url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-85"
+      ],
+      "skills": "Unpack and check lzip files.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+          "inspected": "2026-10-23: Read official Lzip 1.26 manual via Exa after web fetch failed."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-90",
+      "title": "Miniforge3 (conda): focused reference",
+      "url": "https://github.com/conda-forge/miniforge",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-90"
+      ],
+      "skills": "Create a separate dependency environment.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/conda-forge/miniforge",
+          "inspected": "2026-10-23: Opened conda-forge Miniforge repository; use only when project environment policy calls for conda."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-91",
+      "title": "multimon-ng: focused reference",
+      "url": "https://github.com/EliasOenal/multimon-ng",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-91"
+      ],
+      "skills": "Decode supported audio modulation formats.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/EliasOenal/multimon-ng",
+          "inspected": "2026-10-23: Opened upstream multimon-ng repository; input format and sample rate must match decoder requirements."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-95",
+      "title": "Node.js (with npm): focused reference",
+      "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-95"
+      ],
+      "skills": "Convert binary representations in JavaScript.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+          "inspected": "2026-10-23: Node v24 Buffer documentation covers encoding conversion; retrieved page is v24.22.0, not workbook v24.21.0. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-97",
+      "title": "Obsidian: focused reference",
+      "url": "https://help.obsidian.md/links",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-97"
+      ],
+      "skills": "Organize investigation notes with links.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://help.obsidian.md/links",
+          "inspected": "2026-10-23: Official Obsidian Help resolves to Internal links; direct retrieval only exposed title. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-101",
+      "title": "padding-oracle-attacker: focused reference",
+      "url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-101"
+      ],
+      "skills": "Understand the tool's padding oracle input and response options.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+          "inspected": "2026-10-23: KishanBagaria README documents decrypt URL, hex/base64 ciphertext, block size and error response. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-102",
+      "title": "PARI/GP: focused reference",
+      "url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-102"
+      ],
+      "skills": "Explore modular arithmetic and discrete logarithms.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. crypto-attacks, length extension, padding oracles and PARI/GP solve distinct specialized problems; long coverage of every package would displace core practice.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+          "inspected": "2026-10-23: Official PARI arithmetic reference documents znlog and znorder. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-113",
+      "title": "Python 2.7: focused reference",
+      "url": "https://docs.python.org/2.7/library/struct.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-113"
+      ],
+      "skills": "Read binary records in legacy Python scripts.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.python.org/2.7/library/struct.html",
+          "inspected": "2026-10-23: Archived Python 2.7.18 documentation describes struct binary packing and unpacking. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-119",
+      "title": "ripgrep (rg): focused reference",
+      "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-119"
+      ],
+      "skills": "Literal and regex searches, scoped recursive search, ignored/hidden/binary file behavior and diagnosing missing hits.",
+      "depth": "workflow",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Source sample uses historical0.7.1 tree; stable search concepts apply. Binary output may contain control bytes. No command execution.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+          "inspected": "2026-10-23: Read upstream GUIDE basics with expected output, regex quantifiers, recursive scope and automatic filtering exceptions."
+        }
+      ],
+      "status": "improved_existing_reference"
+    },
+    {
+      "id": "ref:kali-123",
+      "title": "Rust (rustup, rustc, cargo): focused reference",
+      "url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-123"
+      ],
+      "skills": "Build and run a Rust analysis utility.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Support tools are not separate challenge-solving disciplines. Python 2 is legacy compatibility, not the default study track; avoid reinstalling approved environments.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+          "inspected": "2026-10-23: Official Rust book documents Cargo build/run; no dependence on workbook patch release intended. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-140",
+      "title": "Sublime Text: focused reference",
+      "url": "https://www.sublimetext.com/docs/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-140"
+      ],
+      "skills": "Search source and notes in an editor.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.sublimetext.com/docs/",
+          "inspected": "2026-10-23: Official Sublime documentation index checked; regex-query choice is a recommendation, not a retrieved command recipe. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-141",
+      "title": "tar: focused reference",
+      "url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-141"
+      ],
+      "skills": "List and extract archive members.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+          "inspected": "2026-10-23: GNU tar 1.35 manual search result describes extraction and --file; direct GNU retrieval blocked. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-144",
+      "title": "unar: focused reference",
+      "url": "https://theunarchiver.com/command-line",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-144"
+      ],
+      "skills": "List and extract supported archive formats.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://theunarchiver.com/command-line",
+          "inspected": "2026-10-23: Official Unarchiver command-line page identifies unar and lsar. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-147",
+      "title": "unrar: focused reference",
+      "url": "https://www.rarlab.com/rar_add.htm",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-147"
+      ],
+      "skills": "List, test and extract RAR archives.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.rarlab.com/rar_add.htm",
+          "inspected": "2026-10-23: RARLAB addons page identifies UnRAR; installed version unknown, command details need local help. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-148",
+      "title": "unzip: focused reference",
+      "url": "https://infozip.sourceforge.net/UnZip.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-148"
+      ],
+      "skills": "List and extract ZIP members.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://infozip.sourceforge.net/UnZip.html",
+          "inspected": "2026-10-23: Official Info-ZIP UnZip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-150",
+      "title": "Visual Studio Code: focused reference",
+      "url": "https://code.visualstudio.com/docs/editor/codebasics",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-150"
+      ],
+      "skills": "Search and edit analysis code.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://code.visualstudio.com/docs/editor/codebasics",
+          "inspected": "2026-10-23: Official VS Code basic-editing documentation covers workspace search; redirected to /docs/editing/codebasics. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-155",
+      "title": "VS Code extension: C/C++ (ms-vscode.cpptools): focused reference",
+      "url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-155"
+      ],
+      "skills": "Configure C/C++ source debugging.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+          "inspected": "2026-10-23: Official VS Code C++ documentation covers GDB debugging and launch settings; compiler/debugger installation is separate. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-156",
+      "title": "VS Code extension: Python (ms-python.python): focused reference",
+      "url": "https://code.visualstudio.com/docs/python/environments",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-156"
+      ],
+      "skills": "Select a Python interpreter for analysis scripts.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Editors, office tools and extensions are productivity support. Select one familiar editor rather than assign separate long tutorials.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://code.visualstudio.com/docs/python/environments",
+          "inspected": "2026-10-23: Official VS Code Python environment documentation covers interpreter selection; debugger extension availability is separate. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-159",
+      "title": "zip: focused reference",
+      "url": "https://infozip.sourceforge.net/Zip.html",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-159"
+      ],
+      "skills": "Package files into ZIP archives.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://infozip.sourceforge.net/Zip.html",
+          "inspected": "2026-10-23: Official Info-ZIP Zip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-160",
+      "title": "zstd: focused reference",
+      "url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-160"
+      ],
+      "skills": "Inspect and decompress Zstandard data.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Archive command lookup and one shared exercise cover most overlap; CyberChef Gunzip does not demonstrate the gzip CLI.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+          "inspected": "2026-10-23: Zstandard upstream CLI README documents decompression; development docs may differ from workbook 1.5.7. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-4",
+      "title": "OpenVPN Client: focused reference",
+      "url": "https://openvpn.net/connect-docs/import-profile.html",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-4"
+      ],
+      "skills": "Connect using an approved VPN profile",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. OpenVPN is access infrastructure; Burp embedded browser is not proof of standalone Google Chrome training.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://openvpn.net/connect-docs/import-profile.html",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:windows-5",
+      "title": "Google Chrome: focused reference",
+      "url": "https://developer.chrome.com/docs/devtools/network/",
+      "kind": "reference",
+      "tool_ids": [
+        "windows-5"
+      ],
+      "skills": "Inspect browser requests",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. OpenVPN is access infrastructure; Burp embedded browser is not proof of standalone Google Chrome training.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://developer.chrome.com/docs/devtools/network/",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-3",
+      "title": "aircrack-ng: focused reference",
+      "url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-3"
+      ],
+      "skills": "Understand offline wireless capture analysis",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+          "inspected": "2026-10-23: Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-35",
+      "title": "Exploit-DB / searchsploit (offline archive): focused reference",
+      "url": "https://www.exploit-db.com/searchsploit",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-35"
+      ],
+      "skills": "Search the local Exploit-DB archive.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.exploit-db.com/searchsploit",
+          "inspected": "2026-10-23: Opened official SearchSploit manual; inventory version is an archive date rather than a program release."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-39",
+      "title": "Feroxbuster: focused reference",
+      "url": "https://github.com/epi052/feroxbuster",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-39"
+      ],
+      "skills": "Find web paths in an authorized lab.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/epi052/feroxbuster",
+          "inspected": "2026-10-23: Official release page confirms 2.13.1; repository and documentation identify recursive content discovery."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-54",
+      "title": "Gobuster: focused reference",
+      "url": "https://github.com/OJ/gobuster",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-54"
+      ],
+      "skills": "Discover web directories or virtual hosts.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/OJ/gobuster",
+          "inspected": "2026-10-23: Opened upstream README identifying dir DNS and vhost modes; query names mode to narrow results."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-62",
+      "title": "hcxtools: focused reference",
+      "url": "https://github.com/ZerBea/hcxtools",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-62"
+      ],
+      "skills": "Convert captured wireless authentication data.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Wireless/radio relevance depends on provided artifacts; hardware and captures cannot be assumed.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/ZerBea/hcxtools",
+          "inspected": "2026-10-23: Opened hcxtools repository describing capture-to-hash conversion; no live capture is required by the query."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-65",
+      "title": "Hydra: focused reference",
+      "url": "https://github.com/vanhauser-thc/thc-hydra",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-65"
+      ],
+      "skills": "Understand form authentication test syntax.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/vanhauser-thc/thc-hydra",
+          "inspected": "2026-10-23: Opened upstream THC Hydra repository; THC qualifier excludes unrelated Hydra software."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-68",
+      "title": "Impacket: focused reference",
+      "url": "https://github.com/fortra/impacket",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-68"
+      ],
+      "skills": "Work with SMB and network protocol examples.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/fortra/impacket",
+          "inspected": "2026-10-23: Opened Fortra upstream repository; collection contains many scripts and query picks one narrow entry point."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-78",
+      "title": "Katana: focused reference",
+      "url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-78"
+      ],
+      "skills": "Discover in-scope URLs and application routes.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+          "inspected": "2026-10-23: Opened ProjectDiscovery usage page; vendor prefix avoids sword and unrelated software results."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-79",
+      "title": "legion: focused reference",
+      "url": "https://github.com/Abacus-Group-RTO/legion",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-79"
+      ],
+      "skills": "Organize network discovery in a lab.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/Abacus-Group-RTO/legion",
+          "inspected": "2026-10-23: Opened official repository redirected from GoVanguard; Legion name needs author context."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-88",
+      "title": "Metasploit Framework: focused reference",
+      "url": "https://docs.metasploit.com/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-88"
+      ],
+      "skills": "Navigate module documentation in a local lab.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.metasploit.com/",
+          "inspected": "2026-10-23: Opened official Metasploit docs; development build behavior and target compatibility not established."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-103",
+      "title": "PayloadsAllTheThings (offline copy): focused reference",
+      "url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-103"
+      ],
+      "skills": "Find a structured web vulnerability reference.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. References are lookup aids, not four additional video curricula; their presence does not approve every tool shown in an example.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+          "inspected": "2026-10-23: Author-maintained PayloadsAllTheThings repository contains SQL Injection references; offline copy age unknown. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-124",
+      "title": "rustscan: focused reference",
+      "url": "https://github.com/RustScan/RustScan/wiki/Usage",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-124"
+      ],
+      "skills": "Understand port discovery and scanner options.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://github.com/RustScan/RustScan/wiki/Usage",
+          "inspected": "2026-10-23: RustScan upstream usage wiki checked; project redirects to bee-san/RustScan. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-127",
+      "title": "socat: focused reference",
+      "url": "https://www.kali.org/tools/socat/",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-127"
+      ],
+      "skills": "Connect standard input to a TCP service.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Hydra, Impacket, Metasploit and socat are distinct specialist tools; broad pentest courses can overfit an unconfirmed challenge mix.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://www.kali.org/tools/socat/",
+          "inspected": "2026-10-23: Kali\u2019s package documentation provides CLI usage; the upstream HTTPS endpoint failed certificate verification."
+        }
+      ],
+      "status": "new"
+    },
+    {
+      "id": "ref:kali-139",
+      "title": "Subfinder: focused reference",
+      "url": "https://docs.projectdiscovery.io/tools/subfinder/usage",
+      "kind": "reference",
+      "tool_ids": [
+        "kali-139"
+      ],
+      "skills": "Collect publicly reported subdomains.",
+      "depth": "reference",
+      "prerequisites": "Use only when this tool or artifact is needed.",
+      "limits": "Prior inventory verification reused; not a new workflow endorsement. Feroxbuster/Gobuster overlap ffuf; RustScan/Legion overlap service enumeration. Katana/Subfinder aid crawling/recon but need not become mandatory courses.",
+      "access": {
+        "viewing": "Public text fetched without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive text; execution requires prepared tools and inputs."
+      },
+      "content_evidence": [
+        {
+          "url": "https://docs.projectdiscovery.io/tools/subfinder/usage",
+          "inspected": "2026-10-23: ProjectDiscovery subfinder usage documents domain input and passive-source configuration. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ],
+      "status": "new"
+    }
+  ]
+}

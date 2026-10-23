@@ -1,0 +1,496 @@
+{
+  "resources": [
+    {
+      "id": "reverse-1",
+      "title": "Introduction to Ghidra \u2014 student guide",
+      "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+      "type": "read",
+      "publisher": "Ghidra project / NSA",
+      "tool_ids": [
+        "windows-22"
+      ],
+      "learn": "Import a binary, analyze it, navigate functions and references, rename findings, and compare decompiler output with disassembly. Read the basic analysis, navigation and decompiler sections first.",
+      "priority": "core",
+      "study_minutes": 45,
+      "offline": "Save the guide with images before travel; confirm it opens offline. The exercises accept a program of your choice, so use the benign reverse-4 companion.",
+      "verification": "2026-10-22: Exa fetched course objectives, exercise guidance and project/navigation sections of the official student guide. Layout and startup instructions may differ from approved Ghidra 12.1.4. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-2",
+      "title": "Ghidra quickstart & tutorial: Solving a simple crackme",
+      "url": "https://www.youtube.com/watch?v=fTGTnrgjuGA",
+      "type": "watch",
+      "publisher": "stacksmashing",
+      "tool_ids": [
+        "windows-22"
+      ],
+      "learn": "See a complete small password-check investigation: import, analysis, decompiler, function signatures and window navigation.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Use an authorized YouTube offline download if available and check playback before boarding. Watch as a walkthrough; a third-party crackme download is optional, not needed for reading.",
+      "verification": "2026-10-22: Exa retrieved the original video title, creator and transcript covering import, analysis and decompiler navigation. Published 2019; skip the historical scrolling-patch suggestion and expect changed UI. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-3",
+      "title": "Reversing and Cracking first simple Program \u2014 bin 0x05",
+      "url": "https://www.youtube.com/watch?v=VroEiMOJPm8",
+      "type": "watch",
+      "publisher": "LiveOverflow",
+      "tool_ids": [
+        "windows-9"
+      ],
+      "learn": "Connect C control flow to GDB disassembly using a tiny license-check example; pair the video with its source and annotated disassembly in reverse-4.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Prepare authorized offline video playback and save the companion source/disassembly. GDB is approved in WSL; historical tool comparisons do not require installing Hopper or IDA.",
+      "verification": "2026-10-22: Exa fetched the original YouTube title/date; full primary-page transcript was unavailable, and web fallback failed. Inspected the creator repository and raw C/disassembly to verify the exercise and plain-GDB basis. Video content itself was not fully independently inspected. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-4",
+      "title": "bin 0x05 companion: license-check source and GDB disassembly",
+      "url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler",
+      "type": "practice",
+      "publisher": "LiveOverflow",
+      "tool_ids": [
+        "windows-9",
+        "windows-22"
+      ],
+      "learn": "Draw the branch graph on paper from gdb_disassembly, predict which branch each input takes, then compare with license_1.c. This works as a reading exercise without executing a downloaded binary.",
+      "priority": "next",
+      "study_minutes": 25,
+      "offline": "Save gdb_disassembly and license_1.c before departure. Optional hands-on work requires a prepared local GDB/Ghidra environment; use the readable benign source, and check your compiled output because addresses will differ.",
+      "verification": "2026-10-22: Exa fetched the creator directory and both raw gdb_disassembly and license_1.c. C source is a small argument/strcmp/printf example; disassembly shows stock GDB 7.7.1 and Intel syntax. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-5",
+      "title": "capa usage: understand capability matches",
+      "url": "https://github.com/mandiant/capa/blob/master/doc/usage.md",
+      "type": "read",
+      "publisher": "Mandiant / FLARE",
+      "tool_ids": [
+        "kali-19"
+      ],
+      "learn": "Read default versus verbose output and rule filtering; use match locations as leads for investigation rather than treating a capability label as a complete explanation.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the usage page; inspect its printed examples on the plane. CLI reading needs no live malware. Skip cloud uploads, IDA/Binary Ninja backends and sandbox integration for this study path.",
+      "verification": "2026-10-22: Exa fetched usage documentation including default/-v/-vv behavior, tag filtering and supported integrations. Current master may exceed approved capa 9.4.0; confirm options locally before use. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-6",
+      "title": "FLOSS usage: static, stack, tight and decoded strings",
+      "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "type": "read",
+      "publisher": "Mandiant / FLARE",
+      "tool_ids": [
+        "kali-43"
+      ],
+      "learn": "Learn why ordinary strings can miss useful values and how FLOSS groups extracted string types. Concentrate on default extraction and string-type selection.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the Markdown page before travel. Read the examples without executing sample malware; newer filtering/summary options need a local version check.",
+      "verification": "2026-10-22: Exa fetched upstream usage explanations and options. Workbook FLOSS version is not captured, so master-only options are not assumed available. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-7",
+      "title": "Writing YARA rules",
+      "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "type": "read",
+      "publisher": "YARA project",
+      "tool_ids": [
+        "kali-157"
+      ],
+      "learn": "Learn strings and conditions, text versus hex patterns, wildcards and boolean combinations. Optional benign drill: draft a rule to distinguish two small text files you create.",
+      "priority": "next",
+      "study_minutes": 30,
+      "offline": "Save the relevant sections as HTML/PDF; the benign text-file drill is local once YARA is available. No malware collection or network service is required.",
+      "verification": "2026-10-22: Exa fetched the official rule reference, examples, strings and hex wildcard sections. Read common YARA 4 syntax; installed workbook version is 4.5.8 and the stable docs may differ. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-8",
+      "title": "dnSpyEx: managed assembly navigation and debugging capabilities",
+      "url": "https://github.com/dnSpyEx/dnSpy",
+      "type": "read",
+      "publisher": "dnSpyEx maintainers",
+      "tool_ids": [
+        "windows-38"
+      ],
+      "learn": "Identify the .NET workflow: find entry points, search strings/classes, follow callers, inspect IL, then use breakpoints and locals when appropriate. Start with navigation before editing assemblies.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Save README and relevant screenshots before travel. Practical debugging requires a prepared Windows environment and a benign assembly; no additional Unity setup is needed for this reading path.",
+      "verification": "2026-10-22: Exa fetched upstream README, debugger, assembly editor, hex editor and navigation features. This is a capability orientation, not a complete worked challenge. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-9",
+      "title": "JADX: APK/DEX reading and decompiler limits",
+      "url": "https://github.com/skylot/jadx",
+      "type": "read",
+      "publisher": "JADX maintainers",
+      "tool_ids": [
+        "kali-72"
+      ],
+      "learn": "Learn the Android entry workflow: load APK/DEX, search Java-like output and resources, and treat failed or suspicious decompilation as a reason to inspect bytecode with the approved companion tools.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Save README before departure; prepare any benign APK locally. GUI/CLI use can be offline once Java and JADX are working. Do not assume cloud deobfuscation is permitted.",
+      "verification": "2026-10-22: Exa fetched upstream README and command options. Current README targets a moving release; approved JADX is 1.5.6. This is an orientation and reference, not a full Android challenge walkthrough. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    },
+    {
+      "id": "reverse-10",
+      "title": "pyinstxtractor-ng: inspect and extract a PyInstaller executable",
+      "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "type": "read",
+      "publisher": "pyinstxtractor-ng maintainers",
+      "tool_ids": [
+        "kali-111"
+      ],
+      "learn": "Separate packaging from bytecode recovery: extract a PyInstaller archive first, then identify bytecode version before selecting pycdc, uncompyle6 or unpyc3. Extraction alone does not recover Python source.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Save README before travel. Read its examples without executing extracted code; prepare a benign sample only if you want an offline drill. Do not use the linked web service for event files.",
+      "verification": "2026-10-22: Exa fetched upstream README, supported ELF/PE containers, xdis-based version handling and CLI examples. Workbook version is unknown; check local help before relying on --info or other current options. Not watched or executed; study_minutes is a planning estimate, not video runtime."
+    }
+  ],
+  "coverage": [
+    {
+      "tool_id": "windows-9",
+      "disposition": "core",
+      "resource_ids": [
+        "reverse-3",
+        "reverse-4"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "windows-10",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://sourceware.org/binutils/docs/binutils/objdump.html"
+    },
+    {
+      "tool_id": "windows-22",
+      "disposition": "core",
+      "resource_ids": [
+        "reverse-1",
+        "reverse-2",
+        "reverse-4"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "windows-27",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://llvm.org/docs/CommandGuide/llvm-mc.html"
+    },
+    {
+      "tool_id": "windows-33",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://help.x64dbg.com/en/latest/gui/tips.html"
+    },
+    {
+      "tool_id": "windows-38",
+      "disposition": "next",
+      "resource_ids": [
+        "reverse-8"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-5",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://developer.android.com/studio/debug/apk-debugger Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-6",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://docs.angr.io/en/latest/core-concepts/pathgroups.html"
+    },
+    {
+      "tool_id": "kali-8",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://apktool.org/docs/cli-parameters/ Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-9",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/electron/asar"
+    },
+    {
+      "tool_id": "kali-11",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/nazywam/AutoIt-Ripper"
+    },
+    {
+      "tool_id": "kali-12",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://www.zynamics.com/bindiff/manual/"
+    },
+    {
+      "tool_id": "kali-16",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/Konloch/bytecode-viewer Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-19",
+      "disposition": "core",
+      "resource_ids": [
+        "reverse-5"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-21",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/slimm609/checksec/releases"
+    },
+    {
+      "tool_id": "kali-24",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/rizinorg/cutter"
+    },
+    {
+      "tool_id": "kali-27",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/horsicq/Detect-It-Easy"
+    },
+    {
+      "tool_id": "kali-28",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/pxb1988/dex2jar Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-29",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/DidierStevens/Beta/blob/master/onedump.py"
+    },
+    {
+      "tool_id": "kali-30",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/DidierStevens/DidierStevensSuite"
+    },
+    {
+      "tool_id": "kali-33",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://adoptium.net/temurin Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-37",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/mandiant/flare-fakenet-ng Dynamic network simulation is not a recommended plane exercise."
+    },
+    {
+      "tool_id": "kali-38",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/JetBrains/fernflower/blob/master/README.md Companion to the JADX Android/Java orientation in reverse-9; use only when its specific bytecode/resources/runtime role is needed."
+    },
+    {
+      "tool_id": "kali-43",
+      "disposition": "core",
+      "resource_ids": [
+        "reverse-6"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-46",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://frida.re/docs/javascript-api/"
+    },
+    {
+      "tool_id": "kali-48",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://hugsy.github.io/gef/ Learn stock GDB first; these are alternative frontends, not three mandatory installations."
+    },
+    {
+      "tool_id": "kali-55",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/mandiant/GoReSym"
+    },
+    {
+      "tool_id": "kali-69",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://constexpr.org/innoextract/"
+    },
+    {
+      "tool_id": "kali-70",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://www.inetsim.org/"
+    },
+    {
+      "tool_id": "kali-72",
+      "disposition": "next",
+      "resource_ids": [
+        "reverse-9"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-75",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/beautifier/js-beautify"
+    },
+    {
+      "tool_id": "kali-76",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/ben-sb/javascript-deobfuscator"
+    },
+    {
+      "tool_id": "kali-83",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://ltrace.org/"
+    },
+    {
+      "tool_id": "kali-93",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://www.nasm.us/docs.html"
+    },
+    {
+      "tool_id": "kali-96",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/ben-sb/obfuscator-io-deobfuscator"
+    },
+    {
+      "tool_id": "kali-98",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/decalage2/oletools"
+    },
+    {
+      "tool_id": "kali-99",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://www.ollydbg.de/quickst.htm"
+    },
+    {
+      "tool_id": "kali-104",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/longld/peda Learn stock GDB first; these are alternative frontends, not three mandatory installations."
+    },
+    {
+      "tool_id": "kali-105",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/digitalsleuth/peepdf-3"
+    },
+    {
+      "tool_id": "kali-109",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://pwndbg.re/stable/commands/ Learn stock GDB first; these are alternative frontends, not three mandatory installations."
+    },
+    {
+      "tool_id": "kali-110",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/zrax/pycdc For the Python family, follow extraction in reverse-10, then check this decompiler's supported bytecode versions; runtime compatibility does not establish decompilation support."
+    },
+    {
+      "tool_id": "kali-111",
+      "disposition": "next",
+      "resource_ids": [
+        "reverse-10"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-116",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://book.rada.re/analysis/intro.html"
+    },
+    {
+      "tool_id": "kali-117",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/jeFF0Falltrades/rat_king_parser"
+    },
+    {
+      "tool_id": "kali-121",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/JonathanSalwan/ROPgadget"
+    },
+    {
+      "tool_id": "kali-138",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://strace.io/"
+    },
+    {
+      "tool_id": "kali-145",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/rocky/python-uncompyle6 For the Python family, follow extraction in reverse-10, then check this decompiler's supported bytecode versions; runtime compatibility does not establish decompilation support."
+    },
+    {
+      "tool_id": "kali-146",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/greyblue9/unpyc37-3.10 For the Python family, follow extraction in reverse-10, then check this decompiler's supported bytecode versions; runtime compatibility does not establish decompilation support."
+    },
+    {
+      "tool_id": "kali-149",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://github.com/upx/upx/blob/devel/doc/upx-doc.txt"
+    },
+    {
+      "tool_id": "kali-157",
+      "disposition": "next",
+      "resource_ids": [
+        "reverse-7"
+      ],
+      "reason": "Included in the short study path; resources are tied to this approved row."
+    },
+    {
+      "tool_id": "kali-158",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as an on-demand specialist or alternate-tool reference; no separate tutorial added to the flight shortlist. Existing reference: https://yara.readthedocs.io/en/stable/yarapython.html"
+    }
+  ],
+  "caveats": [
+    "Approval refers to workbook rows, not a guarantee of working Kali installations. No target tool was installed or exercised in this research lane.",
+    "No malware execution is proposed for the plane. The optional companion exercise is an inspectable small C program; read its disassembly on paper if no local environment is prepared.",
+    "The Ghidra and GDB videos are older introductions. Focus on stable reasoning and verify modern addresses, menu names and local options.",
+    "capa documentation advertises IDA/Binary Ninja/cloud/sandbox integrations; the selected CLI path does not depend on those editions or services. Event challenge uploads are prohibited.",
+    "Android, .NET and Python entries are concise capability/reference orientations, not comprehensive worked video courses. Narrow tools retain their existing manifest references rather than superficial new links.",
+    "YouTube offline availability depends on account, region and creator settings; this session has not downloaded or tested playback."
+  ],
+  "search_notes": [
+    "Used Exa search and batch fetch on original creator videos, Ghidra guide and upstream repositories; web fallback for the LiveOverflow video failed.",
+    "Rejected a two-hour Ghidra launch livestream in favor of a focused crackme walkthrough. An OST2-specific YouTube search returned irrelevant hits, so selected the verified LiveOverflow companion instead.",
+    "Each of the 51 assigned rows has an explicit disposition. Reference-only links are preserved from the existing manifest and were not all re-fetched during this pass.",
+    "No portal access, tool installation, media downloads or live malware testing performed."
+  ]
+}

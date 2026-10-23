@@ -1,0 +1,20 @@
+{
+  "rank": 3,
+  "video_id": "fTGTnrgjuGA",
+  "file": "videos/03_Ghidra_fTGTnrgjuGA.mp4",
+  "bytes": 82199659,
+  "sha256": "b92be0748d6989d6127bb9e811542dd74fe67b161b6dcdd0b37e1c120e777a3f",
+  "width": 2880,
+  "height": 1800,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "und",
+  "duration_seconds": 689.888073,
+  "sample_decode_seconds": [
+    1,
+    344.94,
+    686.89
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/03_Ghidra_fTGTnrgjuGA.en.vtt"
+}

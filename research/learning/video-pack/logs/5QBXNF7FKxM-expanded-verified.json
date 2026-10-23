@@ -1,0 +1,21 @@
+{
+  "number": 13,
+  "video_id": "5QBXNF7FKxM",
+  "title": "HackadayU: Reverse Engineering with Ghidra Class 4",
+  "file": "videos/13_Ghidra_Class_4_5QBXNF7FKxM.mp4",
+  "bytes": 132611319,
+  "sha256": "8b7001b0279e6284bcce2b0559346cef057afdea21cd059e10ce2268976ad029",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 3161.768345,
+  "sample_decode_seconds": [
+    1,
+    1580.8841725,
+    3158.768345
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/13_Ghidra_Class_4_5QBXNF7FKxM.en.vtt"
+}

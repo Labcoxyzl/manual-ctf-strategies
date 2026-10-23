@@ -1,0 +1,21 @@
+{
+  "number": 10,
+  "video_id": "VYROU-ZwZX8",
+  "title": "Introduction to Windows Forensics",
+  "file": "videos/10_Windows_Forensics_VYROU-ZwZX8.mp4",
+  "bytes": 245823964,
+  "sha256": "fa300dcecf53a2f58efe79aa1ea0835af0251abd278cb93254a2d7431bb422af",
+  "width": 1728,
+  "height": 1080,
+  "video_codec": "av1",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 3872.531156,
+  "sample_decode_seconds": [
+    1,
+    1936.265578,
+    3869.531156
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/10_Windows_Forensics_VYROU-ZwZX8.en.vtt"
+}

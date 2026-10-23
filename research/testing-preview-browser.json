@@ -1,0 +1,59 @@
+{
+  "checked_at": "2026-10-19T05:52:26.562Z",
+  "html_file": "keyword-preview.html",
+  "html_sha256": "5552d18c1f32473981b296d6201c0a7d6c5f7326dda700772cd34087a8f6dc11",
+  "browser": "153.0.8010.12",
+  "cases": [
+    {
+      "width": 320,
+      "height": 900,
+      "offline_local_load": "pass",
+      "keyboard_expansion": "pass",
+      "overflow": "pass",
+      "navigation": "pass",
+      "query_labels": "pass",
+      "page_errors": []
+    },
+    {
+      "width": 390,
+      "height": 900,
+      "offline_local_load": "pass",
+      "keyboard_expansion": "pass",
+      "overflow": "pass",
+      "navigation": "pass",
+      "query_labels": "pass",
+      "page_errors": []
+    },
+    {
+      "width": 768,
+      "height": 900,
+      "offline_local_load": "pass",
+      "keyboard_expansion": "pass",
+      "overflow": "pass",
+      "navigation": "pass",
+      "query_labels": "pass",
+      "page_errors": []
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "offline_local_load": "pass",
+      "keyboard_expansion": "pass",
+      "overflow": "pass",
+      "navigation": "pass",
+      "query_labels": "pass",
+      "page_errors": []
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "offline_local_load": "pass",
+      "keyboard_expansion": "pass",
+      "overflow": "pass",
+      "navigation": "pass",
+      "query_labels": "pass",
+      "page_errors": []
+    }
+  ],
+  "print_navigation_hidden": true
+}

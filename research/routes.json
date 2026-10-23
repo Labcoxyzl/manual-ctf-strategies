@@ -1,0 +1,684 @@
+[
+  {
+    "id": "pcap-stream",
+    "category": "forensics",
+    "title": "PCAP → conversation → content",
+    "input": "A supplied packet capture.",
+    "tool_ids": [
+      "windows-2",
+      "windows-36",
+      "windows-18"
+    ],
+    "steps": [
+      "Open the capture in Wireshark. Choose Statistics → Conversations; select a relevant peer pair and apply its conversation filter.",
+      "Select a packet, then Analyze → Follow → TCP Stream (or the matching supported protocol). Inspect both directions.",
+      "For transferred files, use File → Export Objects → the matching protocol; save only the relevant object to a new file."
+    ],
+    "expected": "A readable exchange or exported object tied to a specific conversation.",
+    "fallback": "For a large capture, use Zeek summaries to choose a stream; use TShark only when repeated field extraction is needed.",
+    "caveat": "Encrypted payloads need supplied keys; missing packets may prevent reconstruction. Keep original captures.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Exporting Data",
+        "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChIOExportSection.html"
+      }
+    ]
+  },
+  {
+    "id": "disk-file",
+    "category": "forensics",
+    "title": "Disk image → partition → file",
+    "input": "A raw disk image named `disk.img`; replace filenames and uppercase placeholders below.",
+    "tool_ids": [
+      "windows-23",
+      "windows-34",
+      "kali-143"
+    ],
+    "steps": [
+      "`mmls disk.img`: record the filesystem partition Start sector as OFFSET; for a filesystem-only image use OFFSET 0.",
+      "`fls -r -o OFFSET disk.img`: locate the desired path and record its metadata address as INODE.",
+      "`icat -o OFFSET disk.img INODE > recovered.bin`: write to a new output name, then inspect the recovered bytes."
+    ],
+    "expected": "A path and metadata address, followed by the selected file contents.",
+    "fallback": "If listing fails, check image type and offset first; use Autopsy for GUI inspection or PhotoRec only when filesystem metadata is unusable.",
+    "caveat": "Sleuth Kit is recorded in WSL. Offsets are sectors; use the actual sector size if not 512 bytes. Deleted recovery may be incomplete; fls does not recurse into deleted directories.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "The Sleuth Kit — official documentation",
+        "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html"
+      },
+      {
+        "title": "mmls: partition offsets",
+        "url": "https://www.sleuthkit.org/sleuthkit/man/mmls.html"
+      },
+      {
+        "title": "icat: file recovery",
+        "url": "https://www.sleuthkit.org/sleuthkit/man/icat.html"
+      }
+    ]
+  },
+  {
+    "id": "memory-process",
+    "category": "forensics",
+    "title": "Memory image → process lead",
+    "input": "A Windows memory image `memory.raw` and compatible locally cached symbols.",
+    "tool_ids": [
+      "windows-31",
+      "kali-151"
+    ],
+    "steps": [
+      "From the installed Volatility 3 directory, run `python3 vol.py -f memory.raw windows.info` to check image and symbol recognition.",
+      "Run `python3 vol.py -f memory.raw windows.pstree` to find unusual process/parent relationships.",
+      "Run `python3 vol.py -f memory.raw windows.cmdline`; correlate arguments with the PID and parent you selected."
+    ],
+    "expected": "A PID, parent and command line that identify the next artifact to inspect.",
+    "fallback": "On symbol errors, resolve the matching symbols before trusting output. Use Volatility 2 only for a supported legacy image with its matching profile.",
+    "caveat": "Volatility 3 runs in WSL and uses symbols, not Volatility 2 profiles. Prepare symbols before offline use; a missing process row does not prove absence.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "volatility3 — official documentation",
+        "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html"
+      }
+    ]
+  },
+  {
+    "id": "media-inspection",
+    "category": "forensics",
+    "title": "Image, audio or PDF → inspect the matching format",
+    "input": "A local file; choose just the branch matching its format.",
+    "tool_ids": [
+      "windows-14",
+      "kali-108",
+      "windows-12",
+      "kali-10",
+      "windows-26"
+    ],
+    "steps": [
+      "PNG/BMP: run `exiftool -a -u -g1 image.png`; for PNG run `pngcheck -v image.png`. If pixel data is the clue, run `zsteg image.png` and validate meaningful hits.",
+      "Audio: open in Audacity, open the track menu and select Spectrogram. Adjust Spectrogram Settings frequency range and window size; inspect channels separately.",
+      "PDF: run `qpdf --list-attachments document.pdf` and `qpdf --show-pages document.pdf`; use a listed object number with `qpdf --show-object=OBJECT document.pdf`."
+    ],
+    "expected": "Metadata/chunk findings, visible time-frequency patterns, or PDF attachment/object identifiers.",
+    "fallback": "No meaningful result: revisit the format clue. zsteg is for PNG/BMP, not every image; a blank spectrogram may need different display settings.",
+    "caveat": "Keep originals. ExifTool, zsteg and qpdf are WSL entries. pngcheck version is unknown; metadata and stego signatures need corroboration.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "zsteg — documentation",
+        "url": "https://github.com/zed-0xff/zsteg"
+      },
+      {
+        "title": "Audacity — documentation",
+        "url": "https://manual.audacityteam.org/man/spectrogram_view.html"
+      },
+      {
+        "title": "qpdf — official documentation",
+        "url": "https://qpdf.readthedocs.io/en/stable/cli.html"
+      }
+    ]
+  },
+  {
+    "id": "executable-triage",
+    "category": "malware",
+    "title": "Unknown executable → format and capabilities",
+    "input": "A sample copied into a local analysis directory.",
+    "tool_ids": [
+      "kali-27",
+      "kali-19",
+      "kali-43"
+    ],
+    "steps": [
+      "Open the file in Detect It Easy and record format, architecture and probable packer.",
+      "For a supported executable named `sample.bin`, run `capa -v sample.bin`; record capability names and supporting addresses.",
+      "Open a relevant match location in the native-code route; inspect the surrounding function before accepting the capability claim."
+    ],
+    "expected": "A format hypothesis and code locations worth investigating.",
+    "fallback": "If packed or unsupported, select a matching extraction route; use FLOSS only when hidden strings are the specific blocker.",
+    "caveat": "Signature and capability matches are leads, not observed execution. Static inspection does not require running the sample.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Detect It Easy (DIE) — primary documentation",
+        "url": "https://github.com/horsicq/Detect-It-Easy"
+      },
+      {
+        "title": "capa — primary documentation",
+        "url": "https://github.com/mandiant/capa"
+      }
+    ]
+  },
+  {
+    "id": "document-code",
+    "category": "malware",
+    "title": "Office or PDF → embedded code",
+    "input": "An Office document `document.docm` or PDF `document.pdf`.",
+    "tool_ids": [
+      "kali-98",
+      "kali-30"
+    ],
+    "steps": [
+      "Office: run `olevba document.docm`; inspect extracted VBA and the reported suspicious patterns.",
+      "PDF: from the installed Didier Stevens Suite directory, run `python3 pdfid.py document.pdf` to find noteworthy object types.",
+      "PDF: run `python3 pdf-parser.py document.pdf`; inspect references around flagged objects before selecting a stream for extraction."
+    ],
+    "expected": "Macro source or PDF object references that explain the suspicious behavior.",
+    "fallback": "No VBA is not a clean verdict: inspect embedded objects with the matching oletools utility; an encrypted or malformed file may block parsing.",
+    "caveat": "Do not enable macros. PDF keyword counts alone are not proof; suite versions and script availability must match the installed copy.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "olevba usage and examples",
+        "url": "https://github.com/decalage2/oletools/wiki/olevba"
+      },
+      {
+        "title": "Author PDF tools guide",
+        "url": "https://blog.didierstevens.com/programs/pdf-tools/"
+      }
+    ]
+  },
+  {
+    "id": "bundle-extraction",
+    "category": "malware",
+    "title": "Identified bundle → extracted files",
+    "input": "A file already identified as PyInstaller, Electron ASAR or UPX.",
+    "tool_ids": [
+      "kali-111",
+      "kali-9",
+      "kali-149"
+    ],
+    "steps": [
+      "PyInstaller: run `pyinstxtractor-ng sample.exe`; record the reported Python version and inspect the extracted directory.",
+      "Electron: run `asar list app.asar`, then `asar extract app.asar extracted-asar` into a new directory; inspect package.json and its entry point.",
+      "UPX: run `upx -t sample.exe`; if recognized, unpack to a new file with `upx -d -o unpacked.exe sample.exe`."
+    ],
+    "expected": "Extracted source/bytecode or an unpacked executable for static inspection.",
+    "fallback": "If the matching extractor fails, verify the format; modified packers and unsupported bytecode need manual reversing.",
+    "caveat": "Choose one matching branch. Extraction does not execute or decompile the payload; Python version determines decompiler support. UPX approval is 4.2.4.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "pyinstxtractor-ng — primary documentation",
+        "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng"
+      },
+      {
+        "title": "asar (@electron/asar) — primary documentation",
+        "url": "https://github.com/electron/asar"
+      },
+      {
+        "title": "UPX — primary documentation",
+        "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt"
+      }
+    ]
+  },
+  {
+    "id": "http-baseline",
+    "category": "web",
+    "title": "HTTP request → one controlled change",
+    "input": "A working request to the assigned challenge service.",
+    "tool_ids": [
+      "windows-20",
+      "windows-5",
+      "kali-23"
+    ],
+    "steps": [
+      "In Burp Proxy → HTTP history, select the request and choose Send to Repeater.",
+      "Send it unchanged; record status, response body and relevant cookies.",
+      "Change one parameter or header, send again, then restore the baseline. Compare content as well as status."
+    ],
+    "expected": "A repeatable response difference attributable to one input.",
+    "fallback": "If the baseline fails, refresh authentication/CSRF values and confirm the host before testing a hypothesis.",
+    "caveat": "Burp Community is recorded in WSL; these steps need no Professional scanner. Keep requests and session tokens local.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Burp Suite Community Edition reference",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+      }
+    ]
+  },
+  {
+    "id": "endpoint-discovery",
+    "category": "web",
+    "title": "Missing endpoint → bounded discovery",
+    "input": "An assigned base URL and a short local path list `paths.txt`; replace `https://challenge.example`.",
+    "tool_ids": [
+      "kali-41",
+      "kali-126"
+    ],
+    "steps": [
+      "Request a unique nonexistent path in the browser; record its status, size and body to recognize wildcard responses.",
+      "Run `ffuf -w paths.txt -u https://challenge.example/FUZZ -rate 10 -t 1 -maxtime 60 -ac` against the assigned host.",
+      "Open promising hits manually and compare them with the nonexistent-path response."
+    ],
+    "expected": "Candidate paths whose responses differ from the calibrated baseline.",
+    "fallback": "Uniform responses may be wildcard pages or authentication redirects; recalibrate before increasing the list.",
+    "caveat": "The rate/time bounds are starting limits, not event permission. Approved ffuf is a development build; confirm flags locally and locate SecLists data rather than assuming a path.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "ffuf reference",
+        "url": "https://github.com/ffuf/ffuf"
+      }
+    ]
+  },
+  {
+    "id": "targeted-web-test",
+    "category": "web",
+    "title": "Observed vulnerability → targeted test",
+    "input": "A reproducible request plus evidence for a specific vulnerability class.",
+    "tool_ids": [
+      "kali-103",
+      "kali-132",
+      "windows-20"
+    ],
+    "steps": [
+      "Open the matching topic in the local PayloadsAllTheThings copy; check its prerequisites against the observed input and response.",
+      "In Repeater, change only that input using a relevant example; compare with the original request and a negative control.",
+      "Only for suspected SQL injection: save the valid raw request as `request.txt`, replace PARAM, then run `sqlmap -r request.txt -p PARAM --batch --level=1 --risk=1 --threads=1`."
+    ],
+    "expected": "A reproducible class-specific response or sqlmap detection evidence for the selected parameter.",
+    "fallback": "A negative or inconsistent result means revisit the hypothesis, encoding and session state; do not escalate to broad scanning by default.",
+    "caveat": "References may name unapproved software. This SQL step detects; it does not request database dumping. Restrict testing to the assigned service.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "PayloadsAllTheThings (offline copy) reference",
+        "url": "https://github.com/swisskyrepo/PayloadsAllTheThings"
+      },
+      {
+        "title": "sqlmap reference",
+        "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage"
+      }
+    ]
+  },
+  {
+    "id": "jwt-verification",
+    "category": "web",
+    "title": "JWT → claims → server behavior",
+    "input": "A token from a working request to the assigned application; replace TOKEN locally.",
+    "tool_ids": [
+      "kali-77",
+      "windows-20"
+    ],
+    "steps": [
+      "From the installed jwt_tool directory, run `python3 jwt_tool.py TOKEN` to inspect header and claims.",
+      "Run `python3 jwt_tool.py TOKEN -T` to change one relevant claim using the local prompts; retain the original token.",
+      "Use Repeater to compare the original request, the modified token and a missing-token control; check actual protected content."
+    ],
+    "expected": "A server-side acceptance or rejection tied to the changed token.",
+    "fallback": "If every request fails, renew the baseline token and check expiry, audience and cookie placement before interpreting the test.",
+    "caveat": "Decoding is not signature validation. A modified unsigned/invalid token should be rejected; acceptance must be confirmed from server behavior. Installed jwt_tool version is unknown.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "JWT attacks",
+        "url": "https://portswigger.net/web-security/jwt"
+      }
+    ]
+  },
+  {
+    "id": "native-checker",
+    "category": "reversing",
+    "title": "Native checker → validation logic",
+    "input": "A native executable and its expected input format.",
+    "tool_ids": [
+      "windows-22",
+      "windows-9",
+      "windows-33"
+    ],
+    "steps": [
+      "In Ghidra, create a local project, import the executable, open it in CodeBrowser and accept analysis.",
+      "Use Search → for Strings to find a prompt or success/failure text; follow its references to the checking function.",
+      "Read the decompiler alongside the disassembly; rename input variables and record the comparison or transformation."
+    ],
+    "expected": "A concrete input check with its data flow and success condition.",
+    "fallback": "If static reasoning leaves a runtime question, use GDB in the matching native environment or x64dbg for Windows PE.",
+    "caveat": "Ghidra and GDB are WSL entries. Decompilation can mislead; x32dbg is needed for 32-bit Windows targets. Run unknown code only in the intended isolated analysis environment.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Ghidra beginner student guide",
+        "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html"
+      }
+    ]
+  },
+  {
+    "id": "android-validation",
+    "category": "reversing",
+    "title": "APK/DEX → validation method",
+    "input": "A supplied APK or DEX, inspected without installation.",
+    "tool_ids": [
+      "kali-72",
+      "kali-8"
+    ],
+    "steps": [
+      "Open the file in jadx-gui; inspect the manifest/package tree to locate the application entry points.",
+      "Search for a visible prompt or success/failure string; use Find Usage to reach the validation method.",
+      "Trace the input through comparisons and transforms; note any method JADX cannot reconstruct."
+    ],
+    "expected": "A candidate validation method and the values it compares.",
+    "fallback": "For failed methods or resource clues, decode a fresh directory with `apktool d app.apk -o decoded-app` and inspect smali/resources.",
+    "caveat": "JADX cannot decompile every method correctly. Apktool is pinned to 2.7.0; do not copy newer-only flags.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "jadx (jadx-gui) — primary documentation",
+        "url": "https://github.com/skylot/jadx"
+      },
+      {
+        "title": "Apktool — primary documentation",
+        "url": "https://apktool.org/docs/2.x/cli-parameters/"
+      }
+    ]
+  },
+  {
+    "id": "dotnet-validation",
+    "category": "reversing",
+    "title": ".NET assembly → C# and IL",
+    "input": "A managed .NET executable or DLL.",
+    "tool_ids": [
+      "windows-38"
+    ],
+    "steps": [
+      "In dnSpyEx, choose File → Open and select the assembly.",
+      "Expand the assembly tree and locate the entry point or search for a prompt string; follow references to the validation method.",
+      "Read the C# view, then switch the language selector to IL where a condition or conversion is ambiguous."
+    ],
+    "expected": "A validation method whose comparison and input handling can be explained.",
+    "fallback": "If no managed assembly tree appears, verify the format and use the native-code route; obfuscated code may require inspecting IL.",
+    "caveat": "dnSpyEx is installed on Windows and targets .NET; it is not a general native decompiler.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "dnSpyEx (dnSpy) — primary documentation",
+        "url": "https://github.com/dnSpyEx/dnSpy"
+      }
+    ]
+  },
+  {
+    "id": "source-view",
+    "category": "reversing",
+    "title": "Python, Java or JavaScript → source view",
+    "input": "A PYC, JAR/class or JavaScript file; select the matching branch.",
+    "tool_ids": [
+      "kali-110",
+      "kali-38",
+      "kali-75"
+    ],
+    "steps": [
+      "PYC: run `pycdc module.pyc`; compare questionable output with `pycdas module.pyc`. Extract PyInstaller bundles first using the bundle route.",
+      "Java: create a new `java-out` directory, then run `java -jar /opt/tools/fernflower/build/libs/fernflower.jar app.jar java-out`; inspect the generated sources/archive.",
+      "JavaScript: run `js-beautify script.js` and follow the formatted validation logic without executing it."
+    ],
+    "expected": "Readable source or disassembly for the input-validation path.",
+    "fallback": "Unsupported Python opcodes require a version-compatible decompiler; formatted JavaScript may still need a matching deobfuscator.",
+    "caveat": "Python support is version-dependent and reconstructed code can be incomplete. Fernflower uses the recorded local JAR path; JavaScript formatting does not remove semantic obfuscation.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "pycdc (Decompyle++) — primary documentation",
+        "url": "https://github.com/zrax/pycdc"
+      },
+      {
+        "title": "Fernflower — primary documentation",
+        "url": "https://github.com/JetBrains/fernflower/blob/master/README.md"
+      },
+      {
+        "title": "js-beautify — primary documentation",
+        "url": "https://github.com/beautifier/js-beautify"
+      }
+    ]
+  },
+  {
+    "id": "metadata-corroboration",
+    "category": "osint",
+    "title": "Image/date → metadata clue",
+    "input": "A locally supplied original image `image.jpg`.",
+    "tool_ids": [
+      "windows-14"
+    ],
+    "steps": [
+      "Run `exiftool -a -u -g1 image.jpg` to retain duplicate tags and their groups.",
+      "Compare GPS, camera and date fields across groups; record any explicit time-zone offset and contradictory values.",
+      "Corroborate the selected clue with the supplied context or an independent public source; record its URL and date."
+    ],
+    "expected": "A sourced location/date hypothesis with conflicts kept visible.",
+    "fallback": "If metadata is absent, use visible clues and the public-source route; absence does not establish provenance.",
+    "caveat": "ExifTool runs in WSL. Metadata may be forged, stripped or copied; a timestamp without an offset does not establish UTC.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "ExifTool application manual (upstream repository)",
+        "url": "https://github.com/exiftool/exiftool/blob/master/html/exiftool_pod.html"
+      }
+    ]
+  },
+  {
+    "id": "public-source",
+    "category": "osint",
+    "title": "Public phrase/page → source and date",
+    "input": "A public phrase or page supplied by the challenge; internet access is required.",
+    "tool_ids": [
+      "windows-5"
+    ],
+    "steps": [
+      "In Chrome, search a distinctive public phrase in quotes, for example `\"public phrase\"`; add `site:example.org` only when a domain clue exists.",
+      "Open the source page rather than relying on the snippet; record the author, displayed date and surrounding context.",
+      "Find an independent source for the claim and retain both URLs; distinguish publication dates from the event date."
+    ],
+    "expected": "A traceable claim with supporting sources and a stated date interpretation.",
+    "fallback": "No exact match: shorten the quoted phrase or remove the domain restriction; archived or changed pages may remain unavailable.",
+    "caveat": "Search only public clues, not private challenge files or secrets. Search rankings and page dates do not establish identity or truth.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Google: refine searches",
+        "url": "https://support.google.com/websearch/answer/2466433?hl=en"
+      }
+    ]
+  },
+  {
+    "id": "public-domain",
+    "category": "osint",
+    "title": "Public domain → candidate hostnames",
+    "input": "A public domain explicitly supplied for OSINT; replace `example.org`. Internet access is required.",
+    "tool_ids": [
+      "kali-139"
+    ],
+    "steps": [
+      "Run `subfinder -d example.org -oJ -cs -o hosts.jsonl` to retain source provenance.",
+      "Inspect the JSONL records and shortlist hostnames relevant to the challenge clue.",
+      "Corroborate a candidate using its cited public source; record when the evidence was observed."
+    ],
+    "expected": "Candidate hostnames and the public sources that reported them.",
+    "fallback": "Zero results may mean missing provider keys or no public coverage; revisit the supplied domain and source availability.",
+    "caveat": "Passive providers receive the queried public domain. Records may be stale; this is not a complete asset inventory or permission to probe discovered hosts.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Subfinder usage",
+        "url": "https://docs.projectdiscovery.io/opensource/subfinder/usage"
+      }
+    ]
+  },
+  {
+    "id": "decode-bytes",
+    "category": "crypto",
+    "title": "Encoded bytes → reversible transform",
+    "input": "Encoded text or bytes and a local/offline CyberChef copy.",
+    "tool_ids": [
+      "windows-1"
+    ],
+    "steps": [
+      "Paste input into the local CyberChef input pane; choose From Base64 or From Hex only when the alphabet/format fits.",
+      "Inspect output bytes and text after this single layer. Undo it if the result contradicts the expected format.",
+      "Add another operation only when the output supports it; retain the recipe and verify the final structure or known content."
+    ],
+    "expected": "A reproducible transformation from the supplied bytes to meaningful data.",
+    "fallback": "If no layer is justified, Magic may propose candidates; validate each rather than accepting readable fragments.",
+    "caveat": "Use a prepared offline copy, not a public upload workflow. Magic is heuristic; never share input-bearing recipe URLs.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "CyberChef — Build a decoding recipe",
+        "url": "https://github.com/gchq/CyberChef"
+      }
+    ]
+  },
+  {
+    "id": "password-recovery",
+    "category": "crypto",
+    "title": "Hash/password → bounded candidates",
+    "input": "A known-format hash file `hashes.txt` and a short local candidate list `candidates.txt`; replace MODE.",
+    "tool_ids": [
+      "kali-59",
+      "kali-73",
+      "kali-60",
+      "kali-120"
+    ],
+    "steps": [
+      "Match the complete hash syntax and source format to hashcat example hashes; select the numeric MODE. hashid guesses alone are insufficient.",
+      "Run `hashcat -m MODE -a 0 hashes.txt candidates.txt --runtime=60` for a bounded dictionary attempt.",
+      "Run `hashcat -m MODE hashes.txt --show`; validate any recovered value against the supplied artifact."
+    ],
+    "expected": "A recovered candidate or a bounded exhausted/paused attempt with no match.",
+    "fallback": "For an archive/document requiring conversion, use the matching installed John jumbo converter and format; a parser/backend error is not an exhausted search.",
+    "caveat": "Check supported modes and compute backend locally. No match only rejects tried candidates. Keep password output private; preserve the installed wordlist.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "hashcat — Match hash formats and choose a recovery mode",
+        "url": "https://hashcat.net/wiki/doku.php?id=example_hashes"
+      },
+      {
+        "title": "John the Ripper usage examples",
+        "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml"
+      }
+    ]
+  },
+  {
+    "id": "rsa-weakness",
+    "category": "crypto",
+    "title": "RSA → specific weakness → checked result",
+    "input": "A textbook RSA public key `key.pub` and an evidenced weakness.",
+    "tool_ids": [
+      "windows-30",
+      "windows-7",
+      "kali-125",
+      "kali-22"
+    ],
+    "steps": [
+      "Run `RsaCtfTool --dumpkey --key key.pub` to inspect n and e; compare them with the challenge clues.",
+      "If a small private exponent is the hypothesis, run `RsaCtfTool --publickey key.pub --attack wiener --private`; otherwise choose an attack only after checking its prerequisites.",
+      "For recovered factors, verify `p * q == n`; for a recovered plaintext integer m and ciphertext c, verify `pow(m, e, n) == c` in local Python."
+    ],
+    "expected": "A recovered factor/key/plaintext checked against the original RSA parameters.",
+    "fallback": "A failed attack does not disprove RSA. Use SageMath or crypto-attacks only when the supplied algebra matches a specific supported attack.",
+    "caveat": "RsaCtfTool runs in WSL; launcher/flags may differ locally. Avoid all-attacks defaults and external factor services. The equality check assumes textbook RSA integers.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "RsaCtfTool — Study RSA attack prerequisites",
+        "url": "https://github.com/RsaCtfTool/RsaCtfTool"
+      }
+    ]
+  },
+  {
+    "id": "artifact-identification",
+    "category": "misc",
+    "title": "Unknown artifact → identify → list/extract",
+    "input": "A local file `artifact.bin`; use new output paths.",
+    "tool_ids": [
+      "kali-42",
+      "kali-2",
+      "windows-13"
+    ],
+    "steps": [
+      "Run `file artifact.bin`; use the content-based result to select the next parser.",
+      "For a supported archive, run `7z l artifact.bin` to inspect names and sizes before extraction.",
+      "Run `7z x artifact.bin -oextracted-artifact` into a new directory; inspect the relevant extracted file without executing it."
+    ],
+    "expected": "A likely format and an archive listing or extracted artifact.",
+    "fallback": "If identification is vague, inspect header bytes; use binwalk only when embedded signatures are the clue.",
+    "caveat": "Signatures can mislead for truncated/polyglot data. Check available space before extraction; binwalk v2/v3 options differ.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "file (libmagic) — documentation",
+        "url": "https://github.com/file/file"
+      },
+      {
+        "title": "7-Zip (7z) — Inspect and extract archives",
+        "url": "https://7-zip.org/"
+      }
+    ]
+  },
+  {
+    "id": "focused-extraction",
+    "category": "misc",
+    "title": "Text, JSON or bytes → focused extraction",
+    "input": "Local files; replace the example pattern/key and select the matching format.",
+    "tool_ids": [
+      "kali-119",
+      "windows-21",
+      "windows-7",
+      "windows-19"
+    ],
+    "steps": [
+      "Text: run `rg -n -F \"needle\" evidence-dir`; add `--hidden` only when hidden files are relevant.",
+      "JSON: run `jq . data.json` to inspect structure, then `jq -r .key data.json` with the actual key/filter.",
+      "Binary: for a known four-byte little-endian unsigned field, run `python3 -c 'import struct; data = open(\"record.bin\", \"rb\").read(4); print(struct.unpack(\"<I\", data)[0])'`; adjust width/byte order only from the format specification."
+    ],
+    "expected": "Matching lines, selected JSON values or a numeric field interpreted with explicit byte order.",
+    "fallback": "No text match: check encoding and ignored/binary files; null JSON output may mean the wrong key. For a visible QR/barcode, use ZBar instead of text search.",
+    "caveat": "jq and Python Windows-list entries run in WSL. Binary field width/endianness must come from the format; Python AI/ML libraries are excluded by the approval rules.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "ripgrep (rg) — Search text and selectively include hidden or binary files",
+        "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md"
+      },
+      {
+        "title": "jq — Filter JSON",
+        "url": "https://jqlang.org/manual/"
+      },
+      {
+        "title": "Python 3 — Parse binary data",
+        "url": "https://docs.python.org/3/library/struct.html"
+      }
+    ]
+  },
+  {
+    "id": "service-interaction",
+    "category": "misc",
+    "title": "Challenge endpoint → protocol → interaction",
+    "input": "An assigned HOST and PORT; replace these placeholders and restrict requests to that endpoint.",
+    "tool_ids": [
+      "kali-94",
+      "kali-68",
+      "kali-127"
+    ],
+    "steps": [
+      "Run `nmap -sV -p PORT HOST` to check the specified port and likely service.",
+      "For a plaintext TCP challenge, run `ncat HOST PORT`; for a specified TLS service use `ncat --ssl HOST PORT`.",
+      "Read the banner/prompt, send one protocol-appropriate input and record its response before automating."
+    ],
+    "expected": "An observed protocol exchange that clarifies the challenge input/output.",
+    "fallback": "No response: check VPN, host/port and TLS requirement. Use Impacket for an actual SMB task or socat only for a concrete transport need.",
+    "caveat": "A service guess is not proof. Ncat connects here; it does not start a listener. Do not send arbitrary text to an identified binary protocol.",
+    "verification": "Source-reviewed; not executed on competition machines.",
+    "references": [
+      {
+        "title": "Nmap Reference Guide",
+        "url": "https://nmap.org/book/man.html"
+      },
+      {
+        "title": "Ncat usage",
+        "url": "https://nmap.org/ncat/guide/ncat-usage.html"
+      }
+    ]
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "number": 15,
+  "video_id": "dLIbkg_8O68",
+  "title": "Malware Analysis - Unpacking NetWiredRC With DnSpy",
+  "file": "videos/15_dnSpy_Unpacking_dLIbkg_8O68.mp4",
+  "bytes": 126460994,
+  "sha256": "82d0df9ffbab3ff96285ffbdd0f8efdd661759327b299ac4def123e7bf804a0e",
+  "width": 1158,
+  "height": 720,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 1624.607347,
+  "sample_decode_seconds": [
+    1,
+    812.3036735,
+    1621.607347
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/15_dnSpy_Unpacking_dLIbkg_8O68.en.vtt"
+}

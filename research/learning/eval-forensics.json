@@ -1,0 +1,428 @@
+{
+  "evaluated_at": "2026-10-22",
+  "evaluations": [
+    {
+      "id": "forensics-1",
+      "decision": "replace",
+      "rationale": "The old worked page makes a useful concept harder by mixing coordinate systems in a dd example. The short official manuals define exactly which command accepts sectors and which value selects a file. They lack a full lab, so pair them with the supplied paper drill rather than pretending sample images exist.",
+      "focus": "Read fls -o/-r/-d/-p and Examples; mmls description and sector-size option; icat -o/-r and stdout behavior. Skip timeline and split-image options on the first pass.",
+      "prerequisites": [
+        "Basic shell syntax and redirection; know disk image versus filesystem image."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html"
+      },
+      "evidence": [
+        {
+          "url": "https://wiki.sleuthkit.org/FS-Analysis/",
+          "inspected": "Prior verified full Search scenario: extracts wd0e.blkls, computes an offset in it, but dd then names wd0e.dd; later blkcalc maps to the original image.",
+          "limitation": "Previously inspected same-session evidence reused; unreliable as a copyable beginner recipe."
+        },
+        {
+          "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+          "inspected": "Read fls flags and offset-63 example; recursive mode does not follow deleted directories.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        },
+        {
+          "url": "https://www.sleuthkit.org/sleuthkit/man/mmls.html",
+          "inspected": "Read sector output, sector-size default and image-layout description.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        },
+        {
+          "url": "https://www.sleuthkit.org/sleuthkit/man/icat.html",
+          "inspected": "Read metadata-address input, sector-offset option, deleted-recovery option and output-to-stdout behavior.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null,
+      "replacement": {
+        "id": "forensics-1",
+        "title": "Sleuth Kit: list files and recover by metadata address",
+        "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+        "type": "read",
+        "publisher": "The Sleuth Kit",
+        "tool_ids": [
+          "windows-23"
+        ],
+        "learn": "Use mmls to identify a filesystem start sector, pass that sector to fls -o, and pass a discovered metadata address to icat -o. Distinguish a sector offset from a byte offset.",
+        "priority": "core",
+        "study_minutes": 20,
+        "offline": "Save fls plus https://www.sleuthkit.org/sleuthkit/man/mmls.html and https://www.sleuthkit.org/sleuthkit/man/icat.html . The supplied paper drill needs no disk image. Executing requires an installed Sleuth Kit and a separately staged compatible image.",
+        "verification": "2026-10-22: Read official fls, mmls and icat arguments/examples. Replaces the historical FS Analysis page whose extracted/original-image coordinates are inconsistent. No commands executed against a disk image.",
+        "lane": "forensics"
+      }
+    },
+    {
+      "id": "forensics-2",
+      "decision": "replace",
+      "rationale": "Retain the good workflow but update the versioned link to 4.22.0. It explains where to click, why ingest matters and how to return from a hit to its original location. The long module list is reference material, not something to memorize. Logical-file input allows a tiny optional exercise without downloading a disk image.",
+      "focus": "Cases and Data Sources; File Type Identification and Keyword Search; Analysis Basics; Web Artifacts. Skip multi-user setup, hash-set downloads and reporting formats.",
+      "prerequisites": [
+        "Recognize a case as a results container; execution requires installed Windows Autopsy, but reading/recall does not."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html"
+      },
+      "evidence": [
+        {
+          "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.20.0/quick_start_guide.html",
+          "inspected": "Previously read the full 4.20.0 guide.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        },
+        {
+          "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html",
+          "inspected": "Read 4.22.0 case wizard, logical-file source option, ingest descriptions, result navigation and extraction.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null,
+      "replacement": {
+        "id": "forensics-2",
+        "title": "Autopsy Quick Start Guide",
+        "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html",
+        "type": "read",
+        "publisher": "The Sleuth Kit / Autopsy",
+        "tool_ids": [
+          "windows-34"
+        ],
+        "learn": "Create a single-user case, add a raw/E01 image, choose ingest modules, search keywords, inspect extracted browser activity and export an interesting file.",
+        "priority": "core",
+        "study_minutes": 20,
+        "offline": "Save the 4.22.0 guide with screenshots. The required recall exercise uses no image; optional hands-on work can use a newly created folder of harmless text files as a logical data source. Installed Autopsy and sufficient local case storage are required for execution.",
+        "verification": "2026-10-22: Compared 4.20.0 and 4.22.0 quick-start text; read case creation, logical-file input, keyword ingest, result navigation and export steps. No GUI execution; installed release unknown.",
+        "lane": "forensics"
+      }
+    },
+    {
+      "id": "forensics-3",
+      "decision": "retain",
+      "rationale": "This is the strongest free memory refresher: short command shape, real labeled pslist/pstree output and an explicit explanation of online symbol acquisition. Its scope is narrow and its example is framework 2.0.x, so do not describe it as a complete current command reference. The later hashdump example is unnecessary for the basic process exercise.",
+      "focus": "Plugin discovery, CLI shape, pslist, pstree and the symbol-download note; reconstruct relationships from the displayed PID/PPID columns.",
+      "prerequisites": [
+        "Understand PID/PPID and memory snapshot; hands-on requires a compatible local dump, installed Volatility 3 and resolved symbols."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html"
+      },
+      "evidence": [
+        {
+          "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+          "inspected": "Read complete official tutorial including sample process rows, version banner 2.0.1/2.0.3, symbol note and hashdump section.",
+          "limitation": "No memory dump acquired or plugins executed; latest URL still contains historical sample output."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null
+    },
+    {
+      "id": "forensics-4",
+      "decision": "shorten",
+      "rationale": "Keep as an optional visual alternative, not a required 40-minute second introduction. The creator notes cover handles/files/connections/registry beyond the official process tutorial, but include broken spellings and PowerShell-specific filtering. Only companion text and exact embed were inspected; video presentation clarity and runtime cannot be judged. The free official tutorial is a safer offline default.",
+      "focus": "If the official process exercise is easy, skip this item. Otherwise use the creator explanation to connect processes with handles and extracted files; consult installed help for plugin names. Do not copy windows.registay or windows.dumpfile from the notes.",
+      "prerequisites": [
+        "Volatility 3 core process lesson; distinguish PowerShell Select-String from WSL shell commands."
+      ],
+      "access": {
+        "viewing": "Public YouTube watch page; no course purchase identified. Playback not performed.",
+        "cost": "Free online viewing is the intended public route; desktop offline download is a YouTube Premium feature, not a verified free download.",
+        "registration": "No account was used for metadata/text access. Premium download requires sign-in; playback restrictions can vary.",
+        "offline": "Use saved free reading alternative. If already entitled to platform offline viewing, verify this video downloads and plays on the intended device before flying; do not buy access for this plan.",
+        "free_alternative_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html"
+      },
+      "evidence": [
+        {
+          "url": "https://dfir.science/2022/02/Introduction-to-Memory-Forensics-with-Volatility-3",
+          "inspected": "Read substantive command notes for processes, handles, network connections, dumpfiles and registry; inspected embed ID Uk3DEgY5Ue8.",
+          "limitation": "Companion contains apparent typos; not a safe verbatim command sheet."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Uk3DEgY5Ue8",
+          "inspected": "Earlier Exa fetch confirmed title and date; later web fetch returned 429.",
+          "limitation": "No transcript retrieved, no playback, no verified runtime."
+        },
+        {
+          "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+          "inspected": "Read complete free tutorial; suitable process-analysis alternative but narrower than the video topics.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233?hl=en",
+          "inspected": "Read official desktop offline requirements: Premium account and sign-in.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null
+    },
+    {
+      "id": "forensics-5",
+      "decision": "shorten",
+      "rationale": "The transcript earns study time by demonstrating a real reasoning step: search a filename, capture its file entry number, remove the filename filter and follow renames/deletion. It also explains blank duplicate timestamp fields. Skip acquisition logistics and use author README as the free offline path. Historical lack of $LogFile parsing is outdated: the current author README documents it.",
+      "focus": "00:00\u201306:00 artifact concepts and 10:33\u201320:36 MFTECmd/Timeline Explorer analysis; skip KAPE at 06:00\u201310:33. Concentrate on UpdateReasons and file-entry filtering, not treating timestamp anomalies alone as proof.",
+      "prerequisites": [
+        "NTFS basics; understand current metadata versus change journal. Execution needs supplied $MFT/$J, applicable Zimmerman executables/runtime and a CSV viewer; no KAPE requirement."
+      ],
+      "access": {
+        "viewing": "Public YouTube watch page; no course purchase identified. Playback not performed.",
+        "cost": "Free online viewing is the intended public route; desktop offline download is a YouTube Premium feature, not a verified free download.",
+        "registration": "No account was used for metadata/text access. Premium download requires sign-in; playback restrictions can vary.",
+        "offline": "Use saved free reading alternative. If already entitled to platform offline viewing, verify this video downloads and plays on the intended device before flying; do not buy access for this plan.",
+        "free_alternative_url": "https://github.com/EricZimmerman/MFTECmd"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=_qElVZJqlGY",
+          "inspected": "Read full retrieved transcript through the apg.exe \u2192 demo.exe \u2192 demo2.exe \u2192 deletion example, timestamp-column explanation, chapters and published 22:01 length.",
+          "limitation": "Transcript and metadata inspected, not video playback; release-specific historical claims need current help."
+        },
+        {
+          "url": "https://github.com/EricZimmerman/MFTECmd",
+          "inspected": "Read author CLI examples, -f/--csv/--csvf, current $LogFile handling and same-volume MFT/J relationship.",
+          "limitation": "Current README may be newer than the event binary."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233?hl=en",
+          "inspected": "Read Premium desktop download requirements.",
+          "limitation": "Content inspected on 2026-10-22; no tool execution."
+        }
+      ],
+      "recommended_study_minutes": 25,
+      "published_runtime": "22:01 (retrieved YouTube metadata); selected chapters approximately 16:03, study estimate 25 minutes including recall."
+    },
+    {
+      "id": "forensics-6",
+      "decision": "retain",
+      "rationale": "The manual precisely distinguishes object dictionaries from stream bytes and raw from decoded output, which matters when a rendered PDF hides an attachment or payload. It is a lookup reference rather than a worked challenge: cap it at selected options plus a command-selection drill, not the whole CLI chapter.",
+      "focus": "Basic Invocation inspection-mode exception; PDF Inspection: show-pages, show-object, raw-stream-data, filtered-stream-data, list-attachments and show-attachment.",
+      "prerequisites": [
+        "Know that a PDF contains numbered objects and streams; no PDF sample needed for recall. Execution requires local qpdf and a harmless PDF copy."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection"
+      },
+      "evidence": [
+        {
+          "url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+          "inspected": "Read full CLI extraction selectively around inspection invocation, objects, stream data, pages and attachments.",
+          "limitation": "Manual inspected, no PDF commands executed; unsupported filters can prevent decoded extraction."
+        }
+      ],
+      "recommended_study_minutes": 15,
+      "published_runtime": null
+    },
+    {
+      "id": "forensics-7",
+      "decision": "retain",
+      "rationale": "It provides both literal searches and rule-based hunting with expected output, making it more useful than another tool overview. Most of its build/setup/SRUM material is unnecessary here. The current README explicitly says Sigma and EVTX samples are no longer bundled submodules, so a cloned binary repository alone is not an offline lab.",
+      "focus": "Examples \u2192 Searching, then one Hunting command and its output. Explain the separate log input, rules and mapping; use 4104 in the example command despite the prose typo 4014.",
+      "prerequisites": [
+        "Understand EVTX event fields; execution needs local logs. Rule-based hunting additionally needs matching Sigma/Chainsaw rule files and mapping."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://github.com/WithSecureOpenSource/chainsaw#examples"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/WithSecureOpenSource/chainsaw#examples",
+          "inspected": "Read Searching/Hunting flags, example output including event 1102, Quick Start dependency split, and Sigma mapping explanation.",
+          "limitation": "Did not execute logs. Current README may differ from approved 2.16.5; displayed prose event-ID typo is not adopted."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null
+    },
+    {
+      "id": "forensics-8",
+      "decision": "retain",
+      "rationale": "A good lightweight bridge from parser output to inspecting unfamiliar app databases. It teaches schema discovery before queries and can support a fully self-contained in-memory SQL drill. Long sections on archives/extensions/building add no value to this refresher. Read-only opening is an essential addition to the initial selection.",
+      "focus": "Opening Database Files (--readonly/--ifexists), .tables, .schema, .mode list and basic SELECT examples; distinguish dot-commands from SQL statements.",
+      "prerequisites": [
+        "Basic SQL SELECT/WHERE/ORDER BY; no sample database required for the included in-memory exercise."
+      ],
+      "access": {
+        "viewing": "Public documentation fetched without sign-in.",
+        "cost": "Free reading; no trial or paid course required.",
+        "registration": "None for inspected page.",
+        "offline": "Save selected page sections as HTML/PDF before departure; reading works without installed tools. A working lab additionally requires the tool and stated local assets.",
+        "free_alternative_url": "https://sqlite.org/cli.html"
+      },
+      "evidence": [
+        {
+          "url": "https://sqlite.org/cli.html",
+          "inspected": "Read schema examples and Opening Database Files including :memory:, readonly, ifexists and destructive --new warning.",
+          "limitation": "Current docs contain newer shell features; focus on established commands and check installed help. No forensic database analyzed."
+        }
+      ],
+      "recommended_study_minutes": 20,
+      "published_runtime": null
+    }
+  ],
+  "block_suggestions": [
+    {
+      "name": "Disk and document triage",
+      "resource_ids": [
+        "forensics-1",
+        "forensics-2",
+        "forensics-6",
+        "forensics-8"
+      ],
+      "estimated_minutes": 150,
+      "outcome": "Select a disk/file/database workflow, carry offsets correctly, and recover or locate evidence without assuming a downloaded image.",
+      "diagnostic": "Without notes: Does fls -o take bytes or sectors? Which Autopsy ingest module indexes keywords? How do you discover SQLite table/column names? If all three are correct, skim those sections and spend the saved time on the exercises.",
+      "preparation": "Save the four selected docs plus mmls/icat. Required exercises use only the facts printed here and paper; optional executions require locally installed approved tools. No portal or image download is required.",
+      "exercises": [
+        {
+          "name": "TSK paper drill",
+          "prompt": "Synthetic scenario, not actual tool output: mmls says units are 512-byte sectors and the desired partition starts at 2048. A file listing at that offset reports metadata address 42 for report.txt. Write the list and extraction commands and the partition start in bytes. Then say why extracting a listed deleted file might still fail.",
+          "assessment": "Expected: fls -o 2048 -r disk.dd ; icat -o 2048 disk.dd 42 > recovered-report.txt ; 2048 \u00d7 512 = 1,048,576 bytes. Do not pass 1,048,576 to -o. Recovery depends on surviving metadata/content; a listed filename does not establish intact file bytes. Add icat -r when trying deleted-file recovery. This is a paper command exercise, not an executable bundled lab."
+        },
+        {
+          "name": "Autopsy no-image drill",
+          "prompt": "Write the sequence to import a folder of logical files, locate a keyword hit and return to its source path. Optional execution: create a new empty practice directory, place a text file containing a unique token SEA-PRACTICE-731, add only that folder to a new single-user case, enable keyword search and find/extract that file after ingest.",
+          "assessment": "Recall: New Case \u2192 Add Data Source \u2192 Logical Files \u2192 chosen folder \u2192 Keyword Search ingest \u2192 keyword results \u2192 original filesystem location/extract. Optional result must match the original token and file; this exercises logical-file search, not deleted-file recovery."
+        },
+        {
+          "name": "PDF choice drill",
+          "prompt": "Which options would show object 17, then its decoded stream? How would you discover attachment keys before extracting an attachment? Must you supply an output PDF in inspection mode?",
+          "assessment": "show-object=17; add filtered-stream-data for decoded stream bytes. list-attachments then show-attachment with the listed key. Inspection does not take an output-PDF positional argument; redirect returned bytes to a separate file if needed. No object 17 is assumed to exist in a real sample."
+        },
+        {
+          "name": "SQLite self-contained drill",
+          "prompt": "In sqlite3 :memory:, enter CREATE TABLE visits(url TEXT, visited INTEGER); INSERT INTO visits VALUES ('alpha',1),('beta',3),('alpha',2); then .tables and .schema on their own lines. Write a SELECT returning the most recent URL and a query counting rows for alpha. With no installed CLI, solve on paper.",
+          "assessment": "SELECT url FROM visits ORDER BY visited DESC LIMIT 1; returns beta. SELECT count(*) FROM visits WHERE url='alpha'; returns 2. .tables shows visits and .schema reveals url and visited. For real evidence use an existing copied DB with read-only opening, not this writeable training database."
+        }
+      ],
+      "execution_status": "Exercises drafted and source-checked; no optional GUI/TSK/qpdf lab executed. SQL expected results separately checked with Python sqlite3 standard library; this does not verify the installed sqlite3 CLI."
+    },
+    {
+      "name": "Memory and Windows artifact reasoning",
+      "resource_ids": [
+        "forensics-3",
+        "forensics-4",
+        "forensics-5",
+        "forensics-7"
+      ],
+      "estimated_minutes": 150,
+      "outcome": "Reconstruct process and file-change relationships, and distinguish a log search from rule-based hunting.",
+      "diagnostic": "Can you explain PID versus PPID, Volatility 3 symbols versus Volatility 2 profiles, and why searching a renamed file only by its old name misses events? If yes, skip the optional DFIRScience video.",
+      "preparation": "Save official Volatility sample tables and MFTECmd/Chainsaw reading alternatives. Read-only drills require no RAM image, EVTX file or paid video download. A real lab needs separately staged evidence, compatible tools, symbol caches/rules and an offline smoke test.",
+      "exercises": [
+        {
+          "name": "Process-tree drill",
+          "prompt": "Use the official tutorial rows: wininit.exe PID404 PPID336; services.exe PID504 PPID404; svchost.exe PID960 PPID504. Draw the two known parent-child edges and choose pslist versus pstree to display them. Is this enough to label svchost.exe malicious?",
+          "assessment": "404\u2192504\u2192960. pslist lists process rows; pstree makes relationships visible. These relationships alone do not establish maliciousness. Missing symbols are a setup/compatibility problem, not evidence that no processes exist."
+        },
+        {
+          "name": "Rename journal drill",
+          "prompt": "Synthetic journal rows for one entry+sequence pair: Create apg.exe; RenameOldName apg.exe; RenameNewName demo.exe; RenameOldName demo.exe; RenameNewName demo2.exe; Delete demo2.exe. Explain why a filename-only filter is incomplete and which identifier you would pivot on.",
+          "assessment": "The file was created, renamed twice and deleted. Pivot on the file record identity, checking its sequence number where available to avoid conflating reused entries; remove the filename-only filter. A deletion record does not prove bytes are recoverable."
+        },
+        {
+          "name": "EVTX routing drill",
+          "prompt": "You need logs containing event 4104, then a set of Sigma detections. Name the search predicate and list the three inputs the hunt needs. Why does zero detections not prove the host is clean?",
+          "assessment": "Use the documented field predicate Event.System.EventID: =4104. Hunt needs logs, rules, and a compatible mapping. Missing log coverage, rules, mappings or load failures can yield no detections; inspect load/output status before interpreting results."
+        }
+      ],
+      "execution_status": "Source-based recall drills only; no memory image or Windows forensic artifact was executed."
+    }
+  ],
+  "family_rationales": [
+    {
+      "family": "Mobile and macOS artifacts",
+      "tool_ids": [
+        "kali-4",
+        "kali-66",
+        "kali-86"
+      ],
+      "rationale": "Keep ALEAPP/iLEAPP/mac_apt reference-only: input acquisition formats and OS versions determine useful parsers, and no corresponding evidence set is assumed. Trigger: a supplied Android/iOS/macOS extraction. First consult the row repository for accepted input layout and output reports; generic disk lessons do not teach these tools."
+    },
+    {
+      "family": "Browser, SQLite recovery and encrypted databases",
+      "tool_ids": [
+        "kali-25",
+        "kali-45",
+        "kali-63",
+        "kali-130"
+      ],
+      "rationale": "SQLite schema/query training is transferable but not a substitute for Hindsight browser artifacts, FQLite deleted-record recovery or SQLCipher keys/settings. Keep these interfaces reference-only; use the input-specific parser when ordinary SQLite inspection cannot answer the question. Preserve supplied database companions; no guarantee deleted records survive."
+    },
+    {
+      "family": "Registry, timelines and event-log alternatives",
+      "tool_ids": [
+        "kali-118",
+        "kali-107",
+        "kali-61"
+      ],
+      "rationale": "Autopsy and the MFTECmd/Chainsaw lessons cover artifact selection and output reasoning, not standalone RegRipper, Plaso or Hayabusa operation. Keep row docs: choose RegRipper for a specific hive, Plaso for cross-artifact timelines, Hayabusa as the alternate EVTX workflow rather than learning two event hunters during the first pass."
+    },
+    {
+      "family": "Memory compatibility and specialist extraction",
+      "tool_ids": [
+        "kali-151",
+        "kali-152",
+        "kali-153",
+        "kali-154",
+        "kali-32",
+        "windows-32",
+        "kali-89",
+        "kali-112"
+      ],
+      "rationale": "Volatility 2, its profiles/plugins and Volatility 3 symbols/plugins are separate compatibility paths. The core teaches only approved windows-31 Volatility 3. Linux symbol generation, SSH-session recovery and credential artifacts stay reference-only until the evidence requires them; no promise that installed plugins support a particular image."
+    },
+    {
+      "family": "Containers, mailbox and alternative recovery utilities",
+      "tool_ids": [
+        "kali-34",
+        "kali-115",
+        "kali-80",
+        "kali-106",
+        "kali-14",
+        "kali-143",
+        "windows-29"
+      ],
+      "rationale": "Keep EWF/qemu-img/ESE/PFF and bulk/carving/FAT-check docs as format-triggered references. They solve different obstacles, not mandatory extra stages for every challenge. Filesystem-aware TSK triage comes first; carving may lose names/paths and cannot guarantee recovery."
+    },
+    {
+      "family": "Lightweight viewers, text extraction and repository evidence",
+      "tool_ids": [
+        "windows-3",
+        "windows-11",
+        "windows-15",
+        "windows-35",
+        "kali-15",
+        "kali-92",
+        "kali-49",
+        "kali-50"
+      ],
+      "rationale": "Preserve each row reference without a separate course. qpdf covers structural PDF inspection; it does not teach every viewer or mutool. strings retains its GNU documentation after the old TSK lesson is replaced. Git/Gitleaks are evidence-specific history/search workflows, not part of the disk-memory sequence."
+    }
+  ],
+  "notes": [
+    "All eight selected resources evaluated; decisions: two replacements, two shortenings, four retains. References for every assigned approved row remain the parent integration responsibility.",
+    "No source claims measured learning gains. Study time estimates are planning values; only the 13Cubed 22:01 runtime was verified.",
+    "Exa search returned a free-tier limit; Exa fetch and web fallback supplied substantive pages. No account or API key created.",
+    "No playback, challenge download, portal access, installation or purchase. Prior same-session substantive reads reused where still applicable."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "number": 14,
+  "video_id": "YXnNO3TipvM",
+  "title": "Unpacking Redaman Malware & Basics of Self-Injection Packers - ft. OALabs",
+  "file": "videos/14_x64dbg_Redaman_YXnNO3TipvM.mp4",
+  "bytes": 80923793,
+  "sha256": "600143bb545518e51d9cde1be9204374f5057b98fca9735cec27e502bacbd294",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 1578.422857,
+  "sample_decode_seconds": [
+    1,
+    789.2114285,
+    1575.422857
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/14_x64dbg_Redaman_YXnNO3TipvM.en.vtt"
+}

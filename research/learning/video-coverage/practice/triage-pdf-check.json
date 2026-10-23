@@ -1,0 +1,12 @@
+{
+  "strings_ascii": "10 route=/clue.txt",
+  "strings_utf16le": "40 destination=harbor",
+  "pdf_pages": 1,
+  "pdf_text": "CTF refresher",
+  "decoded_object_4": "BT /F1 12 Tf 50 100 Td (CTF refresher) Tj ET\n",
+  "pdf_validation": "pypdf structure/text/decoded stream checked; qpdf CLI unavailable and not installed.",
+  "sha256": {
+    "triage.bin": "1ec14bacaa34ef5dc68e125540837c70f6f4a693cc68dfe7691cafea89abe3f7",
+    "stream-demo.pdf": "4115378ffbf3c52919e58dce8e3f4f83af7a98aad66a99716186e1e0912232ba"
+  }
+}

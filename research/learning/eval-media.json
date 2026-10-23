@@ -1,0 +1,311 @@
+{
+  "checked_on": "2026-10-22",
+  "evaluations": [
+    {
+      "id": "media-1",
+      "decision": "retain",
+      "rationale": "The upstream examples connect channel/bit-order options with real-looking output and a specific extraction selector. Compact enough for a rusty participant; advanced bit masks can stay as lookup.",
+      "focus": "Usage: -a, -E and PARAMS SHORTCUT; Simple LSB and Multi-result file examples. Skip wbStego internals unless encountered.",
+      "prerequisites": "Basic shell, redirects and binary-versus-text distinction; PNG/BMP carrier awareness.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://github.com/zed-0xff/zsteg"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/zed-0xff/zsteg",
+          "inspected": "2026-10-22: Read entire usage table and Simple LSB, multi-result, wbStego and zlib examples in earlier verified fetch. Multiple plausible signatures in sample output make a useful interpretation exercise.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 20
+    },
+    {
+      "id": "media-2",
+      "decision": "replace",
+      "rationale": "The repository landing page explains purpose but does not teach extraction or interpreting results. Its linked usage page supplies both with three small commands and confidence categories.",
+      "focus": "Scan versus -e extraction versus -Me recursive extraction; read green/yellow/red confidence definitions. Keep --carve note as version lookup.",
+      "prerequisites": "Basic shell; understand that a signature is evidence rather than proof of a valid embedded file.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/ReFirmLabs/binwalk",
+          "inspected": "2026-10-22: Original README inspected; fetched linked wiki index, then actual File-Analysis-and-Extraction, Carving-File-Data and Limitations pages.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        },
+        {
+          "url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction",
+          "inspected": "Read commands for scanning, extraction and recursion plus include/exclude and confidence explanations.",
+          "limitation": "Upstream v3; organiser-installed major version unknown."
+        },
+        {
+          "url": "https://github.com/ReFirmLabs/binwalk/wiki/Carving-File-Data",
+          "inspected": "Read --carve description and explicit replacement of deprecated --dd option.",
+          "limitation": "No local invocation."
+        }
+      ],
+      "suggested_study_minutes": 15,
+      "replacement": {
+        "id": "media-2",
+        "title": "Binwalk: file analysis and extraction",
+        "url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction",
+        "type": "read",
+        "publisher": "ReFirmLabs",
+        "tool_ids": [
+          "windows-13"
+        ],
+        "learn": "Refresh scan, extraction and recursive extraction; interpret confidence rather than trusting every signature. Use installed help to confirm major-version options.",
+        "priority": "core",
+        "study_minutes": 15,
+        "offline": "Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Extraction also depends on locally installed helper programs.",
+        "verification": "2026-10-22: Read upstream usage page and linked carving/limitations documentation; no tool execution.",
+        "lane": "media"
+      }
+    },
+    {
+      "id": "media-3",
+      "decision": "shorten",
+      "rationale": "The actual Reading Examples are concise and well annotated; the full application reference is much too broad. Three examples cover most first-pass CTF metadata work.",
+      "focus": "Only -a -u -g1, -s with named tags, and -b -ThumbnailImage. Read caveat that ordinary extraction omits some embedded/expensive metadata. Do not read format tables or writing reference end-to-end.",
+      "prerequisites": "Shell redirection and basic metadata concepts; perform any later extraction in a scratch directory.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES"
+      },
+      "evidence": [
+        {
+          "url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES",
+          "inspected": "2026-10-22: Retrieved actual HTML section with id READING-EXAMPLES, including three selected examples, all-metadata caveat, embedded-image examples and shell quoting warning.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 15
+    },
+    {
+      "id": "media-4",
+      "decision": "retain",
+      "rationale": "Clear short modes and explicit seed-mode limits address a common mistaken assumption. Built-in steghide compatibility gives a practical reversible self-generated exercise without any challenge download.",
+      "focus": "Using Stegseek, Detection and passwordless extraction, and Steghide compatibility; skip benchmark tables and install variants.",
+      "prerequisites": "Existing steghide/stegseek, a sufficiently large local JPEG/BMP/WAV carrier and a small plain-text wordlist for execution. Reading does not need these.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://github.com/RickdeJager/stegseek"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/RickdeJager/stegseek",
+          "inspected": "2026-10-22: Read wordlist syntax, seed-mode description, help and --embed/--extract compatibility sections. README makes unencrypted-payload recovery conditional; no claim of general password bypass.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 20
+    },
+    {
+      "id": "media-5",
+      "decision": "retain",
+      "rationale": "The illustrated window-size and gain examples teach why a hidden-looking pattern may be absent or blurred. More useful than a generic introductory video, with a direct image-based recall exercise.",
+      "focus": "Selecting view, frequency limits, gain/range and Time Smearing/Frequency Smearing. Skip spectral editing and window-function catalog.",
+      "prerequisites": "Know waveform versus frequency plot; working Audacity needed only for GUI practice.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://manual.audacityteam.org/man/spectrogram_view.html"
+      },
+      "evidence": [
+        {
+          "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+          "inspected": "2026-10-22: Read spectrogram view documentation including 256/2048 window comparison and the 2000 Hz tone-level example, frequency limits and gain/range explanations.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 20
+    },
+    {
+      "id": "media-6",
+      "decision": "shorten",
+      "rationale": "Streamcopy diagrams and worked -map commands are good; full FFmpeg manual and complex filtering are unnecessary for this refresher. The concrete gap is choosing the correct stream without accidental transcoding.",
+      "focus": "Section 3.1 Streamcopy plus section 4.1 automatic/manual selection. Retain option-order and per-output scoping rules; skip loopback and complex filtergraphs.",
+      "prerequisites": "Basic shell and the difference between a container and audio/video streams.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://ffmpeg.org/ffmpeg.html"
+      },
+      "evidence": [
+        {
+          "url": "https://ffmpeg.org/ffmpeg.html",
+          "inspected": "2026-10-22: Read full Streamcopy section via official HTML: -map 0:1 -c copy, combining inputs, splitting outputs, per-output codec scope and streamcopy/container limits. Earlier fetch covered input/output ordering.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 20
+    },
+    {
+      "id": "media-7",
+      "decision": "shorten",
+      "rationale": "A deployment overview is useful for identifying this approved tool, but setting up a web/worker/database stack is poor flight-study time and overlaps underlying tool lessons. Keep as a five-minute reference check.",
+      "focus": "Key features and localhost deployment prerequisite only. No Docker setup exercise.",
+      "prerequisites": "No prerequisite for reading. Execution requires a fully prepared local service stack, not just the approved repository checkout.",
+      "access": {
+        "viewing": "Public readable page; retrieved without login.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save complete HTML with figures or print selected sections to PDF before departure. Reading needs no tool installation; execution does.",
+        "free_alternative_url": "https://github.com/Zeecka/AperiSolve"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/Zeecka/AperiSolve",
+          "inspected": "2026-10-22: Read current upstream README: analyzer inventory, bit layers, local Docker Compose startup and web/worker/database dependencies. Features may differ from installed organiser checkout.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        }
+      ],
+      "suggested_study_minutes": 5
+    },
+    {
+      "id": "media-8",
+      "decision": "shorten",
+      "rationale": "Transcript shows real hypothesis correction and metadata use, but much of the solve uses online decoders and an encoding detour. Keep as an optional illustration, with a tool-specific free reading alternative that also works offline.",
+      "focus": "Opening audio/metadata investigation; skip decoding-site interaction and sponsorship. Alternative: Sonic Visualiser reference sections 1.1–1.4, 6.1, 6.3 and 8.",
+      "prerequisites": "Understand waveform versus spectrogram; encoding basics for the latter half. No portal or event files needed.",
+      "access": {
+        "viewing": "Public YouTube metadata and full transcript retrieved; audiovisual playback not tested.",
+        "cost": "Public viewing appears free; no purchase needed for the reading alternative. YouTube-supported desktop offline downloads require Premium.",
+        "registration": "No account used for metadata/transcript research. Supported desktop downloads require signing into Premium; regional/video availability varies.",
+        "offline": "Free offline video availability not established. Save the official Sonic Visualiser guide and figures instead; no subscription required for that reading route.",
+        "free_alternative_url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=pJYyyz6HPbQ",
+          "inspected": "2026-10-22: Creator metadata gives 09:29 published runtime; full transcript inspected in initial research. It explicitly uses Sonic Visualiser, ExifTool and an online audio upload. Not watched.",
+          "limitation": "Tool behavior and installed version not executed; judgment is based on substantive documentation."
+        },
+        {
+          "url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+          "inspected": "Read panes/layers, zoom, session-file dependencies, full spectrogram properties and default frequency-range descriptions. Manual identifies v5.2 and CC BY-SA 2.5 licence.",
+          "limitation": "GUI not executed. A saved .sv session does not include source audio; keep audio alongside it."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233?hl=en",
+          "inspected": "Official help specifies Premium sign-in for desktop downloads and reconnection requirements.",
+          "limitation": "No account-specific or video-specific offline eligibility checked."
+        }
+      ],
+      "suggested_study_minutes": 15,
+      "published_runtime": "09:29 (creator video metadata retrieved by Exa; playback not checked)"
+    }
+  ],
+  "block_suggestions": [
+    {
+      "name": "Image triage and payload verification",
+      "resource_ids": [
+        "media-3",
+        "media-2",
+        "media-1",
+        "media-4"
+      ],
+      "outcome": "Choose metadata, appended-file or LSB/carrier extraction based on evidence and validate recovered bytes.",
+      "diagnostic": "Without notes, distinguish ExifTool metadata from zsteg pixel bits and Binwalk signatures. Explain why --seed is not a universal password bypass. If all are clear, skim docs and do the recall exercise.",
+      "preparation": "Save the four selected sections. Optional execution requires already installed tools, a personal JPEG with metadata, and a scratch directory; no event files required.",
+      "exercise": "Reading-only: use zsteg README cats.png output to identify the red-channel and green-channel one-bit text candidates and write the matching -E selector for the b1,r,lsb,xy result. From Binwalk docs, list which confidence level validates only magic bytes. From ExifTool examples, write a command retaining duplicate and unknown tags.",
+      "assessment": "Answers: red-channel text names Marussia; green-channel text prompts you to look deeper; extraction selector b1,r,lsb,xy; Binwalk red is low confidence; exiftool -a -u -g1 image.jpg. A reported format still needs independent validation. No supplied exercise was executed."
+    },
+    {
+      "name": "Audio and stream handling",
+      "resource_ids": [
+        "media-5",
+        "media-6",
+        "media-8"
+      ],
+      "outcome": "Select the intended audio stream and choose a time/frequency display that answers the hypothesis.",
+      "diagnostic": "Explain whether a 2048-sample window improves time or frequency resolution relative to 256, and interpret -map 0:1. If both are immediate, go straight to the exercise.",
+      "preparation": "Save Audacity figures, FFmpeg Streamcopy and Sonic Visualiser reference. For optional GUI work, bring a personal WAV and working local Audacity or Sonic Visualiser; source audio must accompany saved sessions.",
+      "exercise": "Reading-only: compare the two-click and overtone pictures in Audacity. State which window separates clicks and which separates close frequencies. Draft the official FFmpeg command to copy stream index 1 from INPUT.mkv to OUTPUT.mp4, then state why filtering cannot accompany streamcopy. Optional GUI: open a personal WAV, switch between 256 and 2048, and record one visible change.",
+      "assessment": "Expected: 256 gives finer time resolution, 2048 finer frequency resolution; ffmpeg -i INPUT.mkv -map 0:1 -c copy OUTPUT.mp4; filters need decoded frames. Container compatibility can still prevent the copy. Exercise not executed."
+    },
+    {
+      "name": "Optional self-generated steghide round trip",
+      "resource_ids": [
+        "media-4"
+      ],
+      "outcome": "Recover known bytes from a carrier using a tiny wordlist and check the result without AI.",
+      "diagnostic": "Can you state the difference between an embedding password and encryption-disabled seed recovery?",
+      "preparation": "Before flying, confirm approved steghide and stegseek work, bring a sufficiently large personal JPEG, create an empty scratch directory. No external wordlist required.",
+      "exercise": "In the scratch directory, create note.txt containing a short known phrase. Run steghide embed -cf carrier.jpg -ef note.txt -sf practice.jpg and choose a disposable known password at the prompt. Put that password and two decoys on separate lines in words.txt. Run stegseek practice.jpg words.txt recovered.txt. Compare recovered.txt byte-for-byte with note.txt using an available comparison tool or hex viewer.",
+      "assessment": "Success requires exact original bytes and a successful exit, not just a plausible filename. If embedding reports insufficient capacity choose a larger carrier; if an output already exists choose a fresh filename. This exercise was designed from documented syntax, not executed."
+    }
+  ],
+  "family_rationales": [
+    {
+      "tool_ids": [
+        "windows-19",
+        "windows-28",
+        "kali-42",
+        "kali-44"
+      ],
+      "rationale": "ZBar, xxd, file and foremost are short task-driven identification/conversion/carving lookups. They support triage but do not each justify another long lesson; keep each existing reference and consult it when QR, hex, unknown-format or carving evidence appears."
+    },
+    {
+      "tool_ids": [
+        "kali-51",
+        "kali-67",
+        "kali-74",
+        "kali-108",
+        "kali-137"
+      ],
+      "rationale": "Image channels and integrity remain an important reference family. zsteg does not replace visual bit-plane inspection or PNG/JPEG validation. Keep ImageMagick/G’MIC channel manipulation, StegSolve bit planes and pngcheck/jpeginfo integrity references; prioritise these on a challenge with damaged headers, CRC errors or visible channel clues. Installed fork/version remains relevant."
+    },
+    {
+      "tool_ids": [
+        "kali-87",
+        "kali-129",
+        "kali-133"
+      ],
+      "rationale": "MediaInfo and SoX_ng overlap common inspection covered by FFmpeg/Audacity; keep reference-only to avoid repeat lessons. SSTV is a distinct narrow encoding and must remain discoverable, but the decoder-versus-PySSTV package mismatch prevents treating execution as a dependable flight prerequisite."
+    },
+    {
+      "tool_ids": [
+        "kali-100",
+        "kali-136"
+      ],
+      "rationale": "OpenStego-specific and SNOW whitespace extraction are recognisable narrow branches. Retain existing direct references and lookup triggers; generic PNG LSB or audio study does not imply mastery of these formats."
+    },
+    {
+      "tool_ids": [
+        "kali-7"
+      ],
+      "rationale": "AperiSolve is reference-only because local deployment preparation is substantial and its analyzer set overlaps individually taught tools; public upload is forbidden for event artifacts."
+    },
+    {
+      "tool_ids": [
+        "kali-128"
+      ],
+      "rationale": "Sonic Visualiser is covered by the free reading alternative and optional audio investigation, rather than a duplicate full audio-editor lesson. Its v5.2.1 reference matches the workbook version."
+    }
+  ],
+  "limitations": [
+    "No audiovisual playback, tool commands or exercise execution performed. No accounts, purchases, portal launches or media collections accessed.",
+    "All study-minute recommendations are estimates; only media-8 has a retrieved published runtime.",
+    "Substantive source evidence from the earlier verified pass was reused where content and goal remained applicable; new deeper checks targeted Binwalk usage, ExifTool examples, FFmpeg streamcopy and the offline audio alternative."
+  ]
+}

@@ -1,0 +1,514 @@
+{
+  "resources": [
+    {
+      "id": "crypto-foundations-1",
+      "title": "CyberChef: how recipes work and worked examples",
+      "url": "https://github.com/gchq/CyberChef",
+      "type": "read",
+      "publisher": "GCHQ",
+      "tool_ids": [
+        "windows-1"
+      ],
+      "learn": "Learn the input/recipe/output workflow; follow Base64, hexdump, compression and nested-encoding examples. Start here before trying random operations.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the README and prepare a working local CyberChef build before departure; a bookmark alone is not an offline copy. Test it with networking disabled.",
+      "verification": "2026-10-22: Read upstream README sections on capabilities, local execution and recipe examples through Exa. No local build tested."
+    },
+    {
+      "id": "crypto-foundations-2",
+      "title": "Cryptography Lab 5: Cooking with the Cyberchef",
+      "url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+      "type": "watch",
+      "publisher": "Level Effect",
+      "tool_ids": [
+        "windows-1"
+      ],
+      "learn": "A short visual introduction to reversible recipes, Base64, octal and a multi-step obfuscation exercise. The simple typed-text example can be recreated without the course.",
+      "priority": "core",
+      "study_minutes": 15,
+      "offline": "Use the platform\u2019s permitted offline option before flying. Later lab material references a course-provided obfuscated-code file; that file was not obtained.",
+      "verification": "2026-10-22: Inspected creator video metadata and transcript covering the interface and layered encoding through Exa; not watched. Listed runtime is 7:17; study estimate includes pausing."
+    },
+    {
+      "id": "crypto-foundations-3",
+      "title": "CTFlearn: RSA Beginner",
+      "url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+      "type": "watch",
+      "publisher": "Almond Force",
+      "tool_ids": [
+        "windows-7",
+        "kali-114",
+        "kali-125"
+      ],
+      "learn": "Follow n, e and c through factorization, totient, modular inverse and Python byte conversion. This explains the prerequisites behind automated RSA tools.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save using a permitted video offline option. The demo uses online SageCell: replace that step with an already-tested local Sage installation for public toy inputs; do not copy the online submission workflow with event challenge material.",
+      "verification": "2026-10-22: Inspected creator metadata and full retrieved transcript through Exa; not watched. Listed runtime is 5:44. This demonstrates textbook weak RSA, not general RSA breaking."
+    },
+    {
+      "id": "crypto-foundations-4",
+      "title": "RsaCtfTool: usage and attack prerequisites",
+      "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "type": "read",
+      "publisher": "RsaCtfTool maintainers",
+      "tool_ids": [
+        "windows-30"
+      ],
+      "learn": "Learn public-key inspection, selected attacks and decryption inputs; distinguish close-prime, small-exponent and shared-factor situations from unfactorable keys.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save README and help output. Prepare dependencies beforehand; Sage is optional for some attacks but needed for others. Avoid network-backed attacks such as FactorDB offline.",
+      "verification": "2026-10-22: Read upstream README usage, requirements, examples and attack table through Exa. Current README can differ from the organiser\u2019s unspecified latest revision; commands not executed."
+    },
+    {
+      "id": "crypto-foundations-5",
+      "title": "SageMath tutorial: number theory",
+      "url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+      "type": "read",
+      "publisher": "SageMath documentation team",
+      "tool_ids": [
+        "kali-125"
+      ],
+      "learn": "Work through modular rings, gcd, factor, inverse_mod and CRT examples. Compare Sage syntax with the provided Python equivalents.",
+      "priority": "next",
+      "study_minutes": 35,
+      "offline": "Save this chapter and test local Sage first. The workbook records no Sage installation information; ordinary Python alone does not provide sage.all.",
+      "verification": "2026-10-22: Read official number-theory tutorial examples through Exa; examples not executed."
+    },
+    {
+      "id": "crypto-foundations-6",
+      "title": "hashcat: attack modes, options and status output",
+      "url": "https://hashcat.net/wiki/doku.php?id=hashcat",
+      "type": "read",
+      "publisher": "hashcat project",
+      "tool_ids": [
+        "kali-59",
+        "kali-120"
+      ],
+      "learn": "Focus on choosing hash type versus attack mode, supplying a wordlist or mask, and interpreting progress, rejected candidates and recovered hashes. Consult local help before copying flags.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save the page and prepare a tiny self-created hash/wordlist exercise before flying. Device backend and drivers must already work; long GPU searches are poor battery exercises.",
+      "verification": "2026-10-22: Fetched official wiki through Exa and inspected version, status output and options introduction. Page states 7.1.2, matching the workbook; no cracking or hardware check run."
+    },
+    {
+      "id": "crypto-foundations-7",
+      "title": "John the Ripper: usage examples",
+      "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+      "type": "read",
+      "publisher": "Openwall",
+      "tool_ids": [
+        "kali-73",
+        "kali-120"
+      ],
+      "learn": "Learn single mode, wordlist rules and --show; understand why selecting candidates matters more than immediately running exhaustive incremental search.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save the examples and prepare a tiny synthetic hash file and wordlist. The page teaches general John behavior; Jumbo-specific formats and extractors need the installed build\u2019s help.",
+      "verification": "2026-10-22: Read upstream examples through Exa, including default mode order, wordlist rules and pot-file display. No extraction or cracking run."
+    },
+    {
+      "id": "crypto-foundations-8",
+      "title": "bkcrack: official encrypted-ZIP tutorial",
+      "url": "https://github.com/kimci86/bkcrack/blob/master/example/tutorial.md",
+      "type": "practice",
+      "publisher": "kimci86 / bkcrack project",
+      "tool_ids": [
+        "kali-13"
+      ],
+      "learn": "Inspect ZipCrypto versus compression, identify known plaintext, recover internal keys and decrypt the provided public example. Keys can recover data without first recovering the original password.",
+      "priority": "next",
+      "study_minutes": 40,
+      "offline": "Before departure, obtain the public repository\u2019s example/secrets.zip and tutorial plus a working bkcrack binary; test on your own device. Nothing downloaded here. Targets ZipCrypto, not AES ZIP; at least 12 known bytes are needed, including 8 contiguous bytes.",
+      "verification": "2026-10-22: Read upstream tutorial and repository README through Exa; confirmed bundled public example and plaintext requirements. Tutorial follows current master and may differ from workbook 1.8.1; exercise not run."
+    },
+    {
+      "id": "crypto-foundations-9",
+      "title": "crypto-attacks: requirements and worked Boneh\u2013Durfee example",
+      "url": "https://github.com/jvdsn/crypto-attacks",
+      "type": "read",
+      "publisher": "jvdsn / crypto-attacks contributors",
+      "tool_ids": [
+        "kali-22",
+        "kali-125"
+      ],
+      "learn": "See how an attack implementation consumes mathematical parameters and how its test data provides a reproducible starting point. Advanced follow-up after basic RSA and Sage, not a universal one-command solver.",
+      "priority": "next",
+      "study_minutes": 35,
+      "offline": "Save the repository and its test data beforehand if pursuing this optional exercise. README requires Sage with Python 3.9 and PyCryptodome; test compatibility with the actual environment before travel.",
+      "verification": "2026-10-22: Read upstream README requirements and worked example through Exa. Repository tests and example were not run; installed revision is not captured in the workbook."
+    }
+  ],
+  "coverage": [
+    {
+      "tool_id": "windows-1",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-1",
+        "crypto-foundations-2"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "windows-6",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://learn.microsoft.com/en-us/windows/wsl/basic-commands (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "windows-7",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-3"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "windows-8",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://docs.astral.sh/uv/pip/environments/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "windows-21",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://jqlang.org/manual/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "windows-24",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep the existing OpenSSL enc manual for algorithm/key/IV/salt details; separate this from beginner recipe practice. Existing reference: https://docs.openssl.org/3.0/man1/openssl-enc/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "windows-25",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://tukaani.org/xz/man/xz.1.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "windows-30",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-4"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "windows-37",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-1",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-2",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://7-zip.org/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-13",
+      "disposition": "next",
+      "resource_ids": [
+        "crypto-foundations-8"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-17",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://sourceware.org/bzip2/manual/manual.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-18",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.kali.org/tools/cabextract/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-22",
+      "disposition": "next",
+      "resource_ids": [
+        "crypto-foundations-9"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-26",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://dbeaver.com/docs/dbeaver/SQL-Execution/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-31",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://docs.docker.com/compose/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-36",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "FactorDB client requires the remote service; reference only for flight planning. Do not send event challenge material to it. Existing reference: https://github.com/ryosan-470/factordb-python (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-47",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-52",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.gnu.org/software/wget/manual/wget.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-53",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://go.dev/doc/cmd (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-56",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Offline lookup reference for relevant binary behaviors, not a sequential course. Existing reference: https://gtfobins.org/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-57",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.gnu.org/software/gzip/manual/gzip.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-58",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Broad offline lookup reference; no need to read the full collection as a flight course. Existing reference: https://github.com/HackTricks-wiki/hacktricks (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-59",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-6"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-60",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Hash identification narrows candidates but does not prove a hash algorithm; keep existing docs handy rather than add a separate lesson. Existing reference: https://github.com/psypanda/hashID (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-64",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Specialist length-extension helper; retain upstream reference until a matching challenge pattern appears. Existing reference: https://github.com/stephenbradshaw/hlextend (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-71",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://ipython.readthedocs.io/en/stable/interactive/tutorial.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-73",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-7"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-81",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-82",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/ckolivas/lrzip (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-84",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/lz4/lz4 (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-85",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.nongnu.org/lzip/manual/lzip_manual.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-90",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/conda-forge/miniforge (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-91",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Signal-decoding specialist; retain existing reference until an audio/radio challenge justifies study. Existing reference: https://github.com/EliasOenal/multimon-ng (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-95",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://nodejs.org/docs/latest-v24.x/api/buffer.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-97",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://help.obsidian.md/links (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-101",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Specialist padding-oracle helper; meaningful practice needs a local vulnerable service prepared ahead of time. Existing reference: https://github.com/KishanBagaria/padding-oracle-attacker (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-102",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative number-theory environment; use its existing reference rather than learning it alongside Sage on one flight. Existing reference: https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-113",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://docs.python.org/2.7/library/struct.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-114",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-3"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-119",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-120",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-6",
+        "crypto-foundations-7"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-123",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://doc.rust-lang.org/book/ch01-03-hello-cargo.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-125",
+      "disposition": "core",
+      "resource_ids": [
+        "crypto-foundations-3",
+        "crypto-foundations-5",
+        "crypto-foundations-9"
+      ],
+      "reason": "Covered by the selected practical lesson(s)."
+    },
+    {
+      "tool_id": "kali-140",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.sublimetext.com/docs/ (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-141",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.gnu.org/software/tar/manual/html_node/extract.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-144",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://theunarchiver.com/command-line (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-147",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://www.rarlab.com/rar_add.htm (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-148",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://infozip.sourceforge.net/UnZip.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-150",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://code.visualstudio.com/docs/editor/codebasics (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-155",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://code.visualstudio.com/docs/cpp/cpp-debug (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-156",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://code.visualstudio.com/docs/python/environments (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-159",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://infozip.sourceforge.net/Zip.html (inherited manifest evidence, not freshly rechecked)."
+    },
+    {
+      "tool_id": "kali-160",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Supporting runtime, editor, environment, data or archive utility; retain its existing manifest documentation for lookup instead of adding a separate course. Existing reference: https://github.com/facebook/zstd/blob/dev/programs/README.md (inherited manifest evidence, not freshly rechecked)."
+    }
+  ],
+  "caveats": [
+    "Approval is per workbook row, not proof of a working installation. Kali entries are best-effort; several versions and Sage installation details are missing.",
+    "All study_minutes values are estimates including reading, pausing or practice, not video runtimes.",
+    "The RSA video demonstrates an online SageCell workflow. For offline practice use local Sage with public toy data; event rules prohibit uploading challenge files to online services.",
+    "factordb-python and RsaCtfTool FactorDB attacks require network access and disclose submitted values; do not assume tool approval authorizes online submission of challenge material.",
+    "Runtime and editor documentation remains available through inherited manifest links; these 55 rows do not justify 55 courses.",
+    "No videos were watched, packages installed, resources downloaded, public exercises executed, or portal challenges accessed."
+  ],
+  "search_notes": [
+    "Used Exa search for original creator CyberChef/RSA and password-cracking videos, then Exa fetch for selected documentation and video transcripts.",
+    "Rejected hashcat /wiki/doku.php?id=cracking_md5 because fetched page explicitly says the topic does not exist; replaced it with the official hashcat reference.",
+    "Password-video results were mostly metadata-only or less focused; retained two transcript-inspected CyberChef/RSA videos and upstream password-cracking manuals.",
+    "Focused on nine resources that cover common decoding, weak RSA, password recovery and ZIP workflows; advanced and supporting tools retain lookup references."
+  ]
+}

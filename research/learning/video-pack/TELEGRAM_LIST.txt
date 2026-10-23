@@ -1,0 +1,47 @@
+Caption-reviewed CTF watch list
+I extracted and read English captions for all 8 suggested videos. Start with 1–6; 7–8 are optional. Captions verify topic coverage, not visual presentation.
+
+1. Burp Repeater — 06:30
+https://www.youtube.com/watch?v=_Wifm2g9ugg
+Watch: 00:20–02:25, 04:15–06:20
+A focused request-edit-send-compare demonstration, including response history, redirects and reusable tabs. Directly useful for manual web challenges.
+
+2. CyberChef — 07:17
+https://www.youtube.com/watch?v=UtqmiI7k9lU
+Watch: 01:10–03:25, 03:25–06:35
+Shows recipe ordering, reversible transformations, Magic suggestions and a layered deobfuscation workflow. More instructive than a list of operations.
+
+3. Ghidra — 11:30
+https://www.youtube.com/watch?v=fTGTnrgjuGA
+Watch: 01:00–03:15, 06:00–11:25
+Shows import/analysis, the decompiler, correcting function types, renaming, comments and recovering a simple input condition. Strong first-tool walkthrough.
+
+4. GDB / control flow — 09:03
+https://www.youtube.com/watch?v=VroEiMOJPm8
+Watch: 01:00–08:00
+Builds a control-flow sketch, uses breakpoints and instruction stepping, then tests the comparison by changing a register. Strong reasoning complement to Ghidra.
+
+5. MFTECmd / Timeline Explorer — 22:01
+https://www.youtube.com/watch?v=_qElVZJqlGY
+Watch: 00:00–05:55, 10:33–20:50
+Connects MFT/journal concepts to CSV parsing, timestamp interpretation and tracing a file through renames and deletion. Especially relevant to the forensic worksheet.
+
+6. Volatility 3 — 32:00
+https://www.youtube.com/watch?v=Uk3DEgY5Ue8
+Watch: 05:50–19:30, 20:00–23:30, 24:30–30:20
+A substantial process→handles→file extraction investigation, followed by command lines, network relationships and registry artifacts. Best breadth among the selected memory videos.
+
+7. RSA with Python / Sage — 05:44
+https://www.youtube.com/watch?v=20K1ctFzu2Y
+Watch: 00:35–05:05
+Optional theory refresher. Not a demonstration of RsaCtfTool. Uses online SageCell; use the bundled local toy example instead of uploading event data.
+
+8. Audio stego / Sonic Visualiser / ExifTool — 09:29
+https://www.youtube.com/watch?v=pJYyyz6HPbQ
+Watch: 00:45–02:15, 04:30–08:10
+Optional; lowest priority. Most decoding uses online services and exploratory detours. Not a focused Sonic Visualiser tutorial or a directly reproducible offline workflow; skip the outro.
+
+Core full videos: 88m21s; selected core sections about 63m27s.
+Cautions: use current tool docs for commands; skip old installation/KAPE steps and online challenge uploads.
+Full list, captions and local download status: /home/ubuntu/sgco/cyber-sea-game-2026/research/learning/video-pack/
+MP4 transfer status will follow after verification; Instagram is not configured.

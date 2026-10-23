@@ -1,0 +1,398 @@
+{
+  "resources": [
+    {
+      "id": "forensics-1",
+      "title": "Sleuth Kit: filesystem analysis scenarios",
+      "url": "https://wiki.sleuthkit.org/FS-Analysis/",
+      "type": "read",
+      "publisher": "The Sleuth Kit",
+      "tool_ids": [
+        "windows-23",
+        "windows-11"
+      ],
+      "learn": "Follow a string hit from unallocated space to its original disk block, inode and deleted filename; learn why byte offsets and filesystem units differ. Read Search first; treat the historic filesystem examples as concepts to adapt.",
+      "priority": "core",
+      "study_minutes": 25,
+      "offline": "Save the page before departure. Reading needs no image; repeating commands needs a local disk image and installed Sleuth Kit. Example image names are illustrative, not bundled downloads.",
+      "verification": "2026-10-22: Fetched official wiki and read Search, inode lookup and recovery examples. The old scenario mixes an extracted-image offset with an original-image dd command: use the blkcalc/blkcat sequence to understand the coordinate conversion; do not copy every line blindly."
+    },
+    {
+      "id": "forensics-2",
+      "title": "Autopsy Quick Start Guide",
+      "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.20.0/quick_start_guide.html",
+      "type": "read",
+      "publisher": "The Sleuth Kit / Autopsy",
+      "tool_ids": [
+        "windows-34"
+      ],
+      "learn": "Create a single-user case, add a raw/E01 image, choose ingest modules, search keywords, inspect extracted browser activity and export an interesting file.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the guide including images. For hands-on work, stage a small local image and let ingest finish before boarding; avoid modules that need network services. Documentation is for 4.20.0, not a verified installed version.",
+      "verification": "2026-10-22: Read official case creation, data-source, ingest, analysis and example-use-case sections. No Autopsy instance was run."
+    },
+    {
+      "id": "forensics-3",
+      "title": "Volatility 3: Windows Tutorial",
+      "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "type": "read",
+      "publisher": "Volatility Foundation",
+      "tool_ids": [
+        "windows-31"
+      ],
+      "learn": "Understand plugin syntax and compare pslist with pstree to reconstruct processes and parent-child relationships in a Windows memory dump.",
+      "priority": "core",
+      "study_minutes": 20,
+      "offline": "Save the page. Stage the memory image and resolve its symbols while online, then test the chosen commands offline: Windows symbol files may otherwise require Microsoft downloads. Volatility does not acquire memory.",
+      "verification": "2026-10-22: Read official syntax, pslist/pstree output and the automatic PDB/ISF download explanation. Did not download the example dump or run plugins."
+    },
+    {
+      "id": "forensics-4",
+      "title": "Introduction to Memory Forensics with Volatility 3",
+      "url": "https://www.youtube.com/watch?v=Uk3DEgY5Ue8",
+      "type": "watch",
+      "publisher": "DFIRScience / Joshua I. James",
+      "tool_ids": [
+        "windows-31"
+      ],
+      "learn": "See the workflow from memory information to processes, handles, connections, extracted files and registry artifacts; use the official Windows tutorial for current command spelling.",
+      "priority": "next",
+      "study_minutes": 40,
+      "offline": "Save using a permitted platform offline feature and confirm playback before departure; availability can depend on account and region. Save the companion notes at https://dfir.science/2022/02/Introduction-to-Memory-Forensics-with-Volatility-3 . Its practice-image link is optional and was not downloaded or tested.",
+      "verification": "2026-10-22: Read the creator companion page and inspected its HTML embedding this exact YouTube ID; YouTube fetch confirmed title and 2022 publication date but provided no transcript. Not watched. Companion command notes contain apparent typos including windows.registay and windows.dumpfile, so do not use them as a verbatim command sheet."
+    },
+    {
+      "id": "forensics-5",
+      "title": "Introduction to MFTECmd - NTFS MFT and Journal Forensics",
+      "url": "https://www.youtube.com/watch?v=_qElVZJqlGY",
+      "type": "watch",
+      "publisher": "13Cubed",
+      "tool_ids": [
+        "windows-39"
+      ],
+      "learn": "Learn what $MFT and $UsnJrnl can reveal about file creation, deletion and renaming; follow MFTECmd CSV parsing at 10:33 and Timeline Explorer analysis at 13:00.",
+      "priority": "core",
+      "study_minutes": 30,
+      "offline": "Save through a permitted platform offline feature and check playback. For practice, bring already extracted $MFT/$J files and the required Zimmerman tools/runtime. Skip the 06:00 KAPE acquisition chapter unless that separate tool is independently confirmed approved.",
+      "verification": "2026-10-22: Fetched title, channel, description, chapter markers and transcript excerpts. The video demonstrates MFTECmd and Timeline Explorer and discusses a historical $LogFile limitation; no claim of current installed support. Not watched."
+    },
+    {
+      "id": "forensics-6",
+      "title": "qpdf: PDF inspection options",
+      "url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "type": "read",
+      "publisher": "qpdf project",
+      "tool_ids": [
+        "windows-26"
+      ],
+      "learn": "Move beyond visible page text: inspect PDF objects and attachments, distinguish compressed stream bytes from decoded stream data, and recognize the inspection-mode invocation.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Save the PDF Inspection section. Hands-on use needs installed qpdf and local sample PDFs; retain original files and use inspection operations. Unsupported stream filters may prevent decoding.",
+      "verification": "2026-10-22: Fetched the full official CLI text and inspected PDF Inspection, show-object, raw-stream-data and filtered-stream-data passages; read the separate input/output rules."
+    },
+    {
+      "id": "forensics-7",
+      "title": "Chainsaw: searching and hunting Windows event logs",
+      "url": "https://github.com/WithSecureOpenSource/chainsaw#examples",
+      "type": "read",
+      "publisher": "WithSecure Countercept",
+      "tool_ids": [
+        "kali-20"
+      ],
+      "learn": "Search EVTX files by string or event field, then compare those results with Sigma-based hunting using a mapping file and time filters. Start with search before loading a large ruleset.",
+      "priority": "next",
+      "study_minutes": 25,
+      "offline": "Save README examples and, for a local exercise, stage a small EVTX set plus matching rules and mapping files. Check the installed 2.16.5 help against the current README. No hosted backend is needed for the documented local-file workflow.",
+      "verification": "2026-10-22: Read upstream features and concrete search/hunt examples including Sigma mapping and CSV/JSON output. Did not run Chainsaw or validate the referenced sample logs. The README prose has a 4014/4104 typo; the displayed command uses 4104."
+    },
+    {
+      "id": "forensics-8",
+      "title": "SQLite command-line shell: inspect schema and records",
+      "url": "https://sqlite.org/cli.html",
+      "type": "read",
+      "publisher": "SQLite project",
+      "tool_ids": [
+        "kali-131"
+      ],
+      "learn": "Read Getting Started, dot-commands, output formats and Querying the database schema; use .tables and .schema before querying an unfamiliar artifact database.",
+      "priority": "next",
+      "study_minutes": 20,
+      "offline": "Save these sections, not the whole manual as a study assignment. Use a local copy of a database and preserve any supplied WAL/SHM companions. This is SQLite CLI instruction, not deleted-record recovery or SQLCipher decryption.",
+      "verification": "2026-10-22: Read official startup, dot-command list, formatting and schema examples. Current documentation may include flags absent in the event installation; no installed CLI was tested."
+    }
+  ],
+  "coverage": [
+    {
+      "tool_id": "windows-3",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Basic viewer use stays in the existing reference; the approval does not identify a specific viewer."
+    },
+    {
+      "tool_id": "windows-11",
+      "disposition": "core",
+      "resource_ids": [
+        "forensics-1"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "windows-15",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep the existing pdftotext layout reference for quick extraction; a separate lesson would duplicate the PDF workflow."
+    },
+    {
+      "tool_id": "windows-23",
+      "disposition": "core",
+      "resource_ids": [
+        "forensics-1"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "windows-26",
+      "disposition": "next",
+      "resource_ids": [
+        "forensics-6"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "windows-29",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Repair-oriented utility; retain the existing fsck.fat -n read-only check reference for a FAT-specific problem."
+    },
+    {
+      "tool_id": "windows-31",
+      "disposition": "core",
+      "resource_ids": [
+        "forensics-3",
+        "forensics-4"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "windows-32",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Specialized SSH memory/session-key workflow; retain its repository prerequisites and exact-symbol requirements as a reference."
+    },
+    {
+      "tool_id": "windows-34",
+      "disposition": "core",
+      "resource_ids": [
+        "forensics-2"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "windows-35",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep the existing HxD reference for byte offsets and searches; no extra editor course is needed for this shortlist."
+    },
+    {
+      "tool_id": "windows-39",
+      "disposition": "core",
+      "resource_ids": [
+        "forensics-5"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "kali-4",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Android-specific parser; consult the existing ALEAPP repository when an Android extraction appears."
+    },
+    {
+      "tool_id": "kali-14",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Bulk feature extraction is a second-stage option after disk triage; retain existing bulk_extractor reference."
+    },
+    {
+      "tool_id": "kali-15",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative binary editor; existing bvi reference avoids teaching a second hex-editor interface."
+    },
+    {
+      "tool_id": "kali-20",
+      "disposition": "next",
+      "resource_ids": [
+        "forensics-7"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "kali-25",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "GUI alternative to SQLite CLI; existing DB Browser reference covers its interface without a second SQL course."
+    },
+    {
+      "tool_id": "kali-32",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Linux symbol generation is only needed for matching Linux memory evidence; preserve the dwarf2json reference."
+    },
+    {
+      "tool_id": "kali-34",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "E01 container conversion/mounting utility; existing libewf reference is enough until that format blocks analysis."
+    },
+    {
+      "tool_id": "kali-45",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Deleted SQLite record recovery is artifact-dependent; retain the FQLite reference after ordinary SQL inspection."
+    },
+    {
+      "tool_id": "kali-49",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Repository-history inspection is a separate evidence case; retain existing git-log reference."
+    },
+    {
+      "tool_id": "kali-50",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Specialized repository secret detection; retain existing Gitleaks reference and avoid a duplicate scanning lesson."
+    },
+    {
+      "tool_id": "kali-61",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative EVTX triage tool; learn one Chainsaw workflow first, then use the existing Hayabusa reference if needed."
+    },
+    {
+      "tool_id": "kali-63",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Browser-specific artifact parser; retain Hindsight documentation for the actual browser/version encountered."
+    },
+    {
+      "tool_id": "kali-66",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "iOS-specific parser; retain iLEAPP reference for an iOS extraction rather than assigning mobile study without evidence."
+    },
+    {
+      "tool_id": "kali-80",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Specialized ESE database reader; keep libesedb reference for ESE artifacts."
+    },
+    {
+      "tool_id": "kali-86",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "macOS-specific artifact parser; keep mac_apt reference until macOS evidence warrants another workflow."
+    },
+    {
+      "tool_id": "kali-89",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Credential-specific tool; retain existing reference rather than prioritizing live credential operations for flight study."
+    },
+    {
+      "tool_id": "kali-92",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative PDF utility; qpdf is the chosen inspection lesson, mutool remains an existing reference."
+    },
+    {
+      "tool_id": "kali-106",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Mailbox-container utility; retain libpff reference for PST/OST evidence."
+    },
+    {
+      "tool_id": "kali-107",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Cross-artifact timeline processing can wait until basic artifact interpretation; retain Plaso reference."
+    },
+    {
+      "tool_id": "kali-112",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Credential-dump parser; preserve pypykatz reference for an explicitly relevant provided dump."
+    },
+    {
+      "tool_id": "kali-115",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Image-format conversion utility; keep qemu-img reference for unsupported disk containers."
+    },
+    {
+      "tool_id": "kali-118",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Registry-focused parser; existing RegRipper reference complements Autopsy when individual hive parsing is needed."
+    },
+    {
+      "tool_id": "kali-130",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Encrypted SQLite needs the correct key and compatible SQLCipher settings; ordinary SQLite study does not teach decryption."
+    },
+    {
+      "tool_id": "kali-131",
+      "disposition": "next",
+      "resource_ids": [
+        "forensics-8"
+      ],
+      "reason": "Selected workflow teaches this approved tool directly."
+    },
+    {
+      "tool_id": "kali-143",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Carving/recovery alternative; retain TestDisk/PhotoRec reference after filesystem-aware disk triage."
+    },
+    {
+      "tool_id": "kali-151",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep Volatility 2 commands/profile model separate from the Volatility 3 core path; retain the version-2 command reference."
+    },
+    {
+      "tool_id": "kali-152",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Community plugins need individual compatibility checks; retain repository reference rather than implying universal support."
+    },
+    {
+      "tool_id": "kali-153",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Profiles must match the image and Volatility 2; retain repository reference, not interchangeable with Volatility 3 symbols."
+    },
+    {
+      "tool_id": "kali-154",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Volatility 3 community plugins can be version-sensitive; retain repository reference until a specific plugin is needed."
+    }
+  ],
+  "caveats": [
+    "Study times are curator estimates including note-taking, not measured video lengths.",
+    "Approval covers workbook rows; it does not guarantee functioning Kali installations or every tool mentioned by a tutorial. Existing per-tool documentation remains available in the input manifest.",
+    "No downloads, installs, video playback, practice-image execution or portal access were performed. Prepare and test local assets before flying.",
+    "Volatility 2 and 3 use different plugin/profile models. The core memory path is Volatility 3; do not apply it verbatim to the approved Kali Volatility 2 row.",
+    "Tutorial acquisition tools are not automatically approved. Work from supplied public practice artifacts; this curation does not expand the approved standalone application list."
+  ],
+  "search_notes": [
+    "Used Exa search and fetch for official TSK/Autopsy docs, Volatility docs, creator videos, qpdf, Chainsaw and SQLite. Used a direct HTML read of the DFIRScience page to verify its exact embedded video ID.",
+    "Discarded the 13Cubed Volatility 3 Public Beta video as an outdated primary lesson; retained current official syntax with a later DFIRScience workflow video.",
+    "Discarded broad playlists, course aggregators, and duplicate Autopsy case-start videos to keep eight focused items.",
+    "Mobile, macOS, mailbox, browser-specific, credential and niche recovery tools intentionally remain reference-only. All assigned rows have a disposition; this is coverage accounting, not a claim that eight resources teach every tool.",
+    "The DFIRScience companion links a public Africa-DFIRCTF-2021-WK02 practice memory image. Availability, size and offline compatibility were not tested, so it is not promoted as a flight-ready practice exercise."
+  ]
+}

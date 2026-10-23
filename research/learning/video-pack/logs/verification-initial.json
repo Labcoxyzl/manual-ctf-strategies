@@ -1,0 +1,7 @@
+{
+  "outcome": "inconclusive null-output timestamp check",
+  "video_id": "20K1ctFzu2Y",
+  "sample_seconds": 340.841088,
+  "ffmpeg_exit_code": 0,
+  "message": "Null muxer reported non-monotonic output DTS after timestamp rescaling. Source uses1/16000 timebase and approximately60fps. Recheck retains source timebase and passes frames through; video files unchanged."
+}

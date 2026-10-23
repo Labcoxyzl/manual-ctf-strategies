@@ -1,0 +1,1405 @@
+[
+  {
+    "id": "windows-1",
+    "name": "CyberChef",
+    "platform": "windows",
+    "categories": [
+      "Cryptography",
+      "Digital Forensics",
+      "Web Security"
+    ],
+    "challenge_use": "Decode layered encodings and inspect byte transformations.",
+    "resources": [
+      {
+        "url": "https://github.com/gchq/CyberChef",
+        "title": "CyberChef — Build a decoding recipe",
+        "kind": "primary-reference",
+        "why": "Decode layered encodings and inspect byte transformations.",
+        "verification": "Inherited baseline, not reopened this pass. Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      },
+      {
+        "url": "https://github.com/gchq/CyberChef/wiki/Automatic-detection-of-encoded-data-using-CyberChef-Magic",
+        "title": "CyberChef Magic: detection methods",
+        "kind": "primary-guide",
+        "why": "Explains speculative decoding and when XOR/encoding candidates are merely heuristics.",
+        "verification": "Opened 2026-10-22 via web; example not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Magic proposes candidates; verify bytes and file structure. Use a local/offline copy for challenge data and never share input-bearing recipe URLs."
+    ],
+    "recipe_candidate": "Decode Base64/hex, inspect output, then test a justified XOR or compression layer.",
+    "version": "Latest (browser-based, no install)",
+    "location": "Bookmark"
+  },
+  {
+    "id": "windows-6",
+    "name": "Windows Subsystem for Linux (WSL)",
+    "platform": "windows",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Use the installed Linux environment",
+    "resources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+        "title": "Windows Subsystem for Linux (WSL) — Use the installed Linux environment",
+        "kind": "primary-reference",
+        "why": "Use the installed Linux environment.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: installed WSL distributions. Candidate: list distributions and run a harmless Linux identity command; expected: distro name and Linux output.",
+    "version": "Latest",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "windows-7",
+    "name": "Python 3",
+    "platform": "windows",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Parse binary data",
+    "resources": [
+      {
+        "url": "https://docs.python.org/3/library/struct.html",
+        "title": "Python 3 — Parse binary data",
+        "kind": "primary-reference",
+        "why": "Parse binary data.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Libraries may be added freely EXCEPT any AI/ML-related library (e.g. no LLM, machine-learning, or generative-AI frameworks). Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Input: synthetic four-byte record. Candidate: unpack with explicit endianness; expected: known integer and byte count.",
+    "version": "Latest 3.x — confirm exact version before install",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-8",
+    "name": "uv",
+    "platform": "windows",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Manage Python environments",
+    "resources": [
+      {
+        "url": "https://docs.astral.sh/uv/pip/environments/",
+        "title": "uv — Manage Python environments",
+        "kind": "primary-reference",
+        "why": "Manage Python environments.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Same rule as Python 3 — any library OK except AI/ML-related packages Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Input: disposable Python project. Candidate: create a uv environment and select its interpreter; expected: isolated interpreter path.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-21",
+    "name": "jq",
+    "platform": "windows",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Filter JSON",
+    "resources": [
+      {
+        "url": "https://jqlang.org/manual/",
+        "title": "jq — Filter JSON",
+        "kind": "primary-reference",
+        "why": "Filter JSON.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Input: small JSON array with nested fields. Candidate: select one object and emit a raw field; expected: only the matching value.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-24",
+    "name": "OpenSSL",
+    "platform": "windows",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Decrypt symmetric ciphertext when cipher and key derivation are known.",
+    "resources": [
+      {
+        "url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+        "title": "OpenSSL — Understand symmetric decryption parameters",
+        "kind": "primary-reference",
+        "why": "Decrypt symmetric ciphertext when cipher and key derivation are known.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Match cipher, salt, digest, IV and PBKDF2 settings; enc does not provide a universal encrypted-file detector. Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Inspect supplied encryption parameters, reproduce them exactly, validate resulting file bytes.",
+    "version": "Latest 3.x",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-25",
+    "name": "xz",
+    "platform": "windows",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and decompress XZ data",
+    "resources": [
+      {
+        "url": "https://tukaani.org/xz/man/xz.1.html",
+        "title": "xz — Inspect and decompress XZ data",
+        "kind": "primary-reference",
+        "why": "Inspect and decompress XZ data.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by xz. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "Latest",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-30",
+    "name": "RsaCtfTool",
+    "platform": "windows",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Recover weak textbook RSA keys or decrypt given ciphertext.",
+    "resources": [
+      {
+        "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+        "title": "RsaCtfTool — Study RSA attack prerequisites",
+        "kind": "primary-reference",
+        "why": "Recover weak textbook RSA keys or decrypt given ciphertext.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Current upstream flags may differ from installed version. Some attacks call external services; select local attacks and verify dependencies first. Windows-list entry runs in WSL."
+    ],
+    "recipe_candidate": "Inspect n/e and evidence of weakness; choose one supported attack, then verify recovered factors multiply to n.",
+    "version": "Latest (GitHub script, run via Python 3)",
+    "location": "installed in WSL"
+  },
+  {
+    "id": "windows-37",
+    "name": "Notepad++",
+    "platform": "windows",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Search structured text",
+    "resources": [
+      {
+        "url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+        "title": "Notepad++ — Search structured text",
+        "kind": "primary-reference",
+        "why": "Search structured text.",
+        "verification": "Inherited baseline, not reopened this pass. Official user-manual source opened 2026-10-19 after rendered manual fetch failed. Query targets search modes; AI Overview not measured."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Installer (x64). A portable edition is also available."
+    ],
+    "recipe_candidate": "Search structured text using a small local sample; candidate only.",
+    "version": "Latest",
+    "location": "installed in Windows"
+  },
+  {
+    "id": "kali-1",
+    "name": ".NET SDK",
+    "platform": "kali",
+    "categories": [
+      "Reverse Engineering",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Build and run managed projects",
+    "resources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+        "title": ".NET SDK — Build and run managed projects",
+        "kind": "primary-reference",
+        "why": "Build and run managed projects.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Build and run managed projects using a small local sample; candidate only.",
+    "version": "6.0.400",
+    "location": ""
+  },
+  {
+    "id": "kali-2",
+    "name": "7-Zip (7z)",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and extract archives",
+    "resources": [
+      {
+        "url": "https://7-zip.org/",
+        "title": "7-Zip (7z) — Inspect and extract archives",
+        "kind": "primary-reference",
+        "why": "Inspect and extract archives.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by 7-Zip (7z). Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "26.02",
+    "location": ""
+  },
+  {
+    "id": "kali-13",
+    "name": "bkcrack",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Recover ZipCrypto internal keys from known plaintext.",
+    "resources": [
+      {
+        "url": "https://github.com/kimci86/bkcrack",
+        "title": "bkcrack — Understand ZIP known-plaintext recovery",
+        "kind": "primary-reference",
+        "why": "Recover ZipCrypto internal keys from known plaintext.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      },
+      {
+        "url": "https://github.com/kimci86/bkcrack/blob/master/example/tutorial.md",
+        "title": "bkcrack worked example",
+        "kind": "primary-example",
+        "why": "A compact known-plaintext walkthrough tied to upstream sample artifacts.",
+        "verification": "Opened 2026-10-22 via web; example not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Requires ZipCrypto, at least 12 known plaintext bytes with 8 contiguous; known bytes must match the encrypted compressed stream. Not ZIP AES."
+    ],
+    "recipe_candidate": "List archive encryption, establish matching known plaintext, follow upstream tutorial on a synthetic archive.",
+    "version": "1.8.1 (2025-10-25)",
+    "location": ""
+  },
+  {
+    "id": "kali-17",
+    "name": "bzip2",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Decompress BZip2 data",
+    "resources": [
+      {
+        "url": "https://sourceware.org/bzip2/manual/manual.html",
+        "title": "bzip2 — Decompress BZip2 data",
+        "kind": "primary-reference",
+        "why": "Decompress BZip2 data.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by bzip2. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.0.8",
+    "location": ""
+  },
+  {
+    "id": "kali-18",
+    "name": "cabextract",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect Microsoft cabinet archives",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/cabextract/",
+        "title": "cabextract — Inspect Microsoft cabinet archives",
+        "kind": "distribution-reference",
+        "why": "Inspect Microsoft cabinet archives.",
+        "verification": "Inherited baseline, not reopened this pass. Kali package reference search 2026-10-19 exposes cabextract -l and -d; upstream website failed retrieval. Primary source repository is kyz/libmspack/cabextract. AI Overview not measured."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by cabextract. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.11",
+    "location": ""
+  },
+  {
+    "id": "kali-22",
+    "name": "crypto-attacks",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Use mathematical implementations after identifying a concrete crypto weakness.",
+    "resources": [
+      {
+        "url": "https://github.com/jvdsn/crypto-attacks",
+        "title": "crypto-attacks — Find mathematical attack implementations",
+        "kind": "primary-reference",
+        "why": "Use mathematical implementations after identifying a concrete crypto weakness.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Requires compatible Sage/Python and attack-specific inputs; repository presence alone does not make each attack runnable."
+    ],
+    "recipe_candidate": "Adapt the relevant upstream test vector before substituting inputs; verify the mathematical result.",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/crypto-attacks)"
+  },
+  {
+    "id": "kali-26",
+    "name": "DBeaver Community Edition",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Query local databases",
+    "resources": [
+      {
+        "url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+        "title": "DBeaver Community Edition — Query local databases",
+        "kind": "primary-reference",
+        "why": "Query local databases.",
+        "verification": "Inherited baseline, not reopened this pass. Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: copied SQLite sample. Candidate: inspect schema and run a SELECT; expected: known sample rows without modifying source.",
+    "version": "26.1.3",
+    "location": ""
+  },
+  {
+    "id": "kali-31",
+    "name": "Docker Engine and Compose plugin",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Run and inspect a local container lab",
+    "resources": [
+      {
+        "url": "https://docs.docker.com/compose/",
+        "title": "Docker Engine and Compose plugin — Run and inspect a local container lab",
+        "kind": "primary-reference",
+        "why": "Run and inspect a local container lab.",
+        "verification": "Inherited baseline, not reopened this pass. Opened Docker Compose docs; plugin syntax is docker compose; recorded Engine version does not identify Compose version."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: existing approved local Compose fixture. Candidate: inspect configuration and logs; expected: service names and diagnostic output. Do not introduce new images as part of this guide.",
+    "version": "28.5.2+dfsg4",
+    "location": ""
+  },
+  {
+    "id": "kali-36",
+    "name": "factordb-python",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Understand how known integer factors are looked up.",
+    "resources": [
+      {
+        "url": "https://github.com/ryosan-470/factordb-python",
+        "title": "factordb-python — Look up known integer factors",
+        "kind": "primary-reference",
+        "why": "Understand how known integer factors are looked up.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Sends submitted integers to an external service. Keep reference-only for public examples; do not send challenge-derived values without explicit event permission."
+    ],
+    "recipe_candidate": "Public synthetic integer lookup only; prefer local factorization during competition.",
+    "version": "(not captured)",
+    "location": "pip (factordb-python)"
+  },
+  {
+    "id": "kali-47",
+    "name": "GCC, G++ and build tools (build-essential, make, CMake, pkg-config)",
+    "platform": "kali",
+    "categories": [
+      "Reverse Engineering",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Build small local programs with debug information",
+    "resources": [
+      {
+        "url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+        "title": "GCC, G++ and build tools (build-essential, make, CMake, pkg-config) — Build small local programs with debug information",
+        "kind": "primary-reference",
+        "why": "Build small local programs with debug information.",
+        "verification": "Inherited baseline, not reopened this pass. Opened GCC debugging-options manual; bundled Make CMake and pkg-config are separate tools and their versions are not established."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Debian gcc 15.3.0-2"
+    ],
+    "recipe_candidate": "Build small local programs with debug information using a small local sample; candidate only.",
+    "version": "15.3.0",
+    "location": ""
+  },
+  {
+    "id": "kali-52",
+    "name": "GNU Wget",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Save public files for local analysis",
+    "resources": [
+      {
+        "url": "https://www.gnu.org/software/wget/manual/wget.html",
+        "title": "GNU Wget — Save public files for local analysis",
+        "kind": "primary-reference",
+        "why": "Save public files for local analysis.",
+        "verification": "Inherited baseline, not reopened this pass. Official GNU manual appeared in search with 1.25.0 title; full page fetch failed in web and Exa."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Save public files for local analysis using a small local sample; candidate only.",
+    "version": "1.25.0",
+    "location": ""
+  },
+  {
+    "id": "kali-53",
+    "name": "Go",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Build or run local Go utilities",
+    "resources": [
+      {
+        "url": "https://go.dev/doc/cmd",
+        "title": "Go — Build or run local Go utilities",
+        "kind": "primary-reference",
+        "why": "Build or run local Go utilities.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official Go command documentation after pkg.go.dev fetch failed; workbook release not independently verified."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Build or run local Go utilities using a small local sample; candidate only.",
+    "version": "1.26.5",
+    "location": ""
+  },
+  {
+    "id": "kali-56",
+    "name": "GTFOBins (offline copy)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Look up behavior of an already identified Unix binary.",
+    "resources": [
+      {
+        "url": "https://gtfobins.org/",
+        "title": "GTFOBins (offline copy) — Interpret permitted binary functions in a CTF lab",
+        "kind": "primary-reference",
+        "why": "Look up behavior of an already identified Unix binary.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official GTFOBins page, redirected from github.io; offline copy revision is unknown."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Reference collection may mention unapproved programs; its inclusion does not approve those tools or justify indiscriminate execution."
+    ],
+    "recipe_candidate": "Match exact binary and execution context before selecting a relevant documented behavior.",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/GTFOBins.github.io)"
+  },
+  {
+    "id": "kali-57",
+    "name": "gzip",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Unpack and check gzip files",
+    "resources": [
+      {
+        "url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+        "title": "gzip — Unpack and check gzip files",
+        "kind": "primary-reference",
+        "why": "Unpack and check gzip files.",
+        "verification": "Inherited baseline, not reopened this pass. GNU manual search result confirms decompress and keep options; full web and Exa fetch failed; current manual newer than recorded 1.13."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by gzip. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.13",
+    "location": ""
+  },
+  {
+    "id": "kali-58",
+    "name": "HackTricks (offline copy)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Find a technique reference after challenge triage.",
+    "resources": [
+      {
+        "url": "https://github.com/HackTricks-wiki/hacktricks",
+        "title": "HackTricks (offline copy) — Find a technique checklist for a lab task",
+        "kind": "primary-reference",
+        "why": "Find a technique reference after challenge triage.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official HackTricks repository after book fetch failed; offline copy revision unknown and query selects one task."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Broad collection contains tools outside the approved list; keep a fallback reference, not the default route or an approval source."
+    ],
+    "recipe_candidate": "Search the offline copy for a confirmed primitive; retain only the matching approved-tool procedure.",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/hacktricks)"
+  },
+  {
+    "id": "kali-59",
+    "name": "hashcat",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Recover passwords offline from a correctly identified hash format.",
+    "resources": [
+      {
+        "url": "https://hashcat.net/wiki/doku.php?id=example_hashes",
+        "title": "hashcat — Match hash formats and choose a recovery mode",
+        "kind": "primary-reference",
+        "why": "Recover passwords offline from a correctly identified hash format.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Confirm installed supported mode and compute backend; use example hashes to diagnose format errors before spending time on attacks."
+    ],
+    "recipe_candidate": "Match format to example hash, run a bounded dictionary attempt, inspect recovered results.",
+    "version": "7.1.2",
+    "location": ""
+  },
+  {
+    "id": "kali-60",
+    "name": "hashid",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Generate candidate hash algorithms from encoded hash syntax.",
+    "resources": [
+      {
+        "url": "https://github.com/psypanda/hashID",
+        "title": "hashid — Suggest possible hash formats",
+        "kind": "primary-reference",
+        "why": "Generate candidate hash algorithms from encoded hash syntax.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Identification is heuristic: equal-length hashes are ambiguous. Corroborate with source format and upstream hash examples."
+    ],
+    "recipe_candidate": "Classify hash syntax, then confirm the candidate against challenge context.",
+    "version": "3.1.4",
+    "location": ""
+  },
+  {
+    "id": "kali-64",
+    "name": "hlextend",
+    "platform": "kali",
+    "categories": [
+      "Cryptography",
+      "Web Security"
+    ],
+    "challenge_use": "Study secret-prefix hash length extension.",
+    "resources": [
+      {
+        "url": "https://github.com/stephenbradshaw/hlextend",
+        "title": "hlextend — Explore hash length extension with generic examples",
+        "kind": "primary-reference",
+        "why": "Study secret-prefix hash length extension.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Needs a vulnerable secret-prefix construction, compatible hash and known/guessed secret length; not HMAC. Preserve padding bytes through transport encoding."
+    ],
+    "recipe_candidate": "Reproduce upstream hello/file example locally, then document prerequisites and expected verification.",
+    "version": "(not captured)",
+    "location": "Python module (/usr/local/lib/python3.14/dist-packages/hlextend.py)"
+  },
+  {
+    "id": "kali-71",
+    "name": "IPython",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Explore Python objects and run small scripts",
+    "resources": [
+      {
+        "url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+        "title": "IPython — Explore Python objects and run small scripts",
+        "kind": "primary-reference",
+        "why": "Explore Python objects and run small scripts.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official IPython tutorial whose title reports 9.17.1; availability on competition host not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Explore Python objects and run small scripts using a small local sample; candidate only.",
+    "version": "9.17.1",
+    "location": ""
+  },
+  {
+    "id": "kali-73",
+    "name": "John the Ripper (jumbo)",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Recover passwords offline using supported jumbo formats.",
+    "resources": [
+      {
+        "url": "https://www.openwall.com/john/doc/",
+        "title": "John the Ripper (jumbo) — Prepare and recover passwords from local test data",
+        "kind": "primary-reference",
+        "why": "Recover passwords offline using supported jumbo formats.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official John documentation; jumbo qualifier avoids core-only format advice."
+      },
+      {
+        "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+        "title": "John the Ripper usage examples",
+        "kind": "primary-example",
+        "why": "Shows bounded wordlist/rules usage and displaying recovered passwords.",
+        "verification": "Opened 2026-10-22 via web; example not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Jumbo converter availability and format names depend on installed build; extract the correct hash before selecting wordlists."
+    ],
+    "recipe_candidate": "Extract a sample hash with the matching bundled converter, run a bounded wordlist attempt, show recovered results.",
+    "version": "1.9.0-Jumbo-1",
+    "location": ""
+  },
+  {
+    "id": "kali-81",
+    "name": "LibreOffice",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Convert documents to inspectable formats",
+    "resources": [
+      {
+        "url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+        "title": "LibreOffice — Convert documents to inspectable formats",
+        "kind": "primary-reference",
+        "why": "Convert documents to inspectable formats.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official startup-parameters page; installed release not independently verified."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Convert documents to inspectable formats using a small local sample; candidate only.",
+    "version": "26.8.0.3",
+    "location": ""
+  },
+  {
+    "id": "kali-82",
+    "name": "lrzip",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Unpack long-range compressed files",
+    "resources": [
+      {
+        "url": "https://github.com/ckolivas/lrzip",
+        "title": "lrzip — Unpack long-range compressed files",
+        "kind": "primary-reference",
+        "why": "Unpack long-range compressed files.",
+        "verification": "Inherited baseline, not reopened this pass. Opened upstream Long Range Zip repository; file format qualifier distinguishes it from zip archives."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by lrzip. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "0.660",
+    "location": ""
+  },
+  {
+    "id": "kali-84",
+    "name": "lz4",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Unpack LZ4 data",
+    "resources": [
+      {
+        "url": "https://github.com/lz4/lz4",
+        "title": "lz4 — Unpack LZ4 data",
+        "kind": "primary-reference",
+        "why": "Unpack LZ4 data.",
+        "verification": "Inherited baseline, not reopened this pass. Opened official LZ4 repository; command-line frame files differ from raw LZ4 blocks."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by lz4. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.10.0",
+    "location": ""
+  },
+  {
+    "id": "kali-85",
+    "name": "lzip",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Unpack and check lzip files",
+    "resources": [
+      {
+        "url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+        "title": "lzip — Unpack and check lzip files",
+        "kind": "primary-reference",
+        "why": "Unpack and check lzip files.",
+        "verification": "Inherited baseline, not reopened this pass. Read official Lzip 1.26 manual via Exa after web fetch failed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by lzip. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.26",
+    "location": ""
+  },
+  {
+    "id": "kali-90",
+    "name": "Miniforge3 (conda)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Create a separate dependency environment",
+    "resources": [
+      {
+        "url": "https://github.com/conda-forge/miniforge",
+        "title": "Miniforge3 (conda) — Create a separate dependency environment",
+        "kind": "primary-reference",
+        "why": "Create a separate dependency environment.",
+        "verification": "Inherited baseline, not reopened this pass. Opened conda-forge Miniforge repository; use only when project environment policy calls for conda."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Create a separate dependency environment using a small local sample; candidate only.",
+    "version": "(not captured)",
+    "location": "/home/kali/miniforge3"
+  },
+  {
+    "id": "kali-91",
+    "name": "multimon-ng",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Decode supported audio modulation formats",
+    "resources": [
+      {
+        "url": "https://github.com/EliasOenal/multimon-ng",
+        "title": "multimon-ng — Decode supported audio modulation formats",
+        "kind": "primary-reference",
+        "why": "Decode supported audio modulation formats.",
+        "verification": "Inherited baseline, not reopened this pass. Opened upstream multimon-ng repository; input format and sample rate must match decoder requirements."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic supported radio-modulated audio sample. Candidate: select the matching decoder; expected: original test message, with sample rate and encoding checked.",
+    "version": "(not captured)",
+    "location": "apt (multimon-ng)"
+  },
+  {
+    "id": "kali-95",
+    "name": "Node.js (with npm)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Convert binary representations in JavaScript",
+    "resources": [
+      {
+        "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+        "title": "Node.js (with npm) — Convert binary representations in JavaScript",
+        "kind": "primary-reference",
+        "why": "Convert binary representations in JavaScript.",
+        "verification": "Inherited baseline, not reopened this pass. Node v24 Buffer documentation covers encoding conversion; retrieved page is v24.22.0, not workbook v24.21.0. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic hex bytes. Candidate: construct a Buffer and decode/re-encode; expected: identical original bytes.",
+    "version": "24.21.0",
+    "location": ""
+  },
+  {
+    "id": "kali-97",
+    "name": "Obsidian",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Organize investigation notes with links",
+    "resources": [
+      {
+        "url": "https://help.obsidian.md/links",
+        "title": "Obsidian — Organize investigation notes with links",
+        "kind": "primary-reference",
+        "why": "Organize investigation notes with links.",
+        "verification": "Inherited baseline, not reopened this pass. Official Obsidian Help resolves to Internal links; direct retrieval only exposed title. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Version not captured; startup reported that ~/.config/obsidian/obsidian.json does not exist"
+    ],
+    "recipe_candidate": "Organize investigation notes with links using a small local sample; candidate only.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-101",
+    "name": "padding-oracle-attacker",
+    "platform": "kali",
+    "categories": [
+      "Cryptography",
+      "Web Security"
+    ],
+    "challenge_use": "Study CBC padding-oracle behavior in an authorized web challenge.",
+    "resources": [
+      {
+        "url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+        "title": "padding-oracle-attacker — Understand the tool's padding oracle input and response options",
+        "kind": "primary-reference",
+        "why": "Study CBC padding-oracle behavior in an authorized web challenge.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Requires a stable padding-error signal, correct block size and encoding; request volume can be large. No live target validation performed. Workbook: Version not captured (the command printed a banner only)"
+    ],
+    "recipe_candidate": "Confirm a reproducible valid/invalid padding distinction on a toy local service before choosing a decrypt recipe.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-102",
+    "name": "PARI/GP",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Perform integer factorization and modular arithmetic.",
+    "resources": [
+      {
+        "url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+        "title": "PARI/GP — Explore modular arithmetic and discrete logarithms",
+        "kind": "primary-reference",
+        "why": "Perform integer factorization and modular arithmetic.",
+        "verification": "Inherited baseline, not reopened this pass. Official PARI arithmetic reference documents znlog and znorder. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Upstream arithmetic manual timed out in this pass; baseline reference retained without fresh verification."
+    ],
+    "recipe_candidate": "Use small synthetic integers to check factorization and modular-arithmetic conventions.",
+    "version": "2.17.4",
+    "location": ""
+  },
+  {
+    "id": "kali-113",
+    "name": "Python 2.7",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Read binary records in legacy Python scripts",
+    "resources": [
+      {
+        "url": "https://docs.python.org/2.7/library/struct.html",
+        "title": "Python 2.7 — Read binary records in legacy Python scripts",
+        "kind": "primary-reference",
+        "why": "Read binary records in legacy Python scripts.",
+        "verification": "Inherited baseline, not reopened this pass. Archived Python 2.7.18 documentation describes struct binary packing and unpacking. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: legacy script and synthetic binary record. Candidate: check Python 2.7 byte-string assumptions; expected: known unpacked fields. Use only for legacy compatibility.",
+    "version": "2.7.18",
+    "location": ""
+  },
+  {
+    "id": "kali-114",
+    "name": "Python 3.11 (via uv)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Select Python 3.11 through uv; workbook records no installation information",
+    "resources": [
+      {
+        "url": "https://docs.astral.sh/uv/guides/install-python/",
+        "title": "Python 3.11 (via uv) — Select Python 3.11 through uv; workbook records no installation information",
+        "kind": "primary-reference",
+        "why": "Select Python 3.11 through uv; workbook records no installation information.",
+        "verification": "Inherited baseline, not reopened this pass. Official uv guide covers managed Python installation; workbook explicitly has no installation information. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: No installation information recorded"
+    ],
+    "recipe_candidate": "Input: small script reporting interpreter version. Candidate: select Python 3.11 via uv; expected: 3.11 output, if already available or permitted to install.",
+    "version": "-",
+    "location": ""
+  },
+  {
+    "id": "kali-119",
+    "name": "ripgrep (rg)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Search text and selectively include hidden or binary files",
+    "resources": [
+      {
+        "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+        "title": "ripgrep (rg) — Search text and selectively include hidden or binary files",
+        "kind": "primary-reference",
+        "why": "Search text and selectively include hidden or binary files.",
+        "verification": "Inherited baseline, not reopened this pass. ripgrep author guide documents file search and inclusion controls. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: sample directory with one known string and a hidden file. Candidate: compare ordinary and explicit hidden-file search; expected: explain which files match.",
+    "version": "15.2.0",
+    "location": ""
+  },
+  {
+    "id": "kali-120",
+    "name": "rockyou.txt (Kali 'wordlists' package)",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Supply the approved local dictionary to offline password tools.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/wordlists/",
+        "title": "rockyou.txt (Kali 'wordlists' package) — Locate the approved password dictionary",
+        "kind": "primary-reference",
+        "why": "Supply the approved local dictionary to offline password tools.",
+        "verification": "Inherited baseline, not reopened this pass. Kali wordlists package page lists rockyou.txt.gz; dictionary presence is not an executable. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "A wordlist is not a cracking engine; verify whether the local file is compressed and avoid modifying the shared installed copy."
+    ],
+    "recipe_candidate": "Locate rockyou and use it with one bounded John/hashcat dictionary attempt.",
+    "version": "(not captured)",
+    "location": "/usr/share/wordlists/rockyou.txt"
+  },
+  {
+    "id": "kali-123",
+    "name": "Rust (rustup, rustc, cargo)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Build and run a Rust analysis utility",
+    "resources": [
+      {
+        "url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+        "title": "Rust (rustup, rustc, cargo) — Build and run a Rust analysis utility",
+        "kind": "primary-reference",
+        "why": "Build and run a Rust analysis utility.",
+        "verification": "Inherited baseline, not reopened this pass. Official Rust book documents Cargo build/run; no dependence on workbook patch release intended. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Built from a source tarball"
+    ],
+    "recipe_candidate": "Build and run a Rust analysis utility using a small local sample; candidate only.",
+    "version": "1.95.0 (2026-04-14)",
+    "location": ""
+  },
+  {
+    "id": "kali-125",
+    "name": "SageMath",
+    "platform": "kali",
+    "categories": [
+      "Cryptography"
+    ],
+    "challenge_use": "Solve supported finite-group logarithms and mathematical crypto subproblems.",
+    "resources": [
+      {
+        "url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html",
+        "title": "SageMath — Explore discrete logarithms; workbook records no installation information",
+        "kind": "primary-reference",
+        "why": "Solve supported finite-group logarithms and mathematical crypto subproblems.",
+        "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Workbook records no installation information. Feasibility depends on group order and parameters; documentation examples do not imply arbitrary logs are easy. Workbook: No installation information recorded"
+    ],
+    "recipe_candidate": "Verify Sage availability, reproduce a small finite-field discrete-log example and check the result by exponentiation.",
+    "version": "-",
+    "location": ""
+  },
+  {
+    "id": "kali-140",
+    "name": "Sublime Text",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Search source and notes in an editor",
+    "resources": [
+      {
+        "url": "https://www.sublimetext.com/docs/",
+        "title": "Sublime Text — Search source and notes in an editor",
+        "kind": "primary-reference",
+        "why": "Search source and notes in an editor.",
+        "verification": "Inherited baseline, not reopened this pass. Official Sublime documentation index checked; regex-query choice is a recommendation, not a retrieved command recipe. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Search source and notes in an editor using a small local sample; candidate only.",
+    "version": "Build 4215",
+    "location": ""
+  },
+  {
+    "id": "kali-141",
+    "name": "tar",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "List and extract archive members",
+    "resources": [
+      {
+        "url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+        "title": "tar — List and extract archive members",
+        "kind": "primary-reference",
+        "why": "List and extract archive members.",
+        "verification": "Inherited baseline, not reopened this pass. GNU tar 1.35 manual search result describes extraction and --file; direct GNU retrieval blocked. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by tar. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.35",
+    "location": ""
+  },
+  {
+    "id": "kali-144",
+    "name": "unar",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "List and extract supported archive formats",
+    "resources": [
+      {
+        "url": "https://theunarchiver.com/command-line",
+        "title": "unar — List and extract supported archive formats",
+        "kind": "primary-reference",
+        "why": "List and extract supported archive formats.",
+        "verification": "Inherited baseline, not reopened this pass. Official Unarchiver command-line page identifies unar and lsar. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by unar. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.10.8",
+    "location": ""
+  },
+  {
+    "id": "kali-147",
+    "name": "unrar",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "List, test and extract RAR archives",
+    "resources": [
+      {
+        "url": "https://www.rarlab.com/rar_add.htm",
+        "title": "unrar — List, test and extract RAR archives",
+        "kind": "primary-reference",
+        "why": "List, test and extract RAR archives.",
+        "verification": "Inherited baseline, not reopened this pass. RARLAB addons page identifies UnRAR; installed version unknown, command details need local help. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by unrar. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "(not captured)",
+    "location": "/usr/bin/unrar"
+  },
+  {
+    "id": "kali-148",
+    "name": "unzip",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "List and extract ZIP members",
+    "resources": [
+      {
+        "url": "https://infozip.sourceforge.net/UnZip.html",
+        "title": "unzip — List and extract ZIP members",
+        "kind": "primary-reference",
+        "why": "List and extract ZIP members.",
+        "verification": "Inherited baseline, not reopened this pass. Official Info-ZIP UnZip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by unzip. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "6.0-30",
+    "location": ""
+  },
+  {
+    "id": "kali-150",
+    "name": "Visual Studio Code",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Search and edit analysis code",
+    "resources": [
+      {
+        "url": "https://code.visualstudio.com/docs/editor/codebasics",
+        "title": "Visual Studio Code — Search and edit analysis code",
+        "kind": "primary-reference",
+        "why": "Search and edit analysis code.",
+        "verification": "Inherited baseline, not reopened this pass. Official VS Code basic-editing documentation covers workspace search; redirected to /docs/editing/codebasics. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Search and edit analysis code using a small local sample; candidate only.",
+    "version": "1.141.2",
+    "location": ""
+  },
+  {
+    "id": "kali-155",
+    "name": "VS Code extension: C/C++ (ms-vscode.cpptools)",
+    "platform": "kali",
+    "categories": [
+      "Reverse Engineering",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Configure C/C++ source debugging",
+    "resources": [
+      {
+        "url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+        "title": "VS Code extension: C/C++ (ms-vscode.cpptools) — Configure C/C++ source debugging",
+        "kind": "primary-reference",
+        "why": "Configure C/C++ source debugging.",
+        "verification": "Inherited baseline, not reopened this pass. Official VS Code C++ documentation covers GDB debugging and launch settings; compiler/debugger installation is separate. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Configure C/C++ source debugging using a small local sample; candidate only.",
+    "version": "(not captured)",
+    "location": "VS Code extension (ms-vscode.cpptools)"
+  },
+  {
+    "id": "kali-156",
+    "name": "VS Code extension: Python (ms-python.python)",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Select a Python interpreter for analysis scripts",
+    "resources": [
+      {
+        "url": "https://code.visualstudio.com/docs/python/environments",
+        "title": "VS Code extension: Python (ms-python.python) — Select a Python interpreter for analysis scripts",
+        "kind": "primary-reference",
+        "why": "Select a Python interpreter for analysis scripts.",
+        "verification": "Inherited baseline, not reopened this pass. Official VS Code Python environment documentation covers interpreter selection; debugger extension availability is separate. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Select a Python interpreter for analysis scripts using a small local sample; candidate only.",
+    "version": "(not captured)",
+    "location": "VS Code extension (ms-python.python)"
+  },
+  {
+    "id": "kali-159",
+    "name": "zip",
+    "platform": "kali",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Package files into ZIP archives",
+    "resources": [
+      {
+        "url": "https://infozip.sourceforge.net/Zip.html",
+        "title": "zip — Package files into ZIP archives",
+        "kind": "primary-reference",
+        "why": "Package files into ZIP archives.",
+        "verification": "Inherited baseline, not reopened this pass. Official Info-ZIP Zip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested. Workbook: Installed; version not captured"
+    ],
+    "recipe_candidate": "Input: two harmless local files. Candidate: package into a new ZIP and list members; expected: both filenames and unchanged originals.",
+    "version": "(not captured)",
+    "location": ""
+  },
+  {
+    "id": "kali-160",
+    "name": "zstd",
+    "platform": "kali",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect and decompress Zstandard data",
+    "resources": [
+      {
+        "url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+        "title": "zstd — Inspect and decompress Zstandard data",
+        "kind": "primary-reference",
+        "why": "Inspect and decompress Zstandard data.",
+        "verification": "Inherited baseline, not reopened this pass. Zstandard upstream CLI README documents decompression; development docs may differ from workbook 1.5.7. Query recommendation; Google AI Overview not observed in this research lane."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Baseline documentation retained: this supporting utility needs a short task lookup, not a separate tutorial. Installed behavior was not tested."
+    ],
+    "recipe_candidate": "Input: synthetic archive/compressed sample supported by zstd. Candidate: inspect or test where supported, extract to a new directory while preserving source; expected: original known sample bytes.",
+    "version": "1.5.7",
+    "location": ""
+  }
+]

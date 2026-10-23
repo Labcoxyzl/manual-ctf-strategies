@@ -1,0 +1,83 @@
+{
+  "checked_on": "2026-10-22",
+  "command": "python tests/check_learning_pack.py",
+  "result": {
+    "result": "passed",
+    "resources": 43,
+    "evaluated_original_resources": 44,
+    "approved_rows": 200,
+    "schedule_minutes": 1440,
+    "executed": [
+      "base64, offsets, RSA, MD5, SQLite, synthetic journal/process and ASCII paper-match checks",
+      "TShark request fields and TCP stream",
+      "GCC program: all three output/exit cases",
+      "GDB breakpoint, argc, disassembly and rejected branch",
+      "Python loopback server/curl: 200 body and 404"
+    ],
+    "skipped": []
+  },
+  "approved_rows": 200,
+  "resources": 43,
+  "videos": 8,
+  "schedule_hours": 24,
+  "evaluated_original_resources": 44,
+  "checks": [
+    "Exact inventory metadata and all 200 original reference URLs preserved",
+    "Each original selection has a rationale and substantive source observations",
+    "Each selected resource has access and prerequisites; every video has a distinct free reading alternative",
+    "43 unique selected URLs; valid tool mappings and local links/anchors",
+    "Ten blocks sum to 1440 minutes; each has diagnostic, selection, exercise and assessment",
+    "Known answers independently recomputed; local fixture execution recorded in check-results.json",
+    "Independent final review and focused recheck: no unresolved material findings",
+    "Three distinct fan-out reviews and two disjoint implementation workers; all accepted repairs rechecked",
+    "Actual synthetic journal/process worksheet rows parsed and independently checked; fullword distinction checked as ASCII paper logic, not YARA execution",
+    "Guide/JSON Base64 and RSA focus reconciled with worksheet inputs; direct preparatory links exposed"
+  ],
+  "limitations": [
+    "No video playback or offline-save/playback validation; content assessed from inspected text/transcripts and creator metadata.",
+    "Synthetic capture/TShark, tiny GCC/GDB program, local Python/curl server and toy Python values tested here, not on organiser/travel machines.",
+    "GUI applications, YARA CLI and forensic image labs not executed. Each block has an explicit paper route, not a claim of hands-on proficiency.",
+    "Original 200 per-tool references retained with historical link evidence; specialized references not all re-researched."
+  ],
+  "artifact_sha256": {
+    "LEARNING_RESOURCES.md": "5e869b28a6fb6d21d76796472906369c6c9d4f8319de9fb12f20542fd063b15c",
+    "APPROVED_TOOL_REFERENCES.md": "a667298c6c5bb0043fd51c8d7b01b7d868c101fb36d079437b6570acfa547eb4",
+    "PRACTICE_WORKSHEETS.md": "4f1c67e2737aeda41cdff3858ce820daaa69463569e5e80e1b7c8fba989464a6",
+    "RESOURCE_EVALUATION.md": "b522fa37836a429d93d9ebfa00a710fa8c33c1f67332641172f18d5df0675100",
+    "research/learning-resources.json": "0bbdb9ba9868a37db49fe8702a7370c17d724681921b32344057ce0a5772b31d",
+    "tests/check_learning_pack.py": "82ddbe272b123a1d4ada2178ff2ff659bca34165ba0e0c20a515a80e90eb52ae",
+    "research/learning/practice/training.yar": "5818923604e11bf21a48beb33fde989326968b20aefd53d513b70d0f11795906",
+    "research/learning/practice/near-miss.txt": "fa267f147266e353d94f61707af00384dadd188e5c441dad23d4933717e7d151",
+    "research/learning/practice/README.md": "c45d11cdc2e399bbc97e1f2bb1da3d60cd8920cd92cc0c6e9ce74fcf0919d363",
+    "research/learning/practice/match.txt": "4f3559253150d54c60d2ce4b34594b5745acfae9014e2f01b3b42eeb0ccb28d1",
+    "research/learning/practice/check_input.c": "545705c463250b4806864909a961c3f97a0579f1cf87fbc66f5d102b02831f3c",
+    "research/learning/practice/http-demo.pcap": "926aa19af4dc25f31dceaad717eee584f55ae37b958cc942b11c73fdf828fc6c",
+    "research/learning/practice/http/clue.txt": "fd6ae5ab05585609b101acc6830600ff4c94c1a9d0bc7ed8e2cbcb27a172a176",
+    "research/learning/review.md": "08d6a7a42a1cd6c6ea34b7943f1636e1be6004a3a1e7948e5cab06cbf7652234",
+    "research/learning/review-curriculum.md": "eff68a37e7831fc8ed607c0167be5bdec4bd5cc173c89efded194b00b89dff7d",
+    "research/learning/review-technical.md": "feb3a619cc1ab7596aa3b0a5a9b2bd9cf28c842d5d5028c1fee73fb1273cb171",
+    "research/learning/review-access.md": "5ac0a4571b7d4dd961ff11921b1990800fceb24d37210c93dc5bbdb4f52e9469",
+    "research/learning/STATUS.md": "a59cf7b026efda59a7908d7d0664fc5739fbca6f03e3627a1095945dfa51a25e",
+    "research/learning/check-results.json": "a932b50b12b1490856c226ac141770fc7eb2b5ede57119ec5e8ad7a841032b35"
+  },
+  "external_links": {
+    "report": "research/learning/link-probes.json",
+    "unique_selected_and_video_alternative_urls": 45,
+    "head_200": 44,
+    "head_404_get_200": 1,
+    "unresolved_probes": 0,
+    "scope": "Availability only, not playback or full content verification. Substantive evidence is per-resource.",
+    "reuse_note": "Selected-resource probe results reused for unchanged URLs. Direct GDB companion files and curl POST/response preparation pages were substantively fetched by the access reviewer/repair worker; no playback or saved-page execution claimed."
+  },
+  "plan_audit": {
+    "record": "research/learning/STATUS.md",
+    "result": "All requirement rows verified; no unresolved material findings",
+    "review_reports": [
+      "research/learning/review-curriculum.md",
+      "research/learning/review-technical.md",
+      "research/learning/review-access.md"
+    ],
+    "resource_count_unchanged": true,
+    "original_reference_urls_preserved": true
+  }
+}

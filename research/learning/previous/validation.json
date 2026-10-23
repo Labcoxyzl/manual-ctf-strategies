@@ -1,0 +1,31 @@
+{
+  "checked_on": "2026-10-22",
+  "approved_rows": 200,
+  "resources": 44,
+  "videos": 9,
+  "readings": 31,
+  "practice_resources": 4,
+  "schedule_hours": 24,
+  "resource_study_minutes": 1095,
+  "checks": [
+    "Exact 200-row coverage, one row each",
+    "All resource tool IDs approved",
+    "All coverage lesson IDs exist and include mapped tool",
+    "Unique resource URLs",
+    "Every curated resource has guide anchor",
+    "All 200 approved rows visible in index",
+    "Guide and index local links/anchors resolve",
+    "24-hour schedule sum",
+    "Original workbook re-extraction matches inventory",
+    "October19 reference-check input hashes unchanged",
+    "Independent review completed; navigation fix rechecked; no blockers"
+  ],
+  "limitations": [
+    "No video playback, tool execution, practice completion, portal access or offline download verification"
+  ],
+  "artifact_sha256": {
+    "LEARNING_RESOURCES.md": "9606b28dc3a3296c8db6310c2d098ad66f265f35736467a59f74217b0664991e",
+    "APPROVED_TOOL_REFERENCES.md": "7ca9172785d3a6258873aeeced950a714eade71aa6a8bb3234086b72490ec6df",
+    "research/learning-resources.json": "db1917ced142fd1efdfcd7354e53cc3f31dcc2d808056b4184128ab1d24bd6ab"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-19T05:50:58.687246+00:00",
+  "html_sha256": "3632bcc2cfb45319d0af66af2c6c73aeb91bc149fa44facf67b13e739ab43034",
+  "anchors": 455,
+  "ids": 214,
+  "errors": [],
+  "inventory_rows": 200,
+  "query_rows": 200,
+  "category_rows": 7,
+  "html_source_ids": 200,
+  "input_sha256": {
+    "research/inventory.json": "d4e8f647ffc71eac3ca307f9b542bf553fa3385c70d95fde8e90ebab41bb4f0f",
+    "research/categories.json": "b2ae4bd4d3fa04e6ac638b4196c0e1d70e23b5d9c4d85b55d1e7b8751cebd9ae",
+    "research/queries-a.json": "f81f8cff73135531b78792f6d31134001282a746b1325de3ac2e121acb20f0cd",
+    "research/queries-b.json": "04ff868f5a9c7016c866e0a5cc25c42d36aa291f80ff635506ad8bc97fb38edf",
+    "research/queries-c.json": "e291851206bb2eec2e45703449722ad8bc0311e81b55b86bbe6d49a848d25468"
+  }
+}

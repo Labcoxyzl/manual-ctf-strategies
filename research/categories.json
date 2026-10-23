@@ -1,0 +1,72 @@
+[
+  {
+    "id": "osint",
+    "name": "OSINT",
+    "query": "OSINT public source verification exact phrase search operators metadata workflow",
+    "alternate": "Google Search site exact phrase before after operators examples",
+    "docs_url": "https://support.google.com/websearch/answer/2466433?hl=en",
+    "purpose": "Corroborate public sources and dates before attributing a person or location.",
+    "evidence_note": "Google documents exact-match, site and date operators; the broad workflow wording is a research recommendation.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "reversing",
+    "name": "Reverse Engineering",
+    "query": "reverse engineering native binary strings cross references decompiler debugger workflow",
+    "alternate": "Ghidra import executable auto analysis strings references decompiler beginner tutorial",
+    "docs_url": "https://github.com/NationalSecurityAgency/ghidra",
+    "purpose": "Find relevant code, then confirm behavior with the right debugger.",
+    "evidence_note": "The Ghidra project identifies disassembly and decompilation capabilities; no Google answer quality was observed.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "forensics",
+    "name": "Digital Forensics",
+    "query": "digital forensics file identification metadata packet capture memory disk triage workflow",
+    "alternate": "Wireshark saved pcap display filters follow TCP stream tutorial",
+    "docs_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html",
+    "purpose": "Identify the artifact type before selecting a packet, memory, disk or metadata workflow.",
+    "evidence_note": "Wireshark documents opening captures and display filters; the broad category combines distinct artifact routes.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "crypto",
+    "name": "Cryptography",
+    "query": "CTF cryptography distinguish encoding hashing encryption RSA parameters workflow",
+    "alternate": "CyberChef From Base64 From Hex XOR recipe examples",
+    "docs_url": "https://gchq.github.io/CyberChef/",
+    "purpose": "Separate reversible encoding from cryptographic problems before choosing a technique.",
+    "evidence_note": "CyberChef documents Base64, XOR and encryption operations; this supports the encoding branch, not a universal cryptanalysis method.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "misc",
+    "name": "Miscellaneous",
+    "query": "CTF unknown file identify file signature archive QR audio analysis workflow",
+    "alternate": "binwalk firmware embedded file signatures usage examples",
+    "docs_url": "https://github.com/ReFirmLabs/binwalk",
+    "purpose": "Identify the format and use a matching archive, media or data tool.",
+    "evidence_note": "Binwalk documents embedded-file identification; other formats need their own tools.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "web",
+    "name": "Web Security",
+    "query": "web security testing HTTP request response authentication access control workflow",
+    "alternate": "Burp Suite Community Proxy HTTP history Repeater beginner tutorial",
+    "docs_url": "https://portswigger.net/web-security/learning-paths",
+    "purpose": "Reproduce a request and study the relevant vulnerability class in a training reference.",
+    "evidence_note": "PortSwigger provides topic learning paths; a specific HTTP operation is a more focused alternate.",
+    "aio_status": "not_observed_network_block"
+  },
+  {
+    "id": "malware",
+    "name": "Malware Analysis",
+    "query": "malware static analysis strings imports capabilities PE file triage workflow",
+    "alternate": "Mandiant capa executable capabilities verbose output examples",
+    "docs_url": "https://github.com/mandiant/capa",
+    "purpose": "Inspect capabilities and supporting evidence before deciding whether dynamic analysis is needed.",
+    "evidence_note": "capa identifies executable capabilities and documents verbose supporting evidence; the query does not assume execution is required.",
+    "aio_status": "not_observed_network_block"
+  }
+]

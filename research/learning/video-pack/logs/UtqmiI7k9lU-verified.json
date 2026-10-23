@@ -1,0 +1,20 @@
+{
+  "rank": 2,
+  "video_id": "UtqmiI7k9lU",
+  "file": "videos/02_CyberChef_UtqmiI7k9lU.mp4",
+  "bytes": 27861258,
+  "sha256": "5c92ceefcf8eb0ff5c7d2533770b202baa5a9c0a39c9a530823bbf339b70429e",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 437.069206,
+  "sample_decode_seconds": [
+    1,
+    218.53,
+    434.07
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/02_CyberChef_UtqmiI7k9lU.en.vtt"
+}

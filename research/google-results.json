@@ -1,0 +1,3416 @@
+{
+  "checked_at_utc": "2026-10-19T05:46:21Z",
+  "status": "blocked",
+  "aio_observed": null,
+  "best_query_proven": false,
+  "observations": [
+    {
+      "transport": "Playwright MCP",
+      "status": "technical_failure",
+      "evidence": "Browser is already in use for /home/ubuntu/.cache/ms-playwright-mcp/mcp-chrome-9247e86",
+      "recovery": "Identified live Chrome PID 767578, owned by playwright-mcp PID 753852 and using remote-debugging-pipe. Preserved existing session. Used separate ephemeral local Playwright context without copied authentication."
+    },
+    {
+      "transport": "isolated Playwright Chrome",
+      "query": "CyberChef decode base64 recipe example",
+      "requested_url": "https://www.google.com/search?q=CyberChef+decode+base64+recipe+example",
+      "final_url_origin_path": "https://www.google.com/sorry/index",
+      "page_text_excerpt": "Our systems have detected unusual traffic from your computer network. This page checks to see if it's really you sending the requests, and not a robot. Why did this happen?",
+      "status": "network_unusual_traffic_challenge",
+      "action": "Stopped Google searches. No CAPTCHA interaction or bypass. IP address and redirect challenge token omitted."
+    }
+  ],
+  "rubric": {
+    "presence": [
+      "present",
+      "absent",
+      "blocked",
+      "unknown"
+    ],
+    "identity": "Correct tool, maintainer, version and platform; 0 incorrect, 1 ambiguous, 2 correct.",
+    "first_action": "Concrete appropriate first step; 0 absent/wrong, 1 partial, 2 useful.",
+    "syntax": "Valid version-appropriate syntax or GUI path; 0 wrong, 1 incomplete, 2 verified; null if not applicable.",
+    "sources": "Supporting authoritative links; 0 unsupported, 1 indirect, 2 directly supports claim.",
+    "scoring_rule": "Score only an actually visible AI Overview. Keep all score fields null when blocked or absent. Reject a winner with wrong identity or unsafe/wrong first action regardless of total."
+  },
+  "pending_routes": [
+    {
+      "id": "route-1",
+      "query": "ExifTool read GPS DateTimeOriginal examples",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-2",
+      "query": "Google Search Help site operator exact phrase date filters examples",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-3",
+      "query": "Ghidra strings xrefs decompiler beginner example",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-4",
+      "query": "jadx find usages strings Android APK example",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-5",
+      "query": "Wireshark follow TCP stream display filter tshark example",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-6",
+      "query": "Volatility 3 windows.pslist netscan tutorial",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-7",
+      "query": "zsteg PNG channels bit planes usage examples",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-8",
+      "query": "CyberChef From Hex From Base64 XOR recipe example",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-9",
+      "query": "RsaCtfTool publickey decryptfile usage weak RSA",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-10",
+      "query": "binwalk embedded file signature archive usage",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-11",
+      "query": "jq nested JSON select fields tutorial examples",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-12",
+      "query": "Burp Proxy Repeater scope tutorial Community",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-13",
+      "query": "ffuf filter status size wordlist usage example",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-14",
+      "query": "FLOSS capa YARA static malware triage examples",
+      "status": "not_run_after_network_block"
+    },
+    {
+      "id": "route-15",
+      "query": "Chainsaw EVTX Sigma rule hunt example",
+      "status": "not_run_after_network_block"
+    }
+  ],
+  "pending_categories": [
+    {
+      "id": "osint",
+      "variants": {
+        "generic": "OSINT tutorial",
+        "task": "OSINT public source verification exact phrase search operators metadata workflow",
+        "alternate": "Google Search site exact phrase before after operators examples"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "reversing",
+      "variants": {
+        "generic": "Reverse Engineering tutorial",
+        "task": "reverse engineering native binary strings cross references decompiler debugger workflow",
+        "alternate": "Ghidra import executable auto analysis strings references decompiler beginner tutorial"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "forensics",
+      "variants": {
+        "generic": "Digital Forensics tutorial",
+        "task": "digital forensics file identification metadata packet capture memory disk triage workflow",
+        "alternate": "Wireshark saved pcap display filters follow TCP stream tutorial"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "crypto",
+      "variants": {
+        "generic": "Cryptography tutorial",
+        "task": "CTF cryptography distinguish encoding hashing encryption RSA parameters workflow",
+        "alternate": "CyberChef From Base64 From Hex XOR recipe examples"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "misc",
+      "variants": {
+        "generic": "Miscellaneous tutorial",
+        "task": "CTF unknown file identify file signature archive QR audio analysis workflow",
+        "alternate": "binwalk firmware embedded file signatures usage examples"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "web",
+      "variants": {
+        "generic": "Web Security tutorial",
+        "task": "web security testing HTTP request response authentication access control workflow",
+        "alternate": "Burp Suite Community Proxy HTTP history Repeater beginner tutorial"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    },
+    {
+      "id": "malware",
+      "variants": {
+        "generic": "Malware Analysis tutorial",
+        "task": "malware static analysis strings imports capabilities PE file triage workflow",
+        "alternate": "Mandiant capa executable capabilities verbose output examples"
+      },
+      "status": "not_run_after_network_block",
+      "scores": null
+    }
+  ],
+  "pending_tools": [
+    {
+      "id": "windows-1",
+      "name": "CyberChef",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "CyberChef tutorial",
+        "task": "CyberChef decode Base64 then XOR recipe examples",
+        "alternate": "CyberChef magic operation detect encoding examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-1"
+      },
+      "docs_url": "https://github.com/gchq/CyberChef"
+    },
+    {
+      "id": "windows-2",
+      "name": "Wireshark",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Wireshark tutorial",
+        "task": "Wireshark display filters follow TCP stream examples",
+        "alternate": "Wireshark export HTTP objects pcap examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-2"
+      },
+      "docs_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html"
+    },
+    {
+      "id": "windows-3",
+      "name": "PDF Viewer",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "PDF Viewer tutorial",
+        "task": "Adobe Acrobat Reader view PDF attachments examples",
+        "alternate": "PDF viewer find text document properties attachments"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-3"
+      },
+      "docs_url": "https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html"
+    },
+    {
+      "id": "windows-4",
+      "name": "OpenVPN Client",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "OpenVPN Client tutorial",
+        "task": "OpenVPN Connect import ovpn profile Windows examples",
+        "alternate": "OpenVPN Connect connection log troubleshooting Windows"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-4"
+      },
+      "docs_url": "https://openvpn.net/connect-docs/import-profile.html"
+    },
+    {
+      "id": "windows-5",
+      "name": "Google Chrome",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Google Chrome tutorial",
+        "task": "Chrome DevTools Network inspect request response headers examples",
+        "alternate": "Chrome DevTools copy request as cURL examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-5"
+      },
+      "docs_url": "https://developer.chrome.com/docs/devtools/network/"
+    },
+    {
+      "id": "windows-6",
+      "name": "Windows Subsystem for Linux (WSL)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Windows Subsystem for Linux (WSL) tutorial",
+        "task": "Windows WSL list distributions run Linux command examples",
+        "alternate": "WSL access Windows files mnt c examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-6"
+      },
+      "docs_url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands"
+    },
+    {
+      "id": "windows-7",
+      "name": "Python 3",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Python 3 tutorial",
+        "task": "Python 3 struct unpack binary file examples",
+        "alternate": "Python 3 bytes fromhex byteorder examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-7"
+      },
+      "docs_url": "https://docs.python.org/3/library/struct.html"
+    },
+    {
+      "id": "windows-8",
+      "name": "uv",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "uv tutorial",
+        "task": "astral uv create virtual environment install package examples",
+        "alternate": "uv pip install python interpreter examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-8"
+      },
+      "docs_url": "https://docs.astral.sh/uv/pip/environments/"
+    },
+    {
+      "id": "windows-9",
+      "name": "gdb",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "gdb tutorial",
+        "task": "GDB break main run info registers disassemble examples",
+        "alternate": "GDB x examine memory breakpoint examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-9"
+      },
+      "docs_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html"
+    },
+    {
+      "id": "windows-10",
+      "name": "objdump",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "objdump tutorial",
+        "task": "GNU objdump disassemble Intel syntax sections examples",
+        "alternate": "objdump -d -M intel ELF examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-10"
+      },
+      "docs_url": "https://sourceware.org/binutils/docs/binutils/objdump.html"
+    },
+    {
+      "id": "windows-11",
+      "name": "strings",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "strings tutorial",
+        "task": "GNU strings show offsets minimum length encoding examples",
+        "alternate": "GNU strings UTF-16 little endian -e l examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-11"
+      },
+      "docs_url": "https://sourceware.org/binutils/docs/binutils/strings.html"
+    },
+    {
+      "id": "windows-12",
+      "name": "zsteg",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "zsteg tutorial",
+        "task": "zsteg PNG BMP LSB extract payload examples",
+        "alternate": "zsteg -a -E b1 rgb lsb examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-12"
+      },
+      "docs_url": "https://github.com/zed-0xff/zsteg"
+    },
+    {
+      "id": "windows-13",
+      "name": "binwalk",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "binwalk tutorial",
+        "task": "Binwalk v3 scan extract embedded files examples",
+        "alternate": "Binwalk version 2 versus 3 extraction command"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-13"
+      },
+      "docs_url": "https://github.com/ReFirmLabs/binwalk"
+    },
+    {
+      "id": "windows-14",
+      "name": "ExifTool",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ExifTool tutorial",
+        "task": "ExifTool read all metadata duplicate tags examples",
+        "alternate": "ExifTool -a -u -g1 metadata examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-14"
+      },
+      "docs_url": "https://github.com/exiftool/exiftool"
+    },
+    {
+      "id": "windows-15",
+      "name": "pdftotext (Poppler utils)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pdftotext (Poppler utils) tutorial",
+        "task": "Poppler pdftotext preserve layout PDF text examples",
+        "alternate": "pdftotext -layout -enc UTF-8 examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-15"
+      },
+      "docs_url": "https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html"
+    },
+    {
+      "id": "windows-16",
+      "name": "can-utils",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "can-utils tutorial",
+        "task": "linux can-utils candump canplayer log format examples",
+        "alternate": "can-utils candump vcan0 log examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-16"
+      },
+      "docs_url": "https://github.com/linux-can/can-utils"
+    },
+    {
+      "id": "windows-17",
+      "name": "cannelloni",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "cannelloni tutorial",
+        "task": "cannelloni CAN Ethernet UDP tunnel command examples",
+        "alternate": "mguentner cannelloni vcan interface usage examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-17"
+      },
+      "docs_url": "https://github.com/mguentner/cannelloni"
+    },
+    {
+      "id": "windows-18",
+      "name": "zeek",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "zeek tutorial",
+        "task": "Zeek read pcap generate conn.log http.log examples",
+        "alternate": "Zeek -r pcap local log output examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-18"
+      },
+      "docs_url": "https://docs.zeek.org/en/current/quickstart.html"
+    },
+    {
+      "id": "windows-19",
+      "name": "ZBar",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ZBar tutorial",
+        "task": "ZBar zbarimg decode QR barcode image examples",
+        "alternate": "zbarimg --raw QR code examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-19"
+      },
+      "docs_url": "https://github.com/mchehab/zbar"
+    },
+    {
+      "id": "windows-20",
+      "name": "Burp Suite Community Edition",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Burp Suite Community Edition tutorial",
+        "task": "Burp Suite Community Repeater edit resend HTTP request examples",
+        "alternate": "Burp Community Proxy HTTP history send to Repeater examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-20"
+      },
+      "docs_url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+    },
+    {
+      "id": "windows-21",
+      "name": "jq",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "jq tutorial",
+        "task": "jq select map nested JSON fields examples",
+        "alternate": "jq raw output arrays filter examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-21"
+      },
+      "docs_url": "https://jqlang.org/manual/"
+    },
+    {
+      "id": "windows-22",
+      "name": "Ghidra",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Ghidra tutorial",
+        "task": "Ghidra decompiler import ELF analyze rename function examples",
+        "alternate": "Ghidra find references strings decompiler tutorial"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-22"
+      },
+      "docs_url": "https://github.com/NationalSecurityAgency/ghidra"
+    },
+    {
+      "id": "windows-23",
+      "name": "The Sleuth Kit",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "The Sleuth Kit tutorial",
+        "task": "Sleuth Kit fls icat recover deleted file disk image examples",
+        "alternate": "Sleuth Kit mmls partition offset fls examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-23"
+      },
+      "docs_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html"
+    },
+    {
+      "id": "windows-24",
+      "name": "OpenSSL",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "OpenSSL tutorial",
+        "task": "OpenSSL 3 enc decrypt aes salt pbkdf2 examples",
+        "alternate": "OpenSSL 3 enc list ciphers parameters examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-24"
+      },
+      "docs_url": "https://docs.openssl.org/3.0/man1/openssl-enc/"
+    },
+    {
+      "id": "windows-25",
+      "name": "xz",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "xz tutorial",
+        "task": "xz list archive decompress keep original examples",
+        "alternate": "xz --list --decompress --keep examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-25"
+      },
+      "docs_url": "https://tukaani.org/xz/man/xz.1.html"
+    },
+    {
+      "id": "windows-26",
+      "name": "qpdf",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "qpdf tutorial",
+        "task": "qpdf qdf object streams inspect PDF examples",
+        "alternate": "qpdf --show-object --filtered-stream-data examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-26"
+      },
+      "docs_url": "https://qpdf.readthedocs.io/en/stable/cli.html"
+    },
+    {
+      "id": "windows-27",
+      "name": "llvm-mc (LLVM tools)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "llvm-mc (LLVM tools) tutorial",
+        "task": "LLVM llvm-mc disassemble hex bytes x86 examples",
+        "alternate": "llvm-mc --assemble --show-encoding triple examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-27"
+      },
+      "docs_url": "https://llvm.org/docs/CommandGuide/llvm-mc.html"
+    },
+    {
+      "id": "windows-28",
+      "name": "xxd",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "xxd tutorial",
+        "task": "xxd reverse hex dump binary examples",
+        "alternate": "xxd -r -p plain hex examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-28"
+      },
+      "docs_url": "https://github.com/vim/vim/blob/master/runtime/doc/xxd.1"
+    },
+    {
+      "id": "windows-29",
+      "name": "fsck.fat (dosfstools)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "fsck.fat (dosfstools) tutorial",
+        "task": "dosfstools fsck.fat -n read only filesystem check examples",
+        "alternate": "fsck.fat no action FAT image examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-29"
+      },
+      "docs_url": "https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in"
+    },
+    {
+      "id": "windows-30",
+      "name": "RsaCtfTool",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "RsaCtfTool tutorial",
+        "task": "RsaCtfTool public key factor decrypt file examples",
+        "alternate": "RsaCtfTool attack list publickey usage examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-30"
+      },
+      "docs_url": "https://github.com/RsaCtfTool/RsaCtfTool"
+    },
+    {
+      "id": "windows-31",
+      "name": "volatility3",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "volatility3 tutorial",
+        "task": "Volatility 3 windows.info windows.pslist memory image examples",
+        "alternate": "Volatility 3 symbols windows.dumpfiles examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-31"
+      },
+      "docs_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html"
+    },
+    {
+      "id": "windows-32",
+      "name": "OpenSSH-Session-Key-Recovery",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "OpenSSH-Session-Key-Recovery tutorial",
+        "task": "fox-it OpenSSH-Session-Key-Recovery volatility3 plugin usage",
+        "alternate": "OpenSSH Session Key Recovery memory keys decrypt pcap prerequisites"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-32"
+      },
+      "docs_url": "https://github.com/fox-it/OpenSSH-Session-Key-Recovery"
+    },
+    {
+      "id": "windows-33",
+      "name": "x64dbg",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "x64dbg tutorial",
+        "task": "x64dbg breakpoint run follow dump memory examples",
+        "alternate": "x64dbg conditional breakpoint expressions examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-33"
+      },
+      "docs_url": "https://help.x64dbg.com/en/latest/gui/tips.html"
+    },
+    {
+      "id": "windows-34",
+      "name": "Autopsy",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Autopsy tutorial",
+        "task": "Autopsy add disk image data source ingest modules examples",
+        "alternate": "Autopsy keyword search deleted files timeline examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-34"
+      },
+      "docs_url": "https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html"
+    },
+    {
+      "id": "windows-35",
+      "name": "HxD",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "HxD tutorial",
+        "task": "HxD hex editor search byte sequence compare files examples",
+        "alternate": "HxD read only hex view offsets examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-35"
+      },
+      "docs_url": "https://mh-nexus.de/en/hxd/"
+    },
+    {
+      "id": "windows-36",
+      "name": "tshark",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "tshark tutorial",
+        "task": "TShark read pcap display filter extract fields examples",
+        "alternate": "tshark -r -Y -T fields -e examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-36"
+      },
+      "docs_url": "https://www.wireshark.org/docs/man-pages/tshark.html"
+    },
+    {
+      "id": "windows-37",
+      "name": "Notepad++",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Notepad++ tutorial",
+        "task": "Notepad++ regular expression search capture groups examples",
+        "alternate": "Notepad++ extended search line endings examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-37"
+      },
+      "docs_url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md"
+    },
+    {
+      "id": "windows-38",
+      "name": "dnSpyEx (dnSpy)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "dnSpyEx (dnSpy) tutorial",
+        "task": "dnSpyEx debug .NET assembly breakpoint decompile examples",
+        "alternate": "dnSpyEx navigate assembly CSharp decompiler examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-38"
+      },
+      "docs_url": "https://github.com/dnSpyEx/dnSpy"
+    },
+    {
+      "id": "windows-39",
+      "name": "Eric Zimmerman's Tools",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Eric Zimmerman's Tools tutorial",
+        "task": "Eric Zimmerman tools MFTECmd parse MFT CSV examples",
+        "alternate": "Eric Zimmerman EvtxECmd parse EVTX CSV examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "windows-39"
+      },
+      "docs_url": "https://ericzimmerman.github.io/"
+    },
+    {
+      "id": "kali-1",
+      "name": ".NET SDK",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": ".NET SDK tutorial",
+        "task": ".NET SDK 6 dotnet build run project examples",
+        "alternate": "dotnet 6 CLI list sdks examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-1"
+      },
+      "docs_url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet"
+    },
+    {
+      "id": "kali-2",
+      "name": "7-Zip (7z)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "7-Zip (7z) tutorial",
+        "task": "7-Zip 7z list extract archive command examples",
+        "alternate": "7z l x output directory examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-2"
+      },
+      "docs_url": "https://7-zip.org/"
+    },
+    {
+      "id": "kali-3",
+      "name": "aircrack-ng",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "aircrack-ng tutorial",
+        "task": "aircrack-ng 1.7 offline WPA handshake wordlist capture examples",
+        "alternate": "aircrack-ng capture file handshake prerequisites"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-3"
+      },
+      "docs_url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng"
+    },
+    {
+      "id": "kali-4",
+      "name": "ALEAPP (Android Logs Events And Protobuf Parser)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ALEAPP (Android Logs Events And Protobuf Parser) tutorial",
+        "task": "ALEAPP Android extraction folder parse artifacts report examples",
+        "alternate": "ALEAPP aleapp.py input directory output report examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-4"
+      },
+      "docs_url": "https://github.com/abrignoni/ALEAPP"
+    },
+    {
+      "id": "kali-5",
+      "name": "Android Studio",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Android Studio tutorial",
+        "task": "Android Studio debug prebuilt APK native libraries examples",
+        "alternate": "Android Studio APK Analyzer inspect DEX resources examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-5"
+      },
+      "docs_url": "https://developer.android.com/studio/debug/apk-debugger"
+    },
+    {
+      "id": "kali-6",
+      "name": "angr",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "angr tutorial",
+        "task": "angr symbolic execution SimulationManager explore find avoid examples",
+        "alternate": "angr entry_state symbolic stdin constraints examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-6"
+      },
+      "docs_url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html"
+    },
+    {
+      "id": "kali-7",
+      "name": "AperiSolve",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "AperiSolve tutorial",
+        "task": "AperiSolve self hosted local image analysis usage",
+        "alternate": "Zeecka AperiSolve docker local deployment examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-7"
+      },
+      "docs_url": "https://github.com/Zeecka/AperiSolve"
+    },
+    {
+      "id": "kali-8",
+      "name": "Apktool",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Apktool tutorial",
+        "task": "Apktool 2.7 decode APK resources smali examples",
+        "alternate": "apktool 2 d APK output directory examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-8"
+      },
+      "docs_url": "https://apktool.org/docs/cli-parameters/"
+    },
+    {
+      "id": "kali-9",
+      "name": "asar (@electron/asar)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "asar (@electron/asar) tutorial",
+        "task": "electron asar CLI list extract archive examples",
+        "alternate": "@electron/asar 4 extract-file command examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-9"
+      },
+      "docs_url": "https://github.com/electron/asar"
+    },
+    {
+      "id": "kali-10",
+      "name": "Audacity",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Audacity tutorial",
+        "task": "Audacity spectrogram view settings hidden audio tones examples",
+        "alternate": "Audacity spectrogram frequency range window size examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-10"
+      },
+      "docs_url": "https://manual.audacityteam.org/man/spectrogram_view.html"
+    },
+    {
+      "id": "kali-11",
+      "name": "AutoIt-Ripper",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "AutoIt-Ripper tutorial",
+        "task": "AutoIt-Ripper extract compiled AutoIt executable examples",
+        "alternate": "nazywam autoit-ripper CLI usage examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-11"
+      },
+      "docs_url": "https://github.com/nazywam/AutoIt-Ripper"
+    },
+    {
+      "id": "kali-12",
+      "name": "BinDiff",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "BinDiff tutorial",
+        "task": "BinDiff 8 compare binaries matched functions examples",
+        "alternate": "BinDiff 8 similarity confidence function matches manual"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-12"
+      },
+      "docs_url": "https://www.zynamics.com/bindiff/manual/"
+    },
+    {
+      "id": "kali-13",
+      "name": "bkcrack",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "bkcrack tutorial",
+        "task": "bkcrack known plaintext ZIP attack minimum bytes examples",
+        "alternate": "bkcrack 1.8.1 decrypt archive known plaintext examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-13"
+      },
+      "docs_url": "https://github.com/kimci86/bkcrack"
+    },
+    {
+      "id": "kali-14",
+      "name": "bulk_extractor",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "bulk_extractor tutorial",
+        "task": "bulk_extractor scan disk image feature files examples",
+        "alternate": "bulk_extractor 2 scanners output report examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-14"
+      },
+      "docs_url": "https://github.com/simsong/bulk_extractor"
+    },
+    {
+      "id": "kali-15",
+      "name": "bvi",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "bvi tutorial",
+        "task": "bvi binary editor hex search read only examples",
+        "alternate": "bvi -R binary view hexadecimal search examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-15"
+      },
+      "docs_url": "https://bvi.sourceforge.net/"
+    },
+    {
+      "id": "kali-16",
+      "name": "Bytecode Viewer",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Bytecode Viewer tutorial",
+        "task": "Bytecode Viewer 2.13 Java JAR decompile search examples",
+        "alternate": "Konloch Bytecode Viewer APK DEX decompiler examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-16"
+      },
+      "docs_url": "https://github.com/Konloch/bytecode-viewer"
+    },
+    {
+      "id": "kali-17",
+      "name": "bzip2",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "bzip2 tutorial",
+        "task": "bzip2 decompress keep original file examples",
+        "alternate": "bzip2 -dc output stream examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-17"
+      },
+      "docs_url": "https://sourceware.org/bzip2/manual/manual.html"
+    },
+    {
+      "id": "kali-18",
+      "name": "cabextract",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "cabextract tutorial",
+        "task": "cabextract list extract CAB archive examples",
+        "alternate": "cabextract -l -d directory examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-18"
+      },
+      "docs_url": "https://www.kali.org/tools/cabextract/"
+    },
+    {
+      "id": "kali-19",
+      "name": "capa",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "capa tutorial",
+        "task": "Mandiant capa 9 capabilities executable analysis examples",
+        "alternate": "capa -vv verbose rule matches examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-19"
+      },
+      "docs_url": "https://github.com/mandiant/capa"
+    },
+    {
+      "id": "kali-20",
+      "name": "Chainsaw",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Chainsaw tutorial",
+        "task": "Chainsaw 2 hunt EVTX Sigma mapping examples",
+        "alternate": "WithSecure chainsaw search event log examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-20"
+      },
+      "docs_url": "https://github.com/WithSecureOpenSource/chainsaw"
+    },
+    {
+      "id": "kali-21",
+      "name": "checksec",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "checksec tutorial",
+        "task": "checksec 2.6.0 --file= ELF RELRO canary NX PIE examples",
+        "alternate": "checksec bash 2.6.0 security properties executable examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-21"
+      },
+      "docs_url": "https://github.com/slimm609/checksec/releases"
+    },
+    {
+      "id": "kali-22",
+      "name": "crypto-attacks",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "crypto-attacks tutorial",
+        "task": "jvdsn crypto-attacks Sage RSA attack prerequisites examples",
+        "alternate": "crypto-attacks attacks rsa known partial key usage"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-22"
+      },
+      "docs_url": "https://github.com/jvdsn/crypto-attacks"
+    },
+    {
+      "id": "kali-23",
+      "name": "curl",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "curl tutorial",
+        "task": "curl HTTP request headers cookies redirect examples",
+        "alternate": "curl --include --data --cookie request examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-23"
+      },
+      "docs_url": "https://curl.se/docs/manpage.html"
+    },
+    {
+      "id": "kali-24",
+      "name": "Cutter",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Cutter tutorial",
+        "task": "Cutter reverse engineering graph disassembly decompiler examples",
+        "alternate": "Cutter Rizin strings cross references tutorial"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-24"
+      },
+      "docs_url": "https://github.com/rizinorg/cutter"
+    },
+    {
+      "id": "kali-25",
+      "name": "DB Browser for SQLite",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "DB Browser for SQLite tutorial",
+        "task": "DB Browser for SQLite open database browse data execute SQL examples",
+        "alternate": "DB Browser SQLite read only database examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-25"
+      },
+      "docs_url": "https://sqlitebrowser.org/"
+    },
+    {
+      "id": "kali-26",
+      "name": "DBeaver Community Edition",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "DBeaver Community Edition tutorial",
+        "task": "DBeaver Community SQL editor execute query examples",
+        "alternate": "DBeaver open SQLite database connection examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-26"
+      },
+      "docs_url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/"
+    },
+    {
+      "id": "kali-27",
+      "name": "Detect It Easy (DIE)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Detect It Easy (DIE) tutorial",
+        "task": "Detect It Easy DIE identify PE packer compiler examples",
+        "alternate": "Detect It Easy diec command line scan file examples"
+      },
+      "candidate_source": {
+        "file": "queries-a.json",
+        "id": "kali-27"
+      },
+      "docs_url": "https://github.com/horsicq/Detect-It-Easy"
+    },
+    {
+      "id": "kali-28",
+      "name": "dex2jar",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "dex2jar tutorial",
+        "task": "dex2jar d2j-dex2jar APK DEX to JAR command example",
+        "alternate": "dex2jar 2.1 APK conversion errors troubleshooting"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-28"
+      },
+      "docs_url": "https://github.com/pxb1988/dex2jar"
+    },
+    {
+      "id": "kali-29",
+      "name": "Didier Stevens Beta tools (onedump.py)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Didier Stevens Beta tools (onedump.py) tutorial",
+        "task": "Didier Stevens onedump.py OneNote embedded files extraction example",
+        "alternate": "onedump.py OneNote list select dump embedded objects"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-29"
+      },
+      "docs_url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py"
+    },
+    {
+      "id": "kali-30",
+      "name": "Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others) tutorial",
+        "task": "Didier Stevens oledump.py VBA macro extraction example",
+        "alternate": "Didier Stevens pdfid.py pdf-parser.py suspicious PDF JavaScript analysis example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-30"
+      },
+      "docs_url": "https://github.com/DidierStevens/DidierStevensSuite"
+    },
+    {
+      "id": "kali-31",
+      "name": "Docker Engine and Compose plugin",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Docker Engine and Compose plugin tutorial",
+        "task": "Docker Compose plugin docker compose local lab up logs example",
+        "alternate": "Docker Engine bind mount read only container example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-31"
+      },
+      "docs_url": "https://docs.docker.com/compose/"
+    },
+    {
+      "id": "kali-32",
+      "name": "dwarf2json",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "dwarf2json tutorial",
+        "task": "dwarf2json Linux vmlinux System.map Volatility 3 symbols example",
+        "alternate": "dwarf2json ELF DWARF symbol JSON generation troubleshooting"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-32"
+      },
+      "docs_url": "https://github.com/volatilityfoundation/dwarf2json"
+    },
+    {
+      "id": "kali-33",
+      "name": "Eclipse Temurin JDK (OpenJDK)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Eclipse Temurin JDK (OpenJDK) tutorial",
+        "task": "OpenJDK 25 javap bytecode disassemble class example",
+        "alternate": "Eclipse Temurin JDK java jar classpath troubleshooting"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-33"
+      },
+      "docs_url": "https://adoptium.net/temurin"
+    },
+    {
+      "id": "kali-34",
+      "name": "ewf-tools (libewf)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ewf-tools (libewf) tutorial",
+        "task": "libewf ewfmount E01 forensic image read only example",
+        "alternate": "ewf-tools ewfinfo ewfexport E01 raw image example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-34"
+      },
+      "docs_url": "https://github.com/libyal/libewf"
+    },
+    {
+      "id": "kali-35",
+      "name": "Exploit-DB / searchsploit (offline archive)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Exploit-DB / searchsploit (offline archive) tutorial",
+        "task": "SearchSploit offline exact version exploit search example",
+        "alternate": "searchsploit examine mirror exploit file usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-35"
+      },
+      "docs_url": "https://www.exploit-db.com/searchsploit"
+    },
+    {
+      "id": "kali-36",
+      "name": "factordb-python",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "factordb-python tutorial",
+        "task": "factordb-python FactorDB connect get_factor_list example",
+        "alternate": "factordb-python integer factorization status Python usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-36"
+      },
+      "docs_url": "https://github.com/ryosan-470/factordb-python"
+    },
+    {
+      "id": "kali-37",
+      "name": "FakeNet-NG",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "FakeNet-NG tutorial",
+        "task": "FakeNet-NG Linux malware network simulation configuration example",
+        "alternate": "Mandiant flare-fakenet-ng Linux redirect traffic logs"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-37"
+      },
+      "docs_url": "https://github.com/mandiant/flare-fakenet-ng"
+    },
+    {
+      "id": "kali-38",
+      "name": "Fernflower",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Fernflower tutorial",
+        "task": "JetBrains Fernflower java jar decompile command line example",
+        "alternate": "Fernflower decompiler class jar source destination options"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-38"
+      },
+      "docs_url": "https://github.com/JetBrains/fernflower/blob/master/README.md"
+    },
+    {
+      "id": "kali-39",
+      "name": "Feroxbuster",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Feroxbuster tutorial",
+        "task": "feroxbuster recursive directory discovery filter status size example",
+        "alternate": "feroxbuster 2.13.1 rate limit recursion depth examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-39"
+      },
+      "docs_url": "https://github.com/epi052/feroxbuster"
+    },
+    {
+      "id": "kali-40",
+      "name": "FFmpeg",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "FFmpeg tutorial",
+        "task": "FFmpeg extract video frames audio stream command example",
+        "alternate": "ffmpeg select frames preserve timestamps examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-40"
+      },
+      "docs_url": "https://ffmpeg.org/ffmpeg.html"
+    },
+    {
+      "id": "kali-41",
+      "name": "ffuf",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ffuf tutorial",
+        "task": "ffuf directory fuzzing filter response size calibration example",
+        "alternate": "ffuf 2 virtual host fuzzing Host header example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-41"
+      },
+      "docs_url": "https://github.com/ffuf/ffuf"
+    },
+    {
+      "id": "kali-42",
+      "name": "file (libmagic)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "file (libmagic) tutorial",
+        "task": "Linux file libmagic identify file type MIME magic bytes example",
+        "alternate": "file command compressed data identification keep going example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-42"
+      },
+      "docs_url": "https://github.com/file/file"
+    },
+    {
+      "id": "kali-43",
+      "name": "FLOSS (FLARE Obfuscated String Solver)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "FLOSS (FLARE Obfuscated String Solver) tutorial",
+        "task": "Mandiant FLOSS extract obfuscated stack strings malware example",
+        "alternate": "flare-floss decoded strings static analysis usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-43"
+      },
+      "docs_url": "https://github.com/mandiant/flare-floss"
+    },
+    {
+      "id": "kali-44",
+      "name": "foremost",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "foremost tutorial",
+        "task": "foremost file carving disk image output directory example",
+        "alternate": "foremost recover JPEG PNG files header footer example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-44"
+      },
+      "docs_url": "https://www.kali.org/tools/foremost/"
+    },
+    {
+      "id": "kali-45",
+      "name": "FQLite",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "FQLite tutorial",
+        "task": "FQLite SQLite recover deleted records WAL example",
+        "alternate": "pawlaszczyk FQLite forensic SQLite database analysis usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-45"
+      },
+      "docs_url": "https://github.com/pawlaszczyk/fqlite"
+    },
+    {
+      "id": "kali-46",
+      "name": "Frida",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Frida tutorial",
+        "task": "Frida 17 Interceptor attach native function JavaScript example",
+        "alternate": "Frida 17 Java bridge Android hook method example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-46"
+      },
+      "docs_url": "https://frida.re/docs/javascript-api/"
+    },
+    {
+      "id": "kali-47",
+      "name": "GCC, G++ and build tools (build-essential, make, CMake, pkg-config)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "GCC, G++ and build tools (build-essential, make, CMake, pkg-config) tutorial",
+        "task": "GCC G++ compile debug symbols g O0 Make CMake example",
+        "alternate": "CMake pkg-config build-essential compile C C++ project troubleshooting"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-47"
+      },
+      "docs_url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html"
+    },
+    {
+      "id": "kali-48",
+      "name": "GEF (GDB Enhanced Features)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "GEF (GDB Enhanced Features) tutorial",
+        "task": "GEF GDB context registers stack breakpoints example",
+        "alternate": "GEF gdb source gef.py Linux binary debugging tutorial"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-48"
+      },
+      "docs_url": "https://hugsy.github.io/gef/"
+    },
+    {
+      "id": "kali-49",
+      "name": "Git",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Git tutorial",
+        "task": "Git log all show recover deleted file history example",
+        "alternate": "git reflog fsck dangling commits recovery example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-49"
+      },
+      "docs_url": "https://git-scm.com/docs/git-log"
+    },
+    {
+      "id": "kali-50",
+      "name": "Gitleaks",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Gitleaks tutorial",
+        "task": "Gitleaks git repository history secret detection redact example",
+        "alternate": "Gitleaks git dir commands report format usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-50"
+      },
+      "docs_url": "https://github.com/gitleaks/gitleaks"
+    },
+    {
+      "id": "kali-51",
+      "name": "G'MIC (gmic)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "G'MIC (gmic) tutorial",
+        "task": "G'MIC gmic command line split image channels normalize example",
+        "alternate": "gmic image processing contrast channels command examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-51"
+      },
+      "docs_url": "https://gmic.eu/reference/"
+    },
+    {
+      "id": "kali-52",
+      "name": "GNU Wget",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "GNU Wget tutorial",
+        "task": "GNU Wget download file output document resume example",
+        "alternate": "wget 1.25 save response headers download example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-52"
+      },
+      "docs_url": "https://www.gnu.org/software/wget/manual/wget.html"
+    },
+    {
+      "id": "kali-53",
+      "name": "Go",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Go tutorial",
+        "task": "Go command go run go build local program example",
+        "alternate": "Go modules go mod init tidy build examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-53"
+      },
+      "docs_url": "https://go.dev/doc/cmd"
+    },
+    {
+      "id": "kali-54",
+      "name": "Gobuster",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Gobuster tutorial",
+        "task": "Gobuster 3 dir directory enumeration extensions status code example",
+        "alternate": "Gobuster vhost append domain wordlist example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-54"
+      },
+      "docs_url": "https://github.com/OJ/gobuster"
+    },
+    {
+      "id": "kali-55",
+      "name": "GoReSym",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "GoReSym tutorial",
+        "task": "Mandiant GoReSym recover Go binary function symbols example",
+        "alternate": "GoReSym stripped Golang binary JSON output usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-55"
+      },
+      "docs_url": "https://github.com/mandiant/GoReSym"
+    },
+    {
+      "id": "kali-56",
+      "name": "GTFOBins (offline copy)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "GTFOBins (offline copy) tutorial",
+        "task": "GTFOBins sudo SUID capabilities lookup Linux binary examples",
+        "alternate": "GTFOBins offline documentation file read functions"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-56"
+      },
+      "docs_url": "https://gtfobins.org/"
+    },
+    {
+      "id": "kali-57",
+      "name": "gzip",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "gzip tutorial",
+        "task": "GNU gzip decompress keep original file command example",
+        "alternate": "gzip gunzip test integrity list compressed file examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-57"
+      },
+      "docs_url": "https://www.gnu.org/software/gzip/manual/gzip.html"
+    },
+    {
+      "id": "kali-58",
+      "name": "HackTricks (offline copy)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "HackTricks (offline copy) tutorial",
+        "task": "HackTricks Linux privilege escalation enumeration checklist CTF",
+        "alternate": "HackTricks file upload testing methodology examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-58"
+      },
+      "docs_url": "https://github.com/HackTricks-wiki/hacktricks"
+    },
+    {
+      "id": "kali-59",
+      "name": "hashcat",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "hashcat tutorial",
+        "task": "hashcat identify hash mode example hashes wordlist attack example",
+        "alternate": "hashcat 7 mask attack rules syntax examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-59"
+      },
+      "docs_url": "https://hashcat.net/wiki/doku.php?id=example_hashes"
+    },
+    {
+      "id": "kali-60",
+      "name": "hashid",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "hashid tutorial",
+        "task": "hashID hash identifier possible hash types hashcat modes example",
+        "alternate": "psypanda hashID usage identify hash format limitations"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-60"
+      },
+      "docs_url": "https://github.com/psypanda/hashID"
+    },
+    {
+      "id": "kali-61",
+      "name": "Hayabusa",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Hayabusa tutorial",
+        "task": "Hayabusa Windows EVTX csv timeline Sigma rules example",
+        "alternate": "Yamato Security Hayabusa logon summary event logs usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-61"
+      },
+      "docs_url": "https://github.com/Yamato-Security/hayabusa"
+    },
+    {
+      "id": "kali-62",
+      "name": "hcxtools",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "hcxtools tutorial",
+        "task": "hcxtools hcxpcapngtool WPA capture hashcat 22000 example",
+        "alternate": "hcxpcapngtool pcapng EAPOL PMKID conversion usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-62"
+      },
+      "docs_url": "https://github.com/ZerBea/hcxtools"
+    },
+    {
+      "id": "kali-63",
+      "name": "Hindsight (pyhindsight)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Hindsight (pyhindsight) tutorial",
+        "task": "Hindsight pyhindsight Chrome browser history timeline example",
+        "alternate": "RyanDFIR Hindsight browser profile forensic analysis usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-63"
+      },
+      "docs_url": "https://github.com/RyanDFIR/hindsight"
+    },
+    {
+      "id": "kali-64",
+      "name": "hlextend",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "hlextend tutorial",
+        "task": "hlextend Python SHA1 hash length extension example",
+        "alternate": "stephenbradshaw hlextend secret length padding example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-64"
+      },
+      "docs_url": "https://github.com/stephenbradshaw/hlextend"
+    },
+    {
+      "id": "kali-65",
+      "name": "Hydra",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Hydra tutorial",
+        "task": "THC Hydra http-post-form failure success condition example",
+        "alternate": "THC Hydra authorized lab login testing syntax examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-65"
+      },
+      "docs_url": "https://github.com/vanhauser-thc/thc-hydra"
+    },
+    {
+      "id": "kali-66",
+      "name": "iLEAPP (iOS Logs, Events, And Plists Parser)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "iLEAPP (iOS Logs, Events, And Plists Parser) tutorial",
+        "task": "iLEAPP iOS backup artifacts report command line example",
+        "alternate": "abrignoni iLEAPP logs events plist parser usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-66"
+      },
+      "docs_url": "https://github.com/abrignoni/iLEAPP"
+    },
+    {
+      "id": "kali-67",
+      "name": "ImageMagick",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ImageMagick tutorial",
+        "task": "ImageMagick 7 magick separate RGB channels contrast example",
+        "alternate": "ImageMagick 7 identify image metadata verbose example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-67"
+      },
+      "docs_url": "https://imagemagick.org/command-line-processing/"
+    },
+    {
+      "id": "kali-68",
+      "name": "Impacket",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Impacket tutorial",
+        "task": "Impacket smbclient.py SMB share listing authorized lab example",
+        "alternate": "Fortra Impacket examples network protocol scripts documentation"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-68"
+      },
+      "docs_url": "https://github.com/fortra/impacket"
+    },
+    {
+      "id": "kali-69",
+      "name": "innoextract",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "innoextract tutorial",
+        "task": "innoextract list extract Inno Setup installer without running example",
+        "alternate": "innoextract test installer integrity command example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-69"
+      },
+      "docs_url": "https://constexpr.org/innoextract/"
+    },
+    {
+      "id": "kali-70",
+      "name": "internet_detector",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "internet_detector tutorial",
+        "task": "INetSim internet services simulation DNS HTTP configuration example",
+        "alternate": "internet_detector INetSim Kali package executable identity"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-70"
+      },
+      "docs_url": "https://www.inetsim.org/"
+    },
+    {
+      "id": "kali-71",
+      "name": "IPython",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "IPython tutorial",
+        "task": "IPython interactive shell run script inspect object magic commands example",
+        "alternate": "IPython 9 timeit history debugging examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-71"
+      },
+      "docs_url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html"
+    },
+    {
+      "id": "kali-72",
+      "name": "jadx (jadx-gui)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "jadx (jadx-gui) tutorial",
+        "task": "jadx jadx-gui APK decompile search Java code example",
+        "alternate": "jadx decompilation errors inconsistent code troubleshooting"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-72"
+      },
+      "docs_url": "https://github.com/skylot/jadx"
+    },
+    {
+      "id": "kali-73",
+      "name": "John the Ripper (jumbo)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "John the Ripper (jumbo) tutorial",
+        "task": "John the Ripper jumbo zip2john wordlist password recovery example",
+        "alternate": "John the Ripper jumbo format list show cracked hashes usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-73"
+      },
+      "docs_url": "https://www.openwall.com/john/doc/"
+    },
+    {
+      "id": "kali-74",
+      "name": "Jpeginfo",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Jpeginfo tutorial",
+        "task": "jpeginfo check JPEG corruption command example",
+        "alternate": "jpeginfo JPEG JFIF integrity metadata usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-74"
+      },
+      "docs_url": "https://github.com/tjko/jpeginfo"
+    },
+    {
+      "id": "kali-75",
+      "name": "js-beautify",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "js-beautify tutorial",
+        "task": "js-beautify JavaScript command line input output example",
+        "alternate": "js-beautify format minified JavaScript without executing"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-75"
+      },
+      "docs_url": "https://github.com/beautifier/js-beautify"
+    },
+    {
+      "id": "kali-76",
+      "name": "js-deobfuscator",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "js-deobfuscator tutorial",
+        "task": "ben-sb js-deobfuscator npm input output string arrays example",
+        "alternate": "js-deobfuscator npm CLI simplify proxy functions example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-76"
+      },
+      "docs_url": "https://github.com/ben-sb/javascript-deobfuscator"
+    },
+    {
+      "id": "kali-77",
+      "name": "jwt_tool",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "jwt_tool tutorial",
+        "task": "ticarpi jwt_tool decode JWT claims test signature example",
+        "alternate": "jwt_tool HS256 weak secret dictionary lab example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-77"
+      },
+      "docs_url": "https://github.com/ticarpi/jwt_tool"
+    },
+    {
+      "id": "kali-78",
+      "name": "Katana",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Katana tutorial",
+        "task": "ProjectDiscovery Katana crawler scope depth JavaScript example",
+        "alternate": "Katana crawler headless form extraction usage examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-78"
+      },
+      "docs_url": "https://docs.projectdiscovery.io/opensource/katana/usage"
+    },
+    {
+      "id": "kali-79",
+      "name": "legion",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "legion tutorial",
+        "task": "Legion GoVanguard network reconnaissance Nmap import example",
+        "alternate": "Abacus Group Legion penetration testing GUI usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-79"
+      },
+      "docs_url": "https://github.com/Abacus-Group-RTO/legion"
+    },
+    {
+      "id": "kali-80",
+      "name": "libesedb tools",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "libesedb tools tutorial",
+        "task": "libesedb esedbexport ESE EDB database tables example",
+        "alternate": "libesedb esedbinfo Windows ESE database forensic extraction"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-80"
+      },
+      "docs_url": "https://github.com/libyal/libesedb"
+    },
+    {
+      "id": "kali-81",
+      "name": "LibreOffice",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "LibreOffice tutorial",
+        "task": "LibreOffice headless convert to PDF command line example",
+        "alternate": "LibreOffice command line convert spreadsheet CSV filter options"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-81"
+      },
+      "docs_url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html"
+    },
+    {
+      "id": "kali-82",
+      "name": "lrzip",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "lrzip tutorial",
+        "task": "lrzip lrunzip decompress lrz file keep original example",
+        "alternate": "lrzip test integrity list archive command example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-82"
+      },
+      "docs_url": "https://github.com/ckolivas/lrzip"
+    },
+    {
+      "id": "kali-83",
+      "name": "ltrace",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ltrace tutorial",
+        "task": "ltrace Linux trace dynamic library calls strcmp example",
+        "alternate": "ltrace filter library functions string length options example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-83"
+      },
+      "docs_url": "https://ltrace.org/"
+    },
+    {
+      "id": "kali-84",
+      "name": "lz4",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "lz4 tutorial",
+        "task": "lz4 command decompress lz4 file keep original example",
+        "alternate": "lz4 CLI test compressed frame integrity examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-84"
+      },
+      "docs_url": "https://github.com/lz4/lz4"
+    },
+    {
+      "id": "kali-85",
+      "name": "lzip",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "lzip tutorial",
+        "task": "lzip decompress keep original lz file example",
+        "alternate": "lzip 1.26 test integrity command examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-85"
+      },
+      "docs_url": "https://www.nongnu.org/lzip/manual/lzip_manual.html"
+    },
+    {
+      "id": "kali-86",
+      "name": "mac_apt",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "mac_apt tutorial",
+        "task": "mac_apt macOS disk image artifacts plugins usage example",
+        "alternate": "ydkhatri mac_apt APFS forensic extraction report example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-86"
+      },
+      "docs_url": "https://github.com/ydkhatri/mac_apt"
+    },
+    {
+      "id": "kali-87",
+      "name": "MediaInfo",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "MediaInfo tutorial",
+        "task": "MediaInfo command line full JSON media metadata example",
+        "alternate": "MediaInfo codec container duration metadata usage"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-87"
+      },
+      "docs_url": "https://mediaarea.net/en/MediaInfo"
+    },
+    {
+      "id": "kali-88",
+      "name": "Metasploit Framework",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Metasploit Framework tutorial",
+        "task": "Metasploit Framework msfconsole search info show options lab example",
+        "alternate": "Metasploit auxiliary scanner module check usage example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-88"
+      },
+      "docs_url": "https://docs.metasploit.com/"
+    },
+    {
+      "id": "kali-89",
+      "name": "mimikatz",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "mimikatz tutorial",
+        "task": "mimikatz sekurlsa minidump offline analysis example",
+        "alternate": "mimikatz 2.2 Windows minidump architecture compatibility"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-89"
+      },
+      "docs_url": "https://github.com/gentilkiwi/mimikatz/wiki"
+    },
+    {
+      "id": "kali-90",
+      "name": "Miniforge3 (conda)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Miniforge3 (conda) tutorial",
+        "task": "Miniforge conda create environment conda-forge Python example",
+        "alternate": "conda env export reproduce environment Miniforge example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-90"
+      },
+      "docs_url": "https://github.com/conda-forge/miniforge"
+    },
+    {
+      "id": "kali-91",
+      "name": "multimon-ng",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "multimon-ng tutorial",
+        "task": "multimon-ng WAV audio DTMF decode command example",
+        "alternate": "multimon-ng AFSK1200 POCSAG sample rate raw audio example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-91"
+      },
+      "docs_url": "https://github.com/EliasOenal/multimon-ng"
+    },
+    {
+      "id": "kali-92",
+      "name": "mupdf-tools (mutool)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "mupdf-tools (mutool) tutorial",
+        "task": "MuPDF mutool extract PDF images fonts command example",
+        "alternate": "mutool show PDF objects streams example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-92"
+      },
+      "docs_url": "https://mupdf.readthedocs.io/en/latest/tools/mutool.html"
+    },
+    {
+      "id": "kali-93",
+      "name": "NASM (Netwide Assembler)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "NASM (Netwide Assembler) tutorial",
+        "task": "NASM x86 64 assemble ELF64 object file example",
+        "alternate": "NASM ndisasm raw binary disassembly bits origin example"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-93"
+      },
+      "docs_url": "https://www.nasm.us/docs.html"
+    },
+    {
+      "id": "kali-94",
+      "name": "Nmap (with Ncat / Nping)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Nmap (with Ncat / Nping) tutorial",
+        "task": "Nmap service version detection save output authorized lab example",
+        "alternate": "Nmap Ncat Nping TCP connection packet testing examples"
+      },
+      "candidate_source": {
+        "file": "queries-b.json",
+        "id": "kali-94"
+      },
+      "docs_url": "https://www.kali.org/tools/nmap/"
+    },
+    {
+      "id": "kali-95",
+      "name": "Node.js (with npm)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Node.js (with npm) tutorial",
+        "task": "Node.js 24 Buffer hex base64 conversion examples",
+        "alternate": "Node.js Buffer from hex toString base64 documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-95"
+      },
+      "docs_url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html"
+    },
+    {
+      "id": "kali-96",
+      "name": "obfuscator-io-deobfuscator",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "obfuscator-io-deobfuscator tutorial",
+        "task": "obfuscator-io-deobfuscator CLI recover strings examples",
+        "alternate": "ben-sb obfuscator-io-deobfuscator input output usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-96"
+      },
+      "docs_url": "https://github.com/ben-sb/obfuscator-io-deobfuscator"
+    },
+    {
+      "id": "kali-97",
+      "name": "Obsidian",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Obsidian tutorial",
+        "task": "Obsidian link notes organize investigation vault examples",
+        "alternate": "Obsidian internal links search markdown documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-97"
+      },
+      "docs_url": "https://help.obsidian.md/links"
+    },
+    {
+      "id": "kali-98",
+      "name": "oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf) tutorial",
+        "task": "oletools olevba extract VBA macros examples",
+        "alternate": "oletools oleid oleobj rtfobj suspicious document analysis usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-98"
+      },
+      "docs_url": "https://github.com/decalage2/oletools"
+    },
+    {
+      "id": "kali-99",
+      "name": "OllyDbg",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "OllyDbg tutorial",
+        "task": "OllyDbg 1.10 breakpoints registers trace tutorial",
+        "alternate": "OllyDbg 1.10 32 bit executable debugging documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-99"
+      },
+      "docs_url": "https://www.ollydbg.de/quickst.htm"
+    },
+    {
+      "id": "kali-100",
+      "name": "OpenStego",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "OpenStego tutorial",
+        "task": "OpenStego extract hidden data image command line examples",
+        "alternate": "OpenStego RandomLSB extract password documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-100"
+      },
+      "docs_url": "https://www.openstego.com/"
+    },
+    {
+      "id": "kali-101",
+      "name": "padding-oracle-attacker",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "padding-oracle-attacker tutorial",
+        "task": "padding-oracle-attacker CLI error response ciphertext examples",
+        "alternate": "KishanBagaria padding-oracle-attacker usage block size encoding"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-101"
+      },
+      "docs_url": "https://github.com/KishanBagaria/padding-oracle-attacker"
+    },
+    {
+      "id": "kali-102",
+      "name": "PARI/GP",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "PARI/GP tutorial",
+        "task": "PARI GP znlog modular arithmetic examples",
+        "alternate": "PARI GP factor znorder Mod documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-102"
+      },
+      "docs_url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html"
+    },
+    {
+      "id": "kali-103",
+      "name": "PayloadsAllTheThings (offline copy)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "PayloadsAllTheThings (offline copy) tutorial",
+        "task": "PayloadsAllTheThings SQL injection syntax reference examples",
+        "alternate": "PayloadsAllTheThings SQL injection cheatsheet documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-103"
+      },
+      "docs_url": "https://github.com/swisskyrepo/PayloadsAllTheThings"
+    },
+    {
+      "id": "kali-104",
+      "name": "peda",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "peda tutorial",
+        "task": "GDB PEDA pattern create pattern offset examples",
+        "alternate": "longld peda GDB context checksec documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-104"
+      },
+      "docs_url": "https://github.com/longld/peda"
+    },
+    {
+      "id": "kali-105",
+      "name": "peepdf-3",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "peepdf-3 tutorial",
+        "task": "peepdf-3 inspect PDF objects streams examples",
+        "alternate": "digitalsleuth peepdf-3 interactive console usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-105"
+      },
+      "docs_url": "https://github.com/digitalsleuth/peepdf-3"
+    },
+    {
+      "id": "kali-106",
+      "name": "pff-tools (libpff)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pff-tools (libpff) tutorial",
+        "task": "libpff pffexport PST email export examples",
+        "alternate": "pff-tools pffinfo pffexport usage PST OST"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-106"
+      },
+      "docs_url": "https://github.com/libyal/libpff"
+    },
+    {
+      "id": "kali-107",
+      "name": "Plaso (log2timeline, psort, pinfo)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Plaso (log2timeline, psort, pinfo) tutorial",
+        "task": "Plaso log2timeline psort timeline CSV examples",
+        "alternate": "Plaso log2timeline psort pinfo storage file documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-107"
+      },
+      "docs_url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html"
+    },
+    {
+      "id": "kali-108",
+      "name": "pngcheck",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pngcheck tutorial",
+        "task": "pngcheck verbose PNG chunks CRC examples",
+        "alternate": "pngcheck PNG integrity embedded text usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-108"
+      },
+      "docs_url": "https://github.com/pnggroup/pngcheck"
+    },
+    {
+      "id": "kali-109",
+      "name": "pwndbg",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pwndbg tutorial",
+        "task": "pwndbg GDB context cyclic offset examples",
+        "alternate": "pwndbg cyclic checksec commands documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-109"
+      },
+      "docs_url": "https://pwndbg.re/stable/commands/"
+    },
+    {
+      "id": "kali-110",
+      "name": "pycdc (Decompyle++)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pycdc (Decompyle++) tutorial",
+        "task": "pycdc Decompyle++ decompile pyc usage supported Python versions",
+        "alternate": "zrax pycdc pycdas bytecode disassembly examples"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-110"
+      },
+      "docs_url": "https://github.com/zrax/pycdc"
+    },
+    {
+      "id": "kali-111",
+      "name": "pyinstxtractor-ng",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pyinstxtractor-ng tutorial",
+        "task": "pyinstxtractor-ng extract PyInstaller executable examples",
+        "alternate": "pyinstxtractor-ng encrypted executable usage documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-111"
+      },
+      "docs_url": "https://github.com/pyinstxtractor/pyinstxtractor-ng"
+    },
+    {
+      "id": "kali-112",
+      "name": "pypykatz",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "pypykatz tutorial",
+        "task": "pypykatz lsa minidump offline dump parse examples",
+        "alternate": "pypykatz minidump parser command documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-112"
+      },
+      "docs_url": "https://github.com/skelsec/pypykatz"
+    },
+    {
+      "id": "kali-113",
+      "name": "Python 2.7",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Python 2.7 tutorial",
+        "task": "Python 2.7 struct unpack binary data examples",
+        "alternate": "Python 2.7 binascii unhexlify documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-113"
+      },
+      "docs_url": "https://docs.python.org/2.7/library/struct.html"
+    },
+    {
+      "id": "kali-114",
+      "name": "Python 3.11 (via uv)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Python 3.11 (via uv) tutorial",
+        "task": "uv run Python 3.11 script dependencies examples",
+        "alternate": "uv python install 3.11 managed Python documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-114"
+      },
+      "docs_url": "https://docs.astral.sh/uv/guides/install-python/"
+    },
+    {
+      "id": "kali-115",
+      "name": "qemu-img (qemu-utils)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "qemu-img (qemu-utils) tutorial",
+        "task": "qemu-img info convert qcow2 raw examples",
+        "alternate": "QEMU qemu-img disk image formats convert documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-115"
+      },
+      "docs_url": "https://www.qemu.org/docs/master/tools/qemu-img.html"
+    },
+    {
+      "id": "kali-116",
+      "name": "radare2",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "radare2 tutorial",
+        "task": "radare2 analyze binary afl pdf strings examples",
+        "alternate": "radare2 book aaa afl pdf izz commands"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-116"
+      },
+      "docs_url": "https://book.rada.re/analysis/intro.html"
+    },
+    {
+      "id": "kali-117",
+      "name": "rat-king-parser",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "rat-king-parser tutorial",
+        "task": "rat-king-parser extract AsyncRAT configuration examples",
+        "alternate": "jeFF0Falltrades rat_king_parser normalize YARA usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-117"
+      },
+      "docs_url": "https://github.com/jeFF0Falltrades/rat_king_parser"
+    },
+    {
+      "id": "kali-118",
+      "name": "RegRipper",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "RegRipper tutorial",
+        "task": "RegRipper 3.0 rip.pl registry hive plugins examples",
+        "alternate": "RegRipper3.0 rip.pl hive plugin usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-118"
+      },
+      "docs_url": "https://github.com/keydet89/RegRipper3.0"
+    },
+    {
+      "id": "kali-119",
+      "name": "ripgrep (rg)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ripgrep (rg) tutorial",
+        "task": "ripgrep rg fixed strings hidden files examples",
+        "alternate": "ripgrep rg text binary files glob guide"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-119"
+      },
+      "docs_url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md"
+    },
+    {
+      "id": "kali-120",
+      "name": "rockyou.txt (Kali 'wordlists' package)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "rockyou.txt (Kali 'wordlists' package) tutorial",
+        "task": "Kali wordlists rockyou.txt.gz location decompress",
+        "alternate": "Kali rockyou wordlists package usage documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-120"
+      },
+      "docs_url": "https://www.kali.org/tools/wordlists/"
+    },
+    {
+      "id": "kali-121",
+      "name": "ROPgadget",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "ROPgadget tutorial",
+        "task": "ROPgadget binary only pop ret examples",
+        "alternate": "JonathanSalwan ROPgadget usage supported architectures"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-121"
+      },
+      "docs_url": "https://github.com/JonathanSalwan/ROPgadget"
+    },
+    {
+      "id": "kali-122",
+      "name": "rtptools (rtpdump, rtpplay and others)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "rtptools (rtpdump, rtpplay and others) tutorial",
+        "task": "rtptools rtpdump rtpplay payload format examples",
+        "alternate": "rtptools rtpdump file format usage documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-122"
+      },
+      "docs_url": "https://github.com/irtlab/rtptools"
+    },
+    {
+      "id": "kali-123",
+      "name": "Rust (rustup, rustc, cargo)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Rust (rustup, rustc, cargo) tutorial",
+        "task": "Rust cargo run rustc debug build examples",
+        "alternate": "Rust book cargo build run documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-123"
+      },
+      "docs_url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html"
+    },
+    {
+      "id": "kali-124",
+      "name": "rustscan",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "rustscan tutorial",
+        "task": "RustScan port scan nmap arguments examples",
+        "alternate": "RustScan usage batch size timeout documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-124"
+      },
+      "docs_url": "https://github.com/RustScan/RustScan/wiki/Usage"
+    },
+    {
+      "id": "kali-125",
+      "name": "SageMath",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "SageMath tutorial",
+        "task": "SageMath finite field discrete_log examples",
+        "alternate": "SageMath modular arithmetic small_roots documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-125"
+      },
+      "docs_url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html"
+    },
+    {
+      "id": "kali-126",
+      "name": "SecLists",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "SecLists tutorial",
+        "task": "SecLists web content discovery directory wordlists examples",
+        "alternate": "SecLists Discovery Web-Content wordlist selection documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-126"
+      },
+      "docs_url": "https://github.com/danielmiessler/SecLists"
+    },
+    {
+      "id": "kali-127",
+      "name": "socat",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "socat tutorial",
+        "task": "socat TCP client standard input examples",
+        "alternate": "socat STDIO TCP address syntax documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-127"
+      },
+      "docs_url": "https://www.kali.org/tools/socat/"
+    },
+    {
+      "id": "kali-128",
+      "name": "Sonic Visualiser",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Sonic Visualiser tutorial",
+        "task": "Sonic Visualiser spectrogram layer audio analysis tutorial",
+        "alternate": "Sonic Visualiser spectrogram frequency scale documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-128"
+      },
+      "docs_url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/"
+    },
+    {
+      "id": "kali-129",
+      "name": "SoX (Sound eXchange)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "SoX (Sound eXchange) tutorial",
+        "task": "sox_ng spectrogram WAV PNG command examples",
+        "alternate": "sox_ng remix trim spectrogram documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-129"
+      },
+      "docs_url": "https://codeberg.org/sox_ng/sox_ng"
+    },
+    {
+      "id": "kali-130",
+      "name": "SQLCipher Community Edition \u2014 CLI",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "SQLCipher Community Edition \u2014 CLI tutorial",
+        "task": "SQLCipher 4 CLI PRAGMA key encrypted database examples",
+        "alternate": "SQLCipher command line cipher_compatibility database documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-130"
+      },
+      "docs_url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/"
+    },
+    {
+      "id": "kali-131",
+      "name": "sqlite3",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "sqlite3 tutorial",
+        "task": "sqlite3 CLI tables schema SELECT examples",
+        "alternate": "SQLite command line shell readonly database query documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-131"
+      },
+      "docs_url": "https://sqlite.org/cli.html"
+    },
+    {
+      "id": "kali-132",
+      "name": "sqlmap",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "sqlmap tutorial",
+        "task": "sqlmap saved request file parameter batch examples",
+        "alternate": "sqlmap usage request file risk level documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-132"
+      },
+      "docs_url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage"
+    },
+    {
+      "id": "kali-133",
+      "name": "sstv (command-line SSTV decoder)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "sstv (command-line SSTV decoder) tutorial",
+        "task": "colaclanth sstv decode WAV image examples",
+        "alternate": "PySSTV encoder versus colaclanth sstv decoder Python package usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-133"
+      },
+      "docs_url": "https://github.com/colaclanth/sstv"
+    },
+    {
+      "id": "kali-134",
+      "name": "steghide",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "steghide tutorial",
+        "task": "steghide info extract passphrase examples",
+        "alternate": "steghide supported file formats extract documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-134"
+      },
+      "docs_url": "https://www.kali.org/tools/steghide/"
+    },
+    {
+      "id": "kali-135",
+      "name": "stegseek",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "stegseek tutorial",
+        "task": "stegseek steghide wordlist extract examples",
+        "alternate": "stegseek seed mode usage documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-135"
+      },
+      "docs_url": "https://github.com/RickdeJager/stegseek"
+    },
+    {
+      "id": "kali-136",
+      "name": "stegsnow (SNOW)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "stegsnow (SNOW) tutorial",
+        "task": "stegsnow SNOW extract whitespace steganography examples",
+        "alternate": "SNOW steganography spaces tabs decode command line"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-136"
+      },
+      "docs_url": "https://www.darkside.com.au/snow/"
+    },
+    {
+      "id": "kali-137",
+      "name": "StegSolve",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "StegSolve tutorial",
+        "task": "StegSolve Caesum image bit planes data extract tutorial",
+        "alternate": "StegSolve analyse data extract RGB LSB examples"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-137"
+      },
+      "docs_url": "https://github.com/Giotino/stegsolve"
+    },
+    {
+      "id": "kali-138",
+      "name": "strace",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "strace tutorial",
+        "task": "strace trace openat read write file examples",
+        "alternate": "strace filter system calls trace output documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-138"
+      },
+      "docs_url": "https://strace.io/"
+    },
+    {
+      "id": "kali-139",
+      "name": "Subfinder",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Subfinder tutorial",
+        "task": "Subfinder passive subdomain enumeration sources examples",
+        "alternate": "ProjectDiscovery subfinder usage provider config documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-139"
+      },
+      "docs_url": "https://docs.projectdiscovery.io/tools/subfinder/usage"
+    },
+    {
+      "id": "kali-140",
+      "name": "Sublime Text",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Sublime Text tutorial",
+        "task": "Sublime Text regex find in files examples",
+        "alternate": "Sublime Text search regular expressions documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-140"
+      },
+      "docs_url": "https://www.sublimetext.com/docs/"
+    },
+    {
+      "id": "kali-141",
+      "name": "tar",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "tar tutorial",
+        "task": "GNU tar list extract archive directory examples",
+        "alternate": "GNU tar extract specific files documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-141"
+      },
+      "docs_url": "https://www.gnu.org/software/tar/manual/html_node/extract.html"
+    },
+    {
+      "id": "kali-142",
+      "name": "tcpdump",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "tcpdump tutorial",
+        "task": "tcpdump read pcap filter host port examples",
+        "alternate": "tcpdump r pcap X payload filter documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-142"
+      },
+      "docs_url": "https://www.tcpdump.org/manpages/tcpdump.1.html"
+    },
+    {
+      "id": "kali-143",
+      "name": "TestDisk and PhotoRec",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "TestDisk and PhotoRec tutorial",
+        "task": "PhotoRec recover files disk image TestDisk examples",
+        "alternate": "TestDisk PhotoRec image.dd file recovery documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-143"
+      },
+      "docs_url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step"
+    },
+    {
+      "id": "kali-144",
+      "name": "unar",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "unar tutorial",
+        "task": "unar lsar list extract archive command examples",
+        "alternate": "The Unarchiver unar lsar command line usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-144"
+      },
+      "docs_url": "https://theunarchiver.com/command-line"
+    },
+    {
+      "id": "kali-145",
+      "name": "uncompyle6",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "uncompyle6 tutorial",
+        "task": "uncompyle6 decompile pyc supported Python bytecode versions",
+        "alternate": "uncompyle6 Python bytecode version limitations usage"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-145"
+      },
+      "docs_url": "https://github.com/rocky/python-uncompyle6"
+    },
+    {
+      "id": "kali-146",
+      "name": "unpyc3 (unpyc37-3.10)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "unpyc3 (unpyc37-3.10) tutorial",
+        "task": "unpyc37-3.10 unpyc3 decompile bytecode usage",
+        "alternate": "greyblue9 unpyc37-3.10 Python decompiler compatibility"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-146"
+      },
+      "docs_url": "https://github.com/greyblue9/unpyc37-3.10"
+    },
+    {
+      "id": "kali-147",
+      "name": "unrar",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "unrar tutorial",
+        "task": "unrar list extract archive Linux examples",
+        "alternate": "RAR unrar command line x l t documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-147"
+      },
+      "docs_url": "https://www.rarlab.com/rar_add.htm"
+    },
+    {
+      "id": "kali-148",
+      "name": "unzip",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "unzip tutorial",
+        "task": "Info-ZIP unzip list extract archive examples",
+        "alternate": "unzip 6.0 command options l p d documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-148"
+      },
+      "docs_url": "https://infozip.sourceforge.net/UnZip.html"
+    },
+    {
+      "id": "kali-149",
+      "name": "UPX",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "UPX tutorial",
+        "task": "UPX 4 unpack executable d test t examples",
+        "alternate": "UPX decompress packed executable documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-149"
+      },
+      "docs_url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt"
+    },
+    {
+      "id": "kali-150",
+      "name": "Visual Studio Code",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Visual Studio Code tutorial",
+        "task": "Visual Studio Code search regex files workspace examples",
+        "alternate": "VS Code basic editing search across files documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-150"
+      },
+      "docs_url": "https://code.visualstudio.com/docs/editor/codebasics"
+    },
+    {
+      "id": "kali-151",
+      "name": "Volatility 2",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Volatility 2 tutorial",
+        "task": "Volatility 2 imageinfo profile pslist memory dump examples",
+        "alternate": "Volatility 2 command reference imageinfo pslist netscan"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-151"
+      },
+      "docs_url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference"
+    },
+    {
+      "id": "kali-152",
+      "name": "Volatility 2 community plugins",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Volatility 2 community plugins tutorial",
+        "task": "Volatility 2 community plugins plugins directory usage",
+        "alternate": "volatilityfoundation community plugin compatibility documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-152"
+      },
+      "docs_url": "https://github.com/volatilityfoundation/community"
+    },
+    {
+      "id": "kali-153",
+      "name": "Volatility 2 profiles (Linux and macOS)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Volatility 2 profiles (Linux and macOS) tutorial",
+        "task": "Volatility 2 Linux Mac profiles overlays usage",
+        "alternate": "volatilityfoundation profiles Linux macOS memory image matching"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-153"
+      },
+      "docs_url": "https://github.com/volatilityfoundation/profiles"
+    },
+    {
+      "id": "kali-154",
+      "name": "Volatility 3 community plugins (community3)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Volatility 3 community plugins (community3) tutorial",
+        "task": "Volatility 3 community3 plugins p directory usage",
+        "alternate": "volatilityfoundation community3 plugin compatibility documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-154"
+      },
+      "docs_url": "https://github.com/volatilityfoundation/community3"
+    },
+    {
+      "id": "kali-155",
+      "name": "VS Code extension: C/C++ (ms-vscode.cpptools)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "VS Code extension: C/C++ (ms-vscode.cpptools) tutorial",
+        "task": "VS Code C C++ extension GDB launch.json debugging examples",
+        "alternate": "ms-vscode.cpptools Linux debugging documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-155"
+      },
+      "docs_url": "https://code.visualstudio.com/docs/cpp/cpp-debug"
+    },
+    {
+      "id": "kali-156",
+      "name": "VS Code extension: Python (ms-python.python)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "VS Code extension: Python (ms-python.python) tutorial",
+        "task": "VS Code Python extension select interpreter debug examples",
+        "alternate": "ms-python.python environment debugger documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-156"
+      },
+      "docs_url": "https://code.visualstudio.com/docs/python/environments"
+    },
+    {
+      "id": "kali-157",
+      "name": "YARA",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "YARA tutorial",
+        "task": "YARA 4 rule strings condition scan file examples",
+        "alternate": "YARA writing rules hex strings condition documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-157"
+      },
+      "docs_url": "https://yara.readthedocs.io/en/stable/writingrules.html"
+    },
+    {
+      "id": "kali-158",
+      "name": "yara-python (and YARA on Linux)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "yara-python (and YARA on Linux) tutorial",
+        "task": "yara-python compile match filepath examples",
+        "alternate": "yara-python YARA 4 Python API documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-158"
+      },
+      "docs_url": "https://yara.readthedocs.io/en/stable/yarapython.html"
+    },
+    {
+      "id": "kali-159",
+      "name": "zip",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "zip tutorial",
+        "task": "Info-ZIP zip archive files recursive examples",
+        "alternate": "zip command line options recurse documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-159"
+      },
+      "docs_url": "https://infozip.sourceforge.net/Zip.html"
+    },
+    {
+      "id": "kali-160",
+      "name": "zstd",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "zstd tutorial",
+        "task": "zstd decompress file list test examples",
+        "alternate": "zstd command line d t l documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-160"
+      },
+      "docs_url": "https://github.com/facebook/zstd/blob/dev/programs/README.md"
+    },
+    {
+      "id": "kali-161",
+      "name": "Zui (formerly Brim)",
+      "status": "not_run_after_network_block",
+      "scores": null,
+      "variants": {
+        "generic": "Zui (formerly Brim) tutorial",
+        "task": "Zui Brim import pcap Zed query examples",
+        "alternate": "Zui network packet capture analysis documentation"
+      },
+      "candidate_source": {
+        "file": "queries-c.json",
+        "id": "kali-161"
+      },
+      "docs_url": "https://github.com/brimdata/zui"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://support.google.com/websearch/answer/14901683?hl=en",
+      "checked": "2026-10-19",
+      "finding": "AI Overviews appear when Google judges them helpful; responses can contain mistakes. Google recommends checking supporting sources and trying different question versions."
+    },
+    {
+      "url": "https://developers.google.com/search/docs/appearance/ai-features",
+      "checked": "2026-10-19",
+      "finding": "Primary documentation about AI features; it is not a user-query benchmark."
+    }
+  ],
+  "candidate_input_sha256": {
+    "queries-a.json": "71eb7f7303c04abc017648fb742436e6c6e2ddc33d656786f29c8f1070bd94ea",
+    "queries-b.json": "d8e3de84964ba2c1ca7604e56449a21786d5178dcfea48cfc1f193c70d35a18a",
+    "queries-c.json": "e291851206bb2eec2e45703449722ad8bc0311e81b55b86bbe6d49a848d25468",
+    "categories.json": "b2ae4bd4d3fa04e6ac638b4196c0e1d70e23b5d9c4d85b55d1e7b8751cebd9ae"
+  },
+  "last_recheck": {
+    "checked_at_utc": "2026-10-19T05:55:51.307132+00:00",
+    "query": "CyberChef decode base64 recipe example",
+    "origin": "https://www.google.com",
+    "path": "/sorry/index",
+    "http_status": 429,
+    "unusual_traffic": true,
+    "human_check_requested": true,
+    "ai_overview_observed": null,
+    "action": "Stopped; no human-check interaction or bypass."
+  }
+}

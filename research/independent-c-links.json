@@ -1,0 +1,337 @@
+[
+  {
+    "id": "kali-95",
+    "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+    "status": 200
+  },
+  {
+    "id": "kali-96",
+    "url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+    "status": 200
+  },
+  {
+    "id": "kali-97",
+    "url": "https://help.obsidian.md/links",
+    "status": 200
+  },
+  {
+    "id": "kali-98",
+    "url": "https://github.com/decalage2/oletools",
+    "status": 200
+  },
+  {
+    "id": "kali-99",
+    "url": "https://www.ollydbg.de/",
+    "status": 200
+  },
+  {
+    "id": "kali-100",
+    "url": "https://www.openstego.com/",
+    "status": 200
+  },
+  {
+    "id": "kali-101",
+    "url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+    "status": 200
+  },
+  {
+    "id": "kali-102",
+    "url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+    "status": 200
+  },
+  {
+    "id": "kali-103",
+    "url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+    "status": 200
+  },
+  {
+    "id": "kali-104",
+    "url": "https://github.com/longld/peda",
+    "status": 200
+  },
+  {
+    "id": "kali-105",
+    "url": "https://github.com/digitalsleuth/peepdf-3",
+    "status": 200
+  },
+  {
+    "id": "kali-106",
+    "url": "https://github.com/libyal/libpff",
+    "status": 200
+  },
+  {
+    "id": "kali-107",
+    "url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html",
+    "status": 200
+  },
+  {
+    "id": "kali-108",
+    "url": "https://github.com/pnggroup/pngcheck",
+    "status": 200
+  },
+  {
+    "id": "kali-109",
+    "url": "https://pwndbg.re/pwndbg/latest/commands/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "id": "kali-110",
+    "url": "https://github.com/zrax/pycdc",
+    "status": 200
+  },
+  {
+    "id": "kali-111",
+    "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+    "status": 200
+  },
+  {
+    "id": "kali-112",
+    "url": "https://github.com/skelsec/pypykatz",
+    "status": 200
+  },
+  {
+    "id": "kali-113",
+    "url": "https://docs.python.org/2.7/library/struct.html",
+    "status": 200
+  },
+  {
+    "id": "kali-114",
+    "url": "https://docs.astral.sh/uv/guides/install-python/",
+    "status": 200
+  },
+  {
+    "id": "kali-115",
+    "url": "https://www.qemu.org/docs/master/tools/qemu-img.html",
+    "status": 200
+  },
+  {
+    "id": "kali-116",
+    "url": "https://book.rada.re/analysis/intro.html",
+    "status": 200
+  },
+  {
+    "id": "kali-117",
+    "url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+    "status": 200
+  },
+  {
+    "id": "kali-118",
+    "url": "https://github.com/keydet89/RegRipper3.0",
+    "status": 200
+  },
+  {
+    "id": "kali-119",
+    "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+    "status": 200
+  },
+  {
+    "id": "kali-120",
+    "url": "https://www.kali.org/tools/wordlists/",
+    "status": 200
+  },
+  {
+    "id": "kali-121",
+    "url": "https://github.com/JonathanSalwan/ROPgadget",
+    "status": 200
+  },
+  {
+    "id": "kali-122",
+    "url": "https://github.com/irtlab/rtptools",
+    "status": 200
+  },
+  {
+    "id": "kali-123",
+    "url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+    "status": 200
+  },
+  {
+    "id": "kali-124",
+    "url": "https://github.com/RustScan/RustScan/wiki/Usage",
+    "status": 200
+  },
+  {
+    "id": "kali-125",
+    "url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html",
+    "status": 200
+  },
+  {
+    "id": "kali-126",
+    "url": "https://github.com/danielmiessler/SecLists",
+    "status": 200
+  },
+  {
+    "id": "kali-127",
+    "url": "https://www.dest-unreach.org/socat/doc/socat.html",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)>"
+  },
+  {
+    "id": "kali-128",
+    "url": "https://www.sonicvisualiser.org/doc/reference/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "kali-129",
+    "url": "https://codeberg.org/sox_ng/sox_ng",
+    "status": 200
+  },
+  {
+    "id": "kali-130",
+    "url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/",
+    "status": 200
+  },
+  {
+    "id": "kali-131",
+    "url": "https://sqlite.org/cli.html",
+    "status": 200
+  },
+  {
+    "id": "kali-132",
+    "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+    "status": 200
+  },
+  {
+    "id": "kali-133",
+    "url": "https://github.com/colaclanth/sstv",
+    "status": 200
+  },
+  {
+    "id": "kali-134",
+    "url": "https://steghide.sourceforge.net/documentation.php",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "kali-135",
+    "url": "https://github.com/RickdeJager/stegseek",
+    "status": 200
+  },
+  {
+    "id": "kali-136",
+    "url": "https://www.darkside.com.au/snow/",
+    "status": 200
+  },
+  {
+    "id": "kali-137",
+    "url": "http://www.caesum.com/handbook/stego.htm",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "id": "kali-138",
+    "url": "https://strace.io/",
+    "status": 200
+  },
+  {
+    "id": "kali-139",
+    "url": "https://docs.projectdiscovery.io/tools/subfinder/usage",
+    "status": 200
+  },
+  {
+    "id": "kali-140",
+    "url": "https://www.sublimetext.com/docs/",
+    "status": 200
+  },
+  {
+    "id": "kali-141",
+    "url": "https://www.gnu.org/software/tar/manual/html_node/Extracting-Files.html",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "kali-142",
+    "url": "https://www.tcpdump.org/manpages/tcpdump.1.html",
+    "status": 200
+  },
+  {
+    "id": "kali-143",
+    "url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step",
+    "status": 200
+  },
+  {
+    "id": "kali-144",
+    "url": "https://theunarchiver.com/command-line",
+    "status": 200
+  },
+  {
+    "id": "kali-145",
+    "url": "https://github.com/rocky/python-uncompyle6",
+    "status": 200
+  },
+  {
+    "id": "kali-146",
+    "url": "https://github.com/greyblue9/unpyc37-3.10",
+    "status": 200
+  },
+  {
+    "id": "kali-147",
+    "url": "https://www.rarlab.com/rar_add.htm",
+    "status": 200
+  },
+  {
+    "id": "kali-148",
+    "url": "https://infozip.sourceforge.net/UnZip.html",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "kali-149",
+    "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+    "status": 200
+  },
+  {
+    "id": "kali-150",
+    "url": "https://code.visualstudio.com/docs/editor/codebasics",
+    "status": 200
+  },
+  {
+    "id": "kali-151",
+    "url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference",
+    "status": 200
+  },
+  {
+    "id": "kali-152",
+    "url": "https://github.com/volatilityfoundation/community",
+    "status": 200
+  },
+  {
+    "id": "kali-153",
+    "url": "https://github.com/volatilityfoundation/profiles",
+    "status": 200
+  },
+  {
+    "id": "kali-154",
+    "url": "https://github.com/volatilityfoundation/community3",
+    "status": 200
+  },
+  {
+    "id": "kali-155",
+    "url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+    "status": 200
+  },
+  {
+    "id": "kali-156",
+    "url": "https://code.visualstudio.com/docs/python/environments",
+    "status": 200
+  },
+  {
+    "id": "kali-157",
+    "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+    "status": 200
+  },
+  {
+    "id": "kali-158",
+    "url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+    "status": 200
+  },
+  {
+    "id": "kali-159",
+    "url": "https://infozip.sourceforge.net/Zip.html",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "kali-160",
+    "url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+    "status": 200
+  },
+  {
+    "id": "kali-161",
+    "url": "https://github.com/brimdata/zui",
+    "status": 200
+  }
+]

@@ -1,0 +1,716 @@
+{
+  "video_id": "VroEiMOJPm8",
+  "title": "Reversing and Cracking first simple Program - bin 0x05",
+  "channel": "LiveOverflow",
+  "duration_seconds": 543,
+  "caption_source": "research/learning/video-pack/captions/VroEiMOJPm8.en-orig.vtt",
+  "caption_sha256": "4dade7bf0cc381fb3f948b9c2a2bb288fd639ea8293d63dca76973ddda27bbbc",
+  "caption_kind": "automatic",
+  "track_note": "Creator English track retained but not used for timing: last cue starts at 619s, beyond 543s video runtime. Automatic original-English track is duration-bounded.",
+  "entries": [
+    {
+      "seconds": 10,
+      "text": "[Music]"
+    },
+    {
+      "seconds": 10,
+      "text": "I have written a small C program it's"
+    },
+    {
+      "seconds": 12,
+      "text": "supposed to be a simple license check so"
+    },
+    {
+      "seconds": 15,
+      "text": "you can execute it and you can supply a"
+    },
+    {
+      "seconds": 18,
+      "text": "key as an argument and it will be"
+    },
+    {
+      "seconds": 20,
+      "text": "checked our goal is to crack this"
+    },
+    {
+      "seconds": 23,
+      "text": "program so we don't have to use a valid"
+    },
+    {
+      "seconds": 24,
+      "text": "license key I've made this program"
+    },
+    {
+      "seconds": 27,
+      "text": "available through a GitHub repository"
+    },
+    {
+      "seconds": 29,
+      "text": "you can download from gab.com overflow"
+    },
+    {
+      "seconds": 32,
+      "text": "and the repository name life overflow"
+    },
+    {
+      "seconds": 34,
+      "text": "YouTube or you can install git with sud"
+    },
+    {
+      "seconds": 37,
+      "text": "sudo appg install git and get the whole"
+    },
+    {
+      "seconds": 40,
+      "text": "repository with Git clone and the"
+    },
+    {
+      "seconds": 42,
+      "text": "address you can see on GitHub we will"
+    },
+    {
+      "seconds": 45,
+      "text": "probably talk more about what get is"
+    },
+    {
+      "seconds": 47,
+      "text": "later for now it's enough to know that"
+    },
+    {
+      "seconds": 49,
+      "text": "it's a way how developers can program"
+    },
+    {
+      "seconds": 52,
+      "text": "together on a project and I use it to"
+    },
+    {
+      "seconds": 54,
+      "text": "share some"
+    },
+    {
+      "seconds": 56,
+      "text": "stuff to have a look at the binary"
+    },
+    {
+      "seconds": 58,
+      "text": "assembly code we can use a program"
+    },
+    {
+      "seconds": 60,
+      "text": "called GDB the new debugger so type GDB"
+    },
+    {
+      "seconds": 65,
+      "text": "and the path to the binary so every C"
+    },
+    {
+      "seconds": 67,
+      "text": "program has a main function remember so"
+    },
+    {
+      "seconds": 70,
+      "text": "let's type in disassemble main which"
+    },
+    {
+      "seconds": 73,
+      "text": "will display all assembler instructions"
+    },
+    {
+      "seconds": 75,
+      "text": "from the main function but do you see"
+    },
+    {
+      "seconds": 78,
+      "text": "how ugly that looks that's horrible"
+    },
+    {
+      "seconds": 80,
+      "text": "horrible AT&T syntax so type in set"
+    },
+    {
+      "seconds": 84,
+      "text": "disassembly flavor Intel remember that"
+    },
+    {
+      "seconds": 87,
+      "text": "you can use tab completion here as well"
+    },
+    {
+      "seconds": 90,
+      "text": "now disassemble main again and now it's"
+    },
+    {
+      "seconds": 92,
+      "text": "much more readable okay so it looks"
+    },
+    {
+      "seconds": 96,
+      "text": "complicated but you can ignore most of"
+    },
+    {
+      "seconds": 98,
+      "text": "it first of all get a higher level view"
+    },
+    {
+      "seconds": 101,
+      "text": "of it it doesn't make sense to start"
+    },
+    {
+      "seconds": 102,
+      "text": "going through this instruction by"
+    },
+    {
+      "seconds": 104,
+      "text": "instruction this main function obviously"
+    },
+    {
+      "seconds": 107,
+      "text": "calls other functions so just draw a"
+    },
+    {
+      "seconds": 109,
+      "text": "mental picture of the rough control"
+    },
+    {
+      "seconds": 112,
+      "text": "flow I will actually print out this"
+    },
+    {
+      "seconds": 114,
+      "text": "assembler code and use a pen that's how"
+    },
+    {
+      "seconds": 117,
+      "text": "I did it in the beginning and still do"
+    },
+    {
+      "seconds": 119,
+      "text": "it when I counter more complex code and"
+    },
+    {
+      "seconds": 122,
+      "text": "remember to just ignore most of the"
+    },
+    {
+      "seconds": 124,
+      "text": "stuff concentrate on the actual"
+    },
+    {
+      "seconds": 127,
+      "text": "flow so at this start it arrives at a"
+    },
+    {
+      "seconds": 130,
+      "text": "compare with number two and afterwards a"
+    },
+    {
+      "seconds": 133,
+      "text": "jump not equal so something is checked"
+    },
+    {
+      "seconds": 136,
+      "text": "if it is"
+    },
+    {
+      "seconds": 145,
+      "text": "two if that is the case we proceed to a"
+    },
+    {
+      "seconds": 145,
+      "text": "print F which we know is a function to"
+    },
+    {
+      "seconds": 148,
+      "text": "display text"
+    },
+    {
+      "seconds": 151,
+      "text": "then comes a string"
+    },
+    {
+      "seconds": 158,
+      "text": "compare if you don't know that function"
+    },
+    {
+      "seconds": 158,
+      "text": "read the man page of it Man 3 string"
+    },
+    {
+      "seconds": 161,
+      "text": "compare so this Compares two strings and"
+    },
+    {
+      "seconds": 164,
+      "text": "returns zero if both strings were the"
+    },
+    {
+      "seconds": 171,
+      "text": "same after that call we see another jump"
+    },
+    {
+      "seconds": 171,
+      "text": "not"
+    },
+    {
+      "seconds": 180,
+      "text": "equal so if the zero flag is not said"
+    },
+    {
+      "seconds": 180,
+      "text": "there will be a puts call use the main"
+    },
+    {
+      "seconds": 183,
+      "text": "page to figure out what it does but it"
+    },
+    {
+      "seconds": 186,
+      "text": "just prints text like"
+    },
+    {
+      "seconds": 195,
+      "text": "printer so if the original compare with"
+    },
+    {
+      "seconds": 195,
+      "text": "the number two was not true then it"
+    },
+    {
+      "seconds": 197,
+      "text": "would jump to the address"
+    },
+    {
+      "seconds": 205,
+      "text": "4623 so in that case it prints some"
+    },
+    {
+      "seconds": 205,
+      "text": "other text with puts and exits"
+    },
+    {
+      "seconds": 212,
+      "text": "I always add the address or at least"
+    },
+    {
+      "seconds": 212,
+      "text": "part of the address from important"
+    },
+    {
+      "seconds": 214,
+      "text": "locations so I know where I am this will"
+    },
+    {
+      "seconds": 217,
+      "text": "help you later when we step through the"
+    },
+    {
+      "seconds": 219,
+      "text": "program now we have one branch"
+    },
+    {
+      "seconds": 233,
+      "text": "text some jumps are still missing but"
+    },
+    {
+      "seconds": 233,
+      "text": "you can add them to get a nice control"
+    },
+    {
+      "seconds": 235,
+      "text": "flow"
+    },
+    {
+      "seconds": 236,
+      "text": "graph now let's actually execute this"
+    },
+    {
+      "seconds": 239,
+      "text": "and step through it you can then draw"
+    },
+    {
+      "seconds": 242,
+      "text": "which path through the graph you have"
+    },
+    {
+      "seconds": 244,
+      "text": "taken on your paper to do this we first"
+    },
+    {
+      "seconds": 246,
+      "text": "set a break point at the start of main"
+    },
+    {
+      "seconds": 249,
+      "text": "with break main breakpoint is set now"
+    },
+    {
+      "seconds": 252,
+      "text": "use run to start the program starting"
+    },
+    {
+      "seconds": 256,
+      "text": "the program and we hit the breakpoint"
+    },
+    {
+      "seconds": 258,
+      "text": "one at this address a breakpoint is a"
+    },
+    {
+      "seconds": 261,
+      "text": "point where execution"
+    },
+    {
+      "seconds": 263,
+      "text": "stops now look at the registers with"
+    },
+    {
+      "seconds": 266,
+      "text": "info registers here you can see the RP"
+    },
+    {
+      "seconds": 269,
+      "text": "uh the the instruction pointer points to"
+    },
+    {
+      "seconds": 271,
+      "text": "the first address in main now use SI to"
+    },
+    {
+      "seconds": 276,
+      "text": "Step One instruction now we are at the"
+    },
+    {
+      "seconds": 278,
+      "text": "new address in main info registers and"
+    },
+    {
+      "seconds": 280,
+      "text": "you see the changed instruction"
+    },
+    {
+      "seconds": 287,
+      "text": "pointer so now just step through it and"
+    },
+    {
+      "seconds": 287,
+      "text": "follow the addresses in your control"
+    },
+    {
+      "seconds": 288,
+      "text": "graph but use ni i instead of Si because"
+    },
+    {
+      "seconds": 292,
+      "text": "Si would step into function calls but we"
+    },
+    {
+      "seconds": 294,
+      "text": "only want to step through this main"
+    },
+    {
+      "seconds": 296,
+      "text": "function and not follow stuff like puts"
+    },
+    {
+      "seconds": 310,
+      "text": "okay did you notice when we jumped the"
+    },
+    {
+      "seconds": 310,
+      "text": "jump was at 5D 0 and then the next"
+    },
+    {
+      "seconds": 313,
+      "text": "instruction was at"
+    },
+    {
+      "seconds": 315,
+      "text": "623 so we followed the jump which means"
+    },
+    {
+      "seconds": 318,
+      "text": "whatever was compared to two was not"
+    },
+    {
+      "seconds": 326,
+      "text": "two and then the program printed the"
+    },
+    {
+      "seconds": 326,
+      "text": "usage information after 628 which was"
+    },
+    {
+      "seconds": 329,
+      "text": "the last puts call so we can write down"
+    },
+    {
+      "seconds": 332,
+      "text": "that this puts prints the usage"
+    },
+    {
+      "seconds": 338,
+      "text": "information now it's pretty clear that"
+    },
+    {
+      "seconds": 339,
+      "text": "we didn't pass a key to this program"
+    },
+    {
+      "seconds": 341,
+      "text": "which means the check was looking at the"
+    },
+    {
+      "seconds": 343,
+      "text": "arguments if we supplied a license key"
+    },
+    {
+      "seconds": 346,
+      "text": "so let's run the program again but this"
+    },
+    {
+      "seconds": 348,
+      "text": "time with a random license"
+    },
+    {
+      "seconds": 357,
+      "text": "key yes we want to start the program"
+    },
+    {
+      "seconds": 357,
+      "text": "again now do the same n i and I and"
+    },
+    {
+      "seconds": 361,
+      "text": "I now we are at 5D 0 again will we jump"
+    },
+    {
+      "seconds": 365,
+      "text": "this"
+    },
+    {
+      "seconds": 366,
+      "text": "time no cool so the next Branch we"
+    },
+    {
+      "seconds": 369,
+      "text": "expect is at"
+    },
+    {
+      "seconds": 371,
+      "text": "609 let's an i and see what"
+    },
+    {
+      "seconds": 375,
+      "text": "happens ah another print text so that"
+    },
+    {
+      "seconds": 379,
+      "text": "print f is the info that a license key"
+    },
+    {
+      "seconds": 382,
+      "text": "will be"
+    },
+    {
+      "seconds": 389,
+      "text": "checked n i now comes the branch okay we"
+    },
+    {
+      "seconds": 389,
+      "text": "are arrived at"
+    },
+    {
+      "seconds": 390,
+      "text": "609 let's see where we are afterwards at"
+    },
+    {
+      "seconds": 394,
+      "text": "617 so we did jump which means that the"
+    },
+    {
+      "seconds": 398,
+      "text": "string compare failed and when we"
+    },
+    {
+      "seconds": 400,
+      "text": "continue with an i we see that it's"
+    },
+    {
+      "seconds": 405,
+      "text": "wrong okay let's set a breakpoint just"
+    },
+    {
+      "seconds": 407,
+      "text": "before the last compare and run the"
+    },
+    {
+      "seconds": 409,
+      "text": "program again remember that you can"
+    },
+    {
+      "seconds": 412,
+      "text": "easily copy and paste values in the"
+    },
+    {
+      "seconds": 415,
+      "text": "terminal by simply marking something and"
+    },
+    {
+      "seconds": 417,
+      "text": "pressing your mouse wheel"
+    },
+    {
+      "seconds": 420,
+      "text": "now run again break point one now"
+    },
+    {
+      "seconds": 424,
+      "text": "continue this will run the program"
+    },
+    {
+      "seconds": 426,
+      "text": "normally again until we hit the next"
+    },
+    {
+      "seconds": 429,
+      "text": "breakpoint now it stopped before we"
+    },
+    {
+      "seconds": 431,
+      "text": "execute the test eax"
+    },
+    {
+      "seconds": 433,
+      "text": "eax eax just refers to the first 32-bit"
+    },
+    {
+      "seconds": 437,
+      "text": "of the 64-bit Rax register so its value"
+    },
+    {
+      "seconds": 441,
+      "text": "is hex e let's set this to zero which"
+    },
+    {
+      "seconds": 445,
+      "text": "would indicate that the string compare"
+    },
+    {
+      "seconds": 447,
+      "text": "was correct and returned zero"
+    },
+    {
+      "seconds": 450,
+      "text": "set dollar E equals to zero info"
+    },
+    {
+      "seconds": 454,
+      "text": "registers and you see that it's now zero"
+    },
+    {
+      "seconds": 457,
+      "text": "now use an i again to step and follow"
+    },
+    {
+      "seconds": 459,
+      "text": "your control"
+    },
+    {
+      "seconds": 470,
+      "text": "path access granted yay so we"
+    },
+    {
+      "seconds": 470,
+      "text": "circumvented the license"
+    },
+    {
+      "seconds": 480,
+      "text": "check and you can always write your own"
+    },
+    {
+      "seconds": 480,
+      "text": "little C program trying to make it more"
+    },
+    {
+      "seconds": 483,
+      "text": "secure and then crack it yourself again"
+    },
+    {
+      "seconds": 485,
+      "text": "you will notice that it's impossible to"
+    },
+    {
+      "seconds": 488,
+      "text": "make a program"
+    },
+    {
+      "seconds": 490,
+      "text": "uncrackable those kind of challenges are"
+    },
+    {
+      "seconds": 492,
+      "text": "called crack me people create small"
+    },
+    {
+      "seconds": 495,
+      "text": "programs that have to be cracked or more"
+    },
+    {
+      "seconds": 497,
+      "text": "often you have to create a valid key"
+    },
+    {
+      "seconds": 499,
+      "text": "again if you think something like this"
+    },
+    {
+      "seconds": 501,
+      "text": "is fun check out Crack"
+    },
+    {
+      "seconds": 508,
+      "text": "m.de creating control graphs like we"
+    },
+    {
+      "seconds": 508,
+      "text": "just did is pretty useful that's why"
+    },
+    {
+      "seconds": 511,
+      "text": "there are some programs that do that for"
+    },
+    {
+      "seconds": 513,
+      "text": "us here are three different example of"
+    },
+    {
+      "seconds": 515,
+      "text": "this specific control"
+    },
+    {
+      "seconds": 518,
+      "text": "graph first is from the hopper"
+    },
+    {
+      "seconds": 522,
+      "text": "disassembler second is from"
+    },
+    {
+      "seconds": 524,
+      "text": "Ida and the last one is from radar it"
+    },
+    {
+      "seconds": 528,
+      "text": "see you hopefully next time when we use"
+    },
+    {
+      "seconds": 530,
+      "text": "some different tools to explore this"
+    },
+    {
+      "seconds": 532,
+      "text": "license check binary a bit more"
+    }
+  ]
+}

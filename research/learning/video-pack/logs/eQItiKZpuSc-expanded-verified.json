@@ -1,0 +1,21 @@
+{
+  "number": 9,
+  "video_id": "eQItiKZpuSc",
+  "title": "SF19US - 22 Analyzing Windows malware traffic w/ Wireshark [Part 1](Brad Duncan)",
+  "file": "videos/09_Wireshark_Malware_Traffic_eQItiKZpuSc.mp4",
+  "bytes": 211439129,
+  "sha256": "a0d2340f4e832254ea6e02c3f265a38041ba665b14f6b15d9ecbcafa232b8723",
+  "width": 1920,
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_language": "eng",
+  "duration_seconds": 5332.555465,
+  "sample_decode_seconds": [
+    1,
+    2666.2777325,
+    5329.555465
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/09_Wireshark_Malware_Traffic_eQItiKZpuSc.en.vtt"
+}

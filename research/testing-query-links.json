@@ -1,0 +1,1625 @@
+{
+  "checked_at": "2026-10-19T05:52:16.986492+00:00",
+  "input_sha256": {
+    "research/categories.json": "b2ae4bd4d3fa04e6ac638b4196c0e1d70e23b5d9c4d85b55d1e7b8751cebd9ae",
+    "research/queries-a.json": "71eb7f7303c04abc017648fb742436e6c6e2ddc33d656786f29c8f1070bd94ea",
+    "research/queries-b.json": "d8e3de84964ba2c1ca7604e56449a21786d5178dcfea48cfc1f193c70d35a18a",
+    "research/queries-c.json": "e291851206bb2eec2e45703449722ad8bc0311e81b55b86bbe6d49a848d25468"
+  },
+  "external_links": [
+    {
+      "url": "https://7-zip.org/",
+      "status": 200,
+      "final_url": "https://7-zip.org/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://adoptium.net/temurin",
+      "status": 200,
+      "final_url": "https://adoptium.net/temurin",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://apktool.org/docs/cli-parameters/",
+      "status": 200,
+      "final_url": "https://apktool.org/docs/cli-parameters/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://book.rada.re/analysis/intro.html",
+      "status": 200,
+      "final_url": "https://book.rada.re/analysis/intro.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://bvi.sourceforge.net/",
+      "status": 200,
+      "final_url": "https://bvi.sourceforge.net/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+      "status": 200,
+      "final_url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://code.visualstudio.com/docs/editor/codebasics",
+      "status": 200,
+      "final_url": "https://code.visualstudio.com/docs/editing/codebasics",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://code.visualstudio.com/docs/python/environments",
+      "status": 200,
+      "final_url": "https://code.visualstudio.com/docs/python/environments",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://codeberg.org/sox_ng/sox_ng",
+      "status": 200,
+      "final_url": "https://codeberg.org/sox_ng/sox_ng",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://constexpr.org/innoextract/",
+      "status": 200,
+      "final_url": "https://constexpr.org/innoextract/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://curl.se/docs/manpage.html",
+      "status": 200,
+      "final_url": "https://curl.se/docs/manpage.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+      "status": 200,
+      "final_url": "https://dbeaver.com/docs/dbeaver/SQL-Execution/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://developer.android.com/studio/debug/apk-debugger",
+      "status": 200,
+      "final_url": "https://developer.android.com/studio/debug/apk-debugger",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://developer.chrome.com/docs/devtools/network/",
+      "status": 200,
+      "final_url": "https://developer.chrome.com/docs/devtools/network/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+      "status": 200,
+      "final_url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html",
+      "status": 200,
+      "final_url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.astral.sh/uv/guides/install-python/",
+      "status": 200,
+      "final_url": "https://docs.astral.sh/uv/guides/install-python/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.astral.sh/uv/pip/environments/",
+      "status": 200,
+      "final_url": "https://docs.astral.sh/uv/pip/environments/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.docker.com/compose/",
+      "status": 200,
+      "final_url": "https://docs.docker.com/compose/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.metasploit.com/",
+      "status": 200,
+      "final_url": "https://docs.metasploit.com/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+      "status": 200,
+      "final_url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+      "status": 200,
+      "final_url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.projectdiscovery.io/tools/subfinder/usage",
+      "status": 200,
+      "final_url": "https://docs.projectdiscovery.io/opensource/subfinder/usage",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.python.org/2.7/library/struct.html",
+      "status": 200,
+      "final_url": "https://docs.python.org/2.7/library/struct.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.python.org/3/library/struct.html",
+      "status": 200,
+      "final_url": "https://docs.python.org/3/library/struct.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.zeek.org/en/current/quickstart.html",
+      "status": 200,
+      "final_url": "https://docs.zeek.org/en/current/quickstart.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://ericzimmerman.github.io/",
+      "status": 200,
+      "final_url": "https://ericzimmerman.github.io/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://ffmpeg.org/ffmpeg.html",
+      "status": 200,
+      "final_url": "https://ffmpeg.org/ffmpeg.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://frida.re/docs/javascript-api/",
+      "status": 200,
+      "final_url": "https://frida.re/docs/javascript-api/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+      "status": 200,
+      "final_url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://gchq.github.io/CyberChef/",
+      "status": 200,
+      "final_url": "https://gchq.github.io/CyberChef/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://git-scm.com/docs/git-log",
+      "status": 200,
+      "final_url": "https://git-scm.com/docs/git-log",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/Abacus-Group-RTO/legion",
+      "status": 200,
+      "final_url": "https://github.com/Abacus-Group-RTO/legion",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+      "status": 200,
+      "final_url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+      "status": 200,
+      "final_url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/DidierStevens/DidierStevensSuite",
+      "status": 200,
+      "final_url": "https://github.com/DidierStevens/DidierStevensSuite",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/EliasOenal/multimon-ng",
+      "status": 200,
+      "final_url": "https://github.com/EliasOenal/multimon-ng",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/Giotino/stegsolve",
+      "status": 200,
+      "final_url": "https://github.com/Giotino/stegsolve",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/HackTricks-wiki/hacktricks",
+      "status": 200,
+      "final_url": "https://github.com/HackTricks-wiki/hacktricks",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+      "status": 200,
+      "final_url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/JonathanSalwan/ROPgadget",
+      "status": 200,
+      "final_url": "https://github.com/JonathanSalwan/ROPgadget",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+      "status": 200,
+      "final_url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/Konloch/bytecode-viewer",
+      "status": 200,
+      "final_url": "https://github.com/Konloch/bytecode-viewer",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/NationalSecurityAgency/ghidra",
+      "status": 200,
+      "final_url": "https://github.com/NationalSecurityAgency/ghidra",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/OJ/gobuster",
+      "status": 200,
+      "final_url": "https://github.com/OJ/gobuster",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ReFirmLabs/binwalk",
+      "status": 200,
+      "final_url": "https://github.com/ReFirmLabs/binwalk",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/RickdeJager/stegseek",
+      "status": 200,
+      "final_url": "https://github.com/RickdeJager/stegseek",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "status": 200,
+      "final_url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/RustScan/RustScan/wiki/Usage",
+      "status": 200,
+      "final_url": "https://github.com/bee-san/RustScan/wiki/Usage",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/RyanDFIR/hindsight",
+      "status": 200,
+      "final_url": "https://github.com/RyanDFIR/hindsight",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/Yamato-Security/hayabusa",
+      "status": 200,
+      "final_url": "https://github.com/Yamato-Security/hayabusa",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/Zeecka/AperiSolve",
+      "status": 200,
+      "final_url": "https://github.com/Zeecka/AperiSolve",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ZerBea/hcxtools",
+      "status": 200,
+      "final_url": "https://github.com/ZerBea/hcxtools",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/abrignoni/ALEAPP",
+      "status": 200,
+      "final_url": "https://github.com/abrignoni/ALEAPP",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/abrignoni/iLEAPP",
+      "status": 200,
+      "final_url": "https://github.com/abrignoni/iLEAPP",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/beautifier/js-beautify",
+      "status": 200,
+      "final_url": "https://github.com/beautifier/js-beautify",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ben-sb/javascript-deobfuscator",
+      "status": 200,
+      "final_url": "https://github.com/ben-sb/javascript-deobfuscator",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+      "status": 200,
+      "final_url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/brimdata/zui",
+      "status": 200,
+      "final_url": "https://github.com/superdb/zui",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ckolivas/lrzip",
+      "status": 200,
+      "final_url": "https://github.com/ckolivas/lrzip",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/colaclanth/sstv",
+      "status": 200,
+      "final_url": "https://github.com/colaclanth/sstv",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/conda-forge/miniforge",
+      "status": 200,
+      "final_url": "https://github.com/conda-forge/miniforge",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/danielmiessler/SecLists",
+      "status": 200,
+      "final_url": "https://github.com/danielmiessler/SecLists",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/decalage2/oletools",
+      "status": 200,
+      "final_url": "https://github.com/decalage2/oletools",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/digitalsleuth/peepdf-3",
+      "status": 200,
+      "final_url": "https://github.com/digitalsleuth/peepdf-3",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/dnSpyEx/dnSpy",
+      "status": 200,
+      "final_url": "https://github.com/dnSpyEx/dnSpy",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in",
+      "status": 200,
+      "final_url": "https://github.com/dosfstools/dosfstools/blob/master/manpages/fsck.fat.8.in",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/electron/asar",
+      "status": 200,
+      "final_url": "https://github.com/electron/asar",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/epi052/feroxbuster",
+      "status": 200,
+      "final_url": "https://github.com/epi052/feroxbuster",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+      "status": 200,
+      "final_url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ffuf/ffuf",
+      "status": 200,
+      "final_url": "https://github.com/ffuf/ffuf",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/file/file",
+      "status": 200,
+      "final_url": "https://github.com/file/file",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/fortra/impacket",
+      "status": 200,
+      "final_url": "https://github.com/fortra/impacket",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/fox-it/OpenSSH-Session-Key-Recovery",
+      "status": 200,
+      "final_url": "https://github.com/fox-it/OpenSSH-Session-Key-Recovery",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/gchq/CyberChef",
+      "status": 200,
+      "final_url": "https://github.com/gchq/CyberChef",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/gentilkiwi/mimikatz/wiki",
+      "status": 200,
+      "final_url": "https://github.com/gentilkiwi/mimikatz/wiki",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/gitleaks/gitleaks",
+      "status": 200,
+      "final_url": "https://github.com/gitleaks/gitleaks",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/greyblue9/unpyc37-3.10",
+      "status": 200,
+      "final_url": "https://github.com/greyblue9/unpyc37-3.10",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/horsicq/Detect-It-Easy",
+      "status": 200,
+      "final_url": "https://github.com/horsicq/Detect-It-Easy",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/irtlab/rtptools",
+      "status": 200,
+      "final_url": "https://github.com/irtlab/rtptools",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+      "status": 200,
+      "final_url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/jvdsn/crypto-attacks",
+      "status": 200,
+      "final_url": "https://github.com/jvdsn/crypto-attacks",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/keydet89/RegRipper3.0",
+      "status": 200,
+      "final_url": "https://github.com/keydet89/RegRipper3.0",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/kimci86/bkcrack",
+      "status": 200,
+      "final_url": "https://github.com/kimci86/bkcrack",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/libyal/libesedb",
+      "status": 200,
+      "final_url": "https://github.com/libyal/libesedb",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/libyal/libewf",
+      "status": 200,
+      "final_url": "https://github.com/libyal/libewf",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/libyal/libpff",
+      "status": 200,
+      "final_url": "https://github.com/libyal/libpff",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/linux-can/can-utils",
+      "status": 200,
+      "final_url": "https://github.com/linux-can/can-utils",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/longld/peda",
+      "status": 200,
+      "final_url": "https://github.com/longld/peda",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/lz4/lz4",
+      "status": 200,
+      "final_url": "https://github.com/lz4/lz4",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/mandiant/GoReSym",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/GoReSym",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/mandiant/capa",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/capa",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/mandiant/flare-fakenet-ng",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/flare-fakenet-ng",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/mandiant/flare-floss",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/flare-floss",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/mchehab/zbar",
+      "status": 200,
+      "final_url": "https://github.com/mchehab/zbar",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/nazywam/AutoIt-Ripper",
+      "status": 200,
+      "final_url": "https://github.com/nazywam/AutoIt-Ripper",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/pawlaszczyk/fqlite",
+      "status": 200,
+      "final_url": "https://github.com/pawlaszczyk/fqlite",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/pnggroup/pngcheck",
+      "status": 200,
+      "final_url": "https://github.com/pnggroup/pngcheck",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/psypanda/hashID",
+      "status": 200,
+      "final_url": "https://github.com/psypanda/hashID",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/pxb1988/dex2jar",
+      "status": 200,
+      "final_url": "https://github.com/pxb1988/dex2jar",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "status": 200,
+      "final_url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/rocky/python-uncompyle6",
+      "status": 200,
+      "final_url": "https://github.com/rocky/python-uncompyle6",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ryosan-470/factordb-python",
+      "status": 200,
+      "final_url": "https://github.com/ryosan-470/factordb-python",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/simsong/bulk_extractor",
+      "status": 200,
+      "final_url": "https://github.com/simsong/bulk_extractor",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/skelsec/pypykatz",
+      "status": 200,
+      "final_url": "https://github.com/skelsec/pypykatz",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/skylot/jadx",
+      "status": 200,
+      "final_url": "https://github.com/skylot/jadx",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+      "status": 200,
+      "final_url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/stephenbradshaw/hlextend",
+      "status": 200,
+      "final_url": "https://github.com/stephenbradshaw/hlextend",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+      "status": 200,
+      "final_url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ticarpi/jwt_tool",
+      "status": 200,
+      "final_url": "https://github.com/ticarpi/jwt_tool",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/tjko/jpeginfo",
+      "status": 200,
+      "final_url": "https://github.com/tjko/jpeginfo",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+      "status": 200,
+      "final_url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/vanhauser-thc/thc-hydra",
+      "status": 200,
+      "final_url": "https://github.com/vanhauser-thc/thc-hydra",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/vim/vim/blob/master/runtime/doc/xxd.1",
+      "status": 200,
+      "final_url": "https://github.com/vim/vim/blob/master/runtime/doc/xxd.1",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/volatilityfoundation/community",
+      "status": 200,
+      "final_url": "https://github.com/volatilityfoundation/community",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/volatilityfoundation/community3",
+      "status": 200,
+      "final_url": "https://github.com/volatilityfoundation/community3",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/volatilityfoundation/dwarf2json",
+      "status": 200,
+      "final_url": "https://github.com/volatilityfoundation/dwarf2json",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/volatilityfoundation/profiles",
+      "status": 200,
+      "final_url": "https://github.com/volatilityfoundation/profiles",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference",
+      "status": 200,
+      "final_url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/ydkhatri/mac_apt",
+      "status": 200,
+      "final_url": "https://github.com/ydkhatri/mac_apt",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/zed-0xff/zsteg",
+      "status": 200,
+      "final_url": "https://github.com/zed-0xff/zsteg",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://github.com/zrax/pycdc",
+      "status": 200,
+      "final_url": "https://github.com/zrax/pycdc",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://gmic.eu/reference/",
+      "status": 200,
+      "final_url": "https://gmic.eu/reference/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://go.dev/doc/cmd",
+      "status": 200,
+      "final_url": "https://go.dev/doc/cmd",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://gtfobins.org/",
+      "status": 200,
+      "final_url": "https://gtfobins.org/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://hashcat.net/wiki/doku.php?id=example_hashes",
+      "status": 200,
+      "final_url": "https://hashcat.net/wiki/doku.php?id=example_hashes",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+      "status": 200,
+      "final_url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://help.obsidian.md/links",
+      "status": 200,
+      "final_url": "https://obsidian.md/help/links",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://help.x64dbg.com/en/latest/gui/tips.html",
+      "status": 200,
+      "final_url": "https://help.x64dbg.com/en/latest/gui/tips.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://hugsy.github.io/gef/",
+      "status": 200,
+      "final_url": "https://hugsy.github.io/gef/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://imagemagick.org/command-line-processing/",
+      "status": 200,
+      "final_url": "https://imagemagick.org/command-line-processing/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://infozip.sourceforge.net/UnZip.html",
+      "status": 200,
+      "final_url": "https://infozip.sourceforge.net/UnZip.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://infozip.sourceforge.net/Zip.html",
+      "status": 200,
+      "final_url": "https://infozip.sourceforge.net/Zip.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+      "status": 200,
+      "final_url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://jqlang.org/manual/",
+      "status": 200,
+      "final_url": "https://jqlang.org/manual/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+      "status": 200,
+      "final_url": "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+      "status": 200,
+      "final_url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+      "status": 200,
+      "final_url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://ltrace.org/",
+      "status": 200,
+      "final_url": "https://ltrace.org/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html",
+      "status": 200,
+      "final_url": "https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "status": 200,
+      "final_url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://mediaarea.net/en/MediaInfo",
+      "status": 200,
+      "final_url": "https://mediaarea.net/en/MediaInfo",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://mh-nexus.de/en/hxd/",
+      "status": 200,
+      "final_url": "https://mh-nexus.de/en/hxd/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://mupdf.readthedocs.io/en/latest/tools/mutool.html",
+      "status": 200,
+      "final_url": "https://mupdf.readthedocs.io/en/latest/tools/mutool.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+      "status": 200,
+      "final_url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://openvpn.net/connect-docs/import-profile.html",
+      "status": 200,
+      "final_url": "https://openvpn.net/connect-docs/import-profile.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+      "status": 200,
+      "final_url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html",
+      "status": 200,
+      "final_url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater",
+      "status": 200,
+      "final_url": "https://portswigger.net/burp/documentation/desktop/tools/repeater",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://portswigger.net/web-security/learning-paths",
+      "status": 200,
+      "final_url": "https://portswigger.net/web-security/learning-paths",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://pwndbg.re/stable/commands/",
+      "status": 200,
+      "final_url": "https://pwndbg.re/stable/commands/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://qpdf.readthedocs.io/en/stable/cli.html",
+      "status": 200,
+      "final_url": "https://qpdf.readthedocs.io/en/stable/cli.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html",
+      "status": 200,
+      "final_url": "https://sleuthkit.org/autopsy/docs/user-docs/4.22.0/ingest_page.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+      "status": 200,
+      "final_url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sourceware.org/binutils/docs/binutils/strings.html",
+      "status": 200,
+      "final_url": "https://sourceware.org/binutils/docs/binutils/strings.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sourceware.org/bzip2/manual/manual.html",
+      "status": 200,
+      "final_url": "https://sourceware.org/bzip2/manual/manual.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html",
+      "status": 200,
+      "final_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sqlite.org/cli.html",
+      "status": 200,
+      "final_url": "https://sqlite.org/cli.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://sqlitebrowser.org/",
+      "status": 200,
+      "final_url": "https://sqlitebrowser.org/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://strace.io/",
+      "status": 200,
+      "final_url": "https://strace.io/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://support.google.com/websearch/answer/2466433?hl=en",
+      "status": 200,
+      "final_url": "https://support.google.com/websearch/answer/2466433?hl=en",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://theunarchiver.com/command-line",
+      "status": 200,
+      "final_url": "https://theunarchiver.com/command-line",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://tukaani.org/xz/man/xz.1.html",
+      "status": 200,
+      "final_url": "https://tukaani.org/xz/man/xz.1.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "status": 200,
+      "final_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:48:23.663512+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+      "status": 200,
+      "final_url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step",
+      "status": 200,
+      "final_url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.darkside.com.au/snow/",
+      "status": 200,
+      "final_url": "https://darkside.com.au/snow/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.exploit-db.com/searchsploit",
+      "status": 200,
+      "final_url": "https://www.exploit-db.com/searchsploit",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+      "status": 200,
+      "final_url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+      "status": 200,
+      "final_url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.gnu.org/software/wget/manual/wget.html",
+      "status": 200,
+      "final_url": "https://www.gnu.org/software/wget/manual/wget.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.inetsim.org/",
+      "status": 200,
+      "final_url": "https://www.inetsim.org/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.kali.org/tools/foremost/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/foremost/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.kali.org/tools/socat/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/socat/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.kali.org/tools/steghide/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/steghide/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.kali.org/tools/wordlists/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/wordlists/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.nasm.us/docs.html",
+      "status": 200,
+      "final_url": "https://www.nasm.us/docs.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+      "status": 200,
+      "final_url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.ollydbg.de/quickst.htm",
+      "status": 200,
+      "final_url": "https://www.ollydbg.de/quickst.htm",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.openstego.com/",
+      "status": 200,
+      "final_url": "https://www.openstego.com/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.openwall.com/john/doc/",
+      "status": 200,
+      "final_url": "https://www.openwall.com/john/doc/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.qemu.org/docs/master/tools/qemu-img.html",
+      "status": 200,
+      "final_url": "https://www.qemu.org/docs/master/tools/qemu-img.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.rarlab.com/rar_add.htm",
+      "status": 200,
+      "final_url": "https://www.rarlab.com/rar_add.htm",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "status": 200,
+      "final_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:48:23.663512+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+      "status": 200,
+      "final_url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.sublimetext.com/docs/",
+      "status": 200,
+      "final_url": "https://www.sublimetext.com/docs/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.tcpdump.org/manpages/tcpdump.1.html",
+      "status": 200,
+      "final_url": "https://www.tcpdump.org/manpages/tcpdump.1.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:48:23.663512+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/",
+      "status": 200,
+      "final_url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://www.zynamics.com/bindiff/manual/",
+      "status": 200,
+      "final_url": "https://www.zynamics.com/bindiff/manual/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "status": 200,
+      "final_url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+      "status": 200,
+      "final_url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:50:58.805751+00:00",
+      "reused": true
+    },
+    {
+      "url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+      "status": 200,
+      "final_url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/WithSecureOpenSource/chainsaw",
+      "status": 200,
+      "final_url": "https://github.com/WithSecureOpenSource/chainsaw",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/exiftool/exiftool",
+      "status": 200,
+      "final_url": "https://github.com/exiftool/exiftool",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/mguentner/cannelloni",
+      "status": 200,
+      "final_url": "https://github.com/mguentner/cannelloni",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+      "status": 200,
+      "final_url": "https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/searching.md",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/rizinorg/cutter",
+      "status": 200,
+      "final_url": "https://github.com/rizinorg/cutter",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://github.com/slimm609/checksec/releases",
+      "status": 200,
+      "final_url": "https://github.com/slimm609/checksec/releases",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html",
+      "status": 403,
+      "final_url": "https://helpx.adobe.com/acrobat/desktop/edit-documents/use-links-and-attachments/open-attachment.html",
+      "outcome": "blocked",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://www.kali.org/tools/cabextract/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/cabextract/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    },
+    {
+      "url": "https://www.kali.org/tools/nmap/",
+      "status": 200,
+      "final_url": "https://www.kali.org/tools/nmap/",
+      "outcome": "reachable",
+      "checked_at": "2026-10-19T05:52:16.986492+00:00"
+    }
+  ]
+}

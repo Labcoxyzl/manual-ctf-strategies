@@ -1,0 +1,605 @@
+[
+  {
+    "category": "reversing",
+    "query": "dex2jar d2j-dex2jar APK DEX to JAR command example",
+    "alternate_query": "dex2jar 2.1 APK conversion errors troubleshooting",
+    "docs_url": "https://github.com/pxb1988/dex2jar",
+    "purpose": "Convert Android bytecode to a JAR for Java analysis.",
+    "evidence_note": "Upstream README shows APK conversion and d2j-dex2jar; nightly build not verified.",
+    "id": "kali-28"
+  },
+  {
+    "category": "malware",
+    "query": "Didier Stevens onedump.py OneNote embedded files extraction example",
+    "alternate_query": "onedump.py OneNote list select dump embedded objects",
+    "docs_url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+    "purpose": "Inspect objects in a OneNote document.",
+    "evidence_note": "Read upstream onedump.py: identifies itself as a OneNote dump tool; manual remains incomplete and installed version is unknown.",
+    "id": "kali-29"
+  },
+  {
+    "category": "malware",
+    "query": "Didier Stevens oledump.py VBA macro extraction example",
+    "alternate_query": "Didier Stevens pdfid.py pdf-parser.py suspicious PDF JavaScript analysis example",
+    "docs_url": "https://github.com/DidierStevens/DidierStevensSuite",
+    "purpose": "Triage Office macros and PDF objects.",
+    "evidence_note": "Opened upstream suite repository; query names the individual scripts to avoid generic suite results.",
+    "id": "kali-30"
+  },
+  {
+    "category": "misc",
+    "query": "Docker Compose plugin docker compose local lab up logs example",
+    "alternate_query": "Docker Engine bind mount read only container example",
+    "docs_url": "https://docs.docker.com/compose/",
+    "purpose": "Run and inspect a local container lab.",
+    "evidence_note": "Opened Docker Compose docs; plugin syntax is docker compose; recorded Engine version does not identify Compose version.",
+    "id": "kali-31"
+  },
+  {
+    "category": "forensics",
+    "query": "dwarf2json Linux vmlinux System.map Volatility 3 symbols example",
+    "alternate_query": "dwarf2json ELF DWARF symbol JSON generation troubleshooting",
+    "docs_url": "https://github.com/volatilityfoundation/dwarf2json",
+    "purpose": "Generate Linux memory-analysis symbols.",
+    "evidence_note": "Opened Volatility Foundation repository identifying ELF/DWARF to Volatility 3 JSON conversion.",
+    "id": "kali-32"
+  },
+  {
+    "category": "reversing",
+    "query": "OpenJDK 25 javap bytecode disassemble class example",
+    "alternate_query": "Eclipse Temurin JDK java jar classpath troubleshooting",
+    "docs_url": "https://adoptium.net/temurin",
+    "purpose": "Run Java tools and inspect class bytecode.",
+    "evidence_note": "Opened Eclipse Temurin page establishing OpenJDK identity; workbook patch version not independently verified.",
+    "id": "kali-33"
+  },
+  {
+    "category": "forensics",
+    "query": "libewf ewfmount E01 forensic image read only example",
+    "alternate_query": "ewf-tools ewfinfo ewfexport E01 raw image example",
+    "docs_url": "https://github.com/libyal/libewf",
+    "purpose": "Read or export an E01 disk image.",
+    "evidence_note": "Opened libyal upstream EWF library repository; historic installed release may differ from current documentation.",
+    "id": "kali-34"
+  },
+  {
+    "category": "misc",
+    "query": "SearchSploit offline exact version exploit search example",
+    "alternate_query": "searchsploit examine mirror exploit file usage",
+    "docs_url": "https://www.exploit-db.com/searchsploit",
+    "purpose": "Search the local Exploit-DB archive.",
+    "evidence_note": "Opened official SearchSploit manual; inventory version is an archive date rather than a program release.",
+    "id": "kali-35"
+  },
+  {
+    "category": "crypto",
+    "query": "factordb-python FactorDB connect get_factor_list example",
+    "alternate_query": "factordb-python integer factorization status Python usage",
+    "docs_url": "https://github.com/ryosan-470/factordb-python",
+    "purpose": "Look up known integer factors.",
+    "evidence_note": "Opened upstream FactorDB client repository; calls use an external service, so examples must use generic numbers.",
+    "id": "kali-36"
+  },
+  {
+    "category": "malware",
+    "query": "FakeNet-NG Linux malware network simulation configuration example",
+    "alternate_query": "Mandiant flare-fakenet-ng Linux redirect traffic logs",
+    "docs_url": "https://github.com/mandiant/flare-fakenet-ng",
+    "purpose": "Observe network behavior in a malware lab.",
+    "evidence_note": "Opened Mandiant FakeNet-NG repository; Linux qualifier avoids Windows-only setup instructions.",
+    "id": "kali-37"
+  },
+  {
+    "category": "reversing",
+    "query": "JetBrains Fernflower java jar decompile command line example",
+    "alternate_query": "Fernflower decompiler class jar source destination options",
+    "docs_url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+    "purpose": "Decompile Java classes and JARs.",
+    "evidence_note": "Read JetBrains README with standalone command and examples; original IntelliJ source URL fetch failed.",
+    "id": "kali-38"
+  },
+  {
+    "category": "web",
+    "query": "feroxbuster recursive directory discovery filter status size example",
+    "alternate_query": "feroxbuster 2.13.1 rate limit recursion depth examples",
+    "docs_url": "https://github.com/epi052/feroxbuster",
+    "purpose": "Find web paths in an authorized lab.",
+    "evidence_note": "Official release page confirms 2.13.1; repository and documentation identify recursive content discovery.",
+    "id": "kali-39"
+  },
+  {
+    "category": "forensics",
+    "query": "FFmpeg extract video frames audio stream command example",
+    "alternate_query": "ffmpeg select frames preserve timestamps examples",
+    "docs_url": "https://ffmpeg.org/ffmpeg.html",
+    "purpose": "Extract frames or audio from media.",
+    "evidence_note": "Opened official FFmpeg command documentation; installed version not recorded.",
+    "id": "kali-40"
+  },
+  {
+    "category": "web",
+    "query": "ffuf directory fuzzing filter response size calibration example",
+    "alternate_query": "ffuf 2 virtual host fuzzing Host header example",
+    "docs_url": "https://github.com/ffuf/ffuf",
+    "purpose": "Compare web responses during controlled fuzzing.",
+    "evidence_note": "Opened upstream ffuf README; inventory is a development build, so exact release behavior is not established.",
+    "id": "kali-41"
+  },
+  {
+    "category": "forensics",
+    "query": "Linux file libmagic identify file type MIME magic bytes example",
+    "alternate_query": "file command compressed data identification keep going example",
+    "docs_url": "https://github.com/file/file",
+    "purpose": "Identify unknown file formats.",
+    "evidence_note": "Opened maintainer file repository mirror after homepage fetch failed; Linux and libmagic disambiguate the common word file.",
+    "id": "kali-42"
+  },
+  {
+    "category": "malware",
+    "query": "Mandiant FLOSS extract obfuscated stack strings malware example",
+    "alternate_query": "flare-floss decoded strings static analysis usage",
+    "docs_url": "https://github.com/mandiant/flare-floss",
+    "purpose": "Recover obscured strings from binaries.",
+    "evidence_note": "Opened Mandiant README identifying FLARE Obfuscated String Solver; spelling avoids dental results.",
+    "id": "kali-43"
+  },
+  {
+    "category": "forensics",
+    "query": "foremost file carving disk image output directory example",
+    "alternate_query": "foremost recover JPEG PNG files header footer example",
+    "docs_url": "https://www.kali.org/tools/foremost/",
+    "purpose": "Carve files from raw evidence.",
+    "evidence_note": "Opened Kali package usage page for Foremost; installed version is unknown.",
+    "id": "kali-44"
+  },
+  {
+    "category": "forensics",
+    "query": "FQLite SQLite recover deleted records WAL example",
+    "alternate_query": "pawlaszczyk FQLite forensic SQLite database analysis usage",
+    "docs_url": "https://github.com/pawlaszczyk/fqlite",
+    "purpose": "Inspect deleted SQLite records.",
+    "evidence_note": "Opened author repository describing deleted SQLite record recovery; recovery depends on surviving data.",
+    "id": "kali-45"
+  },
+  {
+    "category": "reversing",
+    "query": "Frida 17 Interceptor attach native function JavaScript example",
+    "alternate_query": "Frida 17 Java bridge Android hook method example",
+    "docs_url": "https://frida.re/docs/javascript-api/",
+    "purpose": "Observe runtime function calls.",
+    "evidence_note": "Opened current Frida JavaScript API; major version matters because Frida 17 changed bridge packaging.",
+    "id": "kali-46"
+  },
+  {
+    "category": "misc",
+    "query": "GCC G++ compile debug symbols g O0 Make CMake example",
+    "alternate_query": "CMake pkg-config build-essential compile C C++ project troubleshooting",
+    "docs_url": "https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html",
+    "purpose": "Build small local programs with debug information.",
+    "evidence_note": "Opened GCC debugging-options manual; bundled Make CMake and pkg-config are separate tools and their versions are not established.",
+    "id": "kali-47"
+  },
+  {
+    "category": "reversing",
+    "query": "GEF GDB context registers stack breakpoints example",
+    "alternate_query": "GEF gdb source gef.py Linux binary debugging tutorial",
+    "docs_url": "https://hugsy.github.io/gef/",
+    "purpose": "Inspect register and stack state in GDB.",
+    "evidence_note": "Opened GEF documentation; workbook says load explicitly to avoid PEDA conflict.",
+    "id": "kali-48"
+  },
+  {
+    "category": "forensics",
+    "query": "Git log all show recover deleted file history example",
+    "alternate_query": "git reflog fsck dangling commits recovery example",
+    "docs_url": "https://git-scm.com/docs/git-log",
+    "purpose": "Trace file history in a local repository.",
+    "evidence_note": "Opened official git-log manual; exact installed patch release not verified.",
+    "id": "kali-49"
+  },
+  {
+    "category": "forensics",
+    "query": "Gitleaks git repository history secret detection redact example",
+    "alternate_query": "Gitleaks git dir commands report format usage",
+    "docs_url": "https://github.com/gitleaks/gitleaks",
+    "purpose": "Locate exposed secrets in local repository history.",
+    "evidence_note": "Opened upstream README; query uses current command names and redaction; installed build version is unknown.",
+    "id": "kali-50"
+  },
+  {
+    "category": "forensics",
+    "query": "G'MIC gmic command line split image channels normalize example",
+    "alternate_query": "gmic image processing contrast channels command examples",
+    "docs_url": "https://gmic.eu/reference/",
+    "purpose": "Inspect image channels and contrast.",
+    "evidence_note": "Opened official G'MIC reference; explicit gmic distinguishes the image tool.",
+    "id": "kali-51"
+  },
+  {
+    "category": "misc",
+    "query": "GNU Wget download file output document resume example",
+    "alternate_query": "wget 1.25 save response headers download example",
+    "docs_url": "https://www.gnu.org/software/wget/manual/wget.html",
+    "purpose": "Save public files for local analysis.",
+    "evidence_note": "Official GNU manual appeared in search with 1.25.0 title; full page fetch failed in web and Exa.",
+    "id": "kali-52"
+  },
+  {
+    "category": "misc",
+    "query": "Go command go run go build local program example",
+    "alternate_query": "Go modules go mod init tidy build examples",
+    "docs_url": "https://go.dev/doc/cmd",
+    "purpose": "Build or run local Go utilities.",
+    "evidence_note": "Opened official Go command documentation after pkg.go.dev fetch failed; workbook release not independently verified.",
+    "id": "kali-53"
+  },
+  {
+    "category": "web",
+    "query": "Gobuster 3 dir directory enumeration extensions status code example",
+    "alternate_query": "Gobuster vhost append domain wordlist example",
+    "docs_url": "https://github.com/OJ/gobuster",
+    "purpose": "Discover web directories or virtual hosts.",
+    "evidence_note": "Opened upstream README identifying dir DNS and vhost modes; query names mode to narrow results.",
+    "id": "kali-54"
+  },
+  {
+    "category": "reversing",
+    "query": "Mandiant GoReSym recover Go binary function symbols example",
+    "alternate_query": "GoReSym stripped Golang binary JSON output usage",
+    "docs_url": "https://github.com/mandiant/GoReSym",
+    "purpose": "Recover symbols in a Go binary.",
+    "evidence_note": "Opened Mandiant GoReSym repository; explicit author avoids generic Go symbols results.",
+    "id": "kali-55"
+  },
+  {
+    "category": "misc",
+    "query": "GTFOBins sudo SUID capabilities lookup Linux binary examples",
+    "alternate_query": "GTFOBins offline documentation file read functions",
+    "docs_url": "https://gtfobins.org/",
+    "purpose": "Interpret permitted binary functions in a CTF lab.",
+    "evidence_note": "Opened official GTFOBins page, redirected from github.io; offline copy revision is unknown.",
+    "id": "kali-56"
+  },
+  {
+    "category": "misc",
+    "query": "GNU gzip decompress keep original file command example",
+    "alternate_query": "gzip gunzip test integrity list compressed file examples",
+    "docs_url": "https://www.gnu.org/software/gzip/manual/gzip.html",
+    "purpose": "Unpack and check gzip files.",
+    "evidence_note": "GNU manual search result confirms decompress and keep options; full web and Exa fetch failed; current manual newer than recorded 1.13.",
+    "id": "kali-57"
+  },
+  {
+    "category": "misc",
+    "query": "HackTricks Linux privilege escalation enumeration checklist CTF",
+    "alternate_query": "HackTricks file upload testing methodology examples",
+    "docs_url": "https://github.com/HackTricks-wiki/hacktricks",
+    "purpose": "Find a technique checklist for a lab task.",
+    "evidence_note": "Opened official HackTricks repository after book fetch failed; offline copy revision unknown and query selects one task.",
+    "id": "kali-58"
+  },
+  {
+    "category": "crypto",
+    "query": "hashcat identify hash mode example hashes wordlist attack example",
+    "alternate_query": "hashcat 7 mask attack rules syntax examples",
+    "docs_url": "https://hashcat.net/wiki/doku.php?id=example_hashes",
+    "purpose": "Match hash formats and choose a recovery mode.",
+    "evidence_note": "Opened official example-hashes table; identifying a format can remain ambiguous without context.",
+    "id": "kali-59"
+  },
+  {
+    "category": "crypto",
+    "query": "hashID hash identifier possible hash types hashcat modes example",
+    "alternate_query": "psypanda hashID usage identify hash format limitations",
+    "docs_url": "https://github.com/psypanda/hashID",
+    "purpose": "Suggest possible hash formats.",
+    "evidence_note": "Opened upstream hashID repository; candidates are suggestions rather than proof of algorithm.",
+    "id": "kali-60"
+  },
+  {
+    "category": "forensics",
+    "query": "Hayabusa Windows EVTX csv timeline Sigma rules example",
+    "alternate_query": "Yamato Security Hayabusa logon summary event logs usage",
+    "docs_url": "https://github.com/Yamato-Security/hayabusa",
+    "purpose": "Build a Windows event timeline.",
+    "evidence_note": "Opened Yamato Security repository identifying Sigma-based EVTX timeline analysis; installed version unknown.",
+    "id": "kali-61"
+  },
+  {
+    "category": "crypto",
+    "query": "hcxtools hcxpcapngtool WPA capture hashcat 22000 example",
+    "alternate_query": "hcxpcapngtool pcapng EAPOL PMKID conversion usage",
+    "docs_url": "https://github.com/ZerBea/hcxtools",
+    "purpose": "Convert captured wireless authentication data.",
+    "evidence_note": "Opened hcxtools repository describing capture-to-hash conversion; no live capture is required by the query.",
+    "id": "kali-62"
+  },
+  {
+    "category": "forensics",
+    "query": "Hindsight pyhindsight Chrome browser history timeline example",
+    "alternate_query": "RyanDFIR Hindsight browser profile forensic analysis usage",
+    "docs_url": "https://github.com/RyanDFIR/hindsight",
+    "purpose": "Parse a saved browser profile.",
+    "evidence_note": "Opened official repository redirected from obsidianforensics to RyanDFIR; installed revision may predate newer browser support.",
+    "id": "kali-63"
+  },
+  {
+    "category": "crypto",
+    "query": "hlextend Python SHA1 hash length extension example",
+    "alternate_query": "stephenbradshaw hlextend secret length padding example",
+    "docs_url": "https://github.com/stephenbradshaw/hlextend",
+    "purpose": "Explore hash length extension with generic examples.",
+    "evidence_note": "Opened author repository identifying a pure Python length-extension module; does not imply HMAC is vulnerable.",
+    "id": "kali-64"
+  },
+  {
+    "category": "web",
+    "query": "THC Hydra http-post-form failure success condition example",
+    "alternate_query": "THC Hydra authorized lab login testing syntax examples",
+    "docs_url": "https://github.com/vanhauser-thc/thc-hydra",
+    "purpose": "Understand form authentication test syntax.",
+    "evidence_note": "Opened upstream THC Hydra repository; THC qualifier excludes unrelated Hydra software.",
+    "id": "kali-65"
+  },
+  {
+    "category": "forensics",
+    "query": "iLEAPP iOS backup artifacts report command line example",
+    "alternate_query": "abrignoni iLEAPP logs events plist parser usage",
+    "docs_url": "https://github.com/abrignoni/iLEAPP",
+    "purpose": "Parse iOS forensic artifacts.",
+    "evidence_note": "Opened upstream iLEAPP repository; workbook records no installation information, so local availability is unverified.",
+    "id": "kali-66"
+  },
+  {
+    "category": "forensics",
+    "query": "ImageMagick 7 magick separate RGB channels contrast example",
+    "alternate_query": "ImageMagick 7 identify image metadata verbose example",
+    "docs_url": "https://imagemagick.org/command-line-processing/",
+    "purpose": "Inspect image channels and properties.",
+    "evidence_note": "Read official command-processing page via Exa after old PHP URL redirected; version 7 qualifier selects magick syntax.",
+    "id": "kali-67"
+  },
+  {
+    "category": "misc",
+    "query": "Impacket smbclient.py SMB share listing authorized lab example",
+    "alternate_query": "Fortra Impacket examples network protocol scripts documentation",
+    "docs_url": "https://github.com/fortra/impacket",
+    "purpose": "Work with SMB and network protocol examples.",
+    "evidence_note": "Opened Fortra upstream repository; collection contains many scripts and query picks one narrow entry point.",
+    "id": "kali-68"
+  },
+  {
+    "category": "reversing",
+    "query": "innoextract list extract Inno Setup installer without running example",
+    "alternate_query": "innoextract test installer integrity command example",
+    "docs_url": "https://constexpr.org/innoextract/",
+    "purpose": "Unpack an Inno Setup installer.",
+    "evidence_note": "Opened author project page; recorded development build may have different format support.",
+    "id": "kali-69"
+  },
+  {
+    "category": "malware",
+    "query": "INetSim internet services simulation DNS HTTP configuration example",
+    "alternate_query": "internet_detector INetSim Kali package executable identity",
+    "docs_url": "https://www.inetsim.org/",
+    "purpose": "Simulate internet services in a malware lab.",
+    "evidence_note": "Official INetSim homepage and Kali package page confirm service simulation; neither confirms internet_detector executable. Mapping relies on workbook package note.",
+    "id": "kali-70"
+  },
+  {
+    "category": "misc",
+    "query": "IPython interactive shell run script inspect object magic commands example",
+    "alternate_query": "IPython 9 timeit history debugging examples",
+    "docs_url": "https://ipython.readthedocs.io/en/stable/interactive/tutorial.html",
+    "purpose": "Explore Python objects and run small scripts.",
+    "evidence_note": "Opened official IPython tutorial whose title reports 9.17.1; availability on competition host not tested.",
+    "id": "kali-71"
+  },
+  {
+    "category": "reversing",
+    "query": "jadx jadx-gui APK decompile search Java code example",
+    "alternate_query": "jadx decompilation errors inconsistent code troubleshooting",
+    "docs_url": "https://github.com/skylot/jadx",
+    "purpose": "Inspect Android application logic.",
+    "evidence_note": "Opened upstream Dex-to-Java decompiler README; decompilation is not guaranteed to reconstruct all code.",
+    "id": "kali-72"
+  },
+  {
+    "category": "crypto",
+    "query": "John the Ripper jumbo zip2john wordlist password recovery example",
+    "alternate_query": "John the Ripper jumbo format list show cracked hashes usage",
+    "docs_url": "https://www.openwall.com/john/doc/",
+    "purpose": "Prepare and recover passwords from local test data.",
+    "evidence_note": "Opened official John documentation; jumbo qualifier avoids core-only format advice.",
+    "id": "kali-73"
+  },
+  {
+    "category": "forensics",
+    "query": "jpeginfo check JPEG corruption command example",
+    "alternate_query": "jpeginfo JPEG JFIF integrity metadata usage",
+    "docs_url": "https://github.com/tjko/jpeginfo",
+    "purpose": "Check JPEG structure and integrity.",
+    "evidence_note": "Opened author repository identifying integrity testing for JPEG/JFIF files.",
+    "id": "kali-74"
+  },
+  {
+    "category": "reversing",
+    "query": "js-beautify JavaScript command line input output example",
+    "alternate_query": "js-beautify format minified JavaScript without executing",
+    "docs_url": "https://github.com/beautifier/js-beautify",
+    "purpose": "Format compressed JavaScript for inspection.",
+    "evidence_note": "Opened upstream beautifier README; formatting alone does not undo semantic obfuscation.",
+    "id": "kali-75"
+  },
+  {
+    "category": "reversing",
+    "query": "ben-sb js-deobfuscator npm input output string arrays example",
+    "alternate_query": "js-deobfuscator npm CLI simplify proxy functions example",
+    "docs_url": "https://github.com/ben-sb/javascript-deobfuscator",
+    "purpose": "Simplify JavaScript string arrays and proxy functions.",
+    "evidence_note": "Read npm package and ben-sb README confirming npm install js-deobfuscator. Other repositories share the name; installed package version not captured.",
+    "id": "kali-76"
+  },
+  {
+    "category": "web",
+    "query": "ticarpi jwt_tool decode JWT claims test signature example",
+    "alternate_query": "jwt_tool HS256 weak secret dictionary lab example",
+    "docs_url": "https://github.com/ticarpi/jwt_tool",
+    "purpose": "Inspect and test JSON Web Tokens.",
+    "evidence_note": "Opened upstream jwt_tool README; author prefix disambiguates similarly named JWT utilities.",
+    "id": "kali-77"
+  },
+  {
+    "category": "web",
+    "query": "ProjectDiscovery Katana crawler scope depth JavaScript example",
+    "alternate_query": "Katana crawler headless form extraction usage examples",
+    "docs_url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+    "purpose": "Discover in-scope URLs and application routes.",
+    "evidence_note": "Opened ProjectDiscovery usage page; vendor prefix avoids sword and unrelated software results.",
+    "id": "kali-78"
+  },
+  {
+    "category": "misc",
+    "query": "Legion GoVanguard network reconnaissance Nmap import example",
+    "alternate_query": "Abacus Group Legion penetration testing GUI usage",
+    "docs_url": "https://github.com/Abacus-Group-RTO/legion",
+    "purpose": "Organize network discovery in a lab.",
+    "evidence_note": "Opened official repository redirected from GoVanguard; Legion name needs author context.",
+    "id": "kali-79"
+  },
+  {
+    "category": "forensics",
+    "query": "libesedb esedbexport ESE EDB database tables example",
+    "alternate_query": "libesedb esedbinfo Windows ESE database forensic extraction",
+    "docs_url": "https://github.com/libyal/libesedb",
+    "purpose": "Inspect Windows ESE database tables.",
+    "evidence_note": "Opened libyal repository identifying ESE EDB tools; avoids confusing EDB with other database formats.",
+    "id": "kali-80"
+  },
+  {
+    "category": "misc",
+    "query": "LibreOffice headless convert to PDF command line example",
+    "alternate_query": "LibreOffice command line convert spreadsheet CSV filter options",
+    "docs_url": "https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html",
+    "purpose": "Convert documents to inspectable formats.",
+    "evidence_note": "Opened official startup-parameters page; installed release not independently verified.",
+    "id": "kali-81"
+  },
+  {
+    "category": "misc",
+    "query": "lrzip lrunzip decompress lrz file keep original example",
+    "alternate_query": "lrzip test integrity list archive command example",
+    "docs_url": "https://github.com/ckolivas/lrzip",
+    "purpose": "Unpack long-range compressed files.",
+    "evidence_note": "Opened upstream Long Range Zip repository; file format qualifier distinguishes it from zip archives.",
+    "id": "kali-82"
+  },
+  {
+    "category": "reversing",
+    "query": "ltrace Linux trace dynamic library calls strcmp example",
+    "alternate_query": "ltrace filter library functions string length options example",
+    "docs_url": "https://ltrace.org/",
+    "purpose": "Observe dynamic library calls.",
+    "evidence_note": "Opened official ltrace homepage confirming dynamic-library tracing; static or inlined calls may not appear.",
+    "id": "kali-83"
+  },
+  {
+    "category": "misc",
+    "query": "lz4 command decompress lz4 file keep original example",
+    "alternate_query": "lz4 CLI test compressed frame integrity examples",
+    "docs_url": "https://github.com/lz4/lz4",
+    "purpose": "Unpack LZ4 data.",
+    "evidence_note": "Opened official LZ4 repository; command-line frame files differ from raw LZ4 blocks.",
+    "id": "kali-84"
+  },
+  {
+    "category": "misc",
+    "query": "lzip decompress keep original lz file example",
+    "alternate_query": "lzip 1.26 test integrity command examples",
+    "docs_url": "https://www.nongnu.org/lzip/manual/lzip_manual.html",
+    "purpose": "Unpack and check lzip files.",
+    "evidence_note": "Read official Lzip 1.26 manual via Exa after web fetch failed.",
+    "id": "kali-85"
+  },
+  {
+    "category": "forensics",
+    "query": "mac_apt macOS disk image artifacts plugins usage example",
+    "alternate_query": "ydkhatri mac_apt APFS forensic extraction report example",
+    "docs_url": "https://github.com/ydkhatri/mac_apt",
+    "purpose": "Parse macOS artifacts from saved evidence.",
+    "evidence_note": "Opened author mac_apt repository; installed revision and image support not tested.",
+    "id": "kali-86"
+  },
+  {
+    "category": "forensics",
+    "query": "MediaInfo command line full JSON media metadata example",
+    "alternate_query": "MediaInfo codec container duration metadata usage",
+    "docs_url": "https://mediaarea.net/en/MediaInfo",
+    "purpose": "Inspect media container and codec information.",
+    "evidence_note": "Opened official MediaArea project page; version not recorded.",
+    "id": "kali-87"
+  },
+  {
+    "category": "misc",
+    "query": "Metasploit Framework msfconsole search info show options lab example",
+    "alternate_query": "Metasploit auxiliary scanner module check usage example",
+    "docs_url": "https://docs.metasploit.com/",
+    "purpose": "Navigate module documentation in a local lab.",
+    "evidence_note": "Opened official Metasploit docs; development build behavior and target compatibility not established.",
+    "id": "kali-88"
+  },
+  {
+    "category": "forensics",
+    "query": "mimikatz sekurlsa minidump offline analysis example",
+    "alternate_query": "mimikatz 2.2 Windows minidump architecture compatibility",
+    "docs_url": "https://github.com/gentilkiwi/mimikatz/wiki",
+    "purpose": "Understand offline Windows authentication-dump analysis.",
+    "evidence_note": "Opened author wiki; workbook lists Windows binary under Wine, which does not establish Windows LSASS access or plugin functionality.",
+    "id": "kali-89"
+  },
+  {
+    "category": "misc",
+    "query": "Miniforge conda create environment conda-forge Python example",
+    "alternate_query": "conda env export reproduce environment Miniforge example",
+    "docs_url": "https://github.com/conda-forge/miniforge",
+    "purpose": "Create a separate dependency environment.",
+    "evidence_note": "Opened conda-forge Miniforge repository; use only when project environment policy calls for conda.",
+    "id": "kali-90"
+  },
+  {
+    "category": "misc",
+    "query": "multimon-ng WAV audio DTMF decode command example",
+    "alternate_query": "multimon-ng AFSK1200 POCSAG sample rate raw audio example",
+    "docs_url": "https://github.com/EliasOenal/multimon-ng",
+    "purpose": "Decode supported audio modulation formats.",
+    "evidence_note": "Opened upstream multimon-ng repository; input format and sample rate must match decoder requirements.",
+    "id": "kali-91"
+  },
+  {
+    "category": "forensics",
+    "query": "MuPDF mutool extract PDF images fonts command example",
+    "alternate_query": "mutool show PDF objects streams example",
+    "docs_url": "https://mupdf.readthedocs.io/en/latest/tools/mutool.html",
+    "purpose": "Inspect PDF objects and extract resources.",
+    "evidence_note": "Opened corrected official MuPDF tools/mutool page confirming extract and show commands; current docs are 1.28.5 rather than recorded 1.27.",
+    "id": "kali-92"
+  },
+  {
+    "category": "reversing",
+    "query": "NASM x86 64 assemble ELF64 object file example",
+    "alternate_query": "NASM ndisasm raw binary disassembly bits origin example",
+    "docs_url": "https://www.nasm.us/docs.html",
+    "purpose": "Assemble or inspect x86 instructions.",
+    "evidence_note": "Opened official NASM documentation index; syntax should match selected CPU mode and output format.",
+    "id": "kali-93"
+  },
+  {
+    "category": "misc",
+    "query": "Nmap service version detection save output authorized lab example",
+    "alternate_query": "Nmap Ncat Nping TCP connection packet testing examples",
+    "docs_url": "https://www.kali.org/tools/nmap/",
+    "purpose": "Identify services and inspect network connectivity.",
+    "evidence_note": "Kali package documentation checked; upstream manual HTTPS failed certificate verification in the current environment.",
+    "id": "kali-94"
+  }
+]

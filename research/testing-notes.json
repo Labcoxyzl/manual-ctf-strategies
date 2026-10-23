@@ -1,0 +1,24 @@
+{
+  "notes": 7,
+  "errors": [],
+  "input_sha256": {
+    "build_notes.py": "31bfe8693a30cbec36c923da6d1d2abb5e376147cd5385dabef7b95231f52bad",
+    "notes-template.html": "211e591ad5cd65420988d5f77aa645997ea8a2a9ad6e032dece70174115707b4",
+    "LEARNING_RESOURCES.md": "e88d2254a7c6cf509f1a21144c6edf703228029ffdfc1cd50366f3f9289da227",
+    "PRACTICE_WORKSHEETS.md": "41397ad0bd4be062d9d057bf605f73a9bc09c5ba7414fb05b10fc3510cdb1da8",
+    "APPROVED_TOOL_REFERENCES.md": "a667298c6c5bb0043fd51c8d7b01b7d868c101fb36d079437b6570acfa547eb4",
+    "RESOURCE_EVALUATION.md": "b522fa37836a429d93d9ebfa00a710fa8c33c1f67332641172f18d5df0675100",
+    "EVENT_SOURCES.md": "872b7d4f9623390b05581ac9c0ce7dbc62532fe2955fbab0d3f3e04ce4f46e12",
+    "research/learning/practice/README.md": "c45d11cdc2e399bbc97e1f2bb1da3d60cd8920cd92cc0c6e9ce74fcf0919d363",
+    "research/learning/review.md": "2e32b87799c0d8c8aa711d0bcd1d469f6205be6572bb920b00b1f9f5466d238f"
+  },
+  "output_sha256": {
+    "LEARNING_RESOURCES.html": "2e2947cc3357d731ab4f9814ac21b7612990ee268fda0bd9d54f7cec02144ba2",
+    "PRACTICE_WORKSHEETS.html": "3e3f3ac7688a950d561b1361e46da21c75f2cafbd945b41d1e0cc50a6d39bdee",
+    "APPROVED_TOOL_REFERENCES.html": "5c9afa7581bd049a2bce4beb0f257bf1b23f728cd2f46f46a737e4de8226e402",
+    "RESOURCE_EVALUATION.html": "135ef381231bcefe4116432745e954cffba2ca632501ab01fc005fff06ffa3e7",
+    "EVENT_SOURCES.html": "6ad4166ec10a7cff0562ee3d349c889e94f2d42b27e7a0382d75cbb73acfe31c",
+    "research/learning/practice/README.html": "9c21a48d9ca6b1f68087751708aa1124b08e3dfb7d6629879e92d4ca8f8954a3",
+    "research/learning/review.html": "ede148a6fb5d1af8e7c22322d67311fc0dcdba7f679d0cd7a8ea71efd92010ac"
+  }
+}

@@ -1,0 +1,1424 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:02.110 --> 00:00:10.350 align:start position:0%
+ 
+[Music]
+
+00:00:10.350 --> 00:00:10.360 align:start position:0%
+[Music]
+ 
+
+00:00:10.360 --> 00:00:12.350 align:start position:0%
+[Music]
+I<00:00:10.440><c> have</c><00:00:10.599><c> written</c><00:00:10.840><c> a</c><00:00:10.960><c> small</c><00:00:11.200><c> C</c><00:00:11.559><c> program</c><00:00:12.200><c> it's</c>
+
+00:00:12.350 --> 00:00:12.360 align:start position:0%
+I have written a small C program it's
+ 
+
+00:00:12.360 --> 00:00:15.430 align:start position:0%
+I have written a small C program it's
+supposed<00:00:12.719><c> to</c><00:00:12.840><c> be</c><00:00:13.040><c> a</c><00:00:13.280><c> simple</c><00:00:13.679><c> license</c><00:00:14.280><c> check</c><00:00:15.280><c> so</c>
+
+00:00:15.430 --> 00:00:15.440 align:start position:0%
+supposed to be a simple license check so
+ 
+
+00:00:15.440 --> 00:00:18.029 align:start position:0%
+supposed to be a simple license check so
+you<00:00:15.519><c> can</c><00:00:15.719><c> execute</c><00:00:16.240><c> it</c><00:00:16.880><c> and</c><00:00:17.119><c> you</c><00:00:17.240><c> can</c><00:00:17.400><c> supply</c><00:00:17.800><c> a</c>
+
+00:00:18.029 --> 00:00:18.039 align:start position:0%
+you can execute it and you can supply a
+ 
+
+00:00:18.039 --> 00:00:20.710 align:start position:0%
+you can execute it and you can supply a
+key<00:00:18.320><c> as</c><00:00:18.439><c> an</c><00:00:18.640><c> argument</c><00:00:19.560><c> and</c><00:00:19.800><c> it</c><00:00:19.920><c> will</c><00:00:20.039><c> be</c>
+
+00:00:20.710 --> 00:00:20.720 align:start position:0%
+key as an argument and it will be
+ 
+
+00:00:20.720 --> 00:00:22.990 align:start position:0%
+key as an argument and it will be
+checked<00:00:21.720><c> our</c><00:00:21.960><c> goal</c><00:00:22.160><c> is</c><00:00:22.279><c> to</c><00:00:22.480><c> crack</c><00:00:22.840><c> this</c>
+
+00:00:22.990 --> 00:00:23.000 align:start position:0%
+checked our goal is to crack this
+ 
+
+00:00:23.000 --> 00:00:24.710 align:start position:0%
+checked our goal is to crack this
+program<00:00:23.359><c> so</c><00:00:23.480><c> we</c><00:00:23.599><c> don't</c><00:00:23.760><c> have</c><00:00:24.000><c> to</c><00:00:24.080><c> use</c><00:00:24.199><c> a</c><00:00:24.400><c> valid</c>
+
+00:00:24.710 --> 00:00:24.720 align:start position:0%
+program so we don't have to use a valid
+ 
+
+00:00:24.720 --> 00:00:26.990 align:start position:0%
+program so we don't have to use a valid
+license<00:00:25.160><c> key</c><00:00:26.039><c> I've</c><00:00:26.199><c> made</c><00:00:26.439><c> this</c><00:00:26.599><c> program</c>
+
+00:00:26.990 --> 00:00:27.000 align:start position:0%
+license key I've made this program
+ 
+
+00:00:27.000 --> 00:00:29.189 align:start position:0%
+license key I've made this program
+available<00:00:27.439><c> through</c><00:00:27.599><c> a</c><00:00:27.760><c> GitHub</c><00:00:28.199><c> repository</c>
+
+00:00:29.189 --> 00:00:29.199 align:start position:0%
+available through a GitHub repository
+ 
+
+00:00:29.199 --> 00:00:32.350 align:start position:0%
+available through a GitHub repository
+you<00:00:29.320><c> can</c><00:00:29.519><c> download</c><00:00:30.199><c> from</c><00:00:30.439><c> gab.com</c><00:00:31.360><c> overflow</c>
+
+00:00:32.350 --> 00:00:32.360 align:start position:0%
+you can download from gab.com overflow
+ 
+
+00:00:32.360 --> 00:00:34.590 align:start position:0%
+you can download from gab.com overflow
+and<00:00:32.520><c> the</c><00:00:32.680><c> repository</c><00:00:33.200><c> name</c><00:00:33.520><c> life</c><00:00:33.800><c> overflow</c>
+
+00:00:34.590 --> 00:00:34.600 align:start position:0%
+and the repository name life overflow
+ 
+
+00:00:34.600 --> 00:00:37.270 align:start position:0%
+and the repository name life overflow
+YouTube<00:00:35.600><c> or</c><00:00:35.800><c> you</c><00:00:35.879><c> can</c><00:00:36.079><c> install</c><00:00:36.559><c> git</c><00:00:36.879><c> with</c><00:00:37.120><c> sud</c>
+
+00:00:37.270 --> 00:00:37.280 align:start position:0%
+YouTube or you can install git with sud
+ 
+
+00:00:37.280 --> 00:00:40.069 align:start position:0%
+YouTube or you can install git with sud
+sudo<00:00:37.600><c> appg</c><00:00:38.120><c> install</c><00:00:38.640><c> git</c><00:00:39.320><c> and</c><00:00:39.520><c> get</c><00:00:39.680><c> the</c><00:00:39.800><c> whole</c>
+
+00:00:40.069 --> 00:00:40.079 align:start position:0%
+sudo appg install git and get the whole
+ 
+
+00:00:40.079 --> 00:00:42.510 align:start position:0%
+sudo appg install git and get the whole
+repository<00:00:40.840><c> with</c><00:00:41.120><c> Git</c><00:00:41.399><c> clone</c><00:00:42.000><c> and</c><00:00:42.320><c> the</c>
+
+00:00:42.510 --> 00:00:42.520 align:start position:0%
+repository with Git clone and the
+ 
+
+00:00:42.520 --> 00:00:45.549 align:start position:0%
+repository with Git clone and the
+address<00:00:43.039><c> you</c><00:00:43.160><c> can</c><00:00:43.320><c> see</c><00:00:43.559><c> on</c><00:00:44.200><c> GitHub</c><00:00:45.200><c> we</c><00:00:45.320><c> will</c>
+
+00:00:45.549 --> 00:00:45.559 align:start position:0%
+address you can see on GitHub we will
+ 
+
+00:00:45.559 --> 00:00:47.510 align:start position:0%
+address you can see on GitHub we will
+probably<00:00:45.960><c> talk</c><00:00:46.199><c> more</c><00:00:46.520><c> about</c><00:00:46.920><c> what</c><00:00:47.120><c> get</c><00:00:47.360><c> is</c>
+
+00:00:47.510 --> 00:00:47.520 align:start position:0%
+probably talk more about what get is
+ 
+
+00:00:47.520 --> 00:00:49.510 align:start position:0%
+probably talk more about what get is
+later<00:00:48.000><c> for</c><00:00:48.239><c> now</c><00:00:48.399><c> it's</c><00:00:48.600><c> enough</c><00:00:48.840><c> to</c><00:00:48.960><c> know</c><00:00:49.239><c> that</c>
+
+00:00:49.510 --> 00:00:49.520 align:start position:0%
+later for now it's enough to know that
+ 
+
+00:00:49.520 --> 00:00:52.110 align:start position:0%
+later for now it's enough to know that
+it's<00:00:49.640><c> a</c><00:00:49.879><c> way</c><00:00:50.160><c> how</c><00:00:50.520><c> developers</c><00:00:51.239><c> can</c><00:00:51.559><c> program</c>
+
+00:00:52.110 --> 00:00:52.120 align:start position:0%
+it's a way how developers can program
+ 
+
+00:00:52.120 --> 00:00:54.229 align:start position:0%
+it's a way how developers can program
+together<00:00:52.359><c> on</c><00:00:52.480><c> a</c><00:00:52.719><c> project</c><00:00:53.440><c> and</c><00:00:53.559><c> I</c><00:00:53.719><c> use</c><00:00:53.960><c> it</c><00:00:54.079><c> to</c>
+
+00:00:54.229 --> 00:00:54.239 align:start position:0%
+together on a project and I use it to
+ 
+
+00:00:54.239 --> 00:00:55.990 align:start position:0%
+together on a project and I use it to
+share<00:00:54.559><c> some</c>
+
+00:00:55.990 --> 00:00:56.000 align:start position:0%
+share some
+ 
+
+00:00:56.000 --> 00:00:58.430 align:start position:0%
+share some
+stuff<00:00:57.000><c> to</c><00:00:57.199><c> have</c><00:00:57.320><c> a</c><00:00:57.480><c> look</c><00:00:57.640><c> at</c><00:00:57.760><c> the</c><00:00:57.960><c> binary</c>
+
+00:00:58.430 --> 00:00:58.440 align:start position:0%
+stuff to have a look at the binary
+ 
+
+00:00:58.440 --> 00:01:00.869 align:start position:0%
+stuff to have a look at the binary
+assembly<00:00:59.000><c> code</c><00:00:59.600><c> we</c><00:00:59.719><c> can</c><00:01:00.039><c> use</c><00:01:00.199><c> a</c><00:01:00.440><c> program</c>
+
+00:01:00.869 --> 00:01:00.879 align:start position:0%
+assembly code we can use a program
+ 
+
+00:01:00.879 --> 00:01:05.189 align:start position:0%
+assembly code we can use a program
+called<00:01:01.199><c> GDB</c><00:01:02.199><c> the</c><00:01:02.519><c> new</c><00:01:03.040><c> debugger</c><00:01:04.040><c> so</c><00:01:04.320><c> type</c><00:01:04.559><c> GDB</c>
+
+00:01:05.189 --> 00:01:05.199 align:start position:0%
+called GDB the new debugger so type GDB
+ 
+
+00:01:05.199 --> 00:01:07.749 align:start position:0%
+called GDB the new debugger so type GDB
+and<00:01:05.400><c> the</c><00:01:05.640><c> path</c><00:01:05.920><c> to</c><00:01:06.080><c> the</c><00:01:06.240><c> binary</c><00:01:07.119><c> so</c><00:01:07.280><c> every</c><00:01:07.479><c> C</c>
+
+00:01:07.749 --> 00:01:07.759 align:start position:0%
+and the path to the binary so every C
+ 
+
+00:01:07.759 --> 00:01:10.590 align:start position:0%
+and the path to the binary so every C
+program<00:01:08.119><c> has</c><00:01:08.200><c> a</c><00:01:08.320><c> main</c><00:01:08.640><c> function</c><00:01:09.360><c> remember</c><00:01:10.360><c> so</c>
+
+00:01:10.590 --> 00:01:10.600 align:start position:0%
+program has a main function remember so
+ 
+
+00:01:10.600 --> 00:01:13.190 align:start position:0%
+program has a main function remember so
+let's<00:01:10.880><c> type</c><00:01:11.159><c> in</c><00:01:11.439><c> disassemble</c><00:01:12.119><c> main</c><00:01:13.040><c> which</c>
+
+00:01:13.190 --> 00:01:13.200 align:start position:0%
+let's type in disassemble main which
+ 
+
+00:01:13.200 --> 00:01:15.350 align:start position:0%
+let's type in disassemble main which
+will<00:01:13.439><c> display</c><00:01:13.960><c> all</c><00:01:14.200><c> assembler</c><00:01:14.720><c> instructions</c>
+
+00:01:15.350 --> 00:01:15.360 align:start position:0%
+will display all assembler instructions
+ 
+
+00:01:15.360 --> 00:01:18.550 align:start position:0%
+will display all assembler instructions
+from<00:01:15.560><c> the</c><00:01:15.680><c> main</c><00:01:16.159><c> function</c><00:01:17.159><c> but</c><00:01:18.000><c> do</c><00:01:18.119><c> you</c><00:01:18.280><c> see</c>
+
+00:01:18.550 --> 00:01:18.560 align:start position:0%
+from the main function but do you see
+ 
+
+00:01:18.560 --> 00:01:20.830 align:start position:0%
+from the main function but do you see
+how<00:01:18.720><c> ugly</c><00:01:19.119><c> that</c><00:01:19.280><c> looks</c><00:01:19.799><c> that's</c><00:01:20.119><c> horrible</c>
+
+00:01:20.830 --> 00:01:20.840 align:start position:0%
+how ugly that looks that's horrible
+ 
+
+00:01:20.840 --> 00:01:24.230 align:start position:0%
+how ugly that looks that's horrible
+horrible<00:01:21.280><c> AT&amp;T</c><00:01:22.159><c> syntax</c><00:01:23.159><c> so</c><00:01:23.439><c> type</c><00:01:23.640><c> in</c><00:01:23.960><c> set</c>
+
+00:01:24.230 --> 00:01:24.240 align:start position:0%
+horrible AT&amp;T syntax so type in set
+ 
+
+00:01:24.240 --> 00:01:26.990 align:start position:0%
+horrible AT&amp;T syntax so type in set
+disassembly<00:01:24.840><c> flavor</c><00:01:25.479><c> Intel</c><00:01:26.479><c> remember</c><00:01:26.880><c> that</c>
+
+00:01:26.990 --> 00:01:27.000 align:start position:0%
+disassembly flavor Intel remember that
+ 
+
+00:01:27.000 --> 00:01:30.030 align:start position:0%
+disassembly flavor Intel remember that
+you<00:01:27.119><c> can</c><00:01:27.280><c> use</c><00:01:27.520><c> tab</c><00:01:27.799><c> completion</c><00:01:28.360><c> here</c><00:01:28.560><c> as</c><00:01:28.720><c> well</c>
+
+00:01:30.030 --> 00:01:30.040 align:start position:0%
+you can use tab completion here as well
+ 
+
+00:01:30.040 --> 00:01:32.310 align:start position:0%
+you can use tab completion here as well
+now<00:01:30.240><c> disassemble</c><00:01:30.799><c> main</c><00:01:31.159><c> again</c><00:01:31.759><c> and</c><00:01:31.920><c> now</c><00:01:32.079><c> it's</c>
+
+00:01:32.310 --> 00:01:32.320 align:start position:0%
+now disassemble main again and now it's
+ 
+
+00:01:32.320 --> 00:01:36.069 align:start position:0%
+now disassemble main again and now it's
+much<00:01:32.560><c> more</c><00:01:33.119><c> readable</c><00:01:34.119><c> okay</c><00:01:34.640><c> so</c><00:01:35.360><c> it</c><00:01:35.520><c> looks</c>
+
+00:01:36.069 --> 00:01:36.079 align:start position:0%
+much more readable okay so it looks
+ 
+
+00:01:36.079 --> 00:01:38.350 align:start position:0%
+much more readable okay so it looks
+complicated<00:01:37.079><c> but</c><00:01:37.240><c> you</c><00:01:37.320><c> can</c><00:01:37.479><c> ignore</c><00:01:38.000><c> most</c><00:01:38.200><c> of</c>
+
+00:01:38.350 --> 00:01:38.360 align:start position:0%
+complicated but you can ignore most of
+ 
+
+00:01:38.360 --> 00:01:41.030 align:start position:0%
+complicated but you can ignore most of
+it<00:01:39.200><c> first</c><00:01:39.399><c> of</c><00:01:39.560><c> all</c><00:01:39.759><c> get</c><00:01:39.920><c> a</c><00:01:40.119><c> higher</c><00:01:40.479><c> level</c><00:01:40.759><c> view</c>
+
+00:01:41.030 --> 00:01:41.040 align:start position:0%
+it first of all get a higher level view
+ 
+
+00:01:41.040 --> 00:01:42.910 align:start position:0%
+it first of all get a higher level view
+of<00:01:41.159><c> it</c><00:01:41.479><c> it</c><00:01:41.600><c> doesn't</c><00:01:41.880><c> make</c><00:01:42.159><c> sense</c><00:01:42.399><c> to</c><00:01:42.600><c> start</c>
+
+00:01:42.910 --> 00:01:42.920 align:start position:0%
+of it it doesn't make sense to start
+ 
+
+00:01:42.920 --> 00:01:44.630 align:start position:0%
+of it it doesn't make sense to start
+going<00:01:43.200><c> through</c><00:01:43.479><c> this</c><00:01:43.680><c> instruction</c><00:01:44.119><c> by</c>
+
+00:01:44.630 --> 00:01:44.640 align:start position:0%
+going through this instruction by
+ 
+
+00:01:44.640 --> 00:01:47.030 align:start position:0%
+going through this instruction by
+instruction<00:01:45.640><c> this</c><00:01:45.880><c> main</c><00:01:46.200><c> function</c><00:01:46.600><c> obviously</c>
+
+00:01:47.030 --> 00:01:47.040 align:start position:0%
+instruction this main function obviously
+ 
+
+00:01:47.040 --> 00:01:49.550 align:start position:0%
+instruction this main function obviously
+calls<00:01:47.360><c> other</c><00:01:47.680><c> functions</c><00:01:48.560><c> so</c><00:01:49.040><c> just</c><00:01:49.200><c> draw</c><00:01:49.479><c> a</c>
+
+00:01:49.550 --> 00:01:49.560 align:start position:0%
+calls other functions so just draw a
+ 
+
+00:01:49.560 --> 00:01:52.190 align:start position:0%
+calls other functions so just draw a
+mental<00:01:50.000><c> picture</c><00:01:50.439><c> of</c><00:01:50.640><c> the</c><00:01:50.920><c> rough</c><00:01:51.320><c> control</c>
+
+00:01:52.190 --> 00:01:52.200 align:start position:0%
+mental picture of the rough control
+ 
+
+00:01:52.200 --> 00:01:54.709 align:start position:0%
+mental picture of the rough control
+flow<00:01:53.200><c> I</c><00:01:53.280><c> will</c><00:01:53.560><c> actually</c><00:01:53.960><c> print</c><00:01:54.280><c> out</c><00:01:54.520><c> this</c>
+
+00:01:54.709 --> 00:01:54.719 align:start position:0%
+flow I will actually print out this
+ 
+
+00:01:54.719 --> 00:01:57.069 align:start position:0%
+flow I will actually print out this
+assembler<00:01:55.159><c> code</c><00:01:55.439><c> and</c><00:01:55.600><c> use</c><00:01:55.759><c> a</c><00:01:55.960><c> pen</c><00:01:56.759><c> that's</c><00:01:56.920><c> how</c>
+
+00:01:57.069 --> 00:01:57.079 align:start position:0%
+assembler code and use a pen that's how
+ 
+
+00:01:57.079 --> 00:01:59.270 align:start position:0%
+assembler code and use a pen that's how
+I<00:01:57.200><c> did</c><00:01:57.320><c> it</c><00:01:57.439><c> in</c><00:01:57.560><c> the</c><00:01:57.719><c> beginning</c><00:01:58.560><c> and</c><00:01:58.719><c> still</c><00:01:59.039><c> do</c>
+
+00:01:59.270 --> 00:01:59.280 align:start position:0%
+I did it in the beginning and still do
+ 
+
+00:01:59.280 --> 00:02:02.230 align:start position:0%
+I did it in the beginning and still do
+it<00:01:59.439><c> when</c><00:01:59.560><c> I</c><00:01:59.920><c> counter</c><00:02:00.200><c> more</c><00:02:00.399><c> complex</c><00:02:01.039><c> code</c><00:02:02.039><c> and</c>
+
+00:02:02.230 --> 00:02:02.240 align:start position:0%
+it when I counter more complex code and
+ 
+
+00:02:02.240 --> 00:02:04.190 align:start position:0%
+it when I counter more complex code and
+remember<00:02:02.719><c> to</c><00:02:02.960><c> just</c><00:02:03.200><c> ignore</c><00:02:03.640><c> most</c><00:02:03.799><c> of</c><00:02:03.960><c> the</c>
+
+00:02:04.190 --> 00:02:04.200 align:start position:0%
+remember to just ignore most of the
+ 
+
+00:02:04.200 --> 00:02:07.029 align:start position:0%
+remember to just ignore most of the
+stuff<00:02:05.200><c> concentrate</c><00:02:05.719><c> on</c><00:02:05.880><c> the</c><00:02:06.039><c> actual</c>
+
+00:02:07.029 --> 00:02:07.039 align:start position:0%
+stuff concentrate on the actual
+ 
+
+00:02:07.039 --> 00:02:10.109 align:start position:0%
+stuff concentrate on the actual
+flow<00:02:08.039><c> so</c><00:02:08.239><c> at</c><00:02:08.399><c> this</c><00:02:08.640><c> start</c><00:02:09.080><c> it</c><00:02:09.239><c> arrives</c><00:02:09.759><c> at</c><00:02:09.920><c> a</c>
+
+00:02:10.109 --> 00:02:10.119 align:start position:0%
+flow so at this start it arrives at a
+ 
+
+00:02:10.119 --> 00:02:13.510 align:start position:0%
+flow so at this start it arrives at a
+compare<00:02:10.720><c> with</c><00:02:10.879><c> number</c><00:02:11.239><c> two</c><00:02:12.239><c> and</c><00:02:12.560><c> afterwards</c><00:02:13.280><c> a</c>
+
+00:02:13.510 --> 00:02:13.520 align:start position:0%
+compare with number two and afterwards a
+ 
+
+00:02:13.520 --> 00:02:16.430 align:start position:0%
+compare with number two and afterwards a
+jump<00:02:13.879><c> not</c><00:02:14.160><c> equal</c><00:02:15.160><c> so</c><00:02:15.400><c> something</c><00:02:15.720><c> is</c><00:02:16.000><c> checked</c>
+
+00:02:16.430 --> 00:02:16.440 align:start position:0%
+jump not equal so something is checked
+ 
+
+00:02:16.440 --> 00:02:22.589 align:start position:0%
+jump not equal so something is checked
+if<00:02:16.560><c> it</c><00:02:16.680><c> is</c>
+
+00:02:22.589 --> 00:02:22.599 align:start position:0%
+ 
+ 
+
+00:02:22.599 --> 00:02:25.949 align:start position:0%
+ 
+two<00:02:23.599><c> if</c><00:02:23.800><c> that</c><00:02:24.000><c> is</c><00:02:24.160><c> the</c><00:02:24.400><c> case</c><00:02:24.959><c> we</c><00:02:25.200><c> proceed</c><00:02:25.599><c> to</c><00:02:25.760><c> a</c>
+
+00:02:25.949 --> 00:02:25.959 align:start position:0%
+two if that is the case we proceed to a
+ 
+
+00:02:25.959 --> 00:02:28.949 align:start position:0%
+two if that is the case we proceed to a
+print<00:02:26.239><c> F</c><00:02:27.160><c> which</c><00:02:27.400><c> we</c><00:02:27.599><c> know</c><00:02:28.000><c> is</c><00:02:28.120><c> a</c><00:02:28.319><c> function</c><00:02:28.720><c> to</c>
+
+00:02:28.949 --> 00:02:28.959 align:start position:0%
+print F which we know is a function to
+ 
+
+00:02:28.959 --> 00:02:31.830 align:start position:0%
+print F which we know is a function to
+display<00:02:29.400><c> text</c>
+
+00:02:31.830 --> 00:02:31.840 align:start position:0%
+display text
+ 
+
+00:02:31.840 --> 00:02:35.910 align:start position:0%
+display text
+then<00:02:32.040><c> comes</c><00:02:32.239><c> a</c><00:02:32.440><c> string</c>
+
+00:02:35.910 --> 00:02:35.920 align:start position:0%
+ 
+ 
+
+00:02:35.920 --> 00:02:38.270 align:start position:0%
+ 
+compare<00:02:36.920><c> if</c><00:02:37.040><c> you</c><00:02:37.160><c> don't</c><00:02:37.319><c> know</c><00:02:37.519><c> that</c><00:02:37.680><c> function</c>
+
+00:02:38.270 --> 00:02:38.280 align:start position:0%
+compare if you don't know that function
+ 
+
+00:02:38.280 --> 00:02:41.550 align:start position:0%
+compare if you don't know that function
+read<00:02:38.560><c> the</c><00:02:38.640><c> man</c><00:02:38.959><c> page</c><00:02:39.159><c> of</c><00:02:39.319><c> it</c><00:02:39.879><c> Man</c><00:02:40.360><c> 3</c><00:02:40.879><c> string</c>
+
+00:02:41.550 --> 00:02:41.560 align:start position:0%
+read the man page of it Man 3 string
+ 
+
+00:02:41.560 --> 00:02:44.190 align:start position:0%
+read the man page of it Man 3 string
+compare<00:02:42.560><c> so</c><00:02:42.800><c> this</c><00:02:42.959><c> Compares</c><00:02:43.360><c> two</c><00:02:43.560><c> strings</c><00:02:43.879><c> and</c>
+
+00:02:44.190 --> 00:02:44.200 align:start position:0%
+compare so this Compares two strings and
+ 
+
+00:02:44.200 --> 00:02:48.270 align:start position:0%
+compare so this Compares two strings and
+returns<00:02:44.519><c> zero</c><00:02:45.000><c> if</c><00:02:45.200><c> both</c><00:02:45.400><c> strings</c><00:02:45.879><c> were</c><00:02:46.120><c> the</c>
+
+00:02:48.270 --> 00:02:48.280 align:start position:0%
+ 
+ 
+
+00:02:48.280 --> 00:02:51.710 align:start position:0%
+ 
+same<00:02:49.280><c> after</c><00:02:49.599><c> that</c><00:02:49.800><c> call</c><00:02:50.239><c> we</c><00:02:50.360><c> see</c><00:02:50.800><c> another</c><00:02:51.360><c> jump</c>
+
+00:02:51.710 --> 00:02:51.720 align:start position:0%
+same after that call we see another jump
+ 
+
+00:02:51.720 --> 00:02:56.550 align:start position:0%
+same after that call we see another jump
+not
+
+00:02:56.550 --> 00:02:56.560 align:start position:0%
+ 
+ 
+
+00:02:56.560 --> 00:03:00.270 align:start position:0%
+ 
+equal<00:02:57.560><c> so</c><00:02:57.760><c> if</c><00:02:57.920><c> the</c><00:02:58.120><c> zero</c><00:02:58.480><c> flag</c><00:02:58.879><c> is</c><00:02:59.000><c> not</c><00:02:59.280><c> said</c>
+
+00:03:00.270 --> 00:03:00.280 align:start position:0%
+equal so if the zero flag is not said
+ 
+
+00:03:00.280 --> 00:03:03.630 align:start position:0%
+equal so if the zero flag is not said
+there<00:03:00.480><c> will</c><00:03:00.720><c> be</c><00:03:01.040><c> a</c><00:03:01.280><c> puts</c><00:03:01.959><c> call</c><00:03:02.959><c> use</c><00:03:03.239><c> the</c><00:03:03.360><c> main</c>
+
+00:03:03.630 --> 00:03:03.640 align:start position:0%
+there will be a puts call use the main
+ 
+
+00:03:03.640 --> 00:03:05.990 align:start position:0%
+there will be a puts call use the main
+page<00:03:03.879><c> to</c><00:03:04.040><c> figure</c><00:03:04.319><c> out</c><00:03:04.720><c> what</c><00:03:04.959><c> it</c><00:03:05.159><c> does</c><00:03:05.599><c> but</c><00:03:05.879><c> it</c>
+
+00:03:05.990 --> 00:03:06.000 align:start position:0%
+page to figure out what it does but it
+ 
+
+00:03:06.000 --> 00:03:12.869 align:start position:0%
+page to figure out what it does but it
+just<00:03:06.159><c> prints</c><00:03:06.480><c> text</c><00:03:06.799><c> like</c>
+
+00:03:12.869 --> 00:03:12.879 align:start position:0%
+ 
+ 
+
+00:03:12.879 --> 00:03:15.550 align:start position:0%
+ 
+printer<00:03:13.879><c> so</c><00:03:14.040><c> if</c><00:03:14.200><c> the</c><00:03:14.400><c> original</c><00:03:15.040><c> compare</c><00:03:15.440><c> with</c>
+
+00:03:15.550 --> 00:03:15.560 align:start position:0%
+printer so if the original compare with
+ 
+
+00:03:15.560 --> 00:03:17.869 align:start position:0%
+printer so if the original compare with
+the<00:03:15.680><c> number</c><00:03:15.959><c> two</c><00:03:16.280><c> was</c><00:03:16.480><c> not</c><00:03:16.720><c> true</c><00:03:17.599><c> then</c><00:03:17.760><c> it</c>
+
+00:03:17.869 --> 00:03:17.879 align:start position:0%
+the number two was not true then it
+ 
+
+00:03:17.879 --> 00:03:22.589 align:start position:0%
+the number two was not true then it
+would<00:03:18.120><c> jump</c><00:03:18.400><c> to</c><00:03:18.599><c> the</c><00:03:18.799><c> address</c>
+
+00:03:22.589 --> 00:03:22.599 align:start position:0%
+ 
+ 
+
+00:03:22.599 --> 00:03:25.309 align:start position:0%
+ 
+4623<00:03:23.599><c> so</c><00:03:23.840><c> in</c><00:03:24.000><c> that</c><00:03:24.239><c> case</c><00:03:24.519><c> it</c><00:03:24.680><c> prints</c><00:03:25.040><c> some</c>
+
+00:03:25.309 --> 00:03:25.319 align:start position:0%
+4623 so in that case it prints some
+ 
+
+00:03:25.319 --> 00:03:30.309 align:start position:0%
+4623 so in that case it prints some
+other<00:03:25.560><c> text</c><00:03:25.879><c> with</c><00:03:26.159><c> puts</c><00:03:26.440><c> and</c><00:03:26.720><c> exits</c>
+
+00:03:30.309 --> 00:03:30.319 align:start position:0%
+ 
+ 
+
+00:03:30.319 --> 00:03:32.550 align:start position:0%
+ 
+I<00:03:30.480><c> always</c><00:03:31.000><c> add</c><00:03:31.280><c> the</c><00:03:31.519><c> address</c><00:03:31.920><c> or</c><00:03:32.120><c> at</c><00:03:32.239><c> least</c>
+
+00:03:32.550 --> 00:03:32.560 align:start position:0%
+I always add the address or at least
+ 
+
+00:03:32.560 --> 00:03:34.390 align:start position:0%
+I always add the address or at least
+part<00:03:32.799><c> of</c><00:03:32.959><c> the</c><00:03:33.120><c> address</c><00:03:33.560><c> from</c><00:03:33.920><c> important</c>
+
+00:03:34.390 --> 00:03:34.400 align:start position:0%
+part of the address from important
+ 
+
+00:03:34.400 --> 00:03:37.309 align:start position:0%
+part of the address from important
+locations<00:03:34.920><c> so</c><00:03:35.120><c> I</c><00:03:35.239><c> know</c><00:03:35.519><c> where</c><00:03:35.720><c> I</c><00:03:36.040><c> am</c><00:03:37.040><c> this</c><00:03:37.159><c> will</c>
+
+00:03:37.309 --> 00:03:37.319 align:start position:0%
+locations so I know where I am this will
+ 
+
+00:03:37.319 --> 00:03:39.630 align:start position:0%
+locations so I know where I am this will
+help<00:03:37.480><c> you</c><00:03:37.599><c> later</c><00:03:37.920><c> when</c><00:03:38.040><c> we</c><00:03:38.120><c> step</c><00:03:38.400><c> through</c><00:03:38.560><c> the</c>
+
+00:03:39.630 --> 00:03:39.640 align:start position:0%
+help you later when we step through the
+ 
+
+00:03:39.640 --> 00:03:45.509 align:start position:0%
+help you later when we step through the
+program<00:03:40.640><c> now</c><00:03:40.840><c> we</c><00:03:41.040><c> have</c><00:03:41.360><c> one</c><00:03:41.599><c> branch</c>
+
+00:03:45.509 --> 00:03:45.519 align:start position:0%
+ 
+ 
+
+00:03:45.519 --> 00:03:51.110 align:start position:0%
+ 
+missing<00:03:46.519><c> which</c><00:03:46.720><c> also</c><00:03:46.959><c> just</c><00:03:47.159><c> prints</c>
+
+00:03:51.110 --> 00:03:51.120 align:start position:0%
+ 
+ 
+
+00:03:51.120 --> 00:03:53.750 align:start position:0%
+ 
+text<00:03:52.120><c> some</c><00:03:52.360><c> jumps</c><00:03:52.720><c> are</c><00:03:52.879><c> still</c><00:03:53.159><c> missing</c><00:03:53.599><c> but</c>
+
+00:03:53.750 --> 00:03:53.760 align:start position:0%
+text some jumps are still missing but
+ 
+
+00:03:53.760 --> 00:03:55.429 align:start position:0%
+text some jumps are still missing but
+you<00:03:53.879><c> can</c><00:03:54.079><c> add</c><00:03:54.280><c> them</c><00:03:54.439><c> to</c><00:03:54.599><c> get</c><00:03:54.720><c> a</c><00:03:54.879><c> nice</c><00:03:55.079><c> control</c>
+
+00:03:55.429 --> 00:03:55.439 align:start position:0%
+you can add them to get a nice control
+ 
+
+00:03:55.439 --> 00:03:56.750 align:start position:0%
+you can add them to get a nice control
+flow
+
+00:03:56.750 --> 00:03:56.760 align:start position:0%
+flow
+ 
+
+00:03:56.760 --> 00:03:59.789 align:start position:0%
+flow
+graph<00:03:57.760><c> now</c><00:03:58.000><c> let's</c><00:03:58.400><c> actually</c><00:03:58.959><c> execute</c><00:03:59.480><c> this</c>
+
+00:03:59.789 --> 00:03:59.799 align:start position:0%
+graph now let's actually execute this
+ 
+
+00:03:59.799 --> 00:04:02.670 align:start position:0%
+graph now let's actually execute this
+and<00:03:59.920><c> step</c><00:04:00.239><c> through</c><00:04:00.439><c> it</c><00:04:01.280><c> you</c><00:04:01.439><c> can</c><00:04:01.640><c> then</c><00:04:01.879><c> draw</c>
+
+00:04:02.670 --> 00:04:02.680 align:start position:0%
+and step through it you can then draw
+ 
+
+00:04:02.680 --> 00:04:04.429 align:start position:0%
+and step through it you can then draw
+which<00:04:03.040><c> path</c><00:04:03.360><c> through</c><00:04:03.560><c> the</c><00:04:03.799><c> graph</c><00:04:04.120><c> you</c><00:04:04.239><c> have</c>
+
+00:04:04.429 --> 00:04:04.439 align:start position:0%
+which path through the graph you have
+ 
+
+00:04:04.439 --> 00:04:06.630 align:start position:0%
+which path through the graph you have
+taken<00:04:04.720><c> on</c><00:04:04.879><c> your</c><00:04:05.040><c> paper</c><00:04:05.640><c> to</c><00:04:05.799><c> do</c><00:04:06.040><c> this</c><00:04:06.239><c> we</c><00:04:06.400><c> first</c>
+
+00:04:06.630 --> 00:04:06.640 align:start position:0%
+taken on your paper to do this we first
+ 
+
+00:04:06.640 --> 00:04:09.110 align:start position:0%
+taken on your paper to do this we first
+set<00:04:06.840><c> a</c><00:04:07.000><c> break</c><00:04:07.319><c> point</c><00:04:07.560><c> at</c><00:04:07.760><c> the</c><00:04:07.920><c> start</c><00:04:08.319><c> of</c><00:04:08.519><c> main</c>
+
+00:04:09.110 --> 00:04:09.120 align:start position:0%
+set a break point at the start of main
+ 
+
+00:04:09.120 --> 00:04:12.910 align:start position:0%
+set a break point at the start of main
+with<00:04:09.360><c> break</c><00:04:10.200><c> main</c><00:04:11.200><c> breakpoint</c><00:04:11.799><c> is</c><00:04:12.000><c> set</c><00:04:12.680><c> now</c>
+
+00:04:12.910 --> 00:04:12.920 align:start position:0%
+with break main breakpoint is set now
+ 
+
+00:04:12.920 --> 00:04:16.270 align:start position:0%
+with break main breakpoint is set now
+use<00:04:13.239><c> run</c><00:04:13.680><c> to</c><00:04:13.840><c> start</c><00:04:14.200><c> the</c><00:04:14.879><c> program</c><00:04:15.879><c> starting</c>
+
+00:04:16.270 --> 00:04:16.280 align:start position:0%
+use run to start the program starting
+ 
+
+00:04:16.280 --> 00:04:18.189 align:start position:0%
+use run to start the program starting
+the<00:04:16.479><c> program</c><00:04:17.000><c> and</c><00:04:17.160><c> we</c><00:04:17.320><c> hit</c><00:04:17.479><c> the</c><00:04:17.639><c> breakpoint</c>
+
+00:04:18.189 --> 00:04:18.199 align:start position:0%
+the program and we hit the breakpoint
+ 
+
+00:04:18.199 --> 00:04:21.189 align:start position:0%
+the program and we hit the breakpoint
+one<00:04:18.560><c> at</c><00:04:18.759><c> this</c><00:04:19.040><c> address</c><00:04:20.040><c> a</c><00:04:20.239><c> breakpoint</c><00:04:20.840><c> is</c><00:04:20.959><c> a</c>
+
+00:04:21.189 --> 00:04:21.199 align:start position:0%
+one at this address a breakpoint is a
+ 
+
+00:04:21.199 --> 00:04:23.710 align:start position:0%
+one at this address a breakpoint is a
+point<00:04:21.560><c> where</c><00:04:21.880><c> execution</c>
+
+00:04:23.710 --> 00:04:23.720 align:start position:0%
+point where execution
+ 
+
+00:04:23.720 --> 00:04:26.310 align:start position:0%
+point where execution
+stops<00:04:24.720><c> now</c><00:04:24.919><c> look</c><00:04:25.080><c> at</c><00:04:25.240><c> the</c><00:04:25.479><c> registers</c><00:04:26.120><c> with</c>
+
+00:04:26.310 --> 00:04:26.320 align:start position:0%
+stops now look at the registers with
+ 
+
+00:04:26.320 --> 00:04:29.469 align:start position:0%
+stops now look at the registers with
+info<00:04:27.000><c> registers</c><00:04:28.000><c> here</c><00:04:28.120><c> you</c><00:04:28.240><c> can</c><00:04:28.360><c> see</c><00:04:28.600><c> the</c><00:04:28.720><c> RP</c>
+
+00:04:29.469 --> 00:04:29.479 align:start position:0%
+info registers here you can see the RP
+ 
+
+00:04:29.479 --> 00:04:31.830 align:start position:0%
+info registers here you can see the RP
+uh<00:04:29.600><c> the</c><00:04:29.759><c> the</c><00:04:29.840><c> instruction</c><00:04:30.280><c> pointer</c><00:04:31.280><c> points</c><00:04:31.639><c> to</c>
+
+00:04:31.830 --> 00:04:31.840 align:start position:0%
+uh the the instruction pointer points to
+ 
+
+00:04:31.840 --> 00:04:36.310 align:start position:0%
+uh the the instruction pointer points to
+the<00:04:32.080><c> first</c><00:04:32.440><c> address</c><00:04:32.800><c> in</c><00:04:33.320><c> main</c><00:04:34.320><c> now</c><00:04:34.600><c> use</c><00:04:35.000><c> SI</c><00:04:35.840><c> to</c>
+
+00:04:36.310 --> 00:04:36.320 align:start position:0%
+the first address in main now use SI to
+ 
+
+00:04:36.320 --> 00:04:38.749 align:start position:0%
+the first address in main now use SI to
+Step<00:04:36.680><c> One</c><00:04:37.080><c> instruction</c><00:04:38.080><c> now</c><00:04:38.240><c> we</c><00:04:38.360><c> are</c><00:04:38.520><c> at</c><00:04:38.639><c> the</c>
+
+00:04:38.749 --> 00:04:38.759 align:start position:0%
+Step One instruction now we are at the
+ 
+
+00:04:38.759 --> 00:04:40.950 align:start position:0%
+Step One instruction now we are at the
+new<00:04:38.960><c> address</c><00:04:39.240><c> in</c><00:04:39.400><c> main</c><00:04:39.759><c> info</c><00:04:40.160><c> registers</c><00:04:40.840><c> and</c>
+
+00:04:40.950 --> 00:04:40.960 align:start position:0%
+new address in main info registers and
+ 
+
+00:04:40.960 --> 00:04:44.710 align:start position:0%
+new address in main info registers and
+you<00:04:41.080><c> see</c><00:04:41.400><c> the</c><00:04:41.600><c> changed</c><00:04:42.080><c> instruction</c>
+
+00:04:44.710 --> 00:04:44.720 align:start position:0%
+ 
+ 
+
+00:04:44.720 --> 00:04:47.189 align:start position:0%
+ 
+pointer<00:04:45.720><c> so</c><00:04:45.919><c> now</c><00:04:46.160><c> just</c><00:04:46.360><c> step</c><00:04:46.680><c> through</c><00:04:46.880><c> it</c><00:04:47.039><c> and</c>
+
+00:04:47.189 --> 00:04:47.199 align:start position:0%
+pointer so now just step through it and
+ 
+
+00:04:47.199 --> 00:04:48.950 align:start position:0%
+pointer so now just step through it and
+follow<00:04:47.520><c> the</c><00:04:47.720><c> addresses</c><00:04:48.240><c> in</c><00:04:48.360><c> your</c><00:04:48.560><c> control</c>
+
+00:04:48.950 --> 00:04:48.960 align:start position:0%
+follow the addresses in your control
+ 
+
+00:04:48.960 --> 00:04:52.510 align:start position:0%
+follow the addresses in your control
+graph<00:04:49.840><c> but</c><00:04:50.000><c> use</c><00:04:50.280><c> ni</c><00:04:50.600><c> i</c><00:04:50.919><c> instead</c><00:04:51.240><c> of</c><00:04:51.400><c> Si</c><00:04:52.120><c> because</c>
+
+00:04:52.510 --> 00:04:52.520 align:start position:0%
+graph but use ni i instead of Si because
+ 
+
+00:04:52.520 --> 00:04:54.909 align:start position:0%
+graph but use ni i instead of Si because
+Si<00:04:52.919><c> would</c><00:04:53.160><c> step</c><00:04:53.400><c> into</c><00:04:53.840><c> function</c><00:04:54.199><c> calls</c><00:04:54.639><c> but</c><00:04:54.800><c> we</c>
+
+00:04:54.909 --> 00:04:54.919 align:start position:0%
+Si would step into function calls but we
+ 
+
+00:04:54.919 --> 00:04:56.350 align:start position:0%
+Si would step into function calls but we
+only<00:04:55.080><c> want</c><00:04:55.240><c> to</c><00:04:55.400><c> step</c><00:04:55.680><c> through</c><00:04:55.919><c> this</c><00:04:56.080><c> main</c>
+
+00:04:56.350 --> 00:04:56.360 align:start position:0%
+only want to step through this main
+ 
+
+00:04:56.360 --> 00:05:07.550 align:start position:0%
+only want to step through this main
+function<00:04:56.680><c> and</c><00:04:56.800><c> not</c><00:04:57.000><c> follow</c><00:04:57.400><c> stuff</c><00:04:57.720><c> like</c><00:04:58.000><c> puts</c>
+
+00:05:07.550 --> 00:05:07.560 align:start position:0%
+ 
+ 
+
+00:05:07.560 --> 00:05:10.270 align:start position:0%
+ 
+okay<00:05:08.080><c> did</c><00:05:08.240><c> you</c><00:05:08.440><c> notice</c><00:05:08.880><c> when</c><00:05:09.039><c> we</c><00:05:09.240><c> jumped</c><00:05:10.160><c> the</c>
+
+00:05:10.270 --> 00:05:10.280 align:start position:0%
+okay did you notice when we jumped the
+ 
+
+00:05:10.280 --> 00:05:13.430 align:start position:0%
+okay did you notice when we jumped the
+jump<00:05:10.600><c> was</c><00:05:10.840><c> at</c><00:05:11.000><c> 5D</c><00:05:11.639><c> 0</c><00:05:12.639><c> and</c><00:05:12.759><c> then</c><00:05:12.919><c> the</c><00:05:13.120><c> next</c>
+
+00:05:13.430 --> 00:05:13.440 align:start position:0%
+jump was at 5D 0 and then the next
+ 
+
+00:05:13.440 --> 00:05:14.990 align:start position:0%
+jump was at 5D 0 and then the next
+instruction<00:05:14.039><c> was</c><00:05:14.240><c> at</c>
+
+00:05:14.990 --> 00:05:15.000 align:start position:0%
+instruction was at
+ 
+
+00:05:15.000 --> 00:05:18.670 align:start position:0%
+instruction was at
+623<00:05:16.000><c> so</c><00:05:16.199><c> we</c><00:05:16.360><c> followed</c><00:05:16.840><c> the</c><00:05:17.039><c> jump</c><00:05:17.680><c> which</c><00:05:17.919><c> means</c>
+
+00:05:18.670 --> 00:05:18.680 align:start position:0%
+623 so we followed the jump which means
+ 
+
+00:05:18.680 --> 00:05:23.670 align:start position:0%
+623 so we followed the jump which means
+whatever<00:05:19.160><c> was</c><00:05:19.360><c> compared</c><00:05:19.720><c> to</c><00:05:19.880><c> two</c><00:05:20.440><c> was</c><00:05:20.639><c> not</c>
+
+00:05:23.670 --> 00:05:23.680 align:start position:0%
+ 
+ 
+
+00:05:23.680 --> 00:05:26.390 align:start position:0%
+ 
+two<00:05:24.680><c> and</c><00:05:24.800><c> then</c><00:05:24.919><c> the</c><00:05:25.120><c> program</c><00:05:25.520><c> printed</c><00:05:25.960><c> the</c>
+
+00:05:26.390 --> 00:05:26.400 align:start position:0%
+two and then the program printed the
+ 
+
+00:05:26.400 --> 00:05:29.189 align:start position:0%
+two and then the program printed the
+usage<00:05:26.880><c> information</c><00:05:27.479><c> after</c><00:05:27.840><c> 628</c><00:05:28.840><c> which</c><00:05:29.039><c> was</c>
+
+00:05:29.189 --> 00:05:29.199 align:start position:0%
+usage information after 628 which was
+ 
+
+00:05:29.199 --> 00:05:32.430 align:start position:0%
+usage information after 628 which was
+the<00:05:29.440><c> last</c><00:05:29.919><c> puts</c><00:05:30.199><c> call</c><00:05:31.199><c> so</c><00:05:31.400><c> we</c><00:05:31.520><c> can</c><00:05:31.800><c> write</c><00:05:32.120><c> down</c>
+
+00:05:32.430 --> 00:05:32.440 align:start position:0%
+the last puts call so we can write down
+ 
+
+00:05:32.440 --> 00:05:36.710 align:start position:0%
+the last puts call so we can write down
+that<00:05:32.639><c> this</c><00:05:32.840><c> puts</c><00:05:33.160><c> prints</c><00:05:33.479><c> the</c><00:05:33.639><c> usage</c>
+
+00:05:36.710 --> 00:05:36.720 align:start position:0%
+ 
+ 
+
+00:05:36.720 --> 00:05:38.990 align:start position:0%
+ 
+information<00:05:37.720><c> now</c><00:05:37.840><c> it's</c><00:05:38.039><c> pretty</c><00:05:38.360><c> clear</c><00:05:38.800><c> that</c>
+
+00:05:38.990 --> 00:05:39.000 align:start position:0%
+information now it's pretty clear that
+ 
+
+00:05:39.000 --> 00:05:41.430 align:start position:0%
+information now it's pretty clear that
+we<00:05:39.120><c> didn't</c><00:05:39.479><c> pass</c><00:05:39.680><c> a</c><00:05:39.880><c> key</c><00:05:40.080><c> to</c><00:05:40.319><c> this</c><00:05:40.560><c> program</c>
+
+00:05:41.430 --> 00:05:41.440 align:start position:0%
+we didn't pass a key to this program
+ 
+
+00:05:41.440 --> 00:05:43.590 align:start position:0%
+we didn't pass a key to this program
+which<00:05:41.600><c> means</c><00:05:42.240><c> the</c><00:05:42.479><c> check</c><00:05:42.759><c> was</c><00:05:42.960><c> looking</c><00:05:43.280><c> at</c><00:05:43.440><c> the</c>
+
+00:05:43.590 --> 00:05:43.600 align:start position:0%
+which means the check was looking at the
+ 
+
+00:05:43.600 --> 00:05:46.309 align:start position:0%
+which means the check was looking at the
+arguments<00:05:44.360><c> if</c><00:05:44.479><c> we</c><00:05:44.639><c> supplied</c><00:05:45.000><c> a</c><00:05:45.120><c> license</c><00:05:45.479><c> key</c>
+
+00:05:46.309 --> 00:05:46.319 align:start position:0%
+arguments if we supplied a license key
+ 
+
+00:05:46.319 --> 00:05:48.430 align:start position:0%
+arguments if we supplied a license key
+so<00:05:46.479><c> let's</c><00:05:46.880><c> run</c><00:05:47.080><c> the</c><00:05:47.240><c> program</c><00:05:47.680><c> again</c><00:05:48.080><c> but</c><00:05:48.280><c> this</c>
+
+00:05:48.430 --> 00:05:48.440 align:start position:0%
+so let's run the program again but this
+ 
+
+00:05:48.440 --> 00:05:54.189 align:start position:0%
+so let's run the program again but this
+time<00:05:48.639><c> with</c><00:05:48.759><c> a</c><00:05:49.080><c> random</c><00:05:49.440><c> license</c>
+
+00:05:54.189 --> 00:05:54.199 align:start position:0%
+ 
+ 
+
+00:05:54.199 --> 00:05:57.029 align:start position:0%
+ 
+key<00:05:55.199><c> yes</c><00:05:55.360><c> we</c><00:05:55.440><c> want</c><00:05:55.560><c> to</c><00:05:55.639><c> start</c><00:05:55.919><c> the</c><00:05:56.039><c> program</c>
+
+00:05:57.029 --> 00:05:57.039 align:start position:0%
+key yes we want to start the program
+ 
+
+00:05:57.039 --> 00:06:01.029 align:start position:0%
+key yes we want to start the program
+again<00:05:58.039><c> now</c><00:05:58.240><c> do</c><00:05:58.400><c> the</c><00:05:58.560><c> same</c><00:05:58.840><c> n</c><00:05:59.120><c> i</c><00:05:59.360><c> and</c><00:05:59.720><c> I</c><00:05:59.919><c> and</c>
+
+00:06:01.029 --> 00:06:01.039 align:start position:0%
+again now do the same n i and I and
+ 
+
+00:06:01.039 --> 00:06:05.110 align:start position:0%
+again now do the same n i and I and
+I<00:06:02.039><c> now</c><00:06:02.240><c> we</c><00:06:02.360><c> are</c><00:06:02.520><c> at</c><00:06:02.720><c> 5D</c><00:06:03.199><c> 0</c><00:06:03.600><c> again</c><00:06:04.360><c> will</c><00:06:04.560><c> we</c><00:06:04.759><c> jump</c>
+
+00:06:05.110 --> 00:06:05.120 align:start position:0%
+I now we are at 5D 0 again will we jump
+ 
+
+00:06:05.120 --> 00:06:06.189 align:start position:0%
+I now we are at 5D 0 again will we jump
+this
+
+00:06:06.189 --> 00:06:06.199 align:start position:0%
+this
+ 
+
+00:06:06.199 --> 00:06:09.830 align:start position:0%
+this
+time<00:06:07.199><c> no</c><00:06:07.639><c> cool</c><00:06:08.560><c> so</c><00:06:08.720><c> the</c><00:06:08.919><c> next</c><00:06:09.160><c> Branch</c><00:06:09.639><c> we</c>
+
+00:06:09.830 --> 00:06:09.840 align:start position:0%
+time no cool so the next Branch we
+ 
+
+00:06:09.840 --> 00:06:11.550 align:start position:0%
+time no cool so the next Branch we
+expect<00:06:10.360><c> is</c><00:06:10.520><c> at</c>
+
+00:06:11.550 --> 00:06:11.560 align:start position:0%
+expect is at
+ 
+
+00:06:11.560 --> 00:06:15.550 align:start position:0%
+expect is at
+609<00:06:12.560><c> let's</c><00:06:12.800><c> an</c><00:06:13.039><c> i</c><00:06:13.520><c> and</c><00:06:13.639><c> see</c><00:06:13.880><c> what</c>
+
+00:06:15.550 --> 00:06:15.560 align:start position:0%
+609 let's an i and see what
+ 
+
+00:06:15.560 --> 00:06:19.309 align:start position:0%
+609 let's an i and see what
+happens<00:06:16.560><c> ah</c><00:06:17.360><c> another</c><00:06:17.759><c> print</c><00:06:18.120><c> text</c><00:06:18.919><c> so</c><00:06:19.160><c> that</c>
+
+00:06:19.309 --> 00:06:19.319 align:start position:0%
+happens ah another print text so that
+ 
+
+00:06:19.319 --> 00:06:22.390 align:start position:0%
+happens ah another print text so that
+print<00:06:19.680><c> f</c><00:06:20.199><c> is</c><00:06:20.440><c> the</c><00:06:20.680><c> info</c><00:06:21.360><c> that</c><00:06:21.520><c> a</c><00:06:21.680><c> license</c><00:06:22.120><c> key</c>
+
+00:06:22.390 --> 00:06:22.400 align:start position:0%
+print f is the info that a license key
+ 
+
+00:06:22.400 --> 00:06:25.309 align:start position:0%
+print f is the info that a license key
+will<00:06:22.560><c> be</c>
+
+00:06:25.309 --> 00:06:25.319 align:start position:0%
+ 
+ 
+
+00:06:25.319 --> 00:06:29.430 align:start position:0%
+ 
+checked<00:06:26.319><c> n</c><00:06:26.639><c> i</c><00:06:27.080><c> now</c><00:06:27.520><c> comes</c><00:06:27.720><c> the</c><00:06:28.000><c> branch</c><00:06:29.000><c> okay</c><00:06:29.280><c> we</c>
+
+00:06:29.430 --> 00:06:29.440 align:start position:0%
+checked n i now comes the branch okay we
+ 
+
+00:06:29.440 --> 00:06:30.909 align:start position:0%
+checked n i now comes the branch okay we
+are<00:06:29.639><c> arrived</c><00:06:29.960><c> at</c>
+
+00:06:30.909 --> 00:06:30.919 align:start position:0%
+are arrived at
+ 
+
+00:06:30.919 --> 00:06:34.790 align:start position:0%
+are arrived at
+609<00:06:31.919><c> let's</c><00:06:32.120><c> see</c><00:06:32.440><c> where</c><00:06:32.599><c> we</c><00:06:32.720><c> are</c><00:06:33.160><c> afterwards</c><00:06:34.160><c> at</c>
+
+00:06:34.790 --> 00:06:34.800 align:start position:0%
+609 let's see where we are afterwards at
+ 
+
+00:06:34.800 --> 00:06:38.189 align:start position:0%
+609 let's see where we are afterwards at
+617<00:06:35.800><c> so</c><00:06:36.000><c> we</c><00:06:36.160><c> did</c><00:06:36.440><c> jump</c><00:06:37.240><c> which</c><00:06:37.560><c> means</c><00:06:37.919><c> that</c><00:06:38.080><c> the</c>
+
+00:06:38.189 --> 00:06:38.199 align:start position:0%
+617 so we did jump which means that the
+ 
+
+00:06:38.199 --> 00:06:40.830 align:start position:0%
+617 so we did jump which means that the
+string<00:06:38.599><c> compare</c><00:06:39.319><c> failed</c><00:06:40.319><c> and</c><00:06:40.479><c> when</c><00:06:40.639><c> we</c>
+
+00:06:40.830 --> 00:06:40.840 align:start position:0%
+string compare failed and when we
+ 
+
+00:06:40.840 --> 00:06:45.390 align:start position:0%
+string compare failed and when we
+continue<00:06:41.319><c> with</c><00:06:41.479><c> an</c><00:06:41.720><c> i</c><00:06:42.039><c> we</c><00:06:42.199><c> see</c><00:06:42.880><c> that</c><00:06:43.280><c> it's</c>
+
+00:06:45.390 --> 00:06:45.400 align:start position:0%
+continue with an i we see that it's
+ 
+
+00:06:45.400 --> 00:06:47.830 align:start position:0%
+continue with an i we see that it's
+wrong<00:06:46.400><c> okay</c><00:06:46.560><c> let's</c><00:06:46.720><c> set</c><00:06:46.919><c> a</c><00:06:47.039><c> breakpoint</c><00:06:47.639><c> just</c>
+
+00:06:47.830 --> 00:06:47.840 align:start position:0%
+wrong okay let's set a breakpoint just
+ 
+
+00:06:47.840 --> 00:06:49.870 align:start position:0%
+wrong okay let's set a breakpoint just
+before<00:06:48.199><c> the</c><00:06:48.400><c> last</c><00:06:48.759><c> compare</c><00:06:49.280><c> and</c><00:06:49.440><c> run</c><00:06:49.639><c> the</c>
+
+00:06:49.870 --> 00:06:49.880 align:start position:0%
+before the last compare and run the
+ 
+
+00:06:49.880 --> 00:06:52.749 align:start position:0%
+before the last compare and run the
+program<00:06:50.800><c> again</c><00:06:51.800><c> remember</c><00:06:52.240><c> that</c><00:06:52.400><c> you</c><00:06:52.520><c> can</c>
+
+00:06:52.749 --> 00:06:52.759 align:start position:0%
+program again remember that you can
+ 
+
+00:06:52.759 --> 00:06:55.150 align:start position:0%
+program again remember that you can
+easily<00:06:53.280><c> copy</c><00:06:53.680><c> and</c><00:06:53.919><c> paste</c><00:06:54.400><c> values</c><00:06:54.840><c> in</c><00:06:55.000><c> the</c>
+
+00:06:55.150 --> 00:06:55.160 align:start position:0%
+easily copy and paste values in the
+ 
+
+00:06:55.160 --> 00:06:57.710 align:start position:0%
+easily copy and paste values in the
+terminal<00:06:56.000><c> by</c><00:06:56.199><c> simply</c><00:06:56.599><c> marking</c><00:06:57.120><c> something</c><00:06:57.479><c> and</c>
+
+00:06:57.710 --> 00:06:57.720 align:start position:0%
+terminal by simply marking something and
+ 
+
+00:06:57.720 --> 00:07:00.629 align:start position:0%
+terminal by simply marking something and
+pressing<00:06:58.000><c> your</c><00:06:58.120><c> mouse</c><00:06:58.400><c> wheel</c>
+
+00:07:00.629 --> 00:07:00.639 align:start position:0%
+pressing your mouse wheel
+ 
+
+00:07:00.639 --> 00:07:04.110 align:start position:0%
+pressing your mouse wheel
+now<00:07:00.840><c> run</c><00:07:01.599><c> again</c><00:07:02.599><c> break</c><00:07:02.879><c> point</c><00:07:03.080><c> one</c><00:07:03.840><c> now</c>
+
+00:07:04.110 --> 00:07:04.120 align:start position:0%
+now run again break point one now
+ 
+
+00:07:04.120 --> 00:07:06.189 align:start position:0%
+now run again break point one now
+continue<00:07:05.120><c> this</c><00:07:05.240><c> will</c><00:07:05.440><c> run</c><00:07:05.639><c> the</c><00:07:05.840><c> program</c>
+
+00:07:06.189 --> 00:07:06.199 align:start position:0%
+continue this will run the program
+ 
+
+00:07:06.199 --> 00:07:09.270 align:start position:0%
+continue this will run the program
+normally<00:07:06.720><c> again</c><00:07:07.039><c> until</c><00:07:07.280><c> we</c><00:07:07.440><c> hit</c><00:07:07.639><c> the</c><00:07:07.759><c> next</c>
+
+00:07:09.270 --> 00:07:09.280 align:start position:0%
+normally again until we hit the next
+ 
+
+00:07:09.280 --> 00:07:11.629 align:start position:0%
+normally again until we hit the next
+breakpoint<00:07:10.280><c> now</c><00:07:10.599><c> it</c><00:07:10.800><c> stopped</c><00:07:11.160><c> before</c><00:07:11.440><c> we</c>
+
+00:07:11.629 --> 00:07:11.639 align:start position:0%
+breakpoint now it stopped before we
+ 
+
+00:07:11.639 --> 00:07:13.830 align:start position:0%
+breakpoint now it stopped before we
+execute<00:07:12.160><c> the</c><00:07:12.400><c> test</c><00:07:12.720><c> eax</c>
+
+00:07:13.830 --> 00:07:13.840 align:start position:0%
+execute the test eax
+ 
+
+00:07:13.840 --> 00:07:17.029 align:start position:0%
+execute the test eax
+eax<00:07:14.840><c> eax</c><00:07:15.319><c> just</c><00:07:15.560><c> refers</c><00:07:15.879><c> to</c><00:07:16.039><c> the</c><00:07:16.160><c> first</c><00:07:16.400><c> 32-bit</c>
+
+00:07:17.029 --> 00:07:17.039 align:start position:0%
+eax eax just refers to the first 32-bit
+ 
+
+00:07:17.039 --> 00:07:21.790 align:start position:0%
+eax eax just refers to the first 32-bit
+of<00:07:17.160><c> the</c><00:07:17.440><c> 64-bit</c><00:07:18.440><c> Rax</c><00:07:19.639><c> register</c><00:07:20.639><c> so</c><00:07:20.919><c> its</c><00:07:21.280><c> value</c>
+
+00:07:21.790 --> 00:07:21.800 align:start position:0%
+of the 64-bit Rax register so its value
+ 
+
+00:07:21.800 --> 00:07:25.430 align:start position:0%
+of the 64-bit Rax register so its value
+is<00:07:22.039><c> hex</c><00:07:22.879><c> e</c><00:07:23.879><c> let's</c><00:07:24.080><c> set</c><00:07:24.319><c> this</c><00:07:24.440><c> to</c><00:07:24.680><c> zero</c><00:07:25.240><c> which</c>
+
+00:07:25.430 --> 00:07:25.440 align:start position:0%
+is hex e let's set this to zero which
+ 
+
+00:07:25.440 --> 00:07:27.629 align:start position:0%
+is hex e let's set this to zero which
+would<00:07:25.720><c> indicate</c><00:07:26.240><c> that</c><00:07:26.440><c> the</c><00:07:26.599><c> string</c><00:07:27.000><c> compare</c>
+
+00:07:27.629 --> 00:07:27.639 align:start position:0%
+would indicate that the string compare
+ 
+
+00:07:27.639 --> 00:07:30.629 align:start position:0%
+would indicate that the string compare
+was<00:07:27.919><c> correct</c><00:07:28.319><c> and</c><00:07:28.680><c> returned</c><00:07:29.199><c> zero</c>
+
+00:07:30.629 --> 00:07:30.639 align:start position:0%
+was correct and returned zero
+ 
+
+00:07:30.639 --> 00:07:34.230 align:start position:0%
+was correct and returned zero
+set<00:07:31.240><c> dollar</c><00:07:31.639><c> E</c><00:07:32.160><c> equals</c><00:07:32.440><c> to</c><00:07:32.759><c> zero</c><00:07:33.759><c> info</c>
+
+00:07:34.230 --> 00:07:34.240 align:start position:0%
+set dollar E equals to zero info
+ 
+
+00:07:34.240 --> 00:07:37.270 align:start position:0%
+set dollar E equals to zero info
+registers<00:07:34.960><c> and</c><00:07:35.080><c> you</c><00:07:35.199><c> see</c><00:07:35.520><c> that</c><00:07:35.639><c> it's</c><00:07:35.840><c> now</c><00:07:36.280><c> zero</c>
+
+00:07:37.270 --> 00:07:37.280 align:start position:0%
+registers and you see that it's now zero
+ 
+
+00:07:37.280 --> 00:07:39.749 align:start position:0%
+registers and you see that it's now zero
+now<00:07:37.560><c> use</c><00:07:37.759><c> an</c><00:07:38.000><c> i</c><00:07:38.280><c> again</c><00:07:38.520><c> to</c><00:07:38.759><c> step</c><00:07:39.120><c> and</c><00:07:39.400><c> follow</c>
+
+00:07:39.749 --> 00:07:39.759 align:start position:0%
+now use an i again to step and follow
+ 
+
+00:07:39.759 --> 00:07:46.710 align:start position:0%
+now use an i again to step and follow
+your<00:07:39.960><c> control</c>
+
+00:07:46.710 --> 00:07:46.720 align:start position:0%
+ 
+ 
+
+00:07:46.720 --> 00:07:50.749 align:start position:0%
+ 
+path<00:07:47.720><c> access</c><00:07:48.440><c> granted</c><00:07:49.440><c> yay</c><00:07:50.080><c> so</c><00:07:50.560><c> we</c>
+
+00:07:50.749 --> 00:07:50.759 align:start position:0%
+path access granted yay so we
+ 
+
+00:07:50.759 --> 00:07:57.790 align:start position:0%
+path access granted yay so we
+circumvented<00:07:51.560><c> the</c><00:07:51.720><c> license</c>
+
+00:07:57.790 --> 00:07:57.800 align:start position:0%
+ 
+ 
+
+00:07:57.800 --> 00:08:00.309 align:start position:0%
+ 
+check<00:07:58.800><c> and</c><00:07:58.919><c> you</c><00:07:59.000><c> can</c><00:07:59.159><c> always</c><00:07:59.680><c> write</c><00:07:59.919><c> your</c><00:08:00.039><c> own</c>
+
+00:08:00.309 --> 00:08:00.319 align:start position:0%
+check and you can always write your own
+ 
+
+00:08:00.319 --> 00:08:03.029 align:start position:0%
+check and you can always write your own
+little<00:08:00.560><c> C</c><00:08:00.960><c> program</c><00:08:01.639><c> trying</c><00:08:01.960><c> to</c><00:08:02.280><c> make</c><00:08:02.479><c> it</c><00:08:02.720><c> more</c>
+
+00:08:03.029 --> 00:08:03.039 align:start position:0%
+little C program trying to make it more
+ 
+
+00:08:03.039 --> 00:08:05.670 align:start position:0%
+little C program trying to make it more
+secure<00:08:03.840><c> and</c><00:08:03.960><c> then</c><00:08:04.159><c> crack</c><00:08:04.400><c> it</c><00:08:04.560><c> yourself</c><00:08:05.000><c> again</c>
+
+00:08:05.670 --> 00:08:05.680 align:start position:0%
+secure and then crack it yourself again
+ 
+
+00:08:05.680 --> 00:08:08.029 align:start position:0%
+secure and then crack it yourself again
+you<00:08:05.800><c> will</c><00:08:06.080><c> notice</c><00:08:06.520><c> that</c><00:08:06.680><c> it's</c><00:08:07.039><c> impossible</c><00:08:07.879><c> to</c>
+
+00:08:08.029 --> 00:08:08.039 align:start position:0%
+you will notice that it's impossible to
+ 
+
+00:08:08.039 --> 00:08:10.350 align:start position:0%
+you will notice that it's impossible to
+make<00:08:08.199><c> a</c><00:08:08.440><c> program</c>
+
+00:08:10.350 --> 00:08:10.360 align:start position:0%
+make a program
+ 
+
+00:08:10.360 --> 00:08:12.790 align:start position:0%
+make a program
+uncrackable<00:08:11.360><c> those</c><00:08:11.599><c> kind</c><00:08:11.759><c> of</c><00:08:12.000><c> challenges</c><00:08:12.560><c> are</c>
+
+00:08:12.790 --> 00:08:12.800 align:start position:0%
+uncrackable those kind of challenges are
+ 
+
+00:08:12.800 --> 00:08:15.469 align:start position:0%
+uncrackable those kind of challenges are
+called<00:08:13.280><c> crack</c><00:08:13.599><c> me</c><00:08:14.479><c> people</c><00:08:14.759><c> create</c><00:08:15.080><c> small</c>
+
+00:08:15.469 --> 00:08:15.479 align:start position:0%
+called crack me people create small
+ 
+
+00:08:15.479 --> 00:08:17.710 align:start position:0%
+called crack me people create small
+programs<00:08:16.000><c> that</c><00:08:16.199><c> have</c><00:08:16.319><c> to</c><00:08:16.440><c> be</c><00:08:16.599><c> cracked</c><00:08:17.199><c> or</c><00:08:17.479><c> more</c>
+
+00:08:17.710 --> 00:08:17.720 align:start position:0%
+programs that have to be cracked or more
+ 
+
+00:08:17.720 --> 00:08:19.589 align:start position:0%
+programs that have to be cracked or more
+often<00:08:17.960><c> you</c><00:08:18.120><c> have</c><00:08:18.240><c> to</c><00:08:18.560><c> create</c><00:08:18.800><c> a</c><00:08:18.960><c> valid</c><00:08:19.280><c> key</c>
+
+00:08:19.589 --> 00:08:19.599 align:start position:0%
+often you have to create a valid key
+ 
+
+00:08:19.599 --> 00:08:21.670 align:start position:0%
+often you have to create a valid key
+again<00:08:20.360><c> if</c><00:08:20.479><c> you</c><00:08:20.720><c> think</c><00:08:21.000><c> something</c><00:08:21.360><c> like</c><00:08:21.560><c> this</c>
+
+00:08:21.670 --> 00:08:21.680 align:start position:0%
+again if you think something like this
+ 
+
+00:08:21.680 --> 00:08:25.390 align:start position:0%
+again if you think something like this
+is<00:08:21.879><c> fun</c><00:08:22.440><c> check</c><00:08:22.639><c> out</c><00:08:22.840><c> Crack</c>
+
+00:08:25.390 --> 00:08:25.400 align:start position:0%
+ 
+ 
+
+00:08:25.400 --> 00:08:28.149 align:start position:0%
+ 
+m.de<00:08:26.400><c> creating</c><00:08:26.840><c> control</c><00:08:27.319><c> graphs</c><00:08:27.800><c> like</c><00:08:27.919><c> we</c>
+
+00:08:28.149 --> 00:08:28.159 align:start position:0%
+m.de creating control graphs like we
+ 
+
+00:08:28.159 --> 00:08:31.029 align:start position:0%
+m.de creating control graphs like we
+just<00:08:28.479><c> did</c><00:08:28.960><c> is</c><00:08:29.120><c> pretty</c><00:08:29.599><c> useful</c><00:08:30.599><c> that's</c><00:08:30.840><c> why</c>
+
+00:08:31.029 --> 00:08:31.039 align:start position:0%
+just did is pretty useful that's why
+ 
+
+00:08:31.039 --> 00:08:33.070 align:start position:0%
+just did is pretty useful that's why
+there<00:08:31.159><c> are</c><00:08:31.400><c> some</c><00:08:31.759><c> programs</c><00:08:32.320><c> that</c><00:08:32.479><c> do</c><00:08:32.680><c> that</c><00:08:32.839><c> for</c>
+
+00:08:33.070 --> 00:08:33.080 align:start position:0%
+there are some programs that do that for
+ 
+
+00:08:33.080 --> 00:08:35.550 align:start position:0%
+there are some programs that do that for
+us<00:08:33.760><c> here</c><00:08:33.919><c> are</c><00:08:34.080><c> three</c><00:08:34.320><c> different</c><00:08:34.719><c> example</c><00:08:35.320><c> of</c>
+
+00:08:35.550 --> 00:08:35.560 align:start position:0%
+us here are three different example of
+ 
+
+00:08:35.560 --> 00:08:38.509 align:start position:0%
+us here are three different example of
+this<00:08:35.800><c> specific</c><00:08:36.240><c> control</c>
+
+00:08:38.509 --> 00:08:38.519 align:start position:0%
+this specific control
+ 
+
+00:08:38.519 --> 00:08:42.070 align:start position:0%
+this specific control
+graph<00:08:39.519><c> first</c><00:08:39.800><c> is</c><00:08:40.000><c> from</c><00:08:40.360><c> the</c><00:08:40.560><c> hopper</c>
+
+00:08:42.070 --> 00:08:42.080 align:start position:0%
+graph first is from the hopper
+ 
+
+00:08:42.080 --> 00:08:44.630 align:start position:0%
+graph first is from the hopper
+disassembler<00:08:43.080><c> second</c><00:08:43.399><c> is</c><00:08:43.599><c> from</c>
+
+00:08:44.630 --> 00:08:44.640 align:start position:0%
+disassembler second is from
+ 
+
+00:08:44.640 --> 00:08:48.190 align:start position:0%
+disassembler second is from
+Ida<00:08:45.640><c> and</c><00:08:45.800><c> the</c><00:08:45.959><c> last</c><00:08:46.160><c> one</c><00:08:46.320><c> is</c><00:08:46.440><c> from</c><00:08:46.680><c> radar</c><00:08:47.200><c> it</c>
+
+00:08:48.190 --> 00:08:48.200 align:start position:0%
+Ida and the last one is from radar it
+ 
+
+00:08:48.200 --> 00:08:50.430 align:start position:0%
+Ida and the last one is from radar it
+see<00:08:48.440><c> you</c><00:08:48.640><c> hopefully</c><00:08:49.160><c> next</c><00:08:49.440><c> time</c><00:08:49.880><c> when</c><00:08:50.040><c> we</c><00:08:50.200><c> use</c>
+
+00:08:50.430 --> 00:08:50.440 align:start position:0%
+see you hopefully next time when we use
+ 
+
+00:08:50.440 --> 00:08:52.550 align:start position:0%
+see you hopefully next time when we use
+some<00:08:50.720><c> different</c><00:08:51.000><c> tools</c><00:08:51.519><c> to</c><00:08:51.880><c> explore</c><00:08:52.320><c> this</c>
+
+00:08:52.550 --> 00:08:52.560 align:start position:0%
+some different tools to explore this
+ 
+
+00:08:52.560 --> 00:08:58.100 align:start position:0%
+some different tools to explore this
+license<00:08:52.959><c> check</c><00:08:53.200><c> binary</c><00:08:53.640><c> a</c><00:08:53.760><c> bit</c><00:08:53.959><c> more</c>
+
+00:08:58.100 --> 00:08:58.110 align:start position:0%
+ 
+ 
+
+00:08:58.110 --> 00:09:04.590 align:start position:0%
+ 
+[Music]
+

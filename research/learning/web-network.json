@@ -1,0 +1,363 @@
+{
+  "resources": [
+    {
+      "id": "web-network-1",
+      "title": "Burp: reissue requests and investigate unexpected input",
+      "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+      "type": "read",
+      "publisher": "PortSwigger",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "learn": "Move a request from Proxy history into Repeater; change one parameter, compare responses and recognize useful error disclosure. Follow the linked Proxy/scope prerequisites first.",
+      "priority": "core",
+      "study_minutes": 30,
+      "offline": "Save this page and linked Proxy/scope steps before flying. Academy execution requires an account and reachable lab server; saved HTML does not preserve the lab.",
+      "verification": "2026-10-22: Fetched the tutorial and prerequisites notice; also inspected Community feature comparison. No lab launched."
+    },
+    {
+      "id": "web-network-2",
+      "title": "How to resend individual requests with Burp Repeater",
+      "url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+      "type": "watch",
+      "publisher": "PortSwigger",
+      "tool_ids": [
+        "windows-20"
+      ],
+      "learn": "Short demonstration of the manual request-edit-send-compare loop, history, redirects and tabs. Pair with the current written tutorial because the 2020 interface differs.",
+      "priority": "core",
+      "study_minutes": 15,
+      "offline": "Use YouTube offline viewing where supported and verify playback before departure; otherwise save personal notes. A running target is needed to repeat the actions.",
+      "verification": "2026-10-22: Inspected creator metadata, description and transcript; did not watch the video."
+    },
+    {
+      "id": "web-network-3",
+      "title": "Everything curl: Command line HTTP",
+      "url": "https://everything.curl.dev/http/",
+      "type": "read",
+      "publisher": "Daniel Stenberg and curl contributors",
+      "tool_ids": [
+        "kali-23"
+      ],
+      "learn": "Read the Customize headers and Cookies subsections: reproduce HTTP requests, replace headers and retain session state with a cookie jar. Useful when a browser hides request details.",
+      "priority": "core",
+      "study_minutes": 30,
+      "offline": "Save the selected child pages as well as the chapter index. Header examples: https://everything.curl.dev/http/modify/headers.html ; cookie jar: https://everything.curl.dev/http/cookies/writing.html . Sending requests needs a local prepared server or connectivity.",
+      "verification": "2026-10-22: Fetched chapter introduction plus header, cookie concepts and cookie-file pages. Two guessed request-section paths failed and were excluded."
+    },
+    {
+      "id": "web-network-4",
+      "title": "ffuf upstream examples: discovery, filters and bounded runs",
+      "url": "https://github.com/ffuf/ffuf",
+      "type": "read",
+      "publisher": "ffuf maintainers",
+      "tool_ids": [
+        "kali-41",
+        "kali-126"
+      ],
+      "learn": "Place FUZZ in a path, Host header or parameter; filter uninteresting sizes/statuses and bound runs. SecLists supplies candidate input, but learning response comparison matters more than collecting more wordlists.",
+      "priority": "next",
+      "study_minutes": 35,
+      "offline": "Save README and a small selected wordlist. Optional home practice: https://github.com/adamtlangley/ffufme offers a local Docker target; build and verify before travel. The hosted ffuf.me requires internet; no local lab was prepared.",
+      "verification": "2026-10-22: Fetched README examples and ffufme README. ffufme is supplementary personal practice, not an assertion that Docker or the lab is approved event software."
+    },
+    {
+      "id": "web-network-5",
+      "title": "How to Use Wireshark's Follow TCP Stream Feature",
+      "url": "https://www.youtube.com/watch?v=ixVXfUBEciU",
+      "type": "watch",
+      "publisher": "Learning Tree International",
+      "tool_ids": [
+        "windows-2"
+      ],
+      "learn": "Recover the complete two-way conversation instead of reading one packet at a time; distinguish client and server directions using a Telnet sample.",
+      "priority": "core",
+      "study_minutes": 15,
+      "offline": "Arrange permitted offline video playback and save the sample capture in advance. The 2017 UI is old; TCP reconstruction remains the useful lesson.",
+      "verification": "2026-10-22: Fetched original creator description and transcript, including the sample-capture source and stream-direction demonstration; did not watch."
+    },
+    {
+      "id": "web-network-6",
+      "title": "TShark manual: saved captures and display filters",
+      "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "type": "read",
+      "publisher": "Wireshark Foundation",
+      "tool_ids": [
+        "windows-36"
+      ],
+      "learn": "Focus on -r to read a PCAP, -Y for Wireshark display filters and -T fields/-e for repeatable field extraction. Distinguish display filters from capture filters.",
+      "priority": "next",
+      "study_minutes": 25,
+      "offline": "Save manual and sample PCAP; run locally after checking TShark is installed. No live network needed for saved-capture analysis.",
+      "verification": "2026-10-22: Fetched manual introduction, saved-file and filter behavior; do not treat current documentation as proof of the event binary version."
+    },
+    {
+      "id": "web-network-7",
+      "title": "Zeek quick start: turn a PCAP into correlated logs",
+      "url": "https://docs.zeek.org/en/current/quickstart.html",
+      "type": "practice",
+      "publisher": "Zeek project",
+      "tool_ids": [
+        "windows-18"
+      ],
+      "learn": "Use the supplied quickstart.pcap to produce conn.log, http.log and weird.log, then correlate them by uid. Stop before the live-traffic section for airplane practice.",
+      "priority": "next",
+      "study_minutes": 30,
+      "offline": "Save the guide and linked quickstart.pcap in advance; verify Zeek in WSL and local analysis before departure. The live-traffic exercise uses external HTTP and is not flight practice.",
+      "verification": "2026-10-22: Fetched the saved-PCAP exercise, expected logs and UID explanation. Sample not downloaded and commands not executed."
+    },
+    {
+      "id": "web-network-8",
+      "title": "Wireshark Sample Captures: a small offline packet-analysis exercise",
+      "url": "https://wiki.wireshark.org/SampleCaptures",
+      "type": "practice",
+      "publisher": "Wireshark community wiki",
+      "tool_ids": [
+        "windows-2",
+        "windows-36"
+      ],
+      "learn": "Pick a small HTTP or Telnet capture. Identify endpoints, filter one conversation, reconstruct its stream, then extract matching fields with TShark. These are self-directed exercises, not scored challenges.",
+      "priority": "core",
+      "study_minutes": 30,
+      "offline": "Download one selected capture and its description before departure. Static saved files work offline; viewing the index alone is insufficient. No sample was downloaded or tested here.",
+      "verification": "2026-10-22: Fetched the official community capture catalog and its file-format guidance. Selection/exercise is editorial, not a claim that every contributed capture is verified."
+    },
+    {
+      "id": "web-network-9",
+      "title": "Nmap reference: interpret ports, services and saved results",
+      "url": "https://nmap.org/book/man.html",
+      "type": "read",
+      "publisher": "Nmap project / Gordon Lyon",
+      "tool_ids": [
+        "kali-94"
+      ],
+      "learn": "Read port states, service/version detection and output sections. Learn what open, closed and filtered do and do not establish before selecting a service-specific tool.",
+      "priority": "next",
+      "study_minutes": 25,
+      "offline": "Save the reference for reading. Actual scanning needs a prepared local target or a reachable authorized lab; the online example target is not available without network.",
+      "verification": "2026-10-22: Fetched upstream manual table of contents, state definitions and example. Current manual does not verify the approved 7.99 installation; Ncat/Nping need separate reference lookup."
+    }
+  ],
+  "coverage": [
+    {
+      "tool_id": "windows-2",
+      "disposition": "core",
+      "resource_ids": [
+        "web-network-5",
+        "web-network-8"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "windows-4",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Connection setup utility; keep the existing profile-import reference, not a flight-study lesson. Existing tool-specific reference: https://openvpn.net/connect-docs/import-profile.html"
+    },
+    {
+      "tool_id": "windows-5",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Use existing Chrome DevTools Network reference when translating browser requests into Burp/curl. Existing tool-specific reference: https://developer.chrome.com/docs/devtools/network/"
+    },
+    {
+      "tool_id": "windows-16",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "CAN specialty: retain candump/canplayer reference; requires CAN logs or a prepared virtual interface for practice. Existing tool-specific reference: https://github.com/linux-can/can-utils"
+    },
+    {
+      "tool_id": "windows-17",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "CAN tunneling specialty: retain upstream reference; installed fork differs from the reachable upstream URL and remains unverified. Existing tool-specific reference: https://github.com/mguentner/cannelloni"
+    },
+    {
+      "tool_id": "windows-18",
+      "disposition": "next",
+      "resource_ids": [
+        "web-network-7"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "windows-20",
+      "disposition": "core",
+      "resource_ids": [
+        "web-network-1",
+        "web-network-2"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "windows-36",
+      "disposition": "core",
+      "resource_ids": [
+        "web-network-6",
+        "web-network-8"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "kali-3",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Wireless specialty: retain official offline capture-analysis reference; learning live radio capture is not airplane practice. Existing tool-specific reference: https://www.aircrack-ng.org/doku.php?id=aircrack-ng"
+    },
+    {
+      "tool_id": "kali-23",
+      "disposition": "core",
+      "resource_ids": [
+        "web-network-3"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "kali-35",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep the existing SearchSploit manual for local archive lookup after identifying an exact product/version. Existing tool-specific reference: https://www.exploit-db.com/searchsploit"
+    },
+    {
+      "tool_id": "kali-39",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative content-discovery tool; learn ffuf first and retain Feroxbuster README for recursive discovery. Existing tool-specific reference: https://github.com/epi052/feroxbuster"
+    },
+    {
+      "tool_id": "kali-41",
+      "disposition": "next",
+      "resource_ids": [
+        "web-network-4"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "kali-54",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Alternative directory/vhost discovery; retain upstream modes reference instead of a duplicate beginner course. Existing tool-specific reference: https://github.com/OJ/gobuster"
+    },
+    {
+      "tool_id": "kali-62",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Wireless capture-conversion specialty; retain upstream format/prerequisite reference. Existing tool-specific reference: https://github.com/ZerBea/hcxtools"
+    },
+    {
+      "tool_id": "kali-65",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Authentication-testing specialty; retain upstream reference, with a prepared authorized target needed for practice. Existing tool-specific reference: https://github.com/vanhauser-thc/thc-hydra"
+    },
+    {
+      "tool_id": "kali-68",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Protocol-specific script collection; retain upstream examples until a concrete SMB/network need appears. Existing tool-specific reference: https://github.com/fortra/impacket"
+    },
+    {
+      "tool_id": "kali-77",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "JWT-specific next lookup when a token appears; retain upstream claims/signature reference. Existing tool-specific reference: https://github.com/ticarpi/jwt_tool"
+    },
+    {
+      "tool_id": "kali-78",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Crawler reference only until request inspection and scope are familiar; needs a target server. Existing tool-specific reference: https://docs.projectdiscovery.io/opensource/katana/usage"
+    },
+    {
+      "tool_id": "kali-79",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Reconnaissance GUI overlaps Nmap fundamentals; retain upstream documentation. Existing tool-specific reference: https://github.com/Abacus-Group-RTO/legion"
+    },
+    {
+      "tool_id": "kali-88",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Large framework with target-specific prerequisites; retain official module documentation instead of a broad course. Existing tool-specific reference: https://docs.metasploit.com/"
+    },
+    {
+      "tool_id": "kali-94",
+      "disposition": "next",
+      "resource_ids": [
+        "web-network-9"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "kali-103",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Keep as a vulnerability-specific payload/reference lookup after understanding the request; not a cover-to-cover flight read. Existing tool-specific reference: https://github.com/swisskyrepo/PayloadsAllTheThings"
+    },
+    {
+      "tool_id": "kali-122",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "RTP specialty; retain rtpdump/rtpplay reference for a matching media capture. Existing tool-specific reference: https://github.com/irtlab/rtptools"
+    },
+    {
+      "tool_id": "kali-124",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Fast scanner overlaps Nmap; retain usage reference rather than another introductory scanning resource. Existing tool-specific reference: https://github.com/RustScan/RustScan/wiki/Usage"
+    },
+    {
+      "tool_id": "kali-126",
+      "disposition": "next",
+      "resource_ids": [
+        "web-network-4"
+      ],
+      "reason": "Selected resources teach this tool directly."
+    },
+    {
+      "tool_id": "kali-127",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Connection/relay utility; retain current package usage reference for a concrete lab connection. Existing tool-specific reference: https://www.kali.org/tools/socat/"
+    },
+    {
+      "tool_id": "kali-132",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "SQL injection automation reference; first understand manual requests and the injection evidence. Needs a reachable target. Existing tool-specific reference: https://github.com/sqlmapproject/sqlmap/wiki/Usage"
+    },
+    {
+      "tool_id": "kali-139",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Only OSINT tool in this lane: retain Subfinder usage/provider documentation. Passive source lookups require internet and may need API credentials. Existing tool-specific reference: https://docs.projectdiscovery.io/tools/subfinder/usage"
+    },
+    {
+      "tool_id": "kali-142",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Retain tcpdump manual for saved-PCAP and capture-filter syntax; Wireshark/TShark cover the initial analysis path. Existing tool-specific reference: https://www.tcpdump.org/manpages/tcpdump.1.html"
+    },
+    {
+      "tool_id": "kali-161",
+      "disposition": "reference",
+      "resource_ids": [],
+      "reason": "Optional GUI for capture-derived data; retain repository reference. Installed version and current upstream naming differ. Existing tool-specific reference: https://github.com/brimdata/zui"
+    }
+  ],
+  "caveats": [
+    "Only workbook-approved tool IDs are mapped. Supplemental learning sites/labs are not additional event-tool approvals. Kali availability remains best effort.",
+    "Burp Community supports Proxy/history, Repeater, Decoder, Sequencer and Comparer. Official comparison lists Intruder as demo; full Intruder, scanner, saved project files and Collaborator are Professional features. Skip scan/Collaborator steps in mixed-edition tutorials. Evidence: https://portswigger.net/burp/communitydownload",
+    "All study_minutes values are editorial study allocations, not claimed video runtimes. Videos were assessed from creator metadata and fetched transcripts, not watched.",
+    "Flight readiness requires locally saved pages/assets and tested binaries. Hosted Academy, ffuf.me, public subdomain sources and remote services do not become offline merely because instructions are saved.",
+    "No portal inspected, credentials accessed, binaries installed, practice assets downloaded or exercises executed. Network/CAN/wireless specialties are retained as references rather than made mandatory.",
+    "Current documentation may differ from approved development builds or installed forks; exact event behavior is untested."
+  ],
+  "search_notes": [
+    "Used Exa MCP focused searches for an original PortSwigger Repeater video and creator packet-analysis videos, then fetched selected pages/transcripts and primary tool documentation on 2026-10-22.",
+    "Kept nine resources including two specific original creator videos. Preferred one manual web workflow and one packet workflow over repetitive broad courses.",
+    "Chris Greer filtering-video result returned only YouTube shell text on fetch; replaced with a Learning Tree stream-reconstruction video whose original metadata and transcript were retrievable.",
+    "For reference-only rows, retained existing manifest documentation without claiming new verification of each URL. Coverage is deliberate triage, not a claim that nine resources teach every approved tool.",
+    "Inspected optional ffufme local-practice README but did not count it as an additional study resource or prepare a container."
+  ]
+}

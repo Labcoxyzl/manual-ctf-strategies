@@ -1,0 +1,110 @@
+{
+  "checked_on": "2026-10-23",
+  "status": "passed",
+  "command": "python tests/check_tool_collection.py",
+  "result": {
+    "result": "passed",
+    "rows": 200,
+    "resources": 261,
+    "videos": 17,
+    "original_video_depth": {
+      "none": 185,
+      "workflow": 4,
+      "incidental": 4,
+      "intro": 7
+    },
+    "runtime": {
+      "existing_full_seconds": 6214,
+      "new_full_seconds": 25040,
+      "all_full_seconds": 31254,
+      "new_selected_seconds": 16898,
+      "retained_workflow_selected_seconds": 2352,
+      "note": "Full runtime includes explicitly skipped/unapproved/promotional sections. Selected sections are separately deduplicated within each video. Reading/practice estimates are not video time."
+    },
+    "checks": [
+      "exact inventory/reference preservation",
+      "resource mappings and evidence fields",
+      "caption/metadata hashes and selected intervals",
+      "unique runtime arithmetic",
+      "approval exclusion intervals",
+      "local links/anchors and CSV",
+      "known binary/PDF/audio input integrity",
+      "named bundled-capability dispositions",
+      "current per-resource access-audit identity",
+      "recorded benign OLE/RTF extraction inputs and loopback result"
+    ],
+    "limits": "Structural checks do not establish teaching quality; independent reviews cover that. This checker does not add playback, GUI, qpdf or memory-image execution. Benign Ncat/oleobj/rtfobj checks were executed separately in this review pass."
+  },
+  "original_workbook_matches_inventory": true,
+  "selected_catalog_entries": 81,
+  "reference_records_are_not_extra_courses": true,
+  "links": {
+    "report": "link-checks.json",
+    "original_failed_selected_url": "https://apktool.org/docs/the-basics/decoding/",
+    "replacement_verified": "https://apktool.org/docs/2.x/cli-parameters/",
+    "unresolved_selected_failures": 0,
+    "unchanged_prior_checks_reused": true,
+    "access_review": "access-audit.json"
+  },
+  "review_disposition": "Three independent recursive-review lanes closed all accepted findings after focused repairs/rechecks. Required study routes are free; product and offline-download exceptions are explicit.",
+  "limits": [
+    "No additional video downloads, accounts, purchases, sends or portal launches in this goal.",
+    "Captions and substantive passages assessed; no full audiovisual playback review or organiser-machine execution.",
+    "New audio/PDF/strings fixtures checked only as recorded; GUI/qpdf execution untested.",
+    "Reference dispositions preserve historical source evidence and do not imply advanced mastery of specialist tools."
+  ],
+  "artifact_sha256": {
+    "TOOL_LEARNING_COLLECTION.md": "d597f3dba544f7fa5d0f2d08ffacc35cdec16eb2cf3ae839a4841aa8fad55156",
+    "TOOL_RESOURCE_CATALOG.md": "2baab8e8e666be37f970533bdaeb6363b281e1736e742e9fe075923131541d5b",
+    "TOOL_COVERAGE_MATRIX.md": "dbead02295dd0788dd0e9505a268c4ed0de0bed5b75b3cd467c99fe18065b610",
+    "tests/check_tool_collection.py": "690710c96d3e48cbfa82261fc88a8705e54df628c2be0a09bdd2aa9a102cd8a3",
+    "research/learning/video-coverage/collection.json": "d97b95ed626e65dd46ca9132955d11c1ab1ba1bc735f655f6f63d93d0447c417",
+    "research/learning/video-coverage/coverage.csv": "81d1a9b82249a6245ff1e276854c1161a53251cc2b10e813493eca18b43d1d79",
+    "research/learning/video-coverage/review.md": "98006328dddf2f447acd11cff588d9ea1acc1a0f07906733aba2f2290ccbeddc",
+    "research/learning/video-coverage/review-depth.md": "4dc3fd43f082b15e3529d9237b904e867cbe7b01686e9148cc65d7a5e9e7cc60",
+    "research/learning/video-coverage/review-runtime-access.md": "e9aa7a77779b942b7cb39883f390236c11f28c72f5987d556772b8db277a120b",
+    "research/learning/video-coverage/practice/stream-demo.pdf": "4115378ffbf3c52919e58dce8e3f4f83af7a98aad66a99716186e1e0912232ba",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "ca3e1f3cc4bf2fb584f012afd4aba972e58ee7c404829794276943ab38e85b6f",
+    "research/learning/video-coverage/practice/triage.bin": "1ec14bacaa34ef5dc68e125540837c70f6f4a693cc68dfe7691cafea89abe3f7",
+    "research/learning/video-coverage/practice/audio-tones.wav": "25849ef6148bb158c37c020cbe059718e2c8f66aa309c4deb38edd2ecb43b4f2",
+    "research/learning/video-coverage/practice/audio-check.json": "466143b2a82d378a79ae042502616a4fca0d8a2b765e424970ac373ca4b233c3",
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md": "57a407ddd64d5c48316361f761bf279f537d9fcd88ca2407ccb1a18b0bc53774",
+    "research/learning/video-coverage/practice/triage-pdf-check.json": "5c863706d8700d288406dfb9a24af7bed8525be97f676749dcb64bf6c863e02b",
+    "research/learning/STATUS.md": "b18da19c0acf44f96607501985640872a9059117436d805a3573f5cf73549cdc",
+    "research/learning/video-coverage/access-audit.json": "e5e1bd3cac958f3ea51d7dbafc6ff764bf30a9e35fa0ba31c58b2f0450e95b01",
+    "research/learning/video-coverage/access-audit.md": "17a4c1178a03e1a94fe82c33408cb109a3ad7a1a14f759b5a29638eaaf1afba0",
+    "research/learning/video-coverage/relevance-audit.md": "cab18cd6a1ed2f0762a598902723ac89b0e638f5940543ff9efdc9ef10cab7de",
+    "research/learning/video-coverage/goal-alignment-audit.md": "235b4d3ad3b8535992a573ac0993ad13b5e492149db2808d0198f8ab40a07381",
+    "research/learning/video-coverage/check-results.json": "ba429de3a00ddccec734fe8b9e3b16e096d9b8fab48a653a3481552d918c40f6",
+    "research/learning/video-coverage/practice/embedded-note.ole": "0cf5e1284be61f8a91e9a2695db45c83f989f9bd6b850c4cf794ef9ad1b770fd",
+    "research/learning/video-coverage/practice/ncat-check.json": "a481ddf9f1cd969e78961985f317c10bc96de6ef96bf0069da27ecea240845a5",
+    "research/learning/video-coverage/practice/CAPABILITY_ROUTES.md": "ca98fe9242496d953c70571b3f51740f97e1c3cac5b9a8515aea01517a91cace",
+    "research/learning/video-coverage/practice/embedded-note.rtf": "2b75c83d3796bf761a94c4163c90c85b394a9e688ce0b4c4c8c7e7cb4a77c265",
+    "research/learning/video-coverage/practice/bundle-extraction-check.json": "597be1f9b0b1442a3f4d002ef7c4935e6a74d04a38589f599d297d1c86c5e4b7"
+  },
+  "recursive_review": {
+    "access_records": 261,
+    "access_dispositions": {
+      "reused_evidence": 242,
+      "fresh_verified": 19
+    },
+    "required_unresolved_routes": 0,
+    "reports": [
+      "access-audit.md",
+      "relevance-audit.md",
+      "goal-alignment-audit.md"
+    ],
+    "original_gnu_endpoint_status": "Still inconclusive in this audit; verified free Debian alternatives are current learning URLs.",
+    "additional_executed_checks": [
+      "17-byte Ncat TCP loopback exchange",
+      "oleobj and rtfobj extraction of authored benign17-byte payload"
+    ],
+    "unexecuted": [
+      "Nping",
+      "Volatility memory-image troubleshooting",
+      "GUI applications",
+      "full video playback",
+      "target-device/offline-page rendering"
+    ]
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "checked_on": "2026-10-22",
+  "method": "bounded HEAD probe; status alone is not content or playback verification",
+  "results": [
+    {
+      "url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+      "status": 200,
+      "final_url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.zeek.org/en/current/quickstart.html",
+      "status": 200,
+      "final_url": "https://docs.zeek.org/en/current/quickstart.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://everything.curl.dev/http/",
+      "status": 200,
+      "final_url": "https://everything.curl.dev/http/",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES",
+      "status": 200,
+      "final_url": "https://exiftool.org/exiftool_pod.html#READING-EXAMPLES",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://ffmpeg.org/ffmpeg.html",
+      "status": 200,
+      "final_url": "https://ffmpeg.org/ffmpeg.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+      "status": 200,
+      "final_url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/EricZimmerman/MFTECmd",
+      "status": 200,
+      "final_url": "https://github.com/EricZimmerman/MFTECmd",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler",
+      "status": 200,
+      "final_url": "https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction",
+      "status": 200,
+      "final_url": "https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/RickdeJager/stegseek",
+      "status": 200,
+      "final_url": "https://github.com/RickdeJager/stegseek",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "status": 200,
+      "final_url": "https://github.com/RsaCtfTool/RsaCtfTool",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/WithSecureOpenSource/chainsaw#examples",
+      "status": 200,
+      "final_url": "https://github.com/WithSecureOpenSource/chainsaw#examples",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/Zeecka/AperiSolve",
+      "status": 200,
+      "final_url": "https://github.com/Zeecka/AperiSolve",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/dnSpyEx/dnSpy",
+      "status": 200,
+      "final_url": "https://github.com/dnSpyEx/dnSpy",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/ffuf/ffuf",
+      "status": 200,
+      "final_url": "https://github.com/ffuf/ffuf",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/gchq/CyberChef",
+      "status": 200,
+      "final_url": "https://github.com/gchq/CyberChef",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+      "status": 200,
+      "final_url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/mandiant/capa/blob/v9.4.0/doc/usage.md",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/capa/blob/v9.4.0/doc/usage.md",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "status": 200,
+      "final_url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "status": 200,
+      "final_url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/skylot/jadx",
+      "status": 200,
+      "final_url": "https://github.com/skylot/jadx",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/zed-0xff/zsteg",
+      "status": 200,
+      "final_url": "https://github.com/zed-0xff/zsteg",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+      "status": 200,
+      "final_url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "status": 200,
+      "final_url": "https://manual.audacityteam.org/man/spectrogram_view.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://nmap.org/book/man.html",
+      "status": 200,
+      "final_url": "https://nmap.org/book/man.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+      "status": 404,
+      "outcome": "reachable_get",
+      "followup": {
+        "method": "GET",
+        "status": 200,
+        "body_bytes": 141017,
+        "content_check": "Returned official Reissue requests with Burp Repeater article; initial HEAD 404 was method-specific."
+      }
+    },
+    {
+      "url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "status": 200,
+      "final_url": "https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://sqlite.org/cli.html",
+      "status": 200,
+      "final_url": "https://sqlite.org/cli.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "status": 200,
+      "final_url": "https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http",
+      "status": 200,
+      "final_url": "https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+      "status": 200,
+      "final_url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html",
+      "status": 200,
+      "final_url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "status": 200,
+      "final_url": "https://www.sleuthkit.org/sleuthkit/man/fls.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+      "status": 200,
+      "final_url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+      "status": 200,
+      "final_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Uk3DEgY5Ue8",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=Uk3DEgY5Ue8",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VroEiMOJPm8",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=VroEiMOJPm8",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_qElVZJqlGY",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=_qElVZJqlGY",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fTGTnrgjuGA",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=fTGTnrgjuGA",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pJYyyz6HPbQ",
+      "status": 200,
+      "final_url": "https://www.youtube.com/watch?v=pJYyyz6HPbQ",
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "status": 200,
+      "final_url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "outcome": "reachable"
+    }
+  ]
+}

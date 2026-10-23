@@ -1,0 +1,196 @@
+{
+  "checked_on": "2026-10-23",
+  "results": [
+    {
+      "number": 9,
+      "video_id": "eQItiKZpuSc",
+      "title": "SF19US - 22 Analyzing Windows malware traffic w/ Wireshark [Part 1](Brad Duncan)",
+      "file": "videos/09_Wireshark_Malware_Traffic_eQItiKZpuSc.mp4",
+      "bytes": 211439129,
+      "sha256": "a0d2340f4e832254ea6e02c3f265a38041ba665b14f6b15d9ecbcafa232b8723",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 5332.555465,
+      "sample_decode_seconds": [
+        1,
+        2666.2777325,
+        5329.555465
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/09_Wireshark_Malware_Traffic_eQItiKZpuSc.en.vtt"
+    },
+    {
+      "number": 10,
+      "video_id": "VYROU-ZwZX8",
+      "title": "Introduction to Windows Forensics",
+      "file": "videos/10_Windows_Forensics_VYROU-ZwZX8.mp4",
+      "bytes": 245823964,
+      "sha256": "fa300dcecf53a2f58efe79aa1ea0835af0251abd278cb93254a2d7431bb422af",
+      "width": 1728,
+      "height": 1080,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 3872.531156,
+      "sample_decode_seconds": [
+        1,
+        1936.265578,
+        3869.531156
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/10_Windows_Forensics_VYROU-ZwZX8.en.vtt"
+    },
+    {
+      "number": 11,
+      "video_id": "wu4-nREmzGM",
+      "title": "LNK Files and Jump Lists",
+      "file": "videos/11_LNK_Jump_Lists_wu4-nREmzGM.mp4",
+      "bytes": 307927686,
+      "sha256": "644b0f3ca1dcd304fa4118122cb04fd21505097d0a808d7bed3b1e1a90cd9ed8",
+      "width": 3840,
+      "height": 2160,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "und",
+      "duration_seconds": 1619.359637,
+      "sample_decode_seconds": [
+        1,
+        809.6798185,
+        1616.359637
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/11_LNK_Jump_Lists_wu4-nREmzGM.en.vtt"
+    },
+    {
+      "number": 12,
+      "video_id": "RFG5FuqY0CE",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 3",
+      "file": "videos/12_Ghidra_Class_3_RFG5FuqY0CE.mp4",
+      "bytes": 146734594,
+      "sha256": "bbc0b9f2e807cbf67584841e201fab247f4d2f0f07572d3790f6956925a11cc1",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 3638.682993,
+      "sample_decode_seconds": [
+        1,
+        1819.3414965,
+        3635.682993
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/12_Ghidra_Class_3_RFG5FuqY0CE.en.vtt"
+    },
+    {
+      "number": 13,
+      "video_id": "5QBXNF7FKxM",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 4",
+      "file": "videos/13_Ghidra_Class_4_5QBXNF7FKxM.mp4",
+      "bytes": 132611319,
+      "sha256": "8b7001b0279e6284bcce2b0559346cef057afdea21cd059e10ce2268976ad029",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 3161.768345,
+      "sample_decode_seconds": [
+        1,
+        1580.8841725,
+        3158.768345
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/13_Ghidra_Class_4_5QBXNF7FKxM.en.vtt"
+    },
+    {
+      "number": 14,
+      "video_id": "YXnNO3TipvM",
+      "title": "Unpacking Redaman Malware & Basics of Self-Injection Packers - ft. OALabs",
+      "file": "videos/14_x64dbg_Redaman_YXnNO3TipvM.mp4",
+      "bytes": 80923793,
+      "sha256": "600143bb545518e51d9cde1be9204374f5057b98fca9735cec27e502bacbd294",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 1578.422857,
+      "sample_decode_seconds": [
+        1,
+        789.2114285,
+        1575.422857
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/14_x64dbg_Redaman_YXnNO3TipvM.en.vtt"
+    },
+    {
+      "number": 15,
+      "video_id": "dLIbkg_8O68",
+      "title": "Malware Analysis - Unpacking NetWiredRC With DnSpy",
+      "file": "videos/15_dnSpy_Unpacking_dLIbkg_8O68.mp4",
+      "bytes": 126460994,
+      "sha256": "82d0df9ffbab3ff96285ffbdd0f8efdd661759327b299ac4def123e7bf804a0e",
+      "width": 1158,
+      "height": 720,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 1624.607347,
+      "sample_decode_seconds": [
+        1,
+        812.3036735,
+        1621.607347
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/15_dnSpy_Unpacking_dLIbkg_8O68.en.vtt"
+    },
+    {
+      "number": 16,
+      "video_id": "_jz5qFWhLcg",
+      "title": "Broken Access Control | Complete Guide",
+      "file": "videos/16_Broken_Access_Control__jz5qFWhLcg.mp4",
+      "bytes": 84858219,
+      "sha256": "8a20c2584eebaed14c8298dce12a7753a59dbcbb09738fa7c79cbdee3f8ad9bb",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 2372.429206,
+      "sample_decode_seconds": [
+        1,
+        1186.214603,
+        2369.429206
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/16_Broken_Access_Control__jz5qFWhLcg.en.vtt"
+    },
+    {
+      "number": 17,
+      "video_id": "XkLCEhEJuSI",
+      "title": "Password Cracking with Hashcat",
+      "file": "videos/17_Hashcat_XkLCEhEJuSI.mp4",
+      "bytes": 185542293,
+      "sha256": "0a32c6d6fc4abd1c1b84754576ba10b766cad6d805860db756ac644401b4f933",
+      "width": 3840,
+      "height": 2160,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 1838.811429,
+      "sample_decode_seconds": [
+        1,
+        919.4057145,
+        1835.811429
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/17_Hashcat_XkLCEhEJuSI.en.vtt"
+    }
+  ],
+  "total_bytes": 1522321991,
+  "scope": "Stream, duration, highest available MP4 resolution and three1-second decoded samples checked; not full playback or target-device testing."
+}

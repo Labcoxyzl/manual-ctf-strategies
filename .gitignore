@@ -1,0 +1,19 @@
+# Local installations, challenge downloads, and private recovery records.
+/tools/
+/tools.markdown
+/practice-challenges/
+/recovery/
+/RECOVERY_CONTEXT.md
+/.playwright-mcp/
+
+# Downloaded videos remain local; keep research metadata and test fixtures.
+/research/learning/video-pack/videos/
+*.mp4
+*.webm
+*.deb
+*.log
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example

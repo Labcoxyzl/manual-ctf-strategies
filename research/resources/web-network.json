@@ -1,0 +1,845 @@
+[
+  {
+    "id": "windows-2",
+    "name": "Wireshark",
+    "platform": "windows",
+    "location": "installed in Windows",
+    "version": "Latest",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Follow suspicious conversations and export transferred objects from a supplied PCAP.",
+    "resources": [
+      {
+        "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html",
+        "title": "Following Protocol Streams",
+        "kind": "task-guide",
+        "why": "Direct path from suspicious packet to reconstructed conversation.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      },
+      {
+        "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChIOExportSection.html",
+        "title": "Exporting Data",
+        "kind": "task-guide",
+        "why": "Distinguishes packet export from reconstructed object export.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Encrypted payloads need supplied keys or other evidence."
+    ],
+    "recipe_candidate": "PCAP: identify endpoints, follow stream, export object. Input: supplied PCAP with an identifiable TCP/HTTP conversation. Expected observation: A reconstructed stream or exported object; absent objects may reflect encryption or incomplete capture. Candidate only; not executed."
+  },
+  {
+    "id": "windows-4",
+    "name": "OpenVPN Client",
+    "platform": "windows",
+    "location": "installed in Windows",
+    "version": "Latest",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Import the organiser VPN profile and inspect connection status.",
+    "resources": [
+      {
+        "url": "https://openvpn.net/connect-docs/import-profile.html",
+        "title": "OpenVPN Client reference",
+        "kind": "official-docs",
+        "why": "Connect using an approved VPN profile",
+        "verification": "inherited: baseline opened 2026-10-19; not reopened in this pass. Utility retained because VPN setup has one sufficient official task guide."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Confirm installed OpenVPN client variant; profiles and account details stay private."
+    ],
+    "recipe_candidate": "Import profile and inspect connection log; utility only."
+  },
+  {
+    "id": "windows-5",
+    "name": "Google Chrome",
+    "platform": "windows",
+    "location": "installed in Windows",
+    "version": "Latest",
+    "categories": [
+      "Web Security",
+      "OSINT"
+    ],
+    "challenge_use": "Inspect request headers, response bodies, JavaScript and public-source pages.",
+    "resources": [
+      {
+        "url": "https://developer.chrome.com/docs/devtools/network/",
+        "title": "Google Chrome reference",
+        "kind": "official-docs",
+        "why": "Inspect browser requests",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Keep challenge files local; Chrome AI assistance is not part of the competition workflow."
+    ],
+    "recipe_candidate": "Capture one request, inspect cookies, hand it to Burp or curl."
+  },
+  {
+    "id": "windows-16",
+    "name": "can-utils",
+    "platform": "windows",
+    "location": "installed in WSL",
+    "version": "Latest",
+    "categories": [
+      "Miscellaneous",
+      "Digital Forensics"
+    ],
+    "challenge_use": "Inspect CAN IDs and payload changes in supplied logs or challenge interfaces.",
+    "resources": [
+      {
+        "url": "https://github.com/linux-can/can-utils",
+        "title": "can-utils reference",
+        "kind": "official-docs",
+        "why": "Read CAN bus logs",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Windows approval row installs in WSL; SocketCAN interface support must be checked."
+    ],
+    "recipe_candidate": "candump log triage; virtual CAN replay only when needed. Input: CAN log or challenge-provided SocketCAN interface. Expected observation: CAN identifiers, timestamps and changing data bytes to group by message ID. Candidate only; not executed."
+  },
+  {
+    "id": "windows-17",
+    "name": "cannelloni",
+    "platform": "windows",
+    "location": "installed in WSL",
+    "version": "Latest",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Connect a challenge-provided CAN-over-Ethernet endpoint to SocketCAN.",
+    "resources": [
+      {
+        "url": "https://github.com/mguentner/cannelloni",
+        "title": "cannelloni reference",
+        "kind": "official-docs",
+        "why": "Understand CAN tunneling",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Workbook names mkschreder fork; linked mguentner upstream is not proof of installed fork compatibility."
+    ],
+    "recipe_candidate": "Conditional setup: map remote ports and virtual CAN interface."
+  },
+  {
+    "id": "windows-18",
+    "name": "zeek",
+    "platform": "windows",
+    "location": "installed in WSL",
+    "version": "Latest",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Turn a large PCAP into connection and protocol logs for triage.",
+    "resources": [
+      {
+        "url": "https://docs.zeek.org/en/current/quickstart.html",
+        "title": "zeek reference",
+        "kind": "official-docs",
+        "why": "Produce protocol logs from packet captures",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Windows approval row installs in WSL; current docs may differ from installed version."
+    ],
+    "recipe_candidate": "Read PCAP in a clean directory, inspect conn/http logs, pivot to Wireshark. Input: supplied PCAP copied into a separate analysis directory. Expected observation: conn.log and applicable protocol logs; their endpoint/time fields identify a Wireshark pivot. Candidate only; not executed."
+  },
+  {
+    "id": "windows-20",
+    "name": "Burp Suite Community Edition",
+    "platform": "windows",
+    "location": "installed in WSL",
+    "version": "2026.4.x (confirm latest at install time)",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Replay an observed HTTP request while changing one parameter at a time.",
+    "resources": [
+      {
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater",
+        "title": "Burp Suite Community Edition reference",
+        "kind": "official-docs",
+        "why": "Inspect and replay web requests",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Community edition; avoid recipes requiring Professional scanner features. Windows row installs in WSL."
+    ],
+    "recipe_candidate": "Proxy history → Repeater → baseline versus one controlled change. Input: captured challenge HTTP request and reproducible baseline. Expected observation: One changed parameter yields a comparable status/body/header difference. Candidate only; not executed."
+  },
+  {
+    "id": "windows-36",
+    "name": "tshark",
+    "platform": "windows",
+    "location": "installed in Windows",
+    "version": "Latest",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Extract selected packet fields into compact text for searching or sorting.",
+    "resources": [
+      {
+        "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+        "title": "tshark reference",
+        "kind": "official-docs",
+        "why": "Extract packet fields",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Windows TShark component may not be on PATH; display and capture filter syntaxes differ."
+    ],
+    "recipe_candidate": "Read PCAP with a display filter and export chosen fields. Input: supplied PCAP, display filter and chosen field names. Expected observation: One text row per matching packet containing the chosen fields. Candidate only; not executed."
+  },
+  {
+    "id": "kali-3",
+    "name": "aircrack-ng",
+    "platform": "kali",
+    "location": "",
+    "version": "1.7",
+    "categories": [
+      "Cryptography",
+      "Digital Forensics"
+    ],
+    "challenge_use": "Test a supplied wireless handshake capture against a candidate wordlist offline.",
+    "resources": [
+      {
+        "url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng",
+        "title": "aircrack-ng reference",
+        "kind": "official-docs",
+        "why": "Understand offline wireless capture analysis",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Requires suitable handshake evidence; hardware capture and deauthentication are outside this candidate.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Inspect supplied capture then run bounded offline dictionary recovery. Input: suitable supplied handshake capture and finite candidate list. Expected observation: Recovered matching passphrase or exhausted candidates; no match does not prove no valid key exists. Candidate only; not executed."
+  },
+  {
+    "id": "kali-23",
+    "name": "curl",
+    "platform": "kali",
+    "location": "",
+    "version": "8.21.0",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Reproduce HTTP requests and inspect headers, redirects and cookies.",
+    "resources": [
+      {
+        "url": "https://curl.se/docs/manpage.html",
+        "title": "curl reference",
+        "kind": "official-docs",
+        "why": "Inspect and reproduce HTTP requests",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Quoting differs between shells; redirects and stale cookies can change results.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Replay baseline request with headers and cookie jar, compare response."
+  },
+  {
+    "id": "kali-35",
+    "name": "Exploit-DB / searchsploit (offline archive)",
+    "platform": "kali",
+    "location": "",
+    "version": "2026-08-19",
+    "categories": [
+      "Web Security",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Match an identified product/version to offline vulnerability references.",
+    "resources": [
+      {
+        "url": "https://www.exploit-db.com/searchsploit",
+        "title": "Exploit-DB / searchsploit (offline archive) reference",
+        "kind": "official-docs",
+        "why": "Search the local Exploit-DB archive.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Archive date is not software version; a matching title is not proof of exploit applicability.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Search exact product/version, examine source and prerequisites before considering use."
+  },
+  {
+    "id": "kali-39",
+    "name": "Feroxbuster",
+    "platform": "kali",
+    "location": "",
+    "version": "2.13.1",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Discover nested web paths when recursive traversal is useful.",
+    "resources": [
+      {
+        "url": "https://github.com/epi052/feroxbuster",
+        "title": "Feroxbuster reference",
+        "kind": "official-docs",
+        "why": "Find web paths in an authorized lab.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Overlaps ffuf and Gobuster; use one discovery tool first and bound recursion/rate.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Recursive content discovery with small wordlist and false-positive filtering."
+  },
+  {
+    "id": "kali-41",
+    "name": "ffuf",
+    "platform": "kali",
+    "location": "",
+    "version": "2.1.0-dev",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Compare path, parameter or virtual-host responses using one FUZZ marker.",
+    "resources": [
+      {
+        "url": "https://github.com/ffuf/ffuf",
+        "title": "ffuf reference",
+        "kind": "official-docs",
+        "why": "Compare web responses during controlled fuzzing.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Inventory is a development build; calibrate wildcard responses before trusting hits.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Measure a missing-path response then fuzz with response-size filtering. Input: challenge base URL, short wordlist, baseline missing-path response. Expected observation: Candidate responses differ from wildcard baseline; manually confirm each promising hit. Candidate only; not executed."
+  },
+  {
+    "id": "kali-54",
+    "name": "Gobuster",
+    "platform": "kali",
+    "location": "",
+    "version": "3.8.2",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Discover directories or virtual hosts with explicit separate modes.",
+    "resources": [
+      {
+        "url": "https://github.com/OJ/gobuster",
+        "title": "Gobuster reference",
+        "kind": "official-docs",
+        "why": "Discover web directories or virtual hosts.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Alternative to ffuf; DNS enumeration is active and is not passive OSINT.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Choose dir or vhost mode, select small list, suppress wildcard responses."
+  },
+  {
+    "id": "kali-62",
+    "name": "hcxtools",
+    "platform": "kali",
+    "location": "",
+    "version": "7.1.2",
+    "categories": [
+      "Cryptography",
+      "Digital Forensics"
+    ],
+    "challenge_use": "Convert supplied wireless authentication evidence into offline cracking input.",
+    "resources": [
+      {
+        "url": "https://github.com/ZerBea/hcxtools",
+        "title": "hcxtools reference",
+        "kind": "official-docs",
+        "why": "Convert captured wireless authentication data.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Do not use bundled online upload helpers with challenge files; preserve original capture.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Capture → hcxpcapngtool → validated hash format → approved cracker. Input: supplied wireless authentication capture. Expected observation: Converter reports usable handshake/PMKID evidence and emits cracker input, or explains missing evidence. Candidate only; not executed."
+  },
+  {
+    "id": "kali-65",
+    "name": "Hydra",
+    "platform": "kali",
+    "location": "",
+    "version": "(not captured)",
+    "categories": [
+      "Web Security",
+      "Miscellaneous"
+    ],
+    "challenge_use": "Test challenge login candidates when protocol and failure condition are understood.",
+    "resources": [
+      {
+        "url": "https://github.com/vanhauser-thc/thc-hydra",
+        "title": "Hydra reference",
+        "kind": "official-docs",
+        "why": "Understand form authentication test syntax.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Version uncaptured; throttling, lockout and incorrect failure matching can invalidate results.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Verify known success/failure response before bounded credential testing."
+  },
+  {
+    "id": "kali-68",
+    "name": "Impacket",
+    "platform": "kali",
+    "location": "",
+    "version": "0.14.0",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Use SMB protocol examples to inspect a challenge share with supplied access.",
+    "resources": [
+      {
+        "url": "https://github.com/fortra/impacket",
+        "title": "Impacket reference",
+        "kind": "official-docs",
+        "why": "Work with SMB and network protocol examples.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      },
+      {
+        "url": "https://github.com/fortra/impacket/blob/master/examples/smbclient.py",
+        "title": "Impacket SMB client example",
+        "kind": "source-example",
+        "why": "Narrow example entry point for share inspection, avoiding the full suite.",
+        "verification": "opened-now: source page retrieved 2026-10-22; not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Example names and wrappers vary by distribution; broad credential extraction is not the default route.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Select smbclient example, authenticate, list shares and inspect challenge files. Input: challenge SMB endpoint and supplied authentication or allowed anonymous access. Expected observation: Share listing or an explicit authentication/protocol error. Candidate only; not executed."
+  },
+  {
+    "id": "kali-77",
+    "name": "jwt_tool",
+    "platform": "kali",
+    "location": "/opt/tools/jwt_tool (/usr/local/bin/jwt_tool)",
+    "version": "(not captured)",
+    "categories": [
+      "Web Security",
+      "Cryptography"
+    ],
+    "challenge_use": "Inspect JWT claims and choose a test matching the token algorithm and trust model.",
+    "resources": [
+      {
+        "url": "https://github.com/ticarpi/jwt_tool/wiki",
+        "title": "jwt_tool wiki",
+        "kind": "official-docs",
+        "why": "Tool-specific workflow and option reference.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      },
+      {
+        "url": "https://portswigger.net/web-security/jwt",
+        "title": "JWT attacks",
+        "kind": "task-guide",
+        "why": "Explains vulnerability prerequisites and offers focused training labs.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Version unknown; token decoding alone does not establish signature validity.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Decode locally, identify algorithm, compare signed versus modified-token behavior. Input: JWT from a reproducible challenge request. Expected observation: Decoded header/claims identify a targeted test; server response establishes whether modified tokens are accepted. Candidate only; not executed."
+  },
+  {
+    "id": "kali-78",
+    "name": "Katana",
+    "platform": "kali",
+    "location": "go install (github.com/projectdiscovery/katana/cmd/katana@latest)",
+    "version": "(not captured)",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Extract linked and JavaScript-discovered routes before wordlist discovery.",
+    "resources": [
+      {
+        "url": "https://docs.projectdiscovery.io/opensource/katana/usage",
+        "title": "Katana reference",
+        "kind": "official-docs",
+        "why": "Discover in-scope URLs and application routes.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Version unknown; scope and depth matter and authenticated crawling needs current session state.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Crawl in-scope URLs with bounded depth and inspect JavaScript endpoints. Input: in-scope challenge URL and crawl-depth bound. Expected observation: A bounded list of linked or JavaScript-discovered endpoints to inspect manually. Candidate only; not executed."
+  },
+  {
+    "id": "kali-79",
+    "name": "legion",
+    "platform": "kali",
+    "location": "",
+    "version": "0.7.0",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Organize network reconnaissance visually when several services need tracking.",
+    "resources": [
+      {
+        "url": "https://github.com/Abacus-Group-RTO/legion",
+        "title": "legion reference",
+        "kind": "official-docs",
+        "why": "Organize network discovery in a lab.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Overlaps direct Nmap; GUI and helper dependencies may be unavailable.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Optional import/organize scan results; no standalone default recipe."
+  },
+  {
+    "id": "kali-88",
+    "name": "Metasploit Framework",
+    "platform": "kali",
+    "location": "",
+    "version": "6.5.2-dev",
+    "categories": [
+      "Miscellaneous",
+      "Web Security"
+    ],
+    "challenge_use": "Inspect module descriptions and requirements for an already identified service.",
+    "resources": [
+      {
+        "url": "https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html",
+        "title": "Running modules",
+        "kind": "official-docs",
+        "why": "Concrete console navigation and module option workflow.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Development build; module availability is not evidence of target applicability.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Search, read info, review options and supported checks before module selection."
+  },
+  {
+    "id": "kali-94",
+    "name": "Nmap (with Ncat / Nping)",
+    "platform": "kali",
+    "location": "",
+    "version": "7.99",
+    "categories": [
+      "Miscellaneous",
+      "Web Security"
+    ],
+    "challenge_use": "Identify services with Nmap; use Ncat for protocol interaction and Nping for connectivity diagnostics.",
+    "resources": [
+      {
+        "url": "https://nmap.org/book/man.html",
+        "title": "Nmap Reference Guide",
+        "kind": "official-docs",
+        "why": "Service discovery, output and timing options in one authoritative reference.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      },
+      {
+        "url": "https://nmap.org/ncat/guide/ncat-usage.html",
+        "title": "Ncat basic usage",
+        "kind": "task-guide",
+        "why": "Minimal client/server interaction examples.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      },
+      {
+        "url": "https://nmap.org/nping/",
+        "title": "Nping packet generation",
+        "kind": "official-docs",
+        "why": "Explains the bundled diagnostic tool rather than conflating it with scanning.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Three bundled tools have different purposes; start from the challenge host and explicit ports.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Service identification → save output → targeted protocol interaction. Input: challenge host and explicit allowed port set. Expected observation: Port/service output saved for selecting the next protocol-specific tool. Candidate only; not executed."
+  },
+  {
+    "id": "kali-103",
+    "name": "PayloadsAllTheThings (offline copy)",
+    "platform": "kali",
+    "location": "git (/opt/tools/PayloadsAllTheThings)",
+    "version": "(not captured)",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Look up syntax and prerequisites for a specific suspected web vulnerability.",
+    "resources": [
+      {
+        "url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+        "title": "PayloadsAllTheThings (offline copy) reference",
+        "kind": "official-docs",
+        "why": "Find a structured web vulnerability reference.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Offline copy age unknown; linked tools are not automatically event-approved.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Choose vulnerability class then one payload family supported by observed behavior."
+  },
+  {
+    "id": "kali-122",
+    "name": "rtptools (rtpdump, rtpplay and others)",
+    "platform": "kali",
+    "location": "/opt/tools/rtptools",
+    "version": "(not captured)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Parse RTP recordings and understand replay formats.",
+    "resources": [
+      {
+        "url": "https://github.com/irtlab/rtptools",
+        "title": "rtptools (rtpdump, rtpplay and others) reference",
+        "kind": "official-docs",
+        "why": "Inspect or replay RTP recordings.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "RTP dump formats are distinct from arbitrary PCAP files; replay is not audio decoding.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Identify recording format, inspect rtpdump output; prefer Wireshark for PCAP RTP analysis."
+  },
+  {
+    "id": "kali-124",
+    "name": "rustscan",
+    "platform": "kali",
+    "location": "",
+    "version": "2.4.1",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Discover TCP ports before targeted service identification.",
+    "resources": [
+      {
+        "url": "https://github.com/bee-san/RustScan/wiki/Usage",
+        "title": "RustScan usage",
+        "kind": "official-docs",
+        "why": "Upstream usage examples including Nmap handoff.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Overlaps Nmap; high batch sizes can lose results or overwhelm the environment.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Optional fast port pass then targeted Nmap service scan."
+  },
+  {
+    "id": "kali-126",
+    "name": "SecLists",
+    "platform": "kali",
+    "location": "/usr/bin/seclists",
+    "version": "(not captured)",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Select a short task-specific content-discovery list.",
+    "resources": [
+      {
+        "url": "https://github.com/danielmiessler/SecLists",
+        "title": "SecLists reference",
+        "kind": "official-docs",
+        "why": "Select a wordlist suited to a web discovery task.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Workbook executable-like location is not proof of wordlist directory; locate installed data first.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Start with a small relevant Discovery/Web-Content list; expand only with evidence."
+  },
+  {
+    "id": "kali-127",
+    "name": "socat",
+    "platform": "kali",
+    "location": "",
+    "version": "1.8.1.3",
+    "categories": [
+      "Miscellaneous"
+    ],
+    "challenge_use": "Connect standard input to a challenge TCP service or bridge required stream types.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/socat/",
+        "title": "socat reference",
+        "kind": "official-docs",
+        "why": "Connect standard input to a TCP service.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Address syntax is order-sensitive; unnecessary listeners introduce confusion.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Simple STDIO-to-TCP connection; add options only for protocol needs."
+  },
+  {
+    "id": "kali-132",
+    "name": "sqlmap",
+    "platform": "kali",
+    "location": "",
+    "version": "1.10.8 (stable)",
+    "categories": [
+      "Web Security"
+    ],
+    "challenge_use": "Test a suspected injection point using a captured, reproducible HTTP request.",
+    "resources": [
+      {
+        "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+        "title": "sqlmap reference",
+        "kind": "official-docs",
+        "why": "Understand sqlmap options for an authorized test request.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Preserve authentication and identify the intended parameter; higher risk/level adds requests and effects.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Saved request → explicit parameter → bounded detection → inspect evidence. Input: saved valid HTTP request plus the suspected parameter name. Expected observation: Reported injection evidence for that parameter, or a negative/inconclusive result to reassess manually. Candidate only; not executed."
+  },
+  {
+    "id": "kali-139",
+    "name": "Subfinder",
+    "platform": "kali",
+    "location": "",
+    "version": "2.16.0",
+    "categories": [
+      "OSINT",
+      "Web Security"
+    ],
+    "challenge_use": "Collect publicly indexed subdomains for a challenge-supplied public domain.",
+    "resources": [
+      {
+        "url": "https://docs.projectdiscovery.io/opensource/subfinder/usage",
+        "title": "Subfinder usage",
+        "kind": "official-docs",
+        "why": "Domain input, source selection and provenance options.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Sources may require API keys or return stale records; private challenge domains may have no public results.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Passive domain lookup, preserve source provenance, corroborate relevant hostname. Input: public domain explicitly given by the OSINT challenge. Expected observation: Candidate subdomains with source provenance; zero results is valid for an unindexed domain. Candidate only; not executed."
+  },
+  {
+    "id": "kali-142",
+    "name": "tcpdump",
+    "platform": "kali",
+    "location": "",
+    "version": "4.99.6",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Read a capture using host/port filters for quick packet triage.",
+    "resources": [
+      {
+        "url": "https://www.kali.org/tools/tcpdump/",
+        "title": "Kali tcpdump package documentation",
+        "kind": "distribution-docs",
+        "why": "Current package usage when upstream manual cannot be retrieved.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Capture filters are not Wireshark display filters; upstream manual was blocked in this browsing session.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Read PCAP without DNS resolution, filter host/port, inspect payload only when relevant. Input: supplied PCAP and a host/port capture filter. Expected observation: Matching packet summaries without name-resolution delays. Candidate only; not executed."
+  },
+  {
+    "id": "kali-161",
+    "name": "Zui (formerly Brim)",
+    "platform": "kali",
+    "location": "",
+    "version": "(not captured)",
+    "categories": [
+      "Digital Forensics"
+    ],
+    "challenge_use": "Explore large imported capture-derived datasets with queries.",
+    "resources": [
+      {
+        "url": "https://github.com/superdb/zui",
+        "title": "Zui upstream repository",
+        "kind": "official-docs",
+        "why": "Current project identity and documentation entry points.",
+        "verification": "opened-now: primary page retrieved 2026-10-22; documentation only, installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Repository moved to the superdb organisation; installed version unknown and PCAP import prerequisites must be checked.",
+      "Event Kali installation is best-effort; local availability and version are untested."
+    ],
+    "recipe_candidate": "Optional large-PCAP exploration; fall back to Zeek plus Wireshark when import is unavailable."
+  }
+]

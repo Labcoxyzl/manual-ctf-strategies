@@ -1,0 +1,4159 @@
+{
+  "id": "_jz5qFWhLcg",
+  "duration_seconds": 2372,
+  "caption_sha256": "a17e0bf2d7e05ea5d0762708eeb63ba5895bc21e08393c5fcfb1a5fa8d00d793",
+  "entries": [
+    {
+      "seconds": 2,
+      "text": "hi everyone welcome back to another"
+    },
+    {
+      "seconds": 2,
+      "text": "video in the web Security Academy Series"
+    },
+    {
+      "seconds": 4,
+      "text": "in today's video we'll be covering a"
+    },
+    {
+      "seconds": 6,
+      "text": "whole new topic called broken Access"
+    },
+    {
+      "seconds": 8,
+      "text": "Control just like with the other Theory"
+    },
+    {
+      "seconds": 11,
+      "text": "videos this is pretty much a brain dump"
+    },
+    {
+      "seconds": 13,
+      "text": "of everything that I know about access"
+    },
+    {
+      "seconds": 14,
+      "text": "control vulnerabilities and so it's"
+    },
+    {
+      "seconds": 16,
+      "text": "going to be a long one but by the end of"
+    },
+    {
+      "seconds": 18,
+      "text": "the video you'll have all the"
+    },
+    {
+      "seconds": 20,
+      "text": "fundamental knowledge that is required"
+    },
+    {
+      "seconds": 22,
+      "text": "to complete the 13 Hands-On lab"
+    },
+    {
+      "seconds": 24,
+      "text": "exercises that we'll be covering in the"
+    },
+    {
+      "seconds": 26,
+      "text": "next upcoming videos alright before we"
+    },
+    {
+      "seconds": 29,
+      "text": "continue with the video I'd like to"
+    },
+    {
+      "seconds": 31,
+      "text": "announce that this video is part of a"
+    },
+    {
+      "seconds": 33,
+      "text": "course that I offer on my Academy now"
+    },
+    {
+      "seconds": 35,
+      "text": "you might be wondering why would I buy a"
+    },
+    {
+      "seconds": 37,
+      "text": "course that is made available for free"
+    },
+    {
+      "seconds": 39,
+      "text": "on YouTube well there are four reasons"
+    },
+    {
+      "seconds": 42,
+      "text": "why you might want to do that number one"
+    },
+    {
+      "seconds": 44,
+      "text": "is that you gain Early Access to"
+    },
+    {
+      "seconds": 46,
+      "text": "recorded material as soon as I record"
+    },
+    {
+      "seconds": 49,
+      "text": "new videos I make them available through"
+    },
+    {
+      "seconds": 51,
+      "text": "my course right away whereas on YouTube"
+    },
+    {
+      "seconds": 53,
+      "text": "they'll only be released on a weekly"
+    },
+    {
+      "seconds": 55,
+      "text": "schedule reason number two is that you"
+    },
+    {
+      "seconds": 58,
+      "text": "gain access to a Discord Channel where"
+    },
+    {
+      "seconds": 60,
+      "text": "you you can ask questions the Discord"
+    },
+    {
+      "seconds": 62,
+      "text": "channel is divided into topics that we"
+    },
+    {
+      "seconds": 65,
+      "text": "cover in the course and if you run into"
+    },
+    {
+      "seconds": 66,
+      "text": "any issues you get to ask questions"
+    },
+    {
+      "seconds": 69,
+      "text": "about anything related to the course"
+    },
+    {
+      "seconds": 71,
+      "text": "material reason number three is that you"
+    },
+    {
+      "seconds": 74,
+      "text": "no longer have to deal with YouTube ads"
+    },
+    {
+      "seconds": 76,
+      "text": "or sponsor messages and last but not"
+    },
+    {
+      "seconds": 78,
+      "text": "least reason number four is you get to"
+    },
+    {
+      "seconds": 80,
+      "text": "support me any revenue generated from"
+    },
+    {
+      "seconds": 83,
+      "text": "this course will go back into"
+    },
+    {
+      "seconds": 84,
+      "text": "maintaining the academy and creating"
+    },
+    {
+      "seconds": 86,
+      "text": "more videos and courses that will be"
+    },
+    {
+      "seconds": 88,
+      "text": "made available for free on my YouTube"
+    },
+    {
+      "seconds": 90,
+      "text": "channel so if you're interested in"
+    },
+    {
+      "seconds": 92,
+      "text": "buying the course make sure to check out"
+    },
+    {
+      "seconds": 94,
+      "text": "the link in the description and that is"
+    },
+    {
+      "seconds": 96,
+      "text": "it let's go back to our video"
+    },
+    {
+      "seconds": 99,
+      "text": "all right let's get started the agenda"
+    },
+    {
+      "seconds": 101,
+      "text": "for today is to First cover the"
+    },
+    {
+      "seconds": 103,
+      "text": "technical details behind Access Control"
+    },
+    {
+      "seconds": 105,
+      "text": "vulnerabilities so what is an access"
+    },
+    {
+      "seconds": 107,
+      "text": "control vulnerability what are the"
+    },
+    {
+      "seconds": 109,
+      "text": "different types of Access Control"
+    },
+    {
+      "seconds": 111,
+      "text": "vulnerabilities how common are Access"
+    },
+    {
+      "seconds": 113,
+      "text": "Control vulnerabilities and so on next"
+    },
+    {
+      "seconds": 116,
+      "text": "we'll cover how to find Access Control"
+    },
+    {
+      "seconds": 118,
+      "text": "vulnerabilities from both a white box"
+    },
+    {
+      "seconds": 120,
+      "text": "and a black box perspective so if you're"
+    },
+    {
+      "seconds": 123,
+      "text": "given an application and possibly even"
+    },
+    {
+      "seconds": 125,
+      "text": "the application source code how would"
+    },
+    {
+      "seconds": 127,
+      "text": "you approach testing the application in"
+    },
+    {
+      "seconds": 129,
+      "text": "order to determine that it's vulnerable"
+    },
+    {
+      "seconds": 131,
+      "text": "once you have found that the application"
+    },
+    {
+      "seconds": 133,
+      "text": "is vulnerable how do you exploit the"
+    },
+    {
+      "seconds": 135,
+      "text": "access control vulnerability to achieve"
+    },
+    {
+      "seconds": 137,
+      "text": "your end goal then we'll end the"
+    },
+    {
+      "seconds": 139,
+      "text": "presentation by covering the different"
+    },
+    {
+      "seconds": 140,
+      "text": "techniques that you can use to prevent"
+    },
+    {
+      "seconds": 142,
+      "text": "or mitigate Access Control"
+    },
+    {
+      "seconds": 144,
+      "text": "vulnerabilities okay let's get started"
+    },
+    {
+      "seconds": 147,
+      "text": "with the first section which is what is"
+    },
+    {
+      "seconds": 149,
+      "text": "a broken Access Control vulnerability"
+    },
+    {
+      "seconds": 151,
+      "text": "now before we even talk about access"
+    },
+    {
+      "seconds": 154,
+      "text": "control vulnerabilities we need to go"
+    },
+    {
+      "seconds": 156,
+      "text": "over some fundamentals I do a lot of"
+    },
+    {
+      "seconds": 159,
+      "text": "in-person trainings I also have my own"
+    },
+    {
+      "seconds": 162,
+      "text": "Academy and my YouTube channel and so"
+    },
+    {
+      "seconds": 164,
+      "text": "I've taught this topic to a ton of"
+    },
+    {
+      "seconds": 166,
+      "text": "software developers and Security"
+    },
+    {
+      "seconds": 167,
+      "text": "Professionals and I found out that most"
+    },
+    {
+      "seconds": 169,
+      "text": "people don't have a proper understanding"
+    },
+    {
+      "seconds": 171,
+      "text": "of certain fundamentals or certain"
+    },
+    {
+      "seconds": 173,
+      "text": "terminology that are required to"
+    },
+    {
+      "seconds": 176,
+      "text": "properly understand this topic and so"
+    },
+    {
+      "seconds": 178,
+      "text": "what we're going to do is we're going to"
+    },
+    {
+      "seconds": 180,
+      "text": "first explain three concepts that people"
+    },
+    {
+      "seconds": 182,
+      "text": "tend to use interchangeably as a single"
+    },
+    {
+      "seconds": 185,
+      "text": "concept however these Concepts couldn't"
+    },
+    {
+      "seconds": 187,
+      "text": "be any more different and the concepts"
+    },
+    {
+      "seconds": 190,
+      "text": "or terminology we're going to cover are"
+    },
+    {
+      "seconds": 192,
+      "text": "one authentication two session"
+    },
+    {
+      "seconds": 194,
+      "text": "management and three Access Control now"
+    },
+    {
+      "seconds": 198,
+      "text": "these three mechanisms are very much"
+    },
+    {
+      "seconds": 200,
+      "text": "tied to each other however they're also"
+    },
+    {
+      "seconds": 203,
+      "text": "very much their own separate"
+    },
+    {
+      "seconds": 204,
+      "text": "functionalities and have their own"
+    },
+    {
+      "seconds": 206,
+      "text": "implementations and serve their own"
+    },
+    {
+      "seconds": 208,
+      "text": "purpose and so it's very important that"
+    },
+    {
+      "seconds": 211,
+      "text": "you understand the difference between"
+    },
+    {
+      "seconds": 212,
+      "text": "them and we'll start off by explaining"
+    },
+    {
+      "seconds": 215,
+      "text": "the first one which is authentication"
+    },
+    {
+      "seconds": 217,
+      "text": "authentication is is the mechanism that"
+    },
+    {
+      "seconds": 220,
+      "text": "is used to identify the user and confirm"
+    },
+    {
+      "seconds": 222,
+      "text": "that they say who they say they are so"
+    },
+    {
+      "seconds": 224,
+      "text": "let's say for example you've got a user"
+    },
+    {
+      "seconds": 226,
+      "text": "who's named Alice and Alice needs to log"
+    },
+    {
+      "seconds": 228,
+      "text": "into her account on this application now"
+    },
+    {
+      "seconds": 231,
+      "text": "the application needs a way to verify"
+    },
+    {
+      "seconds": 233,
+      "text": "Alice's identity before presenting Alice"
+    },
+    {
+      "seconds": 236,
+      "text": "with all her information and the way the"
+    },
+    {
+      "seconds": 238,
+      "text": "application does that is using the"
+    },
+    {
+      "seconds": 240,
+      "text": "classic form-based authentication so it"
+    },
+    {
+      "seconds": 243,
+      "text": "asks for Alice's username and password"
+    },
+    {
+      "seconds": 246,
+      "text": "and if Alice provides the correct"
+    },
+    {
+      "seconds": 248,
+      "text": "username and password it presents Alice"
+    },
+    {
+      "seconds": 250,
+      "text": "with her information so that's"
+    },
+    {
+      "seconds": 252,
+      "text": "essentially all that authentication is"
+    },
+    {
+      "seconds": 254,
+      "text": "it's the ability to verify a user's"
+    },
+    {
+      "seconds": 257,
+      "text": "identity next we have session management"
+    },
+    {
+      "seconds": 260,
+      "text": "which is a little bit different once"
+    },
+    {
+      "seconds": 263,
+      "text": "you've authenticated to the application"
+    },
+    {
+      "seconds": 264,
+      "text": "you want to visit other pages in the"
+    },
+    {
+      "seconds": 266,
+      "text": "application so let's say your profile"
+    },
+    {
+      "seconds": 269,
+      "text": "page or your change password page or"
+    },
+    {
+      "seconds": 271,
+      "text": "your accounts page or so on now all"
+    },
+    {
+      "seconds": 274,
+      "text": "these pages are authenticated pages and"
+    },
+    {
+      "seconds": 277,
+      "text": "what that means is if you're not"
+    },
+    {
+      "seconds": 279,
+      "text": "authenticated to the application you"
+    },
+    {
+      "seconds": 281,
+      "text": "shouldn't be able to view these pages"
+    },
+    {
+      "seconds": 283,
+      "text": "and that's where session management"
+    },
+    {
+      "seconds": 285,
+      "text": "comes into play instead of you having to"
+    },
+    {
+      "seconds": 288,
+      "text": "put in your username and password so"
+    },
+    {
+      "seconds": 289,
+      "text": "admin admin every time you want to visit"
+    },
+    {
+      "seconds": 292,
+      "text": "an authenticated page which would be a"
+    },
+    {
+      "seconds": 294,
+      "text": "huge hassle and terrible for user"
+    },
+    {
+      "seconds": 296,
+      "text": "experience the way the application deals"
+    },
+    {
+      "seconds": 299,
+      "text": "with that is when you first authenticate"
+    },
+    {
+      "seconds": 301,
+      "text": "so when you put in your credentials"
+    },
+    {
+      "seconds": 303,
+      "text": "admin admin it generates a unique token"
+    },
+    {
+      "seconds": 306,
+      "text": "that is tied to your username that"
+    },
+    {
+      "seconds": 309,
+      "text": "essentially acts as a short-lived"
+    },
+    {
+      "seconds": 311,
+      "text": "password and that token verifies your"
+    },
+    {
+      "seconds": 314,
+      "text": "identity every time you make a request"
+    },
+    {
+      "seconds": 316,
+      "text": "to the application"
+    },
+    {
+      "seconds": 319,
+      "text": "so this token gets passed by your"
+    },
+    {
+      "seconds": 322,
+      "text": "browser and every request that you make"
+    },
+    {
+      "seconds": 324,
+      "text": "to the application and that all happens"
+    },
+    {
+      "seconds": 327,
+      "text": "in the background so you don't see it"
+    },
+    {
+      "seconds": 329,
+      "text": "happening in the browser the browser is"
+    },
+    {
+      "seconds": 331,
+      "text": "actually doing that for you in the"
+    },
+    {
+      "seconds": 332,
+      "text": "background and this is why it is"
+    },
+    {
+      "seconds": 334,
+      "text": "absolutely important to keep this token"
+    },
+    {
+      "seconds": 337,
+      "text": "a secret just like you would keep your"
+    },
+    {
+      "seconds": 339,
+      "text": "password a secret because if an attacker"
+    },
+    {
+      "seconds": 341,
+      "text": "gets access to this token they can use"
+    },
+    {
+      "seconds": 343,
+      "text": "it to compromise your entire account but"
+    },
+    {
+      "seconds": 346,
+      "text": "that's a whole other topic that we're"
+    },
+    {
+      "seconds": 348,
+      "text": "hopefully going to cover in future"
+    },
+    {
+      "seconds": 350,
+      "text": "videos now to go back to our topic let's"
+    },
+    {
+      "seconds": 353,
+      "text": "recap what session management is so"
+    },
+    {
+      "seconds": 355,
+      "text": "session management is just a way to"
+    },
+    {
+      "seconds": 357,
+      "text": "verify a user's identity across"
+    },
+    {
+      "seconds": 360,
+      "text": "subsequent requests and this leads us to"
+    },
+    {
+      "seconds": 363,
+      "text": "the topic of the day which is Access"
+    },
+    {
+      "seconds": 364,
+      "text": "Control now once you've authenticated to"
+    },
+    {
+      "seconds": 368,
+      "text": "the application and got in your session"
+    },
+    {
+      "seconds": 370,
+      "text": "token you want to perform certain"
+    },
+    {
+      "seconds": 372,
+      "text": "actions in the application every time"
+    },
+    {
+      "seconds": 374,
+      "text": "you perform an action the application"
+    },
+    {
+      "seconds": 376,
+      "text": "needs to determine if you are allowed to"
+    },
+    {
+      "seconds": 379,
+      "text": "carry out that action and that's done"
+    },
+    {
+      "seconds": 381,
+      "text": "using access control rules so let's say"
+    },
+    {
+      "seconds": 384,
+      "text": "you as the user Alice would like to"
+    },
+    {
+      "seconds": 386,
+      "text": "perform a banking transaction when you"
+    },
+    {
+      "seconds": 388,
+      "text": "perform that banking Transaction what"
+    },
+    {
+      "seconds": 391,
+      "text": "happens is that your session token gets"
+    },
+    {
+      "seconds": 393,
+      "text": "passed to the application and what the"
+    },
+    {
+      "seconds": 396,
+      "text": "backend does is it checks which user ID"
+    },
+    {
+      "seconds": 398,
+      "text": "is this session token assigned to once"
+    },
+    {
+      "seconds": 402,
+      "text": "the user ID is identified it checks the"
+    },
+    {
+      "seconds": 404,
+      "text": "access control rules in the database"
+    },
+    {
+      "seconds": 407,
+      "text": "that have been applied to that specific"
+    },
+    {
+      "seconds": 409,
+      "text": "user ID if the user has access to the"
+    },
+    {
+      "seconds": 412,
+      "text": "functionality that the user is"
+    },
+    {
+      "seconds": 414,
+      "text": "requesting then the request goes through"
+    },
+    {
+      "seconds": 416,
+      "text": "otherwise the request is denied and"
+    },
+    {
+      "seconds": 418,
+      "text": "that's essentially at a high level"
+    },
+    {
+      "seconds": 420,
+      "text": "overview how access control works now"
+    },
+    {
+      "seconds": 423,
+      "text": "there are three different types of"
+    },
+    {
+      "seconds": 425,
+      "text": "Access Control the first one is called"
+    },
+    {
+      "seconds": 427,
+      "text": "vertical Access Control this type of"
+    },
+    {
+      "seconds": 430,
+      "text": "Access Control is used to restrict"
+    },
+    {
+      "seconds": 432,
+      "text": "access to functions that are not"
+    },
+    {
+      "seconds": 434,
+      "text": "available to other users in the"
+    },
+    {
+      "seconds": 436,
+      "text": "organization so think admin user and"
+    },
+    {
+      "seconds": 439,
+      "text": "regular user a regular user should not"
+    },
+    {
+      "seconds": 442,
+      "text": "be able to perform the actions that a"
+    },
+    {
+      "seconds": 444,
+      "text": "user with higher privileges like an"
+    },
+    {
+      "seconds": 446,
+      "text": "admin user can perform you can think of"
+    },
+    {
+      "seconds": 449,
+      "text": "it as moving up a ladder in terms of"
+    },
+    {
+      "seconds": 451,
+      "text": "your privileges and that's why it's"
+    },
+    {
+      "seconds": 453,
+      "text": "called vertical access control the"
+    },
+    {
+      "seconds": 455,
+      "text": "second type of Access Control is called"
+    },
+    {
+      "seconds": 458,
+      "text": "horizontal Access Control this type of"
+    },
+    {
+      "seconds": 461,
+      "text": "Access Control restricts different users"
+    },
+    {
+      "seconds": 463,
+      "text": "of the same privilege from accessing"
+    },
+    {
+      "seconds": 465,
+      "text": "each other's resources so for example"
+    },
+    {
+      "seconds": 468,
+      "text": "let's say you have Bob and Adam they"
+    },
+    {
+      "seconds": 471,
+      "text": "both have the same level of privilege in"
+    },
+    {
+      "seconds": 474,
+      "text": "the application which is that they're"
+    },
+    {
+      "seconds": 475,
+      "text": "both just regular users now Bob should"
+    },
+    {
+      "seconds": 478,
+      "text": "only be able to access his data and"
+    },
+    {
+      "seconds": 481,
+      "text": "should not be able to access Adam's data"
+    },
+    {
+      "seconds": 483,
+      "text": "and vice versa and that's what"
+    },
+    {
+      "seconds": 485,
+      "text": "horizontal access control rules do they"
+    },
+    {
+      "seconds": 488,
+      "text": "prevent users of the same privilege from"
+    },
+    {
+      "seconds": 490,
+      "text": "accessing each other's resources since"
+    },
+    {
+      "seconds": 493,
+      "text": "you're not climbing up the ladder in"
+    },
+    {
+      "seconds": 495,
+      "text": "terms of privilege just like you would"
+    },
+    {
+      "seconds": 496,
+      "text": "with vertical access control but instead"
+    },
+    {
+      "seconds": 499,
+      "text": "what you're doing your performing"
+    },
+    {
+      "seconds": 500,
+      "text": "functionalities that you already have"
+    },
+    {
+      "seconds": 502,
+      "text": "the ability to perform while on other"
+    },
+    {
+      "seconds": 504,
+      "text": "users data it's referred to as"
+    },
+    {
+      "seconds": 506,
+      "text": "horizontal axis control the third and"
+    },
+    {
+      "seconds": 509,
+      "text": "last type of Access Control is context"
+    },
+    {
+      "seconds": 511,
+      "text": "dependent Access Control this type of"
+    },
+    {
+      "seconds": 514,
+      "text": "Access Control is used to restrict"
+    },
+    {
+      "seconds": 515,
+      "text": "access to functionality based on the"
+    },
+    {
+      "seconds": 518,
+      "text": "state of the application or the user's"
+    },
+    {
+      "seconds": 520,
+      "text": "interaction with it so imagine you have"
+    },
+    {
+      "seconds": 522,
+      "text": "a multi-step process for deleting users"
+    },
+    {
+      "seconds": 525,
+      "text": "the first step is to click on the delete"
+    },
+    {
+      "seconds": 527,
+      "text": "button when you do that it initiates a"
+    },
+    {
+      "seconds": 530,
+      "text": "request to the backend that asks you to"
+    },
+    {
+      "seconds": 533,
+      "text": "confirm if you really want to delete"
+    },
+    {
+      "seconds": 535,
+      "text": "that user if you do you click on the yes"
+    },
+    {
+      "seconds": 538,
+      "text": "button and that initiates a second"
+    },
+    {
+      "seconds": 540,
+      "text": "request that deletes the user now"
+    },
+    {
+      "seconds": 543,
+      "text": "context dependent Access Control"
+    },
+    {
+      "seconds": 545,
+      "text": "prevents a user from performing actions"
+    },
+    {
+      "seconds": 548,
+      "text": "in the wrong order so you shouldn't be"
+    },
+    {
+      "seconds": 550,
+      "text": "able to right away delete a user without"
+    },
+    {
+      "seconds": 553,
+      "text": "first confirming that you want to delete"
+    },
+    {
+      "seconds": 555,
+      "text": "that user another example of context"
+    },
+    {
+      "seconds": 558,
+      "text": "dependent Access Control is a retail"
+    },
+    {
+      "seconds": 561,
+      "text": "website that prevents you from altering"
+    },
+    {
+      "seconds": 562,
+      "text": "the contents of your shopping bag after"
+    },
+    {
+      "seconds": 565,
+      "text": "you've confirmed your order and made the"
+    },
+    {
+      "seconds": 568,
+      "text": "payment now if that type of Access"
+    },
+    {
+      "seconds": 570,
+      "text": "Control has security holes that could be"
+    },
+    {
+      "seconds": 573,
+      "text": "detrimental to the organization and the"
+    },
+    {
+      "seconds": 576,
+      "text": "reason it could be detrimental is"
+    },
+    {
+      "seconds": 577,
+      "text": "because what users could do is they"
+    },
+    {
+      "seconds": 579,
+      "text": "could simply buy an item for let's say"
+    },
+    {
+      "seconds": 582,
+      "text": "one dollar and then confirm the order"
+    },
+    {
+      "seconds": 584,
+      "text": "and pay for it and then go back to that"
+    },
+    {
+      "seconds": 586,
+      "text": "shopping bag which should be locked but"
+    },
+    {
+      "seconds": 588,
+      "text": "is not locked because it has access"
+    },
+    {
+      "seconds": 589,
+      "text": "control vulnerabilities and then they"
+    },
+    {
+      "seconds": 591,
+      "text": "could put in that shopping bag hundred"
+    },
+    {
+      "seconds": 594,
+      "text": "thousand dollars of items now since"
+    },
+    {
+      "seconds": 597,
+      "text": "according to the system the order has"
+    },
+    {
+      "seconds": 600,
+      "text": "already been paid for and confirmed then"
+    },
+    {
+      "seconds": 602,
+      "text": "a hundred thousand dollars of items get"
+    },
+    {
+      "seconds": 604,
+      "text": "shipped to the user that they don't"
+    },
+    {
+      "seconds": 606,
+      "text": "actually have to pay for which could be"
+    },
+    {
+      "seconds": 608,
+      "text": "really detrimental to the organization"
+    },
+    {
+      "seconds": 610,
+      "text": "and this leads us to the main topic of"
+    },
+    {
+      "seconds": 612,
+      "text": "this presentation which is broken Access"
+    },
+    {
+      "seconds": 614,
+      "text": "Control vulnerabilities broken Access"
+    },
+    {
+      "seconds": 617,
+      "text": "Control vulnerabilities arise when you"
+    },
+    {
+      "seconds": 619,
+      "text": "users can act outside of their intended"
+    },
+    {
+      "seconds": 622,
+      "text": "permissions so for example just like we"
+    },
+    {
+      "seconds": 624,
+      "text": "saw a regular user being able to perform"
+    },
+    {
+      "seconds": 627,
+      "text": "admin functionality or a regular user"
+    },
+    {
+      "seconds": 629,
+      "text": "being able to view the personal"
+    },
+    {
+      "seconds": 631,
+      "text": "information of another user on the"
+    },
+    {
+      "seconds": 634,
+      "text": "system now the impact of broken Access"
+    },
+    {
+      "seconds": 636,
+      "text": "Control vulnerabilities really depends"
+    },
+    {
+      "seconds": 638,
+      "text": "on the type of Access Control"
+    },
+    {
+      "seconds": 640,
+      "text": "vulnerability that you find some of them"
+    },
+    {
+      "seconds": 642,
+      "text": "lead to sensitive information disclosure"
+    },
+    {
+      "seconds": 644,
+      "text": "whereas others lead to unauthorized"
+    },
+    {
+      "seconds": 646,
+      "text": "access or even modification or"
+    },
+    {
+      "seconds": 649,
+      "text": "destruction of data and we'll talk more"
+    },
+    {
+      "seconds": 651,
+      "text": "about that later I personally almost"
+    },
+    {
+      "seconds": 653,
+      "text": "always find an access control"
+    },
+    {
+      "seconds": 655,
+      "text": "vulnerability in every application that"
+    },
+    {
+      "seconds": 657,
+      "text": "I've tested and most of the time it's a"
+    },
+    {
+      "seconds": 659,
+      "text": "vulnerability that is rated high or"
+    },
+    {
+      "seconds": 661,
+      "text": "critical severity so this is definitely"
+    },
+    {
+      "seconds": 664,
+      "text": "not the type of vulnerability that you"
+    },
+    {
+      "seconds": 666,
+      "text": "want in your application alright so just"
+    },
+    {
+      "seconds": 669,
+      "text": "like there are three different types of"
+    },
+    {
+      "seconds": 671,
+      "text": "Access Control there are also three"
+    },
+    {
+      "seconds": 672,
+      "text": "different types of broken access control"
+    },
+    {
+      "seconds": 675,
+      "text": "the first one is called horizontal"
+    },
+    {
+      "seconds": 677,
+      "text": "privilege escalation horizontal a"
+    },
+    {
+      "seconds": 680,
+      "text": "privilege escalation occurs when an"
+    },
+    {
+      "seconds": 682,
+      "text": "attacker gains access to resources"
+    },
+    {
+      "seconds": 684,
+      "text": "belonging to another user of the same"
+    },
+    {
+      "seconds": 686,
+      "text": "privilege let's take a really simple"
+    },
+    {
+      "seconds": 688,
+      "text": "example to explain that imagine Alice"
+    },
+    {
+      "seconds": 692,
+      "text": "wants to log into her banking"
+    },
+    {
+      "seconds": 693,
+      "text": "application so what she does is she logs"
+    },
+    {
+      "seconds": 696,
+      "text": "in with her account and then the"
+    },
+    {
+      "seconds": 698,
+      "text": "application presents her with her"
+    },
+    {
+      "seconds": 699,
+      "text": "information the way the application"
+    },
+    {
+      "seconds": 701,
+      "text": "manages access to users information or"
+    },
+    {
+      "seconds": 704,
+      "text": "user's profile pages is through an ID"
+    },
+    {
+      "seconds": 707,
+      "text": "parameter that is added in the URL and"
+    },
+    {
+      "seconds": 710,
+      "text": "comes from the client side so if the ID"
+    },
+    {
+      "seconds": 713,
+      "text": "over here is one two three which is the"
+    },
+    {
+      "seconds": 716,
+      "text": "idea of Alice then it presents Alice"
+    },
+    {
+      "seconds": 718,
+      "text": "with her banking information now why"
+    },
+    {
+      "seconds": 721,
+      "text": "could this potentially be an issue well"
+    },
+    {
+      "seconds": 724,
+      "text": "if I'm an attacker who also has an"
+    },
+    {
+      "seconds": 726,
+      "text": "account on this banking application what"
+    },
+    {
+      "seconds": 728,
+      "text": "I could do is I could change my ID from"
+    },
+    {
+      "seconds": 731,
+      "text": "let's say one to one to Alice's ID and"
+    },
+    {
+      "seconds": 735,
+      "text": "all of a sudden I have access to Alice's"
+    },
+    {
+      "seconds": 737,
+      "text": "account and to make matters if even"
+    },
+    {
+      "seconds": 740,
+      "text": "worse since this ID can be Brute Force"
+    },
+    {
+      "seconds": 742,
+      "text": "what I would do is I would Brute Force"
+    },
+    {
+      "seconds": 744,
+      "text": "IDs from 1 to 1 million and then I'd be"
+    },
+    {
+      "seconds": 747,
+      "text": "able to compromise the accounts of all"
+    },
+    {
+      "seconds": 749,
+      "text": "the users on the system now this might"
+    },
+    {
+      "seconds": 751,
+      "text": "seem like it's a silly example because"
+    },
+    {
+      "seconds": 753,
+      "text": "the vulnerable parameter is in the URL"
+    },
+    {
+      "seconds": 755,
+      "text": "and it can be changed from the browser"
+    },
+    {
+      "seconds": 757,
+      "text": "however I've seen this quite often in"
+    },
+    {
+      "seconds": 759,
+      "text": "many applications where the parameter is"
+    },
+    {
+      "seconds": 763,
+      "text": "not in the URL itself however the"
+    },
+    {
+      "seconds": 765,
+      "text": "parameter is hidden in a form field and"
+    },
+    {
+      "seconds": 768,
+      "text": "so if you intercept the request and"
+    },
+    {
+      "seconds": 770,
+      "text": "alter that parameter in a proxy like"
+    },
+    {
+      "seconds": 772,
+      "text": "burp you're able to view the content of"
+    },
+    {
+      "seconds": 775,
+      "text": "other users in the application so the"
+    },
+    {
+      "seconds": 778,
+      "text": "issue over here is the fact that the"
+    },
+    {
+      "seconds": 780,
+      "text": "application relies on client-side input"
+    },
+    {
+      "seconds": 783,
+      "text": "in order to make Access Control"
+    },
+    {
+      "seconds": 785,
+      "text": "decisions now client-side input should"
+    },
+    {
+      "seconds": 788,
+      "text": "be considered dangerous and should be"
+    },
+    {
+      "seconds": 790,
+      "text": "considered untrusted anything that is"
+    },
+    {
+      "seconds": 792,
+      "text": "coming from the client should be"
+    },
+    {
+      "seconds": 793,
+      "text": "considered untrusted however the"
+    },
+    {
+      "seconds": 796,
+      "text": "application over here what it's doing is"
+    },
+    {
+      "seconds": 798,
+      "text": "it's relying on client-side input in"
+    },
+    {
+      "seconds": 801,
+      "text": "order to perform Access Control"
+    },
+    {
+      "seconds": 802,
+      "text": "decisions and therefore it's vulnerable"
+    },
+    {
+      "seconds": 804,
+      "text": "alright the second type of Access"
+    },
+    {
+      "seconds": 807,
+      "text": "Control is called vertical privilege"
+    },
+    {
+      "seconds": 809,
+      "text": "escalation vertical privilege escalation"
+    },
+    {
+      "seconds": 811,
+      "text": "occurs when an attacker gains access to"
+    },
+    {
+      "seconds": 814,
+      "text": "privileged functionality that they are"
+    },
+    {
+      "seconds": 816,
+      "text": "not permitted to access and the keyword"
+    },
+    {
+      "seconds": 818,
+      "text": "over here is privileged functionality so"
+    },
+    {
+      "seconds": 821,
+      "text": "again let's take a really simple example"
+    },
+    {
+      "seconds": 823,
+      "text": "imagine you have an application that is"
+    },
+    {
+      "seconds": 826,
+      "text": "used by both regular users and"
+    },
+    {
+      "seconds": 828,
+      "text": "administrative users if you're an"
+    },
+    {
+      "seconds": 830,
+      "text": "administrator you have access to the"
+    },
+    {
+      "seconds": 832,
+      "text": "admin panel if you're a regular user you"
+    },
+    {
+      "seconds": 834,
+      "text": "don't have access to the admin panel and"
+    },
+    {
+      "seconds": 837,
+      "text": "the way access to the admin panel is"
+    },
+    {
+      "seconds": 839,
+      "text": "handled is again through a client-side"
+    },
+    {
+      "seconds": 841,
+      "text": "parameter called admin now when you log"
+    },
+    {
+      "seconds": 844,
+      "text": "into the application the backend"
+    },
+    {
+      "seconds": 846,
+      "text": "database recognizes that you're an"
+    },
+    {
+      "seconds": 848,
+      "text": "administrator and it's and so what it"
+    },
+    {
+      "seconds": 850,
+      "text": "does is it sets that parameter to true"
+    },
+    {
+      "seconds": 853,
+      "text": "and then requests the admin panel page"
+    },
+    {
+      "seconds": 855,
+      "text": "now since the parameter is set to true"
+    },
+    {
+      "seconds": 857,
+      "text": "you can access the admin panel now again"
+    },
+    {
+      "seconds": 861,
+      "text": "what could go wrong here well as an"
+    },
+    {
+      "seconds": 863,
+      "text": "attacker who has regular access to the"
+    },
+    {
+      "seconds": 865,
+      "text": "application what I could do is just"
+    },
+    {
+      "seconds": 868,
+      "text": "change the admin parameter from false to"
+    },
+    {
+      "seconds": 870,
+      "text": "true and gain access to the admin panel"
+    },
+    {
+      "seconds": 873,
+      "text": "again that might seem like it's a silly"
+    },
+    {
+      "seconds": 876,
+      "text": "example however we've actually been able"
+    },
+    {
+      "seconds": 878,
+      "text": "to escalate Privileges and applications"
+    },
+    {
+      "seconds": 881,
+      "text": "so in real world applications by simply"
+    },
+    {
+      "seconds": 883,
+      "text": "manipulating parameters that were hidden"
+    },
+    {
+      "seconds": 885,
+      "text": "in a form field versus parameters that"
+    },
+    {
+      "seconds": 887,
+      "text": "were in the URL just like this example"
+    },
+    {
+      "seconds": 889,
+      "text": "right over here all right the third and"
+    },
+    {
+      "seconds": 891,
+      "text": "last type of broken access control is"
+    },
+    {
+      "seconds": 894,
+      "text": "Access Control vulnerabilities in"
+    },
+    {
+      "seconds": 895,
+      "text": "multi-step processes so these type of"
+    },
+    {
+      "seconds": 898,
+      "text": "vulnerabilities occur when access"
+    },
+    {
+      "seconds": 900,
+      "text": "control rules are implemented on some of"
+    },
+    {
+      "seconds": 902,
+      "text": "the steps but ignored on others so if we"
+    },
+    {
+      "seconds": 905,
+      "text": "go back to the context dependent Access"
+    },
+    {
+      "seconds": 907,
+      "text": "Control example we saw that in order to"
+    },
+    {
+      "seconds": 910,
+      "text": "delete a user you had to go through two"
+    },
+    {
+      "seconds": 912,
+      "text": "steps the first step is the confirmation"
+    },
+    {
+      "seconds": 914,
+      "text": "step that you really want to delete a"
+    },
+    {
+      "seconds": 916,
+      "text": "user and then the second step is the"
+    },
+    {
+      "seconds": 918,
+      "text": "deletion step that actually really"
+    },
+    {
+      "seconds": 919,
+      "text": "deletes the user now what software"
+    },
+    {
+      "seconds": 922,
+      "text": "developers usually do and I've seen this"
+    },
+    {
+      "seconds": 924,
+      "text": "quite often in applications is that they"
+    },
+    {
+      "seconds": 927,
+      "text": "assume that the user is going to follow"
+    },
+    {
+      "seconds": 929,
+      "text": "the intended sequence of steps and so"
+    },
+    {
+      "seconds": 932,
+      "text": "the user is never going to reach the"
+    },
+    {
+      "seconds": 934,
+      "text": "slash delete endpoint without first"
+    },
+    {
+      "seconds": 936,
+      "text": "confirming that they want to delete a"
+    },
+    {
+      "seconds": 938,
+      "text": "user and so what software developers do"
+    },
+    {
+      "seconds": 940,
+      "text": "is they usually put all the access"
+    },
+    {
+      "seconds": 942,
+      "text": "control rules on this endpoint over here"
+    },
+    {
+      "seconds": 944,
+      "text": "so one they confirm that you have to be"
+    },
+    {
+      "seconds": 946,
+      "text": "authenticated into they confirm that you"
+    },
+    {
+      "seconds": 948,
+      "text": "have to be an administrator user in"
+    },
+    {
+      "seconds": 950,
+      "text": "order to be able to perform this action"
+    },
+    {
+      "seconds": 953,
+      "text": "over here and since you can get to this"
+    },
+    {
+      "seconds": 955,
+      "text": "action unless you've gone through this"
+    },
+    {
+      "seconds": 957,
+      "text": "action then they don't put any access"
+    },
+    {
+      "seconds": 959,
+      "text": "control rules on this endpoint over here"
+    },
+    {
+      "seconds": 961,
+      "text": "and leave this endpoint vulnerable"
+    },
+    {
+      "seconds": 963,
+      "text": "however that's not how requests work you"
+    },
+    {
+      "seconds": 966,
+      "text": "could request whatever request that you"
+    },
+    {
+      "seconds": 968,
+      "text": "want in a proxy without going through"
+    },
+    {
+      "seconds": 970,
+      "text": "the exact steps and if there are no"
+    },
+    {
+      "seconds": 973,
+      "text": "access control rules that ensure that"
+    },
+    {
+      "seconds": 975,
+      "text": "you can get to the step before this step"
+    },
+    {
+      "seconds": 977,
+      "text": "then you're leaving your application"
+    },
+    {
+      "seconds": 979,
+      "text": "vulnerable to potential attacks and"
+    },
+    {
+      "seconds": 982,
+      "text": "that's essentially what we do we verify"
+    },
+    {
+      "seconds": 985,
+      "text": "that all the access control rules have"
+    },
+    {
+      "seconds": 987,
+      "text": "been implemented on each step of the"
+    },
+    {
+      "seconds": 990,
+      "text": "multi-stop process because attackers are"
+    },
+    {
+      "seconds": 992,
+      "text": "not going to follow the exact sequence"
+    },
+    {
+      "seconds": 994,
+      "text": "of steps they're going to see if you"
+    },
+    {
+      "seconds": 996,
+      "text": "didn't put certain access control rules"
+    },
+    {
+      "seconds": 999,
+      "text": "on some of the steps because you assumed"
+    },
+    {
+      "seconds": 1001,
+      "text": "that a user would have to follow the"
+    },
+    {
+      "seconds": 1003,
+      "text": "intended sequence of steps and that's"
+    },
+    {
+      "seconds": 1005,
+      "text": "essentially what Access Control"
+    },
+    {
+      "seconds": 1007,
+      "text": "vulnerabilities in multi-step processes"
+    },
+    {
+      "seconds": 1009,
+      "text": "is Okay so we've gone through the"
+    },
+    {
+      "seconds": 1012,
+      "text": "different types of access control and we"
+    },
+    {
+      "seconds": 1014,
+      "text": "saw examples of each category now let's"
+    },
+    {
+      "seconds": 1016,
+      "text": "go through other examples that we've"
+    },
+    {
+      "seconds": 1018,
+      "text": "come across in pen tests that fall in"
+    },
+    {
+      "seconds": 1021,
+      "text": "one or more of the categories that we"
+    },
+    {
+      "seconds": 1023,
+      "text": "just discussed the first one is the"
+    },
+    {
+      "seconds": 1025,
+      "text": "obvious one which is bypassing Access"
+    },
+    {
+      "seconds": 1027,
+      "text": "Control checks by modifying parameters"
+    },
+    {
+      "seconds": 1029,
+      "text": "in the URL or HTML page so we saw an"
+    },
+    {
+      "seconds": 1033,
+      "text": "example of doing that in the URL and in"
+    },
+    {
+      "seconds": 1035,
+      "text": "the lab videos we'll see examples of"
+    },
+    {
+      "seconds": 1037,
+      "text": "hidden parameters that we can alter in"
+    },
+    {
+      "seconds": 1039,
+      "text": "our request to escalate our privileges"
+    },
+    {
+      "seconds": 1041,
+      "text": "which is more like the real world"
+    },
+    {
+      "seconds": 1042,
+      "text": "examples that I've personally seen in"
+    },
+    {
+      "seconds": 1045,
+      "text": "applications that have pen tested"
+    },
+    {
+      "seconds": 1046,
+      "text": "another example is accessing the API"
+    },
+    {
+      "seconds": 1049,
+      "text": "with missing access controls on the post"
+    },
+    {
+      "seconds": 1051,
+      "text": "pull and delete methods that's where you"
+    },
+    {
+      "seconds": 1053,
+      "text": "implement access control on one method"
+    },
+    {
+      "seconds": 1056,
+      "text": "but forget to implement it on another"
+    },
+    {
+      "seconds": 1058,
+      "text": "method again that's something that we'll"
+    },
+    {
+      "seconds": 1060,
+      "text": "see in the lab videos third is"
+    },
+    {
+      "seconds": 1062,
+      "text": "manipulating metadata such as replaying"
+    },
+    {
+      "seconds": 1064,
+      "text": "or tampering with Json web tokens or a"
+    },
+    {
+      "seconds": 1067,
+      "text": "cookie we'll see the cookie example in"
+    },
+    {
+      "seconds": 1069,
+      "text": "one of the labs as for manipulating Json"
+    },
+    {
+      "seconds": 1071,
+      "text": "web tokens there's a whole module in the"
+    },
+    {
+      "seconds": 1074,
+      "text": "web Security Academy that covers that"
+    },
+    {
+      "seconds": 1076,
+      "text": "and hopefully we'll cover that in future"
+    },
+    {
+      "seconds": 1078,
+      "text": "videos fourth is exploiting cross-origin"
+    },
+    {
+      "seconds": 1081,
+      "text": "resource sharing misconfigurations that"
+    },
+    {
+      "seconds": 1083,
+      "text": "allow API access from unauthorized or"
+    },
+    {
+      "seconds": 1086,
+      "text": "untrusted Origins for this topic I've"
+    },
+    {
+      "seconds": 1089,
+      "text": "got over two hours and a half of content"
+    },
+    {
+      "seconds": 1091,
+      "text": "explaining exactly how to exploit course"
+    },
+    {
+      "seconds": 1094,
+      "text": "misconfigurations so what I'll do is"
+    },
+    {
+      "seconds": 1096,
+      "text": "I'll link the videos in the description"
+    },
+    {
+      "seconds": 1098,
+      "text": "if you're interested in learning more"
+    },
+    {
+      "seconds": 1099,
+      "text": "about that last but not least we've got"
+    },
+    {
+      "seconds": 1102,
+      "text": "forceful browsing to authenticated Pages"
+    },
+    {
+      "seconds": 1104,
+      "text": "as an unauthenticated user I see this"
+    },
+    {
+      "seconds": 1107,
+      "text": "one quite often so in this type of"
+    },
+    {
+      "seconds": 1109,
+      "text": "attack what you do is you try to"
+    },
+    {
+      "seconds": 1111,
+      "text": "enumerate and access resources that are"
+    },
+    {
+      "seconds": 1113,
+      "text": "not directly referenced in the"
+    },
+    {
+      "seconds": 1115,
+      "text": "application okay so these are just a few"
+    },
+    {
+      "seconds": 1117,
+      "text": "examples of the common Access Control"
+    },
+    {
+      "seconds": 1119,
+      "text": "vulnerabilities that we usually see in"
+    },
+    {
+      "seconds": 1122,
+      "text": "Waba pentas and we'll gain some hands-on"
+    },
+    {
+      "seconds": 1124,
+      "text": "experience in exploiting these types of"
+    },
+    {
+      "seconds": 1126,
+      "text": "examples in the lab videos now let's"
+    },
+    {
+      "seconds": 1129,
+      "text": "talk about how these vulnerabilities are"
+    },
+    {
+      "seconds": 1131,
+      "text": "introduced in code usually it's just a"
+    },
+    {
+      "seconds": 1133,
+      "text": "matter of forgetting to put an access"
+    },
+    {
+      "seconds": 1135,
+      "text": "control check in your function and this"
+    },
+    {
+      "seconds": 1138,
+      "text": "example on the screen demonstrates that"
+    },
+    {
+      "seconds": 1140,
+      "text": "so what I would recommend is that you"
+    },
+    {
+      "seconds": 1143,
+      "text": "pause the video right now and try to"
+    },
+    {
+      "seconds": 1144,
+      "text": "figure out which line of code is"
+    },
+    {
+      "seconds": 1146,
+      "text": "vulnerable alright hopefully you've"
+    },
+    {
+      "seconds": 1148,
+      "text": "figured it out but if not it's okay"
+    },
+    {
+      "seconds": 1150,
+      "text": "we'll go through it together so you"
+    },
+    {
+      "seconds": 1152,
+      "text": "could see over here we've got a function"
+    },
+    {
+      "seconds": 1154,
+      "text": "called delete order it takes in a"
+    },
+    {
+      "seconds": 1157,
+      "text": "parameter called ID which is coming from"
+    },
+    {
+      "seconds": 1159,
+      "text": "the client side if that ID is none it"
+    },
+    {
+      "seconds": 1162,
+      "text": "says that the order is not found so"
+    },
+    {
+      "seconds": 1164,
+      "text": "that's on lines three to five if it's"
+    },
+    {
+      "seconds": 1167,
+      "text": "not null it gets the user that made that"
+    },
+    {
+      "seconds": 1169,
+      "text": "order and then in line number eight it"
+    },
+    {
+      "seconds": 1172,
+      "text": "deletes that order line number nine just"
+    },
+    {
+      "seconds": 1175,
+      "text": "logs that the order was deleted for user"
+    },
+    {
+      "seconds": 1177,
+      "text": "ID so and so now the issue over here is"
+    },
+    {
+      "seconds": 1180,
+      "text": "with line number eight it doesn't verify"
+    },
+    {
+      "seconds": 1183,
+      "text": "that the order belongs to the currently"
+    },
+    {
+      "seconds": 1185,
+      "text": "logged in user before it deletes it and"
+    },
+    {
+      "seconds": 1188,
+      "text": "so the impact of that is any"
+    },
+    {
+      "seconds": 1190,
+      "text": "authenticated user of the system is able"
+    },
+    {
+      "seconds": 1193,
+      "text": "to delete arbitrary orders including"
+    },
+    {
+      "seconds": 1195,
+      "text": "orders that are made by other users"
+    },
+    {
+      "seconds": 1198,
+      "text": "which is not good you see you would have"
+    },
+    {
+      "seconds": 1200,
+      "text": "the ability to delete any order that you"
+    },
+    {
+      "seconds": 1202,
+      "text": "want including orders that are made by"
+    },
+    {
+      "seconds": 1204,
+      "text": "other users and the way to fix that is"
+    },
+    {
+      "seconds": 1207,
+      "text": "you would have to check if the order ID"
+    },
+    {
+      "seconds": 1209,
+      "text": "belongs to the currently logged in user"
+    },
+    {
+      "seconds": 1211,
+      "text": "if it does then the user should be able"
+    },
+    {
+      "seconds": 1213,
+      "text": "to delete it because that's an order"
+    },
+    {
+      "seconds": 1214,
+      "text": "made by that exact user otherwise the"
+    },
+    {
+      "seconds": 1217,
+      "text": "user should be presented with a request"
+    },
+    {
+      "seconds": 1219,
+      "text": "denied response that prevents them from"
+    },
+    {
+      "seconds": 1221,
+      "text": "deleting the order and that specific"
+    },
+    {
+      "seconds": 1224,
+      "text": "request should be locked because it's a"
+    },
+    {
+      "seconds": 1226,
+      "text": "clear attack on your system so you can"
+    },
+    {
+      "seconds": 1228,
+      "text": "see over here missing a simple check"
+    },
+    {
+      "seconds": 1231,
+      "text": "could be detrimental to your"
+    },
+    {
+      "seconds": 1232,
+      "text": "organization because in this case it"
+    },
+    {
+      "seconds": 1235,
+      "text": "affects availability of certain"
+    },
+    {
+      "seconds": 1236,
+      "text": "resources in the application and so if"
+    },
+    {
+      "seconds": 1239,
+      "text": "I'm an attacker who wants to deny access"
+    },
+    {
+      "seconds": 1242,
+      "text": "to orders of users what I would do is I"
+    },
+    {
+      "seconds": 1245,
+      "text": "would try to brute force all the IDS of"
+    },
+    {
+      "seconds": 1247,
+      "text": "all the orders in the system and just"
+    },
+    {
+      "seconds": 1249,
+      "text": "delete them and that can be done in an"
+    },
+    {
+      "seconds": 1251,
+      "text": "automated fashion that only takes a few"
+    },
+    {
+      "seconds": 1253,
+      "text": "minutes and so you definitely want to"
+    },
+    {
+      "seconds": 1255,
+      "text": "make sure that you have all the access"
+    },
+    {
+      "seconds": 1257,
+      "text": "control checks in your code before it"
+    },
+    {
+      "seconds": 1259,
+      "text": "goes to production all right let's"
+    },
+    {
+      "seconds": 1261,
+      "text": "discuss impact of Access Control"
+    },
+    {
+      "seconds": 1263,
+      "text": "vulnerabilities so we've touched a bit"
+    },
+    {
+      "seconds": 1266,
+      "text": "on that in the previous slides but as"
+    },
+    {
+      "seconds": 1268,
+      "text": "usual when I discuss impact I like to"
+    },
+    {
+      "seconds": 1270,
+      "text": "measure it in terms of how it impacts"
+    },
+    {
+      "seconds": 1272,
+      "text": "the CIA Triad so confidentiality"
+    },
+    {
+      "seconds": 1275,
+      "text": "integrity and availability now in terms"
+    },
+    {
+      "seconds": 1278,
+      "text": "of confidential quality that's usually"
+    },
+    {
+      "seconds": 1280,
+      "text": "impacted because most Access Control"
+    },
+    {
+      "seconds": 1282,
+      "text": "vulnerabilities allow you to access"
+    },
+    {
+      "seconds": 1284,
+      "text": "other users data now if the access"
+    },
+    {
+      "seconds": 1287,
+      "text": "control vulnerability allows you to"
+    },
+    {
+      "seconds": 1289,
+      "text": "perform actions on behalf of other users"
+    },
+    {
+      "seconds": 1291,
+      "text": "then it impacts Integrity as for"
+    },
+    {
+      "seconds": 1294,
+      "text": "availability if the access control"
+    },
+    {
+      "seconds": 1296,
+      "text": "vulnerability allows you to delete"
+    },
+    {
+      "seconds": 1298,
+      "text": "resources then it impacts availability"
+    },
+    {
+      "seconds": 1300,
+      "text": "now sometimes when you gain access to an"
+    },
+    {
+      "seconds": 1303,
+      "text": "administrator account that has the"
+    },
+    {
+      "seconds": 1306,
+      "text": "ability to upload files on the system"
+    },
+    {
+      "seconds": 1308,
+      "text": "you could chain two vulnerabilities"
+    },
+    {
+      "seconds": 1309,
+      "text": "together so let's say a privileged"
+    },
+    {
+      "seconds": 1312,
+      "text": "escalation vulnerability with a file"
+    },
+    {
+      "seconds": 1315,
+      "text": "upload vulnerability to gain remote code"
+    },
+    {
+      "seconds": 1317,
+      "text": "execution on the host operating system"
+    },
+    {
+      "seconds": 1320,
+      "text": "just like I previously mentioned most of"
+    },
+    {
+      "seconds": 1323,
+      "text": "the access control vulnerabilities I"
+    },
+    {
+      "seconds": 1324,
+      "text": "discover in real world applications"
+    },
+    {
+      "seconds": 1326,
+      "text": "they're usually rated at a high or"
+    },
+    {
+      "seconds": 1329,
+      "text": "critical because they usually impact all"
+    },
+    {
+      "seconds": 1332,
+      "text": "three so confidentiality integrity and"
+    },
+    {
+      "seconds": 1335,
+      "text": "availability and honestly this should"
+    },
+    {
+      "seconds": 1337,
+      "text": "not come at a surprise because broken"
+    },
+    {
+      "seconds": 1339,
+      "text": "Access Control vulnerabilities are rated"
+    },
+    {
+      "seconds": 1342,
+      "text": "as the most critical security"
+    },
+    {
+      "seconds": 1344,
+      "text": "risk-facing web applications today what"
+    },
+    {
+      "seconds": 1348,
+      "text": "that means is that they're the most"
+    },
+    {
+      "seconds": 1349,
+      "text": "likely type of vulnerability to be found"
+    },
+    {
+      "seconds": 1352,
+      "text": "in applications and could potentially"
+    },
+    {
+      "seconds": 1354,
+      "text": "have the most impact so if an attacker"
+    },
+    {
+      "seconds": 1357,
+      "text": "were to exploit the vulnerability it"
+    },
+    {
+      "seconds": 1359,
+      "text": "would lead to detrimental effect to your"
+    },
+    {
+      "seconds": 1362,
+      "text": "organization so definitely something"
+    },
+    {
+      "seconds": 1364,
+      "text": "that needs to be taken seriously and"
+    },
+    {
+      "seconds": 1366,
+      "text": "should definitely be checked for before"
+    },
+    {
+      "seconds": 1368,
+      "text": "code gets pushed into production all"
+    },
+    {
+      "seconds": 1371,
+      "text": "right in the past couple of slides we"
+    },
+    {
+      "seconds": 1372,
+      "text": "discussed while broken access control is"
+    },
+    {
+      "seconds": 1375,
+      "text": "the different types of Access Control"
+    },
+    {
+      "seconds": 1377,
+      "text": "vulnerabilities the impact of Access"
+    },
+    {
+      "seconds": 1379,
+      "text": "Control vulnerabilities and how common"
+    },
+    {
+      "seconds": 1381,
+      "text": "and critical these types of"
+    },
+    {
+      "seconds": 1383,
+      "text": "vulnerabilities can be in this section"
+    },
+    {
+      "seconds": 1386,
+      "text": "we'll discuss how to find Access Control"
+    },
+    {
+      "seconds": 1388,
+      "text": "vulnerabilities so imagine you've been"
+    },
+    {
+      "seconds": 1390,
+      "text": "given an application and asked to test"
+    },
+    {
+      "seconds": 1392,
+      "text": "it how would you go about testing this"
+    },
+    {
+      "seconds": 1395,
+      "text": "application to see if it's vulnerable"
+    },
+    {
+      "seconds": 1396,
+      "text": "I've decided to split this section into"
+    },
+    {
+      "seconds": 1399,
+      "text": "two categories depending on the"
+    },
+    {
+      "seconds": 1401,
+      "text": "perspective of testing the two"
+    },
+    {
+      "seconds": 1403,
+      "text": "categories are Black Box testing and"
+    },
+    {
+      "seconds": 1406,
+      "text": "white box testing for those of you that"
+    },
+    {
+      "seconds": 1408,
+      "text": "have never heard of these terms before"
+    },
+    {
+      "seconds": 1410,
+      "text": "Black Box web application pen testing is"
+    },
+    {
+      "seconds": 1413,
+      "text": "when the tester is given little to no"
+    },
+    {
+      "seconds": 1415,
+      "text": "information about the system usually the"
+    },
+    {
+      "seconds": 1417,
+      "text": "only information that the tester has"
+    },
+    {
+      "seconds": 1419,
+      "text": "access to is the URL of the application"
+    },
+    {
+      "seconds": 1421,
+      "text": "and scope of the engagement whereas for"
+    },
+    {
+      "seconds": 1424,
+      "text": "white box with application pen testing"
+    },
+    {
+      "seconds": 1426,
+      "text": "it's the complete opposite the tester"
+    },
+    {
+      "seconds": 1429,
+      "text": "would be given complete access to the"
+    },
+    {
+      "seconds": 1431,
+      "text": "system including access to the source"
+    },
+    {
+      "seconds": 1434,
+      "text": "code of the application now there's a"
+    },
+    {
+      "seconds": 1437,
+      "text": "third category that I haven't included"
+    },
+    {
+      "seconds": 1439,
+      "text": "on the slide it's called gray box web"
+    },
+    {
+      "seconds": 1441,
+      "text": "application pen testing this is a"
+    },
+    {
+      "seconds": 1444,
+      "text": "combination of both white box and black"
+    },
+    {
+      "seconds": 1447,
+      "text": "box pen testing where the tester is"
+    },
+    {
+      "seconds": 1449,
+      "text": "given limited information and access to"
+    },
+    {
+      "seconds": 1452,
+      "text": "the system so for example instead of"
+    },
+    {
+      "seconds": 1454,
+      "text": "just giving the tester a URL to the"
+    },
+    {
+      "seconds": 1457,
+      "text": "application the tester is also given a"
+    },
+    {
+      "seconds": 1459,
+      "text": "counts to the application now when it"
+    },
+    {
+      "seconds": 1462,
+      "text": "comes to my methodology for finding"
+    },
+    {
+      "seconds": 1464,
+      "text": "Access Control vulnerabilities I Loop"
+    },
+    {
+      "seconds": 1466,
+      "text": "both gray box and black box pen testing"
+    },
+    {
+      "seconds": 1469,
+      "text": "into one category and that's because my"
+    },
+    {
+      "seconds": 1471,
+      "text": "methodology is the same regardless of"
+    },
+    {
+      "seconds": 1473,
+      "text": "the category if I'm approaching it from"
+    },
+    {
+      "seconds": 1476,
+      "text": "a black box perspective my scope will be"
+    },
+    {
+      "seconds": 1478,
+      "text": "much more limited than the gray box"
+    },
+    {
+      "seconds": 1480,
+      "text": "perspective unless I find an"
+    },
+    {
+      "seconds": 1482,
+      "text": "authentication bypass vulnerability"
+    },
+    {
+      "seconds": 1484,
+      "text": "nevertheless the methodology of testing"
+    },
+    {
+      "seconds": 1487,
+      "text": "for these types of vulnerabilities from"
+    },
+    {
+      "seconds": 1489,
+      "text": "either an unauthenticated perspective or"
+    },
+    {
+      "seconds": 1492,
+      "text": "an authenticated perspective it's still"
+    },
+    {
+      "seconds": 1494,
+      "text": "the same so for the purposes of this"
+    },
+    {
+      "seconds": 1496,
+      "text": "presentation when I talk about Black Box"
+    },
+    {
+      "seconds": 1498,
+      "text": "testing perspective what I actually mean"
+    },
+    {
+      "seconds": 1501,
+      "text": "is really a gray box testing perspective"
+    },
+    {
+      "seconds": 1504,
+      "text": "so we're going to assume we're giving a"
+    },
+    {
+      "seconds": 1506,
+      "text": "URL to the application and accounts from"
+    },
+    {
+      "seconds": 1509,
+      "text": "each privilege level alright let's start"
+    },
+    {
+      "seconds": 1512,
+      "text": "off with the black box perspective the"
+    },
+    {
+      "seconds": 1515,
+      "text": "first thing that I do when testing an"
+    },
+    {
+      "seconds": 1516,
+      "text": "application is always map the"
+    },
+    {
+      "seconds": 1519,
+      "text": "application what that means is I"
+    },
+    {
+      "seconds": 1521,
+      "text": "literally visit the URL of the"
+    },
+    {
+      "seconds": 1523,
+      "text": "application walk through all the pages"
+    },
+    {
+      "seconds": 1525,
+      "text": "that are accessible to me within the"
+    },
+    {
+      "seconds": 1527,
+      "text": "user context that I'm running as and"
+    },
+    {
+      "seconds": 1530,
+      "text": "make note of all the input vectors that"
+    },
+    {
+      "seconds": 1532,
+      "text": "could be potentially used to make Access"
+    },
+    {
+      "seconds": 1534,
+      "text": "Control decisions in the back end this"
+    },
+    {
+      "seconds": 1537,
+      "text": "could be things like URL parameters"
+    },
+    {
+      "seconds": 1539,
+      "text": "hidden parameters and even cookies and"
+    },
+    {
+      "seconds": 1542,
+      "text": "while I do all of that I have my burp"
+    },
+    {
+      "seconds": 1544,
+      "text": "proxy listening silently and"
+    },
+    {
+      "seconds": 1546,
+      "text": "intercepting all the requests that I'm"
+    },
+    {
+      "seconds": 1548,
+      "text": "making to the application now I would"
+    },
+    {
+      "seconds": 1551,
+      "text": "personally argue that this is probably"
+    },
+    {
+      "seconds": 1553,
+      "text": "the most important step when it comes to"
+    },
+    {
+      "seconds": 1556,
+      "text": "testing an application before you start"
+    },
+    {
+      "seconds": 1559,
+      "text": "poking parameters you really need to"
+    },
+    {
+      "seconds": 1561,
+      "text": "understand how access control is"
+    },
+    {
+      "seconds": 1563,
+      "text": "implemented in the application because"
+    },
+    {
+      "seconds": 1565,
+      "text": "that'll really pay off in the future"
+    },
+    {
+      "seconds": 1567,
+      "text": "when you're testing for Access Control"
+    },
+    {
+      "seconds": 1569,
+      "text": "vulnerabilities and you want to do that"
+    },
+    {
+      "seconds": 1572,
+      "text": "for each privileged level so when"
+    },
+    {
+      "seconds": 1574,
+      "text": "preparing The Rules of Engagement"
+    },
+    {
+      "seconds": 1576,
+      "text": "document make sure to request at least"
+    },
+    {
+      "seconds": 1578,
+      "text": "two accounts of each privilege level you"
+    },
+    {
+      "seconds": 1581,
+      "text": "want to request accounts of different"
+    },
+    {
+      "seconds": 1583,
+      "text": "privilege levels to test for things like"
+    },
+    {
+      "seconds": 1585,
+      "text": "vertical privilege escalation but you"
+    },
+    {
+      "seconds": 1587,
+      "text": "also want two accounts of each"
+    },
+    {
+      "seconds": 1589,
+      "text": "privileged level so of the same"
+    },
+    {
+      "seconds": 1591,
+      "text": "privilege level to test for things like"
+    },
+    {
+      "seconds": 1593,
+      "text": "horizontal privilege escalation"
+    },
+    {
+      "seconds": 1595,
+      "text": "requesting these types of accounts will"
+    },
+    {
+      "seconds": 1598,
+      "text": "really help speed up the pen test"
+    },
+    {
+      "seconds": 1599,
+      "text": "because without them it becomes a matter"
+    },
+    {
+      "seconds": 1601,
+      "text": "of guesswork which really I think wastes"
+    },
+    {
+      "seconds": 1604,
+      "text": "everybody's time so it's really"
+    },
+    {
+      "seconds": 1605,
+      "text": "important that you make sure that you"
+    },
+    {
+      "seconds": 1607,
+      "text": "request these accounts when you're"
+    },
+    {
+      "seconds": 1608,
+      "text": "developing your Rules of Engagement"
+    },
+    {
+      "seconds": 1610,
+      "text": "document now once you've understood how"
+    },
+    {
+      "seconds": 1613,
+      "text": "access control is implemented for each"
+    },
+    {
+      "seconds": 1615,
+      "text": "privileged level and the potential"
+    },
+    {
+      "seconds": 1617,
+      "text": "client-side parameters that are used to"
+    },
+    {
+      "seconds": 1619,
+      "text": "make Access Control decisions in the"
+    },
+    {
+      "seconds": 1621,
+      "text": "back end then it's just a matter of"
+    },
+    {
+      "seconds": 1623,
+      "text": "manipulating these parameters to confirm"
+    },
+    {
+      "seconds": 1625,
+      "text": "if they are really vulnerable and this"
+    },
+    {
+      "seconds": 1628,
+      "text": "can get really tedious because you want"
+    },
+    {
+      "seconds": 1630,
+      "text": "to do that for all the pages and all the"
+    },
+    {
+      "seconds": 1633,
+      "text": "parameters for each privilege level so"
+    },
+    {
+      "seconds": 1636,
+      "text": "you could imagine how much work that"
+    },
+    {
+      "seconds": 1637,
+      "text": "would be to do manual fully so instead"
+    },
+    {
+      "seconds": 1640,
+      "text": "what you want to do is to use extensions"
+    },
+    {
+      "seconds": 1642,
+      "text": "like authorize for burp to automate a"
+    },
+    {
+      "seconds": 1645,
+      "text": "portion of that work and we'll talk more"
+    },
+    {
+      "seconds": 1647,
+      "text": "about that in the next section and"
+    },
+    {
+      "seconds": 1649,
+      "text": "that's essentially at a high level"
+    },
+    {
+      "seconds": 1651,
+      "text": "overview how I would approach testing"
+    },
+    {
+      "seconds": 1653,
+      "text": "access control from my Black Box"
+    },
+    {
+      "seconds": 1655,
+      "text": "perspective alright moving on to the"
+    },
+    {
+      "seconds": 1658,
+      "text": "white box pen testing perspective the"
+    },
+    {
+      "seconds": 1660,
+      "text": "first thing that you want to do is"
+    },
+    {
+      "seconds": 1662,
+      "text": "review the code to identify how access"
+    },
+    {
+      "seconds": 1664,
+      "text": "control is implemented in the"
+    },
+    {
+      "seconds": 1667,
+      "text": "application now you have the ability to"
+    },
+    {
+      "seconds": 1669,
+      "text": "do that because you have access to the"
+    },
+    {
+      "seconds": 1671,
+      "text": "source code and you no longer have to"
+    },
+    {
+      "seconds": 1672,
+      "text": "guess it based on how the application"
+    },
+    {
+      "seconds": 1674,
+      "text": "functions just like you would with a"
+    },
+    {
+      "seconds": 1676,
+      "text": "black box perspective so if an"
+    },
+    {
+      "seconds": 1679,
+      "text": "application is doing Access Control"
+    },
+    {
+      "seconds": 1681,
+      "text": "properly it usually will have a central"
+    },
+    {
+      "seconds": 1683,
+      "text": "application component that all requests"
+    },
+    {
+      "seconds": 1686,
+      "text": "go through that checks access control"
+    },
+    {
+      "seconds": 1688,
+      "text": "rules and that the application denies by"
+    },
+    {
+      "seconds": 1691,
+      "text": "default access to resources and less"
+    },
+    {
+      "seconds": 1694,
+      "text": "explicit rules are put in place to give"
+    },
+    {
+      "seconds": 1696,
+      "text": "a user access that's a proper way of"
+    },
+    {
+      "seconds": 1698,
+      "text": "doing it however that's not always the"
+    },
+    {
+      "seconds": 1701,
+      "text": "case and that's what introduces Access"
+    },
+    {
+      "seconds": 1703,
+      "text": "Control vulnerabilities so things that"
+    },
+    {
+      "seconds": 1706,
+      "text": "you want to look for are one violations"
+    },
+    {
+      "seconds": 1708,
+      "text": "of the principle of least privilege so"
+    },
+    {
+      "seconds": 1711,
+      "text": "you look for situations where a system"
+    },
+    {
+      "seconds": 1713,
+      "text": "defaults to open versus defaulting to"
+    },
+    {
+      "seconds": 1715,
+      "text": "closed so what you're looking for is a"
+    },
+    {
+      "seconds": 1718,
+      "text": "system that doesn't deny access by"
+    },
+    {
+      "seconds": 1720,
+      "text": "default next you want to look for"
+    },
+    {
+      "seconds": 1722,
+      "text": "missing or weak Access Control checks on"
+    },
+    {
+      "seconds": 1725,
+      "text": "functions or resources we saw an example"
+    },
+    {
+      "seconds": 1727,
+      "text": "of that in the spot the vulnerability"
+    },
+    {
+      "seconds": 1729,
+      "text": "code exercise that we did in the"
+    },
+    {
+      "seconds": 1731,
+      "text": "previous section because the developer"
+    },
+    {
+      "seconds": 1733,
+      "text": "had missed putting a check in his code"
+    },
+    {
+      "seconds": 1736,
+      "text": "any user on the system is able to delete"
+    },
+    {
+      "seconds": 1738,
+      "text": "all the orders that are made by all the"
+    },
+    {
+      "seconds": 1741,
+      "text": "users on the system so what you want to"
+    },
+    {
+      "seconds": 1743,
+      "text": "look for is missing or weak Access"
+    },
+    {
+      "seconds": 1745,
+      "text": "Control checks on functions when you're"
+    },
+    {
+      "seconds": 1747,
+      "text": "reviewing the code next you want to look"
+    },
+    {
+      "seconds": 1750,
+      "text": "for missing access controls on certain"
+    },
+    {
+      "seconds": 1752,
+      "text": "methods of the API so there might be"
+    },
+    {
+      "seconds": 1754,
+      "text": "access control rules on let's say the"
+    },
+    {
+      "seconds": 1756,
+      "text": "Gap method but the developer had"
+    },
+    {
+      "seconds": 1758,
+      "text": "forgotten to access control rules on"
+    },
+    {
+      "seconds": 1760,
+      "text": "let's say the post or po or even the"
+    },
+    {
+      "seconds": 1763,
+      "text": "delete method last but not least you"
+    },
+    {
+      "seconds": 1765,
+      "text": "want to look for instances where the"
+    },
+    {
+      "seconds": 1767,
+      "text": "application relies solely on client-side"
+    },
+    {
+      "seconds": 1769,
+      "text": "input to perform Access Control"
+    },
+    {
+      "seconds": 1771,
+      "text": "decisions so not validating client-side"
+    },
+    {
+      "seconds": 1774,
+      "text": "input on the server side anything that"
+    },
+    {
+      "seconds": 1777,
+      "text": "is coming from the client side just like"
+    },
+    {
+      "seconds": 1779,
+      "text": "we said in the previous section should"
+    },
+    {
+      "seconds": 1780,
+      "text": "be completely untrusted and considered"
+    },
+    {
+      "seconds": 1783,
+      "text": "dangerous and therefore should never be"
+    },
+    {
+      "seconds": 1784,
+      "text": "used to perform Access Control decisions"
+    },
+    {
+      "seconds": 1786,
+      "text": "unless it's validated on the server side"
+    },
+    {
+      "seconds": 1789,
+      "text": "so these are the type of things that you"
+    },
+    {
+      "seconds": 1791,
+      "text": "want to look for and if you see any"
+    },
+    {
+      "seconds": 1793,
+      "text": "potential Access Control issues what you"
+    },
+    {
+      "seconds": 1796,
+      "text": "want to do is validate them on a running"
+    },
+    {
+      "seconds": 1798,
+      "text": "application to verify that it's really"
+    },
+    {
+      "seconds": 1800,
+      "text": "vulnerable I've seen many cases where if"
+    },
+    {
+      "seconds": 1803,
+      "text": "you're only reviewing that function it"
+    },
+    {
+      "seconds": 1805,
+      "text": "might look vulnerable but somewhere in"
+    },
+    {
+      "seconds": 1808,
+      "text": "the million lines of code that this"
+    },
+    {
+      "seconds": 1809,
+      "text": "application has or even the config files"
+    },
+    {
+      "seconds": 1812,
+      "text": "of the application there might be an"
+    },
+    {
+      "seconds": 1814,
+      "text": "access control rule that makes it not"
+    },
+    {
+      "seconds": 1816,
+      "text": "exploitable and so it's extremely"
+    },
+    {
+      "seconds": 1818,
+      "text": "important that you validated on a"
+    },
+    {
+      "seconds": 1820,
+      "text": "running application and that's"
+    },
+    {
+      "seconds": 1822,
+      "text": "essentially at a high level overview how"
+    },
+    {
+      "seconds": 1824,
+      "text": "you would test for Access Control"
+    },
+    {
+      "seconds": 1826,
+      "text": "vulnerabilities from a white box"
+    },
+    {
+      "seconds": 1828,
+      "text": "perspective alright let's move on to the"
+    },
+    {
+      "seconds": 1830,
+      "text": "next section which is how to exploit"
+    },
+    {
+      "seconds": 1832,
+      "text": "Access Control vulnerabilities this"
+    },
+    {
+      "seconds": 1835,
+      "text": "would largely depend on the type of"
+    },
+    {
+      "seconds": 1837,
+      "text": "Access Control vulnerability you're"
+    },
+    {
+      "seconds": 1839,
+      "text": "encountering however it's usually just a"
+    },
+    {
+      "seconds": 1841,
+      "text": "matter of Simply manipulating the"
+    },
+    {
+      "seconds": 1844,
+      "text": "vulnerable parameter or the vulnerable"
+    },
+    {
+      "seconds": 1846,
+      "text": "field so if it's a cookie you would"
+    },
+    {
+      "seconds": 1848,
+      "text": "manipulate the cookie if it's a hidden"
+    },
+    {
+      "seconds": 1850,
+      "text": "parameter you would manipulate the"
+    },
+    {
+      "seconds": 1851,
+      "text": "hidden parameter and so on so instead of"
+    },
+    {
+      "seconds": 1854,
+      "text": "me going through all the possible Access"
+    },
+    {
+      "seconds": 1856,
+      "text": "Control violations which would be a bit"
+    },
+    {
+      "seconds": 1858,
+      "text": "unrealistic what I'll do is I'll save"
+    },
+    {
+      "seconds": 1861,
+      "text": "that for the lab videos we have 13 Labs"
+    },
+    {
+      "seconds": 1865,
+      "text": "split into 13 videos and each one covers"
+    },
+    {
+      "seconds": 1868,
+      "text": "a unique Access Control vulnerability or"
+    },
+    {
+      "seconds": 1870,
+      "text": "a unique Access Control violation so"
+    },
+    {
+      "seconds": 1873,
+      "text": "you'll gained plenty of hands-on"
+    },
+    {
+      "seconds": 1874,
+      "text": "experience exploiting various Access"
+    },
+    {
+      "seconds": 1876,
+      "text": "Control vulnerabilities and I would"
+    },
+    {
+      "seconds": 1878,
+      "text": "highly recommend using this platform to"
+    },
+    {
+      "seconds": 1880,
+      "text": "gain that hands-on experience because"
+    },
+    {
+      "seconds": 1882,
+      "text": "it'll really solidify your understanding"
+    },
+    {
+      "seconds": 1884,
+      "text": "of the theory okay so far we've only"
+    },
+    {
+      "seconds": 1887,
+      "text": "discussed how to do things manually we"
+    },
+    {
+      "seconds": 1889,
+      "text": "can't end this section without"
+    },
+    {
+      "seconds": 1890,
+      "text": "mentioning web application vulnerability"
+    },
+    {
+      "seconds": 1892,
+      "text": "scanners which are essentially automated"
+    },
+    {
+      "seconds": 1895,
+      "text": "tools that crawl your web application"
+    },
+    {
+      "seconds": 1897,
+      "text": "and look for vulnerabilities now most"
+    },
+    {
+      "seconds": 1900,
+      "text": "scanners will likely miss Access Control"
+    },
+    {
+      "seconds": 1902,
+      "text": "vulnerabilities because each application"
+    },
+    {
+      "seconds": 1905,
+      "text": "has its own unique way of Performing"
+    },
+    {
+      "seconds": 1908,
+      "text": "access control and it's and so it does"
+    },
+    {
+      "seconds": 1910,
+      "text": "require some human intervention however"
+    },
+    {
+      "seconds": 1913,
+      "text": "some of them like burp can be configured"
+    },
+    {
+      "seconds": 1915,
+      "text": "to do that but I usually don't use a"
+    },
+    {
+      "seconds": 1918,
+      "text": "scanner to test for Access Control"
+    },
+    {
+      "seconds": 1920,
+      "text": "instead what I do is I use the authorize"
+    },
+    {
+      "seconds": 1922,
+      "text": "extension in burp to automate a portion"
+    },
+    {
+      "seconds": 1925,
+      "text": "of my Access Control testing so the way"
+    },
+    {
+      "seconds": 1927,
+      "text": "that works is you would put your session"
+    },
+    {
+      "seconds": 1930,
+      "text": "tokens of your low privileged user so"
+    },
+    {
+      "seconds": 1933,
+      "text": "your lower privileged user in this box"
+    },
+    {
+      "seconds": 1935,
+      "text": "right over here then you log in as the"
+    },
+    {
+      "seconds": 1938,
+      "text": "high privilege user so I think an"
+    },
+    {
+      "seconds": 1940,
+      "text": "administrator user and you browse"
+    },
+    {
+      "seconds": 1942,
+      "text": "through all the pages in the application"
+    },
+    {
+      "seconds": 1944,
+      "text": "manually while all the requests are"
+    },
+    {
+      "seconds": 1946,
+      "text": "being intercepted in your extension now"
+    },
+    {
+      "seconds": 1950,
+      "text": "what the extension is going to do is"
+    },
+    {
+      "seconds": 1952,
+      "text": "it's going to make the request that"
+    },
+    {
+      "seconds": 1955,
+      "text": "you're making in the browser but it'll"
+    },
+    {
+      "seconds": 1957,
+      "text": "also make two additional requests the"
+    },
+    {
+      "seconds": 1959,
+      "text": "first one is from an unauthenticated"
+    },
+    {
+      "seconds": 1961,
+      "text": "perspective so it'll strip out the"
+    },
+    {
+      "seconds": 1963,
+      "text": "cookies and try to make the request from"
+    },
+    {
+      "seconds": 1965,
+      "text": "an unauthenticated perspective to see if"
+    },
+    {
+      "seconds": 1968,
+      "text": "you have an access control rule missing"
+    },
+    {
+      "seconds": 1970,
+      "text": "that doesn't require authentication in"
+    },
+    {
+      "seconds": 1972,
+      "text": "order to view that page so that's the"
+    },
+    {
+      "seconds": 1974,
+      "text": "first request that it does and then the"
+    },
+    {
+      "seconds": 1976,
+      "text": "second request that it does is it'll"
+    },
+    {
+      "seconds": 1978,
+      "text": "change the currently logged in user"
+    },
+    {
+      "seconds": 1980,
+      "text": "session cookies with the low privileged"
+    },
+    {
+      "seconds": 1983,
+      "text": "user session cookies so the session"
+    },
+    {
+      "seconds": 1984,
+      "text": "cookies that you've entered right over"
+    },
+    {
+      "seconds": 1986,
+      "text": "here and it'll perform the request again"
+    },
+    {
+      "seconds": 1989,
+      "text": "now what that's testing for is if you"
+    },
+    {
+      "seconds": 1992,
+      "text": "can perform privileged functionality so"
+    },
+    {
+      "seconds": 1994,
+      "text": "that request should only be able to be"
+    },
+    {
+      "seconds": 1996,
+      "text": "performed from an administrator your"
+    },
+    {
+      "seconds": 1999,
+      "text": "perspective or from a high privileged"
+    },
+    {
+      "seconds": 2001,
+      "text": "user perspective and if you're able to"
+    },
+    {
+      "seconds": 2003,
+      "text": "perform it from a low privileged user"
+    },
+    {
+      "seconds": 2005,
+      "text": "perspective then that's a vulnerability"
+    },
+    {
+      "seconds": 2007,
+      "text": "now the way it identifies that is based"
+    },
+    {
+      "seconds": 2010,
+      "text": "on a few factors but the main one is"
+    },
+    {
+      "seconds": 2012,
+      "text": "really the length of the request so you"
+    },
+    {
+      "seconds": 2014,
+      "text": "could see over here if the length is"
+    },
+    {
+      "seconds": 2016,
+      "text": "different then the access control rule"
+    },
+    {
+      "seconds": 2018,
+      "text": "could potentially be enforced however if"
+    },
+    {
+      "seconds": 2021,
+      "text": "the length is the same then the access"
+    },
+    {
+      "seconds": 2023,
+      "text": "control rule is bypassed and sometimes"
+    },
+    {
+      "seconds": 2025,
+      "text": "you get the is enforced question mark"
+    },
+    {
+      "seconds": 2028,
+      "text": "result and what that means it's"
+    },
+    {
+      "seconds": 2030,
+      "text": "potentially enforced but the extension"
+    },
+    {
+      "seconds": 2032,
+      "text": "is not sure"
+    },
+    {
+      "seconds": 2034,
+      "text": "so you could see that it doesn't really"
+    },
+    {
+      "seconds": 2036,
+      "text": "automate the entire process for you you"
+    },
+    {
+      "seconds": 2038,
+      "text": "still have to do a quick review of the"
+    },
+    {
+      "seconds": 2041,
+      "text": "list right over here to confirm that the"
+    },
+    {
+      "seconds": 2043,
+      "text": "results are actually correct but it does"
+    },
+    {
+      "seconds": 2045,
+      "text": "significantly speed up the amount of"
+    },
+    {
+      "seconds": 2046,
+      "text": "time you need to test Access Control"
+    },
+    {
+      "seconds": 2048,
+      "text": "across multiple users so instead of you"
+    },
+    {
+      "seconds": 2051,
+      "text": "having to do it manually three times one"
+    },
+    {
+      "seconds": 2053,
+      "text": "from a high privileged perspective the"
+    },
+    {
+      "seconds": 2055,
+      "text": "second time from an unauthenticated"
+    },
+    {
+      "seconds": 2057,
+      "text": "perspective and then the third time from"
+    },
+    {
+      "seconds": 2059,
+      "text": "a low privileged perspective you would"
+    },
+    {
+      "seconds": 2060,
+      "text": "only have to do it once and the"
+    },
+    {
+      "seconds": 2063,
+      "text": "extension takes care of doing it the"
+    },
+    {
+      "seconds": 2064,
+      "text": "other two times so I would highly"
+    },
+    {
+      "seconds": 2066,
+      "text": "recommend using this extension and"
+    },
+    {
+      "seconds": 2069,
+      "text": "checking it out I might do a bonus video"
+    },
+    {
+      "seconds": 2071,
+      "text": "explaining how to use it on an"
+    },
+    {
+      "seconds": 2073,
+      "text": "intentionally vulnerable application if"
+    },
+    {
+      "seconds": 2075,
+      "text": "that's something that you would like to"
+    },
+    {
+      "seconds": 2077,
+      "text": "see just add a comment underneath the"
+    },
+    {
+      "seconds": 2079,
+      "text": "video and maybe I'll do a video on that"
+    },
+    {
+      "seconds": 2081,
+      "text": "alright let's move on to the last"
+    },
+    {
+      "seconds": 2082,
+      "text": "section which is how to prevent Access"
+    },
+    {
+      "seconds": 2085,
+      "text": "Control vulnerabilities number one and"
+    },
+    {
+      "seconds": 2088,
+      "text": "this is really important is that you use"
+    },
+    {
+      "seconds": 2090,
+      "text": "a security-centric design where access"
+    },
+    {
+      "seconds": 2093,
+      "text": "is verified first and ensure all"
+    },
+    {
+      "seconds": 2096,
+      "text": "requests go through an access control"
+    },
+    {
+      "seconds": 2098,
+      "text": "check so one of what we call positive"
+    },
+    {
+      "seconds": 2101,
+      "text": "patterns in the way access control is"
+    },
+    {
+      "seconds": 2103,
+      "text": "implemented is to build a centralized"
+    },
+    {
+      "seconds": 2106,
+      "text": "Access Control engine that all requests"
+    },
+    {
+      "seconds": 2109,
+      "text": "are forced to go through as opposed to"
+    },
+    {
+      "seconds": 2111,
+      "text": "having to manually add checks in various"
+    },
+    {
+      "seconds": 2114,
+      "text": "places in the application so let's take"
+    },
+    {
+      "seconds": 2116,
+      "text": "a really simple example if you look at"
+    },
+    {
+      "seconds": 2119,
+      "text": "Java it has authorization filters that"
+    },
+    {
+      "seconds": 2121,
+      "text": "can be configured in the web.xml file"
+    },
+    {
+      "seconds": 2124,
+      "text": "that only allows certain directories or"
+    },
+    {
+      "seconds": 2126,
+      "text": "certain locations of the application to"
+    },
+    {
+      "seconds": 2128,
+      "text": "be accessible by users of a specific"
+    },
+    {
+      "seconds": 2131,
+      "text": "privilege level and this really AIDS"
+    },
+    {
+      "seconds": 2133,
+      "text": "into implementing the next positive"
+    },
+    {
+      "seconds": 2135,
+      "text": "pattern which is a denied by default"
+    },
+    {
+      "seconds": 2138,
+      "text": "design we talked a bit about that in the"
+    },
+    {
+      "seconds": 2140,
+      "text": "previous slides so at denied by default"
+    },
+    {
+      "seconds": 2143,
+      "text": "design automatically denies access to a"
+    },
+    {
+      "seconds": 2146,
+      "text": "request when a policy for that request"
+    },
+    {
+      "seconds": 2148,
+      "text": "has not yet been set or configured so if"
+    },
+    {
+      "seconds": 2151,
+      "text": "we go back to our Java filters example"
+    },
+    {
+      "seconds": 2153,
+      "text": "you can and configure Java filters so"
+    },
+    {
+      "seconds": 2156,
+      "text": "that all requests go through your Access"
+    },
+    {
+      "seconds": 2158,
+      "text": "Control enforcement layer if a new"
+    },
+    {
+      "seconds": 2160,
+      "text": "feature or functionality is added to"
+    },
+    {
+      "seconds": 2163,
+      "text": "your system that enforcement layer"
+    },
+    {
+      "seconds": 2165,
+      "text": "should automatically deny access to"
+    },
+    {
+      "seconds": 2167,
+      "text": "everyone unless specific access control"
+    },
+    {
+      "seconds": 2170,
+      "text": "rules are added to that feature the next"
+    },
+    {
+      "seconds": 2173,
+      "text": "thing you want to do is always apply the"
+    },
+    {
+      "seconds": 2176,
+      "text": "principle of least privilege throughout"
+    },
+    {
+      "seconds": 2178,
+      "text": "the entire application this one is"
+    },
+    {
+      "seconds": 2180,
+      "text": "pretty self-explanatory only give users"
+    },
+    {
+      "seconds": 2183,
+      "text": "access to the resources and privileges"
+    },
+    {
+      "seconds": 2186,
+      "text": "that they need in the application and"
+    },
+    {
+      "seconds": 2188,
+      "text": "that's not just at the code level but"
+    },
+    {
+      "seconds": 2190,
+      "text": "also at the configuration level so when"
+    },
+    {
+      "seconds": 2192,
+      "text": "you're configuring an application you"
+    },
+    {
+      "seconds": 2194,
+      "text": "should always abide by the concept of"
+    },
+    {
+      "seconds": 2196,
+      "text": "least privilege rarely does an"
+    },
+    {
+      "seconds": 2198,
+      "text": "application needs system or root"
+    },
+    {
+      "seconds": 2200,
+      "text": "privileges to run and so it should be"
+    },
+    {
+      "seconds": 2202,
+      "text": "run with a service account with limited"
+    },
+    {
+      "seconds": 2204,
+      "text": "privileges I've gained remote code"
+    },
+    {
+      "seconds": 2206,
+      "text": "execution on several real world"
+    },
+    {
+      "seconds": 2208,
+      "text": "applications and when I gain remote code"
+    },
+    {
+      "seconds": 2211,
+      "text": "execution and I see that the application"
+    },
+    {
+      "seconds": 2213,
+      "text": "is running with system or root"
+    },
+    {
+      "seconds": 2215,
+      "text": "privileges one I get excited because I"
+    },
+    {
+      "seconds": 2218,
+      "text": "could further my foothold in the network"
+    },
+    {
+      "seconds": 2220,
+      "text": "however it also breaks my heart because"
+    },
+    {
+      "seconds": 2222,
+      "text": "no web application requires system or"
+    },
+    {
+      "seconds": 2225,
+      "text": "root privileges to run and now if a real"
+    },
+    {
+      "seconds": 2227,
+      "text": "attacker were to exploit this"
+    },
+    {
+      "seconds": 2229,
+      "text": "vulnerability not only does the attacker"
+    },
+    {
+      "seconds": 2231,
+      "text": "have access to the server that is"
+    },
+    {
+      "seconds": 2234,
+      "text": "hosting the web application but let's"
+    },
+    {
+      "seconds": 2236,
+      "text": "say if it's a Windows server and I'm"
+    },
+    {
+      "seconds": 2237,
+      "text": "running with system privileges then I"
+    },
+    {
+      "seconds": 2240,
+      "text": "could dump the memory of the server"
+    },
+    {
+      "seconds": 2241,
+      "text": "extract the hashes of all the logged in"
+    },
+    {
+      "seconds": 2243,
+      "text": "users and then use these hashes to Pivot"
+    },
+    {
+      "seconds": 2246,
+      "text": "to other servers on the network and so"
+    },
+    {
+      "seconds": 2249,
+      "text": "it's extremely dangerous to configure"
+    },
+    {
+      "seconds": 2252,
+      "text": "your server without abiding by the"
+    },
+    {
+      "seconds": 2254,
+      "text": "principle of least privilege now next"
+    },
+    {
+      "seconds": 2257,
+      "text": "depending on your application maybe you"
+    },
+    {
+      "seconds": 2259,
+      "text": "want to consider making use of attribute"
+    },
+    {
+      "seconds": 2262,
+      "text": "or feature-based Access Control instead"
+    },
+    {
+      "seconds": 2264,
+      "text": "of role-based access control again this"
+    },
+    {
+      "seconds": 2267,
+      "text": "highly is dependent on the type of"
+    },
+    {
+      "seconds": 2270,
+      "text": "application that you have now the"
+    },
+    {
+      "seconds": 2272,
+      "text": "benefit of using attribute or"
+    },
+    {
+      "seconds": 2274,
+      "text": "feature-based access control is that it"
+    },
+    {
+      "seconds": 2277,
+      "text": "grants access based not on the user role"
+    },
+    {
+      "seconds": 2279,
+      "text": "but on the attributes of each system"
+    },
+    {
+      "seconds": 2281,
+      "text": "component so this type of Access Control"
+    },
+    {
+      "seconds": 2284,
+      "text": "may be more useful to you if you for"
+    },
+    {
+      "seconds": 2287,
+      "text": "example have multi-tenant applications"
+    },
+    {
+      "seconds": 2289,
+      "text": "that allow specialized groups of users"
+    },
+    {
+      "seconds": 2292,
+      "text": "to have specialized features of the"
+    },
+    {
+      "seconds": 2294,
+      "text": "application this way Access Control"
+    },
+    {
+      "seconds": 2296,
+      "text": "might need to be much more granual and"
+    },
+    {
+      "seconds": 2298,
+      "text": "therefore would be very complex to"
+    },
+    {
+      "seconds": 2300,
+      "text": "implement using role-based access"
+    },
+    {
+      "seconds": 2302,
+      "text": "control versus attribute based access"
+    },
+    {
+      "seconds": 2304,
+      "text": "control and so if your application"
+    },
+    {
+      "seconds": 2306,
+      "text": "requires that type of Access Control you"
+    },
+    {
+      "seconds": 2309,
+      "text": "should definitely consider using"
+    },
+    {
+      "seconds": 2311,
+      "text": "attribute or feature-based access"
+    },
+    {
+      "seconds": 2313,
+      "text": "control and then last but not least and"
+    },
+    {
+      "seconds": 2316,
+      "text": "this is a pretty important one is that"
+    },
+    {
+      "seconds": 2318,
+      "text": "access control checks should always be"
+    },
+    {
+      "seconds": 2320,
+      "text": "performed on the server side so anything"
+    },
+    {
+      "seconds": 2322,
+      "text": "that is coming from the client side"
+    },
+    {
+      "seconds": 2324,
+      "text": "should be considered dangerous and"
+    },
+    {
+      "seconds": 2326,
+      "text": "should be completely untrusted and"
+    },
+    {
+      "seconds": 2328,
+      "text": "should definitely not be used to perform"
+    },
+    {
+      "seconds": 2330,
+      "text": "Access Control checks unless it's"
+    },
+    {
+      "seconds": 2332,
+      "text": "validated on the server side and that's"
+    },
+    {
+      "seconds": 2335,
+      "text": "essentially how you would prevent Access"
+    },
+    {
+      "seconds": 2336,
+      "text": "Control vulnerabilities from being"
+    },
+    {
+      "seconds": 2338,
+      "text": "introduced into your code alright we've"
+    },
+    {
+      "seconds": 2341,
+      "text": "reached the end of our presentation I've"
+    },
+    {
+      "seconds": 2343,
+      "text": "added several really useful resources on"
+    },
+    {
+      "seconds": 2346,
+      "text": "the slide in case you're interested in"
+    },
+    {
+      "seconds": 2347,
+      "text": "learning more about access control"
+    },
+    {
+      "seconds": 2349,
+      "text": "vulnerabilities in the next few videos"
+    },
+    {
+      "seconds": 2351,
+      "text": "we'll gain some hands-on experience"
+    },
+    {
+      "seconds": 2353,
+      "text": "exploiting these types of"
+    },
+    {
+      "seconds": 2354,
+      "text": "vulnerabilities"
+    },
+    {
+      "seconds": 2356,
+      "text": "if you liked the video hit the Subscribe"
+    },
+    {
+      "seconds": 2358,
+      "text": "and share button so that the video"
+    },
+    {
+      "seconds": 2359,
+      "text": "reaches a wider audience also make sure"
+    },
+    {
+      "seconds": 2362,
+      "text": "to check out my course if you're"
+    },
+    {
+      "seconds": 2363,
+      "text": "interested in seeing more videos like"
+    },
+    {
+      "seconds": 2365,
+      "text": "this one thank you and see you in the"
+    },
+    {
+      "seconds": 2367,
+      "text": "next video"
+    }
+  ]
+}

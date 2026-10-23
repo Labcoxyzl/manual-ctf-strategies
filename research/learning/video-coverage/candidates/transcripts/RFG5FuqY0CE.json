@@ -1,0 +1,7387 @@
+{
+  "id": "RFG5FuqY0CE",
+  "duration_seconds": 3639,
+  "caption_sha256": "4a473e401448305385e7ff2b703c7cda8d3726f540d06c27aae3ee1f85c18a09",
+  "entries": [
+    {
+      "seconds": 9,
+      "text": "[Music]"
+    },
+    {
+      "seconds": 9,
+      "text": "all right so let's get started so"
+    },
+    {
+      "seconds": 11,
+      "text": "welcome to session three of introduction"
+    },
+    {
+      "seconds": 13,
+      "text": "to reverse engineering software with"
+    },
+    {
+      "seconds": 14,
+      "text": "geidra"
+    },
+    {
+      "seconds": 15,
+      "text": "today we're going to go over a little"
+    },
+    {
+      "seconds": 17,
+      "text": "more of you know the sea to assembly"
+    },
+    {
+      "seconds": 20,
+      "text": "kind of translation that we talked about"
+    },
+    {
+      "seconds": 21,
+      "text": "before"
+    },
+    {
+      "seconds": 22,
+      "text": "and we're also going to talk about some"
+    },
+    {
+      "seconds": 24,
+      "text": "other deidra features that we"
+    },
+    {
+      "seconds": 26,
+      "text": "haven't really covered yet that are"
+    },
+    {
+      "seconds": 27,
+      "text": "going to come in handy as you do this"
+    },
+    {
+      "seconds": 29,
+      "text": "next round of exercises"
+    },
+    {
+      "seconds": 34,
+      "text": "so like i said today we'll do a quick"
+    },
+    {
+      "seconds": 34,
+      "text": "amount of class admin we kind of got"
+    },
+    {
+      "seconds": 36,
+      "text": "that out of the way earlier"
+    },
+    {
+      "seconds": 38,
+      "text": "a lot of folks have asked about the"
+    },
+    {
+      "seconds": 39,
+      "text": "differences between"
+    },
+    {
+      "seconds": 41,
+      "text": "certain software reverse engineering"
+    },
+    {
+      "seconds": 42,
+      "text": "tools so i put together a few slides"
+    },
+    {
+      "seconds": 44,
+      "text": "just listing pros and cons of all of"
+    },
+    {
+      "seconds": 46,
+      "text": "them"
+    },
+    {
+      "seconds": 46,
+      "text": "and we'll go through those together"
+    },
+    {
+      "seconds": 48,
+      "text": "we're going to talk about structures and"
+    },
+    {
+      "seconds": 49,
+      "text": "how"
+    },
+    {
+      "seconds": 49,
+      "text": "those look in compiled c programs we'll"
+    },
+    {
+      "seconds": 52,
+      "text": "talk about enums"
+    },
+    {
+      "seconds": 53,
+      "text": "pointers file operations patching"
+    },
+    {
+      "seconds": 56,
+      "text": "binaries"
+    },
+    {
+      "seconds": 57,
+      "text": "and then some other additional dedra"
+    },
+    {
+      "seconds": 58,
+      "text": "features that are going to aid you"
+    },
+    {
+      "seconds": 60,
+      "text": "with this week's challenges"
+    },
+    {
+      "seconds": 64,
+      "text": "so real quick for those that may have"
+    },
+    {
+      "seconds": 66,
+      "text": "just jumped in office hours are"
+    },
+    {
+      "seconds": 68,
+      "text": "thursday at 6 eastern the questions for"
+    },
+    {
+      "seconds": 70,
+      "text": "that can be submitted either via"
+    },
+    {
+      "seconds": 72,
+      "text": "zoom in the chat that you're now in the"
+    },
+    {
+      "seconds": 75,
+      "text": "q a"
+    },
+    {
+      "seconds": 76,
+      "text": "or on the hackaday io chat room or you"
+    },
+    {
+      "seconds": 78,
+      "text": "can"
+    },
+    {
+      "seconds": 79,
+      "text": "message me on twitter if that's your"
+    },
+    {
+      "seconds": 81,
+      "text": "preferred"
+    },
+    {
+      "seconds": 83,
+      "text": "way to get the questions across any of"
+    },
+    {
+      "seconds": 85,
+      "text": "those are fine with me"
+    },
+    {
+      "seconds": 86,
+      "text": "we go over the questions during the"
+    },
+    {
+      "seconds": 89,
+      "text": "office hour and then"
+    },
+    {
+      "seconds": 90,
+      "text": "for whatever time is left last time we"
+    },
+    {
+      "seconds": 92,
+      "text": "just reverse engineered a firmware image"
+    },
+    {
+      "seconds": 94,
+      "text": "and people seem to enjoy"
+    },
+    {
+      "seconds": 95,
+      "text": "kind of walking through that so we'll"
+    },
+    {
+      "seconds": 97,
+      "text": "probably do something similar to that"
+    },
+    {
+      "seconds": 99,
+      "text": "again depending on"
+    },
+    {
+      "seconds": 100,
+      "text": "what people are interested in so let us"
+    },
+    {
+      "seconds": 103,
+      "text": "know what you're interested in let us"
+    },
+    {
+      "seconds": 104,
+      "text": "know any questions that you might have"
+    },
+    {
+      "seconds": 105,
+      "text": "for the office hours and we'll do"
+    },
+    {
+      "seconds": 107,
+      "text": "do what we can to make that as"
+    },
+    {
+      "seconds": 108,
+      "text": "productive as possible"
+    },
+    {
+      "seconds": 114,
+      "text": "so today we're going to talk about the"
+    },
+    {
+      "seconds": 114,
+      "text": "kind of the landscape of different"
+    },
+    {
+      "seconds": 116,
+      "text": "software reverse engineering tools we've"
+    },
+    {
+      "seconds": 117,
+      "text": "gotten a couple of questions about this"
+    },
+    {
+      "seconds": 119,
+      "text": "and it's important to"
+    },
+    {
+      "seconds": 120,
+      "text": "understand that there's there are more"
+    },
+    {
+      "seconds": 121,
+      "text": "tools to do this with than than just"
+    },
+    {
+      "seconds": 123,
+      "text": "ghidra right"
+    },
+    {
+      "seconds": 124,
+      "text": "so we're going to talk about a couple"
+    },
+    {
+      "seconds": 124,
+      "text": "popular tools kind of the pros and cons"
+    },
+    {
+      "seconds": 126,
+      "text": "for all of them"
+    },
+    {
+      "seconds": 128,
+      "text": "and then as i mentioned before we're"
+    },
+    {
+      "seconds": 129,
+      "text": "going to go into some additional kind of"
+    },
+    {
+      "seconds": 131,
+      "text": "c"
+    },
+    {
+      "seconds": 131,
+      "text": "structures and then some os concepts to"
+    },
+    {
+      "seconds": 134,
+      "text": "help"
+    },
+    {
+      "seconds": 134,
+      "text": "illustrate what you might see when you"
+    },
+    {
+      "seconds": 135,
+      "text": "start looking at more complicated"
+    },
+    {
+      "seconds": 137,
+      "text": "programs"
+    },
+    {
+      "seconds": 137,
+      "text": "we're going to talk about all the c"
+    },
+    {
+      "seconds": 140,
+      "text": "types that i just mentioned earlier plus"
+    },
+    {
+      "seconds": 141,
+      "text": "we're going to go over system calls"
+    },
+    {
+      "seconds": 144,
+      "text": "and then we're going to kind of close"
+    },
+    {
+      "seconds": 146,
+      "text": "out today"
+    },
+    {
+      "seconds": 147,
+      "text": "with a bunch of features in dedra that"
+    },
+    {
+      "seconds": 149,
+      "text": "we haven't really gotten to yet"
+    },
+    {
+      "seconds": 151,
+      "text": "and they're going to become useful when"
+    },
+    {
+      "seconds": 152,
+      "text": "you start looking at these new"
+    },
+    {
+      "seconds": 154,
+      "text": "exercises that we released today"
+    },
+    {
+      "seconds": 157,
+      "text": "so real quick though uh software re tool"
+    },
+    {
+      "seconds": 160,
+      "text": "landscape"
+    },
+    {
+      "seconds": 161,
+      "text": "there are lots of different tools you"
+    },
+    {
+      "seconds": 163,
+      "text": "can use to reverse engineer software and"
+    },
+    {
+      "seconds": 165,
+      "text": "i've just listed a few"
+    },
+    {
+      "seconds": 166,
+      "text": "you know down below you've got you know"
+    },
+    {
+      "seconds": 168,
+      "text": "redair radar r2"
+    },
+    {
+      "seconds": 170,
+      "text": "ida pro some of you are familiar with"
+    },
+    {
+      "seconds": 171,
+      "text": "guidro we're using that now and of"
+    },
+    {
+      "seconds": 173,
+      "text": "course you've got"
+    },
+    {
+      "seconds": 174,
+      "text": "you know classic object if you want to"
+    },
+    {
+      "seconds": 175,
+      "text": "use something like that"
+    },
+    {
+      "seconds": 177,
+      "text": "the these tools all kind of have their"
+    },
+    {
+      "seconds": 180,
+      "text": "strengths and weaknesses pros and cons"
+    },
+    {
+      "seconds": 182,
+      "text": "and a lot of it too can boil down to"
+    },
+    {
+      "seconds": 184,
+      "text": "personal preference"
+    },
+    {
+      "seconds": 185,
+      "text": "but most of the time when you're working"
+    },
+    {
+      "seconds": 189,
+      "text": "on you know some target"
+    },
+    {
+      "seconds": 190,
+      "text": "software system you will pick whatever"
+    },
+    {
+      "seconds": 192,
+      "text": "tool you think"
+    },
+    {
+      "seconds": 194,
+      "text": "is best fit for the job so i use gidger"
+    },
+    {
+      "seconds": 197,
+      "text": "a fair amount i use ida fair amount i"
+    },
+    {
+      "seconds": 200,
+      "text": "don't have a lot of experience with r2"
+    },
+    {
+      "seconds": 201,
+      "text": "so it's not a go-to for me but i've"
+    },
+    {
+      "seconds": 203,
+      "text": "worked alongside of people"
+    },
+    {
+      "seconds": 204,
+      "text": "that use r2 really really well and are"
+    },
+    {
+      "seconds": 207,
+      "text": "able to get the job done really well so"
+    },
+    {
+      "seconds": 209,
+      "text": "you know at the end of the day it does"
+    },
+    {
+      "seconds": 210,
+      "text": "kind of boil down to what you're most"
+    },
+    {
+      "seconds": 212,
+      "text": "comfortable with and what"
+    },
+    {
+      "seconds": 213,
+      "text": "suits your goals with re"
+    },
+    {
+      "seconds": 216,
+      "text": "so real quick you know for those of you"
+    },
+    {
+      "seconds": 218,
+      "text": "that aren't familiar with ida pro"
+    },
+    {
+      "seconds": 220,
+      "text": "it's one of the most popular reverse"
+    },
+    {
+      "seconds": 222,
+      "text": "engineering tools"
+    },
+    {
+      "seconds": 224,
+      "text": "out there most of you have probably seen"
+    },
+    {
+      "seconds": 225,
+      "text": "it before and"
+    },
+    {
+      "seconds": 227,
+      "text": "it's got a lot of existing plugins and"
+    },
+    {
+      "seconds": 230,
+      "text": "community tools because it's been around"
+    },
+    {
+      "seconds": 231,
+      "text": "for such a long time"
+    },
+    {
+      "seconds": 232,
+      "text": "it handles you know c plus plus binaries"
+    },
+    {
+      "seconds": 234,
+      "text": "fairly well it can handle things like"
+    },
+    {
+      "seconds": 236,
+      "text": "pdb parsing fairly well and again"
+    },
+    {
+      "seconds": 238,
+      "text": "it's kind of been sort of the industry"
+    },
+    {
+      "seconds": 241,
+      "text": "standard for"
+    },
+    {
+      "seconds": 242,
+      "text": "a really long time so lots of people"
+    },
+    {
+      "seconds": 244,
+      "text": "familiar with that lots of places use it"
+    },
+    {
+      "seconds": 247,
+      "text": "the the cons with ida pro are that it's"
+    },
+    {
+      "seconds": 250,
+      "text": "fairly expensive"
+    },
+    {
+      "seconds": 251,
+      "text": "so it's they've recently tried to"
+    },
+    {
+      "seconds": 254,
+      "text": "release"
+    },
+    {
+      "seconds": 254,
+      "text": "the ida pro community edition which"
+    },
+    {
+      "seconds": 256,
+      "text": "drops the price a little bit"
+    },
+    {
+      "seconds": 258,
+      "text": "but it's still fairly costly for you"
+    },
+    {
+      "seconds": 260,
+      "text": "know a hobbyist or someone who's doing"
+    },
+    {
+      "seconds": 262,
+      "text": "this"
+    },
+    {
+      "seconds": 262,
+      "text": "you know on the side or just for fun the"
+    },
+    {
+      "seconds": 265,
+      "text": "documentation can sometimes be a little"
+    },
+    {
+      "seconds": 267,
+      "text": "lacking in my experience"
+    },
+    {
+      "seconds": 268,
+      "text": "but that i think they are that is all"
+    },
+    {
+      "seconds": 271,
+      "text": "improving they're working really hard to"
+    },
+    {
+      "seconds": 272,
+      "text": "improve that and"
+    },
+    {
+      "seconds": 273,
+      "text": "it can sometimes be difficult to sort of"
+    },
+    {
+      "seconds": 275,
+      "text": "modify the core"
+    },
+    {
+      "seconds": 277,
+      "text": "analysis pieces and and with all these"
+    },
+    {
+      "seconds": 280,
+      "text": "cons right ida pro is a great program"
+    },
+    {
+      "seconds": 282,
+      "text": "we all you know everybody uses it and"
+    },
+    {
+      "seconds": 285,
+      "text": "it's it's really great these cons are"
+    },
+    {
+      "seconds": 287,
+      "text": "just some of the things that i've had"
+    },
+    {
+      "seconds": 288,
+      "text": "issues with"
+    },
+    {
+      "seconds": 289,
+      "text": "in the past and i've heard other people"
+    },
+    {
+      "seconds": 291,
+      "text": "discuss as well"
+    },
+    {
+      "seconds": 293,
+      "text": "and so people talk about r2 quite a bit"
+    },
+    {
+      "seconds": 296,
+      "text": "as well and"
+    },
+    {
+      "seconds": 296,
+      "text": "and r2 is great it's open source the"
+    },
+    {
+      "seconds": 299,
+      "text": "community's super active"
+    },
+    {
+      "seconds": 300,
+      "text": "very enthusiastic it has you know lots"
+    },
+    {
+      "seconds": 303,
+      "text": "of architecture support"
+    },
+    {
+      "seconds": 304,
+      "text": "support for various file formats"
+    },
+    {
+      "seconds": 306,
+      "text": "operating systems"
+    },
+    {
+      "seconds": 308,
+      "text": "and r2 because it's"
+    },
+    {
+      "seconds": 311,
+      "text": "you know bare bones probably isn't the"
+    },
+    {
+      "seconds": 313,
+      "text": "right word but because it's such"
+    },
+    {
+      "seconds": 315,
+      "text": "a low-level tool it's easy to kind of"
+    },
+    {
+      "seconds": 318,
+      "text": "extend and script upon any of the"
+    },
+    {
+      "seconds": 319,
+      "text": "features that we kind of listed above so"
+    },
+    {
+      "seconds": 321,
+      "text": "it's got"
+    },
+    {
+      "seconds": 322,
+      "text": "you know forensic features and things"
+    },
+    {
+      "seconds": 323,
+      "text": "like that if you want to feed it like"
+    },
+    {
+      "seconds": 325,
+      "text": "you know file system images and stuff"
+    },
+    {
+      "seconds": 327,
+      "text": "but the the thing with r2"
+    },
+    {
+      "seconds": 329,
+      "text": "that i think turns a lot of people off"
+    },
+    {
+      "seconds": 330,
+      "text": "initially is that the learning curve"
+    },
+    {
+      "seconds": 332,
+      "text": "is fairly steep now there are lots of"
+    },
+    {
+      "seconds": 335,
+      "text": "blog posts and things that are out right"
+    },
+    {
+      "seconds": 337,
+      "text": "now there's a guy arctic blue on twitter"
+    },
+    {
+      "seconds": 339,
+      "text": "that has a great"
+    },
+    {
+      "seconds": 340,
+      "text": "series of r2 posts on how to get started"
+    },
+    {
+      "seconds": 344,
+      "text": "with it"
+    },
+    {
+      "seconds": 344,
+      "text": "and there's this could be a pro or a con"
+    },
+    {
+      "seconds": 347,
+      "text": "depending on how you look at it there's"
+    },
+    {
+      "seconds": 348,
+      "text": "not really a maintained gui"
+    },
+    {
+      "seconds": 350,
+      "text": "it's not part of their you know core"
+    },
+    {
+      "seconds": 352,
+      "text": "project but there is a program called"
+    },
+    {
+      "seconds": 353,
+      "text": "cutter"
+    },
+    {
+      "seconds": 354,
+      "text": "that uses r2 on the back end that's"
+    },
+    {
+      "seconds": 356,
+      "text": "fairly decent and"
+    },
+    {
+      "seconds": 357,
+      "text": "and of course there's no decompiler um"
+    },
+    {
+      "seconds": 359,
+      "text": "that that i'm aware of"
+    },
+    {
+      "seconds": 360,
+      "text": "but again i'm not really an r2 expert"
+    },
+    {
+      "seconds": 363,
+      "text": "but"
+    },
+    {
+      "seconds": 365,
+      "text": "they okay so yeah r2 looks like"
+    },
+    {
+      "seconds": 369,
+      "text": "can incorporate the guidry compiler"
+    },
+    {
+      "seconds": 373,
+      "text": "according to the fellow in chat there"
+    },
+    {
+      "seconds": 375,
+      "text": "which is"
+    },
+    {
+      "seconds": 376,
+      "text": "which is great but again i'm not really"
+    },
+    {
+      "seconds": 378,
+      "text": "an r2 expert but i know a lot of people"
+    },
+    {
+      "seconds": 379,
+      "text": "that use it and use it very well"
+    },
+    {
+      "seconds": 382,
+      "text": "and so really kind of just to wrap that"
+    },
+    {
+      "seconds": 385,
+      "text": "up quickly"
+    },
+    {
+      "seconds": 387,
+      "text": "the the thing when you're doing software"
+    },
+    {
+      "seconds": 390,
+      "text": "re is you just kind of"
+    },
+    {
+      "seconds": 391,
+      "text": "you want to experiment with different"
+    },
+    {
+      "seconds": 392,
+      "text": "tools to see which tool suits"
+    },
+    {
+      "seconds": 394,
+      "text": "your workflow the best there's really no"
+    },
+    {
+      "seconds": 398,
+      "text": "tool you can point to and say oh this is"
+    },
+    {
+      "seconds": 400,
+      "text": "the best out of all of them"
+    },
+    {
+      "seconds": 401,
+      "text": "and so you know everybody has all these"
+    },
+    {
+      "seconds": 403,
+      "text": "different tools in their tool belt that"
+    },
+    {
+      "seconds": 404,
+      "text": "they'll use"
+    },
+    {
+      "seconds": 405,
+      "text": "you know based on whatever software"
+    },
+    {
+      "seconds": 408,
+      "text": "target they're looking at so"
+    },
+    {
+      "seconds": 409,
+      "text": "i know a lot of people prefer gidra for"
+    },
+    {
+      "seconds": 411,
+      "text": "lower level"
+    },
+    {
+      "seconds": 412,
+      "text": "firmware images and you know they might"
+    },
+    {
+      "seconds": 414,
+      "text": "prefer ida for windows binaries"
+    },
+    {
+      "seconds": 416,
+      "text": "and ida for you know l files i"
+    },
+    {
+      "seconds": 419,
+      "text": "personally like ghidra for"
+    },
+    {
+      "seconds": 422,
+      "text": "firmware images and l files and then for"
+    },
+    {
+      "seconds": 424,
+      "text": "windows and c"
+    },
+    {
+      "seconds": 425,
+      "text": "plus i do tend to lean on ida a little"
+    },
+    {
+      "seconds": 427,
+      "text": "heavier but that's just me everybody's"
+    },
+    {
+      "seconds": 429,
+      "text": "preferences are different here"
+    },
+    {
+      "seconds": 431,
+      "text": "so i'm just gonna"
+    },
+    {
+      "seconds": 446,
+      "text": "so a good example of what ida is good at"
+    },
+    {
+      "seconds": 446,
+      "text": "that nobody else has so"
+    },
+    {
+      "seconds": 448,
+      "text": "i mean ida what ida has that nobody else"
+    },
+    {
+      "seconds": 450,
+      "text": "has is a fair amount of you know"
+    },
+    {
+      "seconds": 452,
+      "text": "existing plug-ins a lot of community"
+    },
+    {
+      "seconds": 454,
+      "text": "support"
+    },
+    {
+      "seconds": 455,
+      "text": "the decompile is really good the c-plus"
+    },
+    {
+      "seconds": 457,
+      "text": "plus d-mangling is fairly decent as well"
+    },
+    {
+      "seconds": 459,
+      "text": "um and so guidry and r2 i mean gidra you"
+    },
+    {
+      "seconds": 464,
+      "text": "know has a built-in decompiler which you"
+    },
+    {
+      "seconds": 465,
+      "text": "know r2 does have plug-ins to lean on"
+    },
+    {
+      "seconds": 467,
+      "text": "but you know giger's decompiler and its"
+    },
+    {
+      "seconds": 470,
+      "text": "intermediate representation are kind of"
+    },
+    {
+      "seconds": 471,
+      "text": "what set it apart from"
+    },
+    {
+      "seconds": 472,
+      "text": "from r2 in that way"
+    },
+    {
+      "seconds": 477,
+      "text": "so now that we've kind of gone over the"
+    },
+    {
+      "seconds": 477,
+      "text": "various tools uh you know that's a very"
+    },
+    {
+      "seconds": 480,
+      "text": "high level overview"
+    },
+    {
+      "seconds": 481,
+      "text": "we're going to jump back into where what"
+    },
+    {
+      "seconds": 482,
+      "text": "we were looking at last week and that's"
+    },
+    {
+      "seconds": 485,
+      "text": "talking about how you can identify some"
+    },
+    {
+      "seconds": 486,
+      "text": "of these c"
+    },
+    {
+      "seconds": 488,
+      "text": "structures and see concepts that you"
+    },
+    {
+      "seconds": 490,
+      "text": "might see when you're reverse"
+    },
+    {
+      "seconds": 491,
+      "text": "engineering something"
+    },
+    {
+      "seconds": 492,
+      "text": "and we're going to start with structures"
+    },
+    {
+      "seconds": 495,
+      "text": "so those of you that have written c"
+    },
+    {
+      "seconds": 498,
+      "text": "before probably familiar with structures"
+    },
+    {
+      "seconds": 499,
+      "text": "structures are a user-defined data type"
+    },
+    {
+      "seconds": 501,
+      "text": "that allow you to sort of combine"
+    },
+    {
+      "seconds": 504,
+      "text": "various data types and what they"
+    },
+    {
+      "seconds": 505,
+      "text": "eventually"
+    },
+    {
+      "seconds": 506,
+      "text": "represent once they get compiled is a"
+    },
+    {
+      "seconds": 509,
+      "text": "composite data type with multiple"
+    },
+    {
+      "seconds": 511,
+      "text": "variables contained within it under one"
+    },
+    {
+      "seconds": 513,
+      "text": "like contiguous block of memory"
+    },
+    {
+      "seconds": 516,
+      "text": "so you can think of it as like a group"
+    },
+    {
+      "seconds": 517,
+      "text": "of variables"
+    },
+    {
+      "seconds": 519,
+      "text": "that eventually will get you know padded"
+    },
+    {
+      "seconds": 521,
+      "text": "for alignment purposes for the"
+    },
+    {
+      "seconds": 524,
+      "text": "for the processor and what that means"
+    },
+    {
+      "seconds": 527,
+      "text": "is if you have a structure with two"
+    },
+    {
+      "seconds": 529,
+      "text": "integers and one byte field"
+    },
+    {
+      "seconds": 531,
+      "text": "that bite field's going to get padded"
+    },
+    {
+      "seconds": 533,
+      "text": "probably to"
+    },
+    {
+      "seconds": 534,
+      "text": "a four byte field so that it can be in"
+    },
+    {
+      "seconds": 537,
+      "text": "proper alignment with the rest of the"
+    },
+    {
+      "seconds": 539,
+      "text": "processor and"
+    },
+    {
+      "seconds": 540,
+      "text": "typically you know as a developer this"
+    },
+    {
+      "seconds": 541,
+      "text": "might not be something you care about a"
+    },
+    {
+      "seconds": 543,
+      "text": "whole lot if you're an embedded"
+    },
+    {
+      "seconds": 544,
+      "text": "developer you'll probably run into this"
+    },
+    {
+      "seconds": 545,
+      "text": "and you know sometimes it might use up"
+    },
+    {
+      "seconds": 549,
+      "text": "additional space you weren't aware of"
+    },
+    {
+      "seconds": 550,
+      "text": "but we really care about this when we're"
+    },
+    {
+      "seconds": 552,
+      "text": "doing re"
+    },
+    {
+      "seconds": 553,
+      "text": "because we need to sometimes reconstruct"
+    },
+    {
+      "seconds": 556,
+      "text": "these structures from the assembly"
+    },
+    {
+      "seconds": 558,
+      "text": "language"
+    },
+    {
+      "seconds": 558,
+      "text": "and so what that ends up looking"
+    },
+    {
+      "seconds": 562,
+      "text": "like in assembly so we'll take a look"
+    },
+    {
+      "seconds": 564,
+      "text": "here"
+    },
+    {
+      "seconds": 574,
+      "text": "so we have a simple structure here"
+    },
+    {
+      "seconds": 574,
+      "text": "with two integer fields and a character"
+    },
+    {
+      "seconds": 576,
+      "text": "field and"
+    },
+    {
+      "seconds": 577,
+      "text": "for the sake of argument let's just"
+    },
+    {
+      "seconds": 579,
+      "text": "assume this is 30 a 32-bit system"
+    },
+    {
+      "seconds": 581,
+      "text": "and so all we're doing here in main is"
+    },
+    {
+      "seconds": 583,
+      "text": "we're instantiating the structure"
+    },
+    {
+      "seconds": 585,
+      "text": "and we are setting the fields to their"
+    },
+    {
+      "seconds": 587,
+      "text": "various values so"
+    },
+    {
+      "seconds": 589,
+      "text": "let's take a look on the right at the"
+    },
+    {
+      "seconds": 591,
+      "text": "assembly code"
+    },
+    {
+      "seconds": 592,
+      "text": "that represents this and we're also"
+    },
+    {
+      "seconds": 594,
+      "text": "going to show you"
+    },
+    {
+      "seconds": 595,
+      "text": "what the stack is going to look like and"
+    },
+    {
+      "seconds": 598,
+      "text": "where these variables are going to be"
+    },
+    {
+      "seconds": 600,
+      "text": "presented or how they're going to be"
+    },
+    {
+      "seconds": 602,
+      "text": "presented on the stack"
+    },
+    {
+      "seconds": 604,
+      "text": "so there you go"
+    },
+    {
+      "seconds": 607,
+      "text": "all right so first we have you know our"
+    },
+    {
+      "seconds": 608,
+      "text": "function pro we're setting everything up"
+    },
+    {
+      "seconds": 610,
+      "text": "our stack is set up so"
+    },
+    {
+      "seconds": 613,
+      "text": "we have our two our two arguments here"
+    },
+    {
+      "seconds": 615,
+      "text": "we went over what those are during"
+    },
+    {
+      "seconds": 617,
+      "text": "office hours"
+    },
+    {
+      "seconds": 618,
+      "text": "last week and so the first instruction"
+    },
+    {
+      "seconds": 620,
+      "text": "we have"
+    },
+    {
+      "seconds": 621,
+      "text": "is setting the x field of this structure"
+    },
+    {
+      "seconds": 624,
+      "text": "to hex 100 and you'll notice that that"
+    },
+    {
+      "seconds": 626,
+      "text": "field is located on the stack"
+    },
+    {
+      "seconds": 628,
+      "text": "at rbp minus hex 10."
+    },
+    {
+      "seconds": 632,
+      "text": "and so the next field the byte field"
+    },
+    {
+      "seconds": 635,
+      "text": "you might immediately assume that it's"
+    },
+    {
+      "seconds": 637,
+      "text": "just going to be one byte"
+    },
+    {
+      "seconds": 639,
+      "text": "above you know hex 10 or under hex 10"
+    },
+    {
+      "seconds": 642,
+      "text": "right since we're on the stack"
+    },
+    {
+      "seconds": 643,
+      "text": "you would assume that it might be plus"
+    },
+    {
+      "seconds": 644,
+      "text": "or minus one well that's not the case"
+    },
+    {
+      "seconds": 646,
+      "text": "right it's a plus or minus"
+    },
+    {
+      "seconds": 648,
+      "text": "four because it needs to be aligned"
+    },
+    {
+      "seconds": 651,
+      "text": "with the processor architecture right"
+    },
+    {
+      "seconds": 653,
+      "text": "because if you try to"
+    },
+    {
+      "seconds": 654,
+      "text": "you know if this were armed for example"
+    },
+    {
+      "seconds": 656,
+      "text": "when you try to address"
+    },
+    {
+      "seconds": 658,
+      "text": "and an instruction that wasn't properly"
+    },
+    {
+      "seconds": 661,
+      "text": "aligned you would get an alignment"
+    },
+    {
+      "seconds": 662,
+      "text": "exception"
+    },
+    {
+      "seconds": 663,
+      "text": "so you'll see that even though the point"
+    },
+    {
+      "seconds": 665,
+      "text": "we're trying to make here is even though"
+    },
+    {
+      "seconds": 667,
+      "text": "the member of the struct is just one"
+    },
+    {
+      "seconds": 670,
+      "text": "character it's just one byte it's going"
+    },
+    {
+      "seconds": 672,
+      "text": "to take up"
+    },
+    {
+      "seconds": 673,
+      "text": "four bytes here on the stack"
+    },
+    {
+      "seconds": 676,
+      "text": "and of course that will change you know"
+    },
+    {
+      "seconds": 678,
+      "text": "if this were a pointer to a struct it"
+    },
+    {
+      "seconds": 679,
+      "text": "would obviously be four bytes etc but"
+    },
+    {
+      "seconds": 681,
+      "text": "since this is it's just one byte and it"
+    },
+    {
+      "seconds": 683,
+      "text": "takes up four bytes on the stack because"
+    },
+    {
+      "seconds": 685,
+      "text": "it needs to be properly"
+    },
+    {
+      "seconds": 686,
+      "text": "aligned and sometimes this is done for"
+    },
+    {
+      "seconds": 688,
+      "text": "optimization purposes as well"
+    },
+    {
+      "seconds": 690,
+      "text": "so the last portion of this here we see"
+    },
+    {
+      "seconds": 692,
+      "text": "it set"
+    },
+    {
+      "seconds": 693,
+      "text": "the final member of the struct to 300"
+    },
+    {
+      "seconds": 696,
+      "text": "and then we just exit and so you know"
+    },
+    {
+      "seconds": 698,
+      "text": "this isn't"
+    },
+    {
+      "seconds": 699,
+      "text": "super complicated assembly it's not"
+    },
+    {
+      "seconds": 701,
+      "text": "super complicated c code"
+    },
+    {
+      "seconds": 703,
+      "text": "the point in showing you guys this was"
+    },
+    {
+      "seconds": 706,
+      "text": "to show you that"
+    },
+    {
+      "seconds": 707,
+      "text": "these structs when they are you know"
+    },
+    {
+      "seconds": 710,
+      "text": "created on the stack or when they're you"
+    },
+    {
+      "seconds": 712,
+      "text": "know converted and created in this"
+    },
+    {
+      "seconds": 713,
+      "text": "assembly language is that they're gonna"
+    },
+    {
+      "seconds": 715,
+      "text": "be"
+    },
+    {
+      "seconds": 716,
+      "text": "you know bite aligned and then lastly we"
+    },
+    {
+      "seconds": 719,
+      "text": "have"
+    },
+    {
+      "seconds": 719,
+      "text": "you know the cleanup here for the"
+    },
+    {
+      "seconds": 721,
+      "text": "function"
+    },
+    {
+      "seconds": 724,
+      "text": "and so when you're using ghidra"
+    },
+    {
+      "seconds": 727,
+      "text": "and you're trying to create a structure"
+    },
+    {
+      "seconds": 730,
+      "text": "there's a couple different ways"
+    },
+    {
+      "seconds": 731,
+      "text": "you can do this so let's say you're"
+    },
+    {
+      "seconds": 733,
+      "text": "looking at some c code and you've"
+    },
+    {
+      "seconds": 734,
+      "text": "identified what you think might be a"
+    },
+    {
+      "seconds": 736,
+      "text": "structure"
+    },
+    {
+      "seconds": 736,
+      "text": "you've identified some assembly"
+    },
+    {
+      "seconds": 738,
+      "text": "structures that you think might be"
+    },
+    {
+      "seconds": 740,
+      "text": "related to filling out fields of the"
+    },
+    {
+      "seconds": 742,
+      "text": "structure there's"
+    },
+    {
+      "seconds": 743,
+      "text": "a couple of ways you can import this"
+    },
+    {
+      "seconds": 745,
+      "text": "into ghidra"
+    },
+    {
+      "seconds": 746,
+      "text": "you can manually create it in the struct"
+    },
+    {
+      "seconds": 750,
+      "text": "creator which we'll show an example of"
+    },
+    {
+      "seconds": 751,
+      "text": "how to do where you go in and manually"
+    },
+    {
+      "seconds": 753,
+      "text": "define the fields"
+    },
+    {
+      "seconds": 754,
+      "text": "and things like that or you can actually"
+    },
+    {
+      "seconds": 756,
+      "text": "import a header file"
+    },
+    {
+      "seconds": 758,
+      "text": "which we did in an example in the last"
+    },
+    {
+      "seconds": 760,
+      "text": "office hour of"
+    },
+    {
+      "seconds": 761,
+      "text": "you can define a header file of the"
+    },
+    {
+      "seconds": 764,
+      "text": "struct that you're looking at"
+    },
+    {
+      "seconds": 766,
+      "text": "import that into gidra and then apply it"
+    },
+    {
+      "seconds": 768,
+      "text": "to a data type"
+    },
+    {
+      "seconds": 769,
+      "text": "in order to do that you click file and"
+    },
+    {
+      "seconds": 771,
+      "text": "then import c source"
+    },
+    {
+      "seconds": 773,
+      "text": "navigate to the header file parse it to"
+    },
+    {
+      "seconds": 775,
+      "text": "the program"
+    },
+    {
+      "seconds": 776,
+      "text": "and then apply it to the data type and"
+    },
+    {
+      "seconds": 779,
+      "text": "so"
+    },
+    {
+      "seconds": 780,
+      "text": "what we're going to start with is manual"
+    },
+    {
+      "seconds": 782,
+      "text": "struct creation so not importing it from"
+    },
+    {
+      "seconds": 784,
+      "text": "a c header file and that can be done"
+    },
+    {
+      "seconds": 786,
+      "text": "from the data types manager"
+    },
+    {
+      "seconds": 793,
+      "text": "so this is the data type manager uh if"
+    },
+    {
+      "seconds": 793,
+      "text": "you've not modified"
+    },
+    {
+      "seconds": 794,
+      "text": "the core guide layout this is the bottom"
+    },
+    {
+      "seconds": 796,
+      "text": "left-hand corner"
+    },
+    {
+      "seconds": 798,
+      "text": "and so here what you want to do is right"
+    },
+    {
+      "seconds": 800,
+      "text": "click"
+    },
+    {
+      "seconds": 801,
+      "text": "this see we have struct ex2 which is the"
+    },
+    {
+      "seconds": 803,
+      "text": "name of the program"
+    },
+    {
+      "seconds": 804,
+      "text": "you want to right click this you click"
+    },
+    {
+      "seconds": 806,
+      "text": "new and then structure"
+    },
+    {
+      "seconds": 808,
+      "text": "and then when you click that this window"
+    },
+    {
+      "seconds": 811,
+      "text": "will appear"
+    },
+    {
+      "seconds": 813,
+      "text": "and so this is the structure editor this"
+    },
+    {
+      "seconds": 815,
+      "text": "is where you can generate a structure"
+    },
+    {
+      "seconds": 816,
+      "text": "you can add fields you can make sure the"
+    },
+    {
+      "seconds": 818,
+      "text": "fields are aligned"
+    },
+    {
+      "seconds": 819,
+      "text": "and you can't even you know you can see"
+    },
+    {
+      "seconds": 821,
+      "text": "what bits are set for the certain fields"
+    },
+    {
+      "seconds": 823,
+      "text": "if you want to create bit fields etc we"
+    },
+    {
+      "seconds": 825,
+      "text": "talked about that"
+    },
+    {
+      "seconds": 826,
+      "text": "someone had asked that question uh last"
+    },
+    {
+      "seconds": 828,
+      "text": "week as well we'll go over that"
+    },
+    {
+      "seconds": 829,
+      "text": "this week during the office hour whether"
+    },
+    {
+      "seconds": 831,
+      "text": "or not you can have or how to do you"
+    },
+    {
+      "seconds": 833,
+      "text": "know bitfields with instructs"
+    },
+    {
+      "seconds": 835,
+      "text": "so if we want to add a member to this"
+    },
+    {
+      "seconds": 837,
+      "text": "struct"
+    },
+    {
+      "seconds": 839,
+      "text": "you click on data type and then edit"
+    },
+    {
+      "seconds": 841,
+      "text": "component field"
+    },
+    {
+      "seconds": 847,
+      "text": "and so this is where you're going to"
+    },
+    {
+      "seconds": 847,
+      "text": "fill out the actual data type"
+    },
+    {
+      "seconds": 849,
+      "text": "that resides within the struct right so"
+    },
+    {
+      "seconds": 851,
+      "text": "if it's an integer you're going to type"
+    },
+    {
+      "seconds": 852,
+      "text": "in"
+    },
+    {
+      "seconds": 853,
+      "text": "if it's a character you're just going to"
+    },
+    {
+      "seconds": 854,
+      "text": "use jar if it's a pointer you know you"
+    },
+    {
+      "seconds": 856,
+      "text": "do instar"
+    },
+    {
+      "seconds": 857,
+      "text": "charstar etc whatever the pointer is too"
+    },
+    {
+      "seconds": 860,
+      "text": "and so let's next"
+    },
+    {
+      "seconds": 864,
+      "text": "you'll see that we've added one integer"
+    },
+    {
+      "seconds": 866,
+      "text": "and you've got the byte offsets here"
+    },
+    {
+      "seconds": 868,
+      "text": "at the bottom of the struct and then you"
+    },
+    {
+      "seconds": 870,
+      "text": "can also if you want to you can name"
+    },
+    {
+      "seconds": 872,
+      "text": "that field as well"
+    },
+    {
+      "seconds": 874,
+      "text": "so next we'll go through and fill out"
+    },
+    {
+      "seconds": 878,
+      "text": "the struct for the rest of the elements"
+    },
+    {
+      "seconds": 880,
+      "text": "that we saw in the previous example"
+    },
+    {
+      "seconds": 881,
+      "text": "remember that it was"
+    },
+    {
+      "seconds": 882,
+      "text": "int character int so we do that"
+    },
+    {
+      "seconds": 886,
+      "text": "right now notice here that the length is"
+    },
+    {
+      "seconds": 889,
+      "text": "only one"
+    },
+    {
+      "seconds": 890,
+      "text": "and this is why we have to pay attention"
+    },
+    {
+      "seconds": 892,
+      "text": "to how these things are actually"
+    },
+    {
+      "seconds": 894,
+      "text": "created and managed right and how"
+    },
+    {
+      "seconds": 896,
+      "text": "they're padded so this is actually"
+    },
+    {
+      "seconds": 898,
+      "text": "nine bytes total and in reality we want"
+    },
+    {
+      "seconds": 900,
+      "text": "it to be 12"
+    },
+    {
+      "seconds": 901,
+      "text": "because remember it was three four byte"
+    },
+    {
+      "seconds": 902,
+      "text": "fields even though technically"
+    },
+    {
+      "seconds": 904,
+      "text": "there's only nine bytes of data that we"
+    },
+    {
+      "seconds": 907,
+      "text": "really"
+    },
+    {
+      "seconds": 908,
+      "text": "you know quote unquote use or care about"
+    },
+    {
+      "seconds": 911,
+      "text": "so in order to fix this"
+    },
+    {
+      "seconds": 914,
+      "text": "you can click the align button so you"
+    },
+    {
+      "seconds": 918,
+      "text": "can select a member of the struct"
+    },
+    {
+      "seconds": 919,
+      "text": "and click the align button"
+    },
+    {
+      "seconds": 925,
+      "text": "so we've selected our y member here"
+    },
+    {
+      "seconds": 925,
+      "text": "because again remember what we're trying"
+    },
+    {
+      "seconds": 927,
+      "text": "to do here is we want this to be a four"
+    },
+    {
+      "seconds": 929,
+      "text": "byte field"
+    },
+    {
+      "seconds": 929,
+      "text": "but we also want to make sure that the"
+    },
+    {
+      "seconds": 931,
+      "text": "data type is"
+    },
+    {
+      "seconds": 933,
+      "text": "properly labeled so you could make a 12"
+    },
+    {
+      "seconds": 936,
+      "text": "byte struct by just having three"
+    },
+    {
+      "seconds": 937,
+      "text": "integers"
+    },
+    {
+      "seconds": 938,
+      "text": "right but when gidra tries to do"
+    },
+    {
+      "seconds": 941,
+      "text": "analysis on the structure you created"
+    },
+    {
+      "seconds": 942,
+      "text": "it's going to assume that middle type is"
+    },
+    {
+      "seconds": 944,
+      "text": "an integer when we know it's actually a"
+    },
+    {
+      "seconds": 946,
+      "text": "byte right"
+    },
+    {
+      "seconds": 947,
+      "text": "so when you click a line here"
+    },
+    {
+      "seconds": 951,
+      "text": "you'll see that now this is four bytes"
+    },
+    {
+      "seconds": 954,
+      "text": "in length and it's still only"
+    },
+    {
+      "seconds": 955,
+      "text": "highlighting the field that we care"
+    },
+    {
+      "seconds": 956,
+      "text": "about"
+    },
+    {
+      "seconds": 957,
+      "text": "and so that's how you"
+    },
+    {
+      "seconds": 968,
+      "text": "you are aligning it with the um"
+    },
+    {
+      "seconds": 968,
+      "text": "so tony's asking what what are you"
+    },
+    {
+      "seconds": 970,
+      "text": "aligning it with that causes it to need"
+    },
+    {
+      "seconds": 972,
+      "text": "a pad so"
+    },
+    {
+      "seconds": 973,
+      "text": "for a lot of times it's just for"
+    },
+    {
+      "seconds": 974,
+      "text": "optimization reasons right if these"
+    },
+    {
+      "seconds": 976,
+      "text": "things are going to be stored on the"
+    },
+    {
+      "seconds": 977,
+      "text": "stack they need to be on you know four"
+    },
+    {
+      "seconds": 979,
+      "text": "byte boundaries"
+    },
+    {
+      "seconds": 981,
+      "text": "the compiler does a lot of that in the"
+    },
+    {
+      "seconds": 983,
+      "text": "background"
+    },
+    {
+      "seconds": 984,
+      "text": "so what we've got here now"
+    },
+    {
+      "seconds": 988,
+      "text": "is a properly aligned struct where each"
+    },
+    {
+      "seconds": 990,
+      "text": "member takes up"
+    },
+    {
+      "seconds": 991,
+      "text": "the appropriate four bytes just like we"
+    },
+    {
+      "seconds": 993,
+      "text": "saw in the assembly code"
+    },
+    {
+      "seconds": 995,
+      "text": "and so that's how you can do this"
+    },
+    {
+      "seconds": 998,
+      "text": "manually"
+    },
+    {
+      "seconds": 999,
+      "text": "in the struct creator and this is a"
+    },
+    {
+      "seconds": 1002,
+      "text": "super useful feature"
+    },
+    {
+      "seconds": 1003,
+      "text": "it's really it's nice to have to go"
+    },
+    {
+      "seconds": 1005,
+      "text": "through and kind of manually twiddle"
+    },
+    {
+      "seconds": 1006,
+      "text": "things and edit things if you don't want"
+    },
+    {
+      "seconds": 1008,
+      "text": "to constantly reimport csource"
+    },
+    {
+      "seconds": 1010,
+      "text": "but let's say you're looking at"
+    },
+    {
+      "seconds": 1011,
+      "text": "something that maybe you've been"
+    },
+    {
+      "seconds": 1013,
+      "text": "reversing for a while"
+    },
+    {
+      "seconds": 1014,
+      "text": "and you have a nice header file with all"
+    },
+    {
+      "seconds": 1017,
+      "text": "the structs that you think you've pulled"
+    },
+    {
+      "seconds": 1018,
+      "text": "out of it or you know"
+    },
+    {
+      "seconds": 1020,
+      "text": "perhaps that it imports an open source"
+    },
+    {
+      "seconds": 1022,
+      "text": "library and"
+    },
+    {
+      "seconds": 1024,
+      "text": "some of the structures that are being"
+    },
+    {
+      "seconds": 1025,
+      "text": "used are in header files for that open"
+    },
+    {
+      "seconds": 1027,
+      "text": "source library"
+    },
+    {
+      "seconds": 1028,
+      "text": "you can actually grab those header files"
+    },
+    {
+      "seconds": 1030,
+      "text": "and import them into your program to get"
+    },
+    {
+      "seconds": 1031,
+      "text": "the resulting data types"
+    },
+    {
+      "seconds": 1033,
+      "text": "and we'll show you how to do that next"
+    },
+    {
+      "seconds": 1036,
+      "text": "so"
+    },
+    {
+      "seconds": 1036,
+      "text": "within the guidry window"
+    },
+    {
+      "seconds": 1039,
+      "text": "you click file and then parse c source"
+    },
+    {
+      "seconds": 1044,
+      "text": "and so what that's going to do is it's"
+    },
+    {
+      "seconds": 1045,
+      "text": "going to bring you up bring this window"
+    },
+    {
+      "seconds": 1047,
+      "text": "and you can already see that guidra has"
+    },
+    {
+      "seconds": 1049,
+      "text": "a fair amount of you know"
+    },
+    {
+      "seconds": 1050,
+      "text": "predetermined header files that it grabs"
+    },
+    {
+      "seconds": 1052,
+      "text": "but we want to add you know a custom one"
+    },
+    {
+      "seconds": 1054,
+      "text": "so i have a header file with the struct"
+    },
+    {
+      "seconds": 1057,
+      "text": "that we've been working with to find and"
+    },
+    {
+      "seconds": 1060,
+      "text": "so you click this here"
+    },
+    {
+      "seconds": 1063,
+      "text": "and then this is going to bring up like"
+    },
+    {
+      "seconds": 1065,
+      "text": "a file selection window"
+    },
+    {
+      "seconds": 1068,
+      "text": "and so i have point.h which contains the"
+    },
+    {
+      "seconds": 1070,
+      "text": "struct"
+    },
+    {
+      "seconds": 1071,
+      "text": "that i've defined so we click on that"
+    },
+    {
+      "seconds": 1073,
+      "text": "and load it"
+    },
+    {
+      "seconds": 1075,
+      "text": "and then we'll see down here at the"
+    },
+    {
+      "seconds": 1077,
+      "text": "bottom this is now added to the selected"
+    },
+    {
+      "seconds": 1079,
+      "text": "files to parse"
+    },
+    {
+      "seconds": 1081,
+      "text": "so now we click parse to program"
+    },
+    {
+      "seconds": 1091,
+      "text": "it's going to ask you if you want to do"
+    },
+    {
+      "seconds": 1091,
+      "text": "it"
+    },
+    {
+      "seconds": 1095,
+      "text": "and then presumably if your struct was"
+    },
+    {
+      "seconds": 1095,
+      "text": "written properly"
+    },
+    {
+      "seconds": 1096,
+      "text": "and passes all the checks it'll get"
+    },
+    {
+      "seconds": 1099,
+      "text": "properly"
+    },
+    {
+      "seconds": 1099,
+      "text": "parsed and added to the data type"
+    },
+    {
+      "seconds": 1102,
+      "text": "manager"
+    },
+    {
+      "seconds": 1103,
+      "text": "so now we have it in here and you can"
+    },
+    {
+      "seconds": 1105,
+      "text": "see this is actually interesting right"
+    },
+    {
+      "seconds": 1106,
+      "text": "it'll tell us here that it was imported"
+    },
+    {
+      "seconds": 1108,
+      "text": "from point.h"
+    },
+    {
+      "seconds": 1110,
+      "text": "so if you're if you've got multiple"
+    },
+    {
+      "seconds": 1112,
+      "text": "definitions of a similar struct it will"
+    },
+    {
+      "seconds": 1114,
+      "text": "try to organize them for you here"
+    },
+    {
+      "seconds": 1115,
+      "text": "so that's kind of nice and so now we"
+    },
+    {
+      "seconds": 1117,
+      "text": "have point.h"
+    },
+    {
+      "seconds": 1119,
+      "text": "here in the program"
+    },
+    {
+      "seconds": 1122,
+      "text": "and so let's say we're looking at that"
+    },
+    {
+      "seconds": 1124,
+      "text": "previous example that we just had"
+    },
+    {
+      "seconds": 1126,
+      "text": "where we know the struct started at this"
+    },
+    {
+      "seconds": 1130,
+      "text": "variable on the stack so minus hex 18."
+    },
+    {
+      "seconds": 1133,
+      "text": "if we want to apply this struct"
+    },
+    {
+      "seconds": 1136,
+      "text": "to these variables you can right click"
+    },
+    {
+      "seconds": 1138,
+      "text": "at where you think the struct begins"
+    },
+    {
+      "seconds": 1140,
+      "text": "which is at minus x 18 like we showed"
+    },
+    {
+      "seconds": 1142,
+      "text": "before"
+    },
+    {
+      "seconds": 1143,
+      "text": "and then click set data type choose data"
+    },
+    {
+      "seconds": 1146,
+      "text": "type because our struct isn't going to"
+    },
+    {
+      "seconds": 1147,
+      "text": "show up in the automatically"
+    },
+    {
+      "seconds": 1149,
+      "text": "selected ones and then you're going to"
+    },
+    {
+      "seconds": 1152,
+      "text": "get this type chooser dialog"
+    },
+    {
+      "seconds": 1154,
+      "text": "and so just start typing the struct that"
+    },
+    {
+      "seconds": 1156,
+      "text": "we imported which is called point"
+    },
+    {
+      "seconds": 1158,
+      "text": "and then it will auto fill down here so"
+    },
+    {
+      "seconds": 1160,
+      "text": "you can select that"
+    },
+    {
+      "seconds": 1162,
+      "text": "and then just like that instead of"
+    },
+    {
+      "seconds": 1166,
+      "text": "having assorted offsets right where we"
+    },
+    {
+      "seconds": 1169,
+      "text": "were having to kind of manually keep"
+    },
+    {
+      "seconds": 1170,
+      "text": "track of what was where"
+    },
+    {
+      "seconds": 1171,
+      "text": "now we can see that it's oh this is it's"
+    },
+    {
+      "seconds": 1173,
+      "text": "grabbing the x member here"
+    },
+    {
+      "seconds": 1175,
+      "text": "the y member here and the z member here"
+    },
+    {
+      "seconds": 1177,
+      "text": "and of course this all will also apply"
+    },
+    {
+      "seconds": 1178,
+      "text": "to the compiler and make it look a lot"
+    },
+    {
+      "seconds": 1180,
+      "text": "more"
+    },
+    {
+      "seconds": 1180,
+      "text": "readable as well and so with that"
+    },
+    {
+      "seconds": 1184,
+      "text": "we have an exercise for you"
+    },
+    {
+      "seconds": 1187,
+      "text": "so the structs exercise which has been"
+    },
+    {
+      "seconds": 1190,
+      "text": "uploaded"
+    },
+    {
+      "seconds": 1191,
+      "text": "they all got uploaded right before class"
+    },
+    {
+      "seconds": 1193,
+      "text": "see if you can reconstruct"
+    },
+    {
+      "seconds": 1195,
+      "text": "the struct that's being used how many"
+    },
+    {
+      "seconds": 1198,
+      "text": "members does it have how often are these"
+    },
+    {
+      "seconds": 1199,
+      "text": "members getting used what do those"
+    },
+    {
+      "seconds": 1200,
+      "text": "members"
+    },
+    {
+      "seconds": 1201,
+      "text": "represent and like the other"
+    },
+    {
+      "seconds": 1205,
+      "text": "like all of the other uh exercises this"
+    },
+    {
+      "seconds": 1208,
+      "text": "one's going to involve you know"
+    },
+    {
+      "seconds": 1209,
+      "text": "providing a username and a password"
+    },
+    {
+      "seconds": 1211,
+      "text": "so see if you can recreate this struct"
+    },
+    {
+      "seconds": 1213,
+      "text": "in gedra and then see if you can figure"
+    },
+    {
+      "seconds": 1216,
+      "text": "out how the struct is being used to"
+    },
+    {
+      "seconds": 1217,
+      "text": "calculate"
+    },
+    {
+      "seconds": 1218,
+      "text": "a passcode for you and one thing that i"
+    },
+    {
+      "seconds": 1221,
+      "text": "want to cover"
+    },
+    {
+      "seconds": 1222,
+      "text": "before everyone starts looking at the"
+    },
+    {
+      "seconds": 1225,
+      "text": "exercises"
+    },
+    {
+      "seconds": 1226,
+      "text": "from session three this session is"
+    },
+    {
+      "seconds": 1230,
+      "text": "providing non-ascii input to a c program"
+    },
+    {
+      "seconds": 1232,
+      "text": "from the command line"
+    },
+    {
+      "seconds": 1234,
+      "text": "so i think a lot of you might already"
+    },
+    {
+      "seconds": 1235,
+      "text": "know how to do this but i know"
+    },
+    {
+      "seconds": 1237,
+      "text": "everybody's kind of coming from"
+    },
+    {
+      "seconds": 1238,
+      "text": "different backgrounds and experience"
+    },
+    {
+      "seconds": 1239,
+      "text": "levels so i wanted to cover how to do"
+    },
+    {
+      "seconds": 1241,
+      "text": "this so most of the exercises you've"
+    },
+    {
+      "seconds": 1243,
+      "text": "been given so far"
+    },
+    {
+      "seconds": 1245,
+      "text": "all work on you know ascii inputs and"
+    },
+    {
+      "seconds": 1247,
+      "text": "outputs"
+    },
+    {
+      "seconds": 1248,
+      "text": "and from here on out they're no longer"
+    },
+    {
+      "seconds": 1251,
+      "text": "going to"
+    },
+    {
+      "seconds": 1251,
+      "text": "um excuse me they are no longer going to"
+    },
+    {
+      "seconds": 1254,
+      "text": "conform to that notion"
+    },
+    {
+      "seconds": 1256,
+      "text": "so the arguments now are going to be"
+    },
+    {
+      "seconds": 1257,
+      "text": "anything and they can be just"
+    },
+    {
+      "seconds": 1259,
+      "text": "hexadecimal"
+    },
+    {
+      "seconds": 1260,
+      "text": "strings you know just raw byte strings"
+    },
+    {
+      "seconds": 1262,
+      "text": "and so to"
+    },
+    {
+      "seconds": 1263,
+      "text": "feed that kind of data into a c program"
+    },
+    {
+      "seconds": 1266,
+      "text": "you can use"
+    },
+    {
+      "seconds": 1267,
+      "text": "uh python i've put an example down here"
+    },
+    {
+      "seconds": 1270,
+      "text": "of how you could feed"
+    },
+    {
+      "seconds": 1272,
+      "text": "python hex values into the program and"
+    },
+    {
+      "seconds": 1275,
+      "text": "there's a couple"
+    },
+    {
+      "seconds": 1276,
+      "text": "there's an example of this in the get"
+    },
+    {
+      "seconds": 1278,
+      "text": "repo as well in the readme"
+    },
+    {
+      "seconds": 1280,
+      "text": "and if you have any more questions about"
+    },
+    {
+      "seconds": 1281,
+      "text": "how to do this just reach out in the"
+    },
+    {
+      "seconds": 1284,
+      "text": "hackaday chat and folks in there can try"
+    },
+    {
+      "seconds": 1287,
+      "text": "to help as well"
+    },
+    {
+      "seconds": 1297,
+      "text": "so now that we've gone over structures"
+    },
+    {
+      "seconds": 1297,
+      "text": "the next logical thing for us to start"
+    },
+    {
+      "seconds": 1299,
+      "text": "taking a look at is going to be"
+    },
+    {
+      "seconds": 1301,
+      "text": "pointers and so again those of you that"
+    },
+    {
+      "seconds": 1303,
+      "text": "have done"
+    },
+    {
+      "seconds": 1304,
+      "text": "kind of embedded c or any kind of"
+    },
+    {
+      "seconds": 1305,
+      "text": "embedded development before"
+    },
+    {
+      "seconds": 1307,
+      "text": "are going to be familiar with this and"
+    },
+    {
+      "seconds": 1308,
+      "text": "the reason i keep going back to"
+    },
+    {
+      "seconds": 1311,
+      "text": "you know mentioning folks that do"
+    },
+    {
+      "seconds": 1313,
+      "text": "embedded development is that embedded"
+    },
+    {
+      "seconds": 1314,
+      "text": "development involves"
+    },
+    {
+      "seconds": 1315,
+      "text": "understanding of a lot of these sort of"
+    },
+    {
+      "seconds": 1317,
+      "text": "lower level concepts"
+    },
+    {
+      "seconds": 1319,
+      "text": "and i know that someone in the chat"
+    },
+    {
+      "seconds": 1321,
+      "text": "earlier today asked if it's you know"
+    },
+    {
+      "seconds": 1322,
+      "text": "okay to rely on the compiler"
+    },
+    {
+      "seconds": 1324,
+      "text": "as opposed to the assembly and yeah of"
+    },
+    {
+      "seconds": 1326,
+      "text": "course it's okay to use the decompiler"
+    },
+    {
+      "seconds": 1328,
+      "text": "it's just important to also have an"
+    },
+    {
+      "seconds": 1331,
+      "text": "understanding of these underlying"
+    },
+    {
+      "seconds": 1333,
+      "text": "principles because eventually the"
+    },
+    {
+      "seconds": 1334,
+      "text": "decompiler"
+    },
+    {
+      "seconds": 1335,
+      "text": "may not work or you may need to tweak it"
+    },
+    {
+      "seconds": 1337,
+      "text": "like in some of the examples we saw"
+    },
+    {
+      "seconds": 1339,
+      "text": "so everyone that remembers how much"
+    },
+    {
+      "seconds": 1341,
+      "text": "easier the exercises got"
+    },
+    {
+      "seconds": 1342,
+      "text": "once you've fixed up the prototype for"
+    },
+    {
+      "seconds": 1345,
+      "text": "the function"
+    },
+    {
+      "seconds": 1346,
+      "text": "you could see you know rgv and how it"
+    },
+    {
+      "seconds": 1349,
+      "text": "was indexed and things like that as"
+    },
+    {
+      "seconds": 1350,
+      "text": "opposed to looking at"
+    },
+    {
+      "seconds": 1351,
+      "text": "just the the offsets that were being"
+    },
+    {
+      "seconds": 1354,
+      "text": "calculated"
+    },
+    {
+      "seconds": 1355,
+      "text": "and so with an understanding of all the"
+    },
+    {
+      "seconds": 1357,
+      "text": "underlying"
+    },
+    {
+      "seconds": 1359,
+      "text": "things that are going on i.e you know"
+    },
+    {
+      "seconds": 1360,
+      "text": "assembly language and how these programs"
+    },
+    {
+      "seconds": 1362,
+      "text": "are constructed"
+    },
+    {
+      "seconds": 1364,
+      "text": "it makes this process a lot a lot easier"
+    },
+    {
+      "seconds": 1366,
+      "text": "and it kind of helps you"
+    },
+    {
+      "seconds": 1369,
+      "text": "figure out what you need to figure out"
+    },
+    {
+      "seconds": 1370,
+      "text": "in order to get the information that"
+    },
+    {
+      "seconds": 1372,
+      "text": "you're trying to"
+    },
+    {
+      "seconds": 1372,
+      "text": "extract from the program so we're going"
+    },
+    {
+      "seconds": 1375,
+      "text": "to talk about pointers"
+    },
+    {
+      "seconds": 1376,
+      "text": "and again those of you that have written"
+    },
+    {
+      "seconds": 1378,
+      "text": "any kind of c before with pointers and"
+    },
+    {
+      "seconds": 1380,
+      "text": "essentially what a pointer is"
+    },
+    {
+      "seconds": 1381,
+      "text": "for those of you that may not be"
+    },
+    {
+      "seconds": 1384,
+      "text": "familiar"
+    },
+    {
+      "seconds": 1385,
+      "text": "is a pointer is a variable whose value"
+    },
+    {
+      "seconds": 1387,
+      "text": "is the address of another variable"
+    },
+    {
+      "seconds": 1389,
+      "text": "essentially"
+    },
+    {
+      "seconds": 1389,
+      "text": "so it is an address of a memory location"
+    },
+    {
+      "seconds": 1394,
+      "text": "and pointers essentially provide you"
+    },
+    {
+      "seconds": 1397,
+      "text": "know an indirect method"
+    },
+    {
+      "seconds": 1398,
+      "text": "of accessing variables and this"
+    },
+    {
+      "seconds": 1402,
+      "text": "last bullet may be you know slightly"
+    },
+    {
+      "seconds": 1404,
+      "text": "debated again i'm not i'm not a compiler"
+    },
+    {
+      "seconds": 1406,
+      "text": "expert here but"
+    },
+    {
+      "seconds": 1407,
+      "text": "you know depending on the architecture"
+    },
+    {
+      "seconds": 1408,
+      "text": "depending on the compiler pointers are"
+    },
+    {
+      "seconds": 1410,
+      "text": "typically"
+    },
+    {
+      "seconds": 1411,
+      "text": "you know the same size because they"
+    },
+    {
+      "seconds": 1413,
+      "text": "represent an address in memory they"
+    },
+    {
+      "seconds": 1415,
+      "text": "point to something"
+    },
+    {
+      "seconds": 1417,
+      "text": "so this again it's going to be you know"
+    },
+    {
+      "seconds": 1421,
+      "text": "compiler architecture dependent"
+    },
+    {
+      "seconds": 1423,
+      "text": "and that's just something to be aware of"
+    },
+    {
+      "seconds": 1425,
+      "text": "right they're always going to have"
+    },
+    {
+      "seconds": 1426,
+      "text": "roughly the same"
+    },
+    {
+      "seconds": 1427,
+      "text": "they're always going to be the same size"
+    },
+    {
+      "seconds": 1430,
+      "text": "and so"
+    },
+    {
+      "seconds": 1431,
+      "text": "let's take a look at this chunk of code"
+    },
+    {
+      "seconds": 1434,
+      "text": "here"
+    },
+    {
+      "seconds": 1435,
+      "text": "talk about how it translates to assembly"
+    },
+    {
+      "seconds": 1437,
+      "text": "language"
+    },
+    {
+      "seconds": 1439,
+      "text": "so we have some c code on the left right"
+    },
+    {
+      "seconds": 1442,
+      "text": "and we have two integer values"
+    },
+    {
+      "seconds": 1444,
+      "text": "and what we're doing is with this"
+    },
+    {
+      "seconds": 1446,
+      "text": "ampersand here we are passing the"
+    },
+    {
+      "seconds": 1448,
+      "text": "address"
+    },
+    {
+      "seconds": 1449,
+      "text": "of these two integer values which let's"
+    },
+    {
+      "seconds": 1452,
+      "text": "take a look back here right"
+    },
+    {
+      "seconds": 1453,
+      "text": "these are local variables so they're"
+    },
+    {
+      "seconds": 1455,
+      "text": "going to be on the stack remember we"
+    },
+    {
+      "seconds": 1456,
+      "text": "covered that in session two"
+    },
+    {
+      "seconds": 1458,
+      "text": "we have these two local variables we are"
+    },
+    {
+      "seconds": 1460,
+      "text": "passing the address"
+    },
+    {
+      "seconds": 1461,
+      "text": "of these local variables to the swap"
+    },
+    {
+      "seconds": 1463,
+      "text": "function"
+    },
+    {
+      "seconds": 1464,
+      "text": "and so what the swap function is doing"
+    },
+    {
+      "seconds": 1467,
+      "text": "is changing"
+    },
+    {
+      "seconds": 1468,
+      "text": "the address of what each of these points"
+    },
+    {
+      "seconds": 1471,
+      "text": "to or it's changing the value that's"
+    },
+    {
+      "seconds": 1473,
+      "text": "pointed to"
+    },
+    {
+      "seconds": 1474,
+      "text": "at this address so after calling the"
+    },
+    {
+      "seconds": 1477,
+      "text": "swap function"
+    },
+    {
+      "seconds": 1478,
+      "text": "a is gonna point to three and b is going"
+    },
+    {
+      "seconds": 1481,
+      "text": "to point"
+    },
+    {
+      "seconds": 1482,
+      "text": "to two and so"
+    },
+    {
+      "seconds": 1486,
+      "text": "we're gonna take a look at how that"
+    },
+    {
+      "seconds": 1488,
+      "text": "translates"
+    },
+    {
+      "seconds": 1489,
+      "text": "into assembly language so here right we"
+    },
+    {
+      "seconds": 1492,
+      "text": "de-reference"
+    },
+    {
+      "seconds": 1493,
+      "text": "x which means we're gonna grab the value"
+    },
+    {
+      "seconds": 1495,
+      "text": "at x"
+    },
+    {
+      "seconds": 1496,
+      "text": "so temp is now gonna hold two so temp"
+    },
+    {
+      "seconds": 1499,
+      "text": "has the value two in it"
+    },
+    {
+      "seconds": 1501,
+      "text": "and then we de-reference x and we set"
+    },
+    {
+      "seconds": 1504,
+      "text": "that equal to"
+    },
+    {
+      "seconds": 1506,
+      "text": "the value that's dereferenced at y right"
+    },
+    {
+      "seconds": 1509,
+      "text": "and then we set"
+    },
+    {
+      "seconds": 1510,
+      "text": "the value df we change this to now point"
+    },
+    {
+      "seconds": 1513,
+      "text": "to two so this sets b"
+    },
+    {
+      "seconds": 1516,
+      "text": "equal to two right and a equal to three"
+    },
+    {
+      "seconds": 1522,
+      "text": "so let's go through and take a look at"
+    },
+    {
+      "seconds": 1522,
+      "text": "you know what this looks like at the"
+    },
+    {
+      "seconds": 1524,
+      "text": "underlying assembly"
+    },
+    {
+      "seconds": 1526,
+      "text": "so as usual right we have our function"
+    },
+    {
+      "seconds": 1528,
+      "text": "prolog we're creating space on the stack"
+    },
+    {
+      "seconds": 1530,
+      "text": "et cetera"
+    },
+    {
+      "seconds": 1531,
+      "text": "now here we're creating our local"
+    },
+    {
+      "seconds": 1532,
+      "text": "variables right so remember last time we"
+    },
+    {
+      "seconds": 1534,
+      "text": "talked about"
+    },
+    {
+      "seconds": 1535,
+      "text": "how local variables are stored on the"
+    },
+    {
+      "seconds": 1537,
+      "text": "stack and so we can see that here"
+    },
+    {
+      "seconds": 1539,
+      "text": "so at rbp minus eight we've got two"
+    },
+    {
+      "seconds": 1543,
+      "text": "so rbp minus eight is going to be"
+    },
+    {
+      "seconds": 1546,
+      "text": "a right and then here at rbp minus four"
+    },
+    {
+      "seconds": 1550,
+      "text": "we have three so rbp minus four"
+    },
+    {
+      "seconds": 1552,
+      "text": "represents b"
+    },
+    {
+      "seconds": 1554,
+      "text": "okay and so next remember"
+    },
+    {
+      "seconds": 1557,
+      "text": "when we call functions in c we pass the"
+    },
+    {
+      "seconds": 1560,
+      "text": "arguments"
+    },
+    {
+      "seconds": 1561,
+      "text": "through the to the functions through rdi"
+    },
+    {
+      "seconds": 1564,
+      "text": "and rsi"
+    },
+    {
+      "seconds": 1565,
+      "text": "but remember we're passing the addresses"
+    },
+    {
+      "seconds": 1567,
+      "text": "of these variables"
+    },
+    {
+      "seconds": 1568,
+      "text": "right which are going to be addresses on"
+    },
+    {
+      "seconds": 1570,
+      "text": "the stack because these are local"
+    },
+    {
+      "seconds": 1571,
+      "text": "variables so let's look at how that"
+    },
+    {
+      "seconds": 1573,
+      "text": "how that's played out so we use the"
+    },
+    {
+      "seconds": 1576,
+      "text": "load effective address instruction okay"
+    },
+    {
+      "seconds": 1580,
+      "text": "so i know we talked about before how"
+    },
+    {
+      "seconds": 1582,
+      "text": "this will dereference"
+    },
+    {
+      "seconds": 1584,
+      "text": "this value the brackets it won't it"
+    },
+    {
+      "seconds": 1586,
+      "text": "won't do that for lea"
+    },
+    {
+      "seconds": 1588,
+      "text": "so what we are loading into rdx here is"
+    },
+    {
+      "seconds": 1591,
+      "text": "the value"
+    },
+    {
+      "seconds": 1592,
+      "text": "of this address so we are loading this"
+    },
+    {
+      "seconds": 1596,
+      "text": "stack address"
+    },
+    {
+      "seconds": 1597,
+      "text": "into rdx so rdx contains"
+    },
+    {
+      "seconds": 1600,
+      "text": "a stack address for this function okay"
+    },
+    {
+      "seconds": 1603,
+      "text": "which event which points to the value"
+    },
+    {
+      "seconds": 1605,
+      "text": "three"
+    },
+    {
+      "seconds": 1607,
+      "text": "and then we do the same thing with rax"
+    },
+    {
+      "seconds": 1609,
+      "text": "except for"
+    },
+    {
+      "seconds": 1610,
+      "text": "grabbing a okay so"
+    },
+    {
+      "seconds": 1613,
+      "text": "rdx contains a stack address that points"
+    },
+    {
+      "seconds": 1615,
+      "text": "to b"
+    },
+    {
+      "seconds": 1616,
+      "text": "our ax contains a stack address that"
+    },
+    {
+      "seconds": 1618,
+      "text": "points to a"
+    },
+    {
+      "seconds": 1621,
+      "text": "and so before we call the function we"
+    },
+    {
+      "seconds": 1623,
+      "text": "move that value into rsi"
+    },
+    {
+      "seconds": 1626,
+      "text": "so we move the value for b into rsi"
+    },
+    {
+      "seconds": 1629,
+      "text": "we move the value for a into rdi"
+    },
+    {
+      "seconds": 1632,
+      "text": "because remember that's how we pass"
+    },
+    {
+      "seconds": 1634,
+      "text": "arguments to functions right we pass"
+    },
+    {
+      "seconds": 1635,
+      "text": "them through"
+    },
+    {
+      "seconds": 1636,
+      "text": "those registers and so now before we"
+    },
+    {
+      "seconds": 1639,
+      "text": "call this function"
+    },
+    {
+      "seconds": 1640,
+      "text": "much like we talked about here the first"
+    },
+    {
+      "seconds": 1642,
+      "text": "argument we passed is the address of a"
+    },
+    {
+      "seconds": 1644,
+      "text": "which is a stack address in this"
+    },
+    {
+      "seconds": 1646,
+      "text": "function right"
+    },
+    {
+      "seconds": 1648,
+      "text": "and then the second argument is the"
+    },
+    {
+      "seconds": 1649,
+      "text": "address of b again"
+    },
+    {
+      "seconds": 1651,
+      "text": "another stack address to a local"
+    },
+    {
+      "seconds": 1653,
+      "text": "variable in this function"
+    },
+    {
+      "seconds": 1655,
+      "text": "so we call the swap function remember we"
+    },
+    {
+      "seconds": 1657,
+      "text": "talked about how that"
+    },
+    {
+      "seconds": 1658,
+      "text": "what that does right so that's going to"
+    },
+    {
+      "seconds": 1661,
+      "text": "push the next instruction that we want"
+    },
+    {
+      "seconds": 1662,
+      "text": "to execute onto the stack"
+    },
+    {
+      "seconds": 1664,
+      "text": "and then jump to this call structure to"
+    },
+    {
+      "seconds": 1667,
+      "text": "the address here"
+    },
+    {
+      "seconds": 1668,
+      "text": "which as we can see points to swap so"
+    },
+    {
+      "seconds": 1670,
+      "text": "let's see what that looks like in a"
+    },
+    {
+      "seconds": 1671,
+      "text": "sample"
+    },
+    {
+      "seconds": 1677,
+      "text": "all right so we got a lot more"
+    },
+    {
+      "seconds": 1677,
+      "text": "instructions here right so remember"
+    },
+    {
+      "seconds": 1680,
+      "text": "rdi contains"
+    },
+    {
+      "seconds": 1684,
+      "text": "the address of a and rsi contains the"
+    },
+    {
+      "seconds": 1686,
+      "text": "address of b"
+    },
+    {
+      "seconds": 1688,
+      "text": "we are taking that stack address and"
+    },
+    {
+      "seconds": 1691,
+      "text": "storing it at this stack address"
+    },
+    {
+      "seconds": 1693,
+      "text": "right so here we're storing the stack"
+    },
+    {
+      "seconds": 1696,
+      "text": "address"
+    },
+    {
+      "seconds": 1698,
+      "text": "pointing to a at this address on the"
+    },
+    {
+      "seconds": 1700,
+      "text": "stack here"
+    },
+    {
+      "seconds": 1701,
+      "text": "right because these are going to be"
+    },
+    {
+      "seconds": 1702,
+      "text": "local variables within"
+    },
+    {
+      "seconds": 1705,
+      "text": "this function so this is the function"
+    },
+    {
+      "seconds": 1708,
+      "text": "prolog we're grabbing our register"
+    },
+    {
+      "seconds": 1710,
+      "text": "values that were passed and we're"
+    },
+    {
+      "seconds": 1711,
+      "text": "storing them locally so we can use them"
+    },
+    {
+      "seconds": 1713,
+      "text": "and so now at rbp minus hex"
+    },
+    {
+      "seconds": 1717,
+      "text": "18 we have the stack address of a so"
+    },
+    {
+      "seconds": 1720,
+      "text": "again it's not"
+    },
+    {
+      "seconds": 1721,
+      "text": "yet the value that a points to it's a"
+    },
+    {
+      "seconds": 1723,
+      "text": "value pointing to a"
+    },
+    {
+      "seconds": 1725,
+      "text": "so and then at rbp minus hex"
+    },
+    {
+      "seconds": 1728,
+      "text": "20 we have the value pointing to b"
+    },
+    {
+      "seconds": 1731,
+      "text": "and so this next chunk of code right now"
+    },
+    {
+      "seconds": 1734,
+      "text": "after running this instruction we're"
+    },
+    {
+      "seconds": 1736,
+      "text": "dereferencing this"
+    },
+    {
+      "seconds": 1738,
+      "text": "so rax has that stack address that we"
+    },
+    {
+      "seconds": 1740,
+      "text": "passed it"
+    },
+    {
+      "seconds": 1741,
+      "text": "right and the next instruction we call"
+    },
+    {
+      "seconds": 1745,
+      "text": "actually grabs that value pointed to"
+    },
+    {
+      "seconds": 1749,
+      "text": "by a which is going to be right and"
+    },
+    {
+      "seconds": 1752,
+      "text": "stores in eax"
+    },
+    {
+      "seconds": 1754,
+      "text": "and the last thing we do is we take that"
+    },
+    {
+      "seconds": 1757,
+      "text": "value and we store it to a local"
+    },
+    {
+      "seconds": 1758,
+      "text": "variable"
+    },
+    {
+      "seconds": 1759,
+      "text": "and that variable is what our our"
+    },
+    {
+      "seconds": 1761,
+      "text": "representation of temp here is"
+    },
+    {
+      "seconds": 1764,
+      "text": "and so i hope i hope that was relatively"
+    },
+    {
+      "seconds": 1766,
+      "text": "easy enough to follow there's a lot of"
+    },
+    {
+      "seconds": 1767,
+      "text": "instructions going on here and so if"
+    },
+    {
+      "seconds": 1769,
+      "text": "people have questions"
+    },
+    {
+      "seconds": 1770,
+      "text": "i'll take a second after we go over this"
+    },
+    {
+      "seconds": 1772,
+      "text": "to look at the chat"
+    },
+    {
+      "seconds": 1773,
+      "text": "and so okay so now we've we've"
+    },
+    {
+      "seconds": 1777,
+      "text": "set this local variable tab to the value"
+    },
+    {
+      "seconds": 1779,
+      "text": "pointed to"
+    },
+    {
+      "seconds": 1780,
+      "text": "by you know rbp minus 18 dereferenced"
+    },
+    {
+      "seconds": 1784,
+      "text": "twice so next we go down here"
+    },
+    {
+      "seconds": 1789,
+      "text": "and remember this points to our b"
+    },
+    {
+      "seconds": 1792,
+      "text": "variable right or y here right this is"
+    },
+    {
+      "seconds": 1795,
+      "text": "our y"
+    },
+    {
+      "seconds": 1795,
+      "text": "argument that was passed so now after"
+    },
+    {
+      "seconds": 1798,
+      "text": "running this first instruction"
+    },
+    {
+      "seconds": 1801,
+      "text": "rex points to rx contains a stack"
+    },
+    {
+      "seconds": 1803,
+      "text": "address"
+    },
+    {
+      "seconds": 1804,
+      "text": "that we passed into it previously so now"
+    },
+    {
+      "seconds": 1807,
+      "text": "we dereference that address"
+    },
+    {
+      "seconds": 1809,
+      "text": "to get the actual value which is going"
+    },
+    {
+      "seconds": 1811,
+      "text": "to be three"
+    },
+    {
+      "seconds": 1813,
+      "text": "okay and so edx at this point contains"
+    },
+    {
+      "seconds": 1817,
+      "text": "the value three we've grabbed it off the"
+    },
+    {
+      "seconds": 1819,
+      "text": "stack we've grabbed it from what was"
+    },
+    {
+      "seconds": 1821,
+      "text": "passed to us and now we've stored it in"
+    },
+    {
+      "seconds": 1822,
+      "text": "the edx"
+    },
+    {
+      "seconds": 1823,
+      "text": "so now we grab the address"
+    },
+    {
+      "seconds": 1827,
+      "text": "that a points to and we store into rax"
+    },
+    {
+      "seconds": 1831,
+      "text": "and then the last thing that we do is we"
+    },
+    {
+      "seconds": 1833,
+      "text": "store"
+    },
+    {
+      "seconds": 1834,
+      "text": "that value into that address"
+    },
+    {
+      "seconds": 1837,
+      "text": "so this point we've taken the value from"
+    },
+    {
+      "seconds": 1839,
+      "text": "y and we're storing it to what"
+    },
+    {
+      "seconds": 1842,
+      "text": "x points at or the value from b and"
+    },
+    {
+      "seconds": 1844,
+      "text": "storing it to what a"
+    },
+    {
+      "seconds": 1846,
+      "text": "and then the last segment here remember"
+    },
+    {
+      "seconds": 1849,
+      "text": "before we had the temp variable"
+    },
+    {
+      "seconds": 1851,
+      "text": "at rbp minus 4 which contains the value"
+    },
+    {
+      "seconds": 1853,
+      "text": "pointed to by x"
+    },
+    {
+      "seconds": 1855,
+      "text": "right which is 2. and so we're grabbing"
+    },
+    {
+      "seconds": 1858,
+      "text": "the address of the second variable here"
+    },
+    {
+      "seconds": 1860,
+      "text": "which again remember is a stack address"
+    },
+    {
+      "seconds": 1861,
+      "text": "this isn't this doesn't yet point to"
+    },
+    {
+      "seconds": 1864,
+      "text": "the value that we passed we dereference"
+    },
+    {
+      "seconds": 1867,
+      "text": "that"
+    },
+    {
+      "seconds": 1869,
+      "text": "and store it here we dereference our"
+    },
+    {
+      "seconds": 1871,
+      "text": "temp variable here store in the edx"
+    },
+    {
+      "seconds": 1873,
+      "text": "which is our star x value here and then"
+    },
+    {
+      "seconds": 1878,
+      "text": "finally we store"
+    },
+    {
+      "seconds": 1880,
+      "text": "that temp value at the address that y"
+    },
+    {
+      "seconds": 1884,
+      "text": "points to"
+    },
+    {
+      "seconds": 1884,
+      "text": "and essentially what this is doing is"
+    },
+    {
+      "seconds": 1887,
+      "text": "it's taking the values"
+    },
+    {
+      "seconds": 1889,
+      "text": "that each of these point two and"
+    },
+    {
+      "seconds": 1891,
+      "text": "swapping them"
+    },
+    {
+      "seconds": 1894,
+      "text": "so i know that was a lot i know that was"
+    },
+    {
+      "seconds": 1896,
+      "text": "a lot to get through it's also kind of"
+    },
+    {
+      "seconds": 1897,
+      "text": "difficult to explain without you know a"
+    },
+    {
+      "seconds": 1900,
+      "text": "debugger"
+    },
+    {
+      "seconds": 1901,
+      "text": "right there so i'm gonna take a quick"
+    },
+    {
+      "seconds": 1902,
+      "text": "second look at the chat and see what"
+    },
+    {
+      "seconds": 1903,
+      "text": "people say"
+    },
+    {
+      "seconds": 1911,
+      "text": "okay nobody has any questions that's"
+    },
+    {
+      "seconds": 1911,
+      "text": "awesome"
+    },
+    {
+      "seconds": 1912,
+      "text": "good all right so uh pointers in guitar"
+    },
+    {
+      "seconds": 1915,
+      "text": "we talked about pointers we talked about"
+    },
+    {
+      "seconds": 1917,
+      "text": "how confusing they can be"
+    },
+    {
+      "seconds": 1918,
+      "text": "when you're looking at them from an"
+    },
+    {
+      "seconds": 1919,
+      "text": "assembly perspective you can"
+    },
+    {
+      "seconds": 1922,
+      "text": "create pointers engage your using the"
+    },
+    {
+      "seconds": 1924,
+      "text": "pointer data type"
+    },
+    {
+      "seconds": 1925,
+      "text": "and so there you can have a pointer to"
+    },
+    {
+      "seconds": 1930,
+      "text": "you know multiple types of data so when"
+    },
+    {
+      "seconds": 1931,
+      "text": "you're making one if you want to make it"
+    },
+    {
+      "seconds": 1933,
+      "text": "a pointer to"
+    },
+    {
+      "seconds": 1934,
+      "text": "a structure when you're creating one of"
+    },
+    {
+      "seconds": 1935,
+      "text": "these types you can just do"
+    },
+    {
+      "seconds": 1937,
+      "text": "in the same way that we just did you"
+    },
+    {
+      "seconds": 1938,
+      "text": "know remember we did structure point"
+    },
+    {
+      "seconds": 1940,
+      "text": "for the structure that we were making if"
+    },
+    {
+      "seconds": 1941,
+      "text": "it were a pointer to the structure point"
+    },
+    {
+      "seconds": 1944,
+      "text": "you could just do point star so we'll"
+    },
+    {
+      "seconds": 1946,
+      "text": "take an example we'll take a quick look"
+    },
+    {
+      "seconds": 1948,
+      "text": "at some examples of this"
+    },
+    {
+      "seconds": 1962,
+      "text": "let's take a look here at this schedule"
+    },
+    {
+      "seconds": 1962,
+      "text": "window we've got"
+    },
+    {
+      "seconds": 1964,
+      "text": "these values here these 32-bit values"
+    },
+    {
+      "seconds": 1966,
+      "text": "and"
+    },
+    {
+      "seconds": 1967,
+      "text": "if we look here at this address range"
+    },
+    {
+      "seconds": 1970,
+      "text": "right you look at the address and then"
+    },
+    {
+      "seconds": 1971,
+      "text": "you look at these values"
+    },
+    {
+      "seconds": 1972,
+      "text": "there's a really good chance that this"
+    },
+    {
+      "seconds": 1976,
+      "text": "value points to something roughly in"
+    },
+    {
+      "seconds": 1978,
+      "text": "this address range"
+    },
+    {
+      "seconds": 1980,
+      "text": "and so this is something that you'll"
+    },
+    {
+      "seconds": 1981,
+      "text": "kind of learn to spot and learn to look"
+    },
+    {
+      "seconds": 1983,
+      "text": "for especially when you're doing"
+    },
+    {
+      "seconds": 1984,
+      "text": "you know firmware re and things like"
+    },
+    {
+      "seconds": 1986,
+      "text": "that so if we want to turn that value"
+    },
+    {
+      "seconds": 1989,
+      "text": "this value here"
+    },
+    {
+      "seconds": 1990,
+      "text": "at 601048 into a pointer"
+    },
+    {
+      "seconds": 1993,
+      "text": "what you're going to do is this"
+    },
+    {
+      "seconds": 1998,
+      "text": "you're going to first click on"
+    },
+    {
+      "seconds": 1998,
+      "text": "powerpoint so you can click the right"
+    },
+    {
+      "seconds": 1999,
+      "text": "thing you're going to click"
+    },
+    {
+      "seconds": 2000,
+      "text": "data and then pointer and so"
+    },
+    {
+      "seconds": 2004,
+      "text": "what that's going to do is it's going to"
+    },
+    {
+      "seconds": 2005,
+      "text": "create then a pointer to 601040 and of"
+    },
+    {
+      "seconds": 2009,
+      "text": "course when you double click on this"
+    },
+    {
+      "seconds": 2011,
+      "text": "that's going to point back to this value"
+    },
+    {
+      "seconds": 2013,
+      "text": "so it'll it'll jump to what it's"
+    },
+    {
+      "seconds": 2015,
+      "text": "pointing to"
+    },
+    {
+      "seconds": 2015,
+      "text": "so creating the pointer type just tells"
+    },
+    {
+      "seconds": 2017,
+      "text": "it to treat that grouping of bytes as an"
+    },
+    {
+      "seconds": 2019,
+      "text": "address that you can then jump to"
+    },
+    {
+      "seconds": 2026,
+      "text": "and so here's an example of what some c"
+    },
+    {
+      "seconds": 2026,
+      "text": "code to the left that i wrote to kind of"
+    },
+    {
+      "seconds": 2027,
+      "text": "generate this to demonstrate you know"
+    },
+    {
+      "seconds": 2029,
+      "text": "pointers two pointers and things like"
+    },
+    {
+      "seconds": 2031,
+      "text": "that so"
+    },
+    {
+      "seconds": 2033,
+      "text": "we have the first pointer which points"
+    },
+    {
+      "seconds": 2035,
+      "text": "to this integer that we made here"
+    },
+    {
+      "seconds": 2038,
+      "text": "and so that's right here you can see"
+    },
+    {
+      "seconds": 2039,
+      "text": "that this"
+    },
+    {
+      "seconds": 2041,
+      "text": "pointer at six zero one zero four eight"
+    },
+    {
+      "seconds": 2043,
+      "text": "points to six zero one zero four zero"
+    },
+    {
+      "seconds": 2045,
+      "text": "and then we have the second pointer"
+    },
+    {
+      "seconds": 2046,
+      "text": "aptly named pointer two"
+    },
+    {
+      "seconds": 2048,
+      "text": "that points to that first one and so"
+    },
+    {
+      "seconds": 2052,
+      "text": "you can see the giger can even tell wait"
+    },
+    {
+      "seconds": 2053,
+      "text": "a minute that's a pointer to yet another"
+    },
+    {
+      "seconds": 2055,
+      "text": "pointer because you already have it"
+    },
+    {
+      "seconds": 2056,
+      "text": "defined"
+    },
+    {
+      "seconds": 2057,
+      "text": "and so that's how you define you know"
+    },
+    {
+      "seconds": 2060,
+      "text": "pointers in ghidra and so"
+    },
+    {
+      "seconds": 2062,
+      "text": "to kind of dig into that even more"
+    },
+    {
+      "seconds": 2064,
+      "text": "remember that"
+    },
+    {
+      "seconds": 2065,
+      "text": "with pointers pointers can point to any"
+    },
+    {
+      "seconds": 2067,
+      "text": "data type right it could point to"
+    },
+    {
+      "seconds": 2068,
+      "text": "it might point to a function it could"
+    },
+    {
+      "seconds": 2070,
+      "text": "point to you know any"
+    },
+    {
+      "seconds": 2072,
+      "text": "applicable data type that you have in"
+    },
+    {
+      "seconds": 2074,
+      "text": "your c program and so"
+    },
+    {
+      "seconds": 2076,
+      "text": "for this exercise i want you to keep"
+    },
+    {
+      "seconds": 2077,
+      "text": "that in mind because"
+    },
+    {
+      "seconds": 2079,
+      "text": "this kind of builds off of the structs"
+    },
+    {
+      "seconds": 2081,
+      "text": "example except for"
+    },
+    {
+      "seconds": 2083,
+      "text": "within this struct now there's going to"
+    },
+    {
+      "seconds": 2085,
+      "text": "be there's going to be a pointer to"
+    },
+    {
+      "seconds": 2086,
+      "text": "something"
+    },
+    {
+      "seconds": 2087,
+      "text": "i'm not going to tell you what it's for"
+    },
+    {
+      "seconds": 2089,
+      "text": "but i want you to take a look at that"
+    },
+    {
+      "seconds": 2090,
+      "text": "and see if you can get that sorted and"
+    },
+    {
+      "seconds": 2092,
+      "text": "so"
+    },
+    {
+      "seconds": 2092,
+      "text": "you know much like the structures"
+    },
+    {
+      "seconds": 2094,
+      "text": "exercise"
+    },
+    {
+      "seconds": 2096,
+      "text": "try to figure out what the members of"
+    },
+    {
+      "seconds": 2097,
+      "text": "the structure represent and what they're"
+    },
+    {
+      "seconds": 2099,
+      "text": "used for"
+    },
+    {
+      "seconds": 2100,
+      "text": "and as you're going through this and"
+    },
+    {
+      "seconds": 2102,
+      "text": "even looking at the compiler"
+    },
+    {
+      "seconds": 2103,
+      "text": "just try to figure out all right how are"
+    },
+    {
+      "seconds": 2105,
+      "text": "we using"
+    },
+    {
+      "seconds": 2107,
+      "text": "pointers here and what's the purpose of"
+    },
+    {
+      "seconds": 2109,
+      "text": "using them here"
+    },
+    {
+      "seconds": 2110,
+      "text": "so this exercise is up in the github"
+    },
+    {
+      "seconds": 2112,
+      "text": "repo and"
+    },
+    {
+      "seconds": 2114,
+      "text": "these i will say these exercises for"
+    },
+    {
+      "seconds": 2116,
+      "text": "session three are"
+    },
+    {
+      "seconds": 2117,
+      "text": "the difficulty is gonna be ramped up"
+    },
+    {
+      "seconds": 2119,
+      "text": "just a little bit so if you have"
+    },
+    {
+      "seconds": 2121,
+      "text": "questions"
+    },
+    {
+      "seconds": 2121,
+      "text": "reach out in the chat and let us know uh"
+    },
+    {
+      "seconds": 2124,
+      "text": "so we can help you"
+    },
+    {
+      "seconds": 2125,
+      "text": "solve these because i think i think this"
+    },
+    {
+      "seconds": 2127,
+      "text": "new set of challenges is gonna be very"
+    },
+    {
+      "seconds": 2129,
+      "text": "fun"
+    },
+    {
+      "seconds": 2129,
+      "text": "for everybody so"
+    },
+    {
+      "seconds": 2132,
+      "text": "we've talked about structs we've talked"
+    },
+    {
+      "seconds": 2134,
+      "text": "about pointers there's another"
+    },
+    {
+      "seconds": 2135,
+      "text": "interesting data type that's"
+    },
+    {
+      "seconds": 2137,
+      "text": "not necessarily super useful as far as"
+    },
+    {
+      "seconds": 2140,
+      "text": "reconstructing and things like that but"
+    },
+    {
+      "seconds": 2143,
+      "text": "enums"
+    },
+    {
+      "seconds": 2144,
+      "text": "are another user-defined data type"
+    },
+    {
+      "seconds": 2147,
+      "text": "in c and again they kind of if you look"
+    },
+    {
+      "seconds": 2150,
+      "text": "up you know the formal definition it"
+    },
+    {
+      "seconds": 2152,
+      "text": "assigns names to these integral"
+    },
+    {
+      "seconds": 2153,
+      "text": "constructs and a lot of times you'll see"
+    },
+    {
+      "seconds": 2156,
+      "text": "these"
+    },
+    {
+      "seconds": 2157,
+      "text": "if you're looking at code for maybe"
+    },
+    {
+      "seconds": 2159,
+      "text": "implementing a particular protocol"
+    },
+    {
+      "seconds": 2161,
+      "text": "or you know code where particular"
+    },
+    {
+      "seconds": 2164,
+      "text": "constants might always increase by one"
+    },
+    {
+      "seconds": 2166,
+      "text": "and so you need to have like you want to"
+    },
+    {
+      "seconds": 2168,
+      "text": "have an array of them not an array but"
+    },
+    {
+      "seconds": 2170,
+      "text": "you want to have a way of representing"
+    },
+    {
+      "seconds": 2171,
+      "text": "them that only takes up a certain amount"
+    },
+    {
+      "seconds": 2172,
+      "text": "of space"
+    },
+    {
+      "seconds": 2174,
+      "text": "so these are often used in"
+    },
+    {
+      "seconds": 2178,
+      "text": "you know larger c programs to kind of"
+    },
+    {
+      "seconds": 2179,
+      "text": "increase the readability of code and"
+    },
+    {
+      "seconds": 2181,
+      "text": "what it is it's just a collection of"
+    },
+    {
+      "seconds": 2182,
+      "text": "values that the compiler will assign"
+    },
+    {
+      "seconds": 2185,
+      "text": "constants to you know at compile time it"
+    },
+    {
+      "seconds": 2188,
+      "text": "just makes the code a little more"
+    },
+    {
+      "seconds": 2190,
+      "text": "readable"
+    },
+    {
+      "seconds": 2191,
+      "text": "and so by constructing these in guidra"
+    },
+    {
+      "seconds": 2193,
+      "text": "you can make your gauge recode a lot"
+    },
+    {
+      "seconds": 2195,
+      "text": "more readable as well or your guidra you"
+    },
+    {
+      "seconds": 2196,
+      "text": "know disassembly and your decompilation"
+    },
+    {
+      "seconds": 2198,
+      "text": "a lot more readable"
+    },
+    {
+      "seconds": 2199,
+      "text": "so much like structures we talked about"
+    },
+    {
+      "seconds": 2201,
+      "text": "before"
+    },
+    {
+      "seconds": 2202,
+      "text": "you can import enums in through c files"
+    },
+    {
+      "seconds": 2205,
+      "text": "or header files or if you want you can"
+    },
+    {
+      "seconds": 2207,
+      "text": "define them manually"
+    },
+    {
+      "seconds": 2208,
+      "text": "and so you can apply these to both you"
+    },
+    {
+      "seconds": 2210,
+      "text": "know variables"
+    },
+    {
+      "seconds": 2211,
+      "text": "and scalars in the disassembly listing"
+    },
+    {
+      "seconds": 2213,
+      "text": "and we haven't talked about what a"
+    },
+    {
+      "seconds": 2215,
+      "text": "scalar is yet"
+    },
+    {
+      "seconds": 2216,
+      "text": "but essentially when you see someone"
+    },
+    {
+      "seconds": 2217,
+      "text": "talking about scalars a scalar is an"
+    },
+    {
+      "seconds": 2219,
+      "text": "immediate value"
+    },
+    {
+      "seconds": 2220,
+      "text": "right it's a it's a raw binary value"
+    },
+    {
+      "seconds": 2222,
+      "text": "that's used in the program"
+    },
+    {
+      "seconds": 2224,
+      "text": "and so you can do you can retype a"
+    },
+    {
+      "seconds": 2228,
+      "text": "variable to"
+    },
+    {
+      "seconds": 2228,
+      "text": "an enum in the compiler view or in the"
+    },
+    {
+      "seconds": 2231,
+      "text": "listing view and again gigi will try to"
+    },
+    {
+      "seconds": 2233,
+      "text": "propagate those changes across both"
+    },
+    {
+      "seconds": 2235,
+      "text": "and sometimes it works i've had times"
+    },
+    {
+      "seconds": 2236,
+      "text": "where it doesn't but"
+    },
+    {
+      "seconds": 2238,
+      "text": "you can experiment for yourself and see"
+    },
+    {
+      "seconds": 2241,
+      "text": "you know how well that works for you so"
+    },
+    {
+      "seconds": 2244,
+      "text": "here's a simple example of a program"
+    },
+    {
+      "seconds": 2246,
+      "text": "that has an enum that represents each"
+    },
+    {
+      "seconds": 2248,
+      "text": "day of the week"
+    },
+    {
+      "seconds": 2250,
+      "text": "and so that is represented here with"
+    },
+    {
+      "seconds": 2253,
+      "text": "ivar"
+    },
+    {
+      "seconds": 2253,
+      "text": "zero or ibr1 so this enum is the classic"
+    },
+    {
+      "seconds": 2257,
+      "text": "enum example of it's got all the days"
+    },
+    {
+      "seconds": 2259,
+      "text": "sunday through saturday"
+    },
+    {
+      "seconds": 2260,
+      "text": "and it goes zero one two three four five"
+    },
+    {
+      "seconds": 2262,
+      "text": "six okay"
+    },
+    {
+      "seconds": 2265,
+      "text": "so if we wanted to maybe make this a"
+    },
+    {
+      "seconds": 2267,
+      "text": "little more readable and i'm using the"
+    },
+    {
+      "seconds": 2268,
+      "text": "days"
+    },
+    {
+      "seconds": 2269,
+      "text": "is a simple example here right so"
+    },
+    {
+      "seconds": 2271,
+      "text": "obviously you can look at this and kind"
+    },
+    {
+      "seconds": 2273,
+      "text": "of see what the program is doing"
+    },
+    {
+      "seconds": 2274,
+      "text": "the point of this exercise is to"
+    },
+    {
+      "seconds": 2275,
+      "text": "illustrate how to illustr how to"
+    },
+    {
+      "seconds": 2278,
+      "text": "add an enum to your program in order to"
+    },
+    {
+      "seconds": 2281,
+      "text": "make it more readable because eventually"
+    },
+    {
+      "seconds": 2282,
+      "text": "you're going to look at something much"
+    },
+    {
+      "seconds": 2283,
+      "text": "more complex"
+    },
+    {
+      "seconds": 2284,
+      "text": "than this and you're going to want to"
+    },
+    {
+      "seconds": 2285,
+      "text": "make it a little more readable"
+    },
+    {
+      "seconds": 2287,
+      "text": "and so you can load up the enum editor"
+    },
+    {
+      "seconds": 2291,
+      "text": "right and so you can see in this enum"
+    },
+    {
+      "seconds": 2294,
+      "text": "editor"
+    },
+    {
+      "seconds": 2295,
+      "text": "which you can add just like we did with"
+    },
+    {
+      "seconds": 2297,
+      "text": "struxx if you go to the data types"
+    },
+    {
+      "seconds": 2298,
+      "text": "window"
+    },
+    {
+      "seconds": 2299,
+      "text": "and right click you know new you can add"
+    },
+    {
+      "seconds": 2301,
+      "text": "a new enum"
+    },
+    {
+      "seconds": 2303,
+      "text": "and then you can just create by clicking"
+    },
+    {
+      "seconds": 2305,
+      "text": "the plus button you add a new field"
+    },
+    {
+      "seconds": 2307,
+      "text": "and i didn't i didn't think i needed to"
+    },
+    {
+      "seconds": 2309,
+      "text": "kind of go through how to do that six"
+    },
+    {
+      "seconds": 2310,
+      "text": "times for everybody so if anybody has"
+    },
+    {
+      "seconds": 2312,
+      "text": "any questions on how to do that please"
+    },
+    {
+      "seconds": 2314,
+      "text": "let me know in the chat and uh we can"
+    },
+    {
+      "seconds": 2315,
+      "text": "walk through it but so you can name the"
+    },
+    {
+      "seconds": 2317,
+      "text": "enum"
+    },
+    {
+      "seconds": 2318,
+      "text": "and you can give it a description even"
+    },
+    {
+      "seconds": 2319,
+      "text": "if you want and then this is how you"
+    },
+    {
+      "seconds": 2321,
+      "text": "create it much like we created the"
+    },
+    {
+      "seconds": 2323,
+      "text": "struct originally"
+    },
+    {
+      "seconds": 2325,
+      "text": "and so now we want to take that right"
+    },
+    {
+      "seconds": 2327,
+      "text": "and we want to apply it to this"
+    },
+    {
+      "seconds": 2328,
+      "text": "decompilation"
+    },
+    {
+      "seconds": 2329,
+      "text": "to make it a little more readable"
+    },
+    {
+      "seconds": 2332,
+      "text": "and so much like we've done in the past"
+    },
+    {
+      "seconds": 2334,
+      "text": "right you right click the variable click"
+    },
+    {
+      "seconds": 2336,
+      "text": "retype and then provide the type"
+    },
+    {
+      "seconds": 2340,
+      "text": "so we created the day enum right"
+    },
+    {
+      "seconds": 2343,
+      "text": "and so we type in day"
+    },
+    {
+      "seconds": 2346,
+      "text": "and then once we do that it knows that"
+    },
+    {
+      "seconds": 2349,
+      "text": "this"
+    },
+    {
+      "seconds": 2350,
+      "text": "is the day enum so anytime it's compared"
+    },
+    {
+      "seconds": 2352,
+      "text": "to"
+    },
+    {
+      "seconds": 2353,
+      "text": "an immediate value it will put the"
+    },
+    {
+      "seconds": 2354,
+      "text": "representative immediate value"
+    },
+    {
+      "seconds": 2356,
+      "text": "in the decompilation listing which again"
+    },
+    {
+      "seconds": 2358,
+      "text": "just makes things a little more readable"
+    },
+    {
+      "seconds": 2360,
+      "text": "you can imagine that if you had"
+    },
+    {
+      "seconds": 2362,
+      "text": "a much bigger program and you had"
+    },
+    {
+      "seconds": 2365,
+      "text": "you know more constants in play that"
+    },
+    {
+      "seconds": 2368,
+      "text": "these this would be more useful"
+    },
+    {
+      "seconds": 2370,
+      "text": "but this is just an example of showing"
+    },
+    {
+      "seconds": 2372,
+      "text": "you how to"
+    },
+    {
+      "seconds": 2373,
+      "text": "how to create enums and dj i figured"
+    },
+    {
+      "seconds": 2375,
+      "text": "since we were going over structures it's"
+    },
+    {
+      "seconds": 2377,
+      "text": "important to also go over this"
+    },
+    {
+      "seconds": 2378,
+      "text": "you're not going to get an exercise for"
+    },
+    {
+      "seconds": 2379,
+      "text": "this but it's important to understand"
+    },
+    {
+      "seconds": 2382,
+      "text": "uh nonetheless so"
+    },
+    {
+      "seconds": 2386,
+      "text": "we've gone over all these user-defined"
+    },
+    {
+      "seconds": 2388,
+      "text": "data types and see and kind of how you"
+    },
+    {
+      "seconds": 2389,
+      "text": "can attempt to reconstruct them in"
+    },
+    {
+      "seconds": 2391,
+      "text": "ghidra"
+    },
+    {
+      "seconds": 2391,
+      "text": "there are there are other parts of you"
+    },
+    {
+      "seconds": 2394,
+      "text": "know c programs that we really haven't"
+    },
+    {
+      "seconds": 2395,
+      "text": "gotten"
+    },
+    {
+      "seconds": 2396,
+      "text": "into yet and in order to understand some"
+    },
+    {
+      "seconds": 2398,
+      "text": "of these things we need to actually"
+    },
+    {
+      "seconds": 2400,
+      "text": "go even deeper and talk really quickly"
+    },
+    {
+      "seconds": 2402,
+      "text": "about"
+    },
+    {
+      "seconds": 2403,
+      "text": "system calls for x86 so"
+    },
+    {
+      "seconds": 2407,
+      "text": "system calls are used to interface with"
+    },
+    {
+      "seconds": 2409,
+      "text": "the operating system anytime you need"
+    },
+    {
+      "seconds": 2411,
+      "text": "something that might require additional"
+    },
+    {
+      "seconds": 2412,
+      "text": "privilege like"
+    },
+    {
+      "seconds": 2413,
+      "text": "opening a file writing to a file things"
+    },
+    {
+      "seconds": 2415,
+      "text": "like that you need to do this through"
+    },
+    {
+      "seconds": 2417,
+      "text": "you know a system call"
+    },
+    {
+      "seconds": 2419,
+      "text": "and the operating system has a syscall"
+    },
+    {
+      "seconds": 2421,
+      "text": "handler to catch these system calls when"
+    },
+    {
+      "seconds": 2422,
+      "text": "they occur"
+    },
+    {
+      "seconds": 2423,
+      "text": "and they are called by using an"
+    },
+    {
+      "seconds": 2425,
+      "text": "instruction called"
+    },
+    {
+      "seconds": 2426,
+      "text": "syscall and so"
+    },
+    {
+      "seconds": 2430,
+      "text": "if you want to call a particular syscall"
+    },
+    {
+      "seconds": 2432,
+      "text": "the information you use"
+    },
+    {
+      "seconds": 2434,
+      "text": "to tell the operating system which"
+    },
+    {
+      "seconds": 2436,
+      "text": "syscall you want to call"
+    },
+    {
+      "seconds": 2438,
+      "text": "are requested by passing values through"
+    },
+    {
+      "seconds": 2440,
+      "text": "these registers"
+    },
+    {
+      "seconds": 2442,
+      "text": "so much like you know we talked about"
+    },
+    {
+      "seconds": 2444,
+      "text": "how you set up a function call by"
+    },
+    {
+      "seconds": 2446,
+      "text": "passing certain things in through"
+    },
+    {
+      "seconds": 2447,
+      "text": "registers right there's a defined api"
+    },
+    {
+      "seconds": 2449,
+      "text": "that says"
+    },
+    {
+      "seconds": 2450,
+      "text": "arguments go in in this order through"
+    },
+    {
+      "seconds": 2452,
+      "text": "these registers you have something very"
+    },
+    {
+      "seconds": 2454,
+      "text": "similar to the syscall instruction and"
+    },
+    {
+      "seconds": 2455,
+      "text": "this is the linux version this is how"
+    },
+    {
+      "seconds": 2457,
+      "text": "linux handles"
+    },
+    {
+      "seconds": 2458,
+      "text": "you know the cisco instruction so"
+    },
+    {
+      "seconds": 2462,
+      "text": "register rax has the system called"
+    },
+    {
+      "seconds": 2464,
+      "text": "number and if you"
+    },
+    {
+      "seconds": 2466,
+      "text": "google you know linux system call table"
+    },
+    {
+      "seconds": 2468,
+      "text": "you'll be able to see"
+    },
+    {
+      "seconds": 2469,
+      "text": "which system call numbers correlate to"
+    },
+    {
+      "seconds": 2471,
+      "text": "which system call"
+    },
+    {
+      "seconds": 2472,
+      "text": "and so a system call can be something as"
+    },
+    {
+      "seconds": 2474,
+      "text": "simple as you know"
+    },
+    {
+      "seconds": 2475,
+      "text": "writing a file opening a file things"
+    },
+    {
+      "seconds": 2478,
+      "text": "like that exiting a program etc"
+    },
+    {
+      "seconds": 2480,
+      "text": "and so at rcx you have the return"
+    },
+    {
+      "seconds": 2482,
+      "text": "address"
+    },
+    {
+      "seconds": 2483,
+      "text": "r11 you have the flags like the saved"
+    },
+    {
+      "seconds": 2486,
+      "text": "our flags we talked about that how that"
+    },
+    {
+      "seconds": 2488,
+      "text": "gets set for conditional statements"
+    },
+    {
+      "seconds": 2491,
+      "text": "and then the rest of these are just"
+    },
+    {
+      "seconds": 2493,
+      "text": "arguments for that syscall"
+    },
+    {
+      "seconds": 2495,
+      "text": "and so a lot of you probably haven't"
+    },
+    {
+      "seconds": 2497,
+      "text": "seen this instruction because nine times"
+    },
+    {
+      "seconds": 2499,
+      "text": "out of ten it's going to be implemented"
+    },
+    {
+      "seconds": 2500,
+      "text": "by libsy"
+    },
+    {
+      "seconds": 2501,
+      "text": "so when you call printf right printf is"
+    },
+    {
+      "seconds": 2504,
+      "text": "gonna call the right syscall"
+    },
+    {
+      "seconds": 2506,
+      "text": "and it's gonna write to you know"
+    },
+    {
+      "seconds": 2508,
+      "text": "standard out"
+    },
+    {
+      "seconds": 2509,
+      "text": "but you provide those arguments through"
+    },
+    {
+      "seconds": 2511,
+      "text": "the libsy function call but we're going"
+    },
+    {
+      "seconds": 2513,
+      "text": "to take a look at what this might look"
+    },
+    {
+      "seconds": 2514,
+      "text": "like"
+    },
+    {
+      "seconds": 2515,
+      "text": "in assembly"
+    },
+    {
+      "seconds": 2521,
+      "text": "so here is some assembly code"
+    },
+    {
+      "seconds": 2522,
+      "text": "that is going to print out hackaday you"
+    },
+    {
+      "seconds": 2524,
+      "text": "to the screen"
+    },
+    {
+      "seconds": 2526,
+      "text": "okay now i know a couple of you had"
+    },
+    {
+      "seconds": 2527,
+      "text": "mentioned that you're still having"
+    },
+    {
+      "seconds": 2529,
+      "text": "trouble"
+    },
+    {
+      "seconds": 2529,
+      "text": "kind of reading assembly and"
+    },
+    {
+      "seconds": 2530,
+      "text": "understanding it and"
+    },
+    {
+      "seconds": 2533,
+      "text": "we can talk about that here so the first"
+    },
+    {
+      "seconds": 2536,
+      "text": "thing that this thing does"
+    },
+    {
+      "seconds": 2537,
+      "text": "is it sets up all the parameters for"
+    },
+    {
+      "seconds": 2541,
+      "text": "the right system call okay so if you"
+    },
+    {
+      "seconds": 2543,
+      "text": "look up the system call table"
+    },
+    {
+      "seconds": 2545,
+      "text": "you'll see that value one is the right"
+    },
+    {
+      "seconds": 2548,
+      "text": "syscall"
+    },
+    {
+      "seconds": 2549,
+      "text": "second the first argument that gets"
+    },
+    {
+      "seconds": 2551,
+      "text": "passed to it is the file descriptor that"
+    },
+    {
+      "seconds": 2553,
+      "text": "it's going to write to"
+    },
+    {
+      "seconds": 2554,
+      "text": "and so the standard out file descriptor"
+    },
+    {
+      "seconds": 2556,
+      "text": "is just one"
+    },
+    {
+      "seconds": 2558,
+      "text": "the second argument is an address"
+    },
+    {
+      "seconds": 2561,
+      "text": "to the buffer that it's going to write"
+    },
+    {
+      "seconds": 2563,
+      "text": "out and so you'll see here"
+    },
+    {
+      "seconds": 2565,
+      "text": "that that points to something in the"
+    },
+    {
+      "seconds": 2566,
+      "text": "read-only data this hackadayu string"
+    },
+    {
+      "seconds": 2569,
+      "text": "and then the last argument which we load"
+    },
+    {
+      "seconds": 2571,
+      "text": "up into rdx is how many"
+    },
+    {
+      "seconds": 2573,
+      "text": "characters to write out and so this is"
+    },
+    {
+      "seconds": 2576,
+      "text": "if you were to look at"
+    },
+    {
+      "seconds": 2578,
+      "text": "you know the c source code"
+    },
+    {
+      "seconds": 2581,
+      "text": "for you know the lib c implementation of"
+    },
+    {
+      "seconds": 2584,
+      "text": "printf it might look something similar"
+    },
+    {
+      "seconds": 2585,
+      "text": "to this except for these values would be"
+    },
+    {
+      "seconds": 2587,
+      "text": "provided by whoever calls it"
+    },
+    {
+      "seconds": 2590,
+      "text": "right the system call number would be"
+    },
+    {
+      "seconds": 2591,
+      "text": "the same but these are the three things"
+    },
+    {
+      "seconds": 2593,
+      "text": "if you've written c before that you"
+    },
+    {
+      "seconds": 2595,
+      "text": "recognize"
+    },
+    {
+      "seconds": 2595,
+      "text": "are the variables you pass in to you"
+    },
+    {
+      "seconds": 2598,
+      "text": "know print effort to write or what have"
+    },
+    {
+      "seconds": 2599,
+      "text": "you"
+    },
+    {
+      "seconds": 2600,
+      "text": "so this is how that's implemented like"
+    },
+    {
+      "seconds": 2603,
+      "text": "at the assembly level"
+    },
+    {
+      "seconds": 2604,
+      "text": "and so the operating system has a"
+    },
+    {
+      "seconds": 2606,
+      "text": "handler for this that will catch this"
+    },
+    {
+      "seconds": 2607,
+      "text": "when it's called"
+    },
+    {
+      "seconds": 2608,
+      "text": "and read these values and say okay i"
+    },
+    {
+      "seconds": 2610,
+      "text": "know what i need to do"
+    },
+    {
+      "seconds": 2612,
+      "text": "i just caught a syscall instruction with"
+    },
+    {
+      "seconds": 2615,
+      "text": "one as rex i need to write somewhere and"
+    },
+    {
+      "seconds": 2617,
+      "text": "then it grabs"
+    },
+    {
+      "seconds": 2618,
+      "text": "the information that it needs in order"
+    },
+    {
+      "seconds": 2620,
+      "text": "to perform that right and performs it"
+    },
+    {
+      "seconds": 2622,
+      "text": "and returns"
+    },
+    {
+      "seconds": 2623,
+      "text": "and so so this is essentially just a"
+    },
+    {
+      "seconds": 2626,
+      "text": "printf"
+    },
+    {
+      "seconds": 2627,
+      "text": "of you know the string hackaday u that's"
+    },
+    {
+      "seconds": 2630,
+      "text": "all it is"
+    },
+    {
+      "seconds": 2631,
+      "text": "and this last system call that we have"
+    },
+    {
+      "seconds": 2635,
+      "text": "will exit the program that's it"
+    },
+    {
+      "seconds": 2638,
+      "text": "and so if you look at syscall you know"
+    },
+    {
+      "seconds": 2641,
+      "text": "60 that's"
+    },
+    {
+      "seconds": 2642,
+      "text": "exit program so this is just a quick and"
+    },
+    {
+      "seconds": 2646,
+      "text": "dirty example"
+    },
+    {
+      "seconds": 2647,
+      "text": "of you know what system calls are and"
+    },
+    {
+      "seconds": 2649,
+      "text": "how they're implemented"
+    },
+    {
+      "seconds": 2651,
+      "text": "and again it's important to understand"
+    },
+    {
+      "seconds": 2652,
+      "text": "this because if you start looking at you"
+    },
+    {
+      "seconds": 2654,
+      "text": "know really low level stuff you start"
+    },
+    {
+      "seconds": 2655,
+      "text": "looking at"
+    },
+    {
+      "seconds": 2656,
+      "text": "um you know things that improv that"
+    },
+    {
+      "seconds": 2660,
+      "text": "interface"
+    },
+    {
+      "seconds": 2660,
+      "text": "you know they might interface with the"
+    },
+    {
+      "seconds": 2662,
+      "text": "driver you might be looking at kernel"
+    },
+    {
+      "seconds": 2664,
+      "text": "code etc"
+    },
+    {
+      "seconds": 2666,
+      "text": "it's important to understand how these"
+    },
+    {
+      "seconds": 2667,
+      "text": "things are structured before they're"
+    },
+    {
+      "seconds": 2669,
+      "text": "actually called"
+    },
+    {
+      "seconds": 2670,
+      "text": "and so we have an exercise for this"
+    },
+    {
+      "seconds": 2673,
+      "text": "that's called syscall exercise"
+    },
+    {
+      "seconds": 2675,
+      "text": "and so what i'd like you to do before"
+    },
+    {
+      "seconds": 2677,
+      "text": "you run the program"
+    },
+    {
+      "seconds": 2678,
+      "text": "get as far as you can with figuring out"
+    },
+    {
+      "seconds": 2681,
+      "text": "you know okay"
+    },
+    {
+      "seconds": 2682,
+      "text": "what's this calls are is it calling so"
+    },
+    {
+      "seconds": 2685,
+      "text": "what values are in rax when it calls"
+    },
+    {
+      "seconds": 2687,
+      "text": "this call and write those down figure"
+    },
+    {
+      "seconds": 2689,
+      "text": "out like okay it's using"
+    },
+    {
+      "seconds": 2690,
+      "text": "xyz syscalls what are the arguments to"
+    },
+    {
+      "seconds": 2693,
+      "text": "those sys calls"
+    },
+    {
+      "seconds": 2694,
+      "text": "and then based on that can you figure"
+    },
+    {
+      "seconds": 2696,
+      "text": "out what this"
+    },
+    {
+      "seconds": 2697,
+      "text": "syscalls program is doing if you run it"
+    },
+    {
+      "seconds": 2701,
+      "text": "it's going to be fairly apparent but"
+    },
+    {
+      "seconds": 2702,
+      "text": "what i'd really like for"
+    },
+    {
+      "seconds": 2704,
+      "text": "everyone to do before they run it is to"
+    },
+    {
+      "seconds": 2706,
+      "text": "look at it statically"
+    },
+    {
+      "seconds": 2708,
+      "text": "for a while and try to figure it out so"
+    },
+    {
+      "seconds": 2712,
+      "text": "this is a fairly this exercise won't"
+    },
+    {
+      "seconds": 2714,
+      "text": "take a whole lot of time this is"
+    },
+    {
+      "seconds": 2716,
+      "text": "some artisanal handcrafted assembly"
+    },
+    {
+      "seconds": 2718,
+      "text": "language that we wrote for you guys"
+    },
+    {
+      "seconds": 2723,
+      "text": "and also one thing you'll notice about"
+    },
+    {
+      "seconds": 2723,
+      "text": "this you know the entry point might be a"
+    },
+    {
+      "seconds": 2725,
+      "text": "little different so"
+    },
+    {
+      "seconds": 2726,
+      "text": "take a look at that and remember that we"
+    },
+    {
+      "seconds": 2727,
+      "text": "talked about before you want to always"
+    },
+    {
+      "seconds": 2729,
+      "text": "start with if you can't find maine start"
+    },
+    {
+      "seconds": 2731,
+      "text": "with underscore start"
+    },
+    {
+      "seconds": 2733,
+      "text": "right because you see here you've got"
+    },
+    {
+      "seconds": 2735,
+      "text": "underscore start"
+    },
+    {
+      "seconds": 2741,
+      "text": "and so we talked about system calls"
+    },
+    {
+      "seconds": 2741,
+      "text": "because i want everybody to understand"
+    },
+    {
+      "seconds": 2742,
+      "text": "have a better understanding of file"
+    },
+    {
+      "seconds": 2744,
+      "text": "operations and see"
+    },
+    {
+      "seconds": 2746,
+      "text": "and again these system calls are used to"
+    },
+    {
+      "seconds": 2748,
+      "text": "implement those low level operations if"
+    },
+    {
+      "seconds": 2750,
+      "text": "you know reading"
+    },
+    {
+      "seconds": 2750,
+      "text": "to files opening files closing them etc"
+    },
+    {
+      "seconds": 2754,
+      "text": "and when you write c code you often are"
+    },
+    {
+      "seconds": 2757,
+      "text": "using you know a"
+    },
+    {
+      "seconds": 2758,
+      "text": "function that wraps those syscalls so"
+    },
+    {
+      "seconds": 2760,
+      "text": "you're using you know libsy's"
+    },
+    {
+      "seconds": 2761,
+      "text": "implementation of open or right which"
+    },
+    {
+      "seconds": 2763,
+      "text": "eventually does call the cisco"
+    },
+    {
+      "seconds": 2764,
+      "text": "instruction with the arguments you"
+    },
+    {
+      "seconds": 2766,
+      "text": "provide"
+    },
+    {
+      "seconds": 2767,
+      "text": "and so for the purpose of our exercises"
+    },
+    {
+      "seconds": 2769,
+      "text": "that we're doing here these file"
+    },
+    {
+      "seconds": 2770,
+      "text": "operations are they're not necessarily"
+    },
+    {
+      "seconds": 2772,
+      "text": "going to look like the syscalls that you"
+    },
+    {
+      "seconds": 2773,
+      "text": "just saw they're going to look like"
+    },
+    {
+      "seconds": 2774,
+      "text": "regular function calls"
+    },
+    {
+      "seconds": 2776,
+      "text": "because again libsy kind of utilizes the"
+    },
+    {
+      "seconds": 2778,
+      "text": "system called instruction for you to"
+    },
+    {
+      "seconds": 2779,
+      "text": "provide these in a"
+    },
+    {
+      "seconds": 2781,
+      "text": "more approachable way so let's take a"
+    },
+    {
+      "seconds": 2783,
+      "text": "look at some example code and"
+    },
+    {
+      "seconds": 2785,
+      "text": "how it'll translate that does some"
+    },
+    {
+      "seconds": 2786,
+      "text": "operations on some files"
+    },
+    {
+      "seconds": 2793,
+      "text": "so we've got a fairly standard chunk of"
+    },
+    {
+      "seconds": 2793,
+      "text": "c here on the left"
+    },
+    {
+      "seconds": 2794,
+      "text": "where we're just going to open a file"
+    },
+    {
+      "seconds": 2796,
+      "text": "called testfile.txt and write the string"
+    },
+    {
+      "seconds": 2798,
+      "text": "write to file to it"
+    },
+    {
+      "seconds": 2799,
+      "text": "and then we're going to close it right"
+    },
+    {
+      "seconds": 2801,
+      "text": "so let's take a look at how this"
+    },
+    {
+      "seconds": 2804,
+      "text": "translates into assembly"
+    },
+    {
+      "seconds": 2809,
+      "text": "so we've got our function prolog here"
+    },
+    {
+      "seconds": 2809,
+      "text": "nothing new this is all stuff we're used"
+    },
+    {
+      "seconds": 2811,
+      "text": "to right these are all local variables"
+    },
+    {
+      "seconds": 2812,
+      "text": "right we've got"
+    },
+    {
+      "seconds": 2813,
+      "text": "rxc we've got our v and then we've got"
+    },
+    {
+      "seconds": 2816,
+      "text": "this value"
+    },
+    {
+      "seconds": 2817,
+      "text": "here hex 400 6a4 that's being stored"
+    },
+    {
+      "seconds": 2820,
+      "text": "locally"
+    },
+    {
+      "seconds": 2822,
+      "text": "so if we want to figure out what that is"
+    },
+    {
+      "seconds": 2825,
+      "text": "you can use you know object you can use"
+    },
+    {
+      "seconds": 2827,
+      "text": "any of the tools we talked about"
+    },
+    {
+      "seconds": 2829,
+      "text": "that analyze elf files and if we do that"
+    },
+    {
+      "seconds": 2834,
+      "text": "we see that in the read-only data we've"
+    },
+    {
+      "seconds": 2836,
+      "text": "got both of these strings here"
+    },
+    {
+      "seconds": 2838,
+      "text": "right so at 6a4 we've got right to file"
+    },
+    {
+      "seconds": 2842,
+      "text": "the null terminated ascii string and"
+    },
+    {
+      "seconds": 2844,
+      "text": "that's going to be stored"
+    },
+    {
+      "seconds": 2846,
+      "text": "at rbp minus x8 and then"
+    },
+    {
+      "seconds": 2849,
+      "text": "at 6b4 we've got the name of the file"
+    },
+    {
+      "seconds": 2853,
+      "text": "so we'll just keep that in mind for"
+    },
+    {
+      "seconds": 2855,
+      "text": "later but that's where these variables"
+    },
+    {
+      "seconds": 2856,
+      "text": "are being stored in the elf file and you"
+    },
+    {
+      "seconds": 2858,
+      "text": "can find that by using some of the"
+    },
+    {
+      "seconds": 2859,
+      "text": "utilities we talked about in the first"
+    },
+    {
+      "seconds": 2861,
+      "text": "session"
+    },
+    {
+      "seconds": 2862,
+      "text": "or gauger would tell you this if you"
+    },
+    {
+      "seconds": 2863,
+      "text": "were looking at it in assembly"
+    },
+    {
+      "seconds": 2865,
+      "text": "or if you were just looking at the"
+    },
+    {
+      "seconds": 2866,
+      "text": "compiler"
+    },
+    {
+      "seconds": 2873,
+      "text": "and so when we call the open function"
+    },
+    {
+      "seconds": 2873,
+      "text": "right"
+    },
+    {
+      "seconds": 2874,
+      "text": "so we're passing it remember 6b2"
+    },
+    {
+      "seconds": 2877,
+      "text": "so if we look back 6b"
+    },
+    {
+      "seconds": 2880,
+      "text": "1 6b2 that's the address of our file"
+    },
+    {
+      "seconds": 2884,
+      "text": "name"
+    },
+    {
+      "seconds": 2885,
+      "text": "so we're passing it the file name in edi"
+    },
+    {
+      "seconds": 2888,
+      "text": "we are passing it the permissions"
+    },
+    {
+      "seconds": 2891,
+      "text": "in esi and then we are calling"
+    },
+    {
+      "seconds": 2895,
+      "text": "open right and so"
+    },
+    {
+      "seconds": 2898,
+      "text": "what this is going to return is a file"
+    },
+    {
+      "seconds": 2902,
+      "text": "much like we see here when this function"
+    },
+    {
+      "seconds": 2904,
+      "text": "returns we know because of the"
+    },
+    {
+      "seconds": 2905,
+      "text": "eabi it's going to return the handle to"
+    },
+    {
+      "seconds": 2908,
+      "text": "the file in"
+    },
+    {
+      "seconds": 2909,
+      "text": "you know rax right so next after that"
+    },
+    {
+      "seconds": 2913,
+      "text": "we have our eax value here"
+    },
+    {
+      "seconds": 2917,
+      "text": "which is our file descriptor which is"
+    },
+    {
+      "seconds": 2919,
+      "text": "returned from open"
+    },
+    {
+      "seconds": 2920,
+      "text": "and we're storing that here on the stack"
+    },
+    {
+      "seconds": 2922,
+      "text": "okay rbp minus x14"
+    },
+    {
+      "seconds": 2925,
+      "text": "and so now we're grabbing rbp minus hex"
+    },
+    {
+      "seconds": 2927,
+      "text": "eight storing that into rcx"
+    },
+    {
+      "seconds": 2930,
+      "text": "the address of that right now remember"
+    },
+    {
+      "seconds": 2932,
+      "text": "what was that rbp minus"
+    },
+    {
+      "seconds": 2935,
+      "text": "eight that was our string that we're"
+    },
+    {
+      "seconds": 2937,
+      "text": "gonna write out to the file"
+    },
+    {
+      "seconds": 2943,
+      "text": "so rcx now completes the address of our"
+    },
+    {
+      "seconds": 2943,
+      "text": "output variable"
+    },
+    {
+      "seconds": 2951,
+      "text": "eax now contains our file descriptor"
+    },
+    {
+      "seconds": 2951,
+      "text": "hexd contains the amount that we're"
+    },
+    {
+      "seconds": 2954,
+      "text": "going to write out to the file and so"
+    },
+    {
+      "seconds": 2956,
+      "text": "here we're setting up the stack with all"
+    },
+    {
+      "seconds": 2957,
+      "text": "the arguments that we need to call right"
+    },
+    {
+      "seconds": 2959,
+      "text": "so we're setting it up with the file"
+    },
+    {
+      "seconds": 2961,
+      "text": "descriptor the buffer and the count"
+    },
+    {
+      "seconds": 2963,
+      "text": "and then we call that we call that"
+    },
+    {
+      "seconds": 2966,
+      "text": "function"
+    },
+    {
+      "seconds": 2968,
+      "text": "and so lastly here we're grabbing the"
+    },
+    {
+      "seconds": 2971,
+      "text": "return value but since"
+    },
+    {
+      "seconds": 2972,
+      "text": "i wrote very poor c here and didn't"
+    },
+    {
+      "seconds": 2974,
+      "text": "check the return value we don't do"
+    },
+    {
+      "seconds": 2975,
+      "text": "anything with it"
+    },
+    {
+      "seconds": 2977,
+      "text": "but the next thing that we do is we"
+    },
+    {
+      "seconds": 2979,
+      "text": "again grab our file descriptor which we"
+    },
+    {
+      "seconds": 2981,
+      "text": "previously stored in rbp minus 14. load"
+    },
+    {
+      "seconds": 2983,
+      "text": "it into eax"
+    },
+    {
+      "seconds": 2985,
+      "text": "copy that value into edi and then we"
+    },
+    {
+      "seconds": 2987,
+      "text": "call close to close the file descriptor"
+    },
+    {
+      "seconds": 2989,
+      "text": "so this is what file operations look"
+    },
+    {
+      "seconds": 2992,
+      "text": "like"
+    },
+    {
+      "seconds": 2993,
+      "text": "when they're translated from you know"
+    },
+    {
+      "seconds": 2994,
+      "text": "ellipsey function call into assembly and"
+    },
+    {
+      "seconds": 2997,
+      "text": "again to most of us here they just look"
+    },
+    {
+      "seconds": 2999,
+      "text": "like regular function calls but i wanted"
+    },
+    {
+      "seconds": 3000,
+      "text": "to go over syscalls so that you're aware"
+    },
+    {
+      "seconds": 3002,
+      "text": "of how they"
+    },
+    {
+      "seconds": 3003,
+      "text": "operate under the hood and so we have an"
+    },
+    {
+      "seconds": 3006,
+      "text": "exercise"
+    },
+    {
+      "seconds": 3007,
+      "text": "that again this files exercise builds"
+    },
+    {
+      "seconds": 3010,
+      "text": "off of"
+    },
+    {
+      "seconds": 3010,
+      "text": "what you learned in the pointers"
+    },
+    {
+      "seconds": 3012,
+      "text": "exercise so"
+    },
+    {
+      "seconds": 3014,
+      "text": "all of the exercises in this lesson"
+    },
+    {
+      "seconds": 3016,
+      "text": "except for"
+    },
+    {
+      "seconds": 3017,
+      "text": "the syscall exercise are modified"
+    },
+    {
+      "seconds": 3020,
+      "text": "versions of the same program so they all"
+    },
+    {
+      "seconds": 3021,
+      "text": "expand on each other"
+    },
+    {
+      "seconds": 3022,
+      "text": "so it's going to be important to use"
+    },
+    {
+      "seconds": 3024,
+      "text": "maybe the function comparison"
+    },
+    {
+      "seconds": 3026,
+      "text": "feature that we talked about in the last"
+    },
+    {
+      "seconds": 3028,
+      "text": "section and to you know label your"
+    },
+    {
+      "seconds": 3030,
+      "text": "database appropriately and create your"
+    },
+    {
+      "seconds": 3031,
+      "text": "structs because all of that is going to"
+    },
+    {
+      "seconds": 3033,
+      "text": "carry over into the next"
+    },
+    {
+      "seconds": 3035,
+      "text": "exercise every time you do an exercise"
+    },
+    {
+      "seconds": 3037,
+      "text": "so when you're looking at this one"
+    },
+    {
+      "seconds": 3039,
+      "text": "think about you know what's different"
+    },
+    {
+      "seconds": 3040,
+      "text": "about it what's it doing differently"
+    },
+    {
+      "seconds": 3042,
+      "text": "are there file operations being"
+    },
+    {
+      "seconds": 3044,
+      "text": "performed what file operations are being"
+    },
+    {
+      "seconds": 3046,
+      "text": "performed"
+    },
+    {
+      "seconds": 3046,
+      "text": "and can we provide what it's looking for"
+    },
+    {
+      "seconds": 3049,
+      "text": "in"
+    },
+    {
+      "seconds": 3050,
+      "text": "said files and again this is going to be"
+    },
+    {
+      "seconds": 3052,
+      "text": "very similar to the struct"
+    },
+    {
+      "seconds": 3054,
+      "text": "and pointer exercise so"
+    },
+    {
+      "seconds": 3061,
+      "text": "now that we've kind of gone over some of"
+    },
+    {
+      "seconds": 3061,
+      "text": "these"
+    },
+    {
+      "seconds": 3062,
+      "text": "lower level c functions and how they're"
+    },
+    {
+      "seconds": 3064,
+      "text": "going to play into the exercises i"
+    },
+    {
+      "seconds": 3066,
+      "text": "wanted to go through just a few"
+    },
+    {
+      "seconds": 3068,
+      "text": "quick you know deidre tips that you guys"
+    },
+    {
+      "seconds": 3069,
+      "text": "can use as you're doing"
+    },
+    {
+      "seconds": 3071,
+      "text": "you know these these exercises and some"
+    },
+    {
+      "seconds": 3074,
+      "text": "of these are based on things that people"
+    },
+    {
+      "seconds": 3075,
+      "text": "have asked for"
+    },
+    {
+      "seconds": 3075,
+      "text": "so we're going to talk really quickly"
+    },
+    {
+      "seconds": 3077,
+      "text": "and we've only got a few minutes left"
+    },
+    {
+      "seconds": 3078,
+      "text": "we're talking about patching"
+    },
+    {
+      "seconds": 3080,
+      "text": "bookmarks searching and then"
+    },
+    {
+      "seconds": 3083,
+      "text": "we'll probably save check summing and"
+    },
+    {
+      "seconds": 3085,
+      "text": "adding additional libraries for the next"
+    },
+    {
+      "seconds": 3087,
+      "text": "lesson because we're coming up"
+    },
+    {
+      "seconds": 3088,
+      "text": "close to the hour so binary patching we"
+    },
+    {
+      "seconds": 3092,
+      "text": "talked about this briefly before"
+    },
+    {
+      "seconds": 3093,
+      "text": "we started class but you can use gauger"
+    },
+    {
+      "seconds": 3095,
+      "text": "to patch binary files"
+    },
+    {
+      "seconds": 3097,
+      "text": "now what this is going to result in is"
+    },
+    {
+      "seconds": 3100,
+      "text": "you're going to be able to actually"
+    },
+    {
+      "seconds": 3102,
+      "text": "write you know new assembly and patch it"
+    },
+    {
+      "seconds": 3103,
+      "text": "to the file the thing is this won't work"
+    },
+    {
+      "seconds": 3106,
+      "text": "on things like l files and pe files"
+    },
+    {
+      "seconds": 3108,
+      "text": "unless you use the plugin that we posted"
+    },
+    {
+      "seconds": 3110,
+      "text": "in chat earlier"
+    },
+    {
+      "seconds": 3111,
+      "text": "so this works very well for raw firmware"
+    },
+    {
+      "seconds": 3113,
+      "text": "images because what guidra does when you"
+    },
+    {
+      "seconds": 3115,
+      "text": "export the program is it writes all the"
+    },
+    {
+      "seconds": 3117,
+      "text": "memory regions out to the file"
+    },
+    {
+      "seconds": 3119,
+      "text": "so it's going to essentially write out"
+    },
+    {
+      "seconds": 3121,
+      "text": "like an entire virtual address space of"
+    },
+    {
+      "seconds": 3123,
+      "text": "you know an elf file and so that won't"
+    },
+    {
+      "seconds": 3126,
+      "text": "result obviously in a valid l file"
+    },
+    {
+      "seconds": 3128,
+      "text": "but someone wrote a plugin to make that"
+    },
+    {
+      "seconds": 3130,
+      "text": "work and we linked to that in the chat"
+    },
+    {
+      "seconds": 3135,
+      "text": "so the way you would want to do this"
+    },
+    {
+      "seconds": 3136,
+      "text": "right is let's say we want to change"
+    },
+    {
+      "seconds": 3137,
+      "text": "this comparison"
+    },
+    {
+      "seconds": 3138,
+      "text": "instruction to maybe compare this local"
+    },
+    {
+      "seconds": 3140,
+      "text": "variable to"
+    },
+    {
+      "seconds": 3141,
+      "text": "two so we're going to right click it and"
+    },
+    {
+      "seconds": 3143,
+      "text": "click patch instruction"
+    },
+    {
+      "seconds": 3145,
+      "text": "and this is going to come up because"
+    },
+    {
+      "seconds": 3146,
+      "text": "it's actually using you know it's"
+    },
+    {
+      "seconds": 3148,
+      "text": "constructing the assembler based on"
+    },
+    {
+      "seconds": 3150,
+      "text": "the slice spec for this processor"
+    },
+    {
+      "seconds": 3154,
+      "text": "and then now we can just edit the"
+    },
+    {
+      "seconds": 3156,
+      "text": "instruction as we see fit"
+    },
+    {
+      "seconds": 3158,
+      "text": "so all we're going to do is just change"
+    },
+    {
+      "seconds": 3160,
+      "text": "the console it's comparing it to here to"
+    },
+    {
+      "seconds": 3161,
+      "text": "2."
+    },
+    {
+      "seconds": 3163,
+      "text": "and then once we save that back and take"
+    },
+    {
+      "seconds": 3165,
+      "text": "another look at the decompilation"
+    },
+    {
+      "seconds": 3167,
+      "text": "we see here that instead of comparing it"
+    },
+    {
+      "seconds": 3169,
+      "text": "to one which would have previously been"
+    },
+    {
+      "seconds": 3170,
+      "text": "monday in our previous enum example it's"
+    },
+    {
+      "seconds": 3173,
+      "text": "now"
+    },
+    {
+      "seconds": 3173,
+      "text": "tuesday so we've effectively patched"
+    },
+    {
+      "seconds": 3176,
+      "text": "this binary that way"
+    },
+    {
+      "seconds": 3180,
+      "text": "and so patching like we said before it"
+    },
+    {
+      "seconds": 3183,
+      "text": "won't result"
+    },
+    {
+      "seconds": 3184,
+      "text": "when you're using you know l files exe"
+    },
+    {
+      "seconds": 3186,
+      "text": "files it won't result in like an"
+    },
+    {
+      "seconds": 3187,
+      "text": "executable file but if you're doing you"
+    },
+    {
+      "seconds": 3189,
+      "text": "know a flat firmware image"
+    },
+    {
+      "seconds": 3190,
+      "text": "it will properly export a flat firmware"
+    },
+    {
+      "seconds": 3192,
+      "text": "image for you because again it just"
+    },
+    {
+      "seconds": 3194,
+      "text": "dumps out the address space that it has"
+    },
+    {
+      "seconds": 3195,
+      "text": "loaded"
+    },
+    {
+      "seconds": 3200,
+      "text": "and so another you know useful guitar"
+    },
+    {
+      "seconds": 3200,
+      "text": "tip as you're"
+    },
+    {
+      "seconds": 3202,
+      "text": "maybe digging through a larger file are"
+    },
+    {
+      "seconds": 3204,
+      "text": "bookmarks"
+    },
+    {
+      "seconds": 3205,
+      "text": "so much like you know a pdf or anything"
+    },
+    {
+      "seconds": 3207,
+      "text": "else you can bookmark addresses and"
+    },
+    {
+      "seconds": 3209,
+      "text": "locations of interest"
+    },
+    {
+      "seconds": 3210,
+      "text": "and to see the bookmarks window you can"
+    },
+    {
+      "seconds": 3212,
+      "text": "just click window bookmarks"
+    },
+    {
+      "seconds": 3214,
+      "text": "and bookmarks are really useful because"
+    },
+    {
+      "seconds": 3216,
+      "text": "not only you know they're tied to"
+    },
+    {
+      "seconds": 3217,
+      "text": "specific addresses but you can"
+    },
+    {
+      "seconds": 3219,
+      "text": "categorize them as well"
+    },
+    {
+      "seconds": 3220,
+      "text": "so let's take a look at how we might do"
+    },
+    {
+      "seconds": 3222,
+      "text": "that so let's say you want to bookmark"
+    },
+    {
+      "seconds": 3224,
+      "text": "this check for monday"
+    },
+    {
+      "seconds": 3225,
+      "text": "you just you want to be able to jump"
+    },
+    {
+      "seconds": 3226,
+      "text": "back to it when you're looking at"
+    },
+    {
+      "seconds": 3227,
+      "text": "something else"
+    },
+    {
+      "seconds": 3228,
+      "text": "so we're going to right click here at"
+    },
+    {
+      "seconds": 3230,
+      "text": "this label and click bookmark"
+    },
+    {
+      "seconds": 3232,
+      "text": "that brings up this bookmark window"
+    },
+    {
+      "seconds": 3234,
+      "text": "where you can even add you know a"
+    },
+    {
+      "seconds": 3236,
+      "text": "category to this bookmark and we'll see"
+    },
+    {
+      "seconds": 3238,
+      "text": "how that's useful later so if you wanted"
+    },
+    {
+      "seconds": 3239,
+      "text": "to add a category just call it maybe day"
+    },
+    {
+      "seconds": 3241,
+      "text": "switch one and then in the description"
+    },
+    {
+      "seconds": 3243,
+      "text": "you would add"
+    },
+    {
+      "seconds": 3244,
+      "text": "you know what this bookmark is for so"
+    },
+    {
+      "seconds": 3246,
+      "text": "you would say like monday check or"
+    },
+    {
+      "seconds": 3248,
+      "text": "something"
+    },
+    {
+      "seconds": 3250,
+      "text": "so you could if you wanted to bookmark"
+    },
+    {
+      "seconds": 3252,
+      "text": "any of the other"
+    },
+    {
+      "seconds": 3253,
+      "text": "checks you could do it under the same"
+    },
+    {
+      "seconds": 3254,
+      "text": "category and they would all show up in"
+    },
+    {
+      "seconds": 3257,
+      "text": "under the same category in the bookmarks"
+    },
+    {
+      "seconds": 3259,
+      "text": "viewer"
+    },
+    {
+      "seconds": 3260,
+      "text": "which is kind of nice so when you're"
+    },
+    {
+      "seconds": 3262,
+      "text": "looking at you know larger things"
+    },
+    {
+      "seconds": 3263,
+      "text": "especially firmware images it's nice to"
+    },
+    {
+      "seconds": 3264,
+      "text": "have multiple bookmarks and to have them"
+    },
+    {
+      "seconds": 3266,
+      "text": "you know appropriately categorized"
+    },
+    {
+      "seconds": 3273,
+      "text": "so how might you find something you want"
+    },
+    {
+      "seconds": 3273,
+      "text": "to bookmark right"
+    },
+    {
+      "seconds": 3274,
+      "text": "you can search in ghidra for all kinds"
+    },
+    {
+      "seconds": 3277,
+      "text": "of things there's"
+    },
+    {
+      "seconds": 3278,
+      "text": "you can search for instructions scalars"
+    },
+    {
+      "seconds": 3280,
+      "text": "direct references"
+    },
+    {
+      "seconds": 3281,
+      "text": "instruction pattern strings and you can"
+    },
+    {
+      "seconds": 3284,
+      "text": "choose whether you want to"
+    },
+    {
+      "seconds": 3285,
+      "text": "you know search just program text or you"
+    },
+    {
+      "seconds": 3287,
+      "text": "know like the listing display or just"
+    },
+    {
+      "seconds": 3289,
+      "text": "the raw"
+    },
+    {
+      "seconds": 3290,
+      "text": "values in memory and so we're going to"
+    },
+    {
+      "seconds": 3292,
+      "text": "do a couple examples of how to do that"
+    },
+    {
+      "seconds": 3294,
+      "text": "and then that'll be it for today but the"
+    },
+    {
+      "seconds": 3297,
+      "text": "instruction search"
+    },
+    {
+      "seconds": 3298,
+      "text": "is really useful if you're looking for a"
+    },
+    {
+      "seconds": 3300,
+      "text": "specific instruction you can search for"
+    },
+    {
+      "seconds": 3302,
+      "text": "that with geidra"
+    },
+    {
+      "seconds": 3303,
+      "text": "if you want to find something that you"
+    },
+    {
+      "seconds": 3305,
+      "text": "know maybe references and address you"
+    },
+    {
+      "seconds": 3307,
+      "text": "can search for that using the direct"
+    },
+    {
+      "seconds": 3309,
+      "text": "references search"
+    },
+    {
+      "seconds": 3310,
+      "text": "one of the more interesting searches you"
+    },
+    {
+      "seconds": 3312,
+      "text": "can do is an instruction"
+    },
+    {
+      "seconds": 3314,
+      "text": "pattern search so if you want to look"
+    },
+    {
+      "seconds": 3316,
+      "text": "for something that maybe does like a"
+    },
+    {
+      "seconds": 3318,
+      "text": "move move move compare lea"
+    },
+    {
+      "seconds": 3320,
+      "text": "move you can search for that exact"
+    },
+    {
+      "seconds": 3322,
+      "text": "pattern throughout the entire binary and"
+    },
+    {
+      "seconds": 3324,
+      "text": "guidra will show you"
+    },
+    {
+      "seconds": 3325,
+      "text": "where it finds instances of those"
+    },
+    {
+      "seconds": 3327,
+      "text": "patterns and then of course you can"
+    },
+    {
+      "seconds": 3328,
+      "text": "search just for immediate values if"
+    },
+    {
+      "seconds": 3330,
+      "text": "you're looking for something specific"
+    },
+    {
+      "seconds": 3331,
+      "text": "say you're looking for crypto constants"
+    },
+    {
+      "seconds": 3333,
+      "text": "or what have you"
+    },
+    {
+      "seconds": 3334,
+      "text": "and then of course you can search for"
+    },
+    {
+      "seconds": 3335,
+      "text": "defined strings everybody's favorite"
+    },
+    {
+      "seconds": 3337,
+      "text": "go-to"
+    },
+    {
+      "seconds": 3338,
+      "text": "so i want to talk about a couple of"
+    },
+    {
+      "seconds": 3340,
+      "text": "these uh"
+    },
+    {
+      "seconds": 3341,
+      "text": "search features here and show you how"
+    },
+    {
+      "seconds": 3343,
+      "text": "you can use them"
+    },
+    {
+      "seconds": 3344,
+      "text": "in keydrip and again this is all going"
+    },
+    {
+      "seconds": 3346,
+      "text": "to kind of be based off of the"
+    },
+    {
+      "seconds": 3348,
+      "text": "that days enum example just so everybody"
+    },
+    {
+      "seconds": 3351,
+      "text": "knows where we're coming from there"
+    },
+    {
+      "seconds": 3356,
+      "text": "so let's say we want to look for an"
+    },
+    {
+      "seconds": 3356,
+      "text": "instruction pattern right"
+    },
+    {
+      "seconds": 3357,
+      "text": "let's say we know that this comparison"
+    },
+    {
+      "seconds": 3360,
+      "text": "is switching"
+    },
+    {
+      "seconds": 3361,
+      "text": "against that enum that we're interested"
+    },
+    {
+      "seconds": 3363,
+      "text": "in maybe we want to find out if there's"
+    },
+    {
+      "seconds": 3364,
+      "text": "somewhere else in the program that's"
+    },
+    {
+      "seconds": 3366,
+      "text": "using the same sequence of assembly"
+    },
+    {
+      "seconds": 3368,
+      "text": "instructions"
+    },
+    {
+      "seconds": 3369,
+      "text": "so we can highlight these instructions"
+    },
+    {
+      "seconds": 3371,
+      "text": "and then click search"
+    },
+    {
+      "seconds": 3373,
+      "text": "instruction patterns and it brings up"
+    },
+    {
+      "seconds": 3374,
+      "text": "this window"
+    },
+    {
+      "seconds": 3376,
+      "text": "and so in this window you can choose"
+    },
+    {
+      "seconds": 3378,
+      "text": "what things you want to filter on here"
+    },
+    {
+      "seconds": 3380,
+      "text": "so if you only want to if you only care"
+    },
+    {
+      "seconds": 3382,
+      "text": "about"
+    },
+    {
+      "seconds": 3383,
+      "text": "the just these instructions and you"
+    },
+    {
+      "seconds": 3385,
+      "text": "don't care about what arguments are"
+    },
+    {
+      "seconds": 3386,
+      "text": "called to them"
+    },
+    {
+      "seconds": 3387,
+      "text": "you can filter that out here so you can"
+    },
+    {
+      "seconds": 3391,
+      "text": "either mask the entire column or unmask"
+    },
+    {
+      "seconds": 3393,
+      "text": "it and you can even see here"
+    },
+    {
+      "seconds": 3395,
+      "text": "as you remove elements from it these dot"
+    },
+    {
+      "seconds": 3398,
+      "text": "dots are essentially you know don't"
+    },
+    {
+      "seconds": 3399,
+      "text": "cares"
+    },
+    {
+      "seconds": 3400,
+      "text": "and so if we do that and we do it with"
+    },
+    {
+      "seconds": 3402,
+      "text": "just we keep the valuables we keep the"
+    },
+    {
+      "seconds": 3405,
+      "text": "variables here"
+    },
+    {
+      "seconds": 3406,
+      "text": "to be you know the specific ones that"
+    },
+    {
+      "seconds": 3408,
+      "text": "they were when we called it which"
+    },
+    {
+      "seconds": 3409,
+      "text": "there's probably not going to be that"
+    },
+    {
+      "seconds": 3410,
+      "text": "many instances"
+    },
+    {
+      "seconds": 3411,
+      "text": "of move instructions of this address to"
+    },
+    {
+      "seconds": 3414,
+      "text": "edi because that's printing"
+    },
+    {
+      "seconds": 3415,
+      "text": "you know that's adding that's adding the"
+    },
+    {
+      "seconds": 3417,
+      "text": "address of something we want to print to"
+    },
+    {
+      "seconds": 3419,
+      "text": "edi"
+    },
+    {
+      "seconds": 3420,
+      "text": "but if we got rid of all those and we're"
+    },
+    {
+      "seconds": 3423,
+      "text": "looking for just this sequence of"
+    },
+    {
+      "seconds": 3424,
+      "text": "instructions and we want to see how many"
+    },
+    {
+      "seconds": 3426,
+      "text": "times that occurs"
+    },
+    {
+      "seconds": 3427,
+      "text": "without any of the arguments so this is"
+    },
+    {
+      "seconds": 3429,
+      "text": "a searching for this sequence of"
+    },
+    {
+      "seconds": 3430,
+      "text": "instructions"
+    },
+    {
+      "seconds": 3431,
+      "text": "and ignoring the arguments we see that"
+    },
+    {
+      "seconds": 3434,
+      "text": "we have it five times"
+    },
+    {
+      "seconds": 3435,
+      "text": "here right which is exactly how many"
+    },
+    {
+      "seconds": 3437,
+      "text": "comparison cases happen in our state"
+    },
+    {
+      "seconds": 3440,
+      "text": "with the so this is a really useful"
+    },
+    {
+      "seconds": 3443,
+      "text": "feature"
+    },
+    {
+      "seconds": 3444,
+      "text": "when you're looking for you know maybe"
+    },
+    {
+      "seconds": 3446,
+      "text": "chunks of code that could have been"
+    },
+    {
+      "seconds": 3447,
+      "text": "repeated and things like that"
+    },
+    {
+      "seconds": 3449,
+      "text": "and this editor is also very"
+    },
+    {
+      "seconds": 3452,
+      "text": "very useful i've used it many times"
+    },
+    {
+      "seconds": 3459,
+      "text": "and so let's say you want to maybe look"
+    },
+    {
+      "seconds": 3459,
+      "text": "for x references you want to see"
+    },
+    {
+      "seconds": 3461,
+      "text": "you know you want to search for"
+    },
+    {
+      "seconds": 3462,
+      "text": "references to an address or references"
+    },
+    {
+      "seconds": 3464,
+      "text": "to a certain function"
+    },
+    {
+      "seconds": 3465,
+      "text": "so you highlight a variable in this case"
+    },
+    {
+      "seconds": 3467,
+      "text": "we've got the main function highlighted"
+    },
+    {
+      "seconds": 3470,
+      "text": "we look for direct references and so"
+    },
+    {
+      "seconds": 3473,
+      "text": "what this is going to do it's going to"
+    },
+    {
+      "seconds": 3474,
+      "text": "look for direct references of the"
+    },
+    {
+      "seconds": 3475,
+      "text": "address"
+    },
+    {
+      "seconds": 3476,
+      "text": "that maine is at right so four zero zero"
+    },
+    {
+      "seconds": 3479,
+      "text": "five seven d"
+    },
+    {
+      "seconds": 3483,
+      "text": "so then we see okay yeah i have an"
+    },
+    {
+      "seconds": 3483,
+      "text": "address for that here and it's"
+    },
+    {
+      "seconds": 3484,
+      "text": "referenced and it's in"
+    },
+    {
+      "seconds": 3486,
+      "text": "you know the elf header right so it's"
+    },
+    {
+      "seconds": 3487,
+      "text": "got the elf symbol here list listed"
+    },
+    {
+      "seconds": 3494,
+      "text": "and so you can also search you know for"
+    },
+    {
+      "seconds": 3494,
+      "text": "scalars you can search for strings"
+    },
+    {
+      "seconds": 3496,
+      "text": "but those are fairly straightforward we"
+    },
+    {
+      "seconds": 3497,
+      "text": "don't really have to go into that here"
+    },
+    {
+      "seconds": 3499,
+      "text": "another thing i wanted to kind of walk"
+    },
+    {
+      "seconds": 3500,
+      "text": "you folks through before we close out"
+    },
+    {
+      "seconds": 3502,
+      "text": "today"
+    },
+    {
+      "seconds": 3503,
+      "text": "is how to add you know comments to your"
+    },
+    {
+      "seconds": 3504,
+      "text": "teacher database"
+    },
+    {
+      "seconds": 3506,
+      "text": "so you can use these to sort of enhance"
+    },
+    {
+      "seconds": 3508,
+      "text": "both the listing view and the compiler"
+    },
+    {
+      "seconds": 3510,
+      "text": "view and there's all kinds of different"
+    },
+    {
+      "seconds": 3512,
+      "text": "comments and they can be a little"
+    },
+    {
+      "seconds": 3513,
+      "text": "confusing"
+    },
+    {
+      "seconds": 3514,
+      "text": "and so to add a comment all you want to"
+    },
+    {
+      "seconds": 3516,
+      "text": "do is right click the variable"
+    },
+    {
+      "seconds": 3517,
+      "text": "or the area that you want to add text to"
+    },
+    {
+      "seconds": 3520,
+      "text": "and click comment or"
+    },
+    {
+      "seconds": 3521,
+      "text": "just highlight it and press the"
+    },
+    {
+      "seconds": 3523,
+      "text": "semicolon so let's say we want to"
+    },
+    {
+      "seconds": 3525,
+      "text": "comment"
+    },
+    {
+      "seconds": 3526,
+      "text": "above monday here in our"
+    },
+    {
+      "seconds": 3530,
+      "text": "example program that we've been looking"
+    },
+    {
+      "seconds": 3531,
+      "text": "at we've got all different types of"
+    },
+    {
+      "seconds": 3534,
+      "text": "comments pre"
+    },
+    {
+      "seconds": 3535,
+      "text": "eol post plate etc and so"
+    },
+    {
+      "seconds": 3539,
+      "text": "the pre comment will show up in the"
+    },
+    {
+      "seconds": 3540,
+      "text": "decompiler output"
+    },
+    {
+      "seconds": 3542,
+      "text": "and then the rest of them if we look"
+    },
+    {
+      "seconds": 3544,
+      "text": "here all show up in the disassembly"
+    },
+    {
+      "seconds": 3547,
+      "text": "listing"
+    },
+    {
+      "seconds": 3547,
+      "text": "so we've got a plate comment which you"
+    },
+    {
+      "seconds": 3549,
+      "text": "can use to maybe you want to"
+    },
+    {
+      "seconds": 3550,
+      "text": "annotate an entire block and say"
+    },
+    {
+      "seconds": 3552,
+      "text": "everything from here below is whatever"
+    },
+    {
+      "seconds": 3554,
+      "text": "and then you've got you know pre-comment"
+    },
+    {
+      "seconds": 3556,
+      "text": "here before the instruction an end of"
+    },
+    {
+      "seconds": 3558,
+      "text": "line comment after the instruction"
+    },
+    {
+      "seconds": 3560,
+      "text": "or after the end of the instruction and"
+    },
+    {
+      "seconds": 3562,
+      "text": "then a post comment"
+    },
+    {
+      "seconds": 3563,
+      "text": "one line under the instruction and so"
+    },
+    {
+      "seconds": 3565,
+      "text": "that's what all those"
+    },
+    {
+      "seconds": 3566,
+      "text": "different comments look like"
+    },
+    {
+      "seconds": 3570,
+      "text": "and so to kind of wrap up today i know"
+    },
+    {
+      "seconds": 3573,
+      "text": "we went through we went through a lot"
+    },
+    {
+      "seconds": 3574,
+      "text": "again"
+    },
+    {
+      "seconds": 3575,
+      "text": "so today we talked about how to find"
+    },
+    {
+      "seconds": 3578,
+      "text": "more constructs in c and how to relate"
+    },
+    {
+      "seconds": 3580,
+      "text": "those back to the assembly"
+    },
+    {
+      "seconds": 3581,
+      "text": "and i know we had a question again in"
+    },
+    {
+      "seconds": 3584,
+      "text": "chat today about you know how important"
+    },
+    {
+      "seconds": 3585,
+      "text": "is it to lean on the compiler"
+    },
+    {
+      "seconds": 3587,
+      "text": "versus you know understanding the"
+    },
+    {
+      "seconds": 3589,
+      "text": "assembly and you really want to be able"
+    },
+    {
+      "seconds": 3591,
+      "text": "to"
+    },
+    {
+      "seconds": 3591,
+      "text": "be able to do both because they're like"
+    },
+    {
+      "seconds": 3593,
+      "text": "i've said this before"
+    },
+    {
+      "seconds": 3595,
+      "text": "you know stamping on my forehead there"
+    },
+    {
+      "seconds": 3596,
+      "text": "are going to be times when the"
+    },
+    {
+      "seconds": 3597,
+      "text": "decompiler isn't going to work for you"
+    },
+    {
+      "seconds": 3599,
+      "text": "and you're going to need to know"
+    },
+    {
+      "seconds": 3601,
+      "text": "the underlying assembly constructs to"
+    },
+    {
+      "seconds": 3604,
+      "text": "make sense of the code"
+    },
+    {
+      "seconds": 3605,
+      "text": "and so we also kind of went over a few"
+    },
+    {
+      "seconds": 3608,
+      "text": "more guidra tips to make the process"
+    },
+    {
+      "seconds": 3609,
+      "text": "more streamlined and how to"
+    },
+    {
+      "seconds": 3611,
+      "text": "maybe assist you folks with doing the"
+    },
+    {
+      "seconds": 3612,
+      "text": "exercises because a lot of people seem"
+    },
+    {
+      "seconds": 3614,
+      "text": "to enjoy that we did it during the"
+    },
+    {
+      "seconds": 3615,
+      "text": "office hour"
+    },
+    {
+      "seconds": 3616,
+      "text": "and lastly the exercises for this course"
+    },
+    {
+      "seconds": 3619,
+      "text": "are"
+    },
+    {
+      "seconds": 3620,
+      "text": "up on the github page so thanks"
+    },
+    {
+      "seconds": 3623,
+      "text": "everybody"
+    },
+    {
+      "seconds": 3624,
+      "text": "for for showing up to this last one i"
+    },
+    {
+      "seconds": 3626,
+      "text": "know is a lot of info i'm going to open"
+    },
+    {
+      "seconds": 3628,
+      "text": "the chat real quick"
+    },
+    {
+      "seconds": 3629,
+      "text": "and stop sharing my screen and just see"
+    },
+    {
+      "seconds": 3631,
+      "text": "if there's"
+    }
+  ]
+}

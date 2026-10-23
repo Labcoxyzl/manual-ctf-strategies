@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="2e32b87799c0d8c8aa711d0bcd1d469f6205be6572bb920b00b1f9f5466d238f">
+  <link rel="icon" href="data:,">
+  <title>Independent review of the practical refresher · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="../../index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Independent review of the practical refresher</h1>
+<p>This review supersedes the earlier 44-resource navigation review. Scope: the active goal attachment, revised guide, worksheets and fixtures, evaluation ledger and lane evidence, combined resource data, and all-tool index. The user knows CTFs but is rusty without assistance and wants practical, free-first preparation within 24 hours.</p>
+<h2>Findings</h2>
+<p>No material curriculum, approval-map or exercise defect found in the reviewed candidate. Two small reconciliation items were reported to the task owner:</p>
+<ul>
+<li>Worksheet 2 retained “skip the introductory video” after Wireshark's core resource became reading. Replace “video” with “reading.”</li>
+<li>At review time, <code>validation.json</code> still described the superseded 44-resource / 9-video pack and no tool execution. Refresh it from the new checks before claiming final validation. The owner was already implementing that check.</li>
+</ul>
+<p>Both items are resolved. Focused recheck confirmed the worksheet now says “reading”; refreshed validation reports 43 resources, eight videos, 200 approved rows and 1,440 minutes. It distinguishes executed fixture checks from unperformed GUI/YARA/forensic/video work. The recorded check result matches <code>check-results.json</code>, and every recorded artifact SHA-256 matches the current file. Inspected the validation script: its fixture assertions compute known answers and check real subprocess outputs rather than merely testing document presence. No unresolved material findings remain.</p>
+<h2>Learning value and breadth</h2>
+<p>All 44 original selections have individual decisions; 43 remain. Each retained selection has an evidence-backed rationale, narrowed focus, prerequisites and access/offline details. Removed advanced lattice study remains a documented approved-tool reference. Binwalk usage, filesystem manuals, version-pinned capa/bkcrack and named packet exercises improve concrete usefulness over the original overview links. Videos are optional, with free reading alternatives; unavailable runtimes and untested playback stay explicit.</p>
+<p>The sequence totals 1,440 minutes; each block divides its budget into diagnostic, study, exercise and assessment. Allocations are study caps rather than measured difficulty or promised learning gains. Readers can skim and transfer time to repetition. The worksheets provide exact inputs or explicit paper tasks and answer checks. Disk/memory application execution needs unbundled evidence; these are transparently interpretation blocks when no image exists, not falsely advertised ready-to-run forensic labs.</p>
+<p>Important families outside the core retain specific lookup rationales: managed code, mobile/macOS artifacts, registry/timelines, native debugger alternatives, symbolic execution/ROP, oracle-specific crypto, signal decoding, OSINT and service-specific utilities. No generic lesson is claimed to teach all 200 tools. Approval is not extended to extra standalone software or cloud services mentioned by external sources.</p>
+<h2>Independent evidence</h2>
+<ul>
+<li>Programmatic comparison confirmed all 200 inventory IDs exactly once and exact preservation of names, platforms, versions, locations and remarks. All selected tool IDs are approved and coverage resource IDs exist.</li>
+<li>All 43 selected entries have substantive evaluation evidence, rationale, prerequisites and viewing/cost/registration/offline/free-alternative fields. Local Markdown file links and explicit anchors resolve across the four user-facing documents.</li>
+<li>Read the bundled C, YARA and text fixtures. Independently compiled the C source in a disposable directory and checked all three outputs/exit statuses: usage/2, rejected/1 and accepted/0.</li>
+<li>Independently ran the worksheet TShark field command on the bundled synthetic capture. It returned <code>192.0.2.10</code>, <code>192.0.2.20</code>, <code>GET</code>, <code>/clue.txt</code>, stream <code>0</code>, matching the answer key.</li>
+<li>Independently retrieved <a href="https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction">Binwalk File Analysis and Extraction</a>: scan/extract/recursive commands and output-confidence distinctions support the replacement's teaching claim.</li>
+<li>Independently retrieved <a href="https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md">bkcrack v1.8.1 tutorial</a>: the named archive, ZipCrypto versus compression distinction, stored known plaintext and key-based recovery support the bounded optional exercise. It does not imply an AES attack or guaranteed runtime.</li>
+<li>Independently retrieved the <a href="https://www.sleuthkit.org/sleuthkit/man/icat.html">icat manual</a>: the positional inode/metadata address and sector-based partition offset support the coordinate exercise. Recalculated its absolute offset as 1,060,864 bytes.</li>
+<li>Inspected the paper process-chain, controlled HTTP-path, toy RSA, candidate-hash, audio-window and SQL-order answer checks. They distinguish factual observations from attribution, application execution and proficiency.</li>
+</ul>
+<h2>Limits</h2>
+<p>This review does not repeat every source search or inherited October 19 link check. No reviewer video playback, GUI interaction, YARA execution, memory/disk lab, public archive recovery or offline-page playback was performed. Source inspection cannot establish presentation quality or learning gains. The pack explicitly discloses these limitations and does not require subscriptions, portal accounts or scarce lab launches for its core path.</p>
+</main>
+  <footer><div class="wrap"><a href="review.md">Markdown source</a></div></footer>
+</body>
+</html>

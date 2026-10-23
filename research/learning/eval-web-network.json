@@ -1,0 +1,448 @@
+{
+  "evaluations": [
+    {
+      "id": "web-network-1",
+      "decision": "retain",
+      "rationale": "A short task with an observable failure and interpretation; more useful than a feature tour. The prerequisites are outside this page, so explicitly include Proxy history and target scope.",
+      "focus": "Proxy history \u2192 Repeater; baseline valid input, another valid ID, invalid input; explain response changes. Skip the mixed-edition scanner continuation.",
+      "prerequisites": "HTTP request/response basics; for execution, Burp Community, prepared browser proxy and reachable Academy lab.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading. Hosted Academy exercise requires a free account.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children. Hosted lab execution cannot run from saved HTML.",
+        "free_alternative_url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests"
+      },
+      "evidence": [
+        {
+          "url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests",
+          "inspected": "2026-10-22: Read step-by-step parameter editing, response history, error disclosure and free Academy account requirement; reuse earlier substantive fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://portswigger.net/burp/communitydownload",
+          "inspected": "2026-10-22: Read official Community vs Professional comparison; reused valid earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ]
+    },
+    {
+      "id": "web-network-2",
+      "decision": "shorten",
+      "rationale": "Useful visual refresher but repeats resource 1. Optional 7-minute viewing, with total 10-minute allocation including recall, replaces the old 15-minute requirement.",
+      "focus": "Watch only if moving a request between Proxy and Repeater is unfamiliar; recall redirect/history behavior.",
+      "prerequisites": "Basic HTTP; reading resource 1 is sufficient without playback.",
+      "access": {
+        "viewing": "Public YouTube page/transcript retrieved; playback not tested.",
+        "cost": "Ordinary viewing is public; official desktop offline workflow requires paid YouTube Premium. No purchase needed for curriculum.",
+        "registration": "No account created; download workflow requires signed-in Premium account.",
+        "offline": "Free offline video entitlement not established; use free saved reading instead.",
+        "free_alternative_url": "https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=_Wifm2g9ugg",
+          "inspected": "2026-10-22: Read original PortSwigger metadata and transcript. Published runtime 06:30; 2020 interface. Reuse prior fetch.",
+          "limitation": "Not watched; metadata runtime is distinct from study estimate."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Read official desktop Premium download/sign-in and offline-availability requirements.",
+          "limitation": "No subscription or offline playback tested."
+        }
+      ],
+      "published_runtime": "06:30",
+      "study_minutes": 10
+    },
+    {
+      "id": "web-network-3",
+      "decision": "retain",
+      "rationale": "Primary author explains headers, cookie persistence and POST body semantics clearly. An index alone is not a lesson; restrict reading to four inspected subpages.",
+      "focus": "Customize headers; writing cookies; Simple POST; response codes. Explain why a successful transfer can still return HTTP 404.",
+      "prerequisites": "Know method, URL, headers and body; execution requires curl and a prepared target.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save all four evidence pages. Reading works offline; HTTP execution needs a previously prepared local service.",
+        "free_alternative_url": "https://everything.curl.dev/http/"
+      },
+      "evidence": [
+        {
+          "url": "https://everything.curl.dev/http/modify/headers.html",
+          "inspected": "2026-10-22: Read replacement/removal of headers and examples; reused earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/cookies/writing.html",
+          "inspected": "2026-10-22: Read -c cookie output/-b input and session-cookie retention; reused earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/post/simple.html",
+          "inspected": "2026-10-22: Read -d form body, multiple fields, @file/newline and --data-raw behavior.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://everything.curl.dev/http/response.html",
+          "inspected": "2026-10-22: Read response classes and distinction between curl transfer success and HTTP status failure.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ]
+    },
+    {
+      "id": "web-network-4",
+      "decision": "retain",
+      "rationale": "README gives compact FUZZ placement and filter examples; stronger refresher than a long course. Wiki adds useful prerequisites but also newer modes that may not exist in the approved development build.",
+      "focus": "One wordlist, one FUZZ position, baseline response, -fs/-fc filtering, -maxtime. Validate an interesting result manually with Burp/curl.",
+      "prerequisites": "Complete manual-request work first; local wordlist and reachable target for execution.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://github.com/ffuf/ffuf"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/ffuf/ffuf",
+          "inspected": "2026-10-22: Read content/vhost/GET/POST examples and time bounds; reuse prior fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://github.com/ffuf/ffuf/wiki",
+          "inspected": "2026-10-22: Compared upstream wiki: explicit input/marker prerequisites and newer sniper-mode section. Keep stable basics rather than new features.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://github.com/adamtlangley/ffufme",
+          "inspected": "2026-10-22: Read Docker build/run and hosted alternative; reuse prior fetch.",
+          "limitation": "Not built; supplementary home practice, not an approved event application claim."
+        }
+      ]
+    },
+    {
+      "id": "web-network-5",
+      "decision": "replace",
+      "rationale": "The old 5:30 video teaches only one operation and leaves GUI filtering uncovered. Current official pages give a better free offline core without adding a resource. Keep the old clip only as an optional illustration if desired.",
+      "focus": "Protocol/field presence, ip.addr equality, and/or; Analyze \u2192 Follow \u2192 TCP Stream, direction selection, and the filter left by closing the dialog. Avoid advanced/new filter syntax.",
+      "prerequisites": "Basic TCP/client-server concepts; saved capture and Wireshark for hands-on work.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=ixVXfUBEciU",
+          "inspected": "2026-10-22: Compared original 2017 transcript: stream reconstruction and directions only. Published runtime 05:30.",
+          "limitation": "Video not watched."
+        },
+        {
+          "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+          "inspected": "2026-10-22: Read presence/equality/logical filters, examples and version-dependent syntax notes.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html",
+          "inspected": "2026-10-22: Read stream selection, direction, Close/Back filtering, formats and TLS-key limitation.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "replacement": {
+        "id": "web-network-5",
+        "title": "Wireshark: display filters and following protocol streams",
+        "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+        "type": "read",
+        "publisher": "Wireshark Foundation",
+        "tool_ids": [
+          "windows-2"
+        ],
+        "learn": "Refresh protocol/field filters, equality and logical operators; then follow a stream and inspect each direction using the linked official stream guide.",
+        "priority": "core",
+        "study_minutes": 25,
+        "offline": "Save display-filter guide and https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html with figures. Free text; no account. Saved-PCAP practice requires an installed Wireshark and downloaded sample.",
+        "verification": "2026-10-22: Read substantive official filter and stream instructions; compared with old video transcript. UI and exercises not executed.",
+        "lane": "web-network"
+      }
+    },
+    {
+      "id": "web-network-6",
+      "decision": "shorten",
+      "rationale": "Dense command reference earns time only as a targeted lookup after the same GUI exercise; shorten standalone reading from 25 to 15 minutes.",
+      "focus": "-r input, -Y display filter, -T fields and repeated -e, -E header=y; distinguish -f capture filters.",
+      "prerequisites": "Complete Wireshark filtering exercise; TShark installed and same saved PCAP.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://www.wireshark.org/docs/man-pages/tshark.html"
+      },
+      "evidence": [
+        {
+          "url": "https://www.wireshark.org/docs/man-pages/tshark.html",
+          "inspected": "2026-10-22: Read saved-file/filter introduction plus -e/-E field-extraction examples in expanded fetch; reuse earlier evidence.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "study_minutes": 15
+    },
+    {
+      "id": "web-network-7",
+      "decision": "retain",
+      "rationale": "Best self-checking network exercise: named artifact, explicit commands and correlated expected logs. It has more teaching value than an unspecified sample catalog. Keep only offline section.",
+      "focus": "Run saved quickstart.pcap; join conn/http/weird records by uid, identify the unusual method.",
+      "prerequisites": "Zeek installed in WSL or Unix; save the PCAP and guide before travel.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://docs.zeek.org/en/current/quickstart.html"
+      },
+      "evidence": [
+        {
+          "url": "https://docs.zeek.org/en/current/quickstart.html",
+          "inspected": "2026-10-22: Read saved-PCAP instructions, two expected HTTP records, UID join and unknown_HTTP_method explanation. Also inspected later live/deployment sections to exclude them.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ]
+    },
+    {
+      "id": "web-network-8",
+      "decision": "replace",
+      "rationale": "The generic catalog demanded extra curation from the learner and offered no assessment. Narrow it to a named small-format exercise that shares data across GUI and CLI.",
+      "focus": "Use http.cap; compare GUI-selected fields with TShark output, explain what following a stream adds beyond one packet.",
+      "prerequisites": "Wireshark and TShark available; artifact downloaded before travel.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://wiki.wireshark.org/SampleCaptures"
+      },
+      "evidence": [
+        {
+          "url": "https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http",
+          "inspected": "2026-10-22: Inspected HTTP section in fetched source HTML and resolved http.cap link.",
+          "limitation": "Description/link checked; capture bytes not downloaded or analyzed."
+        }
+      ],
+      "replacement": {
+        "id": "web-network-8",
+        "title": "Wireshark http.cap: match one HTTP request to its response",
+        "url": "https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http",
+        "type": "practice",
+        "publisher": "Wireshark community wiki",
+        "tool_ids": [
+          "windows-2",
+          "windows-36"
+        ],
+        "learn": "Use the named http.cap sample, not the whole catalog: find a request, record endpoints/method/host/URI, follow its TCP stream, identify response status, and reproduce selected fields with TShark.",
+        "priority": "core",
+        "study_minutes": 30,
+        "offline": "Save http.cap from https://wiki.wireshark.org/uploads/27707187aeb30df68e70c8fb9d614981/http.cap plus official filter/stream pages before travel. No account or lab server is required. Artifact was not downloaded or executed during this review.",
+        "verification": "2026-10-22: Inspected catalog HTML, exact http.cap link and description (simple HTTP request/response); artifact contents not independently tested.",
+        "lane": "web-network"
+      }
+    },
+    {
+      "id": "web-network-9",
+      "decision": "shorten",
+      "rationale": "Useful service-triage foundation but broad manual and live scanning are not needed for this flight refresh. Read state meanings plus version/output sections in 15 minutes; use paper interpretation check.",
+      "focus": "Distinguish open/closed/filtered; port-number label versus -sV identification; -oN and -oX output.",
+      "prerequisites": "Basic TCP ports; actual scanning requires a prepared authorized local target.",
+      "access": {
+        "viewing": "Public text accessible without sign-in.",
+        "cost": "Free reading.",
+        "registration": "None for reading.",
+        "offline": "Save substantive pages and figures, then verify with networking disabled; saving an index does not save its children.",
+        "free_alternative_url": "https://nmap.org/book/man.html"
+      },
+      "evidence": [
+        {
+          "url": "https://nmap.org/book/man.html",
+          "inspected": "2026-10-22: Read port states and representative scan output; reuse earlier fetch.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://nmap.org/book/man-version-detection.html",
+          "inspected": "2026-10-22: Read difference between port database guesses and active service probing.",
+          "limitation": "Content inspected; local execution not performed."
+        },
+        {
+          "url": "https://nmap.org/book/man-output.html",
+          "inspected": "2026-10-22: Read normal/XML file output syntax and file overwrite/append discussion.",
+          "limitation": "Content inspected; local execution not performed."
+        }
+      ],
+      "study_minutes": 15
+    }
+  ],
+  "block_suggestions": [
+    {
+      "block": 2,
+      "minutes": 180,
+      "outcome": "Interpret one saved HTTP conversation consistently in Wireshark and TShark, then explain how Zeek summarizes it.",
+      "diagnostic": {
+        "minutes": 10,
+        "prompt": "From memory: filter HTTP requests; isolate a TCP stream; name a TShark field-extraction command. If all three are correct, skim the GUI reading and spend the released time on the exercise."
+      },
+      "selection": [
+        {
+          "minutes": 25,
+          "resource_ids": [
+            "web-network-5"
+          ],
+          "focus": "Basic filter fields/comparison plus Follow Stream section."
+        },
+        {
+          "minutes": 15,
+          "resource_ids": [
+            "web-network-6"
+          ],
+          "focus": "Only -r/-Y/-T fields/-e/-E."
+        },
+        {
+          "minutes": 60,
+          "resource_ids": [
+            "web-network-8"
+          ],
+          "focus": "http.cap GUI/CLI exercise."
+        },
+        {
+          "minutes": 40,
+          "resource_ids": [
+            "web-network-7"
+          ],
+          "focus": "Saved-PCAP section and UID join; skip live capture/deployment."
+        },
+        {
+          "minutes": 30,
+          "resource_ids": [],
+          "focus": "Closed-notes repeat, explain discrepancies and write personal command card."
+        }
+      ],
+      "exercise": {
+        "artifact": "http.cap from Wireshark SampleCaptures (exact URL in resource 8); Zeek quickstart.pcap linked in resource 7.",
+        "steps": [
+          "Open http.cap; apply http.request; select one request and record source/destination IP, method, Host and URI.",
+          "Follow its TCP stream; record response status and distinguish client/server bytes. Note the stream filter.",
+          "Run tshark -r http.cap -Y http.request -T fields -E header=y -e ip.src -e ip.dst -e http.request.method -e http.host -e http.request.uri ; compare selected GUI values.",
+          "In a new directory run zeek -r /path/to/quickstart.pcap LogAscii::use_json=T ; join http.log to weird.log using uid."
+        ],
+        "assessment": "GUI request values must match a TShark row; record stream response evidence. Zeek guide expects GET and WEIRD requests; the WEIRD uid joins unknown_HTTP_method. Do not compare generated UID strings to the guide literally.",
+        "offline_paper_alternative": "If binaries/artifacts were not prepared, use the saved official filter/stream examples and Zeek printed logs: identify the source/destination roles, write the display filter and TShark command, join the printed UID records and explain the unusual method. Check against the saved guide. Mark this as recall practice, not completed hands-on execution.",
+        "execution_status": "Designed from inspected docs; not run."
+      }
+    },
+    {
+      "block": 7,
+      "minutes": 180,
+      "outcome": "Reconstruct, vary and interpret an HTTP request manually before choosing bounded fuzzing.",
+      "diagnostic": {
+        "minutes": 10,
+        "prompt": "Describe how to send Proxy history to Repeater; which cookie curl -b sends; where FUZZ belongs; why HTTP 404 need not be a curl transport error. Skim familiar sections when all are answered."
+      },
+      "selection": [
+        {
+          "minutes": 30,
+          "resource_ids": [
+            "web-network-1",
+            "web-network-2"
+          ],
+          "focus": "Written Repeater exercise; optional 06:30 clip within this allowance, not extra."
+        },
+        {
+          "minutes": 30,
+          "resource_ids": [
+            "web-network-3"
+          ],
+          "focus": "Headers, cookie jar, simple POST and response semantics."
+        },
+        {
+          "minutes": 25,
+          "resource_ids": [
+            "web-network-4"
+          ],
+          "focus": "One marker, baseline, filters and time bound."
+        },
+        {
+          "minutes": 60,
+          "resource_ids": [],
+          "focus": "Execute prepared local exercise or complete the paper alternative."
+        },
+        {
+          "minutes": 25,
+          "resource_ids": [],
+          "focus": "Repeat from memory and write a request/response evidence note."
+        }
+      ],
+      "exercise": {
+        "artifact": "Prepared local ffufme target (optional, built/tested before flying) or the synthetic paper fixture below. Academy Repeater lab can be completed before departure but is not an offline prerequisite.",
+        "steps": [
+          "For prepared ffufme: open one lesson, capture its request into Burp Repeater and record the baseline response.",
+          "Modify one input; compare status, body length/content and headers; reproduce the same request using curl.",
+          "Choose a small local wordlist and one FUZZ marker; measure a nonexistent-input baseline before selecting -fs or -fc; bound the run with -maxtime.",
+          "Manually replay one interesting result and explain why it differs. If local setup is absent, use the paper fixture rather than spending flight time installing a server."
+        ],
+        "assessment": "Explain each changed request byte and cite corresponding response evidence; do not treat status alone or an ffuf match as proof. Reconstructed curl request must preserve intended method/path/cookie/header/body.",
+        "offline_paper_alternative": {
+          "artifact_name": "web-refresher-paper.txt (synthetic teaching data, not real portal/challenge evidence)",
+          "request": "GET /product?productId=1 HTTP/1.1\nHost: lab.example\nCookie: session=demo\n\n",
+          "response_table": [
+            {
+              "input": "1",
+              "status": 200,
+              "bytes": 800,
+              "body_hint": "product details"
+            },
+            {
+              "input": "999999",
+              "status": 404,
+              "bytes": 120,
+              "body_hint": "not found"
+            },
+            {
+              "input": "abc",
+              "status": 500,
+              "bytes": 450,
+              "body_hint": "integer parsing stack trace"
+            }
+          ],
+          "tasks": [
+            "Write a curl command preserving Host, cookie and query, then a variant changing only productId.",
+            "Explain what each result suggests and what it does not prove; propose one next manual test.",
+            "Write an ffuf command using a three-line local wordlist [1,999999,abc], marker in the productId value, -fs 120 and -maxtime 30. Predict retained rows for these synthetic observations.",
+            "Explain what -c versus -b does and why curl can exit successfully while the HTTP response is 404."
+          ],
+          "answer_checks": [
+            "One valid reconstruction: curl -H \"Cookie: session=demo\" \"http://lab.example/product?productId=1\" (paper only; lab.example is a placeholder).",
+            "Use ffuf -w ids.txt -u \"http://lab.example/product?productId=FUZZ\" -fs 120 -maxtime 30. 1 and abc survive the size filter; neither is automatically a vulnerability.",
+            "Error suggests type handling and potential information disclosure; existence of exploitable injection is not established.",
+            "-c writes cookie jar, -b reads it; curl transfer success is distinct from server status unless failure options are requested."
+          ]
+        },
+        "execution_status": "Paper fixture is invented and explicitly labeled; no local ffufme/Academy execution performed."
+      }
+    }
+  ],
+  "family_rationales": [
+    "Burp/curl/ffuf form one inspect-replay-enumerate workflow; Feroxbuster/Gobuster/Katana stay reference-only to avoid repeating discovery introductions.",
+    "SQLmap and jwt_tool are vulnerability-specific lookups after identifying relevant SQL/JWT evidence; PayloadsAllTheThings remains indexed reference, not cover-to-cover reading.",
+    "Nmap gets a short state/service refresher; RustScan/Legion repeat reconnaissance setup, and Impacket/Metasploit/Hydra require a specific service/target, so retain their exact approved references.",
+    "CAN utilities/cannelloni and RTP tools need matching bus/media artifacts; wireless Aircrack/hcxtools need captures and protocol prerequisites. Keep references rather than requiring hardware/live work on a plane.",
+    "Subfinder is the sole OSINT entry in this lane and needs network-backed passive sources; explicitly reference-only.",
+    "tcpdump and Zui overlap the selected packet workflow; retain their tool-specific references. OpenVPN setup and Chrome DevTools remain utility lookups.",
+    "Community manual tools are usable; Professional scanner, Collaborator, full Intruder and saved project files must not be implied by the training plan. Supplemental ffufme/Docker home practice does not expand event approval."
+  ],
+  "limitations": [
+    "All 9 selected resources evaluated using substantive source passages; earlier valid fetch evidence reused.",
+    "No video playback, account creation, subscription, capture download or local exercise execution. Free public text verified; saved-copy rendering/offline playback not tested.",
+    "Study allocations are estimates. Video 2 runtime is source-metadata 06:30; replaced video 5 runtime was 05:30, not a study budget.",
+    "Current online manuals may include new syntax unavailable in event binaries; curriculum uses basic long-established options and flags version-specific sections."
+  ]
+}

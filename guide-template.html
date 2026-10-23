@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>Cyber SEA Game 2026 · field guide</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --card:#fff; --green:#086b58; --pale:#e8f2ed; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .wrap { max-width:1120px; margin:auto; padding:0 22px; }
+    .skip { position:absolute; top:8px; left:12px; z-index:10; background:var(--card); padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    header { background:#142e32; color:#fff; padding:18px 0 17px; }
+    header p { margin:0; color:#c7e5dc; font-size:.82rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:6px 0 7px; font-size:clamp(1.65rem,3vw,2.4rem); line-height:1.12; letter-spacing:-.035em; }
+    header .sub { max-width:74ch; color:#e0eeea; font-size:.92rem; }
+    nav { position:sticky; top:0; z-index:5; background:var(--paper); border-bottom:1px solid var(--line); }
+    nav .wrap { display:flex; gap:5px; overflow-x:auto; padding-top:8px; padding-bottom:8px; scrollbar-width:thin; }
+    nav a { flex:none; padding:6px 10px; border-radius:5px; color:var(--ink); font-size:.88rem; font-weight:650; text-decoration:none; }
+    nav a:hover, nav a:focus-visible { background:var(--pale); }
+    main { padding-top:17px !important; padding-bottom:36px !important; }
+    .rules { border-left:4px solid var(--green); background:var(--pale); padding:9px 12px; font-size:.88rem; }
+    .rules p { margin:0; }
+    .legend { margin:10px 0 17px; color:var(--muted); font-size:.82rem; }
+    section, [id] { scroll-margin-top:80px; }
+    section { margin:0 0 29px; }
+    h2 { margin:0 0 9px; padding-top:5px; border-top:2px solid var(--ink); font-size:1.22rem; letter-spacing:-.02em; }
+    summary { cursor:pointer; padding:11px 12px; font-weight:650; }
+    .task-route, .catalog { margin:8px 0; border:1px solid var(--line); border-radius:6px; background:var(--card); overflow-wrap:anywhere; }
+    .task-route > summary small, .task-route > summary .input { display:block; margin:3px 0 0 19px; font-size:.85rem; font-weight:400; color:var(--muted); }
+    .task-route > :not(summary) { margin-left:16px; margin-right:16px; }
+    .task-route > :last-child { margin-bottom:14px; }
+    .steps { padding-left:24px; }
+    .steps li + li { margin-top:6px; }
+    .expected, .fallback, .caveat { font-size:.9rem; margin-top:8px; margin-bottom:8px; }
+    .verification { color:var(--muted); font-size:.78rem; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap:anywhere; }
+    pre { overflow-x:auto; padding:10px; background:var(--paper); }
+    .catalog > summary { color:var(--green); }
+    .catalog-tool { display:grid; grid-template-columns:minmax(135px,.8fr) minmax(0,2fr); gap:8px 16px; padding:12px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+    .catalog-tool > h3 { grid-column:1; grid-row:1 / span 4; margin:0; font-size:1rem; }
+    .catalog-tool > h3 small { display:block; color:var(--muted); font-size:.78rem; font-weight:400; }
+    .catalog-tool > :not(h3) { grid-column:2; margin-top:0; margin-bottom:0; }
+    .caveats, .references { padding-left:20px; font-size:.85rem; }
+    .references li + li { margin-top:3px; }
+    .route-tools { font-size:.88rem; }
+    .metadata dt { font-weight:650; }
+    .metadata dd { margin:0 0 6px; }
+    .metadata { color:var(--muted); font-size:.8rem; }
+    .metadata summary { padding:5px 0; font-weight:400; }
+    .metadata p { margin:4px 0; }
+    .search-controls { margin:12px 0; }
+    .search-controls label { display:block; font-weight:650; margin-bottom:5px; }
+    .search-row { display:flex; gap:8px; }
+    input, button { font:inherit; border:1px solid var(--line); border-radius:4px; padding:8px 10px; background:var(--card); color:var(--ink); }
+    input { min-width:0; flex:1; }
+    button { cursor:pointer; }
+    button:hover { background:var(--pale); }
+    #tool-count { margin:6px 0 0; color:var(--muted); font-size:.85rem; }
+    #no-results { padding:12px; background:var(--pale); }
+    footer { padding:20px 0 30px; border-top:1px solid var(--line); color:var(--muted); font-size:.82rem; }
+    @media (max-width:600px) { .catalog-tool { grid-template-columns:1fr; gap:5px; } .catalog-tool > h3 { grid-row:auto; } .catalog-tool > :not(h3) { grid-column:1; } }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    @media print { nav, .search-controls, .skip { display:none; } header { color:var(--ink); background:none; } header p, header .sub { color:var(--ink); } .wrap { max-width:none; } a { color:var(--ink); } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to guide</a>
+  <header><div class="wrap">
+    <p>Cyber SEA Game 2026</p>
+    <h1>CTF field guide</h1>
+    <div class="sub">Choose your input. Follow a short route. Check the result.</div>
+  </div></header>
+  <nav aria-label="Challenge categories"><div class="wrap">
+    <a href="#forensics" aria-label="Digital Forensics">Forensics</a><a href="#malware" aria-label="Malware Analysis">Malware</a><a href="#web" aria-label="Web Security">Web</a><a href="#reversing" aria-label="Reverse Engineering">Reversing</a><a href="#osint">OSINT</a><a href="#crypto" aria-label="Cryptography">Crypto</a><a href="#misc" aria-label="Miscellaneous">Misc</a><a href="#tools">Tools</a>
+  </div></nav>
+  <main id="main" class="wrap" tabindex="-1">
+    <div class="rules" role="note"><p>Keep challenge files local; do not upload them to online services. Generative AI must not generate solutions, code or scripts, or analyze challenges; automatically displayed search summaries are permitted. Unlisted standalone applications need organiser approval; personal commercial licences are prohibited. <a href="EVENT_SOURCES.html">Event rules and sources</a>.</p></div>
+    <p class="legend">For practice beforehand: <a href="LEARNING_RESOURCES.html">preparation guide</a>. External links need internet; this local guide works offline.</p>
+    <!-- guide:routes -->
+    <section id="tools" aria-labelledby="tools-title">
+      <h2 id="tools-title">Approved tool catalog</h2>
+      <p class="legend">All 200 approved entries, grouped by primary use. W = Windows · WSL = Windows Linux · K = Kali (best effort). Check each entry’s installed version, location and caveats.</p>
+      <div class="search-controls" hidden>
+        <label for="tool-search">Find an approved tool</label>
+        <div class="search-row"><input type="search" id="tool-search" autocomplete="off" placeholder="Name, ID, purpose or category"><button type="button" id="clear-search">Clear</button></div>
+        <p id="tool-count" role="status" aria-live="polite"></p>
+      </div>
+      <p id="no-results" hidden>No matching tools. Try fewer terms or clear the search.</p>
+      <!-- guide:catalog -->
+    </section>
+  </main>
+  <footer><div class="wrap">Approved entries from the organiser’s 15 October tool review. Procedures marked source-reviewed have not been tested on the competition machines.</div></footer>
+  <script>
+    const search = document.getElementById('tool-search');
+    const catalogs = [...document.querySelectorAll('details.catalog')];
+    const entries = [...document.querySelectorAll('.catalog-tool')];
+    const count = document.getElementById('tool-count');
+    const empty = document.getElementById('no-results');
+    function filterTools() {
+      const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      let matches = 0;
+      for (const entry of entries) {
+        entry.hidden = !terms.every(term => entry.dataset.search.toLowerCase().includes(term));
+        if (!entry.hidden) matches++;
+      }
+      for (const catalog of catalogs) {
+        catalog.hidden = ![...catalog.querySelectorAll('.catalog-tool')].some(entry => !entry.hidden);
+        catalog.open = terms.length > 0 && !catalog.hidden;
+      }
+      count.textContent = `${matches} of ${entries.length} approved entries`;
+      empty.hidden = matches > 0;
+    }
+    function revealHash() {
+      let id;
+      try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (target.classList.contains('catalog-tool') && search.value) {
+        search.value = '';
+        filterTools();
+      }
+      for (let node = target; node; node = node.parentElement) {
+        if (node.tagName === 'DETAILS') node.open = true;
+      }
+      requestAnimationFrame(() => target.scrollIntoView({ block:'start' }));
+    }
+    search.addEventListener('input', filterTools);
+    document.getElementById('clear-search').addEventListener('click', () => {
+      search.value = '';
+      filterTools();
+      search.focus();
+    });
+    window.addEventListener('hashchange', revealHash);
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a[href^="#"]');
+      if (link && link.hash === location.hash) revealHash();
+    });
+    document.querySelector('.search-controls').hidden = false;
+    filterTools();
+    revealHash();
+  </script>
+</body>
+</html>

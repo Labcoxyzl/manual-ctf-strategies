@@ -1,0 +1,1403 @@
+[
+  {
+    "id": "windows-9",
+    "name": "gdb",
+    "platform": "windows",
+    "version": "Latest (distro package)",
+    "location": "installed in WSL",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Stop at the input check; inspect registers, memory and the comparison.",
+    "resources": [
+      {
+        "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Breakpoints.html",
+        "title": "gdb — primary documentation",
+        "kind": "reference",
+        "why": "Debug native binaries Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Windows-list entry runs in WSL; this is not a Windows PE debugger."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Native ELF checker and known test input",
+      "action": "Stop at the input check; inspect registers, memory and the comparison.",
+      "expected_observation": "Breakpoint reaches validation code; compared values are visible in registers or memory."
+    }
+  },
+  {
+    "id": "windows-10",
+    "name": "objdump",
+    "platform": "windows",
+    "version": "Bundled with GNU Binutils",
+    "location": "installed in WSL",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect headers and disassemble a native checker before opening a GUI.",
+    "resources": [
+      {
+        "url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+        "title": "objdump — primary documentation",
+        "kind": "reference",
+        "why": "Inspect disassembly and sections Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Choose the target architecture and syntax; disassembly does not reconstruct source."
+    ],
+    "recipe_candidate": "Inspect headers and disassemble a native checker before opening a GUI. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "windows-22",
+    "name": "Ghidra",
+    "platform": "windows",
+    "version": "12.1.4",
+    "location": "installed in WSL",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Import binary, analyze, follow string cross-references and rename the validation routine.",
+    "resources": [
+      {
+        "url": "https://github.com/NationalSecurityAgency/ghidra",
+        "title": "Ghidra — primary documentation",
+        "kind": "reference",
+        "why": "Inspect program logic Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html",
+        "title": "Ghidra beginner student guide",
+        "kind": "tutorial",
+        "why": "Best concise route into projects, navigation, cross-references and decompiler exercises.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Workbook places Ghidra in WSL; decompiler output needs checking against assembly."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Native executable",
+      "action": "Import binary, analyze, follow string cross-references and rename the validation routine.",
+      "expected_observation": "A named or inferred input-check function with string cross-references and readable pseudocode."
+    }
+  },
+  {
+    "id": "windows-27",
+    "name": "llvm-mc (LLVM tools)",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in WSL",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Translate a short instruction sequence between assembly and bytes.",
+    "resources": [
+      {
+        "url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+        "title": "llvm-mc (LLVM tools) — primary documentation",
+        "kind": "reference",
+        "why": "Translate assembly and machine code Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Select the correct target triple and instruction mode."
+    ],
+    "recipe_candidate": "Translate a short instruction sequence between assembly and bytes. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "windows-33",
+    "name": "x64dbg",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in Windows",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Set a Windows input-check breakpoint and inspect the compared buffers.",
+    "resources": [
+      {
+        "url": "https://help.x64dbg.com/en/latest/gui/tips.html",
+        "title": "x64dbg — primary documentation",
+        "kind": "reference",
+        "why": "Debug Windows executables Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://help.x64dbg.com/en/latest/introduction/ConditionalBreakpoint.html",
+        "title": "x64dbg conditional breakpoints",
+        "kind": "reference",
+        "why": "Reduces repeated breakpoint noise while following a validation routine.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Use x32dbg for 32-bit targets; dynamic execution needs an isolated challenge environment."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Windows PE checker and test input",
+      "action": "Set a Windows input-check breakpoint and inspect the compared buffers.",
+      "expected_observation": "Validation breakpoint hits and the input/expected buffer can be inspected."
+    }
+  },
+  {
+    "id": "windows-38",
+    "name": "dnSpyEx (dnSpy)",
+    "platform": "windows",
+    "version": "Latest",
+    "location": "installed in Windows",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Open a managed assembly, find the validation method and inspect its C# and IL.",
+    "resources": [
+      {
+        "url": "https://github.com/dnSpyEx/dnSpy",
+        "title": "dnSpyEx (dnSpy) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect managed assemblies Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "For .NET assemblies, not a general native decompiler."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Managed .NET executable or DLL",
+      "action": "Open a managed assembly, find the validation method and inspect its C# and IL.",
+      "expected_observation": "Assembly tree and decompiled validation method, with IL available for ambiguous constructs."
+    }
+  },
+  {
+    "id": "kali-5",
+    "name": "Android Studio",
+    "platform": "kali",
+    "version": "-",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect APK contents and debug a compatible pre-built app when static inspection stalls.",
+    "resources": [
+      {
+        "url": "https://developer.android.com/studio/debug/apk-debugger",
+        "title": "Android Studio — primary documentation",
+        "kind": "reference",
+        "why": "Inspect Android packages Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Installation not recorded; debugging requires a debuggable APK and compatible device setup."
+    ],
+    "recipe_candidate": "Inspect APK contents and debug a compatible pre-built app when static inspection stalls. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-6",
+    "name": "angr",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (angr)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Model a small checker with symbolic input and explicit success/failure targets.",
+    "resources": [
+      {
+        "url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+        "title": "angr — primary documentation",
+        "kind": "reference",
+        "why": "Study path constraints and symbolic execution Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://docs.angr.io/en/latest/examples.html",
+        "title": "angr worked examples",
+        "kind": "examples",
+        "why": "Fauxware provides a small concrete-input example; useful candidate for a checked reusable template.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "State explosion and inaccurate environment models can dominate time; first locate the check manually."
+    ],
+    "recipe_candidate": "Model a small checker with symbolic input and explicit success/failure targets. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-8",
+    "name": "Apktool",
+    "platform": "kali",
+    "version": "2.7.0-dirty",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Decode Android manifest, resources and smali into a fresh output directory.",
+    "resources": [
+      {
+        "url": "https://apktool.org/docs/2.x/cli-parameters/",
+        "title": "Apktool — primary documentation",
+        "kind": "reference",
+        "why": "Decode Android resources and smali Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Approved 2.7.0 differs from default 3.x docs; even 2.x docs include later options. Avoid force-delete flags."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "APK file and fresh output directory",
+      "action": "Decode Android manifest, resources and smali into a fresh output directory.",
+      "expected_observation": "Decoded AndroidManifest.xml, resources and smali directories."
+    }
+  },
+  {
+    "id": "kali-9",
+    "name": "asar (@electron/asar)",
+    "platform": "kali",
+    "version": "4.3.1",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "List and extract app.asar, then inspect JavaScript entry points.",
+    "resources": [
+      {
+        "url": "https://github.com/electron/asar",
+        "title": "asar (@electron/asar) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect Electron archives Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "An ASAR is a container, not encryption; retain original files and use a new output directory."
+    ],
+    "recipe_candidate": "List and extract app.asar, then inspect JavaScript entry points. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-11",
+    "name": "AutoIt-Ripper",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (autoit-ripper)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Extract an embedded AutoIt script from an identified AutoIt executable.",
+    "resources": [
+      {
+        "url": "https://github.com/nazywam/AutoIt-Ripper",
+        "title": "AutoIt-Ripper — primary documentation",
+        "kind": "reference",
+        "why": "Extract compiled AutoIt scripts Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Only supported AutoIt formats; extraction failure does not rule out AutoIt."
+    ],
+    "recipe_candidate": "Extract an embedded AutoIt script from an identified AutoIt executable. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-12",
+    "name": "BinDiff",
+    "platform": "kali",
+    "version": "8",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Compare two binary versions to find changed functions worth reversing.",
+    "resources": [
+      {
+        "url": "https://www.zynamics.com/bindiff/manual/",
+        "title": "BinDiff — primary documentation",
+        "kind": "reference",
+        "why": "Compare compiled program versions Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Requires compatible exported analysis; do not assume an unapproved commercial disassembler is available."
+    ],
+    "recipe_candidate": "Compare two binary versions to find changed functions worth reversing. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-16",
+    "name": "Bytecode Viewer",
+    "platform": "kali",
+    "version": "2.13.2",
+    "location": "Fat Jar",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect a JAR using multiple decompiler views when one view is misleading.",
+    "resources": [
+      {
+        "url": "https://github.com/Konloch/bytecode-viewer",
+        "title": "Bytecode Viewer — primary documentation",
+        "kind": "reference",
+        "why": "Inspect Java bytecode Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Decompiler disagreement requires checking bytecode; Java runtime needed."
+    ],
+    "recipe_candidate": "Inspect a JAR using multiple decompiler views when one view is misleading. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-19",
+    "name": "capa",
+    "platform": "kali",
+    "version": "9.4.0",
+    "location": "",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Identify likely capabilities, then use verbose match locations to select functions to inspect.",
+    "resources": [
+      {
+        "url": "https://github.com/mandiant/capa",
+        "title": "capa — primary documentation",
+        "kind": "reference",
+        "why": "Identify executable capabilities Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Capability matches guide investigation; they are not proof of observed runtime behavior."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Supported executable sample",
+      "action": "Identify likely capabilities, then use verbose match locations to select functions to inspect.",
+      "expected_observation": "Capability names and verbose evidence addresses to inspect in a decompiler."
+    }
+  },
+  {
+    "id": "kali-21",
+    "name": "checksec",
+    "platform": "kali",
+    "version": "2.6.0",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Read ELF protection properties before analyzing a crash or native target.",
+    "resources": [
+      {
+        "url": "https://github.com/slimm609/checksec/releases",
+        "title": "checksec — primary documentation",
+        "kind": "reference",
+        "why": "Identify executable protections Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Workbook pins Bash 2.6.0; current Go CLI syntax differs."
+    ],
+    "recipe_candidate": "Read ELF protection properties before analyzing a crash or native target. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-24",
+    "name": "Cutter",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "AppImage (/opt/tools/cutter.AppImage)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Use a graph and string references to locate the checker as a GUI alternative.",
+    "resources": [
+      {
+        "url": "https://github.com/rizinorg/cutter",
+        "title": "Cutter — primary documentation",
+        "kind": "reference",
+        "why": "Inspect program control flow Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "AppImage needs FUSE per workbook; Cutter uses Rizin, not current radare2 command compatibility."
+    ],
+    "recipe_candidate": "Use a graph and string references to locate the checker as a GUI alternative. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-27",
+    "name": "Detect It Easy (DIE)",
+    "platform": "kali",
+    "version": "3.21",
+    "location": "",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Identify file type, compiler and probable packer before choosing the next tool.",
+    "resources": [
+      {
+        "url": "https://github.com/horsicq/Detect-It-Easy",
+        "title": "Detect It Easy (DIE) — primary documentation",
+        "kind": "reference",
+        "why": "Identify binary formats and packers Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Signature detections are hypotheses; confirm with sections, strings and code."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Unknown executable",
+      "action": "Identify file type, compiler and probable packer before choosing the next tool.",
+      "expected_observation": "Likely format, compiler or packer identification to corroborate with other evidence."
+    }
+  },
+  {
+    "id": "kali-28",
+    "name": "dex2jar",
+    "platform": "kali",
+    "version": "2.1-nightly-28",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Convert DEX to JAR when a Java decompiler provides a useful second view.",
+    "resources": [
+      {
+        "url": "https://github.com/pxb1988/dex2jar",
+        "title": "dex2jar — primary documentation",
+        "kind": "reference",
+        "why": "Convert Android bytecode to a JAR for Java analysis. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Prefer direct JADX inspection first; conversion can lose information or fail on malformed bytecode."
+    ],
+    "recipe_candidate": "Convert DEX to JAR when a Java decompiler provides a useful second view. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-29",
+    "name": "Didier Stevens Beta tools (onedump.py)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/Beta)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "List OneNote embedded objects and extract the suspicious object for separate inspection.",
+    "resources": [
+      {
+        "url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+        "title": "Didier Stevens Beta tools (onedump.py) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect objects in a OneNote document. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Beta tool manual is incomplete; check installed help and select objects explicitly."
+    ],
+    "recipe_candidate": "List OneNote embedded objects and extract the suspicious object for separate inspection. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-30",
+    "name": "Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/DidierStevensSuite)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Triage PDF indicators, inspect referenced streams, or extract OLE macro streams.",
+    "resources": [
+      {
+        "url": "https://github.com/DidierStevens/DidierStevensSuite",
+        "title": "Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others) — primary documentation",
+        "kind": "reference",
+        "why": "Triage Office macros and PDF objects. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://blog.didierstevens.com/programs/pdf-tools/",
+        "title": "Author PDF tools guide",
+        "kind": "tutorial",
+        "why": "Explains the distinction between keyword triage and object parsing with examples.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "PDFiD counts are triage only; repository is a suite, so pick the exact script and inspect its help."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Suspicious PDF or OLE document",
+      "action": "Triage PDF indicators, inspect referenced streams, or extract OLE macro streams.",
+      "expected_observation": "PDF keyword counts and selected object streams, or listed OLE streams for explicit extraction."
+    }
+  },
+  {
+    "id": "kali-33",
+    "name": "Eclipse Temurin JDK (OpenJDK)",
+    "platform": "kali",
+    "version": "25.0.4 (2026-07-21)",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Provide the Java runtime needed by approved Java analysis tools.",
+    "resources": [
+      {
+        "url": "https://adoptium.net/temurin",
+        "title": "Eclipse Temurin JDK (OpenJDK) — primary documentation",
+        "kind": "reference",
+        "why": "Run Java tools and inspect class bytecode. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Utility dependency, not its own challenge-solving workflow; match required JDK version."
+    ],
+    "recipe_candidate": null
+  },
+  {
+    "id": "kali-37",
+    "name": "FakeNet-NG",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/tools/flare-fakenet-ng (fakenet in PATH)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Observe attempted DNS/HTTP behavior against simulated network services.",
+    "resources": [
+      {
+        "url": "https://github.com/mandiant/flare-fakenet-ng",
+        "title": "FakeNet-NG — primary documentation",
+        "kind": "reference",
+        "why": "Observe network behavior in a malware lab. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Requires a contained lab and network privileges; never redirect the shared competition network."
+    ],
+    "recipe_candidate": "Observe attempted DNS/HTTP behavior against simulated network services. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-38",
+    "name": "Fernflower",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/tools/fernflower/build/libs/fernflower.jar (/usr/local/bin/fernflower)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Decompile a Java class or JAR to inspect a validation method.",
+    "resources": [
+      {
+        "url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+        "title": "Fernflower — primary documentation",
+        "kind": "reference",
+        "why": "Decompile Java classes and JARs. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Source reconstruction can be inaccurate; compare bytecode or another approved decompiler."
+    ],
+    "recipe_candidate": "Decompile a Java class or JAR to inspect a validation method. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-43",
+    "name": "FLOSS (FLARE Obfuscated String Solver)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (flare-floss)",
+    "categories": [
+      "Malware Analysis",
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Recover decoded and stack-built strings, then cross-reference meaningful results.",
+    "resources": [
+      {
+        "url": "https://github.com/mandiant/flare-floss",
+        "title": "FLOSS (FLARE Obfuscated String Solver) — primary documentation",
+        "kind": "reference",
+        "why": "Recover obscured strings from binaries. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Not a universal unpacker; use local output rather than uploading challenge data to a hosted viewer."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Supported native executable",
+      "action": "Recover decoded and stack-built strings, then cross-reference meaningful results.",
+      "expected_observation": "Static and potentially decoded or stack-built strings; investigate relevant strings rather than treating all output as indicators."
+    }
+  },
+  {
+    "id": "kali-46",
+    "name": "Frida",
+    "platform": "kali",
+    "version": "17.23.3",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Observe native or Java method arguments at runtime after locating the relevant method.",
+    "resources": [
+      {
+        "url": "https://frida.re/docs/javascript-api/",
+        "title": "Frida — primary documentation",
+        "kind": "reference",
+        "why": "Observe runtime function calls. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://frida.re/docs/examples/android/",
+        "title": "Frida Android CTF example",
+        "kind": "examples",
+        "why": "Shows Java method and field instrumentation; retain as a version-sensitive pattern, not ready-to-run code.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Approved Frida 17 changes bridge packaging; older Android examples require adaptation and device access."
+    ],
+    "recipe_candidate": "Observe native or Java method arguments at runtime after locating the relevant method. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-48",
+    "name": "GEF (GDB Enhanced Features)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/tools/gef.py",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect registers, stack and memory with the existing GDB enhancement.",
+    "resources": [
+      {
+        "url": "https://hugsy.github.io/gef/",
+        "title": "GEF (GDB Enhanced Features) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect register and stack state in GDB. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Choose one GDB frontend; do not load GEF, PEDA and pwndbg together."
+    ],
+    "recipe_candidate": "Inspect registers, stack and memory with the existing GDB enhancement. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-55",
+    "name": "GoReSym",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "go install (github.com/mandiant/GoReSym@latest)",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Recover function names and metadata from a stripped Go binary.",
+    "resources": [
+      {
+        "url": "https://github.com/mandiant/GoReSym",
+        "title": "GoReSym — primary documentation",
+        "kind": "reference",
+        "why": "Recover symbols in a Go binary. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Recovery depends on supported Go metadata; recovered names still need mapping into the analysis tool."
+    ],
+    "recipe_candidate": "Recover function names and metadata from a stripped Go binary. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-69",
+    "name": "innoextract",
+    "platform": "kali",
+    "version": "dev build",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "List and extract an Inno Setup installer without running its payload.",
+    "resources": [
+      {
+        "url": "https://constexpr.org/innoextract/",
+        "title": "innoextract — primary documentation",
+        "kind": "reference",
+        "why": "Unpack an Inno Setup installer. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Only supported Inno Setup formats; extract into a fresh directory."
+    ],
+    "recipe_candidate": "List and extract an Inno Setup installer without running its payload. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-70",
+    "name": "internet_detector",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "apt (inetsim)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Consult INetSim service simulation only after confirming what this workbook row installed.",
+    "resources": [
+      {
+        "url": "https://www.inetsim.org/",
+        "title": "internet_detector — primary documentation",
+        "kind": "reference",
+        "why": "Simulate internet services in a malware lab. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Workbook calls it internet_detector but records apt package inetsim; the executable identity is unresolved."
+    ],
+    "recipe_candidate": null
+  },
+  {
+    "id": "kali-72",
+    "name": "jadx (jadx-gui)",
+    "platform": "kali",
+    "version": "1.5.6",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Open APK/DEX, search strings and follow usages to the input-validation method.",
+    "resources": [
+      {
+        "url": "https://github.com/skylot/jadx",
+        "title": "jadx (jadx-gui) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect Android application logic. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "JADX warns it cannot decompile every method correctly; use smali for ambiguous code."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "APK or DEX",
+      "action": "Open APK/DEX, search strings and follow usages to the input-validation method.",
+      "expected_observation": "Java-like code, searchable strings and usages; failed methods remain candidates for smali inspection."
+    }
+  },
+  {
+    "id": "kali-75",
+    "name": "js-beautify",
+    "platform": "kali",
+    "version": "2.0.3",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Format a JavaScript payload before following variables and control flow.",
+    "resources": [
+      {
+        "url": "https://github.com/beautifier/js-beautify",
+        "title": "js-beautify — primary documentation",
+        "kind": "reference",
+        "why": "Format compressed JavaScript for inspection. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Formatting does not undo semantic obfuscation; use the local CLI."
+    ],
+    "recipe_candidate": "Format a JavaScript payload before following variables and control flow. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-76",
+    "name": "js-deobfuscator",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "npm (js-deobfuscator)",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Simplify JavaScript string arrays and proxy functions for static reading.",
+    "resources": [
+      {
+        "url": "https://github.com/ben-sb/javascript-deobfuscator",
+        "title": "js-deobfuscator — primary documentation",
+        "kind": "reference",
+        "why": "Simplify JavaScript string arrays and proxy functions. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Pinned identity is ben-sb npm js-deobfuscator; review transformed output and retain original."
+    ],
+    "recipe_candidate": "Simplify JavaScript string arrays and proxy functions for static reading. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-83",
+    "name": "ltrace",
+    "platform": "kali",
+    "version": "0.7.91",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Observe dynamically linked library calls around a password comparison.",
+    "resources": [
+      {
+        "url": "https://ltrace.org/",
+        "title": "ltrace — primary documentation",
+        "kind": "reference",
+        "why": "Observe dynamic library calls. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Static linking and inlined functions can hide calls; execution is required."
+    ],
+    "recipe_candidate": "Observe dynamically linked library calls around a password comparison. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-93",
+    "name": "NASM (Netwide Assembler)",
+    "platform": "kali",
+    "version": "3.01",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Check x86 assembly syntax or assemble a minimal local experiment.",
+    "resources": [
+      {
+        "url": "https://www.nasm.us/docs.html",
+        "title": "NASM (Netwide Assembler) — primary documentation",
+        "kind": "reference",
+        "why": "Assemble or inspect x86 instructions. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Assembler reference only; match 16/32/64-bit mode and output format."
+    ],
+    "recipe_candidate": null
+  },
+  {
+    "id": "kali-96",
+    "name": "obfuscator-io-deobfuscator",
+    "platform": "kali",
+    "version": "1.0.6",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Recover readable strings and control flow from recognized Obfuscator.io output.",
+    "resources": [
+      {
+        "url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+        "title": "obfuscator-io-deobfuscator — primary documentation",
+        "kind": "reference",
+        "why": "Recover readable JavaScript from Obfuscator.io output. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Use local CLI, not the advertised upload service; not a universal JavaScript deobfuscator."
+    ],
+    "recipe_candidate": "Recover readable strings and control flow from recognized Obfuscator.io output. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-98",
+    "name": "oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (oletools)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Triage an Office file and extract VBA, DDE or embedded objects using the matching suite tool.",
+    "resources": [
+      {
+        "url": "https://github.com/decalage2/oletools",
+        "title": "oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf) — primary documentation",
+        "kind": "reference",
+        "why": "Inspect Office documents and extract macros or embedded objects. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      },
+      {
+        "url": "https://github.com/decalage2/oletools/wiki/olevba",
+        "title": "olevba usage and examples",
+        "kind": "examples",
+        "why": "Direct task reference for macro extraction and suspicious-code interpretation.",
+        "verification": "Opened now on 2026-10-22; relevant example or tutorial inspected; not executed."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Do not enable macros; extracted or decoded content still needs inspection."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Office document",
+      "action": "Triage an Office file and extract VBA, DDE or embedded objects using the matching suite tool.",
+      "expected_observation": "Macro source and suspicious-pattern findings, or extracted embedded objects from the appropriate suite tool."
+    }
+  },
+  {
+    "id": "kali-99",
+    "name": "OllyDbg",
+    "platform": "kali",
+    "version": "1.10-1kali5",
+    "location": "Wine (Windows binary)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Trace a legacy 32-bit Windows checker using its existing debugger.",
+    "resources": [
+      {
+        "url": "https://www.ollydbg.de/quickst.htm",
+        "title": "OllyDbg — primary documentation",
+        "kind": "reference",
+        "why": "Debug 32-bit Windows executables. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Workbook has 1.10 under Wine; use native x64dbg route where practical."
+    ],
+    "recipe_candidate": "Trace a legacy 32-bit Windows checker using its existing debugger. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-104",
+    "name": "peda",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/tools/peda (sourced in ~/.gdbinit)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Use the preconfigured PEDA context view for a native debugging session.",
+    "resources": [
+      {
+        "url": "https://github.com/longld/peda",
+        "title": "peda — primary documentation",
+        "kind": "reference",
+        "why": "Inspect debugging state and cyclic-pattern offsets. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Already sourced in .gdbinit per workbook; avoid stacking debugger plugins."
+    ],
+    "recipe_candidate": "Use the preconfigured PEDA context view for a native debugging session. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-105",
+    "name": "peepdf-3",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (peepdf-3)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Inspect a PDF object graph and decode suspicious streams interactively.",
+    "resources": [
+      {
+        "url": "https://github.com/digitalsleuth/peepdf-3",
+        "title": "peepdf-3 — primary documentation",
+        "kind": "reference",
+        "why": "Inspect PDF objects and streams. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Use this Python 3 fork; JavaScript analysis features may require optional dependencies."
+    ],
+    "recipe_candidate": "Inspect a PDF object graph and decode suspicious streams interactively. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-109",
+    "name": "pwndbg",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "/opt/tools/pwndbg",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Inspect native execution state and memory using pwndbg commands.",
+    "resources": [
+      {
+        "url": "https://pwndbg.re/stable/commands/",
+        "title": "pwndbg — primary documentation",
+        "kind": "reference",
+        "why": "Inspect binary debugging state and offsets. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Do not combine with PEDA or GEF initialization; installed version is not recorded."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Native binary loaded in GDB with pwndbg only",
+      "action": "Inspect native execution state and memory using pwndbg commands.",
+      "expected_observation": "Register, stack and memory context at the chosen breakpoint."
+    }
+  },
+  {
+    "id": "kali-110",
+    "name": "pycdc (Decompyle++)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Try Python bytecode decompilation; fall back to pycdas disassembly on unsupported constructs.",
+    "resources": [
+      {
+        "url": "https://github.com/zrax/pycdc",
+        "title": "pycdc (Decompyle++) — primary documentation",
+        "kind": "reference",
+        "why": "Decompile or disassemble Python bytecode. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Support depends on bytecode version and opcode; partial output is not guaranteed correct."
+    ],
+    "recipe_candidate": "Try Python bytecode decompilation; fall back to pycdas disassembly on unsupported constructs. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-111",
+    "name": "pyinstxtractor-ng",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pipx (pyinstxtractor-ng)",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Extract a PyInstaller bundle, identify its Python bytecode version, then choose a decompiler.",
+    "resources": [
+      {
+        "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+        "title": "pyinstxtractor-ng — primary documentation",
+        "kind": "reference",
+        "why": "Extract files bundled by PyInstaller. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "Extraction is not decompilation; preserve the bundle and inspect extracted files without running them."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "PyInstaller executable and fresh working directory",
+      "action": "Extract a PyInstaller bundle, identify its Python bytecode version, then choose a decompiler.",
+      "expected_observation": "Extracted bundled modules and PYC files ready for version-aware analysis."
+    }
+  },
+  {
+    "id": "kali-116",
+    "name": "radare2",
+    "platform": "kali",
+    "version": "6.0.5",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Analyze functions, list strings and disassemble a chosen routine from the terminal.",
+    "resources": [
+      {
+        "url": "https://book.rada.re/analysis/intro.html",
+        "title": "radare2 — primary documentation",
+        "kind": "reference",
+        "why": "Locate and disassemble binary functions. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Use targeted analysis on large files; commands differ from Rizin/Cutter."
+    ],
+    "recipe_candidate": "Analyze functions, list strings and disassemble a chosen routine from the terminal. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-117",
+    "name": "rat-king-parser",
+    "platform": "kali",
+    "version": "4.2.4",
+    "location": "",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Extract configuration after evidence identifies a supported RAT family.",
+    "resources": [
+      {
+        "url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+        "title": "rat-king-parser — primary documentation",
+        "kind": "reference",
+        "why": "Extract configuration from supported RAT families. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Family and variant coverage is finite; empty output does not prove absence of configuration."
+    ],
+    "recipe_candidate": "Extract configuration after evidence identifies a supported RAT family. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-121",
+    "name": "ROPgadget",
+    "platform": "kali",
+    "version": "7.7",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Find and inspect a small set of instruction gadgets for a native binary task.",
+    "resources": [
+      {
+        "url": "https://github.com/JonathanSalwan/ROPgadget",
+        "title": "ROPgadget — primary documentation",
+        "kind": "reference",
+        "why": "Find instruction gadgets in a binary. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Addresses depend on binary and load base; finding a gadget is not a validated exploit."
+    ],
+    "recipe_candidate": "Find and inspect a small set of instruction gadgets for a native binary task. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-138",
+    "name": "strace",
+    "platform": "kali",
+    "version": "7.0",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Trace file access and system calls to explain missing inputs or hidden file dependencies.",
+    "resources": [
+      {
+        "url": "https://strace.io/",
+        "title": "strace — primary documentation",
+        "kind": "reference",
+        "why": "Observe a program's file and system-call behavior. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Linux execution required; trace child processes explicitly when relevant."
+    ],
+    "recipe_candidate": "Trace file access and system calls to explain missing inputs or hidden file dependencies. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-145",
+    "name": "uncompyle6",
+    "platform": "kali",
+    "version": "3.9.3",
+    "location": "",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Decompile a supported older Python PYC after checking its bytecode version.",
+    "resources": [
+      {
+        "url": "https://github.com/rocky/python-uncompyle6",
+        "title": "uncompyle6 — primary documentation",
+        "kind": "reference",
+        "why": "Recover source from supported Python bytecode. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "README supports bytecode through 3.8; a newer host Python does not imply newer bytecode support."
+    ],
+    "recipe_candidate": "Decompile a supported older Python PYC after checking its bytecode version. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-146",
+    "name": "unpyc3 (unpyc37-3.10)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "git (/opt/tools/unpyc3)",
+    "categories": [
+      "Reverse Engineering"
+    ],
+    "challenge_use": "Try the approved alternate Python decompiler when its supported bytecode matches.",
+    "resources": [
+      {
+        "url": "https://github.com/greyblue9/unpyc37-3.10",
+        "title": "unpyc3 (unpyc37-3.10) — primary documentation",
+        "kind": "reference",
+        "why": "Decompile supported Python bytecode; this fork has only minimal Python 3.10 support. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Opened and inspected relevant usage or compatibility sections on 2026-10-22; no installed-tool execution."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "README states good 3.7, decent 3.8, mostly complete 3.9 and minimal 3.10 support."
+    ],
+    "recipe_candidate": "Try the approved alternate Python decompiler when its supported bytecode matches. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-149",
+    "name": "UPX",
+    "platform": "kali",
+    "version": "4.2.4",
+    "location": "",
+    "categories": [
+      "Reverse Engineering",
+      "Malware Analysis"
+    ],
+    "challenge_use": "Test a suspected UPX file and unpack a copy before normal static analysis.",
+    "resources": [
+      {
+        "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+        "title": "UPX — primary documentation",
+        "kind": "reference",
+        "why": "Check and unpack a UPX-packed executable. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "support",
+    "caveats": [
+      "Modified packers may fail; development docs may differ from approved 4.2.4."
+    ],
+    "recipe_candidate": "Test a suspected UPX file and unpack a copy before normal static analysis. Candidate only; not implemented or execution-tested."
+  },
+  {
+    "id": "kali-157",
+    "name": "YARA",
+    "platform": "kali",
+    "version": "4.5.8",
+    "location": "",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Write a small signature and scan a local sample corpus for related files.",
+    "resources": [
+      {
+        "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+        "title": "YARA — primary documentation",
+        "kind": "reference",
+        "why": "Create signatures and scan sample files. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "core",
+    "caveats": [
+      "A rule match identifies a pattern, not a malware verdict; stable docs identify as 4.4.0 versus approved 4.5.8."
+    ],
+    "recipe_candidate": {
+      "status": "candidate-only; not implemented or executed",
+      "input": "Small local rule file and sample directory",
+      "action": "Write a small signature and scan a local sample corpus for related files.",
+      "expected_observation": "Matching file names and rule identifiers; verify a deliberate positive and negative sample before relying on the rule."
+    }
+  },
+  {
+    "id": "kali-158",
+    "name": "yara-python (and YARA on Linux)",
+    "platform": "kali",
+    "version": "(not captured)",
+    "location": "pip (yara-python)",
+    "categories": [
+      "Malware Analysis"
+    ],
+    "challenge_use": "Use Python bindings only when a prewritten batch-scanning workflow needs structured match data.",
+    "resources": [
+      {
+        "url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+        "title": "yara-python (and YARA on Linux) — primary documentation",
+        "kind": "reference",
+        "why": "Compile YARA rules and scan files from Python. Maintainer documentation is sufficient for this focused route.",
+        "verification": "Fetched now on 2026-10-22; page title and scope retrieved, not a complete documentation review. Task mapping also uses inherited baseline evidence from research/learning/reverse-input.json. Installed behavior not tested."
+      }
+    ],
+    "priority": "reference",
+    "caveats": [
+      "Avoid duplicating the CLI route; binding version is unknown and must match expected API behavior."
+    ],
+    "recipe_candidate": "Use Python bindings only when a prewritten batch-scanning workflow needs structured match data. Candidate only; not implemented or execution-tested."
+  }
+]

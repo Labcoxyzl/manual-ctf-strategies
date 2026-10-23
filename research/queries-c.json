@@ -1,0 +1,605 @@
+[
+  {
+    "id": "kali-95",
+    "category": "misc",
+    "query": "Node.js 24 Buffer hex base64 conversion examples",
+    "alternate_query": "Node.js Buffer from hex toString base64 documentation",
+    "docs_url": "https://nodejs.org/docs/latest-v24.x/api/buffer.html",
+    "purpose": "Convert binary representations in JavaScript.",
+    "evidence_note": "Node v24 Buffer documentation covers encoding conversion; retrieved page is v24.22.0, not workbook v24.21.0. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-96",
+    "category": "reversing",
+    "query": "obfuscator-io-deobfuscator CLI recover strings examples",
+    "alternate_query": "ben-sb obfuscator-io-deobfuscator input output usage",
+    "docs_url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+    "purpose": "Recover readable JavaScript from Obfuscator.io output.",
+    "evidence_note": "ben-sb README documents CLI input/output and string recovery. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-97",
+    "category": "misc",
+    "query": "Obsidian link notes organize investigation vault examples",
+    "alternate_query": "Obsidian internal links search markdown documentation",
+    "docs_url": "https://help.obsidian.md/links",
+    "purpose": "Organize investigation notes with links.",
+    "evidence_note": "Official Obsidian Help resolves to Internal links; direct retrieval only exposed title. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-98",
+    "category": "malware",
+    "query": "oletools olevba extract VBA macros examples",
+    "alternate_query": "oletools oleid oleobj rtfobj suspicious document analysis usage",
+    "docs_url": "https://github.com/decalage2/oletools",
+    "purpose": "Inspect Office documents and extract macros or embedded objects.",
+    "evidence_note": "oletools README lists macro analysis and embedded-object tools. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-99",
+    "category": "reversing",
+    "query": "OllyDbg 1.10 breakpoints registers trace tutorial",
+    "alternate_query": "OllyDbg 1.10 32 bit executable debugging documentation",
+    "docs_url": "https://www.ollydbg.de/quickst.htm",
+    "purpose": "Debug 32-bit Windows executables.",
+    "evidence_note": "Official OllyDbg site identifies v1.10; quickst.htm documents tracing and breakpoints. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-100",
+    "category": "forensics",
+    "query": "OpenStego extract hidden data image command line examples",
+    "alternate_query": "OpenStego RandomLSB extract password documentation",
+    "docs_url": "https://www.openstego.com/",
+    "purpose": "Extract data hidden using OpenStego.",
+    "evidence_note": "OpenStego homepage documents hiding and extracting data in images. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-101",
+    "category": "crypto",
+    "query": "padding-oracle-attacker CLI error response ciphertext examples",
+    "alternate_query": "KishanBagaria padding-oracle-attacker usage block size encoding",
+    "docs_url": "https://github.com/KishanBagaria/padding-oracle-attacker",
+    "purpose": "Understand the tool's padding oracle input and response options.",
+    "evidence_note": "KishanBagaria README documents decrypt URL, hex/base64 ciphertext, block size and error response. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-102",
+    "category": "crypto",
+    "query": "PARI GP znlog modular arithmetic examples",
+    "alternate_query": "PARI GP factor znorder Mod documentation",
+    "docs_url": "https://pari.math.u-bordeaux.fr/dochtml/html-stable/Arithmetic_functions.html",
+    "purpose": "Explore modular arithmetic and discrete logarithms.",
+    "evidence_note": "Official PARI arithmetic reference documents znlog and znorder. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-103",
+    "category": "web",
+    "query": "PayloadsAllTheThings SQL injection syntax reference examples",
+    "alternate_query": "PayloadsAllTheThings SQL injection cheatsheet documentation",
+    "docs_url": "https://github.com/swisskyrepo/PayloadsAllTheThings",
+    "purpose": "Find a structured web vulnerability reference.",
+    "evidence_note": "Author-maintained PayloadsAllTheThings repository contains SQL Injection references; offline copy age unknown. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-104",
+    "category": "reversing",
+    "query": "GDB PEDA pattern create pattern offset examples",
+    "alternate_query": "longld peda GDB context checksec documentation",
+    "docs_url": "https://github.com/longld/peda",
+    "purpose": "Inspect debugging state and cyclic-pattern offsets.",
+    "evidence_note": "longld PEDA README documents cyclic patterns and GDB assistance. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-105",
+    "category": "malware",
+    "query": "peepdf-3 inspect PDF objects streams examples",
+    "alternate_query": "digitalsleuth peepdf-3 interactive console usage",
+    "docs_url": "https://github.com/digitalsleuth/peepdf-3",
+    "purpose": "Inspect PDF objects and streams.",
+    "evidence_note": "digitalsleuth peepdf-3 README identifies the Python 3 port and PDF object/stream inspection. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-106",
+    "category": "forensics",
+    "query": "libpff pffexport PST email export examples",
+    "alternate_query": "pff-tools pffinfo pffexport usage PST OST",
+    "docs_url": "https://github.com/libyal/libpff",
+    "purpose": "Inspect and extract Outlook personal-folder data.",
+    "evidence_note": "libyal README identifies PFF/OFF formats and Outlook data; exact pffexport options need installed help. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-107",
+    "category": "forensics",
+    "query": "Plaso log2timeline psort timeline CSV examples",
+    "alternate_query": "Plaso log2timeline psort pinfo storage file documentation",
+    "docs_url": "https://plaso.readthedocs.io/en/latest/sources/user/Using-log2timeline.html",
+    "purpose": "Build a forensic timeline from artifacts.",
+    "evidence_note": "Plaso log2timeline documentation gives storage-file examples; retrieved documentation is newer than workbook release. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-108",
+    "category": "forensics",
+    "query": "pngcheck verbose PNG chunks CRC examples",
+    "alternate_query": "pngcheck PNG integrity embedded text usage",
+    "docs_url": "https://github.com/pnggroup/pngcheck",
+    "purpose": "Inspect PNG structure and integrity.",
+    "evidence_note": "pnggroup repository documents PNG extension chunk support; repository now targets pngcheck 4, installed version unknown. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-109",
+    "category": "reversing",
+    "query": "pwndbg GDB context cyclic offset examples",
+    "alternate_query": "pwndbg cyclic checksec commands documentation",
+    "docs_url": "https://pwndbg.re/stable/commands/",
+    "purpose": "Inspect binary debugging state and offsets.",
+    "evidence_note": "Corrected an obsolete documentation path to the maintainer’s stable command reference."
+  },
+  {
+    "id": "kali-110",
+    "category": "reversing",
+    "query": "pycdc Decompyle++ decompile pyc usage supported Python versions",
+    "alternate_query": "zrax pycdc pycdas bytecode disassembly examples",
+    "docs_url": "https://github.com/zrax/pycdc",
+    "purpose": "Decompile or disassemble Python bytecode.",
+    "evidence_note": "zrax README documents pycdc and pycdas PYC inputs; bytecode support must be checked per sample. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-111",
+    "category": "reversing",
+    "query": "pyinstxtractor-ng extract PyInstaller executable examples",
+    "alternate_query": "pyinstxtractor-ng encrypted executable usage documentation",
+    "docs_url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+    "purpose": "Extract files bundled by PyInstaller.",
+    "evidence_note": "pyinstxtractor-ng README documents PyInstaller extraction and encrypted bundle support. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-112",
+    "category": "forensics",
+    "query": "pypykatz lsa minidump offline dump parse examples",
+    "alternate_query": "pypykatz minidump parser command documentation",
+    "docs_url": "https://github.com/skelsec/pypykatz",
+    "purpose": "Parse a supplied Windows memory dump.",
+    "evidence_note": "skelsec README documents minidump and LSASS processing; query is for supplied offline evidence. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-113",
+    "category": "misc",
+    "query": "Python 2.7 struct unpack binary data examples",
+    "alternate_query": "Python 2.7 binascii unhexlify documentation",
+    "docs_url": "https://docs.python.org/2.7/library/struct.html",
+    "purpose": "Read binary records in legacy Python scripts.",
+    "evidence_note": "Archived Python 2.7.18 documentation describes struct binary packing and unpacking. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-114",
+    "category": "misc",
+    "query": "uv run Python 3.11 script dependencies examples",
+    "alternate_query": "uv python install 3.11 managed Python documentation",
+    "docs_url": "https://docs.astral.sh/uv/guides/install-python/",
+    "purpose": "Select Python 3.11 through uv; workbook records no installation information.",
+    "evidence_note": "Official uv guide covers managed Python installation; workbook explicitly has no installation information. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-115",
+    "category": "forensics",
+    "query": "qemu-img info convert qcow2 raw examples",
+    "alternate_query": "QEMU qemu-img disk image formats convert documentation",
+    "docs_url": "https://www.qemu.org/docs/master/tools/qemu-img.html",
+    "purpose": "Identify and convert virtual disk formats.",
+    "evidence_note": "Official qemu-img manual describes offline disk image conversion; master docs may differ from workbook release. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-116",
+    "category": "reversing",
+    "query": "radare2 analyze binary afl pdf strings examples",
+    "alternate_query": "radare2 book aaa afl pdf izz commands",
+    "docs_url": "https://book.rada.re/analysis/intro.html",
+    "purpose": "Locate and disassemble binary functions.",
+    "evidence_note": "Official radare2 book analysis chapter checked; queries recommend function-analysis command discovery. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-117",
+    "category": "malware",
+    "query": "rat-king-parser extract AsyncRAT configuration examples",
+    "alternate_query": "jeFF0Falltrades rat_king_parser normalize YARA usage",
+    "docs_url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+    "purpose": "Extract configuration from supported RAT families.",
+    "evidence_note": "Author README confirms supported RAT families and normalized configuration extraction. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-118",
+    "category": "forensics",
+    "query": "RegRipper 3.0 rip.pl registry hive plugins examples",
+    "alternate_query": "RegRipper3.0 rip.pl hive plugin usage",
+    "docs_url": "https://github.com/keydet89/RegRipper3.0",
+    "purpose": "Extract artifacts from offline Windows registry hives.",
+    "evidence_note": "RegRipper3.0 README confirms offline hive parsing and plugins; query intentionally pins major version 3. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-119",
+    "category": "misc",
+    "query": "ripgrep rg fixed strings hidden files examples",
+    "alternate_query": "ripgrep rg text binary files glob guide",
+    "docs_url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+    "purpose": "Search text and selectively include hidden or binary files.",
+    "evidence_note": "ripgrep author guide documents file search and inclusion controls. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-120",
+    "category": "crypto",
+    "query": "Kali wordlists rockyou.txt.gz location decompress",
+    "alternate_query": "Kali rockyou wordlists package usage documentation",
+    "docs_url": "https://www.kali.org/tools/wordlists/",
+    "purpose": "Locate the approved password dictionary.",
+    "evidence_note": "Kali wordlists package page lists rockyou.txt.gz; dictionary presence is not an executable. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-121",
+    "category": "reversing",
+    "query": "ROPgadget binary only pop ret examples",
+    "alternate_query": "JonathanSalwan ROPgadget usage supported architectures",
+    "docs_url": "https://github.com/JonathanSalwan/ROPgadget",
+    "purpose": "Find instruction gadgets in a binary.",
+    "evidence_note": "ROPgadget author README documents binary input and instruction filtering. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-122",
+    "category": "forensics",
+    "query": "rtptools rtpdump rtpplay payload format examples",
+    "alternate_query": "rtptools rtpdump file format usage documentation",
+    "docs_url": "https://github.com/irtlab/rtptools",
+    "purpose": "Inspect or replay RTP recordings.",
+    "evidence_note": "irtlab README identifies rtpdump parser and rtpplay replay utility. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-123",
+    "category": "misc",
+    "query": "Rust cargo run rustc debug build examples",
+    "alternate_query": "Rust book cargo build run documentation",
+    "docs_url": "https://doc.rust-lang.org/book/ch01-03-hello-cargo.html",
+    "purpose": "Build and run a Rust analysis utility.",
+    "evidence_note": "Official Rust book documents Cargo build/run; no dependence on workbook patch release intended. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-124",
+    "category": "misc",
+    "query": "RustScan port scan nmap arguments examples",
+    "alternate_query": "RustScan usage batch size timeout documentation",
+    "docs_url": "https://github.com/RustScan/RustScan/wiki/Usage",
+    "purpose": "Understand port discovery and scanner options.",
+    "evidence_note": "RustScan upstream usage wiki checked; project redirects to bee-san/RustScan. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-125",
+    "category": "crypto",
+    "query": "SageMath finite field discrete_log examples",
+    "alternate_query": "SageMath modular arithmetic small_roots documentation",
+    "docs_url": "https://doc.sagemath.org/html/en/reference/groups/sage/groups/generic.html",
+    "purpose": "Explore discrete logarithms; workbook records no installation information.",
+    "evidence_note": "Official Sage generic-groups reference includes finite-field discrete_log examples; workbook has no installation information. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-126",
+    "category": "web",
+    "query": "SecLists web content discovery directory wordlists examples",
+    "alternate_query": "SecLists Discovery Web-Content wordlist selection documentation",
+    "docs_url": "https://github.com/danielmiessler/SecLists",
+    "purpose": "Select a wordlist suited to a web discovery task.",
+    "evidence_note": "SecLists author repository identifies Discovery/Web-Content and other list families. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-127",
+    "category": "misc",
+    "query": "socat TCP client standard input examples",
+    "alternate_query": "socat STDIO TCP address syntax documentation",
+    "docs_url": "https://www.kali.org/tools/socat/",
+    "purpose": "Connect standard input to a TCP service.",
+    "evidence_note": "Kali’s package documentation provides CLI usage; the upstream HTTPS endpoint failed certificate verification."
+  },
+  {
+    "id": "kali-128",
+    "category": "forensics",
+    "query": "Sonic Visualiser spectrogram layer audio analysis tutorial",
+    "alternate_query": "Sonic Visualiser spectrogram frequency scale documentation",
+    "docs_url": "https://www.sonicvisualiser.org/doc/reference/5.2.1/en/",
+    "purpose": "Inspect audio with spectrogram layers.",
+    "evidence_note": "Official Sonic Visualiser 5.2.1 reference search result documents spectrogram layers; generic reference URL failed. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-129",
+    "category": "forensics",
+    "query": "sox_ng spectrogram WAV PNG command examples",
+    "alternate_query": "sox_ng remix trim spectrogram documentation",
+    "docs_url": "https://codeberg.org/sox_ng/sox_ng",
+    "purpose": "Generate audio spectrograms with the workbook-reported SoX_ng build; confirm local command options.",
+    "evidence_note": "Workbook remarks explicitly identify SoX_ng build; upstream sox_ng repository confirms fork identity. Exact 14.7.1.2 options not exercised. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-130",
+    "category": "forensics",
+    "query": "SQLCipher 4 CLI PRAGMA key encrypted database examples",
+    "alternate_query": "SQLCipher command line cipher_compatibility database documentation",
+    "docs_url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/",
+    "purpose": "Open a SQLCipher database with its known key and settings.",
+    "evidence_note": "Zetetic SQLCipher API documents PRAGMA key and compatibility settings; SQLCipher 4 retained to avoid SQLite-only answers. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-131",
+    "category": "forensics",
+    "query": "sqlite3 CLI tables schema SELECT examples",
+    "alternate_query": "SQLite command line shell readonly database query documentation",
+    "docs_url": "https://sqlite.org/cli.html",
+    "purpose": "Inspect a SQLite database without changing it.",
+    "evidence_note": "Official SQLite CLI manual documents schema queries and opening databases. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-132",
+    "category": "web",
+    "query": "sqlmap saved request file parameter batch examples",
+    "alternate_query": "sqlmap usage request file risk level documentation",
+    "docs_url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+    "purpose": "Understand sqlmap options for an authorized test request.",
+    "evidence_note": "sqlmap upstream usage wiki documents saved request input and test options. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-133",
+    "category": "forensics",
+    "query": "colaclanth sstv decode WAV image examples",
+    "alternate_query": "PySSTV encoder versus colaclanth sstv decoder Python package usage",
+    "docs_url": "https://github.com/colaclanth/sstv",
+    "purpose": "Decode SSTV audio; installed identity uncertain because workbook location lists the PySSTV encoder.",
+    "evidence_note": "Workbook names decoder but location says pip PySSTV. colaclanth/sstv README decodes WAV; PyPI pySSTV generates WAV from images. Installed identity remains uncertain; secondary source https://pypi.org/project/pySSTV/ checked. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-134",
+    "category": "forensics",
+    "query": "steghide info extract passphrase examples",
+    "alternate_query": "steghide supported file formats extract documentation",
+    "docs_url": "https://www.kali.org/tools/steghide/",
+    "purpose": "Inspect and extract a steghide carrier.",
+    "evidence_note": "Upstream documentation returned 403; Kali package documentation confirms info/extract/passphrase commands. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-135",
+    "category": "forensics",
+    "query": "stegseek steghide wordlist extract examples",
+    "alternate_query": "stegseek seed mode usage documentation",
+    "docs_url": "https://github.com/RickdeJager/stegseek",
+    "purpose": "Recover data from steghide carriers.",
+    "evidence_note": "RickdeJager README documents extraction, wordlist mode and seed mode. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-136",
+    "category": "forensics",
+    "query": "stegsnow SNOW extract whitespace steganography examples",
+    "alternate_query": "SNOW steganography spaces tabs decode command line",
+    "docs_url": "https://www.darkside.com.au/snow/",
+    "purpose": "Decode whitespace-based hidden data.",
+    "evidence_note": "SNOW author's homepage describes whitespace steganography; Kali package page confirms stegsnow executable spelling. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-137",
+    "category": "forensics",
+    "query": "StegSolve Caesum image bit planes data extract tutorial",
+    "alternate_query": "StegSolve analyse data extract RGB LSB examples",
+    "docs_url": "https://github.com/Giotino/stegsolve",
+    "purpose": "Inspect image bit planes; installed StegSolve version and fork are unknown.",
+    "evidence_note": "Primary source for a modified StegSolve fork; compare with the organiser-installed build. Original handbook URL returned 404."
+  },
+  {
+    "id": "kali-138",
+    "category": "reversing",
+    "query": "strace trace openat read write file examples",
+    "alternate_query": "strace filter system calls trace output documentation",
+    "docs_url": "https://strace.io/",
+    "purpose": "Observe a program's file and system-call behavior.",
+    "evidence_note": "Official strace homepage identifies system-call tracing and process attachment. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-139",
+    "category": "osint",
+    "query": "Subfinder passive subdomain enumeration sources examples",
+    "alternate_query": "ProjectDiscovery subfinder usage provider config documentation",
+    "docs_url": "https://docs.projectdiscovery.io/tools/subfinder/usage",
+    "purpose": "Collect publicly reported subdomains.",
+    "evidence_note": "ProjectDiscovery subfinder usage documents domain input and passive-source configuration. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-140",
+    "category": "misc",
+    "query": "Sublime Text regex find in files examples",
+    "alternate_query": "Sublime Text search regular expressions documentation",
+    "docs_url": "https://www.sublimetext.com/docs/",
+    "purpose": "Search source and notes in an editor.",
+    "evidence_note": "Official Sublime documentation index checked; regex-query choice is a recommendation, not a retrieved command recipe. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-141",
+    "category": "misc",
+    "query": "GNU tar list extract archive directory examples",
+    "alternate_query": "GNU tar extract specific files documentation",
+    "docs_url": "https://www.gnu.org/software/tar/manual/html_node/extract.html",
+    "purpose": "List and extract archive members.",
+    "evidence_note": "GNU tar 1.35 manual search result describes extraction and --file; direct GNU retrieval blocked. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-142",
+    "category": "forensics",
+    "query": "tcpdump read pcap filter host port examples",
+    "alternate_query": "tcpdump r pcap X payload filter documentation",
+    "docs_url": "https://www.tcpdump.org/manpages/tcpdump.1.html",
+    "purpose": "Inspect captured packets with filters.",
+    "evidence_note": "Official tcpdump man page documents PCAP reading and filters. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-143",
+    "category": "forensics",
+    "query": "PhotoRec recover files disk image TestDisk examples",
+    "alternate_query": "TestDisk PhotoRec image.dd file recovery documentation",
+    "docs_url": "https://www.cgsecurity.org/wiki/PhotoRec_Step_By_Step",
+    "purpose": "Recover files from a disk image.",
+    "evidence_note": "CGSecurity PhotoRec guide documents disk recovery workflow; workbook includes both PhotoRec and TestDisk. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-144",
+    "category": "misc",
+    "query": "unar lsar list extract archive command examples",
+    "alternate_query": "The Unarchiver unar lsar command line usage",
+    "docs_url": "https://theunarchiver.com/command-line",
+    "purpose": "List and extract supported archive formats.",
+    "evidence_note": "Official Unarchiver command-line page identifies unar and lsar. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-145",
+    "category": "reversing",
+    "query": "uncompyle6 decompile pyc supported Python bytecode versions",
+    "alternate_query": "uncompyle6 Python bytecode version limitations usage",
+    "docs_url": "https://github.com/rocky/python-uncompyle6",
+    "purpose": "Recover source from supported Python bytecode.",
+    "evidence_note": "uncompyle6 README explicitly discusses Python bytecode compatibility limits; supported runtime and supported bytecode are different. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-146",
+    "category": "reversing",
+    "query": "unpyc37-3.10 unpyc3 decompile bytecode usage",
+    "alternate_query": "greyblue9 unpyc37-3.10 Python decompiler compatibility",
+    "docs_url": "https://github.com/greyblue9/unpyc37-3.10",
+    "purpose": "Decompile supported Python bytecode; this fork has only minimal Python 3.10 support.",
+    "evidence_note": "greyblue9 README states good 3.7, decent 3.8, mostly complete 3.9 and minimal 3.10 support; do not assume complete 3.10 decompilation. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-147",
+    "category": "misc",
+    "query": "unrar list extract archive Linux examples",
+    "alternate_query": "RAR unrar command line x l t documentation",
+    "docs_url": "https://www.rarlab.com/rar_add.htm",
+    "purpose": "List, test and extract RAR archives.",
+    "evidence_note": "RARLAB addons page identifies UnRAR; installed version unknown, command details need local help. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-148",
+    "category": "misc",
+    "query": "Info-ZIP unzip list extract archive examples",
+    "alternate_query": "unzip 6.0 command options l p d documentation",
+    "docs_url": "https://infozip.sourceforge.net/UnZip.html",
+    "purpose": "List and extract ZIP members.",
+    "evidence_note": "Official Info-ZIP UnZip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-149",
+    "category": "reversing",
+    "query": "UPX 4 unpack executable d test t examples",
+    "alternate_query": "UPX decompress packed executable documentation",
+    "docs_url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+    "purpose": "Check and unpack a UPX-packed executable.",
+    "evidence_note": "UPX upstream documentation identifies compress/expand operation; devel documentation may differ from workbook 4.2.4. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-150",
+    "category": "misc",
+    "query": "Visual Studio Code search regex files workspace examples",
+    "alternate_query": "VS Code basic editing search across files documentation",
+    "docs_url": "https://code.visualstudio.com/docs/editor/codebasics",
+    "purpose": "Search and edit analysis code.",
+    "evidence_note": "Official VS Code basic-editing documentation covers workspace search; redirected to /docs/editing/codebasics. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-151",
+    "category": "forensics",
+    "query": "Volatility 2 imageinfo profile pslist memory dump examples",
+    "alternate_query": "Volatility 2 command reference imageinfo pslist netscan",
+    "docs_url": "https://github.com/volatilityfoundation/volatility/wiki/Command-Reference",
+    "purpose": "Identify a memory image profile and inspect processes.",
+    "evidence_note": "Volatility 2 command reference lists imageinfo, pslist and netscan; query explicitly distinguishes version 2. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-152",
+    "category": "forensics",
+    "query": "Volatility 2 community plugins plugins directory usage",
+    "alternate_query": "volatilityfoundation community plugin compatibility documentation",
+    "docs_url": "https://github.com/volatilityfoundation/community",
+    "purpose": "Load community plugins for Volatility 2.",
+    "evidence_note": "Volatility Foundation community repository identifies community plugins; individual compatibility is not guaranteed. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-153",
+    "category": "forensics",
+    "query": "Volatility 2 Linux Mac profiles overlays usage",
+    "alternate_query": "volatilityfoundation profiles Linux macOS memory image matching",
+    "docs_url": "https://github.com/volatilityfoundation/profiles",
+    "purpose": "Match Linux or macOS profiles to memory images.",
+    "evidence_note": "Volatility Foundation profiles README gives Linux/macOS overlay directories and matching-profile requirements. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-154",
+    "category": "forensics",
+    "query": "Volatility 3 community3 plugins p directory usage",
+    "alternate_query": "volatilityfoundation community3 plugin compatibility documentation",
+    "docs_url": "https://github.com/volatilityfoundation/community3",
+    "purpose": "Load Volatility 3 community plugins; check each plugin against the installed release.",
+    "evidence_note": "Volatility Foundation community3 README warns plugins may be incompatible with current Volatility 3. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-155",
+    "category": "misc",
+    "query": "VS Code C C++ extension GDB launch.json debugging examples",
+    "alternate_query": "ms-vscode.cpptools Linux debugging documentation",
+    "docs_url": "https://code.visualstudio.com/docs/cpp/cpp-debug",
+    "purpose": "Configure C/C++ source debugging.",
+    "evidence_note": "Official VS Code C++ documentation covers GDB debugging and launch settings; compiler/debugger installation is separate. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-156",
+    "category": "misc",
+    "query": "VS Code Python extension select interpreter debug examples",
+    "alternate_query": "ms-python.python environment debugger documentation",
+    "docs_url": "https://code.visualstudio.com/docs/python/environments",
+    "purpose": "Select a Python interpreter for analysis scripts.",
+    "evidence_note": "Official VS Code Python environment documentation covers interpreter selection; debugger extension availability is separate. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-157",
+    "category": "malware",
+    "query": "YARA 4 rule strings condition scan file examples",
+    "alternate_query": "YARA writing rules hex strings condition documentation",
+    "docs_url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+    "purpose": "Create signatures and scan sample files.",
+    "evidence_note": "Official stable YARA rule reference retrieved as 4.4.0; workbook is 4.5.8, common v4 syntax targeted. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-158",
+    "category": "malware",
+    "query": "yara-python compile match filepath examples",
+    "alternate_query": "yara-python YARA 4 Python API documentation",
+    "docs_url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+    "purpose": "Compile YARA rules and scan files from Python.",
+    "evidence_note": "Official YARA Python reference documents compile and match(filepath); installed binding version unknown. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-159",
+    "category": "misc",
+    "query": "Info-ZIP zip archive files recursive examples",
+    "alternate_query": "zip command line options recurse documentation",
+    "docs_url": "https://infozip.sourceforge.net/Zip.html",
+    "purpose": "Package files into ZIP archives.",
+    "evidence_note": "Official Info-ZIP Zip page retrieved through web tool after direct HTTP 403. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-160",
+    "category": "misc",
+    "query": "zstd decompress file list test examples",
+    "alternate_query": "zstd command line d t l documentation",
+    "docs_url": "https://github.com/facebook/zstd/blob/dev/programs/README.md",
+    "purpose": "Inspect and decompress Zstandard data.",
+    "evidence_note": "Zstandard upstream CLI README documents decompression; development docs may differ from workbook 1.5.7. Query recommendation; Google AI Overview not observed in this research lane."
+  },
+  {
+    "id": "kali-161",
+    "category": "forensics",
+    "query": "Zui Brim import pcap Zed query examples",
+    "alternate_query": "Zui network packet capture analysis documentation",
+    "docs_url": "https://github.com/brimdata/zui",
+    "purpose": "Explore imported network-capture data.",
+    "evidence_note": "Zui repository redirects to superdb/zui; upstream brimcap README describes PCAP conversion for Zui. Installed version unknown. Query recommendation; Google AI Overview not observed in this research lane."
+  }
+]

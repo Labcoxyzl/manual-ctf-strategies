@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-23T03:17:41.389285+00:00",
+  "html_file": "index.html",
+  "html_sha256": "442551737219d2d364e856b2d78388ab7a031b44fa0a0a855c80204a9dc0d4be",
+  "anchors": 330,
+  "ids": 245,
+  "errors": [],
+  "inventory_rows": 200,
+  "resource_rows": 200,
+  "route_rows": 24,
+  "html_source_ids": 200,
+  "input_sha256": {
+    "research/inventory.json": "d4e8f647ffc71eac3ca307f9b542bf553fa3385c70d95fde8e90ebab41bb4f0f",
+    "research/routes.json": "2193bde7bcdad6c53f16cb92ebe5be042880a64faf8c31998397d7f89a26a712",
+    "research/resources/forensics.json": "05f455ce6f36e498efbf16291b0b406b71efe9ff487373a3f1638c431eea4e0c",
+    "research/resources/web-network.json": "aa5eed931335a97f339397c5bb66435118389873c0b95e8e173128467c98ff9c",
+    "research/resources/reverse.json": "c745d8a162e63301c7ad2caee7b56c5746f5ff4324f319769d13d049f30c012a",
+    "research/resources/media.json": "bb7c469b54deb090c1b47480089b2d765d7782d8ed58049d483638f1fccc6fc5",
+    "research/resources/crypto-foundations.json": "e5f35c5d7816bfdab5f3c3b737425159ed1353bff0df0593a62ad05606b69b6d"
+  }
+}

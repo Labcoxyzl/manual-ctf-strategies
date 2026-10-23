@@ -1,0 +1,168 @@
+{
+  "checked_on": "2026-10-23",
+  "results": [
+    {
+      "rank": 1,
+      "video_id": "_Wifm2g9ugg",
+      "file": "videos/01_Burp_Repeater__Wifm2g9ugg.mp4",
+      "bytes": 20696586,
+      "sha256": "f45835dc988e2449625694365351d4f0cc009aa01bc8b9bdfe6580a0fb6ac7b0",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 389.770159,
+      "sample_decode_seconds": [
+        1,
+        194.89,
+        386.77
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/01_Burp_Repeater__Wifm2g9ugg.en.vtt"
+    },
+    {
+      "rank": 2,
+      "video_id": "UtqmiI7k9lU",
+      "file": "videos/02_CyberChef_UtqmiI7k9lU.mp4",
+      "bytes": 27861258,
+      "sha256": "5c92ceefcf8eb0ff5c7d2533770b202baa5a9c0a39c9a530823bbf339b70429e",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 437.069206,
+      "sample_decode_seconds": [
+        1,
+        218.53,
+        434.07
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/02_CyberChef_UtqmiI7k9lU.en.vtt"
+    },
+    {
+      "rank": 3,
+      "video_id": "fTGTnrgjuGA",
+      "file": "videos/03_Ghidra_fTGTnrgjuGA.mp4",
+      "bytes": 82199659,
+      "sha256": "b92be0748d6989d6127bb9e811542dd74fe67b161b6dcdd0b37e1c120e777a3f",
+      "width": 2880,
+      "height": 1800,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "und",
+      "duration_seconds": 689.888073,
+      "sample_decode_seconds": [
+        1,
+        344.94,
+        686.89
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/03_Ghidra_fTGTnrgjuGA.en.vtt"
+    },
+    {
+      "rank": 4,
+      "video_id": "VroEiMOJPm8",
+      "file": "videos/04_GDB_VroEiMOJPm8.mp4",
+      "bytes": 184778439,
+      "sha256": "e528d7700f5b8e24f1f877431c77a4527a0aa14bf6a71b969b5c8684e6f78ed0",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 542.8361,
+      "sample_decode_seconds": [
+        1,
+        271.42,
+        539.84
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/04_GDB_VroEiMOJPm8.en.vtt"
+    },
+    {
+      "rank": 5,
+      "video_id": "_qElVZJqlGY",
+      "file": "videos/05_MFTECmd__qElVZJqlGY.mp4",
+      "bytes": 157646133,
+      "sha256": "684283ce8dc389e9948b50b25a7f515ee5c0b02bdea9fb09327291e13830ede9",
+      "width": 3840,
+      "height": 2160,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "eng",
+      "duration_seconds": 1321.12254,
+      "sample_decode_seconds": [
+        1,
+        660.56,
+        1318.12
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/05_MFTECmd__qElVZJqlGY.en.vtt"
+    },
+    {
+      "rank": 6,
+      "video_id": "Uk3DEgY5Ue8",
+      "file": "videos/06_Volatility3_Uk3DEgY5Ue8.mp4",
+      "bytes": 116238629,
+      "sha256": "8e3b0d2d9603127d5a8cf84ae87514910a54f2b0c9b7648f567a5b0483c8922b",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "av1",
+      "audio_codec": "aac",
+      "audio_language": "und",
+      "duration_seconds": 1919.94195,
+      "sample_decode_seconds": [
+        1,
+        959.97,
+        1916.94
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/06_Volatility3_Uk3DEgY5Ue8.en.vtt"
+    },
+    {
+      "rank": 7,
+      "video_id": "20K1ctFzu2Y",
+      "file": "videos/07_OPTIONAL_RSA_20K1ctFzu2Y.mp4",
+      "bytes": 42011840,
+      "sha256": "e1ef834be0b77be13116e6c51c5907f7055999399744348cdbbfb59c3590078a",
+      "width": 2560,
+      "height": 1440,
+      "video_codec": "vp9",
+      "audio_codec": "aac",
+      "audio_language": "und",
+      "duration_seconds": 343.841088,
+      "sample_decode_seconds": [
+        1,
+        171.92,
+        340.84
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/07_OPTIONAL_RSA_20K1ctFzu2Y.en.vtt"
+    },
+    {
+      "rank": 8,
+      "video_id": "pJYyyz6HPbQ",
+      "file": "videos/08_OPTIONAL_Audio_Stego_pJYyyz6HPbQ.mp4",
+      "bytes": 75028308,
+      "sha256": "5a306e26bc0747549ad77775f0d327b72da9beae60f8f3ff0347256fedbfcf61",
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_language": "und",
+      "duration_seconds": 569.051429,
+      "sample_decode_seconds": [
+        1,
+        284.53,
+        566.05
+      ],
+      "sample_decode_passed": true,
+      "subtitle_file": "videos/08_OPTIONAL_Audio_Stego_pJYyyz6HPbQ.en.vtt"
+    }
+  ],
+  "total_bytes": 706460852,
+  "scope": "ffprobe audio/video/duration plus three one-second decoded samples per file retaining source timestamps; not end-to-end viewing or full-file decode.",
+  "initial_check_note": "RSA tail sample initially produced output-muxer timestamp rescaling warnings; diagnosed and rechecked with source timebase. Original files unchanged; see logs/verification-initial.json."
+}

@@ -1,0 +1,20 @@
+{
+  "rank": 7,
+  "video_id": "20K1ctFzu2Y",
+  "file": "videos/07_OPTIONAL_RSA_20K1ctFzu2Y.mp4",
+  "bytes": 42011840,
+  "sha256": "e1ef834be0b77be13116e6c51c5907f7055999399744348cdbbfb59c3590078a",
+  "width": 2560,
+  "height": 1440,
+  "video_codec": "vp9",
+  "audio_codec": "aac",
+  "audio_language": "und",
+  "duration_seconds": 343.841088,
+  "sample_decode_seconds": [
+    1,
+    171.92,
+    340.84
+  ],
+  "sample_decode_passed": true,
+  "subtitle_file": "videos/07_OPTIONAL_RSA_20K1ctFzu2Y.en.vtt"
+}

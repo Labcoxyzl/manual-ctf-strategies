@@ -1,0 +1,2979 @@
+{
+  "id": "XkLCEhEJuSI",
+  "duration_seconds": 1839,
+  "caption_sha256": "8910d6e9cf8ccfbc66e5648edba3afd7ead83dc41e4020ad4511700b6affc6dc",
+  "entries": [
+    {
+      "seconds": 1,
+      "text": "So, you've dumped credentials from a"
+    },
+    {
+      "seconds": 1,
+      "text": "compromised system. They could be NTLM"
+    },
+    {
+      "seconds": 4,
+      "text": "hashes from a domain controller, an Etsy"
+    },
+    {
+      "seconds": 7,
+      "text": "shadow file from a Linux box, or maybe a"
+    },
+    {
+      "seconds": 10,
+      "text": "database table full of bcrypt."
+    },
+    {
+      "seconds": 13,
+      "text": "So, now what do you do? So, if you can't"
+    },
+    {
+      "seconds": 15,
+      "text": "crack them, you can't prove impact."
+    },
+    {
+      "seconds": 17,
+      "text": "And if you're cracking them on a laptop"
+    },
+    {
+      "seconds": 20,
+      "text": "CPU, you're going to actually be waiting"
+    },
+    {
+      "seconds": 22,
+      "text": "for a very long time."
+    },
+    {
+      "seconds": 24,
+      "text": "Today, I'm going to walk you through how"
+    },
+    {
+      "seconds": 26,
+      "text": "to use Hashcat. And I'm also going to"
+    },
+    {
+      "seconds": 28,
+      "text": "show you exactly why hardware matters by"
+    },
+    {
+      "seconds": 31,
+      "text": "comparing the hash rates on a CPU inside"
+    },
+    {
+      "seconds": 33,
+      "text": "of Kali VM, and also on an RTX 4090."
+    },
+    {
+      "seconds": 38,
+      "text": "So, we got a lot to cover today, so"
+    },
+    {
+      "seconds": 40,
+      "text": "let's go ahead and get started."
+    },
+    {
+      "seconds": 57,
+      "text": "So, the first thing to notice is that"
+    },
+    {
+      "seconds": 57,
+      "text": "I'm in Kali, and I've got a terminal"
+    },
+    {
+      "seconds": 59,
+      "text": "open."
+    },
+    {
+      "seconds": 61,
+      "text": "And we can see if Hashcat is already"
+    },
+    {
+      "seconds": 63,
+      "text": "installed by using the following"
+    },
+    {
+      "seconds": 64,
+      "text": "command, which is Hashcat {double-dash}"
+    },
+    {
+      "seconds": 67,
+      "text": "version. If we get a version number"
+    },
+    {
+      "seconds": 69,
+      "text": "back, then then we're all good. If we"
+    },
+    {
+      "seconds": 71,
+      "text": "don't, then we need to actually install"
+    },
+    {
+      "seconds": 73,
+      "text": "it. So, let's go ahead and walk through"
+    },
+    {
+      "seconds": 74,
+      "text": "the steps to install Hashcat. So,"
+    },
+    {
+      "seconds": 77,
+      "text": "there's basically two commands that I'm"
+    },
+    {
+      "seconds": 78,
+      "text": "going to use for this. I always use sudo"
+    },
+    {
+      "seconds": 80,
+      "text": "apt update before I do any new install,"
+    },
+    {
+      "seconds": 83,
+      "text": "but the tool that we want to do is"
+    },
+    {
+      "seconds": 85,
+      "text": "Hashcat, and to install that we would do"
+    },
+    {
+      "seconds": 88,
+      "text": "sudo apt"
+    },
+    {
+      "seconds": 89,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 89,
+      "text": ">> install Hashcat {dash} y just to give"
+    },
+    {
+      "seconds": 92,
+      "text": "the yes prompt for all the install"
+    },
+    {
+      "seconds": 95,
+      "text": "questions. All right, since we already"
+    },
+    {
+      "seconds": 96,
+      "text": "have it installed, we don't need to run"
+    },
+    {
+      "seconds": 98,
+      "text": "through this, but I thought it would be"
+    },
+    {
+      "seconds": 99,
+      "text": "beneficial to at least take a look at"
+    },
+    {
+      "seconds": 101,
+      "text": "how to install it if you don't have it"
+    },
+    {
+      "seconds": 103,
+      "text": "on your system."
+    },
+    {
+      "seconds": 105,
+      "text": "So, the next command I used was Hashcat"
+    },
+    {
+      "seconds": 107,
+      "text": "{dash} i. All right, so what that means"
+    },
+    {
+      "seconds": 110,
+      "text": "is it allows us to see what devices the"
+    },
+    {
+      "seconds": 113,
+      "text": "Hashcat is going to use in order to do"
+    },
+    {
+      "seconds": 116,
+      "text": "the work. And we can see here that it's"
+    },
+    {
+      "seconds": 118,
+      "text": "going to use a CPU. Right? And now I'm"
+    },
+    {
+      "seconds": 122,
+      "text": "going to jump over to my Windows"
+    },
+    {
+      "seconds": 125,
+      "text": "platform, which has the RTX 4090, and"
+    },
+    {
+      "seconds": 128,
+      "text": "I'm going to show you what that looks"
+    },
+    {
+      "seconds": 130,
+      "text": "like when we're using a graphics"
+    },
+    {
+      "seconds": 132,
+      "text": "processing unit. So, hashcat {dash}"
+    },
+    {
+      "seconds": 135,
+      "text": "capital I. If we can look at the"
+    },
+    {
+      "seconds": 138,
+      "text": "back-end device ID number 01, the type"
+    },
+    {
+      "seconds": 142,
+      "text": "is GPU. Um and then if we look down a"
+    },
+    {
+      "seconds": 145,
+      "text": "little bit farther, we can see that it's"
+    },
+    {
+      "seconds": 146,
+      "text": "using the RTX 4090. So, in the case of"
+    },
+    {
+      "seconds": 150,
+      "text": "the Windows platform, it will use the"
+    },
+    {
+      "seconds": 152,
+      "text": "graphics card. For Kali, it's going to"
+    },
+    {
+      "seconds": 155,
+      "text": "use CPU."
+    },
+    {
+      "seconds": 157,
+      "text": "So, for this demonstration, I'm I"
+    },
+    {
+      "seconds": 159,
+      "text": "created a unique directory hashcat lab"
+    },
+    {
+      "seconds": 163,
+      "text": "just for practice. It makes sense to"
+    },
+    {
+      "seconds": 166,
+      "text": "create your own folder, but when you're"
+    },
+    {
+      "seconds": 169,
+      "text": "in an engagement, most likely you're"
+    },
+    {
+      "seconds": 171,
+      "text": "actually going to have a hash folder"
+    },
+    {
+      "seconds": 173,
+      "text": "that you're going to create relative to"
+    },
+    {
+      "seconds": 176,
+      "text": "the engagement folder that you've"
+    },
+    {
+      "seconds": 178,
+      "text": "already created for your your pen test."
+    },
+    {
+      "seconds": 181,
+      "text": "All right. So, we're going to make a"
+    },
+    {
+      "seconds": 182,
+      "text": "hash for a password. The password we're"
+    },
+    {
+      "seconds": 184,
+      "text": "going to use is password123!"
+    },
+    {
+      "seconds": 187,
+      "text": "And all we're going to do is basically"
+    },
+    {
+      "seconds": 189,
+      "text": "just take that and create an MD5 sum or"
+    },
+    {
+      "seconds": 192,
+      "text": "an MD5 hash of that. So, we can see that"
+    },
+    {
+      "seconds": 195,
+      "text": "it's got the hash file and then there's"
+    },
+    {
+      "seconds": 197,
+      "text": "a dash at the very end. The only thing"
+    },
+    {
+      "seconds": 200,
+      "text": "we're concerned with is that first"
+    },
+    {
+      "seconds": 202,
+      "text": "value."
+    },
+    {
+      "seconds": 203,
+      "text": "The dash at the end is actually going to"
+    },
+    {
+      "seconds": 205,
+      "text": "cause us a lot of problems. So, when"
+    },
+    {
+      "seconds": 206,
+      "text": "you're practicing this, make sure you"
+    },
+    {
+      "seconds": 208,
+      "text": "only copy the hashes"
+    },
+    {
+      "seconds": 210,
+      "text": "to put into your file to actually"
+    },
+    {
+      "seconds": 213,
+      "text": "perform the hash tag against."
+    },
+    {
+      "seconds": 215,
+      "text": "So, you can see that I copied the hash"
+    },
+    {
+      "seconds": 217,
+      "text": "file into a hashes-md5.txt"
+    },
+    {
+      "seconds": 220,
+      "text": "file. That'll just make things easier"
+    },
+    {
+      "seconds": 222,
+      "text": "for us when we're actually using"
+    },
+    {
+      "seconds": 223,
+      "text": "hashcat. One other thing I created too,"
+    },
+    {
+      "seconds": 227,
+      "text": "and you'll want to replicate this"
+    },
+    {
+      "seconds": 229,
+      "text": "possibly if you want to follow along"
+    },
+    {
+      "seconds": 231,
+      "text": "exactly what I'm doing here. But, I"
+    },
+    {
+      "seconds": 234,
+      "text": "created a very simplistic word list and"
+    },
+    {
+      "seconds": 237,
+      "text": "you can see it's got admin, password,"
+    },
+    {
+      "seconds": 239,
+      "text": "welcome, spring, company, and"
+    },
+    {
+      "seconds": 240,
+      "text": "modifications of those."
+    },
+    {
+      "seconds": 243,
+      "text": "We also see that the password has"
+    },
+    {
+      "seconds": 245,
+      "text": "lowercase and uppercase"
+    },
+    {
+      "seconds": 247,
+      "text": "mixed amongst them. So,"
+    },
+    {
+      "seconds": 249,
+      "text": "again, this will just be easiest for us"
+    },
+    {
+      "seconds": 252,
+      "text": "to use as opposed to something like the"
+    },
+    {
+      "seconds": 254,
+      "text": "rockyou"
+    },
+    {
+      "seconds": 256,
+      "text": "file, which we'll talk about later."
+    },
+    {
+      "seconds": 258,
+      "text": "But, it will have a lot larger number of"
+    },
+    {
+      "seconds": 261,
+      "text": "files in it and it will take a lot"
+    },
+    {
+      "seconds": 263,
+      "text": "longer to demonstrate the hashcat."
+    },
+    {
+      "seconds": 266,
+      "text": "Okay, so let's go ahead and move on to"
+    },
+    {
+      "seconds": 268,
+      "text": "the next step. So, if we don't know what"
+    },
+    {
+      "seconds": 270,
+      "text": "type of hash we're actually working"
+    },
+    {
+      "seconds": 272,
+      "text": "with, we can use the following command,"
+    },
+    {
+      "seconds": 274,
+      "text": "which is the hashcat and then the file"
+    },
+    {
+      "seconds": 277,
+      "text": "that's got the hash in there and then"
+    },
+    {
+      "seconds": 279,
+      "text": "just a word list to kick it off, right?"
+    },
+    {
+      "seconds": 281,
+      "text": "But, what we'll see is that there's a"
+    },
+    {
+      "seconds": 284,
+      "text": "lot of different"
+    },
+    {
+      "seconds": 286,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 286,
+      "text": ">> types of hashes that look very similar"
+    },
+    {
+      "seconds": 288,
+      "text": "to what we just created. And you really"
+    },
+    {
+      "seconds": 290,
+      "text": "kind of need to figure out which one you"
+    },
+    {
+      "seconds": 292,
+      "text": "need to use for"
+    },
+    {
+      "seconds": 295,
+      "text": "the attack. And the only really way to"
+    },
+    {
+      "seconds": 297,
+      "text": "do that is to know where you got the"
+    },
+    {
+      "seconds": 299,
+      "text": "information from. Since we got it by"
+    },
+    {
+      "seconds": 302,
+      "text": "creating an MD5 hash, we know it's an"
+    },
+    {
+      "seconds": 304,
+      "text": "MD5 sum. So, we're going to actually"
+    },
+    {
+      "seconds": 306,
+      "text": "use, you can see on the far left side"
+    },
+    {
+      "seconds": 308,
+      "text": "there's a number and a bunch of"
+    },
+    {
+      "seconds": 310,
+      "text": "different values. We're going to use for"
+    },
+    {
+      "seconds": 311,
+      "text": "MD5, we're going to use the number zero."
+    },
+    {
+      "seconds": 314,
+      "text": "So, that's where we're getting from."
+    },
+    {
+      "seconds": 315,
+      "text": "We'll get into this in a lot more detail"
+    },
+    {
+      "seconds": 317,
+      "text": "here in a minute, but just be aware that"
+    },
+    {
+      "seconds": 320,
+      "text": "the next command I'm going to have the"
+    },
+    {
+      "seconds": 322,
+      "text": "dash m0, that's where I'm getting that"
+    },
+    {
+      "seconds": 324,
+      "text": "number from. Okay, let's go ahead and"
+    },
+    {
+      "seconds": 326,
+      "text": "actually perform the attack. So, this is"
+    },
+    {
+      "seconds": 329,
+      "text": "what the structure of the hashcat"
+    },
+    {
+      "seconds": 332,
+      "text": "command typically looks like."
+    },
+    {
+      "seconds": 334,
+      "text": "You're going to see a few variations"
+    },
+    {
+      "seconds": 335,
+      "text": "down the road and it can get kind of"
+    },
+    {
+      "seconds": 337,
+      "text": "confusing, but"
+    },
+    {
+      "seconds": 338,
+      "text": "this is what we're going to start with."
+    },
+    {
+      "seconds": 340,
+      "text": "So, we've got hashcat dash m0,"
+    },
+    {
+      "seconds": 344,
+      "text": "which means that we're going to crack"
+    },
+    {
+      "seconds": 346,
+      "text": "MD5, which we got from that table"
+    },
+    {
+      "seconds": 348,
+      "text": "earlier."
+    },
+    {
+      "seconds": 350,
+      "text": "And then we're going to tell it {dash} A"
+    },
+    {
+      "seconds": 353,
+      "text": "zero, which means a straight word list"
+    },
+    {
+      "seconds": 356,
+      "text": "[music] attack. So, we're not trying any"
+    },
+    {
+      "seconds": 358,
+      "text": "variations, we're just comparing the"
+    },
+    {
+      "seconds": 361,
+      "text": "hash to a word list, and and that's it."
+    },
+    {
+      "seconds": 364,
+      "text": "If there's any variation"
+    },
+    {
+      "seconds": 366,
+      "text": "um beyond that word list, we're not"
+    },
+    {
+      "seconds": 368,
+      "text": "going to look for that. Um and then of"
+    },
+    {
+      "seconds": 371,
+      "text": "course we've got the file that's got the"
+    },
+    {
+      "seconds": 372,
+      "text": "hash in it, and then our basic word"
+    },
+    {
+      "seconds": 376,
+      "text": "list. So, let's go ahead and launch this"
+    },
+    {
+      "seconds": 377,
+      "text": "and see what we get."
+    },
+    {
+      "seconds": 379,
+      "text": "So, it didn't really take very long. Uh"
+    },
+    {
+      "seconds": 381,
+      "text": "you can see at the very bottom the"
+    },
+    {
+      "seconds": 383,
+      "text": "started and stopped times. Uh it was"
+    },
+    {
+      "seconds": 385,
+      "text": "just a few seconds apart. Um that's"
+    },
+    {
+      "seconds": 387,
+      "text": "because we had a very small word list."
+    },
+    {
+      "seconds": 389,
+      "text": "And we can see here that uh we were able"
+    },
+    {
+      "seconds": 391,
+      "text": "to identify what the password was, which"
+    },
+    {
+      "seconds": 394,
+      "text": "was password123 {exclamation point} for"
+    },
+    {
+      "seconds": 397,
+      "text": "that particular hash. Now, I'm going to"
+    },
+    {
+      "seconds": 399,
+      "text": "run it again."
+    },
+    {
+      "seconds": 400,
+      "text": "Same command, and I'm going to"
+    },
+    {
+      "seconds": 403,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 403,
+      "text": ">> show you the the message that we get."
+    },
+    {
+      "seconds": 406,
+      "text": "So, it doesn't necessarily allow us to"
+    },
+    {
+      "seconds": 408,
+      "text": "run Hashcat again against the the hash"
+    },
+    {
+      "seconds": 412,
+      "text": "if it's already cracked it. Uh it has a"
+    },
+    {
+      "seconds": 414,
+      "text": "file that it keeps track of everything."
+    },
+    {
+      "seconds": 417,
+      "text": "So, we can see what was actually uh"
+    },
+    {
+      "seconds": 421,
+      "text": "cracked earlier by running the following"
+    },
+    {
+      "seconds": 423,
+      "text": "command. So, this is the command that we"
+    },
+    {
+      "seconds": 425,
+      "text": "use in order to see what was already"
+    },
+    {
+      "seconds": 428,
+      "text": "identified before."
+    },
+    {
+      "seconds": 430,
+      "text": "Uh so, the Hashcat we have to use the"
+    },
+    {
+      "seconds": 432,
+      "text": "{dash} M zero. So, we're telling it"
+    },
+    {
+      "seconds": 434,
+      "text": "we're looking for all the hashes that"
+    },
+    {
+      "seconds": 436,
+      "text": "were MD5 that were cracked from that"
+    },
+    {
+      "seconds": 439,
+      "text": "particular file, so the hashes-md5.txt"
+    },
+    {
+      "seconds": 442,
+      "text": "file, and then {double dash} show. And"
+    },
+    {
+      "seconds": 444,
+      "text": "and you can see the output here. It's"
+    },
+    {
+      "seconds": 446,
+      "text": "the same thing we saw earlier. So,"
+    },
+    {
+      "seconds": 448,
+      "text": "that's the basic workflow. So, we start"
+    },
+    {
+      "seconds": 451,
+      "text": "with a hash,"
+    },
+    {
+      "seconds": 453,
+      "text": "then we identify the hash type,"
+    },
+    {
+      "seconds": 456,
+      "text": "we have to pick the right Hashcat mode,"
+    },
+    {
+      "seconds": 460,
+      "text": "then we choose an attack type."
+    },
+    {
+      "seconds": 463,
+      "text": "We provide potential passwords."
+    },
+    {
+      "seconds": 467,
+      "text": "Then we execute the job and then we"
+    },
+    {
+      "seconds": 469,
+      "text": "check for the results. So the command I"
+    },
+    {
+      "seconds": 471,
+      "text": "have up right now is a remove command."
+    },
+    {
+      "seconds": 475,
+      "text": "And this is actually where the hashcat"
+    },
+    {
+      "seconds": 478,
+      "text": "pot file is located. So um we"
+    },
+    {
+      "seconds": 482,
+      "text": "demonstrated that if it already cracked"
+    },
+    {
+      "seconds": 486,
+      "text": "it, then"
+    },
+    {
+      "seconds": 488,
+      "text": "it won't do it again. And one way we can"
+    },
+    {
+      "seconds": 490,
+      "text": "just force it to do it is by removing"
+    },
+    {
+      "seconds": 492,
+      "text": "this file. So I'm going to go ahead and"
+    },
+    {
+      "seconds": 493,
+      "text": "remove it, but I'll show you another way"
+    },
+    {
+      "seconds": 496,
+      "text": "to get past that issue of not cracking"
+    },
+    {
+      "seconds": 500,
+      "text": "it again"
+    },
+    {
+      "seconds": 501,
+      "text": "here in a minute."
+    },
+    {
+      "seconds": 503,
+      "text": "Just to test it, let's go ahead and run"
+    },
+    {
+      "seconds": 504,
+      "text": "that command one more time. And again,"
+    },
+    {
+      "seconds": 506,
+      "text": "it should go through the process of"
+    },
+    {
+      "seconds": 507,
+      "text": "actually cracking that that hash. And we"
+    },
+    {
+      "seconds": 510,
+      "text": "can see that it actually did. Again, 2"
+    },
+    {
+      "seconds": 512,
+      "text": "minutes or 2 seconds to take care of it."
+    },
+    {
+      "seconds": 514,
+      "text": "So one thing that needs to be clear is"
+    },
+    {
+      "seconds": 517,
+      "text": "where that {dash} m number comes from."
+    },
+    {
+      "seconds": 520,
+      "text": "So the {dash} m flag tells hashcat the"
+    },
+    {
+      "seconds": 522,
+      "text": "the hash mode, which means that you're"
+    },
+    {
+      "seconds": 524,
+      "text": "telling hashcat what kind of hash you're"
+    },
+    {
+      "seconds": 527,
+      "text": "trying to crack."
+    },
+    {
+      "seconds": 528,
+      "text": "So we already talked about {dash} m zero"
+    },
+    {
+      "seconds": 531,
+      "text": "meant MD5."
+    },
+    {
+      "seconds": 533,
+      "text": "The {dash} m 1000 means NTLM. And the"
+    },
+    {
+      "seconds": 537,
+      "text": "{dash} m 1400 means SHA256."
+    },
+    {
+      "seconds": 542,
+      "text": "So the number isn't random. It comes"
+    },
+    {
+      "seconds": 543,
+      "text": "from hashcat's list of supported hash"
+    },
+    {
+      "seconds": 545,
+      "text": "modes. And the easiest way to find the"
+    },
+    {
+      "seconds": 548,
+      "text": "right mode is to search using the"
+    },
+    {
+      "seconds": 550,
+      "text": "hashcat help. So in this case, I've got"
+    },
+    {
+      "seconds": 553,
+      "text": "hashcat {dash} hh. And then I'm just"
+    },
+    {
+      "seconds": 556,
+      "text": "[music] going to grep for anything that"
+    },
+    {
+      "seconds": 558,
+      "text": "has the value NTLM in it. So let me go"
+    },
+    {
+      "seconds": 561,
+      "text": "ahead and run that and see what our"
+    },
+    {
+      "seconds": 562,
+      "text": "values are."
+    },
+    {
+      "seconds": 563,
+      "text": "So we can see that there's uh in this"
+    },
+    {
+      "seconds": 566,
+      "text": "case, there's five different potential"
+    },
+    {
+      "seconds": 568,
+      "text": "NTLM hashes that we can look at. And I"
+    },
+    {
+      "seconds": 571,
+      "text": "mentioned just a second ago that the"
+    },
+    {
+      "seconds": 573,
+      "text": "1000 is the one we typically use for"
+    },
+    {
+      "seconds": 576,
+      "text": "NTLM. All right, let's do the same thing"
+    },
+    {
+      "seconds": 578,
+      "text": "for the empty five and see what we get"
+    },
+    {
+      "seconds": 582,
+      "text": "for that number. We can see that the MD5"
+    },
+    {
+      "seconds": 584,
+      "text": "hash there's a huge number of them and"
+    },
+    {
+      "seconds": 587,
+      "text": "at the very top is the zero. All right,"
+    },
+    {
+      "seconds": 589,
+      "text": "so again it really becomes important to"
+    },
+    {
+      "seconds": 591,
+      "text": "understand where you're getting these"
+    },
+    {
+      "seconds": 593,
+      "text": "hashes from to be able to pick which"
+    },
+    {
+      "seconds": 596,
+      "text": "value you need to do."
+    },
+    {
+      "seconds": 599,
+      "text": "So the next command I want to show you"
+    },
+    {
+      "seconds": 601,
+      "text": "actually the next flag that I want to"
+    },
+    {
+      "seconds": 602,
+      "text": "show you is the example hashes flag."
+    },
+    {
+      "seconds": 605,
+      "text": "All right, so we've already talked a"
+    },
+    {
+      "seconds": 607,
+      "text": "little bit about -m0, -m1000, m1000 is"
+    },
+    {
+      "seconds": 612,
+      "text": "NTLM, etc. etc. but"
+    },
+    {
+      "seconds": 615,
+      "text": "what does it actually look like?"
+    },
+    {
+      "seconds": 617,
+      "text": "In case you're just a little curious and"
+    },
+    {
+      "seconds": 619,
+      "text": "you're not really sure 100% there is a"
+    },
+    {
+      "seconds": 622,
+      "text": "function built into hashcat where you"
+    },
+    {
+      "seconds": 624,
+      "text": "can say is this an NTLM hash based on a"
+    },
+    {
+      "seconds": 627,
+      "text": "comparison. So we can look here and see"
+    },
+    {
+      "seconds": 629,
+      "text": "the example hash before b9 b02e"
+    },
+    {
+      "seconds": 633,
+      "text": "and then we can just manually look and"
+    },
+    {
+      "seconds": 636,
+      "text": "see if it fits that pattern."
+    },
+    {
+      "seconds": 639,
+      "text": "It's not a foolproof method but at least"
+    },
+    {
+      "seconds": 641,
+      "text": "it's something."
+    },
+    {
+      "seconds": 642,
+      "text": "So the practical process to know which"
+    },
+    {
+      "seconds": 646,
+      "text": "-m number to use is basically we have to"
+    },
+    {
+      "seconds": 650,
+      "text": "one identify where the hash came from."
+    },
+    {
+      "seconds": 653,
+      "text": "Then we look at the hash format."
+    },
+    {
+      "seconds": 656,
+      "text": "Then after that we can search hashcat"
+    },
+    {
+      "seconds": 658,
+      "text": "help for the likely hash type."
+    },
+    {
+      "seconds": 662,
+      "text": "And when we get that we can compare"
+    },
+    {
+      "seconds": 664,
+      "text": "against hashcat example hashes."
+    },
+    {
+      "seconds": 667,
+      "text": "And then we can run a small test."
+    },
+    {
+      "seconds": 670,
+      "text": "That last one run a small test is kind"
+    },
+    {
+      "seconds": 672,
+      "text": "of important because if you get it wrong"
+    },
+    {
+      "seconds": 674,
+      "text": "then you're going to be working a"
+    },
+    {
+      "seconds": 677,
+      "text": "incorrect hash command for a very long"
+    },
+    {
+      "seconds": 679,
+      "text": "time with no good results and it's going"
+    },
+    {
+      "seconds": 682,
+      "text": "to throw errors possibly under the best"
+    },
+    {
+      "seconds": 684,
+      "text": "circumstances."
+    },
+    {
+      "seconds": 686,
+      "text": "So here's a few common examples of the"
+    },
+    {
+      "seconds": 689,
+      "text": "hashes that we use a lot. Now don't"
+    },
+    {
+      "seconds": 693,
+      "text": "treat this list as something to"
+    },
+    {
+      "seconds": 694,
+      "text": "memorize. You will eventually, if you do"
+    },
+    {
+      "seconds": 697,
+      "text": "this enough, um but use the built-in"
+    },
+    {
+      "seconds": 699,
+      "text": "help, search for it, and then compare"
+    },
+    {
+      "seconds": 701,
+      "text": "the hashes against example hashes."
+    },
+    {
+      "seconds": 704,
+      "text": "If the mode is wrong, like I said,"
+    },
+    {
+      "seconds": 706,
+      "text": "hashcat could fail immediately if you're"
+    },
+    {
+      "seconds": 708,
+      "text": "lucky. It could throw a parsing error or"
+    },
+    {
+      "seconds": 711,
+      "text": "just actually never crack anything"
+    },
+    {
+      "seconds": 713,
+      "text": "because it's testing the wrong"
+    },
+    {
+      "seconds": 715,
+      "text": "algorithm. And that last one is the"
+    },
+    {
+      "seconds": 716,
+      "text": "worst-case scenario again because you"
+    },
+    {
+      "seconds": 718,
+      "text": "could be sitting there for hours or"
+    },
+    {
+      "seconds": 720,
+      "text": "days. So, when hashcat doesn't work, one"
+    },
+    {
+      "seconds": 723,
+      "text": "of the first checks is whether the dash"
+    },
+    {
+      "seconds": 725,
+      "text": "m value actually matches the hash format"
+    },
+    {
+      "seconds": 728,
+      "text": "and the source. Let's return to the"
+    },
+    {
+      "seconds": 730,
+      "text": "subject of the potfile and why it won't"
+    },
+    {
+      "seconds": 735,
+      "text": "necessarily hash again. Uh again, that's"
+    },
+    {
+      "seconds": 738,
+      "text": "for conserving resources. Obviously, if"
+    },
+    {
+      "seconds": 741,
+      "text": "you've already cracked a hash, uh you"
+    },
+    {
+      "seconds": 743,
+      "text": "don't want to necessarily"
+    },
+    {
+      "seconds": 745,
+      "text": "cast the system to do it again. Again,"
+    },
+    {
+      "seconds": 748,
+      "text": "these can take days"
+    },
+    {
+      "seconds": 749,
+      "text": "uh"
+    },
+    {
+      "seconds": 750,
+      "text": "in some cases. So, uh it's just trying"
+    },
+    {
+      "seconds": 752,
+      "text": "to save you a lot of headache by not"
+    },
+    {
+      "seconds": 754,
+      "text": "doing the same thing over and over by"
+    },
+    {
+      "seconds": 756,
+      "text": "default. But, there is a way around"
+    },
+    {
+      "seconds": 758,
+      "text": "that, and that's the double-dash"
+    },
+    {
+      "seconds": 759,
+      "text": "potfile-disable"
+    },
+    {
+      "seconds": 762,
+      "text": "All right. So, you can see here I ran"
+    },
+    {
+      "seconds": 763,
+      "text": "the command -m 0 -a 0 against the"
+    },
+    {
+      "seconds": 767,
+      "text": "hashes-md5.txt"
+    },
+    {
+      "seconds": 769,
+      "text": "file using a wordlist that we created."
+    },
+    {
+      "seconds": 772,
+      "text": "And you can see that it basically said"
+    },
+    {
+      "seconds": 774,
+      "text": "that all the hashes are found as"
+    },
+    {
+      "seconds": 776,
+      "text": "potfiles. All right. So, in order to"
+    },
+    {
+      "seconds": 779,
+      "text": "view them, we can do the dash-dash show."
+    },
+    {
+      "seconds": 781,
+      "text": "But, in this case, I want it to run"
+    },
+    {
+      "seconds": 783,
+      "text": "again, and"
+    },
+    {
+      "seconds": 785,
+      "text": "in this example, I use the double-dash"
+    },
+    {
+      "seconds": 788,
+      "text": "potfile-disable. So, I'm going to go"
+    },
+    {
+      "seconds": 790,
+      "text": "ahead and run it, and you'll see it kick"
+    },
+    {
+      "seconds": 792,
+      "text": "off. We don't have to see the same"
+    },
+    {
+      "seconds": 793,
+      "text": "results again, but you'll know that it"
+    },
+    {
+      "seconds": 795,
+      "text": "actually works once I hit enter, and you"
+    },
+    {
+      "seconds": 797,
+      "text": "see it starting to digest that"
+    },
+    {
+      "seconds": 798,
+      "text": "information again. So, let's go ahead"
+    },
+    {
+      "seconds": 800,
+      "text": "and kick it off just to show you that"
+    },
+    {
+      "seconds": 802,
+      "text": "the potfile-disable function actually"
+    },
+    {
+      "seconds": 804,
+      "text": "works."
+    },
+    {
+      "seconds": 805,
+      "text": "All right. So, again, it's working. No"
+    },
+    {
+      "seconds": 807,
+      "text": "big deal. Took a couple seconds, got the"
+    },
+    {
+      "seconds": 810,
+      "text": "same crack. All right. So far we've"
+    },
+    {
+      "seconds": 812,
+      "text": "talked about how to run an attack"
+    },
+    {
+      "seconds": 815,
+      "text": "against a word list. Uh let's do"
+    },
+    {
+      "seconds": 817,
+      "text": "something a little bit more interesting."
+    },
+    {
+      "seconds": 819,
+      "text": "So a lot of real passwords are not"
+    },
+    {
+      "seconds": 821,
+      "text": "completely random. People do things like"
+    },
+    {
+      "seconds": 824,
+      "text": "password 2026 {exclamation point}"
+    },
+    {
+      "seconds": 828,
+      "text": "welcome 2026 {exclamation point} company"
+    },
+    {
+      "seconds": 830,
+      "text": "2026 {exclamation point} spring 2026"
+    },
+    {
+      "seconds": 834,
+      "text": "{exclamation point}. So the the point is"
+    },
+    {
+      "seconds": 837,
+      "text": "is that in order to make it easy for"
+    },
+    {
+      "seconds": 839,
+      "text": "themselves to remember what their"
+    },
+    {
+      "seconds": 841,
+      "text": "password is, all they do is use their"
+    },
+    {
+      "seconds": 842,
+      "text": "typical password and then append"
+    },
+    {
+      "seconds": 845,
+      "text": "something at the very end. Uh and years,"
+    },
+    {
+      "seconds": 848,
+      "text": "months are are the most often used. And"
+    },
+    {
+      "seconds": 853,
+      "text": "then as if it needs a special character,"
+    },
+    {
+      "seconds": 856,
+      "text": "the {exclamation point} is also the most"
+    },
+    {
+      "seconds": 859,
+      "text": "common special character used. So we're"
+    },
+    {
+      "seconds": 861,
+      "text": "going to use uh password 2026"
+    },
+    {
+      "seconds": 863,
+      "text": "{exclamation mark} I'll create an MD5"
+    },
+    {
+      "seconds": 866,
+      "text": "sum and we're going to put it in a new"
+    },
+    {
+      "seconds": 868,
+      "text": "file called hashes rule demo.txt."
+    },
+    {
+      "seconds": 871,
+      "text": "So let's go ahead and create that and"
+    },
+    {
+      "seconds": 873,
+      "text": "then we'll get on to the next step."
+    },
+    {
+      "seconds": 880,
+      "text": "To demonstrate how rules work, I created"
+    },
+    {
+      "seconds": 880,
+      "text": "a new word list. Uh this is called"
+    },
+    {
+      "seconds": 882,
+      "text": "basewords.txt."
+    },
+    {
+      "seconds": 884,
+      "text": "Uh and you can see lowercase password,"
+    },
+    {
+      "seconds": 886,
+      "text": "uppercase password, welcome, admin,"
+    },
+    {
+      "seconds": 887,
+      "text": "company, right? Again, the idea is that"
+    },
+    {
+      "seconds": 890,
+      "text": "we'll look at a word list using very"
+    },
+    {
+      "seconds": 893,
+      "text": "common passwords and then we will append"
+    },
+    {
+      "seconds": 897,
+      "text": "uh some variations that people often do"
+    },
+    {
+      "seconds": 899,
+      "text": "simply to continue to reuse the password"
+    },
+    {
+      "seconds": 902,
+      "text": "that they like yet meet the obligations"
+    },
+    {
+      "seconds": 905,
+      "text": "of refreshing their password after every"
+    },
+    {
+      "seconds": 908,
+      "text": "so often. All right, if we use the"
+    },
+    {
+      "seconds": 911,
+      "text": "command that we did before {dash} m0"
+    },
+    {
+      "seconds": 914,
+      "text": "{dash} a0 against the target, uh we"
+    },
+    {
+      "seconds": 917,
+      "text": "should get an error because uh in our"
+    },
+    {
+      "seconds": 919,
+      "text": "very small"
+    },
+    {
+      "seconds": 921,
+      "text": "list of words in basewords, we shouldn't"
+    },
+    {
+      "seconds": 924,
+      "text": "see a match for the hash that we"
+    },
+    {
+      "seconds": 926,
+      "text": "created, which was the"
+    },
+    {
+      "seconds": 928,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 928,
+      "text": ">> password 2026 {exclamation point}. Let's"
+    },
+    {
+      "seconds": 931,
+      "text": "go ahead and run it anyway and see what"
+    },
+    {
+      "seconds": 932,
+      "text": "we get."
+    },
+    {
+      "seconds": 934,
+      "text": "So, we can see down here that it"
+    },
+    {
+      "seconds": 935,
+      "text": "recovered zero out of one. All right,"
+    },
+    {
+      "seconds": 937,
+      "text": "this was unsuccessful as expected."
+    },
+    {
+      "seconds": 939,
+      "text": "Again, all we did was a comparison of"
+    },
+    {
+      "seconds": 942,
+      "text": "the hash to the word list."
+    },
+    {
+      "seconds": 946,
+      "text": "So, let's actually take a look at how to"
+    },
+    {
+      "seconds": 949,
+      "text": "perform a rule-based attack against a"
+    },
+    {
+      "seconds": 952,
+      "text": "password. So, we created a rule file. Uh"
+    },
+    {
+      "seconds": 956,
+      "text": "there These can be very complex, um but"
+    },
+    {
+      "seconds": 959,
+      "text": "in this case, we're"
+    },
+    {
+      "seconds": 960,
+      "text": "telling it to have a value of 2026"
+    },
+    {
+      "seconds": 965,
+      "text": "{exclamation point}. And the the dollar"
+    },
+    {
+      "seconds": 967,
+      "text": "signs basically are delimiters that it's"
+    },
+    {
+      "seconds": 970,
+      "text": "necessary for the rule file to know what"
+    },
+    {
+      "seconds": 972,
+      "text": "to do."
+    },
+    {
+      "seconds": 973,
+      "text": "So, the next command, uh this is kind of"
+    },
+    {
+      "seconds": 975,
+      "text": "a little cheat. Basically, what we want"
+    },
+    {
+      "seconds": 978,
+      "text": "to do is to see what it actually looks"
+    },
+    {
+      "seconds": 981,
+      "text": "like"
+    },
+    {
+      "seconds": 982,
+      "text": "if we use the append 2026 bang rule"
+    },
+    {
+      "seconds": 985,
+      "text": "file. All right, so we've got hashcat"
+    },
+    {
+      "seconds": 987,
+      "text": "{dash} A0. Again, we're looking at an"
+    },
+    {
+      "seconds": 989,
+      "text": "MD5 hash."
+    },
+    {
+      "seconds": 991,
+      "text": "Um and then we're looking at"
+    },
+    {
+      "seconds": 992,
+      "text": "basewords.txt, but we're adding the"
+    },
+    {
+      "seconds": 995,
+      "text": "{dash} R the append 2026 bang.rule file."
+    },
+    {
+      "seconds": 999,
+      "text": "Um and then we're just doing a double"
+    },
+    {
+      "seconds": 1000,
+      "text": "{dash} standard out uh in order to see"
+    },
+    {
+      "seconds": 1003,
+      "text": "what happens when hashcat takes that"
+    },
+    {
+      "seconds": 1006,
+      "text": "basewords file and does the"
+    },
+    {
+      "seconds": 1009,
+      "text": "appending. So, let's go ahead and run"
+    },
+    {
+      "seconds": 1011,
+      "text": "the command and see what it spits out."
+    },
+    {
+      "seconds": 1014,
+      "text": "So, you can see that it's a password"
+    },
+    {
+      "seconds": 1016,
+      "text": "2026 {exclamation point}, capital"
+    },
+    {
+      "seconds": 1019,
+      "text": "password 2026 {exclamation point}, etc."
+    },
+    {
+      "seconds": 1022,
+      "text": "Uh so, that's what it hashcat will use"
+    },
+    {
+      "seconds": 1025,
+      "text": "to create a comparison to the hash that"
+    },
+    {
+      "seconds": 1030,
+      "text": "we have in our hash file. So, let's go"
+    },
+    {
+      "seconds": 1033,
+      "text": "ahead and do the complete command uh in"
+    },
+    {
+      "seconds": 1037,
+      "text": "order to crack the new hash with using"
+    },
+    {
+      "seconds": 1042,
+      "text": "the uh the rule for appending the 2026"
+    },
+    {
+      "seconds": 1045,
+      "text": "{exclamation point} to the end."
+    },
+    {
+      "seconds": 1048,
+      "text": "Okay, so here's the full command. Uh so,"
+    },
+    {
+      "seconds": 1050,
+      "text": "hashcat -m0, again, we're looking at"
+    },
+    {
+      "seconds": 1053,
+      "text": "MD5s."
+    },
+    {
+      "seconds": 1055,
+      "text": "Uh -a0, simple wordlist,"
+    },
+    {
+      "seconds": 1058,
+      "text": "hashes-rule-demo.txt,"
+    },
+    {
+      "seconds": 1061,
+      "text": "that's the new hash that we're looking"
+    },
+    {
+      "seconds": 1063,
+      "text": "at for password 2026 {exclamation"
+    },
+    {
+      "seconds": 1066,
+      "text": "point}."
+    },
+    {
+      "seconds": 1067,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 1067,
+      "text": ">> Um then we're using base words txt,"
+    },
+    {
+      "seconds": 1070,
+      "text": "again, that's the simple uh wordlist"
+    },
+    {
+      "seconds": 1073,
+      "text": "that will be used to append that uh"
+    },
+    {
+      "seconds": 1076,
+      "text": "append 2026 bang.rule to in order to"
+    },
+    {
+      "seconds": 1079,
+      "text": "compare the hash. So, let's go ahead and"
+    },
+    {
+      "seconds": 1081,
+      "text": "run it and see what we get."
+    },
+    {
+      "seconds": 1083,
+      "text": "So, we were successful. It identified"
+    },
+    {
+      "seconds": 1085,
+      "text": "password 2026 {exclamation point} as the"
+    },
+    {
+      "seconds": 1088,
+      "text": "value for that hash."
+    },
+    {
+      "seconds": 1089,
+      "text": "Uh it took a little bit longer, 3"
+    },
+    {
+      "seconds": 1092,
+      "text": "seconds, and it was a much smaller"
+    },
+    {
+      "seconds": 1094,
+      "text": "wordlist by"
+    },
+    {
+      "seconds": 1096,
+      "text": "almost half, but um"
+    },
+    {
+      "seconds": 1098,
+      "text": "uh it does take a little bit more time"
+    },
+    {
+      "seconds": 1100,
+      "text": "to do the appending and then checking,"
+    },
+    {
+      "seconds": 1102,
+      "text": "but it's not it's not overly"
+    },
+    {
+      "seconds": 1104,
+      "text": "complicated. Uh it's not going to be uh"
+    },
+    {
+      "seconds": 1107,
+      "text": "dramatically different in in the process"
+    },
+    {
+      "seconds": 1109,
+      "text": "time."
+    },
+    {
+      "seconds": 1110,
+      "text": "So, now with the rule file, that's where"
+    },
+    {
+      "seconds": 1112,
+      "text": "hashcat starts becoming really useful."
+    },
+    {
+      "seconds": 1114,
+      "text": "You're not just testing words, you're"
+    },
+    {
+      "seconds": 1116,
+      "text": "testing transformations of words."
+    },
+    {
+      "seconds": 1120,
+      "text": "Uh and this is actually"
+    },
+    {
+      "seconds": 1121,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 1121,
+      "text": ">> how it lines up very closely with how"
+    },
+    {
+      "seconds": 1123,
+      "text": "people actually create passwords. Again,"
+    },
+    {
+      "seconds": 1126,
+      "text": "there's a lot of organizations that"
+    },
+    {
+      "seconds": 1128,
+      "text": "require password changes on a regular"
+    },
+    {
+      "seconds": 1130,
+      "text": "basis,"
+    },
+    {
+      "seconds": 1131,
+      "text": "and people have a tendency to use their"
+    },
+    {
+      "seconds": 1134,
+      "text": "common password that they that they"
+    },
+    {
+      "seconds": 1136,
+      "text": "like, and then just append, whether it's"
+    },
+    {
+      "seconds": 1139,
+      "text": "years or months or whatever, and then a"
+    },
+    {
+      "seconds": 1143,
+      "text": "special character like uh {exclamation"
+    },
+    {
+      "seconds": 1145,
+      "text": "point}. The second most common is the at"
+    },
+    {
+      "seconds": 1147,
+      "text": "sign. So, again, people are very"
+    },
+    {
+      "seconds": 1150,
+      "text": "predictable, and this is one that you'll"
+    },
+    {
+      "seconds": 1152,
+      "text": "probably want to use uh pretty"
+    },
+    {
+      "seconds": 1154,
+      "text": "regularly. Let's take a look at"
+    },
+    {
+      "seconds": 1156,
+      "text": "something a little bit more realistic"
+    },
+    {
+      "seconds": 1157,
+      "text": "for Windows environments, which are"
+    },
+    {
+      "seconds": 1159,
+      "text": "NTLMs."
+    },
+    {
+      "seconds": 1161,
+      "text": "Uh we've already talked about the"
+    },
+    {
+      "seconds": 1163,
+      "text": "Hashcat mode for NTLM is 1000"
+    },
+    {
+      "seconds": 1166,
+      "text": "uh and MD5 was {dash}m0, so NTLM is"
+    },
+    {
+      "seconds": 1171,
+      "text": "going to be {dash}m1000."
+    },
+    {
+      "seconds": 1173,
+      "text": "Right, so let's create an NTLM hash"
+    },
+    {
+      "seconds": 1176,
+      "text": "uh again for password123!"
+    },
+    {
+      "seconds": 1180,
+      "text": "Um and"
+    },
+    {
+      "seconds": 1181,
+      "text": "I'm basically using that at a command"
+    },
+    {
+      "seconds": 1183,
+      "text": "line. Uh we're going to use OpenSSL to"
+    },
+    {
+      "seconds": 1185,
+      "text": "create a digest uh and we'll hit enter"
+    },
+    {
+      "seconds": 1188,
+      "text": "and it'll generate the NTLM hash."
+    },
+    {
+      "seconds": 1192,
+      "text": "Okay. So, we have the value and we're"
+    },
+    {
+      "seconds": 1195,
+      "text": "going to save that into a file as well."
+    },
+    {
+      "seconds": 1198,
+      "text": "So, the file I saved it into was"
+    },
+    {
+      "seconds": 1199,
+      "text": "hashes-ntlm.txt"
+    },
+    {
+      "seconds": 1202,
+      "text": "and you can see it here."
+    },
+    {
+      "seconds": 1204,
+      "text": "So, just as a refresher, I did a"
+    },
+    {
+      "seconds": 1205,
+      "text": "hashcat-hh"
+    },
+    {
+      "seconds": 1207,
+      "text": "and you can see that there's five"
+    },
+    {
+      "seconds": 1209,
+      "text": "different versions of NTLM and we're"
+    },
+    {
+      "seconds": 1211,
+      "text": "going to use again the 1000 for the"
+    },
+    {
+      "seconds": 1214,
+      "text": "mode. Again, just to demonstrate that"
+    },
+    {
+      "seconds": 1217,
+      "text": "the hashes um"
+    },
+    {
+      "seconds": 1219,
+      "text": "can be different, that the M number has"
+    },
+    {
+      "seconds": 1222,
+      "text": "to be different, but everything else is"
+    },
+    {
+      "seconds": 1224,
+      "text": "pretty much consistent. Uh I'm going to"
+    },
+    {
+      "seconds": 1226,
+      "text": "run the hashcat-m1000-a0"
+    },
+    {
+      "seconds": 1230,
+      "text": "again, simple wordlist, hashes-ntlm.txt"
+    },
+    {
+      "seconds": 1233,
+      "text": "with our new hash file and then against"
+    },
+    {
+      "seconds": 1236,
+      "text": "the wordlist.txt"
+    },
+    {
+      "seconds": 1238,
+      "text": "uh and it should find the password 123!"
+    },
+    {
+      "seconds": 1242,
+      "text": "Um it doesn't take very long to do that"
+    },
+    {
+      "seconds": 1244,
+      "text": "and you can see it takes about 3 seconds"
+    },
+    {
+      "seconds": 1247,
+      "text": "uh and it was successful. So, now we're"
+    },
+    {
+      "seconds": 1249,
+      "text": "going to try a mask attack. Uh we've"
+    },
+    {
+      "seconds": 1252,
+      "text": "tried a simple"
+    },
+    {
+      "seconds": 1255,
+      "text": "wordlist attack and we've done an"
+    },
+    {
+      "seconds": 1258,
+      "text": "append. [music]"
+    },
+    {
+      "seconds": 1259,
+      "text": "Uh so, now we're going to try a mask and"
+    },
+    {
+      "seconds": 1261,
+      "text": "a mask is basically where you tell"
+    },
+    {
+      "seconds": 1263,
+      "text": "Hashcat the pattern you want to try."
+    },
+    {
+      "seconds": 1267,
+      "text": "Right, so this is more of a brute force"
+    },
+    {
+      "seconds": 1268,
+      "text": "attack uh than it is a word list and so"
+    },
+    {
+      "seconds": 1271,
+      "text": "we're going to use a different uh"
+    },
+    {
+      "seconds": 1274,
+      "text": "different command and we'll get that"
+    },
+    {
+      "seconds": 1276,
+      "text": "there here in a second. But let's go"
+    },
+    {
+      "seconds": 1277,
+      "text": "ahead and take a look at the command on"
+    },
+    {
+      "seconds": 1279,
+      "text": "the screen which is echo {dash} n test 1"
+    },
+    {
+      "seconds": 1281,
+      "text": "2 3 4. So we're going to convert the"
+    },
+    {
+      "seconds": 1284,
+      "text": "password test 1 2 3 4 into an MD5"
+    },
+    {
+      "seconds": 1289,
+      "text": "uh hash. Um and then we're going to put"
+    },
+    {
+      "seconds": 1291,
+      "text": "it in the hashes {dash} mask.txt file."
+    },
+    {
+      "seconds": 1296,
+      "text": "All right, just to verify that it's"
+    },
+    {
+      "seconds": 1297,
+      "text": "there, let's take a look at the file"
+    },
+    {
+      "seconds": 1298,
+      "text": "itself."
+    },
+    {
+      "seconds": 1300,
+      "text": "All right, so now we can see that there"
+    },
+    {
+      "seconds": 1301,
+      "text": "is a new hash file in the hashes {dash}"
+    },
+    {
+      "seconds": 1304,
+      "text": "mask.txt file that we're going to use"
+    },
+    {
+      "seconds": 1307,
+      "text": "for this example."
+    },
+    {
+      "seconds": 1309,
+      "text": "All right, so here is the command"
+    },
+    {
+      "seconds": 1311,
+      "text": "using a mask. All right, so we have"
+    },
+    {
+      "seconds": 1313,
+      "text": "hashcat {dash} m0 again MD5."
+    },
+    {
+      "seconds": 1317,
+      "text": "{Dash} a is different now, it's three"
+    },
+    {
+      "seconds": 1319,
+      "text": "and that means a mask attack."
+    },
+    {
+      "seconds": 1322,
+      "text": "All right, we have our file hashes"
+    },
+    {
+      "seconds": 1324,
+      "text": "{dash} {dash} mask.txt with the the hash"
+    },
+    {
+      "seconds": 1327,
+      "text": "that's in there."
+    },
+    {
+      "seconds": 1328,
+      "text": "And then we use a separator as a"
+    },
+    {
+      "seconds": 1330,
+      "text": "question mark and we have different"
+    },
+    {
+      "seconds": 1333,
+      "text": "values. So you can see here there are"
+    },
+    {
+      "seconds": 1336,
+      "text": "L's and D's."
+    },
+    {
+      "seconds": 1339,
+      "text": "L stands for lowercase letters."
+    },
+    {
+      "seconds": 1342,
+      "text": "D stands for digits."
+    },
+    {
+      "seconds": 1345,
+      "text": "Now, this could also be replaced There's"
+    },
+    {
+      "seconds": 1346,
+      "text": "other ones like"
+    },
+    {
+      "seconds": 1348,
+      "text": "uh U is uppercase letters."
+    },
+    {
+      "seconds": 1351,
+      "text": "Um S is symbols and then A is all"
+    },
+    {
+      "seconds": 1354,
+      "text": "characters. Uh you really don't want to"
+    },
+    {
+      "seconds": 1357,
+      "text": "use the question mark A"
+    },
+    {
+      "seconds": 1359,
+      "text": "uh in these because it will go through"
+    },
+    {
+      "seconds": 1362,
+      "text": "every potential"
+    },
+    {
+      "seconds": 1364,
+      "text": "uh character, symbol, letter. Uh you"
+    },
+    {
+      "seconds": 1367,
+      "text": "kind of want to nail it down a little"
+    },
+    {
+      "seconds": 1369,
+      "text": "bit better, otherwise it's going to take"
+    },
+    {
+      "seconds": 1371,
+      "text": "you much, much longer um and that's"
+    },
+    {
+      "seconds": 1374,
+      "text": "that's a trap uh you want to avoid. So"
+    },
+    {
+      "seconds": 1376,
+      "text": "in this case we knew that the"
+    },
+    {
+      "seconds": 1379,
+      "text": "had the the password had it was test"
+    },
+    {
+      "seconds": 1381,
+      "text": "1234. So, we had four lowercase letters"
+    },
+    {
+      "seconds": 1385,
+      "text": "and four digits. Um now, obviously, we"
+    },
+    {
+      "seconds": 1388,
+      "text": "wouldn't know that in the real world,"
+    },
+    {
+      "seconds": 1390,
+      "text": "but I want to use this as an example."
+    },
+    {
+      "seconds": 1392,
+      "text": "All right, so let's go ahead and run it"
+    },
+    {
+      "seconds": 1394,
+      "text": "and see what it gets. All right, so it"
+    },
+    {
+      "seconds": 1396,
+      "text": "was able to identify it. Um it took"
+    },
+    {
+      "seconds": 1399,
+      "text": "about 4 seconds to do that um and uh it"
+    },
+    {
+      "seconds": 1402,
+      "text": "was pretty simplistic because again, um"
+    },
+    {
+      "seconds": 1404,
+      "text": "it was only eight characters, um they"
+    },
+    {
+      "seconds": 1406,
+      "text": "were all lowercase, and there were um"
+    },
+    {
+      "seconds": 1410,
+      "text": "four"
+    },
+    {
+      "seconds": 1411,
+      "text": "uh digits at the end. Um and so, we"
+    },
+    {
+      "seconds": 1414,
+      "text": "pretty much knew what to look for and it"
+    },
+    {
+      "seconds": 1416,
+      "text": "made our our lives pretty much uh"
+    },
+    {
+      "seconds": 1419,
+      "text": "simpler for that."
+    },
+    {
+      "seconds": 1420,
+      "text": "So, masks are actually very powerful,"
+    },
+    {
+      "seconds": 1422,
+      "text": "but you need to be careful. The search"
+    },
+    {
+      "seconds": 1425,
+      "text": "space can get really big really fast uh"
+    },
+    {
+      "seconds": 1428,
+      "text": "especially if you use the question A"
+    },
+    {
+      "seconds": 1431,
+      "text": "anything"
+    },
+    {
+      "seconds": 1432,
+      "text": "um all characters. So, uh just be very"
+    },
+    {
+      "seconds": 1435,
+      "text": "careful. Don't brute force blindly and"
+    },
+    {
+      "seconds": 1438,
+      "text": "then use masks when you know"
+    },
+    {
+      "seconds": 1441,
+      "text": "um of a pattern that you actually want"
+    },
+    {
+      "seconds": 1443,
+      "text": "to test."
+    },
+    {
+      "seconds": 1444,
+      "text": "All right, so let's look about a using a"
+    },
+    {
+      "seconds": 1446,
+      "text": "wordlist plus a mask. So, we've already"
+    },
+    {
+      "seconds": 1449,
+      "text": "talked about the mask. We've already"
+    },
+    {
+      "seconds": 1450,
+      "text": "talked about how we can append. So, this"
+    },
+    {
+      "seconds": 1454,
+      "text": "isn't an appending. We In appending, we"
+    },
+    {
+      "seconds": 1456,
+      "text": "said, \"This is the format we want to use"
+    },
+    {
+      "seconds": 1458,
+      "text": "and use it across the board on every"
+    },
+    {
+      "seconds": 1461,
+      "text": "single one.\" But, in this case, we don't"
+    },
+    {
+      "seconds": 1463,
+      "text": "know what those values are. So, we're"
+    },
+    {
+      "seconds": 1466,
+      "text": "going to use a mask and we're going to"
+    },
+    {
+      "seconds": 1468,
+      "text": "append it to the word."
+    },
+    {
+      "seconds": 1470,
+      "text": "So,"
+    },
+    {
+      "seconds": 1471,
+      "text": ">> [music]"
+    },
+    {
+      "seconds": 1471,
+      "text": ">> in this case, I had created a um MD5"
+    },
+    {
+      "seconds": 1474,
+      "text": "hash for password1234"
+    },
+    {
+      "seconds": 1477,
+      "text": "and I put it in the"
+    },
+    {
+      "seconds": 1478,
+      "text": "hashes-word.or-mask.txt"
+    },
+    {
+      "seconds": 1484,
+      "text": "file. Uh and you can see the the value"
+    },
+    {
+      "seconds": 1484,
+      "text": "of that hash here."
+    },
+    {
+      "seconds": 1486,
+      "text": "So, let's go ahead and do an attack"
+    },
+    {
+      "seconds": 1489,
+      "text": "um using the wordlist plus a mask."
+    },
+    {
+      "seconds": 1494,
+      "text": "All right, we get to learn a new value"
+    },
+    {
+      "seconds": 1497,
+      "text": "for {dash} A. So, you can see here uh"
+    },
+    {
+      "seconds": 1499,
+      "text": "the command hashcat {dash} M0 again MD5"
+    },
+    {
+      "seconds": 1503,
+      "text": "{dash} A 6 is for wordlist plus mask."
+    },
+    {
+      "seconds": 1509,
+      "text": "All right. So, we've got hashes {dash}"
+    },
+    {
+      "seconds": 1512,
+      "text": "word {dash} mask.txt that contains our"
+    },
+    {
+      "seconds": 1515,
+      "text": "hash."
+    },
+    {
+      "seconds": 1516,
+      "text": "Then again, we're looking at wordlist"
+    },
+    {
+      "seconds": 1519,
+      "text": "plus mask. So, we use the wordlist.txt"
+    },
+    {
+      "seconds": 1522,
+      "text": "and then the mask at the end. So, in"
+    },
+    {
+      "seconds": 1525,
+      "text": "this case, it's the same thing digit"
+    },
+    {
+      "seconds": 1527,
+      "text": "digit digit digit. All right. We're"
+    },
+    {
+      "seconds": 1529,
+      "text": "going to go ahead and run it and see"
+    },
+    {
+      "seconds": 1531,
+      "text": "what the results are."
+    },
+    {
+      "seconds": 1532,
+      "text": "Okay. So, it was able to identify"
+    },
+    {
+      "seconds": 1535,
+      "text": "the password 1 2 3 4"
+    },
+    {
+      "seconds": 1537,
+      "text": "as the value for that hash. And again,"
+    },
+    {
+      "seconds": 1540,
+      "text": "what it did is it used the wordlist and"
+    },
+    {
+      "seconds": 1543,
+      "text": "then it went through a series of numbers"
+    },
+    {
+      "seconds": 1547,
+      "text": "and and then compared that to the hash"
+    },
+    {
+      "seconds": 1549,
+      "text": "value. So, it started with password 0 0"
+    },
+    {
+      "seconds": 1552,
+      "text": "0 0, password 0 0 0 1, password 0 0 0 2,"
+    },
+    {
+      "seconds": 1557,
+      "text": "etc. until it got to 1 2 3 4."
+    },
+    {
+      "seconds": 1560,
+      "text": "All right. So, we did wordlist"
+    },
+    {
+      "seconds": 1563,
+      "text": "plus mask."
+    },
+    {
+      "seconds": 1565,
+      "text": "Now, let's do mask plus wordlist. So, in"
+    },
+    {
+      "seconds": 1568,
+      "text": "this case, we've got the same password,"
+    },
+    {
+      "seconds": 1571,
+      "text": "password with a capital P, but we're"
+    },
+    {
+      "seconds": 1573,
+      "text": "putting 2026 in the front."
+    },
+    {
+      "seconds": 1576,
+      "text": "All right. And so, we're going to use a"
+    },
+    {
+      "seconds": 1578,
+      "text": "mask at the beginning of our query of"
+    },
+    {
+      "seconds": 1583,
+      "text": "our attack and instead of at the end."
+    },
+    {
+      "seconds": 1586,
+      "text": "So, again, echo {dash} N 2026 password,"
+    },
+    {
+      "seconds": 1590,
+      "text": "we created MD5 sum,"
+    },
+    {
+      "seconds": 1592,
+      "text": "and we put it in a new file called"
+    },
+    {
+      "seconds": 1594,
+      "text": "hashes maskword.txt."
+    },
+    {
+      "seconds": 1597,
+      "text": "And then you can see what the value is"
+    },
+    {
+      "seconds": 1599,
+      "text": "for that."
+    },
+    {
+      "seconds": 1601,
+      "text": "All right. So, we got to learn a new"
+    },
+    {
+      "seconds": 1602,
+      "text": "{dash} A. This one is 7. So, hashcat"
+    },
+    {
+      "seconds": 1605,
+      "text": "{dash} M0 MD5 {dash} A7 means mask plus"
+    },
+    {
+      "seconds": 1613,
+      "text": "wordlist."
+    },
+    {
+      "seconds": 1614,
+      "text": "Right? So, now we have the value of our"
+    },
+    {
+      "seconds": 1617,
+      "text": "hashes"
+    },
+    {
+      "seconds": 1618,
+      "text": "in the hashes-mask-word.txt."
+    },
+    {
+      "seconds": 1621,
+      "text": "So, our MD5 hash is in there."
+    },
+    {
+      "seconds": 1624,
+      "text": "And again, because we're doing mask plus"
+    },
+    {
+      "seconds": 1626,
+      "text": "word list, we have to put the mask"
+    },
+    {
+      "seconds": 1628,
+      "text": "first. So, question D question D"
+    },
+    {
+      "seconds": 1630,
+      "text": "question D question D. So, four digits."
+    },
+    {
+      "seconds": 1633,
+      "text": "And then we put the word list at the"
+    },
+    {
+      "seconds": 1635,
+      "text": "very end."
+    },
+    {
+      "seconds": 1637,
+      "text": "All right. We'll go ahead and run that"
+    },
+    {
+      "seconds": 1639,
+      "text": "and see what we get."
+    },
+    {
+      "seconds": 1641,
+      "text": "All right. It was successfully able to"
+    },
+    {
+      "seconds": 1644,
+      "text": "uh go through the entire list. So,"
+    },
+    {
+      "seconds": 1647,
+      "text": "again, it went 0000 password"
+    },
+    {
+      "seconds": 1650,
+      "text": "0001 password, et cetera, and finally"
+    },
+    {
+      "seconds": 1654,
+      "text": "found the hash that matched."
+    },
+    {
+      "seconds": 1657,
+      "text": "So, in a real engagement, you don't"
+    },
+    {
+      "seconds": 1659,
+      "text": "actually want the results flying by in"
+    },
+    {
+      "seconds": 1661,
+      "text": "the terminal. You want them to be saved"
+    },
+    {
+      "seconds": 1663,
+      "text": "to a file."
+    },
+    {
+      "seconds": 1664,
+      "text": "We can do that by using the double-dash"
+    },
+    {
+      "seconds": 1666,
+      "text": "out file and then just provide a name of"
+    },
+    {
+      "seconds": 1669,
+      "text": "the file that we want to save that"
+    },
+    {
+      "seconds": 1671,
+      "text": "information to."
+    },
+    {
+      "seconds": 1673,
+      "text": "Now that we've actually used the tool,"
+    },
+    {
+      "seconds": 1675,
+      "text": "let's take a look at speed for a minute."
+    },
+    {
+      "seconds": 1677,
+      "text": "So, Hashcat has a benchmark mode, which"
+    },
+    {
+      "seconds": 1681,
+      "text": "is"
+    },
+    {
+      "seconds": 1682,
+      "text": "uh performed using the dash B flag."
+    },
+    {
+      "seconds": 1685,
+      "text": "Uh and in this case, I used the"
+    },
+    {
+      "seconds": 1686,
+      "text": "Hashcat-b,"
+    },
+    {
+      "seconds": 1688,
+      "text": "but I limited it just to MD5 using the"
+    },
+    {
+      "seconds": 1691,
+      "text": "dash m0 flag."
+    },
+    {
+      "seconds": 1694,
+      "text": "Now, you can see here that this was on a"
+    },
+    {
+      "seconds": 1697,
+      "text": "the Kali system, which is a virtual"
+    },
+    {
+      "seconds": 1699,
+      "text": "machine."
+    },
+    {
+      "seconds": 1701,
+      "text": "And it the speed was 861 [music]"
+    },
+    {
+      "seconds": 1705,
+      "text": "megahashes per second."
+    },
+    {
+      "seconds": 1707,
+      "text": "Which is basically 800 million hashes"
+    },
+    {
+      "seconds": 1712,
+      "text": "per second."
+    },
+    {
+      "seconds": 1713,
+      "text": "All right. Now, let's do the same thing"
+    },
+    {
+      "seconds": 1715,
+      "text": "on the native operating system. Uh"
+    },
+    {
+      "seconds": 1719,
+      "text": "that's going to use the 4090."
+    },
+    {
+      "seconds": 1722,
+      "text": "So, I ran Hashcat using the dash B flag"
+    },
+    {
+      "seconds": 1726,
+      "text": "on the Windows system that has the RTX"
+    },
+    {
+      "seconds": 1729,
+      "text": "4090 on it. And if we scroll down, we"
+    },
+    {
+      "seconds": 1732,
+      "text": "can see that the speed test"
+    },
+    {
+      "seconds": 1735,
+      "text": "came up with 151.8"
+    },
+    {
+      "seconds": 1741,
+      "text": "gigahashes per second. So, that's"
+    },
+    {
+      "seconds": 1741,
+      "text": "basically 150 billion hashes"
+    },
+    {
+      "seconds": 1745,
+      "text": "per second. So, you can see that there"
+    },
+    {
+      "seconds": 1747,
+      "text": "is quite a difference between the two."
+    },
+    {
+      "seconds": 1750,
+      "text": "The 4090 destroyed the Cali VM in"
+    },
+    {
+      "seconds": 1753,
+      "text": "performance. Um and so, GPUs mean you"
+    },
+    {
+      "seconds": 1757,
+      "text": "can test the candidates for hashes much"
+    },
+    {
+      "seconds": 1761,
+      "text": "faster."
+    },
+    {
+      "seconds": 1763,
+      "text": "Um and although Cali is fine as a VM for"
+    },
+    {
+      "seconds": 1766,
+      "text": "learning,"
+    },
+    {
+      "seconds": 1768,
+      "text": "if you're going to do serious authorized"
+    },
+    {
+      "seconds": 1770,
+      "text": "password auditing and pen testing,"
+    },
+    {
+      "seconds": 1773,
+      "text": "hardware matters and a lot. So, you"
+    },
+    {
+      "seconds": 1775,
+      "text": "really should get a"
+    },
+    {
+      "seconds": 1776,
+      "text": "system dedicated to performing the"
+    },
+    {
+      "seconds": 1780,
+      "text": "hashcat against those hashes"
+    },
+    {
+      "seconds": 1784,
+      "text": "to maximize your time and effort."
+    },
+    {
+      "seconds": 1786,
+      "text": "Hashcat is one of those tools where the"
+    },
+    {
+      "seconds": 1788,
+      "text": "basics can get you about 80% of the way."
+    },
+    {
+      "seconds": 1792,
+      "text": "The The remaining 20% takes years of"
+    },
+    {
+      "seconds": 1795,
+      "text": "engagements to really internalize."
+    },
+    {
+      "seconds": 1798,
+      "text": "So, you got rules, masks, hybrid"
+    },
+    {
+      "seconds": 1799,
+      "text": "attacks, there's custom character sets,"
+    },
+    {
+      "seconds": 1802,
+      "text": "even distributed cracking. There's a lot"
+    },
+    {
+      "seconds": 1804,
+      "text": "more depth here than I can cover in a"
+    },
+    {
+      "seconds": 1807,
+      "text": "single video."
+    },
+    {
+      "seconds": 1808,
+      "text": "If you want me to go deeper on any of"
+    },
+    {
+      "seconds": 1810,
+      "text": "these, like rule writing, attacking"
+    },
+    {
+      "seconds": 1813,
+      "text": "specific hash types like Kerberos"
+    },
+    {
+      "seconds": 1814,
+      "text": "tickets, or building a dedicated"
+    },
+    {
+      "seconds": 1817,
+      "text": "cracking rig, definitely drop me a note"
+    },
+    {
+      "seconds": 1819,
+      "text": "in the comments. Again, thanks for"
+    },
+    {
+      "seconds": 1821,
+      "text": "joining and we'll see you in the next"
+    },
+    {
+      "seconds": 1823,
+      "text": "one."
+    }
+  ]
+}

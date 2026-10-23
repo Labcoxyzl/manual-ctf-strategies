@@ -1,0 +1,711 @@
+{
+  "video_id": "UtqmiI7k9lU",
+  "title": "Cryptography   Lab 5   Cooking with the Cyberchef",
+  "channel": "Level Effect",
+  "duration_seconds": 437,
+  "caption_source": "research/learning/video-pack/captions/UtqmiI7k9lU.en-orig.vtt",
+  "caption_sha256": "7a8f84789bf79daaa82b3b13cdeaad29857e2320d434a5bb0b1e652c1144025b",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 8,
+      "text": "cyberchef is a web-based tool that"
+    },
+    {
+      "seconds": 8,
+      "text": "allows cyber Security Professionals to"
+    },
+    {
+      "seconds": 10,
+      "text": "quickly and easily analyze decode and"
+    },
+    {
+      "seconds": 13,
+      "text": "transform data in various formats and"
+    },
+    {
+      "seconds": 16,
+      "text": "these are formats like base 64 AES gzip"
+    },
+    {
+      "seconds": 20,
+      "text": "exor AES binary and so much more and"
+    },
+    {
+      "seconds": 24,
+      "text": "really what's so good about cyberchef is"
+    },
+    {
+      "seconds": 26,
+      "text": "that allows you to do this in a"
+    },
+    {
+      "seconds": 28,
+      "text": "step-by-step recipe format where you can"
+    },
+    {
+      "seconds": 30,
+      "text": "see all of it in real time no operating"
+    },
+    {
+      "seconds": 33,
+      "text": "system tools required so there's only"
+    },
+    {
+      "seconds": 35,
+      "text": "one thing left for us to do let's cook"
+    },
+    {
+      "seconds": 39,
+      "text": "inside of your cryptography folder"
+    },
+    {
+      "seconds": 40,
+      "text": "you'll find an OB fiscated code.txt"
+    },
+    {
+      "seconds": 44,
+      "text": "file and we'll come back to that a"
+    },
+    {
+      "seconds": 46,
+      "text": "little bit later in the lab but just"
+    },
+    {
+      "seconds": 47,
+      "text": "keep it handy in the meantime go and"
+    },
+    {
+      "seconds": 49,
+      "text": "open up a browser go to google.com and"
+    },
+    {
+      "seconds": 52,
+      "text": "then make a search for cyers"
+    },
+    {
+      "seconds": 59,
+      "text": "chef and then we should see a GitHub"
+    },
+    {
+      "seconds": 59,
+      "text": "link let's go ahead and click on that"
+    },
+    {
+      "seconds": 60,
+      "text": "one right there cyberchef was actually"
+    },
+    {
+      "seconds": 63,
+      "text": "developed by the gchq or government"
+    },
+    {
+      "seconds": 66,
+      "text": "Communications Headquarters of the"
+    },
+    {
+      "seconds": 67,
+      "text": "United Kingdom and this is their GitHub"
+    },
+    {
+      "seconds": 70,
+      "text": "repository and with it we have a live"
+    },
+    {
+      "seconds": 72,
+      "text": "demo that we can use select that demo"
+    },
+    {
+      "seconds": 75,
+      "text": "link when you're ready now the interface"
+    },
+    {
+      "seconds": 78,
+      "text": "for cyberchef is honestly really"
+    },
+    {
+      "seconds": 80,
+      "text": "intuitive you have these operations on"
+    },
+    {
+      "seconds": 82,
+      "text": "the left hand Pane and you can do"
+    },
+    {
+      "seconds": 84,
+      "text": "various things like encode decode"
+    },
+    {
+      "seconds": 86,
+      "text": "encrypt decrypt and so on and so you"
+    },
+    {
+      "seconds": 89,
+      "text": "drag these operations into the middle"
+    },
+    {
+      "seconds": 91,
+      "text": "column to eventually build your recipe"
+    },
+    {
+      "seconds": 93,
+      "text": "that achieves each of the operations in"
+    },
+    {
+      "seconds": 95,
+      "text": "a step-by-step manner so let's get some"
+    },
+    {
+      "seconds": 98,
+      "text": "input inside of the top right and let's"
+    },
+    {
+      "seconds": 99,
+      "text": "put in let's cook now what we need to do"
+    },
+    {
+      "seconds": 102,
+      "text": "next is see if we can maybe reverse that"
+    },
+    {
+      "seconds": 105,
+      "text": "as an example if we type in Reverse"
+    },
+    {
+      "seconds": 107,
+      "text": "under the operations we can drag that"
+    },
+    {
+      "seconds": 109,
+      "text": "operation into our recipe and look at"
+    },
+    {
+      "seconds": 112,
+      "text": "the bottom right right away you can see"
+    },
+    {
+      "seconds": 114,
+      "text": "it immediately reverses our input that's"
+    },
+    {
+      "seconds": 116,
+      "text": "pretty cool now maybe we want to base 64"
+    },
+    {
+      "seconds": 119,
+      "text": "or encode it so we can type 2 base 64"
+    },
+    {
+      "seconds": 123,
+      "text": "drag that onto the recipe and now we"
+    },
+    {
+      "seconds": 125,
+      "text": "have a reversed input that is also base"
+    },
+    {
+      "seconds": 127,
+      "text": "64 encoded after it's been"
+    },
+    {
+      "seconds": 130,
+      "text": "reversed and it doesn't have to stop"
+    },
+    {
+      "seconds": 132,
+      "text": "there we can keep on going we can maybe"
+    },
+    {
+      "seconds": 134,
+      "text": "even convert this to octl now so now we"
+    },
+    {
+      "seconds": 136,
+      "text": "get that series of digits that almost"
+    },
+    {
+      "seconds": 138,
+      "text": "looks like what we see inside of IP"
+    },
+    {
+      "seconds": 140,
+      "text": "addresses and it also works both ways so"
+    },
+    {
+      "seconds": 143,
+      "text": "let's go and copy that output that we"
+    },
+    {
+      "seconds": 145,
+      "text": "have after three operations of this"
+    },
+    {
+      "seconds": 147,
+      "text": "recipe with some encoding and"
+    },
+    {
+      "seconds": 148,
+      "text": "obfuscation and now let's clear the"
+    },
+    {
+      "seconds": 150,
+      "text": "recipe and then paste that inside of the"
+    },
+    {
+      "seconds": 154,
+      "text": "input now let's see if we can reverse it"
+    },
+    {
+      "seconds": 157,
+      "text": "so instead of doing the step by step"
+    },
+    {
+      "seconds": 159,
+      "text": "cyberchef actually has some intelligence"
+    },
+    {
+      "seconds": 161,
+      "text": "to it notice that little wand it says"
+    },
+    {
+      "seconds": 164,
+      "text": "from octal from Bas 64 well I'm going to"
+    },
+    {
+      "seconds": 167,
+      "text": "go and click on that and as I do you can"
+    },
+    {
+      "seconds": 170,
+      "text": "see it actually populates the recipe to"
+    },
+    {
+      "seconds": 172,
+      "text": "some degree for us and that's because"
+    },
+    {
+      "seconds": 174,
+      "text": "cyberchef has a little bit of"
+    },
+    {
+      "seconds": 176,
+      "text": "intelligence to it where it can perform"
+    },
+    {
+      "seconds": 178,
+      "text": "some level of analysis"
+    },
+    {
+      "seconds": 180,
+      "text": "based on what you've provided it and"
+    },
+    {
+      "seconds": 182,
+      "text": "make its best guess at what levels of"
+    },
+    {
+      "seconds": 185,
+      "text": "encryption or encoding or officiation"
+    },
+    {
+      "seconds": 187,
+      "text": "might be in place and then it'll try to"
+    },
+    {
+      "seconds": 189,
+      "text": "populate the recipe for you to save you"
+    },
+    {
+      "seconds": 191,
+      "text": "some time and what's funny is the"
+    },
+    {
+      "seconds": 193,
+      "text": "easiest one of just reverse text it"
+    },
+    {
+      "seconds": 195,
+      "text": "couldn't guess that but it could guess"
+    },
+    {
+      "seconds": 197,
+      "text": "Bas 64 and octal so let's go and put"
+    },
+    {
+      "seconds": 200,
+      "text": "that reverse step back in and bring it"
+    },
+    {
+      "seconds": 202,
+      "text": "back to its original state all right"
+    },
+    {
+      "seconds": 204,
+      "text": "let's do something a little bit more"
+    },
+    {
+      "seconds": 206,
+      "text": "challenging now remember that OB"
+    },
+    {
+      "seconds": 208,
+      "text": "fiscated code well let's go back to that"
+    },
+    {
+      "seconds": 210,
+      "text": "text file let's select all of it and"
+    },
+    {
+      "seconds": 213,
+      "text": "let's bring it inside of the input"
+    },
+    {
+      "seconds": 215,
+      "text": "section of cyberchef and then start"
+    },
+    {
+      "seconds": 217,
+      "text": "working on it"
+    },
+    {
+      "seconds": 218,
+      "text": "together cool okay so this must be base"
+    },
+    {
+      "seconds": 222,
+      "text": "64 right we see those two equal signs"
+    },
+    {
+      "seconds": 224,
+      "text": "over there worth of padding let's go and"
+    },
+    {
+      "seconds": 227,
+      "text": "grab a from base 64 operation and drag"
+    },
+    {
+      "seconds": 229,
+      "text": "it in the"
+    },
+    {
+      "seconds": 235,
+      "text": "recipe and that didn't"
+    },
+    {
+      "seconds": 235,
+      "text": "work so that's kind of interesting and"
+    },
+    {
+      "seconds": 238,
+      "text": "now we're seeing something that looks"
+    },
+    {
+      "seconds": 240,
+      "text": "like it should be base 64 but it's not"
+    },
+    {
+      "seconds": 243,
+      "text": "working so let's try something out here"
+    },
+    {
+      "seconds": 246,
+      "text": "notice that if we highlight the"
+    },
+    {
+      "seconds": 248,
+      "text": "selection of text over in the input"
+    },
+    {
+      "seconds": 251,
+      "text": "column it also reflects what we see in"
+    },
+    {
+      "seconds": 253,
+      "text": "the output column they're sort of tied"
+    },
+    {
+      "seconds": 255,
+      "text": "together but if we highlight all of it"
+    },
+    {
+      "seconds": 258,
+      "text": "there's something off it's not"
+    },
+    {
+      "seconds": 261,
+      "text": "registering those two equal signs"
+    },
+    {
+      "seconds": 265,
+      "text": "they're not being accounted for in the"
+    },
+    {
+      "seconds": 267,
+      "text": "output those two equal signs suggest"
+    },
+    {
+      "seconds": 269,
+      "text": "that there's padding they're not"
+    },
+    {
+      "seconds": 271,
+      "text": "actually"
+    },
+    {
+      "seconds": 272,
+      "text": "characters so we do have base 64 here"
+    },
+    {
+      "seconds": 275,
+      "text": "but something's not right however"
+    },
+    {
+      "seconds": 278,
+      "text": "something sort of stands out from the"
+    },
+    {
+      "seconds": 280,
+      "text": "input and the output after a base 64"
+    },
+    {
+      "seconds": 282,
+      "text": "operation it looks like there's series"
+    },
+    {
+      "seconds": 285,
+      "text": "of characters even though they're not"
+    },
+    {
+      "seconds": 287,
+      "text": "legible they look the same it looks like"
+    },
+    {
+      "seconds": 290,
+      "text": "they were moved or changed in an order"
+    },
+    {
+      "seconds": 293,
+      "text": "of"
+    },
+    {
+      "seconds": 294,
+      "text": "operation and so typically when you see"
+    },
+    {
+      "seconds": 296,
+      "text": "multiple series of characters moved in"
+    },
+    {
+      "seconds": 299,
+      "text": "the same way that makes me think"
+    },
+    {
+      "seconds": 301,
+      "text": "rotation so possibly rth 13 so let's go"
+    },
+    {
+      "seconds": 305,
+      "text": "and put a rth 13 operation before the"
+    },
+    {
+      "seconds": 307,
+      "text": "base 64 and see what"
+    },
+    {
+      "seconds": 310,
+      "text": "happens it looks like something happened"
+    },
+    {
+      "seconds": 312,
+      "text": "but we're still not sure we can check"
+    },
+    {
+      "seconds": 314,
+      "text": "with that little magic wand and we can"
+    },
+    {
+      "seconds": 315,
+      "text": "see it's saying gunzip so it's actually"
+    },
+    {
+      "seconds": 318,
+      "text": "suggesting that there's a zip action"
+    },
+    {
+      "seconds": 320,
+      "text": "here as well too let's run gunzip or"
+    },
+    {
+      "seconds": 323,
+      "text": "gunzip and there we go so it actually"
+    },
+    {
+      "seconds": 326,
+      "text": "did work it actually did pick it up"
+    },
+    {
+      "seconds": 328,
+      "text": "correctly thank you cyberu"
+    },
+    {
+      "seconds": 330,
+      "text": "and well this is clearly binary so let's"
+    },
+    {
+      "seconds": 333,
+      "text": "do a binary and run a from binary"
+    },
+    {
+      "seconds": 336,
+      "text": "operation awesome so this looks kind of"
+    },
+    {
+      "seconds": 340,
+      "text": "interesting once again we're seeing a"
+    },
+    {
+      "seconds": 343,
+      "text": "lot of repetition of characters however"
+    },
+    {
+      "seconds": 346,
+      "text": "there is a sneaky equal sign at the end"
+    },
+    {
+      "seconds": 348,
+      "text": "which could suggest base 64 so let's try"
+    },
+    {
+      "seconds": 351,
+      "text": "out another base 64 operation and"
+    },
+    {
+      "seconds": 361,
+      "text": "see aha okay so that's why we have hex"
+    },
+    {
+      "seconds": 361,
+      "text": "output that's why those characters"
+    },
+    {
+      "seconds": 363,
+      "text": "looked so weird so we can do a from hex"
+    },
+    {
+      "seconds": 365,
+      "text": "at this"
+    },
+    {
+      "seconds": 366,
+      "text": "point there it is that's the original"
+    },
+    {
+      "seconds": 369,
+      "text": "code and that definitely looks"
+    },
+    {
+      "seconds": 372,
+      "text": "suspicious to me I mean it's actually"
+    },
+    {
+      "seconds": 374,
+      "text": "calling out to an evil code one and also"
+    },
+    {
+      "seconds": 377,
+      "text": "trying to invoke mimik cats and dump"
+    },
+    {
+      "seconds": 380,
+      "text": "creds and that's some crafty malicious"
+    },
+    {
+      "seconds": 383,
+      "text": "Powershell code right"
+    },
+    {
+      "seconds": 385,
+      "text": "there so it's pretty amazing right how"
+    },
+    {
+      "seconds": 388,
+      "text": "many layers that things can be OB"
+    },
+    {
+      "seconds": 390,
+      "text": "fiscated and encoded but a tool like"
+    },
+    {
+      "seconds": 392,
+      "text": "cybers chea really allows us to work"
+    },
+    {
+      "seconds": 394,
+      "text": "through the process in real time and at"
+    },
+    {
+      "seconds": 396,
+      "text": "a comfortable Pace where we can stop"
+    },
+    {
+      "seconds": 399,
+      "text": "pause analyze and think about our next"
+    },
+    {
+      "seconds": 401,
+      "text": "step again without any tools and it"
+    },
+    {
+      "seconds": 404,
+      "text": "doesn't have to be about anything"
+    },
+    {
+      "seconds": 406,
+      "text": "malicious you could just be using this"
+    },
+    {
+      "seconds": 408,
+      "text": "to encode a bit of a secret message to"
+    },
+    {
+      "seconds": 410,
+      "text": "send to a friend or maybe you could be"
+    },
+    {
+      "seconds": 412,
+      "text": "trying to see how your input data looks"
+    },
+    {
+      "seconds": 415,
+      "text": "like after several layers of encoding to"
+    },
+    {
+      "seconds": 417,
+      "text": "be passed through some type of web app"
+    },
+    {
+      "seconds": 419,
+      "text": "application and maybe over to a database"
+    },
+    {
+      "seconds": 423,
+      "text": "so all in all there's a lot of use cases"
+    },
+    {
+      "seconds": 425,
+      "text": "it's really handy and this is just the"
+    },
+    {
+      "seconds": 427,
+      "text": "tip of the iceberg with cyberchef you're"
+    },
+    {
+      "seconds": 429,
+      "text": "definitely going to be using this tool"
+    },
+    {
+      "seconds": 431,
+      "text": "when you're in the cyber security"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "transport": "TCP loopback",
+  "listener_bound": "127.0.0.1",
+  "payload": "hello from study\\n",
+  "payload_bytes": 17,
+  "client_exit": 0,
+  "listener_exit": 0,
+  "received_exact_payload": true,
+  "scope": "One send-only/receive-only client/listener roundtrip; no remote hosts or raw packets. Nping unavailable and not executed."
+}

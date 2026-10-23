@@ -1,0 +1,6591 @@
+{
+  "id": "VYROU-ZwZX8",
+  "duration_seconds": 3873,
+  "caption_sha256": "962a445a333c33173ccae8a0cd1951f134ea37db20580e72768fa235f51a6202",
+  "entries": [
+    {
+      "seconds": 3,
+      "text": "hello everyone I recently created an"
+    },
+    {
+      "seconds": 3,
+      "text": "introduction to memory forensics video"
+    },
+    {
+      "seconds": 5,
+      "text": "and in that video I promised a follow-up"
+    },
+    {
+      "seconds": 7,
+      "text": "video that explained some basic Windows"
+    },
+    {
+      "seconds": 10,
+      "text": "forensic analysis techniques and showed"
+    },
+    {
+      "seconds": 12,
+      "text": "some basic Windows artifacts that we"
+    },
+    {
+      "seconds": 14,
+      "text": "commonly look for so this is that video"
+    },
+    {
+      "seconds": 17,
+      "text": "on your screen you'll actually see a"
+    },
+    {
+      "seconds": 19,
+      "text": "differ cheat sheet that I created differ"
+    },
+    {
+      "seconds": 21,
+      "text": "by the way is digital forensics and"
+    },
+    {
+      "seconds": 23,
+      "text": "incident response if you're not familiar"
+    },
+    {
+      "seconds": 24,
+      "text": "with the term this cheat sheet actually"
+    },
+    {
+      "seconds": 27,
+      "text": "has a very small subset of the"
+    },
+    {
+      "seconds": 29,
+      "text": "information covered in the Sans"
+    },
+    {
+      "seconds": 31,
+      "text": "f500 formerly F 408 Windows forensic"
+    },
+    {
+      "seconds": 34,
+      "text": "analysis class that class will actually"
+    },
+    {
+      "seconds": 37,
+      "text": "prepare you to sit for the GX certified"
+    },
+    {
+      "seconds": 39,
+      "text": "forensic examiner gcfe certification I"
+    },
+    {
+      "seconds": 43,
+      "text": "know a lot of people will skip it and go"
+    },
+    {
+      "seconds": 44,
+      "text": "directly to"
+    },
+    {
+      "seconds": 46,
+      "text": "f58 which prepares you to take the GX"
+    },
+    {
+      "seconds": 48,
+      "text": "certified forensic analyst gcfa"
+    },
+    {
+      "seconds": 51,
+      "text": "certification test but honestly you are"
+    },
+    {
+      "seconds": 53,
+      "text": "doing yourself a disservice if you don't"
+    },
+    {
+      "seconds": 55,
+      "text": "already know this information in fact"
+    },
+    {
+      "seconds": 57,
+      "text": "when you take 508 it is assumed that you"
+    },
+    {
+      "seconds": 59,
+      "text": "are are familiar with a good bit of this"
+    },
+    {
+      "seconds": 61,
+      "text": "information already and certainly to win"
+    },
+    {
+      "seconds": 63,
+      "text": "the final challenge in that class and"
+    },
+    {
+      "seconds": 65,
+      "text": "really to succeed as a forensic"
+    },
+    {
+      "seconds": 66,
+      "text": "investigator if you're forensic windows"
+    },
+    {
+      "seconds": 68,
+      "text": "boxes you need to know this"
+    },
+    {
+      "seconds": 70,
+      "text": "material so again this cheat sheet has a"
+    },
+    {
+      "seconds": 73,
+      "text": "very small subset of the forensic"
+    },
+    {
+      "seconds": 75,
+      "text": "artifacts that are available to us on a"
+    },
+    {
+      "seconds": 77,
+      "text": "Windows box in case you didn't realize"
+    },
+    {
+      "seconds": 79,
+      "text": "it your operating system is spying on"
+    },
+    {
+      "seconds": 82,
+      "text": "you there are a ton of things in Windows"
+    },
+    {
+      "seconds": 85,
+      "text": "that provide a wealth of forensic"
+    },
+    {
+      "seconds": 87,
+      "text": "information to investigators but the"
+    },
+    {
+      "seconds": 89,
+      "text": "interesting thing to not is is that"
+    },
+    {
+      "seconds": 90,
+      "text": "these things were not put there by"
+    },
+    {
+      "seconds": 92,
+      "text": "Microsoft for that purpose they all"
+    },
+    {
+      "seconds": 94,
+      "text": "serve some other purpose for example uh"
+    },
+    {
+      "seconds": 97,
+      "text": "perhaps there are things that help"
+    },
+    {
+      "seconds": 98,
+      "text": "programs launch more quickly or things"
+    },
+    {
+      "seconds": 101,
+      "text": "that ensure backwards compatibility when"
+    },
+    {
+      "seconds": 103,
+      "text": "you're running a legacy piece of"
+    },
+    {
+      "seconds": 105,
+      "text": "software on a newer operating system or"
+    },
+    {
+      "seconds": 107,
+      "text": "things that improve the user experience"
+    },
+    {
+      "seconds": 109,
+      "text": "whatever the case may be Microsoft has"
+    },
+    {
+      "seconds": 111,
+      "text": "not provided this information for"
+    },
+    {
+      "seconds": 113,
+      "text": "forensic investigators the other thing"
+    },
+    {
+      "seconds": 115,
+      "text": "to realize is that these things can"
+    },
+    {
+      "seconds": 117,
+      "text": "change they often change in fact when"
+    },
+    {
+      "seconds": 120,
+      "text": "service packs come out or now I guess"
+    },
+    {
+      "seconds": 122,
+      "text": "it's more of a rolling release model"
+    },
+    {
+      "seconds": 123,
+      "text": "with Windows 10 Redstone 1 and Redstone"
+    },
+    {
+      "seconds": 125,
+      "text": "2 and so on and so forth there is no"
+    },
+    {
+      "seconds": 128,
+      "text": "guarantee that a forensic artifact is"
+    },
+    {
+      "seconds": 129,
+      "text": "going to remain across operating system"
+    },
+    {
+      "seconds": 132,
+      "text": "releases now luckily most of the things"
+    },
+    {
+      "seconds": 134,
+      "text": "on this particular cheat sheet still"
+    },
+    {
+      "seconds": 137,
+      "text": "remain uh and they are usually found in"
+    },
+    {
+      "seconds": 141,
+      "text": "anything from Windows Vista and above so"
+    },
+    {
+      "seconds": 144,
+      "text": "what I'm going to do is actually go"
+    },
+    {
+      "seconds": 145,
+      "text": "through and and first off talk about the"
+    },
+    {
+      "seconds": 147,
+      "text": "registry itself and how it's laid out on"
+    },
+    {
+      "seconds": 149,
+      "text": "a Windows system and then we're going to"
+    },
+    {
+      "seconds": 151,
+      "text": "look at some Demos in different sections"
+    },
+    {
+      "seconds": 154,
+      "text": "of these particular artifacts I'm not"
+    },
+    {
+      "seconds": 155,
+      "text": "going to show every single one of them"
+    },
+    {
+      "seconds": 157,
+      "text": "because the video would be hours long"
+    },
+    {
+      "seconds": 158,
+      "text": "and and take forever and you might fall"
+    },
+    {
+      "seconds": 160,
+      "text": "asleep or lose interest so let's just"
+    },
+    {
+      "seconds": 163,
+      "text": "hit the highlights of some of the most"
+    },
+    {
+      "seconds": 164,
+      "text": "common ones but before we do that you'll"
+    },
+    {
+      "seconds": 166,
+      "text": "notice that we've got hkcu and hklm that"
+    },
+    {
+      "seconds": 170,
+      "text": "are commonly referenced here that's HQ"
+    },
+    {
+      "seconds": 172,
+      "text": "current user and hqy local machine so"
+    },
+    {
+      "seconds": 176,
+      "text": "let's figure out what that means and"
+    },
+    {
+      "seconds": 178,
+      "text": "what the registry is and where it's"
+    },
+    {
+      "seconds": 179,
+      "text": "located and all that good stuff first"
+    },
+    {
+      "seconds": 181,
+      "text": "basically the Windows registry is a"
+    },
+    {
+      "seconds": 183,
+      "text": "giant database that comprises a huge"
+    },
+    {
+      "seconds": 186,
+      "text": "amount of information that the operating"
+    },
+    {
+      "seconds": 187,
+      "text": "system uses to function uh it basically"
+    },
+    {
+      "seconds": 190,
+      "text": "stores information about programs and"
+    },
+    {
+      "seconds": 193,
+      "text": "settings for programs and just all kinds"
+    },
+    {
+      "seconds": 195,
+      "text": "of information that is vital to make the"
+    },
+    {
+      "seconds": 197,
+      "text": "operating system work the registry"
+    },
+    {
+      "seconds": 199,
+      "text": "itself on disk is actually found in"
+    },
+    {
+      "seconds": 202,
+      "text": "Windows system 32 config so if you're"
+    },
+    {
+      "seconds": 205,
+      "text": "looking at a live system first off it's"
+    },
+    {
+      "seconds": 208,
+      "text": "important to know that the operating"
+    },
+    {
+      "seconds": 209,
+      "text": "system protects all of these these files"
+    },
+    {
+      "seconds": 212,
+      "text": "within this path so you can't edit or"
+    },
+    {
+      "seconds": 214,
+      "text": "open or copy or do anything with these"
+    },
+    {
+      "seconds": 215,
+      "text": "on a live system unless you use ftk"
+    },
+    {
+      "seconds": 217,
+      "text": "imager or something to get out of them"
+    },
+    {
+      "seconds": 219,
+      "text": "but otherwise the operating system is"
+    },
+    {
+      "seconds": 220,
+      "text": "going to going to protect them but if"
+    },
+    {
+      "seconds": 222,
+      "text": "you look here we've got default Sam"
+    },
+    {
+      "seconds": 225,
+      "text": "security software and system these are"
+    },
+    {
+      "seconds": 229,
+      "text": "the most common registry hives the most"
+    },
+    {
+      "seconds": 231,
+      "text": "important registry hives that we grab"
+    },
+    {
+      "seconds": 234,
+      "text": "when we forensic a Windows system in"
+    },
+    {
+      "seconds": 236,
+      "text": "fact automatic backups are taken and"
+    },
+    {
+      "seconds": 238,
+      "text": "stored in reg back and you'll notice"
+    },
+    {
+      "seconds": 240,
+      "text": "right here default Sam security software"
+    },
+    {
+      "seconds": 242,
+      "text": "system the same ones I just mentioned so"
+    },
+    {
+      "seconds": 244,
+      "text": "when we grab uh information from a"
+    },
+    {
+      "seconds": 246,
+      "text": "Windows system we'll most certainly grab"
+    },
+    {
+      "seconds": 248,
+      "text": "uh the registry hives out of config and"
+    },
+    {
+      "seconds": 250,
+      "text": "also the ones out of regback a regback"
+    },
+    {
+      "seconds": 252,
+      "text": "will be important because let's say"
+    },
+    {
+      "seconds": 254,
+      "text": "someone attempts to uh perform"
+    },
+    {
+      "seconds": 256,
+      "text": "anti-forensics on us and delete things"
+    },
+    {
+      "seconds": 258,
+      "text": "out of the registry Purge things out of"
+    },
+    {
+      "seconds": 260,
+      "text": "the registry even if they do it"
+    },
+    {
+      "seconds": 261,
+      "text": "correctly uh if you delete something out"
+    },
+    {
+      "seconds": 263,
+      "text": "of the registry normally it's pretty"
+    },
+    {
+      "seconds": 265,
+      "text": "easily recoverable but if you comp pack"
+    },
+    {
+      "seconds": 267,
+      "text": "the database or do other anti forensic"
+    },
+    {
+      "seconds": 269,
+      "text": "Tech techniques to make that not"
+    },
+    {
+      "seconds": 270,
+      "text": "possible uh it's possible that you"
+    },
+    {
+      "seconds": 273,
+      "text": "forgot to purge the backups and regback"
+    },
+    {
+      "seconds": 275,
+      "text": "so we'll often grab them as well so"
+    },
+    {
+      "seconds": 278,
+      "text": "default Sam security software system and"
+    },
+    {
+      "seconds": 282,
+      "text": "also if we look at user"
+    },
+    {
+      "seconds": 286,
+      "text": "profiles every user profile has an in"
+    },
+    {
+      "seconds": 289,
+      "text": "user. file you don't see it in the guey"
+    },
+    {
+      "seconds": 291,
+      "text": "here because I'm not showing system"
+    },
+    {
+      "seconds": 292,
+      "text": "files or hidden files but if we drop to"
+    },
+    {
+      "seconds": 294,
+      "text": "the command prompt and I run"
+    },
+    {
+      "seconds": 296,
+      "text": "drah you'll actually notice here in"
+    },
+    {
+      "seconds": 299,
+      "text": "user. at now in user. actually plugs"
+    },
+    {
+      "seconds": 303,
+      "text": "into the registry as"
+    },
+    {
+      "seconds": 305,
+      "text": "hkcu hkey current user when you're"
+    },
+    {
+      "seconds": 307,
+      "text": "browsing a live registry on a live"
+    },
+    {
+      "seconds": 309,
+      "text": "system so every user has an into user."
+    },
+    {
+      "seconds": 312,
+      "text": "which is kind of like that user's chunk"
+    },
+    {
+      "seconds": 315,
+      "text": "of registry related information so"
+    },
+    {
+      "seconds": 316,
+      "text": "certainly we'll want to grab into user."
+    },
+    {
+      "seconds": 319,
+      "text": "if nothing else from the profiles we're"
+    },
+    {
+      "seconds": 321,
+      "text": "interested in analyzing but usually"
+    },
+    {
+      "seconds": 322,
+      "text": "across the board we'll grab all the in"
+    },
+    {
+      "seconds": 324,
+      "text": "user. files from all the profiles"
+    },
+    {
+      "seconds": 327,
+      "text": "there's also another one called the user"
+    },
+    {
+      "seconds": 329,
+      "text": "class usrclass.dat uh we'll talk about"
+    },
+    {
+      "seconds": 332,
+      "text": "that a little bit later but that's also"
+    },
+    {
+      "seconds": 334,
+      "text": "a registry Hive that is user specific"
+    },
+    {
+      "seconds": 336,
+      "text": "that plugs into a specific registry"
+    },
+    {
+      "seconds": 338,
+      "text": "location if we run regedit on this live"
+    },
+    {
+      "seconds": 343,
+      "text": "system if we look over here hkey current"
+    },
+    {
+      "seconds": 346,
+      "text": "user is again into user. so for my"
+    },
+    {
+      "seconds": 350,
+      "text": "particular user on this live system hkey"
+    },
+    {
+      "seconds": 353,
+      "text": "current user is actually being read from"
+    },
+    {
+      "seconds": 354,
+      "text": "into"
+    },
+    {
+      "seconds": 355,
+      "text": "user. so the terms are somewhat"
+    },
+    {
+      "seconds": 358,
+      "text": "interchangeable though usually when we"
+    },
+    {
+      "seconds": 359,
+      "text": "we speak of hkey uh current user we're"
+    },
+    {
+      "seconds": 362,
+      "text": "talking about analysis of a live system"
+    },
+    {
+      "seconds": 364,
+      "text": "and when we uh when we talk about into"
+    },
+    {
+      "seconds": 366,
+      "text": "user. we're talking about uh you know"
+    },
+    {
+      "seconds": 368,
+      "text": "parsing a file on a dead system if we"
+    },
+    {
+      "seconds": 371,
+      "text": "expand hklm you'll actually see those"
+    },
+    {
+      "seconds": 373,
+      "text": "other hives I mentioned uh for example"
+    },
+    {
+      "seconds": 376,
+      "text": "Sam security software and system which"
+    },
+    {
+      "seconds": 379,
+      "text": "plug in to those files that I just"
+    },
+    {
+      "seconds": 381,
+      "text": "showed you on the file system now"
+    },
+    {
+      "seconds": 384,
+      "text": "hardware and some other registry paths"
+    },
+    {
+      "seconds": 386,
+      "text": "that you see here are actually generated"
+    },
+    {
+      "seconds": 388,
+      "text": "on system boot they are not stored on"
+    },
+    {
+      "seconds": 391,
+      "text": "disk they are dynamically generated"
+    },
+    {
+      "seconds": 393,
+      "text": "based upon the hardware in the system"
+    },
+    {
+      "seconds": 394,
+      "text": "and the drivers loaded Etc so you"
+    },
+    {
+      "seconds": 396,
+      "text": "actually won't find for example a"
+    },
+    {
+      "seconds": 399,
+      "text": "hardware Hive on disk so that kind of"
+    },
+    {
+      "seconds": 402,
+      "text": "provides you with some very basic"
+    },
+    {
+      "seconds": 403,
+      "text": "information about how the registry is"
+    },
+    {
+      "seconds": 405,
+      "text": "laid out if we go back over to the cheat"
+    },
+    {
+      "seconds": 409,
+      "text": "sheet here the first path that you'll"
+    },
+    {
+      "seconds": 411,
+      "text": "see is current user software Microsoft"
+    },
+    {
+      "seconds": 413,
+      "text": "Windows current version"
+    },
+    {
+      "seconds": 415,
+      "text": "Explorer now what I'm going to do is on"
+    },
+    {
+      "seconds": 418,
+      "text": "this very system I actually grabbed a"
+    },
+    {
+      "seconds": 420,
+      "text": "copy of the registry hives which are"
+    },
+    {
+      "seconds": 422,
+      "text": "right here the ones I just mentioned"
+    },
+    {
+      "seconds": 424,
+      "text": "including into"
+    },
+    {
+      "seconds": 425,
+      "text": "user. we'll actually use one of many"
+    },
+    {
+      "seconds": 427,
+      "text": "pieces of software to analyze this"
+    },
+    {
+      "seconds": 429,
+      "text": "offline um in this case I'll use"
+    },
+    {
+      "seconds": 431,
+      "text": "registry Explorer it's a free piece of"
+    },
+    {
+      "seconds": 434,
+      "text": "software um as of this uh recording"
+    },
+    {
+      "seconds": 437,
+      "text": "version 0900 is the newest there are"
+    },
+    {
+      "seconds": 439,
+      "text": "plenty of other tools from access data"
+    },
+    {
+      "seconds": 441,
+      "text": "and other companies that you can use to"
+    },
+    {
+      "seconds": 443,
+      "text": "explore the registry but this particular"
+    },
+    {
+      "seconds": 446,
+      "text": "tool will be fine for our purposes so"
+    },
+    {
+      "seconds": 449,
+      "text": "let's go ahead and go to file and load"
+    },
+    {
+      "seconds": 451,
+      "text": "offline Hive and we'll look at um on the"
+    },
+    {
+      "seconds": 453,
+      "text": "desktop and we'll look at into"
+    },
+    {
+      "seconds": 456,
+      "text": "user. now first off earlier I mentioned"
+    },
+    {
+      "seconds": 459,
+      "text": "that when you delete something out of"
+    },
+    {
+      "seconds": 460,
+      "text": "the registry unless you uh perform"
+    },
+    {
+      "seconds": 462,
+      "text": "additional anti-forensics it is very"
+    },
+    {
+      "seconds": 464,
+      "text": "likely that that data can be recovered"
+    },
+    {
+      "seconds": 466,
+      "text": "those keys and values can be recovered"
+    },
+    {
+      "seconds": 468,
+      "text": "and in fact if you look here you'll"
+    },
+    {
+      "seconds": 469,
+      "text": "actually see some deleted records we're"
+    },
+    {
+      "seconds": 472,
+      "text": "not going to worry about that for now"
+    },
+    {
+      "seconds": 473,
+      "text": "but we're just going to expand root and"
+    },
+    {
+      "seconds": 476,
+      "text": "we're going to go ahead and go down to"
+    },
+    {
+      "seconds": 478,
+      "text": "software and"
+    },
+    {
+      "seconds": 480,
+      "text": "Microsoft and scroll on down to"
+    },
+    {
+      "seconds": 484,
+      "text": "Windows and current"
+    },
+    {
+      "seconds": 486,
+      "text": "version"
+    },
+    {
+      "seconds": 488,
+      "text": "and we will look for explore so if you"
+    },
+    {
+      "seconds": 492,
+      "text": "look down at the bottom software"
+    },
+    {
+      "seconds": 493,
+      "text": "Microsoft Windows current version"
+    },
+    {
+      "seconds": 495,
+      "text": "explore which is the root of where all"
+    },
+    {
+      "seconds": 498,
+      "text": "those uh those first pieces of artifact"
+    },
+    {
+      "seconds": 501,
+      "text": "information are located now let's take a"
+    },
+    {
+      "seconds": 504,
+      "text": "look at each of these Comm DG 32 or"
+    },
+    {
+      "seconds": 507,
+      "text": "common dialogue 32"
+    },
+    {
+      "seconds": 509,
+      "text": "is kind of interesting within it last"
+    },
+    {
+      "seconds": 512,
+      "text": "visited I'll call it P pidl mru and open"
+    },
+    {
+      "seconds": 516,
+      "text": "save P mru can be found have you ever"
+    },
+    {
+      "seconds": 519,
+      "text": "noticed that when you launch let's say a"
+    },
+    {
+      "seconds": 521,
+      "text": "word processor and you open a file from"
+    },
+    {
+      "seconds": 523,
+      "text": "a specific location or save a file to a"
+    },
+    {
+      "seconds": 526,
+      "text": "specific location and then maybe a few"
+    },
+    {
+      "seconds": 528,
+      "text": "days later you go back to your word"
+    },
+    {
+      "seconds": 529,
+      "text": "processor and go to file and open the"
+    },
+    {
+      "seconds": 531,
+      "text": "last path that you were browsing is is"
+    },
+    {
+      "seconds": 534,
+      "text": "still there well that information is"
+    },
+    {
+      "seconds": 536,
+      "text": "actually stored in this particular"
+    },
+    {
+      "seconds": 538,
+      "text": "registry key last visited P mru actually"
+    },
+    {
+      "seconds": 541,
+      "text": "talks about the or stores the the"
+    },
+    {
+      "seconds": 543,
+      "text": "binaries that have been used to open or"
+    },
+    {
+      "seconds": 545,
+      "text": "save those files and then open save pmu"
+    },
+    {
+      "seconds": 547,
+      "text": "actually contains the files themselves"
+    },
+    {
+      "seconds": 550,
+      "text": "that or actually the paths for the files"
+    },
+    {
+      "seconds": 552,
+      "text": "themselves that were open or saved there"
+    },
+    {
+      "seconds": 554,
+      "text": "so that information if you've ever"
+    },
+    {
+      "seconds": 556,
+      "text": "wondered where it is uh is located"
+    },
+    {
+      "seconds": 557,
+      "text": "within that registry key that can"
+    },
+    {
+      "seconds": 560,
+      "text": "provide some information including"
+    },
+    {
+      "seconds": 562,
+      "text": "information about files that may have"
+    },
+    {
+      "seconds": 563,
+      "text": "been since deleted on the system but"
+    },
+    {
+      "seconds": 565,
+      "text": "maybe we see evidence that they were at"
+    },
+    {
+      "seconds": 567,
+      "text": "one point browsed to or opened with a"
+    },
+    {
+      "seconds": 569,
+      "text": "particular program so com dlg 32 and"
+    },
+    {
+      "seconds": 572,
+      "text": "underneath it last visited p mru and"
+    },
+    {
+      "seconds": 574,
+      "text": "open safe P mru by the way mru is most"
+    },
+    {
+      "seconds": 577,
+      "text": "recently used you'll see that throughout"
+    },
+    {
+      "seconds": 579,
+      "text": "the Windows registry we'll talk more"
+    },
+    {
+      "seconds": 580,
+      "text": "about that in a second recent docks if"
+    },
+    {
+      "seconds": 584,
+      "text": "we go over here and again I'm not going"
+    },
+    {
+      "seconds": 586,
+      "text": "to show you every single one of these"
+    },
+    {
+      "seconds": 587,
+      "text": "because that would take forever but uh"
+    },
+    {
+      "seconds": 589,
+      "text": "recent docs is uh is a pretty common one"
+    },
+    {
+      "seconds": 592,
+      "text": "if we look at that there are actually"
+    },
+    {
+      "seconds": 594,
+      "text": "various things that we can parse through"
+    },
+    {
+      "seconds": 596,
+      "text": "here that will actually show recent"
+    },
+    {
+      "seconds": 598,
+      "text": "things for example here some link files"
+    },
+    {
+      "seconds": 600,
+      "text": "I've recently uh opened registry"
+    },
+    {
+      "seconds": 602,
+      "text": "explorer link file and uh here is uh"
+    },
+    {
+      "seconds": 606,
+      "text": "another link file and here's a near soft"
+    },
+    {
+      "seconds": 608,
+      "text": "tools link file so these kind of things"
+    },
+    {
+      "seconds": 611,
+      "text": "in recent docs can actually show recent"
+    },
+    {
+      "seconds": 613,
+      "text": "things that have been interacted with on"
+    },
+    {
+      "seconds": 614,
+      "text": "the system recent things that have been"
+    },
+    {
+      "seconds": 616,
+      "text": "opened or saved so recent docs is a very"
+    },
+    {
+      "seconds": 619,
+      "text": "common registry key that we'll look at"
+    },
+    {
+      "seconds": 621,
+      "text": "there are plenty of tools that will"
+    },
+    {
+      "seconds": 622,
+      "text": "parse all of these things for you"
+    },
+    {
+      "seconds": 623,
+      "text": "automatically by the way uh in fact"
+    },
+    {
+      "seconds": 625,
+      "text": "regge Ripper which is an awesome utility"
+    },
+    {
+      "seconds": 628,
+      "text": "that's built into the San system"
+    },
+    {
+      "seconds": 629,
+      "text": "workstation and uh you know you can"
+    },
+    {
+      "seconds": 631,
+      "text": "download it obviously and use it"
+    },
+    {
+      "seconds": 632,
+      "text": "anywhere you want on any Linux box but"
+    },
+    {
+      "seconds": 634,
+      "text": "it will actually parse the registry"
+    },
+    {
+      "seconds": 636,
+      "text": "hives for you and grab all of this"
+    },
+    {
+      "seconds": 637,
+      "text": "information but I think it's important"
+    },
+    {
+      "seconds": 639,
+      "text": "that you know where it's located anyway"
+    },
+    {
+      "seconds": 640,
+      "text": "and what it"
+    },
+    {
+      "seconds": 641,
+      "text": "does so let's look at another one called"
+    },
+    {
+      "seconds": 644,
+      "text": "run"
+    },
+    {
+      "seconds": 645,
+      "text": "mru so if I bring up the Run prompt here"
+    },
+    {
+      "seconds": 649,
+      "text": "and I type in something like"
+    },
+    {
+      "seconds": 651,
+      "text": "notepad that information is is actually"
+    },
+    {
+      "seconds": 654,
+      "text": "stored in the Run mru key if we look"
+    },
+    {
+      "seconds": 657,
+      "text": "right here the first value see here well"
+    },
+    {
+      "seconds": 660,
+      "text": "the first one we're going to look at"
+    },
+    {
+      "seconds": 661,
+      "text": "anyway is mru list most recently used"
+    },
+    {
+      "seconds": 663,
+      "text": "list and you can see this"
+    },
+    {
+      "seconds": 665,
+      "text": "BFC that actually corresponds to this"
+    },
+    {
+      "seconds": 668,
+      "text": "this means that in the Run blink in this"
+    },
+    {
+      "seconds": 671,
+      "text": "order CMD was executed then just"
+    },
+    {
+      "seconds": 675,
+      "text": "slash then it looks like powershell.exe"
+    },
+    {
+      "seconds": 678,
+      "text": "then Ms paint then cmd.exe and then"
+    },
+    {
+      "seconds": 683,
+      "text": "notepad so someone actually went to the"
+    },
+    {
+      "seconds": 686,
+      "text": "Run blink and ran those particular"
+    },
+    {
+      "seconds": 688,
+      "text": "things"
+    },
+    {
+      "seconds": 689,
+      "text": "and when we say someone we obvious"
+    },
+    {
+      "seconds": 691,
+      "text": "obviously know which user did it because"
+    },
+    {
+      "seconds": 693,
+      "text": "we have their into user. file so we know"
+    },
+    {
+      "seconds": 696,
+      "text": "that that particular user is the one"
+    },
+    {
+      "seconds": 698,
+      "text": "associated with running these particular"
+    },
+    {
+      "seconds": 700,
+      "text": "uh programs from the Run command prompt"
+    },
+    {
+      "seconds": 703,
+      "text": "or the Run dialogue box I should say so"
+    },
+    {
+      "seconds": 705,
+      "text": "this is a very interesting registry key"
+    },
+    {
+      "seconds": 707,
+      "text": "to to parse obviously for a number of"
+    },
+    {
+      "seconds": 708,
+      "text": "different reasons now typed paths is"
+    },
+    {
+      "seconds": 711,
+      "text": "another interesting one if we bring up"
+    },
+    {
+      "seconds": 713,
+      "text": "the Windows Explorer here and I type an"
+    },
+    {
+      "seconds": 716,
+      "text": "explicit location such as C back slash"
+    },
+    {
+      "seconds": 720,
+      "text": "program files back SL C"
+    },
+    {
+      "seconds": 723,
+      "text": "cleaner that particular path I"
+    },
+    {
+      "seconds": 726,
+      "text": "explicitly typed into Windows Explorer"
+    },
+    {
+      "seconds": 728,
+      "text": "that would tend to indicate that I knew"
+    },
+    {
+      "seconds": 730,
+      "text": "what I was looking for and I knew of the"
+    },
+    {
+      "seconds": 732,
+      "text": "existence of the path so another"
+    },
+    {
+      "seconds": 735,
+      "text": "interesting thing is if we look at this"
+    },
+    {
+      "seconds": 737,
+      "text": "key we'll actually see and again this"
+    },
+    {
+      "seconds": 740,
+      "text": "came from this very system even though"
+    },
+    {
+      "seconds": 741,
+      "text": "we're looking at an offline Hive I"
+    },
+    {
+      "seconds": 743,
+      "text": "actually grabbed this Hive uh not very"
+    },
+    {
+      "seconds": 745,
+      "text": "long ago maybe 20 minutes ago but we'll"
+    },
+    {
+      "seconds": 747,
+      "text": "see a reference to C and back msf there"
+    },
+    {
+      "seconds": 750,
+      "text": "is no"
+    },
+    {
+      "seconds": 752,
+      "text": "cmsf so that's interesting there's"
+    },
+    {
+      "seconds": 754,
+      "text": "actually evidence of a path that once"
+    },
+    {
+      "seconds": 756,
+      "text": "existed that's now been deleted msf that"
+    },
+    {
+      "seconds": 759,
+      "text": "hm I wonder what that could be that"
+    },
+    {
+      "seconds": 760,
+      "text": "could be metas sploit framework it could"
+    },
+    {
+      "seconds": 761,
+      "text": "be well a number of different things but"
+    },
+    {
+      "seconds": 763,
+      "text": "maybe that would be of interest to us so"
+    },
+    {
+      "seconds": 766,
+      "text": "we'll actually see that here that means"
+    },
+    {
+      "seconds": 768,
+      "text": "someone explicitly typed that path in"
+    },
+    {
+      "seconds": 770,
+      "text": "the Windows Explorer as did they with C"
+    },
+    {
+      "seconds": 772,
+      "text": "colum back slash and also C back program"
+    },
+    {
+      "seconds": 775,
+      "text": "files Sublime Text 3 so that would tend"
+    },
+    {
+      "seconds": 779,
+      "text": "to indicate that someone didn't just"
+    },
+    {
+      "seconds": 780,
+      "text": "stumble upon it they explicitly typed"
+    },
+    {
+      "seconds": 782,
+      "text": "that path in Windows Explorer and you"
+    },
+    {
+      "seconds": 784,
+      "text": "can imagine in an investigation that"
+    },
+    {
+      "seconds": 786,
+      "text": "kind of information would be most useful"
+    },
+    {
+      "seconds": 789,
+      "text": "another thing or the last thing actually"
+    },
+    {
+      "seconds": 791,
+      "text": "in that first section was user assist"
+    },
+    {
+      "seconds": 794,
+      "text": "now user assist is one of many different"
+    },
+    {
+      "seconds": 797,
+      "text": "things on a Windows system that will"
+    },
+    {
+      "seconds": 799,
+      "text": "actually show us evidence of application"
+    },
+    {
+      "seconds": 802,
+      "text": "execution so user assist will actually"
+    },
+    {
+      "seconds": 805,
+      "text": "show us when a particular program was"
+    },
+    {
+      "seconds": 807,
+      "text": "executed and how many times it was"
+    },
+    {
+      "seconds": 809,
+      "text": "executed and obviously we know which"
+    },
+    {
+      "seconds": 810,
+      "text": "user executed it because user assist is"
+    },
+    {
+      "seconds": 812,
+      "text": "associated with the hkcu or into user."
+    },
+    {
+      "seconds": 816,
+      "text": "file for a specific user so the values"
+    },
+    {
+      "seconds": 820,
+      "text": "within it these guids actually"
+    },
+    {
+      "seconds": 821,
+      "text": "correspond to various"
+    },
+    {
+      "seconds": 824,
+      "text": "paths and there's a well-known lookup"
+    },
+    {
+      "seconds": 826,
+      "text": "table for all of the stuff and within it"
+    },
+    {
+      "seconds": 828,
+      "text": "you'll actually have"
+    },
+    {
+      "seconds": 830,
+      "text": "counts and there are a bunch of"
+    },
+    {
+      "seconds": 834,
+      "text": "different things here that we can find"
+    },
+    {
+      "seconds": 835,
+      "text": "for example this one has 186 objects but"
+    },
+    {
+      "seconds": 838,
+      "text": "if you look at it it kind of looks like"
+    },
+    {
+      "seconds": 839,
+      "text": "gibberish here that's because these"
+    },
+    {
+      "seconds": 841,
+      "text": "values are rot 13 encoded now rot 13 is"
+    },
+    {
+      "seconds": 844,
+      "text": "a simple substitution Cipher it"
+    },
+    {
+      "seconds": 846,
+      "text": "basically takes uh an alphabet and"
+    },
+    {
+      "seconds": 848,
+      "text": "shifts it 13 characters so a becomes m b"
+    },
+    {
+      "seconds": 852,
+      "text": "becomes n so on and so forth I'm not"
+    },
+    {
+      "seconds": 855,
+      "text": "exactly sure why Microsoft chose to do"
+    },
+    {
+      "seconds": 857,
+      "text": "this it certainly obfuscates it if"
+    },
+    {
+      "seconds": 859,
+      "text": "you're just looking at the data uh it's"
+    },
+    {
+      "seconds": 861,
+      "text": "very very easy to decate it by you know"
+    },
+    {
+      "seconds": 864,
+      "text": "Googling you know rot 13 decoder or just"
+    },
+    {
+      "seconds": 866,
+      "text": "writing one yourself which takes only"
+    },
+    {
+      "seconds": 868,
+      "text": "seconds uh but there are also a number"
+    },
+    {
+      "seconds": 870,
+      "text": "of different tools that will just parse"
+    },
+    {
+      "seconds": 871,
+      "text": "this particular key for you"
+    },
+    {
+      "seconds": 873,
+      "text": "automatically and pull out all the"
+    },
+    {
+      "seconds": 874,
+      "text": "information uh in a nice gooey or or at"
+    },
+    {
+      "seconds": 877,
+      "text": "the command line but this information is"
+    },
+    {
+      "seconds": 880,
+      "text": "very useful because we can show again"
+    },
+    {
+      "seconds": 882,
+      "text": "when a particular guey program was"
+    },
+    {
+      "seconds": 884,
+      "text": "launched on a system how many times it"
+    },
+    {
+      "seconds": 886,
+      "text": "was launched and who launched it so very"
+    },
+    {
+      "seconds": 888,
+      "text": "very important when we're forensic a"
+    },
+    {
+      "seconds": 890,
+      "text": "Windows system now if we go back over to"
+    },
+    {
+      "seconds": 893,
+      "text": "the cheat sheet you'll also notice that"
+    },
+    {
+      "seconds": 897,
+      "text": "very similar paths here under current"
+    },
+    {
+      "seconds": 899,
+      "text": "version You've Got Run and run once both"
+    },
+    {
+      "seconds": 901,
+      "text": "for current user and local machine these"
+    },
+    {
+      "seconds": 904,
+      "text": "are locations one of 50 or more"
+    },
+    {
+      "seconds": 907,
+      "text": "locations in fact on a Windows operating"
+    },
+    {
+      "seconds": 909,
+      "text": "system where programs can be specified"
+    },
+    {
+      "seconds": 912,
+      "text": "to start uh upon login one of many"
+    },
+    {
+      "seconds": 916,
+      "text": "places where this can happen uh in fact"
+    },
+    {
+      "seconds": 918,
+      "text": "if you look at uh for example let's look"
+    },
+    {
+      "seconds": 921,
+      "text": "at task manager here and then let's"
+    },
+    {
+      "seconds": 923,
+      "text": "click on the startup tab you'll actually"
+    },
+    {
+      "seconds": 926,
+      "text": "see two things listed here the VMware"
+    },
+    {
+      "seconds": 927,
+      "text": "tools core service and Windows Defender"
+    },
+    {
+      "seconds": 930,
+      "text": "so on this system let's load up re reg"
+    },
+    {
+      "seconds": 932,
+      "text": "edit actually let's look at it live so"
+    },
+    {
+      "seconds": 935,
+      "text": "if we look at reg edit and we go to"
+    },
+    {
+      "seconds": 937,
+      "text": "local machine"
+    },
+    {
+      "seconds": 940,
+      "text": "software"
+    },
+    {
+      "seconds": 943,
+      "text": "Microsoft Windows current version run we"
+    },
+    {
+      "seconds": 947,
+      "text": "actually"
+    },
+    {
+      "seconds": 948,
+      "text": "see those paths right there there's"
+    },
+    {
+      "seconds": 951,
+      "text": "VMware tools and there's Windows"
+    },
+    {
+      "seconds": 953,
+      "text": "Defender so those are again locations of"
+    },
+    {
+      "seconds": 956,
+      "text": "things that are starting automatically"
+    },
+    {
+      "seconds": 958,
+      "text": "with Windows"
+    },
+    {
+      "seconds": 959,
+      "text": "the same path exists not only under HK"
+    },
+    {
+      "seconds": 962,
+      "text": "local machine uh as you can see down"
+    },
+    {
+      "seconds": 965,
+      "text": "here but the exact same path exists"
+    },
+    {
+      "seconds": 967,
+      "text": "under current user which means user"
+    },
+    {
+      "seconds": 969,
+      "text": "specific things that are starting at"
+    },
+    {
+      "seconds": 972,
+      "text": "startup so in the next section of the"
+    },
+    {
+      "seconds": 975,
+      "text": "video we'll actually talk about"
+    },
+    {
+      "seconds": 977,
+      "text": "something called shell bags which is one"
+    },
+    {
+      "seconds": 979,
+      "text": "of the oddly named Windows forensic"
+    },
+    {
+      "seconds": 981,
+      "text": "artifacts uh we'll actually talk about"
+    },
+    {
+      "seconds": 983,
+      "text": "what shell bags are and uh what forensic"
+    },
+    {
+      "seconds": 986,
+      "text": "evidence they can provide by the way if"
+    },
+    {
+      "seconds": 988,
+      "text": "I didn't mention already this particular"
+    },
+    {
+      "seconds": 990,
+      "text": "cheat sheet again I will link to in the"
+    },
+    {
+      "seconds": 992,
+      "text": "description of the video you can also"
+    },
+    {
+      "seconds": 993,
+      "text": "find it on my website at 13 cube.com so"
+    },
+    {
+      "seconds": 996,
+      "text": "if you uh want to grab it and print out"
+    },
+    {
+      "seconds": 998,
+      "text": "a copy of it for reference feel free to"
+    },
+    {
+      "seconds": 1000,
+      "text": "do"
+    },
+    {
+      "seconds": 1006,
+      "text": "that okay next let's talk about shell"
+    },
+    {
+      "seconds": 1006,
+      "text": "bags what are shell bags well as you can"
+    },
+    {
+      "seconds": 1010,
+      "text": "see under hkcu software Microsoft"
+    },
+    {
+      "seconds": 1013,
+      "text": "Windows shell there exists some registry"
+    },
+    {
+      "seconds": 1017,
+      "text": "keys and values that are of Interest to"
+    },
+    {
+      "seconds": 1019,
+      "text": "us uh bag mru and bags now most of the"
+    },
+    {
+      "seconds": 1022,
+      "text": "time you are not going to parse shell"
+    },
+    {
+      "seconds": 1024,
+      "text": "bags manually you certainly could in"
+    },
+    {
+      "seconds": 1026,
+      "text": "fact you'll learn how to do that in the"
+    },
+    {
+      "seconds": 1028,
+      "text": "class I mentioned previously but most of"
+    },
+    {
+      "seconds": 1030,
+      "text": "the time you'll use a piece of software"
+    },
+    {
+      "seconds": 1032,
+      "text": "like shell bag Explorer or uh some other"
+    },
+    {
+      "seconds": 1034,
+      "text": "utility that will automatically parse"
+    },
+    {
+      "seconds": 1036,
+      "text": "that for you so what is it basically"
+    },
+    {
+      "seconds": 1039,
+      "text": "when you visit a particular path in"
+    },
+    {
+      "seconds": 1041,
+      "text": "Windows Explorer and you customize the"
+    },
+    {
+      "seconds": 1045,
+      "text": "uh icons and the look and the feel the"
+    },
+    {
+      "seconds": 1047,
+      "text": "folder the window position the size the"
+    },
+    {
+      "seconds": 1049,
+      "text": "icons the Sorting method all of those"
+    },
+    {
+      "seconds": 1051,
+      "text": "things those are stored in shellbacks"
+    },
+    {
+      "seconds": 1054,
+      "text": "the reason why it's important from a"
+    },
+    {
+      "seconds": 1055,
+      "text": "forensic standpoint is because shell"
+    },
+    {
+      "seconds": 1057,
+      "text": "bags persist for things that have been"
+    },
+    {
+      "seconds": 1059,
+      "text": "long since deleted on a system so we"
+    },
+    {
+      "seconds": 1062,
+      "text": "might be able to find entire trees that"
+    },
+    {
+      "seconds": 1064,
+      "text": "are completely gone and haven't even"
+    },
+    {
+      "seconds": 1066,
+      "text": "existed on the system showing that at"
+    },
+    {
+      "seconds": 1068,
+      "text": "one point said path did exist on the"
+    },
+    {
+      "seconds": 1071,
+      "text": "system so there's all kinds of different"
+    },
+    {
+      "seconds": 1073,
+      "text": "forensic uh ways to parse that data and"
+    },
+    {
+      "seconds": 1076,
+      "text": "certainly a lot of advantages for"
+    },
+    {
+      "seconds": 1078,
+      "text": "looking at it so let's briefly look at"
+    },
+    {
+      "seconds": 1081,
+      "text": "uh from the the same people that brought"
+    },
+    {
+      "seconds": 1083,
+      "text": "us registry Explorer we've got shellbags"
+    },
+    {
+      "seconds": 1085,
+      "text": "Explorer so let's load up shell bags"
+    },
+    {
+      "seconds": 1088,
+      "text": "Explorer and let's take a look at the"
+    },
+    {
+      "seconds": 1090,
+      "text": "live"
+    },
+    {
+      "seconds": 1091,
+      "text": "system if you recall earlier there was a"
+    },
+    {
+      "seconds": 1094,
+      "text": "path in the root of C called"
+    },
+    {
+      "seconds": 1097,
+      "text": "cmsf which no longer"
+    },
+    {
+      "seconds": 1099,
+      "text": "exists if we go to file and then load"
+    },
+    {
+      "seconds": 1102,
+      "text": "active"
+    },
+    {
+      "seconds": 1104,
+      "text": "registry it actually gives us a parsing"
+    },
+    {
+      "seconds": 1106,
+      "text": "complete uh message and it shows how"
+    },
+    {
+      "seconds": 1108,
+      "text": "long it took and what it"
+    },
+    {
+      "seconds": 1110,
+      "text": "found but if we go down here we'll"
+    },
+    {
+      "seconds": 1112,
+      "text": "notice a ton of stuff that it actually"
+    },
+    {
+      "seconds": 1115,
+      "text": "parsed from Shell bags and if we go down"
+    },
+    {
+      "seconds": 1118,
+      "text": "to my"
+    },
+    {
+      "seconds": 1120,
+      "text": "computer and then look at the C"
+    },
+    {
+      "seconds": 1123,
+      "text": "drive we'll actually see an msf"
+    },
+    {
+      "seconds": 1127,
+      "text": "directory now it's got some modif"
+    },
+    {
+      "seconds": 1130,
+      "text": "modified information and data"
+    },
+    {
+      "seconds": 1131,
+      "text": "information and path information and"
+    },
+    {
+      "seconds": 1133,
+      "text": "things like this but again this path"
+    },
+    {
+      "seconds": 1135,
+      "text": "doesn't even exist on the file system"
+    },
+    {
+      "seconds": 1136,
+      "text": "anymore so the fact that we can actually"
+    },
+    {
+      "seconds": 1138,
+      "text": "see"
+    },
+    {
+      "seconds": 1139,
+      "text": "that it once existed and have some date"
+    },
+    {
+      "seconds": 1142,
+      "text": "and time uh information associated with"
+    },
+    {
+      "seconds": 1144,
+      "text": "that is extremely important you'll also"
+    },
+    {
+      "seconds": 1147,
+      "text": "see things like uh E D and S listed here"
+    },
+    {
+      "seconds": 1151,
+      "text": "now those are either Network paths or"
+    },
+    {
+      "seconds": 1153,
+      "text": "removable volumes that once were mounted"
+    },
+    {
+      "seconds": 1156,
+      "text": "on the system but aren't we can go"
+    },
+    {
+      "seconds": 1158,
+      "text": "through those and parse those as well"
+    },
+    {
+      "seconds": 1159,
+      "text": "and see evidence that perhaps a flash"
+    },
+    {
+      "seconds": 1161,
+      "text": "drive was connected at some point and"
+    },
+    {
+      "seconds": 1163,
+      "text": "used to browse to a particular folder"
+    },
+    {
+      "seconds": 1165,
+      "text": "that contained some sort of you know"
+    },
+    {
+      "seconds": 1167,
+      "text": "anti-forensics tool or some hacking tool"
+    },
+    {
+      "seconds": 1169,
+      "text": "that we're trying to investigate or"
+    },
+    {
+      "seconds": 1171,
+      "text": "maybe some Contraband someone was using"
+    },
+    {
+      "seconds": 1173,
+      "text": "on the system or uh copying on the"
+    },
+    {
+      "seconds": 1176,
+      "text": "system we can find that information by"
+    },
+    {
+      "seconds": 1178,
+      "text": "parsing uh these shell bags and looking"
+    },
+    {
+      "seconds": 1181,
+      "text": "to see that those paths once existed and"
+    },
+    {
+      "seconds": 1183,
+      "text": "when they existed and where they existed"
+    },
+    {
+      "seconds": 1185,
+      "text": "and uh under uh which user they were"
+    },
+    {
+      "seconds": 1188,
+      "text": "accessed all of those kinds of things"
+    },
+    {
+      "seconds": 1189,
+      "text": "can be found by parsing shell bags now"
+    },
+    {
+      "seconds": 1193,
+      "text": "there are entire websites devoted to how"
+    },
+    {
+      "seconds": 1196,
+      "text": "to understand and utilize shell bags in"
+    },
+    {
+      "seconds": 1199,
+      "text": "forensic investigations I'm not even"
+    },
+    {
+      "seconds": 1201,
+      "text": "going to attempt to scratch the service"
+    },
+    {
+      "seconds": 1202,
+      "text": "here I just want you to understand when"
+    },
+    {
+      "seconds": 1204,
+      "text": "you hear the term shell bags what is"
+    },
+    {
+      "seconds": 1206,
+      "text": "that and what is it used for and now you"
+    },
+    {
+      "seconds": 1208,
+      "text": "know at least the basics I would"
+    },
+    {
+      "seconds": 1209,
+      "text": "encourage you to read more on that"
+    },
+    {
+      "seconds": 1211,
+      "text": "there's actually uh some Sans gold"
+    },
+    {
+      "seconds": 1213,
+      "text": "papers that have been done on that so"
+    },
+    {
+      "seconds": 1215,
+      "text": "you might want to check that out so"
+    },
+    {
+      "seconds": 1217,
+      "text": "again shell bags Explorer is a great"
+    },
+    {
+      "seconds": 1219,
+      "text": "tool and there are plenty of other ones"
+    },
+    {
+      "seconds": 1221,
+      "text": "that can be used to to actually browse"
+    },
+    {
+      "seconds": 1223,
+      "text": "those things um they also by the way"
+    },
+    {
+      "seconds": 1226,
+      "text": "exist in all versions of windows so"
+    },
+    {
+      "seconds": 1229,
+      "text": "they're uh whether you're analyzing"
+    },
+    {
+      "seconds": 1231,
+      "text": "Vista all the way up to Windows 10 uh"
+    },
+    {
+      "seconds": 1233,
+      "text": "you're still going to have shell bags to"
+    },
+    {
+      "seconds": 1235,
+      "text": "to"
+    },
+    {
+      "seconds": 1236,
+      "text": "parse now in the next section we're"
+    },
+    {
+      "seconds": 1238,
+      "text": "actually going to briefly mention"
+    },
+    {
+      "seconds": 1240,
+      "text": "something called user class.at I think I"
+    },
+    {
+      "seconds": 1242,
+      "text": "mentioned it earlier it's another"
+    },
+    {
+      "seconds": 1245,
+      "text": "section under which uh a user specific"
+    },
+    {
+      "seconds": 1249,
+      "text": "piece of the registry will be stored so"
+    },
+    {
+      "seconds": 1252,
+      "text": "we'll talk about exactly what that is"
+    },
+    {
+      "seconds": 1254,
+      "text": "and I'll show you where it"
+    },
+    {
+      "seconds": 1259,
+      "text": "is okay so so now that you know what"
+    },
+    {
+      "seconds": 1259,
+      "text": "shell bags are at least at a high level"
+    },
+    {
+      "seconds": 1262,
+      "text": "let's talk about usrclass.dat"
+    },
+    {
+      "seconds": 1265,
+      "text": "if we go over here we'll actually see on"
+    },
+    {
+      "seconds": 1268,
+      "text": "the cheat sheet that uh user profile app"
+    },
+    {
+      "seconds": 1272,
+      "text": "data local Microsoft Windows"
+    },
+    {
+      "seconds": 1274,
+      "text": "usrclass.dat is the path that we're"
+    },
+    {
+      "seconds": 1277,
+      "text": "talking about for this particular"
+    },
+    {
+      "seconds": 1278,
+      "text": "registry Hive this is something that we"
+    },
+    {
+      "seconds": 1280,
+      "text": "will certainly want to get when we grab"
+    },
+    {
+      "seconds": 1283,
+      "text": "data from a particular system of"
+    },
+    {
+      "seconds": 1286,
+      "text": "Interest so again this is the path here"
+    },
+    {
+      "seconds": 1288,
+      "text": "and it actually plugs in to the live"
+    },
+    {
+      "seconds": 1290,
+      "text": "registry at hkcu software classes so"
+    },
+    {
+      "seconds": 1295,
+      "text": "user class. dat is actually something"
+    },
+    {
+      "seconds": 1298,
+      "text": "that was added in Windows 7 and in fact"
+    },
+    {
+      "seconds": 1301,
+      "text": "this Windows 7 shellbags article will"
+    },
+    {
+      "seconds": 1303,
+      "text": "actually mention it but the basic"
+    },
+    {
+      "seconds": 1306,
+      "text": "purpose is segmentation from low"
+    },
+    {
+      "seconds": 1310,
+      "text": "Integrity processes that do not have"
+    },
+    {
+      "seconds": 1312,
+      "text": "permission to read and write to the"
+    },
+    {
+      "seconds": 1314,
+      "text": "standard registry they can do so within"
+    },
+    {
+      "seconds": 1317,
+      "text": "user class.at if you scroll down on this"
+    },
+    {
+      "seconds": 1319,
+      "text": "particular Sans differ blog which is"
+    },
+    {
+      "seconds": 1321,
+      "text": "from 5 July"
+    },
+    {
+      "seconds": 1323,
+      "text": "2011 you can actually see that it"
+    },
+    {
+      "seconds": 1325,
+      "text": "mentions that you need to parse both"
+    },
+    {
+      "seconds": 1327,
+      "text": "into user. and user class.at and it also"
+    },
+    {
+      "seconds": 1330,
+      "text": "mentions the fact that shellbags"
+    },
+    {
+      "seconds": 1331,
+      "text": "information is actually present at this"
+    },
+    {
+      "seconds": 1334,
+      "text": "path in user class.at so we had just"
+    },
+    {
+      "seconds": 1336,
+      "text": "talked about shell bags but also know"
+    },
+    {
+      "seconds": 1339,
+      "text": "that shell bags are not only found in in"
+    },
+    {
+      "seconds": 1341,
+      "text": "user. or hkcu but also in user class."
+    },
+    {
+      "seconds": 1346,
+      "text": "and again it even says here uh in over"
+    },
+    {
+      "seconds": 1348,
+      "text": "for simplified terms it is used to"
+    },
+    {
+      "seconds": 1350,
+      "text": "record configuration information from"
+    },
+    {
+      "seconds": 1351,
+      "text": "user processes that do not have access"
+    },
+    {
+      "seconds": 1353,
+      "text": "to write to the standard registry hives"
+    },
+    {
+      "seconds": 1355,
+      "text": "so again it was a security feature added"
+    },
+    {
+      "seconds": 1358,
+      "text": "to provide further segmentation uh"
+    },
+    {
+      "seconds": 1360,
+      "text": "within Windows 7 for registry uh hives"
+    },
+    {
+      "seconds": 1364,
+      "text": "so again grab user class. another"
+    },
+    {
+      "seconds": 1366,
+      "text": "important thing to mention is often"
+    },
+    {
+      "seconds": 1369,
+      "text": "times ftk imager is used to grab"
+    },
+    {
+      "seconds": 1372,
+      "text": "forensic data from a system uh a lot of"
+    },
+    {
+      "seconds": 1375,
+      "text": "times people will use the little safe"
+    },
+    {
+      "seconds": 1377,
+      "text": "icon here for obtain protect files"
+    },
+    {
+      "seconds": 1379,
+      "text": "Please be aware that uh to my knowledge"
+    },
+    {
+      "seconds": 1382,
+      "text": "as far as this video is being recorded"
+    },
+    {
+      "seconds": 1385,
+      "text": "that uh button that icon does not grab"
+    },
+    {
+      "seconds": 1388,
+      "text": "user class.at from each user profile it"
+    },
+    {
+      "seconds": 1390,
+      "text": "does get into user. but it doesn't grab"
+    },
+    {
+      "seconds": 1393,
+      "text": "user class. dat so make sure that when"
+    },
+    {
+      "seconds": 1396,
+      "text": "you're referencing a system and grabbing"
+    },
+    {
+      "seconds": 1397,
+      "text": "that data that you do grab usrclass.dat"
+    },
+    {
+      "seconds": 1400,
+      "text": "and again the path for that is appd"
+    },
+    {
+      "seconds": 1404,
+      "text": "local Microsoft Windows user class.at"
+    },
+    {
+      "seconds": 1408,
+      "text": "so the next section we're actually going"
+    },
+    {
+      "seconds": 1410,
+      "text": "to transition to talking about usb"
+    },
+    {
+      "seconds": 1413,
+      "text": "devices which there are obviously tons"
+    },
+    {
+      "seconds": 1417,
+      "text": "of different uh reasons why we want to"
+    },
+    {
+      "seconds": 1419,
+      "text": "know which USB devices were plugged into"
+    },
+    {
+      "seconds": 1422,
+      "text": "a system at any given time and what was"
+    },
+    {
+      "seconds": 1424,
+      "text": "accessed and who mounted them and Etc so"
+    },
+    {
+      "seconds": 1427,
+      "text": "we'll talk about that in the next"
+    },
+    {
+      "seconds": 1428,
+      "text": "section of the"
+    },
+    {
+      "seconds": 1434,
+      "text": "video okay so now let's talk about usb"
+    },
+    {
+      "seconds": 1434,
+      "text": "devices there are obviously a number of"
+    },
+    {
+      "seconds": 1436,
+      "text": "reasons why we would want to know what"
+    },
+    {
+      "seconds": 1438,
+      "text": "USB mass storage devices or flash drives"
+    },
+    {
+      "seconds": 1441,
+      "text": "have been plugged into a given system"
+    },
+    {
+      "seconds": 1443,
+      "text": "and by analyzing the right registry pads"
+    },
+    {
+      "seconds": 1446,
+      "text": "we can find that information as you can"
+    },
+    {
+      "seconds": 1448,
+      "text": "see here hklm system current control set"
+    },
+    {
+      "seconds": 1450,
+      "text": "enum USB store and USB can provide a"
+    },
+    {
+      "seconds": 1454,
+      "text": "wealth of information now I would like"
+    },
+    {
+      "seconds": 1456,
+      "text": "to mention that current control set is"
+    },
+    {
+      "seconds": 1458,
+      "text": "displayed here you're only going to see"
+    },
+    {
+      "seconds": 1460,
+      "text": "current control set on a live system so"
+    },
+    {
+      "seconds": 1463,
+      "text": "on this live system if I load up"
+    },
+    {
+      "seconds": 1466,
+      "text": "redit and I look at local machine and"
+    },
+    {
+      "seconds": 1470,
+      "text": "system sure enough here is current"
+    },
+    {
+      "seconds": 1472,
+      "text": "control set if I'm analyzing a forensic"
+    },
+    {
+      "seconds": 1475,
+      "text": "image that I've obtained previously"
+    },
+    {
+      "seconds": 1477,
+      "text": "however there will be no current control"
+    },
+    {
+      "seconds": 1478,
+      "text": "set instead I'm going to analyze control"
+    },
+    {
+      "seconds": 1481,
+      "text": "set 001 but what if there were control"
+    },
+    {
+      "seconds": 1484,
+      "text": "set 002 003 and so on and so forth how"
+    },
+    {
+      "seconds": 1487,
+      "text": "do I know which control set was actually"
+    },
+    {
+      "seconds": 1489,
+      "text": "last used on the system there may be"
+    },
+    {
+      "seconds": 1491,
+      "text": "more than one if the system had had"
+    },
+    {
+      "seconds": 1494,
+      "text": "trouble starting up or Windows had"
+    },
+    {
+      "seconds": 1495,
+      "text": "automatically attempted to correct some"
+    },
+    {
+      "seconds": 1497,
+      "text": "sort of issue on Startup if we look at"
+    },
+    {
+      "seconds": 1500,
+      "text": "the select path here and look at the key"
+    },
+    {
+      "seconds": 1504,
+      "text": "called current it has a value of one"
+    },
+    {
+      "seconds": 1506,
+      "text": "which would indicate the control set 001"
+    },
+    {
+      "seconds": 1509,
+      "text": "is the control set that we want to"
+    },
+    {
+      "seconds": 1511,
+      "text": "analyze we can make that assumption in"
+    },
+    {
+      "seconds": 1513,
+      "text": "this case because there is only one"
+    },
+    {
+      "seconds": 1515,
+      "text": "control set but in forensics we don't"
+    },
+    {
+      "seconds": 1517,
+      "text": "make assumptions we look at the evidence"
+    },
+    {
+      "seconds": 1519,
+      "text": "and determine for sure by looking at the"
+    },
+    {
+      "seconds": 1522,
+      "text": "correct key and in this case again"
+    },
+    {
+      "seconds": 1524,
+      "text": "control set 001 is what we need to be"
+    },
+    {
+      "seconds": 1526,
+      "text": "looking at so let's get out out of the"
+    },
+    {
+      "seconds": 1528,
+      "text": "live registry view here and let's"
+    },
+    {
+      "seconds": 1530,
+      "text": "actually load"
+    },
+    {
+      "seconds": 1532,
+      "text": "up the registry Explorer like we used"
+    },
+    {
+      "seconds": 1535,
+      "text": "last time now I can tell you during the"
+    },
+    {
+      "seconds": 1537,
+      "text": "last break I took a Samsung USB flash"
+    },
+    {
+      "seconds": 1540,
+      "text": "drive that had not previously been"
+    },
+    {
+      "seconds": 1542,
+      "text": "connected to this virtual machine and I"
+    },
+    {
+      "seconds": 1544,
+      "text": "connected it to"
+    },
+    {
+      "seconds": 1545,
+      "text": "it so I know what the serial number of"
+    },
+    {
+      "seconds": 1548,
+      "text": "that device is so I can identify it here"
+    },
+    {
+      "seconds": 1550,
+      "text": "and we'll actually look at it and see if"
+    },
+    {
+      "seconds": 1553,
+      "text": "we can determine some information so"
+    },
+    {
+      "seconds": 1555,
+      "text": "let's load offline Hive let's browse to"
+    },
+    {
+      "seconds": 1559,
+      "text": "desktop and click on"
+    },
+    {
+      "seconds": 1563,
+      "text": "system now according to the cheat sheet"
+    },
+    {
+      "seconds": 1567,
+      "text": "we should look"
+    },
+    {
+      "seconds": 1569,
+      "text": "at again this is not a live system so"
+    },
+    {
+      "seconds": 1572,
+      "text": "there's no current control set but enum"
+    },
+    {
+      "seconds": 1574,
+      "text": "USB store and USB so over here we have"
+    },
+    {
+      "seconds": 1577,
+      "text": "got control set 001 sure enough there is"
+    },
+    {
+      "seconds": 1579,
+      "text": "no current control set enum and let's"
+    },
+    {
+      "seconds": 1583,
+      "text": "look at USB"
+    },
+    {
+      "seconds": 1584,
+      "text": "store there's one value here which is"
+    },
+    {
+      "seconds": 1587,
+      "text": "correct cuz there's only been one flash"
+    },
+    {
+      "seconds": 1588,
+      "text": "drive that I've recently plugged into"
+    },
+    {
+      "seconds": 1590,
+      "text": "this virtual"
+    },
+    {
+      "seconds": 1591,
+      "text": "machine it is a Samsung flash drive and"
+    },
+    {
+      "seconds": 1594,
+      "text": "if I further expand this this string"
+    },
+    {
+      "seconds": 1599,
+      "text": "here is in fact the serial number for"
+    },
+    {
+      "seconds": 1602,
+      "text": "this device now because the Amber sand"
+    },
+    {
+      "seconds": 1605,
+      "text": "is near the end of the string I know"
+    },
+    {
+      "seconds": 1607,
+      "text": "that this is likely a globally unique"
+    },
+    {
+      "seconds": 1609,
+      "text": "serial number and I would record that"
+    },
+    {
+      "seconds": 1611,
+      "text": "information if however I saw an Amper"
+    },
+    {
+      "seconds": 1614,
+      "text": "sand in the second character of the"
+    },
+    {
+      "seconds": 1615,
+      "text": "string that would indicate that the"
+    },
+    {
+      "seconds": 1617,
+      "text": "manufacturer that flash drive did not"
+    },
+    {
+      "seconds": 1620,
+      "text": "follow Microsoft guidelines and did not"
+    },
+    {
+      "seconds": 1622,
+      "text": "assign a globally unique serial number"
+    },
+    {
+      "seconds": 1623,
+      "text": "to the device so Windows would"
+    },
+    {
+      "seconds": 1625,
+      "text": "automatically generate a serial number"
+    },
+    {
+      "seconds": 1627,
+      "text": "that would be unique on that system but"
+    },
+    {
+      "seconds": 1630,
+      "text": "not globally unique in this case this is"
+    },
+    {
+      "seconds": 1633,
+      "text": "a Samsung flash drive and it does have a"
+    },
+    {
+      "seconds": 1634,
+      "text": "globally unique serial number and this"
+    },
+    {
+      "seconds": 1636,
+      "text": "is it so I would certainly record this"
+    },
+    {
+      "seconds": 1638,
+      "text": "information ending in"
+    },
+    {
+      "seconds": 1640,
+      "text": "22277 so now I know the make of the"
+    },
+    {
+      "seconds": 1644,
+      "text": "flash drive that it's Samsung and I know"
+    },
+    {
+      "seconds": 1646,
+      "text": "the serial number if you look over here"
+    },
+    {
+      "seconds": 1649,
+      "text": "I also know the last right time stamp of"
+    },
+    {
+      "seconds": 1651,
+      "text": "this particular key 201763 at 0427 34"
+    },
+    {
+      "seconds": 1657,
+      "text": "now these times as are all times in"
+    },
+    {
+      "seconds": 1659,
+      "text": "windows are recorded"
+    },
+    {
+      "seconds": 1662,
+      "text": "UTC because this UTC I would need to"
+    },
+    {
+      "seconds": 1665,
+      "text": "convert it and upon converting it that"
+    },
+    {
+      "seconds": 1667,
+      "text": "would be 12:27 a.m. which was about 30"
+    },
+    {
+      "seconds": 1670,
+      "text": "minutes ago and that's correct that's"
+    },
+    {
+      "seconds": 1672,
+      "text": "when I first pluged that drive in so"
+    },
+    {
+      "seconds": 1674,
+      "text": "that's an interesting piece of evidence"
+    },
+    {
+      "seconds": 1676,
+      "text": "right there I know the first time the"
+    },
+    {
+      "seconds": 1677,
+      "text": "drive was connected"
+    },
+    {
+      "seconds": 1679,
+      "text": "if you look over here I can also see"
+    },
+    {
+      "seconds": 1681,
+      "text": "some more easily readable information"
+    },
+    {
+      "seconds": 1683,
+      "text": "Samsung flash drive Duo 1100 it says"
+    },
+    {
+      "seconds": 1687,
+      "text": "here so now let's expand the USB key and"
+    },
+    {
+      "seconds": 1690,
+      "text": "we'll see some vid and PID entries the"
+    },
+    {
+      "seconds": 1694,
+      "text": "vid and the PID by searching on Google"
+    },
+    {
+      "seconds": 1697,
+      "text": "we can find various lookup tables for"
+    },
+    {
+      "seconds": 1699,
+      "text": "vids and pids and we can actually find a"
+    },
+    {
+      "seconds": 1701,
+      "text": "more specific Hardware making model of"
+    },
+    {
+      "seconds": 1703,
+      "text": "the device by matching the vid and PID"
+    },
+    {
+      "seconds": 1706,
+      "text": "to a known database if I look at the"
+    },
+    {
+      "seconds": 1708,
+      "text": "vids and pits listed here this first vid"
+    },
+    {
+      "seconds": 1711,
+      "text": "and PID happened to correspond to the"
+    },
+    {
+      "seconds": 1714,
+      "text": "serial number we saw below"
+    },
+    {
+      "seconds": 1716,
+      "text": "22277 therefore I know that the vid is"
+    },
+    {
+      "seconds": 1719,
+      "text": "090c and the PID is 1,000 if I looked at"
+    },
+    {
+      "seconds": 1722,
+      "text": "that information that would tell me more"
+    },
+    {
+      "seconds": 1724,
+      "text": "information about the make and model of"
+    },
+    {
+      "seconds": 1726,
+      "text": "this particular Samsung flash drive so"
+    },
+    {
+      "seconds": 1729,
+      "text": "again good stuff"
+    },
+    {
+      "seconds": 1731,
+      "text": "there now the next key that's listed on"
+    },
+    {
+      "seconds": 1735,
+      "text": "the cheat sheet is under the software"
+    },
+    {
+      "seconds": 1737,
+      "text": "hive because I've opened the system Hive"
+    },
+    {
+      "seconds": 1739,
+      "text": "here we'll need to switch so I'll go"
+    },
+    {
+      "seconds": 1742,
+      "text": "ahead and unload all"
+    },
+    {
+      "seconds": 1744,
+      "text": "hives and I'll go to file and load"
+    },
+    {
+      "seconds": 1746,
+      "text": "offline Hive and then this time I'll"
+    },
+    {
+      "seconds": 1748,
+      "text": "choose"
+    },
+    {
+      "seconds": 1750,
+      "text": "software now while that loads the path"
+    },
+    {
+      "seconds": 1754,
+      "text": "I'm looking for is going to be Microsoft"
+    },
+    {
+      "seconds": 1757,
+      "text": "Windows portable devices"
+    },
+    {
+      "seconds": 1760,
+      "text": "devices so under the software registry"
+    },
+    {
+      "seconds": 1764,
+      "text": "Hive once it loads we'll browse to that"
+    },
+    {
+      "seconds": 1767,
+      "text": "particular path"
+    },
+    {
+      "seconds": 1769,
+      "text": "now while we're waiting on that we will"
+    },
+    {
+      "seconds": 1771,
+      "text": "actually go back to the system Hive"
+    },
+    {
+      "seconds": 1774,
+      "text": "after we're done parsing that and look"
+    },
+    {
+      "seconds": 1775,
+      "text": "at a key called mounted devices where we"
+    },
+    {
+      "seconds": 1777,
+      "text": "can find additional"
+    },
+    {
+      "seconds": 1780,
+      "text": "information this is a particularly large"
+    },
+    {
+      "seconds": 1782,
+      "text": "registry"
+    },
+    {
+      "seconds": 1784,
+      "text": "Hive so it may take a little bit to load"
+    },
+    {
+      "seconds": 1786,
+      "text": "here it"
+    },
+    {
+      "seconds": 1787,
+      "text": "is so now again we're under"
+    },
+    {
+      "seconds": 1792,
+      "text": "Microsoft Windows portable devices"
+    },
+    {
+      "seconds": 1794,
+      "text": "devices so there's Microsoft scroll all"
+    },
+    {
+      "seconds": 1797,
+      "text": "the way way down"
+    },
+    {
+      "seconds": 1804,
+      "text": "here Windows portable devices"
+    },
+    {
+      "seconds": 1804,
+      "text": "devices now it appears that I have three"
+    },
+    {
+      "seconds": 1808,
+      "text": "listed here and if I Mouse over"
+    },
+    {
+      "seconds": 1811,
+      "text": "each I'll actually see that the second"
+    },
+    {
+      "seconds": 1813,
+      "text": "one corresponds to the serial number of"
+    },
+    {
+      "seconds": 1815,
+      "text": "the device in question it even says"
+    },
+    {
+      "seconds": 1817,
+      "text": "Samsung and you'll see the"
+    },
+    {
+      "seconds": 1819,
+      "text": "22277 for the serial"
+    },
+    {
+      "seconds": 1822,
+      "text": "number over here we'll see friendly name"
+    },
+    {
+      "seconds": 1825,
+      "text": "and then the data is sticky sticky is in"
+    },
+    {
+      "seconds": 1829,
+      "text": "fact the name of the volume for that"
+    },
+    {
+      "seconds": 1832,
+      "text": "flash drive that I plugged in so now we"
+    },
+    {
+      "seconds": 1834,
+      "text": "know even more information again if we"
+    },
+    {
+      "seconds": 1837,
+      "text": "look at the last right Tim stamp we can"
+    },
+    {
+      "seconds": 1840,
+      "text": "actually see"
+    },
+    {
+      "seconds": 1842,
+      "text": "42735 so we again know in UTC time uh"
+    },
+    {
+      "seconds": 1846,
+      "text": "and date that particular flash drive was"
+    },
+    {
+      "seconds": 1849,
+      "text": "was on the"
+    },
+    {
+      "seconds": 1851,
+      "text": "system so now we'll switch back over to"
+    },
+    {
+      "seconds": 1854,
+      "text": "the system Hive so once again let's"
+    },
+    {
+      "seconds": 1857,
+      "text": "unload all"
+    },
+    {
+      "seconds": 1859,
+      "text": "hives and let's go to file load offline"
+    },
+    {
+      "seconds": 1863,
+      "text": "Hive"
+    },
+    {
+      "seconds": 1864,
+      "text": "system we'll give that a second to turn"
+    },
+    {
+      "seconds": 1868,
+      "text": "and this time we're going to be looking"
+    },
+    {
+      "seconds": 1869,
+      "text": "at a key called mounted"
+    },
+    {
+      "seconds": 1875,
+      "text": "devices"
+    },
+    {
+      "seconds": 1876,
+      "text": "so if we look at mounted"
+    },
+    {
+      "seconds": 1878,
+      "text": "devices we'll actually see on the right"
+    },
+    {
+      "seconds": 1888,
+      "text": "side many different entries here so what"
+    },
+    {
+      "seconds": 1888,
+      "text": "we'll need to do is match up the serial"
+    },
+    {
+      "seconds": 1891,
+      "text": "number uh in order to"
+    },
+    {
+      "seconds": 1893,
+      "text": "find the guid Now a guid is a globally"
+    },
+    {
+      "seconds": 1898,
+      "text": "unique identifier some people call them"
+    },
+    {
+      "seconds": 1900,
+      "text": "gids I call it guid but whatever it's a"
+    },
+    {
+      "seconds": 1902,
+      "text": "globally unique identifier uh for that"
+    },
+    {
+      "seconds": 1905,
+      "text": "particular uh item on the system so"
+    },
+    {
+      "seconds": 1909,
+      "text": "let's scroll down through here and it"
+    },
+    {
+      "seconds": 1910,
+      "text": "looks like USB store Samsung flash"
+    },
+    {
+      "seconds": 1914,
+      "text": "drive Duo 1100 and you'll see"
+    },
+    {
+      "seconds": 1919,
+      "text": "22277 for the serial number so this is"
+    },
+    {
+      "seconds": 1921,
+      "text": "the device and now it appears"
+    },
+    {
+      "seconds": 1932,
+      "text": "that I can copy this particular"
+    },
+    {
+      "seconds": 1932,
+      "text": "value and now I've got the actual volume"
+    },
+    {
+      "seconds": 1940,
+      "text": "good for the USB device this is an"
+    },
+    {
+      "seconds": 1941,
+      "text": "important information the piece of"
+    },
+    {
+      "seconds": 1942,
+      "text": "information that I want to record"
+    },
+    {
+      "seconds": 1944,
+      "text": "because the volume good would be"
+    },
+    {
+      "seconds": 1946,
+      "text": "globally unique on this system and any"
+    },
+    {
+      "seconds": 1948,
+      "text": "other references to that volume good"
+    },
+    {
+      "seconds": 1950,
+      "text": "could show evidence that that flash"
+    },
+    {
+      "seconds": 1951,
+      "text": "drive was used for various things now we"
+    },
+    {
+      "seconds": 1954,
+      "text": "can also look at the serial number to"
+    },
+    {
+      "seconds": 1956,
+      "text": "obtain the drive"
+    },
+    {
+      "seconds": 1958,
+      "text": "letter of what whatever Drive letter was"
+    },
+    {
+      "seconds": 1961,
+      "text": "assigned to that device and you can see"
+    },
+    {
+      "seconds": 1962,
+      "text": "right here that sure enough USB store"
+    },
+    {
+      "seconds": 1967,
+      "text": "Samsung flash drive Duo rev"
+    },
+    {
+      "seconds": 1970,
+      "text": "1100 here's the serial number"
+    },
+    {
+      "seconds": 1973,
+      "text": "22277 I therefore know that this was"
+    },
+    {
+      "seconds": 1976,
+      "text": "mounted as the e Drive drive on the"
+    },
+    {
+      "seconds": 1978,
+      "text": "system so now now I know the make and"
+    },
+    {
+      "seconds": 1980,
+      "text": "the model the vid and the PID the serial"
+    },
+    {
+      "seconds": 1982,
+      "text": "number the volume name that it was"
+    },
+    {
+      "seconds": 1984,
+      "text": "mounted as e and I even know the first"
+    },
+    {
+      "seconds": 1987,
+      "text": "and last time that uh it was"
+    },
+    {
+      "seconds": 1990,
+      "text": "mounted so all of this information is"
+    },
+    {
+      "seconds": 1992,
+      "text": "extremely valuable and again I would"
+    },
+    {
+      "seconds": 1995,
+      "text": "record all of this information in an"
+    },
+    {
+      "seconds": 1996,
+      "text": "investigation for any USB external"
+    },
+    {
+      "seconds": 1999,
+      "text": "devices that would be of interest to me"
+    },
+    {
+      "seconds": 2002,
+      "text": "now there are numerous tools including"
+    },
+    {
+      "seconds": 2004,
+      "text": "some from a company uh or individual"
+    },
+    {
+      "seconds": 2006,
+      "text": "called near soft n sof um there's also"
+    },
+    {
+      "seconds": 2010,
+      "text": "USB device forensics and several other"
+    },
+    {
+      "seconds": 2013,
+      "text": "different utilities that you can use to"
+    },
+    {
+      "seconds": 2014,
+      "text": "parse all of this information"
+    },
+    {
+      "seconds": 2015,
+      "text": "automatically for you but it is"
+    },
+    {
+      "seconds": 2017,
+      "text": "important to understand what those tools"
+    },
+    {
+      "seconds": 2019,
+      "text": "are doing and how to find that"
+    },
+    {
+      "seconds": 2021,
+      "text": "information mainly yourself also as a"
+    },
+    {
+      "seconds": 2023,
+      "text": "point never rely on a single tool always"
+    },
+    {
+      "seconds": 2027,
+      "text": "have more than one way to get the data"
+    },
+    {
+      "seconds": 2029,
+      "text": "and if you've got two different tools"
+    },
+    {
+      "seconds": 2031,
+      "text": "that are giving you two different"
+    },
+    {
+      "seconds": 2032,
+      "text": "outputs with conflicting data then"
+    },
+    {
+      "seconds": 2034,
+      "text": "you've obviously got a problem so again"
+    },
+    {
+      "seconds": 2036,
+      "text": "it's important to know where this"
+    },
+    {
+      "seconds": 2037,
+      "text": "information is actually located so you"
+    },
+    {
+      "seconds": 2039,
+      "text": "can manually parse it should you need"
+    },
+    {
+      "seconds": 2042,
+      "text": "to now the next key which is software"
+    },
+    {
+      "seconds": 2045,
+      "text": "Microsoft Windows n current version emdm"
+    },
+    {
+      "seconds": 2048,
+      "text": "GMT which stands for external memory"
+    },
+    {
+      "seconds": 2050,
+      "text": "device management is only going to be"
+    },
+    {
+      "seconds": 2052,
+      "text": "present if the device in question is not"
+    },
+    {
+      "seconds": 2055,
+      "text": "a solid state drive it was actually used"
+    },
+    {
+      "seconds": 2057,
+      "text": "for something called Ready boost back in"
+    },
+    {
+      "seconds": 2059,
+      "text": "Windows"
+    },
+    {
+      "seconds": 2060,
+      "text": "Vista and you can actually find the"
+    },
+    {
+      "seconds": 2063,
+      "text": "serial number to obtain the volume"
+    },
+    {
+      "seconds": 2065,
+      "text": "serial number of a USB device now the"
+    },
+    {
+      "seconds": 2068,
+      "text": "volume Ser serial number will be"
+    },
+    {
+      "seconds": 2069,
+      "text": "actually displayed in decimal but you"
+    },
+    {
+      "seconds": 2071,
+      "text": "can convert it to hex what I mean by"
+    },
+    {
+      "seconds": 2073,
+      "text": "that is if you load up a command prompt"
+    },
+    {
+      "seconds": 2075,
+      "text": "here and I type di you'll notice right"
+    },
+    {
+      "seconds": 2077,
+      "text": "here volume serial number which is in"
+    },
+    {
+      "seconds": 2080,
+      "text": "HEX this is the volume serial number to"
+    },
+    {
+      "seconds": 2083,
+      "text": "which we were referring and the"
+    },
+    {
+      "seconds": 2084,
+      "text": "interesting thing about this key is if"
+    },
+    {
+      "seconds": 2086,
+      "text": "again it's not an SSD you can actually"
+    },
+    {
+      "seconds": 2088,
+      "text": "find an entire history of volume serial"
+    },
+    {
+      "seconds": 2091,
+      "text": "numbers for the USB devices even if the"
+    },
+    {
+      "seconds": 2094,
+      "text": "device has been formatted multiple times"
+    },
+    {
+      "seconds": 2096,
+      "text": "we'll actually have a history of the"
+    },
+    {
+      "seconds": 2097,
+      "text": "volume serial numbers now again this is"
+    },
+    {
+      "seconds": 2100,
+      "text": "not the serial number of the device but"
+    },
+    {
+      "seconds": 2101,
+      "text": "the volume serial number so that that's"
+    },
+    {
+      "seconds": 2104,
+      "text": "a bunch of interesting information that"
+    },
+    {
+      "seconds": 2106,
+      "text": "we can also obtain we can show how many"
+    },
+    {
+      "seconds": 2108,
+      "text": "times the device was formatted and what"
+    },
+    {
+      "seconds": 2110,
+      "text": "it what it was previously assigned what"
+    },
+    {
+      "seconds": 2112,
+      "text": "it was called what the previous volume"
+    },
+    {
+      "seconds": 2114,
+      "text": "serial number was so on and so"
+    },
+    {
+      "seconds": 2116,
+      "text": "forth now the next thing we'll look at"
+    },
+    {
+      "seconds": 2119,
+      "text": "is the fact that the volume good that we"
+    },
+    {
+      "seconds": 2121,
+      "text": "found in system mounted devices can"
+    },
+    {
+      "seconds": 2124,
+      "text": "actually help us find the user that"
+    },
+    {
+      "seconds": 2126,
+      "text": "mounted the USB device device which is"
+    },
+    {
+      "seconds": 2129,
+      "text": "another piece of interesting information"
+    },
+    {
+      "seconds": 2131,
+      "text": "so by that if we go"
+    },
+    {
+      "seconds": 2134,
+      "text": "to file unload all"
+    },
+    {
+      "seconds": 2138,
+      "text": "hives and go to file load offline Hive"
+    },
+    {
+      "seconds": 2142,
+      "text": "this time we'll load up into"
+    },
+    {
+      "seconds": 2149,
+      "text": "user. now as we're loading up into user."
+    },
+    {
+      "seconds": 2149,
+      "text": "which again on on a live system is hkey"
+    },
+    {
+      "seconds": 2151,
+      "text": "current user we can go to the same key"
+    },
+    {
+      "seconds": 2155,
+      "text": "that we mentioned above or the same path"
+    },
+    {
+      "seconds": 2156,
+      "text": "that we mentioned above which which is"
+    },
+    {
+      "seconds": 2157,
+      "text": "Microsoft Windows current version"
+    },
+    {
+      "seconds": 2159,
+      "text": "Explorer there's actually another key"
+    },
+    {
+      "seconds": 2161,
+      "text": "under here of Interest called Mount"
+    },
+    {
+      "seconds": 2163,
+      "text": "points"
+    },
+    {
+      "seconds": 2164,
+      "text": "2 I don't know what happened to mount"
+    },
+    {
+      "seconds": 2166,
+      "text": "points one I guess that's not important"
+    },
+    {
+      "seconds": 2168,
+      "text": "but uh Mount points 2 is what we're"
+    },
+    {
+      "seconds": 2170,
+      "text": "looking for so again the full path of"
+    },
+    {
+      "seconds": 2172,
+      "text": "that was software Microsoft Windows"
+    },
+    {
+      "seconds": 2174,
+      "text": "current version so let's go ahead and"
+    },
+    {
+      "seconds": 2176,
+      "text": "drill down software"
+    },
+    {
+      "seconds": 2183,
+      "text": "Microsoft"
+    },
+    {
+      "seconds": 2183,
+      "text": "Windows current version now we're going"
+    },
+    {
+      "seconds": 2186,
+      "text": "to go under the Explorer which is where"
+    },
+    {
+      "seconds": 2188,
+      "text": "we started with this"
+    },
+    {
+      "seconds": 2189,
+      "text": "video and if we look down here sure"
+    },
+    {
+      "seconds": 2192,
+      "text": "enough there's Mount points"
+    },
+    {
+      "seconds": 2194,
+      "text": "2 now according to the cheat sheet here"
+    },
+    {
+      "seconds": 2198,
+      "text": "we can actually use the volume good to"
+    },
+    {
+      "seconds": 2200,
+      "text": "find the user that mounted the USB"
+    },
+    {
+      "seconds": 2202,
+      "text": "device well the volume good ends in FB"
+    },
+    {
+      "seconds": 2205,
+      "text": "35b it appears so if we take this column"
+    },
+    {
+      "seconds": 2208,
+      "text": "and expand it a little"
+    },
+    {
+      "seconds": 2210,
+      "text": "bit there's FB 35b so now we know and by"
+    },
+    {
+      "seconds": 2215,
+      "text": "the way there's the time stamp"
+    },
+    {
+      "seconds": 2216,
+      "text": "associated with it last right timestamp"
+    },
+    {
+      "seconds": 2219,
+      "text": "we know that the user last mounted this"
+    },
+    {
+      "seconds": 2221,
+      "text": "device at this particular date and UTC"
+    },
+    {
+      "seconds": 2224,
+      "text": "time now obviously we know what user it"
+    },
+    {
+      "seconds": 2226,
+      "text": "is because we're looking at this user's"
+    },
+    {
+      "seconds": 2228,
+      "text": "ntuser.dat file which is my user so now"
+    },
+    {
+      "seconds": 2230,
+      "text": "I know that my user mounted this very"
+    },
+    {
+      "seconds": 2233,
+      "text": "flash drive in addition to all the other"
+    },
+    {
+      "seconds": 2235,
+      "text": "information we can add that to the list"
+    },
+    {
+      "seconds": 2238,
+      "text": "so again you can see how that would be"
+    },
+    {
+      "seconds": 2239,
+      "text": "very very powerful now we can find also"
+    },
+    {
+      "seconds": 2244,
+      "text": "by parsing system current control set or"
+    },
+    {
+      "seconds": 2248,
+      "text": "again control set 001 or so on and so"
+    },
+    {
+      "seconds": 2250,
+      "text": "forth on a non-live system enum USB"
+    },
+    {
+      "seconds": 2253,
+      "text": "store the vendor product version USB"
+    },
+    {
+      "seconds": 2256,
+      "text": "serial number and then underneath the"
+    },
+    {
+      "seconds": 2257,
+      "text": "serial number there's a key called"
+    },
+    {
+      "seconds": 2259,
+      "text": "properties and this guid will remain the"
+    },
+    {
+      "seconds": 2262,
+      "text": "same it ends in b29 if I look at this"
+    },
+    {
+      "seconds": 2265,
+      "text": "guid and look for the values"
+    },
+    {
+      "seconds": 2267,
+      "text": "0064 0066 and"
+    },
+    {
+      "seconds": 2271,
+      "text": "0067 I can actually find the first time"
+    },
+    {
+      "seconds": 2274,
+      "text": "the device was plugged into the system"
+    },
+    {
+      "seconds": 2276,
+      "text": "the last time the device was connected"
+    },
+    {
+      "seconds": 2278,
+      "text": "to the system if we're talking about"
+    },
+    {
+      "seconds": 2279,
+      "text": "Windows 8 and later and with Windows 8"
+    },
+    {
+      "seconds": 2282,
+      "text": "and later I can even find the last time"
+    },
+    {
+      "seconds": 2283,
+      "text": "the device was unmounted and removed"
+    },
+    {
+      "seconds": 2285,
+      "text": "from the system so again underneath this"
+    },
+    {
+      "seconds": 2288,
+      "text": "long path here there's a properties key"
+    },
+    {
+      "seconds": 2292,
+      "text": "ending in b29 for the guid and if I look"
+    },
+    {
+      "seconds": 2294,
+      "text": "at 0064 66 or 67 I can find the first"
+    },
+    {
+      "seconds": 2298,
+      "text": "time the device was installed the last"
+    },
+    {
+      "seconds": 2300,
+      "text": "time it was connected in the last"
+    },
+    {
+      "seconds": 2301,
+      "text": "removal now the last connected time"
+    },
+    {
+      "seconds": 2304,
+      "text": "could also be found by looking at the"
+    },
+    {
+      "seconds": 2306,
+      "text": "last right time of the enum USB vid PID"
+    },
+    {
+      "seconds": 2310,
+      "text": "key that we looked at earlier or the"
+    },
+    {
+      "seconds": 2313,
+      "text": "mount points 2 guid key that we just"
+    },
+    {
+      "seconds": 2316,
+      "text": "looked at the first install time can"
+    },
+    {
+      "seconds": 2319,
+      "text": "actually be found in setup api. log or"
+    },
+    {
+      "seconds": 2322,
+      "text": "setup api. dev. log now in Windows XP it"
+    },
+    {
+      "seconds": 2325,
+      "text": "was called setup api. log located in the"
+    },
+    {
+      "seconds": 2328,
+      "text": "root of the windows folder and then in"
+    },
+    {
+      "seconds": 2330,
+      "text": "viston later it actually lives in"
+    },
+    {
+      "seconds": 2332,
+      "text": "Windows INF setup API dodev dolog but"
+    },
+    {
+      "seconds": 2335,
+      "text": "that actually contains plug- andplay"
+    },
+    {
+      "seconds": 2337,
+      "text": "hard Hardware installation information"
+    },
+    {
+      "seconds": 2338,
+      "text": "so it would actually show us the first"
+    },
+    {
+      "seconds": 2340,
+      "text": "time that the user actually plugged in"
+    },
+    {
+      "seconds": 2342,
+      "text": "that USB device the first time the"
+    },
+    {
+      "seconds": 2343,
+      "text": "system saw that USB device so again"
+    },
+    {
+      "seconds": 2347,
+      "text": "additional information that would be"
+    },
+    {
+      "seconds": 2349,
+      "text": "very valuable in"
+    },
+    {
+      "seconds": 2351,
+      "text": "investigation now I mentioned earlier"
+    },
+    {
+      "seconds": 2353,
+      "text": "USB device forensics this is an"
+    },
+    {
+      "seconds": 2355,
+      "text": "application written by Ware and it can"
+    },
+    {
+      "seconds": 2358,
+      "text": "automate all of these things but as I"
+    },
+    {
+      "seconds": 2360,
+      "text": "said you need to know what the tool is"
+    },
+    {
+      "seconds": 2362,
+      "text": "doing don't just blindly depend on a"
+    },
+    {
+      "seconds": 2364,
+      "text": "tool to parse the information for you"
+    },
+    {
+      "seconds": 2366,
+      "text": "you need to understand what it's doing"
+    },
+    {
+      "seconds": 2367,
+      "text": "behind the scenes and maybe you would"
+    },
+    {
+      "seconds": 2369,
+      "text": "even want to double check the tool tools"
+    },
+    {
+      "seconds": 2371,
+      "text": "aren't perfect but if you get output"
+    },
+    {
+      "seconds": 2373,
+      "text": "from a tool that doesn't look quite"
+    },
+    {
+      "seconds": 2374,
+      "text": "right or it's not what you're expecting"
+    },
+    {
+      "seconds": 2376,
+      "text": "then go and manually visit these"
+    },
+    {
+      "seconds": 2378,
+      "text": "particular registry keys and and you can"
+    },
+    {
+      "seconds": 2380,
+      "text": "look and determine whether or not you"
+    },
+    {
+      "seconds": 2382,
+      "text": "believe that information is"
+    },
+    {
+      "seconds": 2384,
+      "text": "correct okay so back to the Windows 10"
+    },
+    {
+      "seconds": 2386,
+      "text": "VM let's go ahead and take a look at"
+    },
+    {
+      "seconds": 2388,
+      "text": "these last two forensic artifacts for"
+    },
+    {
+      "seconds": 2390,
+      "text": "USB devices so I've got registry"
+    },
+    {
+      "seconds": 2394,
+      "text": "Explorer opened and I've opened the"
+    },
+    {
+      "seconds": 2395,
+      "text": "system Hive and I've drilled down down"
+    },
+    {
+      "seconds": 2397,
+      "text": "to control set 001 enum USB store I"
+    },
+    {
+      "seconds": 2402,
+      "text": "found the particular USB device in"
+    },
+    {
+      "seconds": 2404,
+      "text": "question which is the Samsung device"
+    },
+    {
+      "seconds": 2405,
+      "text": "from earlier you can see the serial"
+    },
+    {
+      "seconds": 2407,
+      "text": "number 22277 that we saw earlier"
+    },
+    {
+      "seconds": 2410,
+      "text": "underneath that properties and"
+    },
+    {
+      "seconds": 2412,
+      "text": "underneath that you'll notice in bold is"
+    },
+    {
+      "seconds": 2415,
+      "text": "that particular good that I referred to"
+    },
+    {
+      "seconds": 2417,
+      "text": "earlier that ends in"
+    },
+    {
+      "seconds": 2418,
+      "text": "b29 so underneath that you will actually"
+    },
+    {
+      "seconds": 2421,
+      "text": "find 00 64"
+    },
+    {
+      "seconds": 2424,
+      "text": "0066 and 0067"
+    },
+    {
+      "seconds": 2428,
+      "text": "let's take a look at each of these 0064"
+    },
+    {
+      "seconds": 2431,
+      "text": "and again you can refer to the cheat"
+    },
+    {
+      "seconds": 2432,
+      "text": "sheet that's the first install time the"
+    },
+    {
+      "seconds": 2435,
+      "text": "same information could also be found in"
+    },
+    {
+      "seconds": 2437,
+      "text": "setup API dodev dolog but if you look"
+    },
+    {
+      "seconds": 2440,
+      "text": "over here you will notice that 63 2017"
+    },
+    {
+      "seconds": 2443,
+      "text": "4273 4 a.m. UTC was listed as the"
+    },
+    {
+      "seconds": 2447,
+      "text": "install time the first install time for"
+    },
+    {
+      "seconds": 2449,
+      "text": "this particular USB device and that is"
+    },
+    {
+      "seconds": 2450,
+      "text": "in fact correct that is the time I first"
+    },
+    {
+      "seconds": 2453,
+      "text": "plug the device in for"
+    },
+    {
+      "seconds": 2455,
+      "text": "2734 now"
+    },
+    {
+      "seconds": 2457,
+      "text": "66 right here"
+    },
+    {
+      "seconds": 2460,
+      "text": "0066 will show the last connected time"
+    },
+    {
+      "seconds": 2463,
+      "text": "the last connected time is the same"
+    },
+    {
+      "seconds": 2465,
+      "text": "63217 427 34 UTC that would tend to"
+    },
+    {
+      "seconds": 2470,
+      "text": "indicate that the first time I used the"
+    },
+    {
+      "seconds": 2472,
+      "text": "device was the last time I use the"
+    },
+    {
+      "seconds": 2473,
+      "text": "device so I've plugged the device in"
+    },
+    {
+      "seconds": 2475,
+      "text": "once to this VM and that is in fact"
+    },
+    {
+      "seconds": 2477,
+      "text": "correct so another useful piece of"
+    },
+    {
+      "seconds": 2479,
+      "text": "information again you could also find"
+    },
+    {
+      "seconds": 2481,
+      "text": "similar information by looking at the"
+    },
+    {
+      "seconds": 2483,
+      "text": "last right time of the USB serial number"
+    },
+    {
+      "seconds": 2485,
+      "text": "key under enum USB vid PID or you could"
+    },
+    {
+      "seconds": 2489,
+      "text": "look at the mount points 2/ guid last"
+    },
+    {
+      "seconds": 2492,
+      "text": "right time as we mentioned earlier to"
+    },
+    {
+      "seconds": 2494,
+      "text": "find the last connected time but again"
+    },
+    {
+      "seconds": 2496,
+      "text": "that's 66 and now if we go down to 0067"
+    },
+    {
+      "seconds": 2500,
+      "text": "which is available in Windows 8 and"
+    },
+    {
+      "seconds": 2501,
+      "text": "later we'll actually see the last"
+    },
+    {
+      "seconds": 2503,
+      "text": "removal time you can see about a minute"
+    },
+    {
+      "seconds": 2505,
+      "text": "later 42840 UTC I removed the drive from"
+    },
+    {
+      "seconds": 2509,
+      "text": "the system and that is absolutely"
+    },
+    {
+      "seconds": 2510,
+      "text": "correct I had it in there for around a"
+    },
+    {
+      "seconds": 2512,
+      "text": "minute or so and ejected the drive so"
+    },
+    {
+      "seconds": 2516,
+      "text": "again these these particular keys and"
+    },
+    {
+      "seconds": 2518,
+      "text": "values provide additional forensic"
+    },
+    {
+      "seconds": 2520,
+      "text": "information about usb devices and"
+    },
+    {
+      "seconds": 2522,
+      "text": "certainly uh this information could be"
+    },
+    {
+      "seconds": 2524,
+      "text": "very valuable during a forensic"
+    },
+    {
+      "seconds": 2526,
+      "text": "investigation and then of course I"
+    },
+    {
+      "seconds": 2528,
+      "text": "mentioned that setup api. log under XP"
+    },
+    {
+      "seconds": 2531,
+      "text": "or setup API dodev dolog under visten"
+    },
+    {
+      "seconds": 2534,
+      "text": "later will contain uh a lot of useful"
+    },
+    {
+      "seconds": 2537,
+      "text": "information as well specifically with"
+    },
+    {
+      "seconds": 2539,
+      "text": "regards to the information you would see"
+    },
+    {
+      "seconds": 2540,
+      "text": "in 0064 about first install you can see"
+    },
+    {
+      "seconds": 2544,
+      "text": "here I've got notepad C and/ windows"
+    },
+    {
+      "seconds": 2546,
+      "text": "back/ in/ setup api. dev. log and if we"
+    },
+    {
+      "seconds": 2550,
+      "text": "pull that up uh sure enough here is the"
+    },
+    {
+      "seconds": 2553,
+      "text": "device install log for this particular"
+    },
+    {
+      "seconds": 2554,
+      "text": "computer and uh if you scroll down"
+    },
+    {
+      "seconds": 2557,
+      "text": "through here you would also be able to"
+    },
+    {
+      "seconds": 2558,
+      "text": "find the same information that you could"
+    },
+    {
+      "seconds": 2559,
+      "text": "find in the 0064"
+    },
+    {
+      "seconds": 2563,
+      "text": "key so let's go back over to the cheat"
+    },
+    {
+      "seconds": 2565,
+      "text": "sheet and now it's time to move on to"
+    },
+    {
+      "seconds": 2568,
+      "text": "the next section which is basically"
+    },
+    {
+      "seconds": 2569,
+      "text": "going to be a combination of"
+    },
+    {
+      "seconds": 2570,
+      "text": "miscellaneous information that you may"
+    },
+    {
+      "seconds": 2572,
+      "text": "want to grab when you're conducting a"
+    },
+    {
+      "seconds": 2574,
+      "text": "forensic investigation so we'll take a"
+    },
+    {
+      "seconds": 2576,
+      "text": "look at that next"
+    },
+    {
+      "seconds": 2578,
+      "text": "okay so let's head back over to the"
+    },
+    {
+      "seconds": 2580,
+      "text": "Windows 10 VM and take a look at some of"
+    },
+    {
+      "seconds": 2582,
+      "text": "these miscellaneous registry keys that"
+    },
+    {
+      "seconds": 2584,
+      "text": "may provide useful information during a"
+    },
+    {
+      "seconds": 2585,
+      "text": "forensic investigation you can follow"
+    },
+    {
+      "seconds": 2587,
+      "text": "along on the cheat sheet starting"
+    },
+    {
+      "seconds": 2590,
+      "text": "here so I've got the system Hive still"
+    },
+    {
+      "seconds": 2592,
+      "text": "open with registry Explorer I'm under"
+    },
+    {
+      "seconds": 2595,
+      "text": "control set"
+    },
+    {
+      "seconds": 2596,
+      "text": "001 and let's go ahead and drill down"
+    },
+    {
+      "seconds": 2600,
+      "text": "underneath that to"
+    },
+    {
+      "seconds": 2601,
+      "text": "control and time zone information"
+    },
+    {
+      "seconds": 2604,
+      "text": "anytime we are conducting a forensic"
+    },
+    {
+      "seconds": 2606,
+      "text": "analysis of a system the time zone"
+    },
+    {
+      "seconds": 2608,
+      "text": "information is going to be very very"
+    },
+    {
+      "seconds": 2610,
+      "text": "critical so you would certainly want to"
+    },
+    {
+      "seconds": 2612,
+      "text": "record that before you begin your"
+    },
+    {
+      "seconds": 2614,
+      "text": "analysis that way any time zone"
+    },
+    {
+      "seconds": 2616,
+      "text": "conversions that you make or event"
+    },
+    {
+      "seconds": 2618,
+      "text": "correlation you perform is accurate a"
+    },
+    {
+      "seconds": 2620,
+      "text": "lot of times when we forensic a"
+    },
+    {
+      "seconds": 2622,
+      "text": "workstation we'll choose to work in UTC"
+    },
+    {
+      "seconds": 2625,
+      "text": "so that we don't have to worry about any"
+    },
+    {
+      "seconds": 2626,
+      "text": "said time zone conversions but perhaps"
+    },
+    {
+      "seconds": 2629,
+      "text": "we are writing a report or providing"
+    },
+    {
+      "seconds": 2630,
+      "text": "some additional information uh it is"
+    },
+    {
+      "seconds": 2633,
+      "text": "often necessary to know what time zone"
+    },
+    {
+      "seconds": 2634,
+      "text": "the computer is in for performing any of"
+    },
+    {
+      "seconds": 2637,
+      "text": "those conversions and again you can see"
+    },
+    {
+      "seconds": 2638,
+      "text": "here the time zone key name is Eastern"
+    },
+    {
+      "seconds": 2640,
+      "text": "Standard Time so again very important"
+    },
+    {
+      "seconds": 2643,
+      "text": "information here and we would certainly"
+    },
+    {
+      "seconds": 2645,
+      "text": "want to record that another thing"
+    },
+    {
+      "seconds": 2647,
+      "text": "underneath control would be the computer"
+    },
+    {
+      "seconds": 2649,
+      "text": "name the computer name of the particular"
+    },
+    {
+      "seconds": 2651,
+      "text": "computer that we're analyzing so if we"
+    },
+    {
+      "seconds": 2653,
+      "text": "go up here to computer name and drill"
+    },
+    {
+      "seconds": 2654,
+      "text": "down to computer name and then"
+    },
+    {
+      "seconds": 2657,
+      "text": "underneath that computer name we finally"
+    },
+    {
+      "seconds": 2660,
+      "text": "have the name of the computer which in"
+    },
+    {
+      "seconds": 2662,
+      "text": "this case is Katan VM that's a Star Trek"
+    },
+    {
+      "seconds": 2665,
+      "text": "the Next Generation reference if uh if"
+    },
+    {
+      "seconds": 2667,
+      "text": "you get that but this is the name of"
+    },
+    {
+      "seconds": 2669,
+      "text": "this particular VM so again another"
+    },
+    {
+      "seconds": 2672,
+      "text": "important piece of information that we"
+    },
+    {
+      "seconds": 2673,
+      "text": "might want to record during a forensic"
+    },
+    {
+      "seconds": 2676,
+      "text": "investigation now the next key that"
+    },
+    {
+      "seconds": 2679,
+      "text": "we're going to look at is not under"
+    },
+    {
+      "seconds": 2680,
+      "text": "control but it's actually under"
+    },
+    {
+      "seconds": 2683,
+      "text": "services and underneath that we're going"
+    },
+    {
+      "seconds": 2685,
+      "text": "to scroll down to landman"
+    },
+    {
+      "seconds": 2693,
+      "text": "server and landman server is actually"
+    },
+    {
+      "seconds": 2693,
+      "text": "going to have some information with"
+    },
+    {
+      "seconds": 2694,
+      "text": "regards to any shares that configured on"
+    },
+    {
+      "seconds": 2697,
+      "text": "the system so under lman server you'll"
+    },
+    {
+      "seconds": 2700,
+      "text": "see"
+    },
+    {
+      "seconds": 2701,
+      "text": "shares and we actually have none on the"
+    },
+    {
+      "seconds": 2703,
+      "text": "system which is correct I don't have any"
+    },
+    {
+      "seconds": 2706,
+      "text": "any particular shares other than the"
+    },
+    {
+      "seconds": 2707,
+      "text": "default admin share you know C dollar"
+    },
+    {
+      "seconds": 2709,
+      "text": "and so on and so forth but if I had any"
+    },
+    {
+      "seconds": 2711,
+      "text": "shares configured on the system I would"
+    },
+    {
+      "seconds": 2713,
+      "text": "find them there so again this is another"
+    },
+    {
+      "seconds": 2715,
+      "text": "useful piece of information on a"
+    },
+    {
+      "seconds": 2717,
+      "text": "forensic workstation that may be"
+    },
+    {
+      "seconds": 2718,
+      "text": "applicable to your investigation and you"
+    },
+    {
+      "seconds": 2720,
+      "text": "may want to record that"
+    },
+    {
+      "seconds": 2722,
+      "text": "information another one under controll"
+    },
+    {
+      "seconds": 2725,
+      "text": "again if we go back"
+    },
+    {
+      "seconds": 2733,
+      "text": "there is a particular key underneath"
+    },
+    {
+      "seconds": 2733,
+      "text": "control that is called file"
+    },
+    {
+      "seconds": 2737,
+      "text": "system and file"
+    },
+    {
+      "seconds": 2740,
+      "text": "system if we look at it actually has a"
+    },
+    {
+      "seconds": 2744,
+      "text": "uh very long key called NTFS disable"
+    },
+    {
+      "seconds": 2748,
+      "text": "last access"
+    },
+    {
+      "seconds": 2749,
+      "text": "update so if you're familiar with"
+    },
+    {
+      "seconds": 2751,
+      "text": "Windows timestamps which we really"
+    },
+    {
+      "seconds": 2753,
+      "text": "haven't discussed here uh you've got"
+    },
+    {
+      "seconds": 2755,
+      "text": "what's called macb times that's modified"
+    },
+    {
+      "seconds": 2758,
+      "text": "accessed changed and birthed Mac B those"
+    },
+    {
+      "seconds": 2762,
+      "text": "refer to uh time stamps that are"
+    },
+    {
+      "seconds": 2765,
+      "text": "collected within the NTFS file system"
+    },
+    {
+      "seconds": 2768,
+      "text": "for uh different objects within the NTFS"
+    },
+    {
+      "seconds": 2770,
+      "text": "file system different files and things"
+    },
+    {
+      "seconds": 2772,
+      "text": "of that nature so we've got uh for any"
+    },
+    {
+      "seconds": 2774,
+      "text": "given file a modified time uh an access"
+    },
+    {
+      "seconds": 2778,
+      "text": "time an mft record change time and a"
+    },
+    {
+      "seconds": 2782,
+      "text": "birth time which is the files creation"
+    },
+    {
+      "seconds": 2785,
+      "text": "Time by default def NTFS disable last"
+    },
+    {
+      "seconds": 2789,
+      "text": "access"
+    },
+    {
+      "seconds": 2790,
+      "text": "update which we will find here in this"
+    },
+    {
+      "seconds": 2793,
+      "text": "particular area is set to one which"
+    },
+    {
+      "seconds": 2797,
+      "text": "means it is disabled that means that"
+    },
+    {
+      "seconds": 2800,
+      "text": "access timestamps in other words the A"
+    },
+    {
+      "seconds": 2803,
+      "text": "and the Mac B uh the access Tim stamps"
+    },
+    {
+      "seconds": 2806,
+      "text": "are off by default which means that uh"
+    },
+    {
+      "seconds": 2809,
+      "text": "simply accessing a file will not"
+    },
+    {
+      "seconds": 2811,
+      "text": "necessarily change the access Tim stamp"
+    },
+    {
+      "seconds": 2813,
+      "text": "associated with that file that's done"
+    },
+    {
+      "seconds": 2815,
+      "text": "likely for performance reasons and while"
+    },
+    {
+      "seconds": 2817,
+      "text": "you could go in and modify this uh it is"
+    },
+    {
+      "seconds": 2820,
+      "text": "not something that is normally done and"
+    },
+    {
+      "seconds": 2822,
+      "text": "it is is turned on which means it is"
+    },
+    {
+      "seconds": 2824,
+      "text": "disabled by default so you may want to"
+    },
+    {
+      "seconds": 2826,
+      "text": "take note of that it may be different on"
+    },
+    {
+      "seconds": 2828,
+      "text": "the system you're analyzing but it's"
+    },
+    {
+      "seconds": 2830,
+      "text": "unlikely and again that means that the"
+    },
+    {
+      "seconds": 2832,
+      "text": "access timestamps uh should not"
+    },
+    {
+      "seconds": 2835,
+      "text": "necessarily be updated every time a file"
+    },
+    {
+      "seconds": 2837,
+      "text": "is accessed they are updated under"
+    },
+    {
+      "seconds": 2839,
+      "text": "various circumstances and and we'll get"
+    },
+    {
+      "seconds": 2841,
+      "text": "into that in a future video but uh that"
+    },
+    {
+      "seconds": 2843,
+      "text": "that is an interesting registry key to"
+    },
+    {
+      "seconds": 2845,
+      "text": "note"
+    },
+    {
+      "seconds": 2846,
+      "text": "so moving down the cheat sheet here if"
+    },
+    {
+      "seconds": 2849,
+      "text": "we go back to"
+    },
+    {
+      "seconds": 2851,
+      "text": "Services there are other pieces of"
+    },
+    {
+      "seconds": 2853,
+      "text": "information here that will certainly be"
+    },
+    {
+      "seconds": 2855,
+      "text": "valuable to a forensic investigation so"
+    },
+    {
+      "seconds": 2858,
+      "text": "going down to Services we can scroll"
+    },
+    {
+      "seconds": 2861,
+      "text": "down all the way near the bottom to"
+    },
+    {
+      "seconds": 2864,
+      "text": "tcpip we can actually get a wealth of"
+    },
+    {
+      "seconds": 2866,
+      "text": "information with regards to the network"
+    },
+    {
+      "seconds": 2869,
+      "text": "configuration on this particular uh"
+    },
+    {
+      "seconds": 2871,
+      "text": "system now we're also going to talk"
+    },
+    {
+      "seconds": 2873,
+      "text": "about that in some future artifacts here"
+    },
+    {
+      "seconds": 2876,
+      "text": "on the cheat sheet but uh if we just"
+    },
+    {
+      "seconds": 2878,
+      "text": "wanted to record for example some"
+    },
+    {
+      "seconds": 2880,
+      "text": "information about the interfaces"
+    },
+    {
+      "seconds": 2881,
+      "text": "configured we can drill down into tcpip"
+    },
+    {
+      "seconds": 2883,
+      "text": "parameters"
+    },
+    {
+      "seconds": 2885,
+      "text": "interfaces and we've got various"
+    },
+    {
+      "seconds": 2887,
+      "text": "interfaces"
+    },
+    {
+      "seconds": 2888,
+      "text": "here and as you can see here on this"
+    },
+    {
+      "seconds": 2890,
+      "text": "first one I've got the DHCP IP address"
+    },
+    {
+      "seconds": 2893,
+      "text": "the subnet Mass the dhp server the lease"
+    },
+    {
+      "seconds": 2895,
+      "text": "time and various other pieces of"
+    },
+    {
+      "seconds": 2897,
+      "text": "information here and the same"
+    },
+    {
+      "seconds": 2899,
+      "text": "information is recorded for these other"
+    },
+    {
+      "seconds": 2901,
+      "text": "adapters as well so certainly very"
+    },
+    {
+      "seconds": 2903,
+      "text": "important information that we would"
+    },
+    {
+      "seconds": 2905,
+      "text": "definitely want to record during a"
+    },
+    {
+      "seconds": 2907,
+      "text": "investigation you know what IP address"
+    },
+    {
+      "seconds": 2908,
+      "text": "was assigned to this particular system"
+    },
+    {
+      "seconds": 2910,
+      "text": "uh when we're forensic it so again this"
+    },
+    {
+      "seconds": 2913,
+      "text": "is under the uh Services tcpip"
+    },
+    {
+      "seconds": 2916,
+      "text": "parameters interfaces uh configuration"
+    },
+    {
+      "seconds": 2919,
+      "text": "uh here so again uh very very important"
+    },
+    {
+      "seconds": 2921,
+      "text": "this displays interfaces and their"
+    },
+    {
+      "seconds": 2923,
+      "text": "Associated IP address configurations and"
+    },
+    {
+      "seconds": 2925,
+      "text": "you'll certainly want to record the"
+    },
+    {
+      "seconds": 2926,
+      "text": "interface Goods as well here uh in your"
+    },
+    {
+      "seconds": 2929,
+      "text": "forensic"
+    },
+    {
+      "seconds": 2930,
+      "text": "notes so next we're going to move on to"
+    },
+    {
+      "seconds": 2934,
+      "text": "something called Network location"
+    },
+    {
+      "seconds": 2935,
+      "text": "awareness which was actually something"
+    },
+    {
+      "seconds": 2937,
+      "text": "that was added in Vista and later so"
+    },
+    {
+      "seconds": 2940,
+      "text": "that'll be our next section of the"
+    },
+    {
+      "seconds": 2943,
+      "text": "video okay Network location awareness or"
+    },
+    {
+      "seconds": 2946,
+      "text": "nla was included in Windows Vista and"
+    },
+    {
+      "seconds": 2949,
+      "text": "later and what it does is it Aggregates"
+    },
+    {
+      "seconds": 2951,
+      "text": "Network information for all of the"
+    },
+    {
+      "seconds": 2953,
+      "text": "different networks that a particular PC"
+    },
+    {
+      "seconds": 2955,
+      "text": "has connected to it generates a good for"
+    },
+    {
+      "seconds": 2958,
+      "text": "each Network which is almost like a"
+    },
+    {
+      "seconds": 2959,
+      "text": "network profile now the Windows Firewall"
+    },
+    {
+      "seconds": 2962,
+      "text": "will use that information to apply"
+    },
+    {
+      "seconds": 2964,
+      "text": "firewall rules to the appropriate"
+    },
+    {
+      "seconds": 2966,
+      "text": "profile but we as forensic investigators"
+    },
+    {
+      "seconds": 2968,
+      "text": "can use that information to find"
+    },
+    {
+      "seconds": 2970,
+      "text": "evidence of every Network that a machine"
+    },
+    {
+      "seconds": 2972,
+      "text": "is connected to using these nla registry"
+    },
+    {
+      "seconds": 2975,
+      "text": "keys so looking at our cheat sheet it"
+    },
+    {
+      "seconds": 2977,
+      "text": "says here to check the last right time"
+    },
+    {
+      "seconds": 2979,
+      "text": "of a key to determine the last time a PC"
+    },
+    {
+      "seconds": 2981,
+      "text": "connected to a particular Network so"
+    },
+    {
+      "seconds": 2983,
+      "text": "again very important information can be"
+    },
+    {
+      "seconds": 2985,
+      "text": "gleaned from this particular key it's"
+    },
+    {
+      "seconds": 2987,
+      "text": "under software Microsoft Windows NT not"
+    },
+    {
+      "seconds": 2991,
+      "text": "Windows current version network list so"
+    },
+    {
+      "seconds": 2995,
+      "text": "back on our Windows 10 VM here I've"
+    },
+    {
+      "seconds": 2997,
+      "text": "actually gone ahead and opened the"
+    },
+    {
+      "seconds": 2998,
+      "text": "software Hive with registry Explorer and"
+    },
+    {
+      "seconds": 3001,
+      "text": "I've drilled down as you can see to"
+    },
+    {
+      "seconds": 3002,
+      "text": "Microsoft Windows NT current version"
+    },
+    {
+      "seconds": 3004,
+      "text": "network list signatures"
+    },
+    {
+      "seconds": 3006,
+      "text": "unmanaged and underneath this I've"
+    },
+    {
+      "seconds": 3008,
+      "text": "actually got three different profiles"
+    },
+    {
+      "seconds": 3010,
+      "text": "that appears I'll click on the first one"
+    },
+    {
+      "seconds": 3012,
+      "text": "and I'll see things like default gateway"
+    },
+    {
+      "seconds": 3014,
+      "text": "Mac which is in fact the MAC address of"
+    },
+    {
+      "seconds": 3016,
+      "text": "the Gateway used for this particular"
+    },
+    {
+      "seconds": 3018,
+      "text": "connection now obviously I can glean"
+    },
+    {
+      "seconds": 3020,
+      "text": "some information from this I can take"
+    },
+    {
+      "seconds": 3021,
+      "text": "the first half of the MAC address which"
+    },
+    {
+      "seconds": 3023,
+      "text": "is the oui and determine uh the uh the"
+    },
+    {
+      "seconds": 3027,
+      "text": "organization to which that particular"
+    },
+    {
+      "seconds": 3029,
+      "text": "oui was assigned so that might be"
+    },
+    {
+      "seconds": 3032,
+      "text": "interesting I can look at the DNS suffix"
+    },
+    {
+      "seconds": 3034,
+      "text": "in this case not very interesting it's"
+    },
+    {
+      "seconds": 3035,
+      "text": "just local domain but it may be a"
+    },
+    {
+      "seconds": 3037,
+      "text": "corporate Network or something to that"
+    },
+    {
+      "seconds": 3039,
+      "text": "effect uh first Network which on a"
+    },
+    {
+      "seconds": 3042,
+      "text": "wireless connection will actually be the"
+    },
+    {
+      "seconds": 3043,
+      "text": "SSID of the network and then the profile"
+    },
+    {
+      "seconds": 3047,
+      "text": "good which we'll want to take note of"
+    },
+    {
+      "seconds": 3048,
+      "text": "for each of these in this case it ends"
+    },
+    {
+      "seconds": 3050,
+      "text": "in"
+    },
+    {
+      "seconds": 3051,
+      "text": "bc6 so referring back to the cheat sheet"
+    },
+    {
+      "seconds": 3054,
+      "text": "there's actually a"
+    },
+    {
+      "seconds": 3055,
+      "text": "profiles key here and underneath that"
+    },
+    {
+      "seconds": 3058,
+      "text": "here's bc6 and if I refer to it there'll"
+    },
+    {
+      "seconds": 3061,
+      "text": "actually be a name"
+    },
+    {
+      "seconds": 3063,
+      "text": "type value here of"
+    },
+    {
+      "seconds": 3065,
+      "text": "six six is indicative of a wired Network"
+    },
+    {
+      "seconds": 3070,
+      "text": "47 would be indicative of a wireless"
+    },
+    {
+      "seconds": 3073,
+      "text": "network and 17 would be a Broadband"
+    },
+    {
+      "seconds": 3076,
+      "text": "network uh something like a cellular"
+    },
+    {
+      "seconds": 3078,
+      "text": "modem connection or ww something like"
+    },
+    {
+      "seconds": 3081,
+      "text": "that so we'll also find here date"
+    },
+    {
+      "seconds": 3085,
+      "text": "created and date last connected now"
+    },
+    {
+      "seconds": 3088,
+      "text": "these are kind of oddl looking dates the"
+    },
+    {
+      "seconds": 3090,
+      "text": "reason why is because that's actually a"
+    },
+    {
+      "seconds": 3092,
+      "text": "128bit Windows system time structure"
+    },
+    {
+      "seconds": 3096,
+      "text": "stored in"
+    },
+    {
+      "seconds": 3097,
+      "text": "UTC so I know we were talking about time"
+    },
+    {
+      "seconds": 3100,
+      "text": "conversion earlier there's actually a"
+    },
+    {
+      "seconds": 3102,
+      "text": "neat little utility I'd like to mention"
+    },
+    {
+      "seconds": 3103,
+      "text": "it's called decode this particular"
+    },
+    {
+      "seconds": 3106,
+      "text": "version is 4.02 a and this neat little"
+    },
+    {
+      "seconds": 3110,
+      "text": "utility will convert all kinds of time"
+    },
+    {
+      "seconds": 3112,
+      "text": "and date values if we look at the drop"
+    },
+    {
+      "seconds": 3115,
+      "text": "down here it's not just Windows either"
+    },
+    {
+      "seconds": 3116,
+      "text": "will do windows and Linux and Unix"
+    },
+    {
+      "seconds": 3118,
+      "text": "timestamps of various kinds but I'm"
+    },
+    {
+      "seconds": 3120,
+      "text": "going to select Windows 128bit system"
+    },
+    {
+      "seconds": 3123,
+      "text": "structure now this particular data"
+    },
+    {
+      "seconds": 3126,
+      "text": "actually has dashes in it it does not"
+    },
+    {
+      "seconds": 3128,
+      "text": "want the dashes I can tell you from"
+    },
+    {
+      "seconds": 3129,
+      "text": "experience and I've gone ahead and"
+    },
+    {
+      "seconds": 3131,
+      "text": "copied it and removed the dashes so I'll"
+    },
+    {
+      "seconds": 3133,
+      "text": "copy that which ends again in B 01 which"
+    },
+    {
+      "seconds": 3136,
+      "text": "you can uh see is the date created time"
+    },
+    {
+      "seconds": 3139,
+      "text": "here I'm going to paste it here and"
+    },
+    {
+      "seconds": 3141,
+      "text": "click decode you'll actually see"
+    },
+    {
+      "seconds": 3143,
+      "text": "apparently this date created date is"
+    },
+    {
+      "seconds": 3146,
+      "text": "actually Monday 6 February 2017"
+    },
+    {
+      "seconds": 3150,
+      "text": "1938 so very interesting information I"
+    },
+    {
+      "seconds": 3152,
+      "text": "can do the same thing for date last"
+    },
+    {
+      "seconds": 3154,
+      "text": "connected to actually determine both the"
+    },
+    {
+      "seconds": 3157,
+      "text": "first and last time this particular"
+    },
+    {
+      "seconds": 3159,
+      "text": "network was used and of course I can do"
+    },
+    {
+      "seconds": 3161,
+      "text": "that for each of these these profiles so"
+    },
+    {
+      "seconds": 3164,
+      "text": "as you can see the nla information here"
+    },
+    {
+      "seconds": 3167,
+      "text": "uh would be very valuable in a system"
+    },
+    {
+      "seconds": 3170,
+      "text": "now it's also important to note if you"
+    },
+    {
+      "seconds": 3171,
+      "text": "look back at the cheat sheet that"
+    },
+    {
+      "seconds": 3172,
+      "text": "there's uh also hklm software Microsoft"
+    },
+    {
+      "seconds": 3176,
+      "text": "Windows current version hom Group which"
+    },
+    {
+      "seconds": 3178,
+      "text": "will also store some Network related"
+    },
+    {
+      "seconds": 3180,
+      "text": "information in some cases and back in"
+    },
+    {
+      "seconds": 3182,
+      "text": "the Windows XP days we actually found"
+    },
+    {
+      "seconds": 3185,
+      "text": "the same thing under software Microsoft"
+    },
+    {
+      "seconds": 3187,
+      "text": "wzc SVC parameters interfaces and a guid"
+    },
+    {
+      "seconds": 3191,
+      "text": "that was the windows zero configuration"
+    },
+    {
+      "seconds": 3194,
+      "text": "service and you could use the last right"
+    },
+    {
+      "seconds": 3196,
+      "text": "time of the key there to determine the"
+    },
+    {
+      "seconds": 3197,
+      "text": "last time the network was"
+    },
+    {
+      "seconds": 3200,
+      "text": "connected so back to our cheat sheet"
+    },
+    {
+      "seconds": 3203,
+      "text": "let's go ahead and move on to the next"
+    },
+    {
+      "seconds": 3204,
+      "text": "section which is link file"
+    },
+    {
+      "seconds": 3212,
+      "text": "analysis okay it's time to have the talk"
+    },
+    {
+      "seconds": 3212,
+      "text": "the talk about link files do not ignore"
+    },
+    {
+      "seconds": 3216,
+      "text": "lnk files in your forensic investigation"
+    },
+    {
+      "seconds": 3218,
+      "text": "they contain a wealth of data now you"
+    },
+    {
+      "seconds": 3221,
+      "text": "may be familiar with the files from"
+    },
+    {
+      "seconds": 3223,
+      "text": "manually creating shortcuts to programs"
+    },
+    {
+      "seconds": 3225,
+      "text": "or various other things on your system"
+    },
+    {
+      "seconds": 3227,
+      "text": "but you may not realize that Windows"
+    },
+    {
+      "seconds": 3228,
+      "text": "automatically creates link files for a"
+    },
+    {
+      "seconds": 3231,
+      "text": "number of different actions that you"
+    },
+    {
+      "seconds": 3232,
+      "text": "perform on the system if we go over to"
+    },
+    {
+      "seconds": 3235,
+      "text": "the forensics Wiki what website which is"
+    },
+    {
+      "seconds": 3237,
+      "text": "a fantastic digital forensics resource"
+    },
+    {
+      "seconds": 3239,
+      "text": "and look at the lnk file article here"
+    },
+    {
+      "seconds": 3242,
+      "text": "we'll actually see that it says the"
+    },
+    {
+      "seconds": 3244,
+      "text": "window shortcut file has the extension"
+    },
+    {
+      "seconds": 3246,
+      "text": "lnk and it's basically a metadata file"
+    },
+    {
+      "seconds": 3248,
+      "text": "that's used throughout the windows"
+    },
+    {
+      "seconds": 3250,
+      "text": "platform now the signature of the file"
+    },
+    {
+      "seconds": 3253,
+      "text": "is 0x4 c as you can see here 4"
+    },
+    {
+      "seconds": 3256,
+      "text": "c0000 if we're carving for them which is"
+    },
+    {
+      "seconds": 3258,
+      "text": "something we often do but you may not"
+    },
+    {
+      "seconds": 3262,
+      "text": "realize all of the different metadata"
+    },
+    {
+      "seconds": 3263,
+      "text": "Associated within one of these files for"
+    },
+    {
+      "seconds": 3266,
+      "text": "example the Mac times of a Target that"
+    },
+    {
+      "seconds": 3269,
+      "text": "the link file is referring to can be"
+    },
+    {
+      "seconds": 3271,
+      "text": "found within that link file as well as"
+    },
+    {
+      "seconds": 3274,
+      "text": "the original path of the file the size"
+    },
+    {
+      "seconds": 3277,
+      "text": "the serial number of the volume where it"
+    },
+    {
+      "seconds": 3279,
+      "text": "was stored the Network volume share"
+    },
+    {
+      "seconds": 3282,
+      "text": "information the attributes even in some"
+    },
+    {
+      "seconds": 3284,
+      "text": "cases the MAC address of the host"
+    },
+    {
+      "seconds": 3286,
+      "text": "computer on which the leak file existed"
+    },
+    {
+      "seconds": 3289,
+      "text": "and various other pieces of information"
+    },
+    {
+      "seconds": 3291,
+      "text": "now this is important because let's say"
+    },
+    {
+      "seconds": 3292,
+      "text": "there's a very important file that you"
+    },
+    {
+      "seconds": 3295,
+      "text": "believe once existed on a system but"
+    },
+    {
+      "seconds": 3297,
+      "text": "it's been erased maybe securely erased"
+    },
+    {
+      "seconds": 3300,
+      "text": "what the person may have forgotten to do"
+    },
+    {
+      "seconds": 3302,
+      "text": "is delete the link files associated with"
+    },
+    {
+      "seconds": 3305,
+      "text": "that file and we can glean a huge amount"
+    },
+    {
+      "seconds": 3307,
+      "text": "of information and prove that the file"
+    },
+    {
+      "seconds": 3309,
+      "text": "once existed on the system by analyzing"
+    },
+    {
+      "seconds": 3311,
+      "text": "those link files so if we go back over"
+    },
+    {
+      "seconds": 3313,
+      "text": "to our Windows 10 VM we can see here"
+    },
+    {
+      "seconds": 3317,
+      "text": "that I'm in my user profile under app"
+    },
+    {
+      "seconds": 3319,
+      "text": "data roaming Microsoft Windows recent so"
+    },
+    {
+      "seconds": 3322,
+      "text": "on the desktop here I'm actually going"
+    },
+    {
+      "seconds": 3324,
+      "text": "to right click and create a new text"
+    },
+    {
+      "seconds": 3326,
+      "text": "document I'll just call it secret."
+    },
+    {
+      "seconds": 3329,
+      "text": "text and we'll just go ahead and say"
+    },
+    {
+      "seconds": 3333,
+      "text": "this is a secret file I'll go ahead and"
+    },
+    {
+      "seconds": 3336,
+      "text": "close and save"
+    },
+    {
+      "seconds": 3337,
+      "text": "it and now you'll notice secret. text on"
+    },
+    {
+      "seconds": 3340,
+      "text": "the desktop you'll notice secret. text"
+    },
+    {
+      "seconds": 3343,
+      "text": "here under recent items but this is"
+    },
+    {
+      "seconds": 3346,
+      "text": "actually secret. tx. lnk this is the"
+    },
+    {
+      "seconds": 3349,
+      "text": "link file associated with the creation"
+    },
+    {
+      "seconds": 3352,
+      "text": "of secret. text so let's copy this file"
+    },
+    {
+      "seconds": 3357,
+      "text": "and let's take it over to the sift"
+    },
+    {
+      "seconds": 3358,
+      "text": "workstation and paste it and let's use"
+    },
+    {
+      "seconds": 3361,
+      "text": "exif tool which is commonly used to"
+    },
+    {
+      "seconds": 3364,
+      "text": "analyze metadata from pictures and"
+    },
+    {
+      "seconds": 3366,
+      "text": "various other"
+    },
+    {
+      "seconds": 3367,
+      "text": "files and if we do that we'll actually"
+    },
+    {
+      "seconds": 3370,
+      "text": "see that there's a good bit of"
+    },
+    {
+      "seconds": 3371,
+      "text": "information that we can glean from this"
+    },
+    {
+      "seconds": 3373,
+      "text": "particular link file we can see the"
+    },
+    {
+      "seconds": 3376,
+      "text": "original file size of the target along"
+    },
+    {
+      "seconds": 3378,
+      "text": "with the Mac"
+    },
+    {
+      "seconds": 3379,
+      "text": "times we can see information about the"
+    },
+    {
+      "seconds": 3383,
+      "text": "attributes associated with the file we"
+    },
+    {
+      "seconds": 3385,
+      "text": "can see the the original path for the"
+    },
+    {
+      "seconds": 3387,
+      "text": "file the fact that it was on a fixed dis"
+    },
+    {
+      "seconds": 3390,
+      "text": "the label of the volume on which it was"
+    },
+    {
+      "seconds": 3393,
+      "text": "accessed which is OS the working"
+    },
+    {
+      "seconds": 3396,
+      "text": "directory even the name of the machine"
+    },
+    {
+      "seconds": 3398,
+      "text": "on which the file existed so a huge"
+    },
+    {
+      "seconds": 3400,
+      "text": "amount of information now there are also"
+    },
+    {
+      "seconds": 3402,
+      "text": "utilities from TZ works like lp. exe"
+    },
+    {
+      "seconds": 3405,
+      "text": "which is referenced in the uh cheat"
+    },
+    {
+      "seconds": 3407,
+      "text": "sheet and various other utilities that"
+    },
+    {
+      "seconds": 3409,
+      "text": "can analyze link files as well but the"
+    },
+    {
+      "seconds": 3412,
+      "text": "important thing to know is do not ignore"
+    },
+    {
+      "seconds": 3414,
+      "text": "them if you're performing Tre on a"
+    },
+    {
+      "seconds": 3416,
+      "text": "system and you're grabbing a subset of"
+    },
+    {
+      "seconds": 3418,
+      "text": "the information you need to perform"
+    },
+    {
+      "seconds": 3420,
+      "text": "forensic analysis on a system and you"
+    },
+    {
+      "seconds": 3422,
+      "text": "grab the registry hives let's say and"
+    },
+    {
+      "seconds": 3424,
+      "text": "you know in user. dad and user class."
+    },
+    {
+      "seconds": 3426,
+      "text": "dad and various other things in the"
+    },
+    {
+      "seconds": 3428,
+      "text": "system do not ignore lnk files grab them"
+    },
+    {
+      "seconds": 3432,
+      "text": "if you're building a custom content"
+    },
+    {
+      "seconds": 3433,
+      "text": "image with ftk imager for example make"
+    },
+    {
+      "seconds": 3435,
+      "text": "sure you include lnk files as part of"
+    },
+    {
+      "seconds": 3438,
+      "text": "that data that you grab because there"
+    },
+    {
+      "seconds": 3440,
+      "text": "are plenty of things here that will help"
+    },
+    {
+      "seconds": 3442,
+      "text": "you within the"
+    },
+    {
+      "seconds": 3444,
+      "text": "investigation now looking at the cheat"
+    },
+    {
+      "seconds": 3446,
+      "text": "sheet you'll also notice there are a"
+    },
+    {
+      "seconds": 3447,
+      "text": "couple of subdirectories that can exist"
+    },
+    {
+      "seconds": 3449,
+      "text": "called automatic destinations and custom"
+    },
+    {
+      "seconds": 3451,
+      "text": "destinations these are associated with"
+    },
+    {
+      "seconds": 3453,
+      "text": "something called jump lists which were"
+    },
+    {
+      "seconds": 3456,
+      "text": "um things that were introduced with"
+    },
+    {
+      "seconds": 3457,
+      "text": "Windows 7 it's actually a feature of"
+    },
+    {
+      "seconds": 3459,
+      "text": "Windows 7 and what it does is it"
+    },
+    {
+      "seconds": 3461,
+      "text": "actually provides uh on the taskbar a"
+    },
+    {
+      "seconds": 3464,
+      "text": "way to quickly access files that you've"
+    },
+    {
+      "seconds": 3466,
+      "text": "recently interacted with for example if"
+    },
+    {
+      "seconds": 3468,
+      "text": "you have word on the taskbar and you"
+    },
+    {
+      "seconds": 3470,
+      "text": "hovered over it you might see a list of"
+    },
+    {
+      "seconds": 3472,
+      "text": "recent files that you've interacted with"
+    },
+    {
+      "seconds": 3474,
+      "text": "with word so a atic destinations and"
+    },
+    {
+      "seconds": 3477,
+      "text": "custom destinations just contain"
+    },
+    {
+      "seconds": 3478,
+      "text": "additional link files that can be"
+    },
+    {
+      "seconds": 3480,
+      "text": "analyzed I'm not going to get into the"
+    },
+    {
+      "seconds": 3482,
+      "text": "specifics here but I would encourage you"
+    },
+    {
+      "seconds": 3483,
+      "text": "to read this article about jump lists on"
+    },
+    {
+      "seconds": 3486,
+      "text": "the forensic squaky as well as the uh"
+    },
+    {
+      "seconds": 3488,
+      "text": "original article I showed you U just"
+    },
+    {
+      "seconds": 3490,
+      "text": "about Windows shortcut files in general"
+    },
+    {
+      "seconds": 3493,
+      "text": "and again there are a number of"
+    },
+    {
+      "seconds": 3494,
+      "text": "different utilities that can parse these"
+    },
+    {
+      "seconds": 3495,
+      "text": "files but the important thing to take"
+    },
+    {
+      "seconds": 3497,
+      "text": "away from this is learn more about link"
+    },
+    {
+      "seconds": 3499,
+      "text": "files and do not ignore them in your"
+    },
+    {
+      "seconds": 3502,
+      "text": "investigations so this video is getting"
+    },
+    {
+      "seconds": 3504,
+      "text": "fairly long at this point um as you can"
+    },
+    {
+      "seconds": 3506,
+      "text": "see we've only scratched the surface of"
+    },
+    {
+      "seconds": 3509,
+      "text": "the vast majority of things that are"
+    },
+    {
+      "seconds": 3511,
+      "text": "available here on on a Windows system to"
+    },
+    {
+      "seconds": 3514,
+      "text": "analyze and forensic and we'll actually"
+    },
+    {
+      "seconds": 3516,
+      "text": "move into our final section next which"
+    },
+    {
+      "seconds": 3518,
+      "text": "is going to talk about prefetch and"
+    },
+    {
+      "seconds": 3525,
+      "text": "SuperFetch okay we are now in the final"
+    },
+    {
+      "seconds": 3525,
+      "text": "section of this video and if you've made"
+    },
+    {
+      "seconds": 3527,
+      "text": "it this far thank you for watching we're"
+    },
+    {
+      "seconds": 3530,
+      "text": "now going to discuss prefetcher and"
+    },
+    {
+      "seconds": 3532,
+      "text": "SuperFetch both of which are part of the"
+    },
+    {
+      "seconds": 3534,
+      "text": "windows memory manager now prefetcher"
+    },
+    {
+      "seconds": 3536,
+      "text": "was the less capable version included in"
+    },
+    {
+      "seconds": 3538,
+      "text": "Windows XP but it was actually extended"
+    },
+    {
+      "seconds": 3540,
+      "text": "by something called SuperFetch in"
+    },
+    {
+      "seconds": 3542,
+      "text": "Windows Vista we also had in Windows"
+    },
+    {
+      "seconds": 3544,
+      "text": "Vista ready boost and ready boot if you"
+    },
+    {
+      "seconds": 3547,
+      "text": "remember those all three of these have"
+    },
+    {
+      "seconds": 3549,
+      "text": "in common the fact that they attempt to"
+    },
+    {
+      "seconds": 3552,
+      "text": "improve the user experience by caching"
+    },
+    {
+      "seconds": 3554,
+      "text": "data that is frequently used in Access"
+    },
+    {
+      "seconds": 3556,
+      "text": "on the system to make it faster for the"
+    },
+    {
+      "seconds": 3559,
+      "text": "user so like all of the other forensic"
+    },
+    {
+      "seconds": 3562,
+      "text": "artifacts that we've looked at these"
+    },
+    {
+      "seconds": 3564,
+      "text": "things were put here by Microsoft to"
+    },
+    {
+      "seconds": 3567,
+      "text": "again perform some other function other"
+    },
+    {
+      "seconds": 3569,
+      "text": "than forensics but as forensic"
+    },
+    {
+      "seconds": 3570,
+      "text": "investigators we can leverage this to"
+    },
+    {
+      "seconds": 3572,
+      "text": "show evidence of application execution"
+    },
+    {
+      "seconds": 3575,
+      "text": "now in the beginning of the video you'll"
+    },
+    {
+      "seconds": 3577,
+      "text": "recall that we talked about user assist"
+    },
+    {
+      "seconds": 3579,
+      "text": "which showed evidence of guey based"
+    },
+    {
+      "seconds": 3581,
+      "text": "application execution and that was a"
+    },
+    {
+      "seconds": 3583,
+      "text": "registry key tied to a specific user"
+    },
+    {
+      "seconds": 3585,
+      "text": "because it was in the current user Hive"
+    },
+    {
+      "seconds": 3587,
+      "text": "or into user."
+    },
+    {
+      "seconds": 3589,
+      "text": "file so with this prefetcher we can"
+    },
+    {
+      "seconds": 3593,
+      "text": "actually look at evidence of application"
+    },
+    {
+      "seconds": 3595,
+      "text": "execution uh globally for all users on"
+    },
+    {
+      "seconds": 3597,
+      "text": "the system and it would include not only"
+    },
+    {
+      "seconds": 3600,
+      "text": "guy based applications but things run"
+    },
+    {
+      "seconds": 3602,
+      "text": "from the command line as well now"
+    },
+    {
+      "seconds": 3604,
+      "text": "because this is not a registry key it's"
+    },
+    {
+      "seconds": 3606,
+      "text": "not tied to a specific user per se but"
+    },
+    {
+      "seconds": 3609,
+      "text": "we can still gain a weld of information"
+    },
+    {
+      "seconds": 3611,
+      "text": "by analyzing these files if you look I'm"
+    },
+    {
+      "seconds": 3613,
+      "text": "in Windows prefetch on this particular"
+    },
+    {
+      "seconds": 3616,
+      "text": "Windows 10 VM and you'll see various"
+    },
+    {
+      "seconds": 3618,
+      "text": "things executables in all caps like"
+    },
+    {
+      "seconds": 3620,
+      "text": "calc.exe followed by a dash and then"
+    },
+    {
+      "seconds": 3623,
+      "text": "what looks like eight random characters"
+    },
+    {
+      "seconds": 3625,
+      "text": "those random looking characters are"
+    },
+    {
+      "seconds": 3627,
+      "text": "actually a hash of the files path on the"
+    },
+    {
+      "seconds": 3630,
+      "text": "system so for example with cmd.exe"
+    },
+    {
+      "seconds": 3633,
+      "text": "there's only one prefetch file"
+    },
+    {
+      "seconds": 3635,
+      "text": "associated with it but if there were"
+    },
+    {
+      "seconds": 3637,
+      "text": "another"
+    },
+    {
+      "seconds": 3638,
+      "text": "cmd.exe on the system located in a"
+    },
+    {
+      "seconds": 3640,
+      "text": "different location we would actually"
+    },
+    {
+      "seconds": 3642,
+      "text": "have a second prefetch file for it with"
+    },
+    {
+      "seconds": 3644,
+      "text": "a different hash indicating that it's a"
+    },
+    {
+      "seconds": 3646,
+      "text": "different path on the system which might"
+    },
+    {
+      "seconds": 3647,
+      "text": "be of interest in and of itself the fact"
+    },
+    {
+      "seconds": 3649,
+      "text": "that we would have more than one cmd.exe"
+    },
+    {
+      "seconds": 3652,
+      "text": "present so there are a number of tools"
+    },
+    {
+      "seconds": 3654,
+      "text": "that can analyze these particular files"
+    },
+    {
+      "seconds": 3656,
+      "text": "but the one I'm going to show you is"
+    },
+    {
+      "seconds": 3658,
+      "text": "when prefetch view which I've already"
+    },
+    {
+      "seconds": 3659,
+      "text": "loaded here this is a tool from near"
+    },
+    {
+      "seconds": 3662,
+      "text": "soft nir sof they make a number of"
+    },
+    {
+      "seconds": 3665,
+      "text": "different free forensic utilities that"
+    },
+    {
+      "seconds": 3668,
+      "text": "provide all kinds of useful information"
+    },
+    {
+      "seconds": 3669,
+      "text": "so you might want to check those out"
+    },
+    {
+      "seconds": 3672,
+      "text": "what I'm going to do is run a particular"
+    },
+    {
+      "seconds": 3673,
+      "text": "piece of software really a program"
+    },
+    {
+      "seconds": 3676,
+      "text": "called winver which just displays the"
+    },
+    {
+      "seconds": 3679,
+      "text": "about Windows dialogue box now I'm just"
+    },
+    {
+      "seconds": 3681,
+      "text": "going to close this I've not run this"
+    },
+    {
+      "seconds": 3683,
+      "text": "previously so the reason why I did that"
+    },
+    {
+      "seconds": 3685,
+      "text": "was was to show you that there is no"
+    },
+    {
+      "seconds": 3688,
+      "text": "wiver present there's no prefetch file"
+    },
+    {
+      "seconds": 3691,
+      "text": "but if I refet refresh the screen here I"
+    },
+    {
+      "seconds": 3694,
+      "text": "can actually go down and I see wiver now"
+    },
+    {
+      "seconds": 3697,
+      "text": "and if I double click on it I'll"
+    },
+    {
+      "seconds": 3699,
+      "text": "actually see some interesting"
+    },
+    {
+      "seconds": 3700,
+      "text": "information including the the process"
+    },
+    {
+      "seconds": 3703,
+      "text": "executable name the path the Run counter"
+    },
+    {
+      "seconds": 3705,
+      "text": "and the last run time showing that I've"
+    },
+    {
+      "seconds": 3707,
+      "text": "run it once and it was last run on this"
+    },
+    {
+      "seconds": 3709,
+      "text": "particular date if I run it"
+    },
+    {
+      "seconds": 3713,
+      "text": "again and then once again refresh the"
+    },
+    {
+      "seconds": 3715,
+      "text": "data"
+    },
+    {
+      "seconds": 3720,
+      "text": "double click on it you will notice the"
+    },
+    {
+      "seconds": 3720,
+      "text": "Run counter is now two and I have two"
+    },
+    {
+      "seconds": 3723,
+      "text": "time stamps for last run time so very"
+    },
+    {
+      "seconds": 3726,
+      "text": "interesting information can be gleaned"
+    },
+    {
+      "seconds": 3728,
+      "text": "from this and again this is not just for"
+    },
+    {
+      "seconds": 3730,
+      "text": "guy based applications uh as was user"
+    },
+    {
+      "seconds": 3733,
+      "text": "assist and by the way there are"
+    },
+    {
+      "seconds": 3734,
+      "text": "certainly other things that we can look"
+    },
+    {
+      "seconds": 3736,
+      "text": "at to determine evidence of application"
+    },
+    {
+      "seconds": 3738,
+      "text": "execution things like recent file. BCF"
+    },
+    {
+      "seconds": 3741,
+      "text": "and Amash I'm not going to cover those"
+    },
+    {
+      "seconds": 3743,
+      "text": "in this video but perhaps in a future"
+    },
+    {
+      "seconds": 3745,
+      "text": "video we'll discuss this so in this"
+    },
+    {
+      "seconds": 3747,
+      "text": "video this is the second thing that"
+    },
+    {
+      "seconds": 3748,
+      "text": "we've looked at in addition to user"
+    },
+    {
+      "seconds": 3750,
+      "text": "assist we've now got prefetch that can"
+    },
+    {
+      "seconds": 3752,
+      "text": "show us evidence of application"
+    },
+    {
+      "seconds": 3754,
+      "text": "execution on a"
+    },
+    {
+      "seconds": 3756,
+      "text": "system now the final thing I'll show you"
+    },
+    {
+      "seconds": 3759,
+      "text": "is in the registry there is actually a"
+    },
+    {
+      "seconds": 3762,
+      "text": "key which we'll go ahead and load up reg"
+    },
+    {
+      "seconds": 3764,
+      "text": "edit and look at the live registry on"
+    },
+    {
+      "seconds": 3766,
+      "text": "the system there's a key under local"
+    },
+    {
+      "seconds": 3769,
+      "text": "machine system current control"
+    },
+    {
+      "seconds": 3773,
+      "text": "set control"
+    },
+    {
+      "seconds": 3776,
+      "text": "session"
+    },
+    {
+      "seconds": 3778,
+      "text": "manager memory"
+    },
+    {
+      "seconds": 3780,
+      "text": "management prefetch parameters you can"
+    },
+    {
+      "seconds": 3783,
+      "text": "see the full path here at the bottom the"
+    },
+    {
+      "seconds": 3786,
+      "text": "enable prefetcher key has a value of"
+    },
+    {
+      "seconds": 3788,
+      "text": "three which if you look at the cheat"
+    },
+    {
+      "seconds": 3789,
+      "text": "sheet you'll see that's the default"
+    },
+    {
+      "seconds": 3791,
+      "text": "which does mean that application and"
+    },
+    {
+      "seconds": 3793,
+      "text": "boot prefetching are enabled now if you"
+    },
+    {
+      "seconds": 3797,
+      "text": "do not have prefetch files on a"
+    },
+    {
+      "seconds": 3799,
+      "text": "particular system it could be because"
+    },
+    {
+      "seconds": 3801,
+      "text": "this is disabled it is important to note"
+    },
+    {
+      "seconds": 3803,
+      "text": "that on Windows Server operating system"
+    },
+    {
+      "seconds": 3805,
+      "text": "prefetch is not turned on by default so"
+    },
+    {
+      "seconds": 3809,
+      "text": "that might be something interesting to"
+    },
+    {
+      "seconds": 3810,
+      "text": "know but if you're analyzing a desktop"
+    },
+    {
+      "seconds": 3812,
+      "text": "operating system prefetch again will"
+    },
+    {
+      "seconds": 3815,
+      "text": "provide you with a wealth of information"
+    },
+    {
+      "seconds": 3817,
+      "text": "and certainly you would want to grab PF"
+    },
+    {
+      "seconds": 3819,
+      "text": "files when you create custom content"
+    },
+    {
+      "seconds": 3821,
+      "text": "images I mentioned before the importance"
+    },
+    {
+      "seconds": 3823,
+      "text": "of Link files we certainly don't forget"
+    },
+    {
+      "seconds": 3825,
+      "text": "PF files either because they'll show us"
+    },
+    {
+      "seconds": 3827,
+      "text": "all kinds of important information with"
+    },
+    {
+      "seconds": 3828,
+      "text": "regards to applications that have been"
+    },
+    {
+      "seconds": 3830,
+      "text": "launched on the"
+    },
+    {
+      "seconds": 3832,
+      "text": "system so that concludes this video I'm"
+    },
+    {
+      "seconds": 3835,
+      "text": "sorry if it went a little long but there"
+    },
+    {
+      "seconds": 3837,
+      "text": "were a lot of things to cover as you can"
+    },
+    {
+      "seconds": 3839,
+      "text": "see and we've only scratched the service"
+    },
+    {
+      "seconds": 3841,
+      "text": "of the wealth of forensic artifacts that"
+    },
+    {
+      "seconds": 3843,
+      "text": "are available in the Windows operating"
+    },
+    {
+      "seconds": 3844,
+      "text": "system I'll probably do some future"
+    },
+    {
+      "seconds": 3847,
+      "text": "videos to cover more specific things but"
+    },
+    {
+      "seconds": 3850,
+      "text": "uh at this point I think if you've"
+    },
+    {
+      "seconds": 3852,
+      "text": "covered the contents of this video"
+    },
+    {
+      "seconds": 3854,
+      "text": "you'll have at least a solid foundation"
+    },
+    {
+      "seconds": 3855,
+      "text": "for the basic and very common Windows"
+    },
+    {
+      "seconds": 3858,
+      "text": "forensic artifacts that we often look at"
+    },
+    {
+      "seconds": 3860,
+      "text": "so again I'd like to invite you to"
+    },
+    {
+      "seconds": 3862,
+      "text": "subscribe to the channel like the video"
+    },
+    {
+      "seconds": 3864,
+      "text": "and all the other YouTube stuff that"
+    },
+    {
+      "seconds": 3865,
+      "text": "that I'm supposed to say at the end of"
+    },
+    {
+      "seconds": 3867,
+      "text": "every video and I would like to thank"
+    },
+    {
+      "seconds": 3869,
+      "text": "you for watching"
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "checked_on": "2026-10-23",
+  "scope": "New/changed selected non-video pages and free alternatives; prior successful unchanged probes reused, YouTube direct metadata/caption retrieval used separately.",
+  "results": [
+    {
+      "url": "https://apktool.org/docs/the-basics/decoding/",
+      "HEAD": {
+        "status": 404
+      },
+      "GET": {
+        "status": 404
+      },
+      "outcome": "http_error",
+      "resolution": {
+        "replacement": "https://apktool.org/docs/2.x/cli-parameters/",
+        "GET_status": 200,
+        "content_verified": "Version2.x banner and actual decode/-s/-r instructions present."
+      }
+    },
+    {
+      "url": "https://blog.didierstevens.com/2017/04/20/malicious-documents-the-matryoshka-edition/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://blog.didierstevens.com/2017/04/20/malicious-documents-the-matryoshka-edition/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/final/en-us/microsoft-brand/documents/IR-Guidebook-Final.pdf",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/final/en-us/microsoft-brand/documents/IR-Guidebook-Final.pdf"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://cryptohack.gitbook.io/cryptobook/untitled/common-modulus-attack",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://cryptohack.gitbook.io/cryptobook/untitled/common-modulus-attack"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://cryptohack.gitbook.io/cryptobook/untitled/recovering-the-modulus",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://cryptohack.gitbook.io/cryptobook/untitled/recovering-the-modulus"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.bepinex.dev/articles/advanced/debug/assemblies_dnSpy.html#using-dnspys-module-view",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://docs.bepinex.dev/articles/advanced/debug/assemblies_dnSpy.html#using-dnspys-module-view"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.openssl.org/3.0/man1/openssl-enc/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://docs.openssl.org/3.0/man1/openssl-enc/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://docs.python.org/3.11/tutorial/inputoutput.html#reading-and-writing-files",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://docs.python.org/3.11/tutorial/inputoutput.html#reading-and-writing-files"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://eln0ty.github.io/malware%20analysis/asyncRAT/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://eln0ty.github.io/malware%20analysis/asyncRAT/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/EricZimmerman/JLECmd",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/EricZimmerman/JLECmd"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/EricZimmerman/PECmd",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/EricZimmerman/PECmd"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/decalage2/oletools/wiki/olevba",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/decalage2/oletools/wiki/olevba"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/extremecoders-re/pyinstxtractor",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/extremecoders-re/pyinstxtractor"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/mandiant/capa",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/mandiant/capa"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/rocky/python-uncompyle6",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/rocky/python-uncompyle6"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/sqlmapproject/sqlmap/wiki/Usage"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/ticarpi/jwt_tool/wiki/Attack-Methodology",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/ticarpi/jwt_tool/wiki/Attack-Methodology"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://github.com/zrax/pycdc",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://github.com/zrax/pycdc"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://hashcat.net/wiki/doku.php?id=rule_based_attack",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://hashcat.net/wiki/doku.php?id=rule_based_attack"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://jqlang.org/tutorial/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://jqlang.org/tutorial/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://liveoverflow.com/unpacking-buhtrap-malware-basics-of-self-injection-packers-ft-oalabs-2/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://liveoverflow.com/unpacking-buhtrap-malware-basics-of-self-injection-packers-ft-oalabs-2/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://maddiestone.github.io/AndroidAppRE/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://www.ragingrock.com/AndroidAppRE/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://portswigger.net/web-security/access-control",
+      "HEAD": {
+        "status": 404
+      },
+      "GET": {
+        "status": 200,
+        "final_url": "https://portswigger.net/web-security/access-control"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter",
+      "HEAD": {
+        "status": 404
+      },
+      "GET": {
+        "status": 200,
+        "final_url": "https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-broken-logic",
+      "HEAD": {
+        "status": 404
+      },
+      "GET": {
+        "status": 200,
+        "final_url": "https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-broken-logic"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Memory.html",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Memory.html"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Watchpoints.html",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Watchpoints.html"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://wrongbaud.github.io/posts/ghidra-training/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://wrongbaud.github.io/posts/ghidra-training/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.kali.org/tools/detect-it-easy/",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://www.kali.org/tools/detect-it-easy/"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.20.0/quick_start_guide.html",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://www.sleuthkit.org/autopsy/docs/user-docs/4.20.0/quick_start_guide.html"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.sleuthkit.org/sleuthkit/man/mmls.html",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://www.sleuthkit.org/sleuthkit/man/mmls.html"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html",
+      "HEAD": {
+        "status": 200,
+        "final_url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html"
+      },
+      "outcome": "reachable"
+    },
+    {
+      "url": "https://apktool.org/docs/2.x/cli-parameters/",
+      "GET": {
+        "status": 200
+      },
+      "outcome": "reachable",
+      "content_check": "actual version2.x decoding option text"
+    }
+  ],
+  "unresolved_selected_link_failures": 0
+}

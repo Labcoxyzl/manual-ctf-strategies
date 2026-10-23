@@ -1,0 +1,50 @@
+[
+  {
+    "resource_id": "media-8",
+    "video_id": "pJYyyz6HPbQ",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "web-network-2",
+    "video_id": "_Wifm2g9ugg",
+    "exit_code": 0,
+    "reused": true
+  },
+  {
+    "resource_id": "forensics-4",
+    "video_id": "Uk3DEgY5Ue8",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "forensics-5",
+    "video_id": "_qElVZJqlGY",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "reverse-2",
+    "video_id": "fTGTnrgjuGA",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "reverse-3",
+    "video_id": "VroEiMOJPm8",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "crypto-foundations-2",
+    "video_id": "UtqmiI7k9lU",
+    "exit_code": 0,
+    "reused": false
+  },
+  {
+    "resource_id": "crypto-foundations-3",
+    "video_id": "20K1ctFzu2Y",
+    "exit_code": 0,
+    "reused": false
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "input_provenance": "Authored benign OLE/RTF containers; embedded note.txt only, no macro/script.",
+  "oletools_version": "0.60.1 help/source inspected",
+  "results": [
+    {
+      "module": "oleobj",
+      "return_code": 1,
+      "extracted_payload_bytes": 17,
+      "payload_sha256": "40d59f64bc4faeef20ed99266871b5dbfb27d9ddee2780eac1701472acf79593",
+      "output_names": [
+        "embedded-note.ole_note.txt"
+      ]
+    },
+    {
+      "module": "rtfobj",
+      "return_code": 0,
+      "extracted_payload_bytes": 17,
+      "payload_sha256": "40d59f64bc4faeef20ed99266871b5dbfb27d9ddee2780eac1701472acf79593",
+      "output_names": [
+        "embedded-note.rtf_note.txt"
+      ]
+    }
+  ],
+  "input_sha256": {
+    "embedded-note.ole": "0cf5e1284be61f8a91e9a2695db45c83f989f9bd6b850c4cf794ef9ad1b770fd",
+    "embedded-note.rtf": "2b75c83d3796bf761a94c4163c90c85b394a9e688ce0b4c4c8c7e7cb4a77c265"
+  }
+}

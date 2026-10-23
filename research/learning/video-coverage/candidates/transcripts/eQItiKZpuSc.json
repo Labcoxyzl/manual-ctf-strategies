@@ -1,0 +1,6567 @@
+{
+  "id": "eQItiKZpuSc",
+  "duration_seconds": 5333,
+  "caption_sha256": "c31da27d6c44e23998e278fc96822ce2d40911819724a6d350e57bb34ede9807",
+  "entries": [
+    {
+      "seconds": 2,
+      "text": "well thank you guys for coming out here"
+    },
+    {
+      "seconds": 2,
+      "text": "I'm gonna press on the URL is relatively"
+    },
+    {
+      "seconds": 5,
+      "text": "easy Mount where traffic analysis slash"
+    },
+    {
+      "seconds": 8,
+      "text": "2019 slash Sark fest that will be there"
+    },
+    {
+      "seconds": 11,
+      "text": "for as long as I have the website so if"
+    },
+    {
+      "seconds": 15,
+      "text": "you need to access the material again at"
+    },
+    {
+      "seconds": 17,
+      "text": "some point if you want to share the URL"
+    },
+    {
+      "seconds": 22,
+      "text": "please do this I believe is being"
+    },
+    {
+      "seconds": 25,
+      "text": "recorded right so it will be available"
+    },
+    {
+      "seconds": 28,
+      "text": "on the shark fest website as well but"
+    },
+    {
+      "seconds": 31,
+      "text": "the material should be there I'm not"
+    },
+    {
+      "seconds": 35,
+      "text": "gonna go in too much about what I do"
+    },
+    {
+      "seconds": 38,
+      "text": "except that I work for Palo Alto"
+    },
+    {
+      "seconds": 41,
+      "text": "Networks unit 42 where the public face a"
+    },
+    {
+      "seconds": 43,
+      "text": "threat research for the company and"
+    },
+    {
+      "seconds": 45,
+      "text": "we're a very small team devoted"
+    },
+    {
+      "seconds": 48,
+      "text": "exclusively to threat research and give"
+    },
+    {
+      "seconds": 50,
+      "text": "them back to the community so coming out"
+    },
+    {
+      "seconds": 52,
+      "text": "and doing these sort of workshops labs"
+    },
+    {
+      "seconds": 55,
+      "text": "and talks is one of our responsibilities"
+    },
+    {
+      "seconds": 58,
+      "text": "I also have the blog at malware traffic"
+    },
+    {
+      "seconds": 64,
+      "text": "is my twitter handle if anybody wants to"
+    },
+    {
+      "seconds": 68,
+      "text": "follow that and be bored with a lot of"
+    },
+    {
+      "seconds": 70,
+      "text": "really dry dull boring technical"
+    },
+    {
+      "seconds": 73,
+      "text": "information knock yourselves out now I"
+    },
+    {
+      "seconds": 76,
+      "text": "like this crowd whenever I come to shark"
+    },
+    {
+      "seconds": 78,
+      "text": "fest because normally I'll speak at"
+    },
+    {
+      "seconds": 80,
+      "text": "security focused conferences so when I"
+    },
+    {
+      "seconds": 84,
+      "text": "do these sort of workshops it really is"
+    },
+    {
+      "seconds": 87,
+      "text": "geared towards people who are already in"
+    },
+    {
+      "seconds": 90,
+      "text": "that mind frame of worrying about"
+    },
+    {
+      "seconds": 95,
+      "text": "infections right worried about malicious"
+    },
+    {
+      "seconds": 98,
+      "text": "traffic and when I come to shark fest I"
+    },
+    {
+      "seconds": 100,
+      "text": "get a much different perspective where"
+    },
+    {
+      "seconds": 104,
+      "text": "Wireshark is more about the network as"
+    },
+    {
+      "seconds": 107,
+      "text": "opposed to anything malicious so one of"
+    },
+    {
+      "seconds": 110,
+      "text": "the feedbacks I got last year I did a"
+    },
+    {
+      "seconds": 112,
+      "text": "full-day workshop last year for shark"
+    },
+    {
+      "seconds": 113,
+      "text": "fest was that hey everything was great"
+    },
+    {
+      "seconds": 116,
+      "text": "fine we're going through this stuff but"
+    },
+    {
+      "seconds": 118,
+      "text": "when we started getting to the malware"
+    },
+    {
+      "seconds": 119,
+      "text": "itself was a little lost and that was"
+    },
+    {
+      "seconds": 122,
+      "text": "because I was focusing just on the"
+    },
+    {
+      "seconds": 124,
+      "text": "malware traffic taking for granted that"
+    },
+    {
+      "seconds": 126,
+      "text": "people knew how these machines were"
+    },
+    {
+      "seconds": 129,
+      "text": "getting infected"
+    },
+    {
+      "seconds": 136,
+      "text": "so I do have sighs still delve mostly in"
+    },
+    {
+      "seconds": 136,
+      "text": "the peek apps using Wireshark but I take"
+    },
+    {
+      "seconds": 140,
+      "text": "some a little more time this year to"
+    },
+    {
+      "seconds": 142,
+      "text": "explain why these things are happening"
+    },
+    {
+      "seconds": 145,
+      "text": "and how these things are happening but"
+    },
+    {
+      "seconds": 148,
+      "text": "first we're going to start with"
+    },
+    {
+      "seconds": 149,
+      "text": "Wireshark setup because there is a"
+    },
+    {
+      "seconds": 151,
+      "text": "certain there's a certain way to shut up"
+    },
+    {
+      "seconds": 154,
+      "text": "Wireshark if you're dealing with Windows"
+    },
+    {
+      "seconds": 157,
+      "text": "malware infection traffic that makes it"
+    },
+    {
+      "seconds": 159,
+      "text": "much more advantageous for somebody to"
+    },
+    {
+      "seconds": 163,
+      "text": "view a peek app and review it quickly"
+    },
+    {
+      "seconds": 166,
+      "text": "and be able to based on your column"
+    },
+    {
+      "seconds": 168,
+      "text": "display get a very good idea of what's"
+    },
+    {
+      "seconds": 170,
+      "text": "going on and Wireshark by default tries"
+    },
+    {
+      "seconds": 173,
+      "text": "to be all things to all people and it"
+    },
+    {
+      "seconds": 176,
+      "text": "certainly isn't really set up focused"
+    },
+    {
+      "seconds": 179,
+      "text": "for a to focus on for example Windows"
+    },
+    {
+      "seconds": 184,
+      "text": "malware infection traffic it's not that"
+    },
+    {
+      "seconds": 186,
+      "text": "you can't find it using the default"
+    },
+    {
+      "seconds": 189,
+      "text": "column display but it is much easier to"
+    },
+    {
+      "seconds": 192,
+      "text": "review and look at it using the method"
+    },
+    {
+      "seconds": 195,
+      "text": "that all line up here in the Wireshark"
+    },
+    {
+      "seconds": 197,
+      "text": "setup and we'll talk about saving filter"
+    },
+    {
+      "seconds": 200,
+      "text": "expressions because there are definitely"
+    },
+    {
+      "seconds": 202,
+      "text": "different filter expressions that we'll"
+    },
+    {
+      "seconds": 203,
+      "text": "use to review peak apps for Windows"
+    },
+    {
+      "seconds": 206,
+      "text": "malware traffic and then I'm going to do"
+    },
+    {
+      "seconds": 211,
+      "text": "a quick little part on identifying"
+    },
+    {
+      "seconds": 214,
+      "text": "Hostin users because if you have an"
+    },
+    {
+      "seconds": 216,
+      "text": "infected Windows host in your"
+    },
+    {
+      "seconds": 218,
+      "text": "environment right I'm speaking from an"
+    },
+    {
+      "seconds": 220,
+      "text": "enterprise perspective not necessarily a"
+    },
+    {
+      "seconds": 222,
+      "text": "home perspective if your computer is"
+    },
+    {
+      "seconds": 225,
+      "text": "infected at home you probably know which"
+    },
+    {
+      "seconds": 226,
+      "text": "one it is but if you're in a corporate"
+    },
+    {
+      "seconds": 229,
+      "text": "environment if you're in an enterprise"
+    },
+    {
+      "seconds": 231,
+      "text": "environment and you get an alert on a"
+    },
+    {
+      "seconds": 234,
+      "text": "particular IP address that was infected"
+    },
+    {
+      "seconds": 236,
+      "text": "with Windows traffic you got to be able"
+    },
+    {
+      "seconds": 239,
+      "text": "to hunt that down you you have to find"
+    },
+    {
+      "seconds": 241,
+      "text": "out where that computer is because you"
+    },
+    {
+      "seconds": 243,
+      "text": "do not want that infected windows"
+    },
+    {
+      "seconds": 245,
+      "text": "computer in your enterprise network"
+    },
+    {
+      "seconds": 248,
+      "text": "where possibly a windows-based infection"
+    },
+    {
+      "seconds": 251,
+      "text": "could move laterally it could spread so"
+    },
+    {
+      "seconds": 255,
+      "text": "you want to be able to find that as soon"
+    },
+    {
+      "seconds": 257,
+      "text": "as possible and take it offline and be"
+    },
+    {
+      "seconds": 261,
+      "text": "able to fix it especially if it's one of"
+    },
+    {
+      "seconds": 263,
+      "text": "your enterprise laptops of themselves"
+    },
+    {
+      "seconds": 266,
+      "text": "and then finally the bulk of today's"
+    },
+    {
+      "seconds": 270,
+      "text": "two-part lab will be dealt looking at"
+    },
+    {
+      "seconds": 274,
+      "text": "pcaps"
+    },
+    {
+      "seconds": 275,
+      "text": "dealt with looking at peak apps in"
+    },
+    {
+      "seconds": 278,
+      "text": "reviewing windows-based malware"
+    },
+    {
+      "seconds": 280,
+      "text": "infection traffic now I do have some"
+    },
+    {
+      "seconds": 283,
+      "text": "tutorials that have published the Palo"
+    },
+    {
+      "seconds": 285,
+      "text": "Alto Networks blog and on my mind where"
+    },
+    {
+      "seconds": 288,
+      "text": "traffic analysis net website so some of"
+    },
+    {
+      "seconds": 291,
+      "text": "the stuff is also available on some"
+    },
+    {
+      "seconds": 295,
+      "text": "tutorials and the links to the Palo Alto"
+    },
+    {
+      "seconds": 297,
+      "text": "Networks tutorials are there as well"
+    },
+    {
+      "seconds": 305,
+      "text": "hopefully you guys all have these seven"
+    },
+    {
+      "seconds": 305,
+      "text": "or sixteen peak apps open up the first"
+    },
+    {
+      "seconds": 308,
+      "text": "one open up the first one in Wireshark"
+    },
+    {
+      "seconds": 311,
+      "text": "now a quick show of hands is anybody"
+    },
+    {
+      "seconds": 313,
+      "text": "familiar with my blog and as anybody"
+    },
+    {
+      "seconds": 315,
+      "text": "already altered their Wireshark column"
+    },
+    {
+      "seconds": 319,
+      "text": "display okay I know I got a some hand"
+    },
+    {
+      "seconds": 323,
+      "text": "saying people were familiar with the"
+    },
+    {
+      "seconds": 324,
+      "text": "blog but even some some treasured fellow"
+    },
+    {
+      "seconds": 331,
+      "text": "professionals I work with do not alter"
+    },
+    {
+      "seconds": 334,
+      "text": "their Wireshark column display and it"
+    },
+    {
+      "seconds": 337,
+      "text": "drives me nuts because they'll say hey"
+    },
+    {
+      "seconds": 338,
+      "text": "look at this and I'm thinking well yeah"
+    },
+    {
+      "seconds": 341,
+      "text": "I don't know for example you got the"
+    },
+    {
+      "seconds": 343,
+      "text": "time and it's the time in seconds since"
+    },
+    {
+      "seconds": 345,
+      "text": "the first first packet or first frame of"
+    },
+    {
+      "seconds": 349,
+      "text": "this pcap and I can't you know I don't"
+    },
+    {
+      "seconds": 352,
+      "text": "know what time this is all right when I"
+    },
+    {
+      "seconds": 354,
+      "text": "look at my Wireshark column display can"
+    },
+    {
+      "seconds": 355,
+      "text": "tell exactly what time it is in UTC I"
+    },
+    {
+      "seconds": 358,
+      "text": "want to know when this stuff is"
+    },
+    {
+      "seconds": 359,
+      "text": "happening yeah but it's the the whole"
+    },
+    {
+      "seconds": 365,
+      "text": "idea is it is not ideal for me anyway if"
+    },
+    {
+      "seconds": 371,
+      "text": "I'm reviewing a peak app that I know"
+    },
+    {
+      "seconds": 372,
+      "text": "that has Windows malware infection"
+    },
+    {
+      "seconds": 374,
+      "text": "traffic now this peak app does not this"
+    },
+    {
+      "seconds": 377,
+      "text": "first peak app does not quick show of"
+    },
+    {
+      "seconds": 380,
+      "text": "hands how many people are using a"
+    },
+    {
+      "seconds": 381,
+      "text": "Windows environment all right now word"
+    },
+    {
+      "seconds": 386,
+      "text": "of warning if you're using a Windows"
+    },
+    {
+      "seconds": 388,
+      "text": "environment and you're looking at"
+    },
+    {
+      "seconds": 390,
+      "text": "Wireshark with these peak apps in the"
+    },
+    {
+      "seconds": 392,
+      "text": "Windows environment especially if it's"
+    },
+    {
+      "seconds": 394,
+      "text": "Windows 10"
+    },
+    {
+      "seconds": 395,
+      "text": "Wireshark may I'm sorry not Wireshark"
+    },
+    {
+      "seconds": 399,
+      "text": "but Windows 10"
+    },
+    {
+      "seconds": 400,
+      "text": "the the Windows Defender may actually"
+    },
+    {
+      "seconds": 402,
+      "text": "either delete some of the peek apps or"
+    },
+    {
+      "seconds": 404,
+      "text": "delete some of the we'll practice a"
+    },
+    {
+      "seconds": 409,
+      "text": "couple of times abstracting malware from"
+    },
+    {
+      "seconds": 412,
+      "text": "the peek apps so just be aware that yes"
+    },
+    {
+      "seconds": 418,
+      "text": "this this does have some malicious"
+    },
+    {
+      "seconds": 420,
+      "text": "material in the peek apps but as I"
+    },
+    {
+      "seconds": 428,
+      "text": "mentioned for for me as a threat"
+    },
+    {
+      "seconds": 431,
+      "text": "researcher for some of my fellow"
+    },
+    {
+      "seconds": 433,
+      "text": "professionals who are threat analysts"
+    },
+    {
+      "seconds": 436,
+      "text": "that are are paid to research and review"
+    },
+    {
+      "seconds": 441,
+      "text": "near-real-time what's going on you got"
+    },
+    {
+      "seconds": 444,
+      "text": "an alert in your enterprise environment"
+    },
+    {
+      "seconds": 447,
+      "text": "and you have to be able to track this"
+    },
+    {
+      "seconds": 449,
+      "text": "stuff down and say okay was it infected"
+    },
+    {
+      "seconds": 450,
+      "text": "or not I got an alert I got a look at"
+    },
+    {
+      "seconds": 452,
+      "text": "the traffic if I've got access to the"
+    },
+    {
+      "seconds": 454,
+      "text": "traffic so one of the things I do here"
+    },
+    {
+      "seconds": 458,
+      "text": "in this workshop is I also provide a"
+    },
+    {
+      "seconds": 461,
+      "text": "full infection chain or as much as I can"
+    },
+    {
+      "seconds": 465,
+      "text": "examples of stuff because in any"
+    },
+    {
+      "seconds": 469,
+      "text": "decently"
+    },
+    {
+      "seconds": 470,
+      "text": "protected windows or a corporate"
+    },
+    {
+      "seconds": 473,
+      "text": "environment any enterprise environment"
+    },
+    {
+      "seconds": 475,
+      "text": "you're not going to see a full infection"
+    },
+    {
+      "seconds": 478,
+      "text": "chain because for example your web"
+    },
+    {
+      "seconds": 480,
+      "text": "security gateway will probably block"
+    },
+    {
+      "seconds": 482,
+      "text": "certain things before you could get"
+    },
+    {
+      "seconds": 485,
+      "text": "infected your email filtering is because"
+    },
+    {
+      "seconds": 488,
+      "text": "a lot of the stuff starts with malicious"
+    },
+    {
+      "seconds": 490,
+      "text": "spam your email filters are going to"
+    },
+    {
+      "seconds": 492,
+      "text": "block you know 99% or more of this of"
+    },
+    {
+      "seconds": 498,
+      "text": "these malicious emails that are coming"
+    },
+    {
+      "seconds": 500,
+      "text": "in it's still at scale for the criminals"
+    },
+    {
+      "seconds": 503,
+      "text": "right it takes them a very low"
+    },
+    {
+      "seconds": 507,
+      "text": "investment to be able to push out"
+    },
+    {
+      "seconds": 509,
+      "text": "literally millions hundreds of thousands"
+    },
+    {
+      "seconds": 512,
+      "text": "millions of emails periodically with"
+    },
+    {
+      "seconds": 515,
+      "text": "malware or that lead to malware right"
+    },
+    {
+      "seconds": 518,
+      "text": "and all you need is a very small"
+    },
+    {
+      "seconds": 520,
+      "text": "percentage of this stuff to be able to"
+    },
+    {
+      "seconds": 522,
+      "text": "infect a Windows computer"
+    },
+    {
+      "seconds": 530,
+      "text": "now so I'm filtering on HTTP that"
+    },
+    {
+      "seconds": 530,
+      "text": "request this will give us the HTTP POST"
+    },
+    {
+      "seconds": 534,
+      "text": "request the HTTP GET request HTTP head"
+    },
+    {
+      "seconds": 539,
+      "text": "requests all that stuff and we're"
+    },
+    {
+      "seconds": 541,
+      "text": "talking layer seven here right but we're"
+    },
+    {
+      "seconds": 545,
+      "text": "looking at the we're looking at the HTTP"
+    },
+    {
+      "seconds": 547,
+      "text": "request and with this particular set up"
+    },
+    {
+      "seconds": 550,
+      "text": "I can't see I can see part of the URL"
+    },
+    {
+      "seconds": 553,
+      "text": "but I don't have the domain name yeah I"
+    },
+    {
+      "seconds": 556,
+      "text": "can see the IP address but I don't have"
+    },
+    {
+      "seconds": 561,
+      "text": "any idea who this is just based on the"
+    },
+    {
+      "seconds": 563,
+      "text": "IP unless you're really familiar with"
+    },
+    {
+      "seconds": 566,
+      "text": "some of this stuff and you know that you"
+    },
+    {
+      "seconds": 569,
+      "text": "know certain IP address spaces may"
+    },
+    {
+      "seconds": 570,
+      "text": "equate to Google for example but we're"
+    },
+    {
+      "seconds": 574,
+      "text": "gonna have to change this what do I want"
+    },
+    {
+      "seconds": 577,
+      "text": "to see when I'm looking at a peek app I"
+    },
+    {
+      "seconds": 579,
+      "text": "want to see the date and time and UTC I"
+    },
+    {
+      "seconds": 581,
+      "text": "want to see a source IP and a source"
+    },
+    {
+      "seconds": 582,
+      "text": "port I want to see a destination IP and"
+    },
+    {
+      "seconds": 585,
+      "text": "a destination port I want to see the"
+    },
+    {
+      "seconds": 587,
+      "text": "HTTP host name for HTTP traffic and for"
+    },
+    {
+      "seconds": 592,
+      "text": "HTTP traffic I should see that server"
+    },
+    {
+      "seconds": 594,
+      "text": "name and then the info line so you get"
+    },
+    {
+      "seconds": 599,
+      "text": "the rest of the URL for example for HTTP"
+    },
+    {
+      "seconds": 603,
+      "text": "traffic how do I get there I need to"
+    },
+    {
+      "seconds": 609,
+      "text": "remove and add columns I need to set the"
+    },
+    {
+      "seconds": 611,
+      "text": "date and time to UTC date and time I"
+    },
+    {
+      "seconds": 614,
+      "text": "need to add custom columns and I'm gonna"
+    },
+    {
+      "seconds": 618,
+      "text": "hide columns that I don't frequently use"
+    },
+    {
+      "seconds": 620,
+      "text": "and then sake blow block I always have a"
+    },
+    {
+      "seconds": 626,
+      "text": "problem pronouncing his name but one of"
+    },
+    {
+      "seconds": 629,
+      "text": "our Wireshark developers he told me this"
+    },
+    {
+      "seconds": 631,
+      "text": "last year and I completely forgot it but"
+    },
+    {
+      "seconds": 633,
+      "text": "I was able to integrate it in today's"
+    },
+    {
+      "seconds": 635,
+      "text": "lab is combining column values so we're"
+    },
+    {
+      "seconds": 639,
+      "text": "gonna have the same column that has the"
+    },
+    {
+      "seconds": 641,
+      "text": "HTTP host name and the HTTP server name"
+    },
+    {
+      "seconds": 644,
+      "text": "in the same column which is nice once"
+    },
+    {
+      "seconds": 647,
+      "text": "you start filtering properly now the"
+    },
+    {
+      "seconds": 650,
+      "text": "first thing we're going to do using this"
+    },
+    {
+      "seconds": 652,
+      "text": "first pcap in this first pcap by the way"
+    },
+    {
+      "seconds": 655,
+      "text": "is the Windows 10 host just going to a"
+    },
+    {
+      "seconds": 660,
+      "text": "single URL to look at an article from"
+    },
+    {
+      "seconds": 663,
+      "text": "blog a skill calm about the shortage of"
+    },
+    {
+      "seconds": 666,
+      "text": "cybersecurity professionals in the"
+    },
+    {
+      "seconds": 669,
+      "text": "industry today and so you have that"
+    },
+    {
+      "seconds": 673,
+      "text": "initial HTTP request then you have all"
+    },
+    {
+      "seconds": 675,
+      "text": "the other web traffic that supports the"
+    },
+    {
+      "seconds": 678,
+      "text": "images the scripts the style sheets and"
+    },
+    {
+      "seconds": 682,
+      "text": "everything that supports displaying that"
+    },
+    {
+      "seconds": 684,
+      "text": "page properly in a browser today for the"
+    },
+    {
+      "seconds": 696,
+      "text": "first thing I want to do is I want to"
+    },
+    {
+      "seconds": 697,
+      "text": "remove column now for me that far left"
+    },
+    {
+      "seconds": 702,
+      "text": "column to the to the left is the frame"
+    },
+    {
+      "seconds": 705,
+      "text": "number column the frame or packet number"
+    },
+    {
+      "seconds": 710,
+      "text": "column depending on what you have in"
+    },
+    {
+      "seconds": 712,
+      "text": "your pcap I don't need that right and"
+    },
+    {
+      "seconds": 716,
+      "text": "for me personally there is no"
+    },
+    {
+      "seconds": 719,
+      "text": "conceivable way that that will be useful"
+    },
+    {
+      "seconds": 722,
+      "text": "for me for what I'm focusing on so I"
+    },
+    {
+      "seconds": 725,
+      "text": "will literally move that column now you"
+    },
+    {
+      "seconds": 727,
+      "text": "can hide it if you want if you want to"
+    },
+    {
+      "seconds": 729,
+      "text": "hide it all you have to do is uncheck it"
+    },
+    {
+      "seconds": 731,
+      "text": "when you bring up you right click in the"
+    },
+    {
+      "seconds": 734,
+      "text": "column header of the column that you"
+    },
+    {
+      "seconds": 736,
+      "text": "want to remove and then the very bottom"
+    },
+    {
+      "seconds": 738,
+      "text": "you select remove this column or if you"
+    },
+    {
+      "seconds": 744,
+      "text": "still think you might need it just"
+    },
+    {
+      "seconds": 745,
+      "text": "uncheck the number column but I get rid"
+    },
+    {
+      "seconds": 750,
+      "text": "of the number column and I also get rid"
+    },
+    {
+      "seconds": 752,
+      "text": "of the protocol and the length columns"
+    },
+    {
+      "seconds": 756,
+      "text": "so you have a protocol there and you"
+    },
+    {
+      "seconds": 758,
+      "text": "should have a line we're still filtered"
+    },
+    {
+      "seconds": 760,
+      "text": "on HTTP requests and you'll have a"
+    },
+    {
+      "seconds": 768,
+      "text": "protocol columnist as HTTP right I"
+    },
+    {
+      "seconds": 770,
+      "text": "already know it's HDTV I appreciate that"
+    },
+    {
+      "seconds": 772,
+      "text": "Wireshark tries to tell me whatever the"
+    },
+    {
+      "seconds": 775,
+      "text": "particular protocol is for that for that"
+    },
+    {
+      "seconds": 778,
+      "text": "frame or packet or TCP segment that's"
+    },
+    {
+      "seconds": 780,
+      "text": "displayed up there but I don't I don't"
+    },
+    {
+      "seconds": 784,
+      "text": "desire it on my Wireshark column display"
+    },
+    {
+      "seconds": 787,
+      "text": "so I get rid of it the same thing for"
+    },
+    {
+      "seconds": 789,
+      "text": "the length column the length and bytes"
+    },
+    {
+      "seconds": 791,
+      "text": "of that set"
+    },
+    {
+      "seconds": 793,
+      "text": "or packet or frame that's not really"
+    },
+    {
+      "seconds": 797,
+      "text": "important to me so I get rid of it now"
+    },
+    {
+      "seconds": 799,
+      "text": "you can hide it like we talked about"
+    },
+    {
+      "seconds": 801,
+      "text": "like I just talked about or you can get"
+    },
+    {
+      "seconds": 804,
+      "text": "rid of it but when you do get rid of it"
+    },
+    {
+      "seconds": 808,
+      "text": "we should have time source destination"
+    },
+    {
+      "seconds": 812,
+      "text": "in info so if you're following along"
+    },
+    {
+      "seconds": 819,
+      "text": "with me right now this is what we should"
+    },
+    {
+      "seconds": 823,
+      "text": "have there's anybody not able to get to"
+    },
+    {
+      "seconds": 827,
+      "text": "that point yet all right so let's move"
+    },
+    {
+      "seconds": 840,
+      "text": "on so removing columns is easy hiding"
+    },
+    {
+      "seconds": 844,
+      "text": "columns is easy but adding columns is a"
+    },
+    {
+      "seconds": 847,
+      "text": "little more involved right so I want to"
+    },
+    {
+      "seconds": 852,
+      "text": "add columns for the source port and"
+    },
+    {
+      "seconds": 856,
+      "text": "destination port and the easiest way to"
+    },
+    {
+      "seconds": 859,
+      "text": "do or the only way I shouldn't say the"
+    },
+    {
+      "seconds": 862,
+      "text": "only way to do that the normal way to do"
+    },
+    {
+      "seconds": 864,
+      "text": "that is to go to your column preferences"
+    },
+    {
+      "seconds": 866,
+      "text": "menu and set that up and the easiest way"
+    },
+    {
+      "seconds": 870,
+      "text": "to get to your column preferences menu"
+    },
+    {
+      "seconds": 872,
+      "text": "is just right click in any of the column"
+    },
+    {
+      "seconds": 874,
+      "text": "headers and select the fourth one down"
+    },
+    {
+      "seconds": 877,
+      "text": "column preferences so please go to your"
+    },
+    {
+      "seconds": 882,
+      "text": "column preferences menu right click in"
+    },
+    {
+      "seconds": 885,
+      "text": "any of the column headers go to column"
+    },
+    {
+      "seconds": 890,
+      "text": "preferences and you should come up with"
+    },
+    {
+      "seconds": 891,
+      "text": "something like this menu so everybody"
+    },
+    {
+      "seconds": 894,
+      "text": "have this menu we should see our four"
+    },
+    {
+      "seconds": 901,
+      "text": "columns that we currently have now a lot"
+    },
+    {
+      "seconds": 904,
+      "text": "of times I'll change source and"
+    },
+    {
+      "seconds": 905,
+      "text": "destination to just SRC and DST just"
+    },
+    {
+      "seconds": 909,
+      "text": "keep those labels a little small but"
+    },
+    {
+      "seconds": 916,
+      "text": "you're going to click this little plus"
+    },
+    {
+      "seconds": 917,
+      "text": "button"
+    },
+    {
+      "seconds": 930,
+      "text": "and that plus button should give you a"
+    },
+    {
+      "seconds": 930,
+      "text": "new column the title is new column and"
+    },
+    {
+      "seconds": 933,
+      "text": "the type by default is always number now"
+    },
+    {
+      "seconds": 937,
+      "text": "this is going to be our source port so"
+    },
+    {
+      "seconds": 939,
+      "text": "you're gonna double left-click and where"
+    },
+    {
+      "seconds": 941,
+      "text": "it says new column you're going to"
+    },
+    {
+      "seconds": 942,
+      "text": "change that from new column to source"
+    },
+    {
+      "seconds": 945,
+      "text": "port or SRC port I prefer using"
+    },
+    {
+      "seconds": 949,
+      "text": "abbreviations although on the slide it"
+    },
+    {
+      "seconds": 954,
+      "text": "is not abbreviated and once you get that"
+    },
+    {
+      "seconds": 960,
+      "text": "source port typed out as the caller as"
+    },
+    {
+      "seconds": 963,
+      "text": "the column title you're going to double"
+    },
+    {
+      "seconds": 965,
+      "text": "left click where it says number don't"
+    },
+    {
+      "seconds": 967,
+      "text": "bring up a menu once you click on that"
+    },
+    {
+      "seconds": 970,
+      "text": "you should have a little little arrow to"
+    },
+    {
+      "seconds": 972,
+      "text": "the right just bring up the menu and"
+    },
+    {
+      "seconds": 975,
+      "text": "scroll up or down in this case down"
+    },
+    {
+      "seconds": 978,
+      "text": "until you find SRC EDD R and I'm sorry"
+    },
+    {
+      "seconds": 983,
+      "text": "SRC port I don't want to see it"
+    },
+    {
+      "seconds": 984,
+      "text": "unresolved now you can probably just use"
+    },
+    {
+      "seconds": 988,
+      "text": "source port normally but I want to use"
+    },
+    {
+      "seconds": 991,
+      "text": "source port unresolved because I want"
+    },
+    {
+      "seconds": 993,
+      "text": "that number I don't want Wireshark"
+    },
+    {
+      "seconds": 995,
+      "text": "telling me what it thinks that that that"
+    },
+    {
+      "seconds": 999,
+      "text": "source port is I don't want it to"
+    },
+    {
+      "seconds": 1001,
+      "text": "resolve it for me I just want the number"
+    },
+    {
+      "seconds": 1004,
+      "text": "I want that port number so I select SRC"
+    },
+    {
+      "seconds": 1008,
+      "text": "port unresolved then you kind of got a"
+    },
+    {
+      "seconds": 1011,
+      "text": "click out of it you have to click in"
+    },
+    {
+      "seconds": 1013,
+      "text": "that white area below just to kind of"
+    },
+    {
+      "seconds": 1015,
+      "text": "get out of that menu because what we're"
+    },
+    {
+      "seconds": 1017,
+      "text": "gonna do is we're gonna left click on it"
+    },
+    {
+      "seconds": 1018,
+      "text": "we're gonna hold down and drag it up"
+    },
+    {
+      "seconds": 1021,
+      "text": "just to right after source address now"
+    },
+    {
+      "seconds": 1029,
+      "text": "as I'm as I'm going along through this"
+    },
+    {
+      "seconds": 1032,
+      "text": "this is where people some people have"
+    },
+    {
+      "seconds": 1034,
+      "text": "some problems is dragging it up there is"
+    },
+    {
+      "seconds": 1039,
+      "text": "anybody having any issues and once again"
+    },
+    {
+      "seconds": 1043,
+      "text": "you kind of got to click outside of it"
+    },
+    {
+      "seconds": 1045,
+      "text": "on the whitespace out of it"
+    },
+    {
+      "seconds": 1047,
+      "text": "left click before you left click on it"
+    },
+    {
+      "seconds": 1050,
+      "text": "now usually click somewhere up around"
+    },
+    {
+      "seconds": 1052,
+      "text": "here and just kind of drag"
+    },
+    {
+      "seconds": 1054,
+      "text": "anybody having any issues dragging that"
+    },
+    {
+      "seconds": 1057,
+      "text": "up because when you get done it should"
+    },
+    {
+      "seconds": 1062,
+      "text": "look like this now we're going to do"
+    },
+    {
+      "seconds": 1070,
+      "text": "this again click that little plus button"
+    },
+    {
+      "seconds": 1074,
+      "text": "we're going to do a new column this is"
+    },
+    {
+      "seconds": 1075,
+      "text": "going to be our destination port or the"
+    },
+    {
+      "seconds": 1078,
+      "text": "St port once again I'm going to change"
+    },
+    {
+      "seconds": 1082,
+      "text": "that from new column to destination port"
+    },
+    {
+      "seconds": 1085,
+      "text": "or desc port I'm going to look for a DES"
+    },
+    {
+      "seconds": 1089,
+      "text": "port unresolved for the same reasons I"
+    },
+    {
+      "seconds": 1091,
+      "text": "look for a source port unresolved SRC"
+    },
+    {
+      "seconds": 1094,
+      "text": "port unresolved I just want the number"
+    },
+    {
+      "seconds": 1096,
+      "text": "I appreciate that Wireshark is able to"
+    },
+    {
+      "seconds": 1100,
+      "text": "do a lot of things for me but I don't"
+    },
+    {
+      "seconds": 1101,
+      "text": "want it to resolve a particular port I"
+    },
+    {
+      "seconds": 1104,
+      "text": "just want the number once you get that"
+    },
+    {
+      "seconds": 1110,
+      "text": "de st port you know kind of double"
+    },
+    {
+      "seconds": 1112,
+      "text": "left-click underneath so you're out of"
+    },
+    {
+      "seconds": 1114,
+      "text": "that out of that menu and then we're"
+    },
+    {
+      "seconds": 1118,
+      "text": "gonna once again left click and just"
+    },
+    {
+      "seconds": 1120,
+      "text": "drag it up to right under destination"
+    },
+    {
+      "seconds": 1126,
+      "text": "address we should have something like"
+    },
+    {
+      "seconds": 1129,
+      "text": "this anybody having any issues getting"
+    },
+    {
+      "seconds": 1138,
+      "text": "to this point if you do please you know"
+    },
+    {
+      "seconds": 1141,
+      "text": "if you're having any issues please raise"
+    },
+    {
+      "seconds": 1143,
+      "text": "your hand because this making sure we"
+    },
+    {
+      "seconds": 1146,
+      "text": "have our column display set up properly"
+    },
+    {
+      "seconds": 1149,
+      "text": "or at least what I call proper is a key"
+    },
+    {
+      "seconds": 1155,
+      "text": "to reviewing in my mind to reviewing"
+    },
+    {
+      "seconds": 1160,
+      "text": "Windows malware infection traffic"
+    },
+    {
+      "seconds": 1175,
+      "text": "so ready to move on here we go now and"
+    },
+    {
+      "seconds": 1175,
+      "text": "this is where I always tell people I'm a"
+    },
+    {
+      "seconds": 1176,
+      "text": "little anal retentive you know yeah a"
+    },
+    {
+      "seconds": 1181,
+      "text": "little-little anxiously anxiety things"
+    },
+    {
+      "seconds": 1183,
+      "text": "like the fact that the source port and"
+    },
+    {
+      "seconds": 1185,
+      "text": "the destination port are are aligned to"
+    },
+    {
+      "seconds": 1188,
+      "text": "the right and everything else is aligned"
+    },
+    {
+      "seconds": 1190,
+      "text": "to the left that just kind of bugs me I"
+    },
+    {
+      "seconds": 1191,
+      "text": "can't sleep at night when I see stuff"
+    },
+    {
+      "seconds": 1193,
+      "text": "like this this must be corrected so"
+    },
+    {
+      "seconds": 1197,
+      "text": "you're going to right-click in the"
+    },
+    {
+      "seconds": 1199,
+      "text": "column that you want to align and then"
+    },
+    {
+      "seconds": 1201,
+      "text": "select align left for that source port"
+    },
+    {
+      "seconds": 1204,
+      "text": "and destination port column and once you"
+    },
+    {
+      "seconds": 1210,
+      "text": "do that now I can sleep better at night"
+    },
+    {
+      "seconds": 1215,
+      "text": "well I you know I've always had problems"
+    },
+    {
+      "seconds": 1217,
+      "text": "sleeping at night but at least now this"
+    },
+    {
+      "seconds": 1220,
+      "text": "is not going to be one of the things"
+    },
+    {
+      "seconds": 1221,
+      "text": "that keeps me up I have my time source"
+    },
+    {
+      "seconds": 1225,
+      "text": "IP source port destination IP"
+    },
+    {
+      "seconds": 1226,
+      "text": "destination port and info you also"
+    },
+    {
+      "seconds": 1228,
+      "text": "notice that I changed"
+    },
+    {
+      "seconds": 1231,
+      "text": "source to SRC and DST but you know once"
+    },
+    {
+      "seconds": 1234,
+      "text": "again the the label is your particular"
+    },
+    {
+      "seconds": 1239,
+      "text": "preference next thing I want to do is"
+    },
+    {
+      "seconds": 1243,
+      "text": "change the time I want to set that time"
+    },
+    {
+      "seconds": 1245,
+      "text": "at UTC date and time so the easiest way"
+    },
+    {
+      "seconds": 1250,
+      "text": "to do that is go view time display"
+    },
+    {
+      "seconds": 1253,
+      "text": "format and it's set at seconds since"
+    },
+    {
+      "seconds": 1255,
+      "text": "beginning a capture just click UTC date"
+    },
+    {
+      "seconds": 1258,
+      "text": "in time of day UTC date in time of day"
+    },
+    {
+      "seconds": 1270,
+      "text": "and now your time column should at the"
+    },
+    {
+      "seconds": 1270,
+      "text": "very least show you that your this peak"
+    },
+    {
+      "seconds": 1273,
+      "text": "app was recorded on the 12th of January"
+    },
+    {
+      "seconds": 1279,
+      "text": "2019 everybody able to get this now the"
+    },
+    {
+      "seconds": 1283,
+      "text": "fidelity is down to the microsecond or"
+    },
+    {
+      "seconds": 1287,
+      "text": "Pico second or however long it is but"
+    },
+    {
+      "seconds": 1289,
+      "text": "this is the default I don't want the"
+    },
+    {
+      "seconds": 1292,
+      "text": "default I just only need four what I'm"
+    },
+    {
+      "seconds": 1294,
+      "text": "looking at to the second so once again"
+    },
+    {
+      "seconds": 1298,
+      "text": "I'm going to go to view time display"
+    },
+    {
+      "seconds": 1301,
+      "text": "format and"
+    },
+    {
+      "seconds": 1302,
+      "text": "change it from automatic to seconds and"
+    },
+    {
+      "seconds": 1314,
+      "text": "now I'm even closer to where I want to"
+    },
+    {
+      "seconds": 1317,
+      "text": "be and I can sleep even that much better"
+    },
+    {
+      "seconds": 1319,
+      "text": "at night anybody having any issues"
+    },
+    {
+      "seconds": 1323,
+      "text": "getting to this point now for the HTTP"
+    },
+    {
+      "seconds": 1336,
+      "text": "host and the HTTP host names you cannot"
+    },
+    {
+      "seconds": 1339,
+      "text": "add those through the normal process of"
+    },
+    {
+      "seconds": 1341,
+      "text": "adding a column but anything in the"
+    },
+    {
+      "seconds": 1344,
+      "text": "middle section which is the frame"
+    },
+    {
+      "seconds": 1346,
+      "text": "details you can find literally apply any"
+    },
+    {
+      "seconds": 1350,
+      "text": "value as a column that you can find in"
+    },
+    {
+      "seconds": 1352,
+      "text": "there some of those are useful some of"
+    },
+    {
+      "seconds": 1354,
+      "text": "those are not but the most useful ones"
+    },
+    {
+      "seconds": 1357,
+      "text": "that I found are the HTTP host names and"
+    },
+    {
+      "seconds": 1360,
+      "text": "the HTTP server names so we're still on"
+    },
+    {
+      "seconds": 1366,
+      "text": "our first pcap we're still filtered on"
+    },
+    {
+      "seconds": 1370,
+      "text": "HTTP dot request"
+    },
+    {
+      "seconds": 1371,
+      "text": "and just so we're all on the same page"
+    },
+    {
+      "seconds": 1376,
+      "text": "we have left click the very first TCP"
+    },
+    {
+      "seconds": 1379,
+      "text": "segment that's showing up there that"
+    },
+    {
+      "seconds": 1381,
+      "text": "first packet that first frame that's"
+    },
+    {
+      "seconds": 1384,
+      "text": "what we have selected and then we look"
+    },
+    {
+      "seconds": 1387,
+      "text": "in our frame details section and then we"
+    },
+    {
+      "seconds": 1391,
+      "text": "expand the very bottom line where it"
+    },
+    {
+      "seconds": 1394,
+      "text": "says hypertext Transfer Protocol little"
+    },
+    {
+      "seconds": 1396,
+      "text": "arrow down there"
+    },
+    {
+      "seconds": 1398,
+      "text": "or a little triangle I should say expand"
+    },
+    {
+      "seconds": 1401,
+      "text": "that and you should find a line that"
+    },
+    {
+      "seconds": 1405,
+      "text": "says host :"
+    },
+    {
+      "seconds": 1407,
+      "text": "space bloody skill calm everybody able"
+    },
+    {
+      "seconds": 1409,
+      "text": "to find that anybody not able to find"
+    },
+    {
+      "seconds": 1413,
+      "text": "that you know left click on it to select"
+    },
+    {
+      "seconds": 1417,
+      "text": "it you're going to right click on it to"
+    },
+    {
+      "seconds": 1419,
+      "text": "bring up a menu and then the third"
+    },
+    {
+      "seconds": 1422,
+      "text": "option down I believe is apply as column"
+    },
+    {
+      "seconds": 1430,
+      "text": "control"
+    },
+    {
+      "seconds": 1430,
+      "text": "shift I thank you sir that would be"
+    },
+    {
+      "seconds": 1434,
+      "text": "definitely an easier way of doing that I"
+    },
+    {
+      "seconds": 1437,
+      "text": "actually sake gave me some window some"
+    },
+    {
+      "seconds": 1444,
+      "text": "cards that actually have some of the"
+    },
+    {
+      "seconds": 1447,
+      "text": "keyboard based shortcuts so I also have"
+    },
+    {
+      "seconds": 1451,
+      "text": "those up here as well there's got about"
+    },
+    {
+      "seconds": 1453,
+      "text": "seven of them up here if anybody would"
+    },
+    {
+      "seconds": 1455,
+      "text": "like to grab a copy but now we have a"
+    },
+    {
+      "seconds": 1464,
+      "text": "column that shows us hosts and we have"
+    },
+    {
+      "seconds": 1467,
+      "text": "all those HTTP host names so now if I"
+    },
+    {
+      "seconds": 1470,
+      "text": "filter on HTTP requests which everybody"
+    },
+    {
+      "seconds": 1472,
+      "text": "should still be filtered on you see that"
+    },
+    {
+      "seconds": 1476,
+      "text": "column now I've got a much better idea"
+    },
+    {
+      "seconds": 1479,
+      "text": "you know I can see the full URL so I get"
+    },
+    {
+      "seconds": 1486,
+      "text": "a better idea of the flow already of the"
+    },
+    {
+      "seconds": 1489,
+      "text": "unencrypted HTTP traffic for the web"
+    },
+    {
+      "seconds": 1492,
+      "text": "stuff and all this is just regular web"
+    },
+    {
+      "seconds": 1495,
+      "text": "traffic now host names for the HTTP"
+    },
+    {
+      "seconds": 1501,
+      "text": "traffic that's a little more we got to"
+    },
+    {
+      "seconds": 1503,
+      "text": "dig a little deeper in that frame detail"
+    },
+    {
+      "seconds": 1507,
+      "text": "section to kind of work our way down to"
+    },
+    {
+      "seconds": 1508,
+      "text": "that so let's do that we're gonna filter"
+    },
+    {
+      "seconds": 1520,
+      "text": "if using the latest version of Wireshark"
+    },
+    {
+      "seconds": 1520,
+      "text": "it's TLS handshake that type equals one"
+    },
+    {
+      "seconds": 1523,
+      "text": "if you're using an older version of"
+    },
+    {
+      "seconds": 1525,
+      "text": "Wireshark one of the two point x-series"
+    },
+    {
+      "seconds": 1528,
+      "text": "and hopefully none of you guys in here"
+    },
+    {
+      "seconds": 1530,
+      "text": "using anything older than like to point"
+    },
+    {
+      "seconds": 1533,
+      "text": "to why shark 2.2 so if you're on a linux"
+    },
+    {
+      "seconds": 1537,
+      "text": "distro on a VM or something and you're"
+    },
+    {
+      "seconds": 1541,
+      "text": "using whatever that Linux distro has as"
+    },
+    {
+      "seconds": 1544,
+      "text": "Wireshark it usually right now for like"
+    },
+    {
+      "seconds": 1548,
+      "text": "Ubuntu or Debian it's usually two point"
+    },
+    {
+      "seconds": 1554,
+      "text": "six point something"
+    },
+    {
+      "seconds": 1564,
+      "text": "but if you try LSD and shake that type"
+    },
+    {
+      "seconds": 1564,
+      "text": "equals one and you can use EQ instead of"
+    },
+    {
+      "seconds": 1567,
+      "text": "a double equal sign if you try that and"
+    },
+    {
+      "seconds": 1570,
+      "text": "it doesn't work try SSL if you try SSL"
+    },
+    {
+      "seconds": 1574,
+      "text": "dot handshake type equals one and you're"
+    },
+    {
+      "seconds": 1577,
+      "text": "your filter bar turns yellow then try"
+    },
+    {
+      "seconds": 1581,
+      "text": "TLS but your filter bar should be green"
+    },
+    {
+      "seconds": 1585,
+      "text": "when you do this and I don't know if you"
+    },
+    {
+      "seconds": 1590,
+      "text": "can tell this is supposed to be kind of"
+    },
+    {
+      "seconds": 1593,
+      "text": "like a purplish lavender color as a"
+    },
+    {
+      "seconds": 1598,
+      "text": "background so everything should be"
+    },
+    {
+      "seconds": 1599,
+      "text": "purple and lavender lavender ish and"
+    },
+    {
+      "seconds": 1602,
+      "text": "your info column should say client hello"
+    },
+    {
+      "seconds": 1616,
+      "text": "is everybody able to get this anybody"
+    },
+    {
+      "seconds": 1616,
+      "text": "not able to get this"
+    },
+    {
+      "seconds": 1629,
+      "text": "so now we've got where we should be able"
+    },
+    {
+      "seconds": 1629,
+      "text": "to find in the frame details we should"
+    },
+    {
+      "seconds": 1632,
+      "text": "be able to find that HTTP server name"
+    },
+    {
+      "seconds": 1634,
+      "text": "that domain name that was used in this"
+    },
+    {
+      "seconds": 1637,
+      "text": "URL that went over HTTP so we can't see"
+    },
+    {
+      "seconds": 1641,
+      "text": "the URL but we could at least see the"
+    },
+    {
+      "seconds": 1643,
+      "text": "domain name so we're selected on the"
+    },
+    {
+      "seconds": 1650,
+      "text": "very first frame packet segment of the"
+    },
+    {
+      "seconds": 1653,
+      "text": "results up top in the column display and"
+    },
+    {
+      "seconds": 1658,
+      "text": "we are going to expand transport layer"
+    },
+    {
+      "seconds": 1662,
+      "text": "security that very bottom line if you're"
+    },
+    {
+      "seconds": 1665,
+      "text": "on Wireshark 2.0 X it should say"
+    },
+    {
+      "seconds": 1669,
+      "text": "whatever SSL is spelled out and then"
+    },
+    {
+      "seconds": 1675,
+      "text": "you're going to underneath that should"
+    },
+    {
+      "seconds": 1677,
+      "text": "be a single line that's as TLS v1 point"
+    },
+    {
+      "seconds": 1679,
+      "text": "to record layer handshake protocol"
+    },
+    {
+      "seconds": 1681,
+      "text": "client hello you going to expand that"
+    },
+    {
+      "seconds": 1688,
+      "text": "handshake protocol client hello does"
+    },
+    {
+      "seconds": 1688,
+      "text": "everybody anybody not see that expand"
+    },
+    {
+      "seconds": 1691,
+      "text": "that when you expand that handshake"
+    },
+    {
+      "seconds": 1697,
+      "text": "protocol client hello you'll have a lot"
+    },
+    {
+      "seconds": 1701,
+      "text": "more information gonna have to scroll"
+    },
+    {
+      "seconds": 1703,
+      "text": "down a little bit so under handshake"
+    },
+    {
+      "seconds": 1709,
+      "text": "protocol client hello there should be a"
+    },
+    {
+      "seconds": 1711,
+      "text": "line that says extension server name"
+    },
+    {
+      "seconds": 1714,
+      "text": "with the length of in parenthesis it"
+    },
+    {
+      "seconds": 1717,
+      "text": "will say length 20 characters anybody"
+    },
+    {
+      "seconds": 1721,
+      "text": "not able to find that if the line itself"
+    },
+    {
+      "seconds": 1728,
+      "text": "will say extension colon space server"
+    },
+    {
+      "seconds": 1731,
+      "text": "underscore name and then it will have in"
+    },
+    {
+      "seconds": 1735,
+      "text": "parenthesis Elian equals 20 able to find"
+    },
+    {
+      "seconds": 1739,
+      "text": "that that you'll have to expand"
+    },
+    {
+      "seconds": 1747,
+      "text": "underneath that you should see line that"
+    },
+    {
+      "seconds": 1747,
+      "text": "says server name indication extension"
+    },
+    {
+      "seconds": 1751,
+      "text": "anybody not able to find that server"
+    },
+    {
+      "seconds": 1754,
+      "text": "name indication extension"
+    },
+    {
+      "seconds": 1765,
+      "text": "so you're going to expand that and under"
+    },
+    {
+      "seconds": 1765,
+      "text": "that server name indication extension"
+    },
+    {
+      "seconds": 1767,
+      "text": "should be a line that says and I'm going"
+    },
+    {
+      "seconds": 1774,
+      "text": "to unplug this should be line that says"
+    },
+    {
+      "seconds": 1779,
+      "text": "server name wwg static com anybody not"
+    },
+    {
+      "seconds": 1785,
+      "text": "able to find where it says server name"
+    },
+    {
+      "seconds": 1790,
+      "text": "colon space wwg static com show of hands"
+    },
+    {
+      "seconds": 1796,
+      "text": "if anybody is not able to find that"
+    },
+    {
+      "seconds": 1798,
+      "text": "don't be shy if you found that good"
+    },
+    {
+      "seconds": 1802,
+      "text": "that's our HTTP server name for that TCP"
+    },
+    {
+      "seconds": 1806,
+      "text": "segment go back real quick I think we"
+    },
+    {
+      "seconds": 1821,
+      "text": "all got it right"
+    },
+    {
+      "seconds": 1823,
+      "text": "we expanded handshake protocol client"
+    },
+    {
+      "seconds": 1826,
+      "text": "Colo we worked our way down to extension"
+    },
+    {
+      "seconds": 1828,
+      "text": "server name and then we expanded that"
+    },
+    {
+      "seconds": 1831,
+      "text": "and we found G static com wwg SATCOM"
+    },
+    {
+      "seconds": 1835,
+      "text": "left click on that to select it right"
+    },
+    {
+      "seconds": 1838,
+      "text": "click to bring up a menu apply as column"
+    },
+    {
+      "seconds": 1850,
+      "text": "when you do that now you have a column"
+    },
+    {
+      "seconds": 1850,
+      "text": "that's a server name just to the right"
+    },
+    {
+      "seconds": 1852,
+      "text": "of the column for our HTTP host names"
+    },
+    {
+      "seconds": 1855,
+      "text": "everybody able to see this okay now I"
+    },
+    {
+      "seconds": 1862,
+      "text": "want to combine those two columns I want"
+    },
+    {
+      "seconds": 1866,
+      "text": "to combine so when I filter for HTTP and"
+    },
+    {
+      "seconds": 1869,
+      "text": "HTTPS traffic I'll see them all in one"
+    },
+    {
+      "seconds": 1872,
+      "text": "column just have two columns right"
+    },
+    {
+      "seconds": 1873,
+      "text": "beside each other so we're going to"
+    },
+    {
+      "seconds": 1878,
+      "text": "right click on our column headers and"
+    },
+    {
+      "seconds": 1880,
+      "text": "we're going to go to column prep yeah"
+    },
+    {
+      "seconds": 1887,
+      "text": "I'm sorry let me rephrase that I forgot"
+    },
+    {
+      "seconds": 1894,
+      "text": "we're gonna hide columns we don't"
+    },
+    {
+      "seconds": 1896,
+      "text": "frequently use I don't frequently use so"
+    },
+    {
+      "seconds": 1898,
+      "text": "when I'm looking at web traffic and I'm"
+    },
+    {
+      "seconds": 1901,
+      "text": "filtering for example for HTTP requests"
+    },
+    {
+      "seconds": 1905,
+      "text": "or TLS handshake type equals one the"
+    },
+    {
+      "seconds": 1908,
+      "text": "source IP I'm pulling on just a single"
+    },
+    {
+      "seconds": 1910,
+      "text": "Windows client and that single Windows"
+    },
+    {
+      "seconds": 1914,
+      "text": "client will always be the source IP when"
+    },
+    {
+      "seconds": 1917,
+      "text": "I'm testing a host when I'm testing"
+    },
+    {
+      "seconds": 1919,
+      "text": "malware in my lab I always have the same"
+    },
+    {
+      "seconds": 1921,
+      "text": "source IP when or the IP for that"
+    },
+    {
+      "seconds": 1924,
+      "text": "internal Windows client it's always"
+    },
+    {
+      "seconds": 1926,
+      "text": "going to be a non-routable IP address"
+    },
+    {
+      "seconds": 1928,
+      "text": "Class A Class B Class C for the ipv4 so"
+    },
+    {
+      "seconds": 1933,
+      "text": "I'm going to hide that source column I'm"
+    },
+    {
+      "seconds": 1934,
+      "text": "basically going to right-click and"
+    },
+    {
+      "seconds": 1937,
+      "text": "uncheck source for the source address"
+    },
+    {
+      "seconds": 1941,
+      "text": "and I'm also going to uncheck source"
+    },
+    {
+      "seconds": 1944,
+      "text": "port for the source port and now I've"
+    },
+    {
+      "seconds": 1950,
+      "text": "got the column set up exactly like I"
+    },
+    {
+      "seconds": 1952,
+      "text": "want them when I'm reviewing web traffic"
+    },
+    {
+      "seconds": 1955,
+      "text": "not exactly like I like them but almost"
+    },
+    {
+      "seconds": 1958,
+      "text": "there I've got that time destination IP"
+    },
+    {
+      "seconds": 1961,
+      "text": "destination port HTTP hostname HTTP"
+    },
+    {
+      "seconds": 1965,
+      "text": "server name and info now I can combine"
+    },
+    {
+      "seconds": 1973,
+      "text": "the HTTP host name and the HTTP server"
+    },
+    {
+      "seconds": 1975,
+      "text": "name to the same column so I'm going to"
+    },
+    {
+      "seconds": 1982,
+      "text": "right-click in any of the column headers"
+    },
+    {
+      "seconds": 1984,
+      "text": "go to the column preferences menu"
+    },
+    {
+      "seconds": 1996,
+      "text": "so we're going to change this the host"
+    },
+    {
+      "seconds": 1996,
+      "text": "column but what I'm going to do is I'm"
+    },
+    {
+      "seconds": 2002,
+      "text": "going to go to the I'm going to"
+    },
+    {
+      "seconds": 2009,
+      "text": "basically add this I'm going to do HTTP"
+    },
+    {
+      "seconds": 2012,
+      "text": "duck host space or and then double click"
+    },
+    {
+      "seconds": 2016,
+      "text": "in here to kind of copy and paste that"
+    },
+    {
+      "seconds": 2018,
+      "text": "up there so we can double click in any"
+    },
+    {
+      "seconds": 2020,
+      "text": "of these columns and a double left-click"
+    },
+    {
+      "seconds": 2023,
+      "text": "to get in there and select the value so"
+    },
+    {
+      "seconds": 2026,
+      "text": "I want to do this value or this value"
+    },
+    {
+      "seconds": 2030,
+      "text": "and you can make it whatever you want"
+    },
+    {
+      "seconds": 2033,
+      "text": "you can put it in whatever column you"
+    },
+    {
+      "seconds": 2034,
+      "text": "want but I put it in the host column"
+    },
+    {
+      "seconds": 2036,
+      "text": "because that's to me that's the host"
+    },
+    {
+      "seconds": 2038,
+      "text": "name you can put it if you want in the"
+    },
+    {
+      "seconds": 2039,
+      "text": "server name column will be this value or"
+    },
+    {
+      "seconds": 2043,
+      "text": "this value in the same field right HTTP"
+    },
+    {
+      "seconds": 2047,
+      "text": "host or TLS handshake dot extensions"
+    },
+    {
+      "seconds": 2054,
+      "text": "underscore server underscore name and I"
+    },
+    {
+      "seconds": 2059,
+      "text": "put it in the host column is anybody not"
+    },
+    {
+      "seconds": 2069,
+      "text": "able to do that we should be able to"
+    },
+    {
+      "seconds": 2072,
+      "text": "double left-click in those fields and"
+    },
+    {
+      "seconds": 2077,
+      "text": "change it so we should so I got I got"
+    },
+    {
+      "seconds": 2080,
+      "text": "rid of that server each the server name"
+    },
+    {
+      "seconds": 2083,
+      "text": "column I just have both those values in"
+    },
+    {
+      "seconds": 2086,
+      "text": "the host column anybody not able to get"
+    },
+    {
+      "seconds": 2093,
+      "text": "this because this is what we're gonna"
+    },
+    {
+      "seconds": 2097,
+      "text": "use this column setup is what we're"
+    },
+    {
+      "seconds": 2098,
+      "text": "going to use for the rest of today's lab"
+    },
+    {
+      "seconds": 2110,
+      "text": "yes you need both of them"
+    },
+    {
+      "seconds": 2110,
+      "text": "you need the one value space or the"
+    },
+    {
+      "seconds": 2114,
+      "text": "other value and if you want to you know"
+    },
+    {
+      "seconds": 2122,
+      "text": "the title you can name the title"
+    },
+    {
+      "seconds": 2123,
+      "text": "whatever you want I named it host but if"
+    },
+    {
+      "seconds": 2128,
+      "text": "you want to feel free to change that"
+    },
+    {
+      "seconds": 2130,
+      "text": "column name to whatever you want I"
+    },
+    {
+      "seconds": 2154,
+      "text": "believe so this HTTP host it's not"
+    },
+    {
+      "seconds": 2154,
+      "text": "pulling from DNS to get that right so"
+    },
+    {
+      "seconds": 2160,
+      "text": "this is literally taking whatever it's"
+    },
+    {
+      "seconds": 2162,
+      "text": "finding in the HTTP traffic for the HTTP"
+    },
+    {
+      "seconds": 2165,
+      "text": "host name the same thing for the HTTP"
+    },
+    {
+      "seconds": 2168,
+      "text": "server name so in this particular case"
+    },
+    {
+      "seconds": 2172,
+      "text": "there's no dns involved in grabbing"
+    },
+    {
+      "seconds": 2175,
+      "text": "those values to display them as a column"
+    },
+    {
+      "seconds": 2182,
+      "text": "now we're gonna look at filter"
+    },
+    {
+      "seconds": 2182,
+      "text": "expressions so here's the normal what"
+    },
+    {
+      "seconds": 2186,
+      "text": "you would think would be normal as far"
+    },
+    {
+      "seconds": 2188,
+      "text": "as looking at web traffic I can filter"
+    },
+    {
+      "seconds": 2190,
+      "text": "on HTTP dot request or TLS handshake"
+    },
+    {
+      "seconds": 2193,
+      "text": "that type equals one and in this first"
+    },
+    {
+      "seconds": 2197,
+      "text": "pcap I can get a good idea of the flow"
+    },
+    {
+      "seconds": 2200,
+      "text": "of web traffic now much much better than"
+    },
+    {
+      "seconds": 2203,
+      "text": "if I use the default Wireshark display"
+    },
+    {
+      "seconds": 2205,
+      "text": "column display so that make sense to"
+    },
+    {
+      "seconds": 2208,
+      "text": "everybody here are you all with me now"
+    },
+    {
+      "seconds": 2214,
+      "text": "the one thing I will say is if you"
+    },
+    {
+      "seconds": 2216,
+      "text": "scroll down every once in a while you'll"
+    },
+    {
+      "seconds": 2218,
+      "text": "see a baby blue line that says port 1900"
+    },
+    {
+      "seconds": 2224,
+      "text": "this is UDP port 1900 it's HTTP traffic"
+    },
+    {
+      "seconds": 2228,
+      "text": "over UDP port 1900 and it's always going"
+    },
+    {
+      "seconds": 2234,
+      "text": "to 2:39 dot 255 dot 255 dot 255"
+    },
+    {
+      "seconds": 2243,
+      "text": "- search this is SSDP traffic a simple"
+    },
+    {
+      "seconds": 2243,
+      "text": "service discovery protocol it's caused"
+    },
+    {
+      "seconds": 2245,
+      "text": "by Google Chrome I have Google Chrome"
+    },
+    {
+      "seconds": 2248,
+      "text": "installed on this machine I'm not using"
+    },
+    {
+      "seconds": 2250,
+      "text": "Google Chrome I just have it installed"
+    },
+    {
+      "seconds": 2252,
+      "text": "and Google Chrome generates this traffic"
+    },
+    {
+      "seconds": 2257,
+      "text": "so I'm going to filter it out my basic"
+    },
+    {
+      "seconds": 2261,
+      "text": "web filter has shown up there is I use"
+    },
+    {
+      "seconds": 2263,
+      "text": "what we just saw there but I omit any"
+    },
+    {
+      "seconds": 2267,
+      "text": "SSDP traffic I'm not saying that SSDP"
+    },
+    {
+      "seconds": 2272,
+      "text": "traffic can't be malicious but in the"
+    },
+    {
+      "seconds": 2275,
+      "text": "normal course of events I don't see"
+    },
+    {
+      "seconds": 2277,
+      "text": "anything malicious over SSDP I see a lot"
+    },
+    {
+      "seconds": 2281,
+      "text": "of SSDP"
+    },
+    {
+      "seconds": 2282,
+      "text": "on anything that I have Google Chrome"
+    },
+    {
+      "seconds": 2284,
+      "text": "installed and how many people are not"
+    },
+    {
+      "seconds": 2290,
+      "text": "paranoid enough of Google to not run or"
+    },
+    {
+      "seconds": 2292,
+      "text": "at least have Google Chrome installed"
+    },
+    {
+      "seconds": 2294,
+      "text": "anybody paranoid of Google Chrome and"
+    },
+    {
+      "seconds": 2297,
+      "text": "would rather not use Chrome because I"
+    },
+    {
+      "seconds": 2299,
+      "text": "thank you sir we're brothers and arms"
+    },
+    {
+      "seconds": 2303,
+      "text": "normally I don't use it but I'm kind of"
+    },
+    {
+      "seconds": 2305,
+      "text": "forced to use it now for work but this"
+    },
+    {
+      "seconds": 2311,
+      "text": "will be our basic filter that very first"
+    },
+    {
+      "seconds": 2314,
+      "text": "one now you see the basic plus it's my"
+    },
+    {
+      "seconds": 2320,
+      "text": "basic filter plus or TCP flags equals"
+    },
+    {
+      "seconds": 2324,
+      "text": "zero X zero zero zero there should be a"
+    },
+    {
+      "seconds": 2327,
+      "text": "third zero there I apologize zero zero"
+    },
+    {
+      "seconds": 2330,
+      "text": "zero instead of two zeros there should"
+    },
+    {
+      "seconds": 2332,
+      "text": "be a third zero that's the sin flag now"
+    },
+    {
+      "seconds": 2336,
+      "text": "you would think in Wireshark I should be"
+    },
+    {
+      "seconds": 2339,
+      "text": "able to use TCP flags dots in and get"
+    },
+    {
+      "seconds": 2343,
+      "text": "only send packets I'm sorry only TCP"
+    },
+    {
+      "seconds": 2346,
+      "text": "segments that have the syn flag set but"
+    },
+    {
+      "seconds": 2350,
+      "text": "for some reason that hasn't worked for"
+    },
+    {
+      "seconds": 2351,
+      "text": "me all filter on TCP dot flags dots in"
+    },
+    {
+      "seconds": 2355,
+      "text": "and I'll get a bunch of other stuff that"
+    },
+    {
+      "seconds": 2358,
+      "text": "is not just TCP segments with the syn"
+    },
+    {
+      "seconds": 2361,
+      "text": "flag set so I have to use this bass back"
+    },
+    {
+      "seconds": 2366,
+      "text": "masking technique"
+    },
+    {
+      "seconds": 2372,
+      "text": "equals equals one that worked well thank"
+    },
+    {
+      "seconds": 2372,
+      "text": "you they and this is another reason why"
+    },
+    {
+      "seconds": 2374,
+      "text": "I like coming to it shark Fest is"
+    },
+    {
+      "seconds": 2376,
+      "text": "because there are people were able to to"
+    },
+    {
+      "seconds": 2378,
+      "text": "show me better ways of doing what I have"
+    },
+    {
+      "seconds": 2382,
+      "text": "been doing for in some cases like this"
+    },
+    {
+      "seconds": 2384,
+      "text": "quite some time now we'll give this in"
+    },
+    {
+      "seconds": 2394,
+      "text": "act that has a sin flag right if I if I"
+    },
+    {
+      "seconds": 2401,
+      "text": "do this with three zeros instead of two"
+    },
+    {
+      "seconds": 2405,
+      "text": "zeros it will only give me the sin"
+    },
+    {
+      "seconds": 2408,
+      "text": "segments right so I will I will get a"
+    },
+    {
+      "seconds": 2413,
+      "text": "good idea when I do this if there's any"
+    },
+    {
+      "seconds": 2417,
+      "text": "non-http traffic there any TCP"
+    },
+    {
+      "seconds": 2419,
+      "text": "connections that are attempted at least"
+    },
+    {
+      "seconds": 2422,
+      "text": "because every TCP stream every TCP"
+    },
+    {
+      "seconds": 2425,
+      "text": "stream starts with the sin flag with a"
+    },
+    {
+      "seconds": 2429,
+      "text": "segment that has a sin flag"
+    },
+    {
+      "seconds": 2430,
+      "text": "so my basic plus is I'm trying to get"
+    },
+    {
+      "seconds": 2433,
+      "text": "basic basic web traffic plus anything"
+    },
+    {
+      "seconds": 2437,
+      "text": "that has you know any TCP connections"
+    },
+    {
+      "seconds": 2441,
+      "text": "that include that are not HTTP traffic"
+    },
+    {
+      "seconds": 2444,
+      "text": "yes sir"
+    },
+    {
+      "seconds": 2467,
+      "text": "gotcha okay so at TCB Dodson is"
+    },
+    {
+      "seconds": 2467,
+      "text": "literally anything that's been tagged is"
+    },
+    {
+      "seconds": 2470,
+      "text": "sin by the by Wireshark okay"
+    },
+    {
+      "seconds": 2476,
+      "text": "well hopefully please if you guys"
+    },
+    {
+      "seconds": 2479,
+      "text": "haven't done this yet please filter on"
+    },
+    {
+      "seconds": 2481,
+      "text": "just basic have that in your Wireshark"
+    },
+    {
+      "seconds": 2484,
+      "text": "filter and what we're going to do is"
+    },
+    {
+      "seconds": 2486,
+      "text": "we're going to add this as a filter"
+    },
+    {
+      "seconds": 2489,
+      "text": "expression"
+    },
+    {
+      "seconds": 2490,
+      "text": "I call them buttons but they're actually"
+    },
+    {
+      "seconds": 2492,
+      "text": "labels so I'm going to save this as my"
+    },
+    {
+      "seconds": 2496,
+      "text": "basic filter I'm going to click that"
+    },
+    {
+      "seconds": 2498,
+      "text": "plus sign at the far right of our filter"
+    },
+    {
+      "seconds": 2501,
+      "text": "bar the label whatever they have in"
+    },
+    {
+      "seconds": 2506,
+      "text": "there as a default I'm going to change"
+    },
+    {
+      "seconds": 2508,
+      "text": "it to basic our filter value should be"
+    },
+    {
+      "seconds": 2512,
+      "text": "the same thing as the filter here for"
+    },
+    {
+      "seconds": 2514,
+      "text": "this for this label and then once I name"
+    },
+    {
+      "seconds": 2517,
+      "text": "that basic I'm gonna click OK you can"
+    },
+    {
+      "seconds": 2519,
+      "text": "add a comment if you want but I don't"
+    },
+    {
+      "seconds": 2522,
+      "text": "currently add comments and when you save"
+    },
+    {
+      "seconds": 2529,
+      "text": "that as basic you should have a label to"
+    },
+    {
+      "seconds": 2531,
+      "text": "the very right of your filter bar that"
+    },
+    {
+      "seconds": 2533,
+      "text": "says basic this is our basic web filter"
+    },
+    {
+      "seconds": 2536,
+      "text": "this is the first thing that I check"
+    },
+    {
+      "seconds": 2539,
+      "text": "when I look at any windows malware"
+    },
+    {
+      "seconds": 2542,
+      "text": "traffic that I've generated"
+    },
+    {
+      "seconds": 2556,
+      "text": "so does anybody not got their basic"
+    },
+    {
+      "seconds": 2556,
+      "text": "filter set up yet now please do the same"
+    },
+    {
+      "seconds": 2562,
+      "text": "thing for basic plus in basic plus DNS"
+    },
+    {
+      "seconds": 2569,
+      "text": "and just real quickly I'm going to"
+    },
+    {
+      "seconds": 2575,
+      "text": "correct that because it bugs me so I"
+    },
+    {
+      "seconds": 2583,
+      "text": "gave you guys a minute or two to do that"
+    },
+    {
+      "seconds": 2585,
+      "text": "now I've done this often enough lord"
+    },
+    {
+      "seconds": 2588,
+      "text": "knows I wipe and set up new hosts and"
+    },
+    {
+      "seconds": 2593,
+      "text": "I've gotten to the point where I can do"
+    },
+    {
+      "seconds": 2595,
+      "text": "this in my sleep where I set this up"
+    },
+    {
+      "seconds": 2617,
+      "text": "so these three filters this basic basic"
+    },
+    {
+      "seconds": 2617,
+      "text": "plus and basic plus DNS they are going"
+    },
+    {
+      "seconds": 2623,
+      "text": "to be the ones that we will use as we"
+    },
+    {
+      "seconds": 2625,
+      "text": "examine pcaps of Windows malware"
+    },
+    {
+      "seconds": 2628,
+      "text": "infection traffic today"
+    },
+    {
+      "seconds": 2641,
+      "text": "and when you get done you should have"
+    },
+    {
+      "seconds": 2641,
+      "text": "three buttons now I'm going to move on"
+    },
+    {
+      "seconds": 2644,
+      "text": "in case some people are a little little"
+    },
+    {
+      "seconds": 2648,
+      "text": "slower trying to catch up with this"
+    },
+    {
+      "seconds": 2649,
+      "text": "stuff we've got the PDF file or you"
+    },
+    {
+      "seconds": 2652,
+      "text": "should have access to the PDF file that"
+    },
+    {
+      "seconds": 2653,
+      "text": "has all these slides so let's move on"
+    },
+    {
+      "seconds": 2658,
+      "text": "one of the things I want to talk about"
+    },
+    {
+      "seconds": 2660,
+      "text": "before we move on though is the"
+    },
+    {
+      "seconds": 2666,
+      "text": "configuration profiles if you go to edit"
+    },
+    {
+      "seconds": 2668,
+      "text": "configuration profiles what we've been"
+    },
+    {
+      "seconds": 2671,
+      "text": "working on has been our default"
+    },
+    {
+      "seconds": 2674,
+      "text": "Wireshark configuration for the column"
+    },
+    {
+      "seconds": 2677,
+      "text": "display and if you click on edit"
+    },
+    {
+      "seconds": 2682,
+      "text": "configuration profiles you make your way"
+    },
+    {
+      "seconds": 2684,
+      "text": "this should show the configuration"
+    },
+    {
+      "seconds": 2686,
+      "text": "profiles meaning it will have your"
+    },
+    {
+      "seconds": 2688,
+      "text": "directory in this case I'm using Debian"
+    },
+    {
+      "seconds": 2690,
+      "text": "and I've got Wireshark set up on DB and"
+    },
+    {
+      "seconds": 2693,
+      "text": "this one's uh this one's actually"
+    },
+    {
+      "seconds": 2696,
+      "text": "Wireshark 3.0 but it's on the default"
+    },
+    {
+      "seconds": 2699,
+      "text": "profile what you could do is if you"
+    },
+    {
+      "seconds": 2701,
+      "text": "wanted to make a copy of that you can"
+    },
+    {
+      "seconds": 2703,
+      "text": "hit this little double square-looking"
+    },
+    {
+      "seconds": 2706,
+      "text": "button and then copy that over and then"
+    },
+    {
+      "seconds": 2709,
+      "text": "rename it to something if you wanted to"
+    },
+    {
+      "seconds": 2713,
+      "text": "actually save your configuration profile"
+    },
+    {
+      "seconds": 2716,
+      "text": "find that file in the directory that it"
+    },
+    {
+      "seconds": 2720,
+      "text": "has there and you can copy that over to"
+    },
+    {
+      "seconds": 2722,
+      "text": "another version of Wireshark I've asked"
+    },
+    {
+      "seconds": 2724,
+      "text": "the developer ten if they would do an"
+    },
+    {
+      "seconds": 2728,
+      "text": "export an import function for"
+    },
+    {
+      "seconds": 2730,
+      "text": "configuration profiles and I got I got"
+    },
+    {
+      "seconds": 2734,
+      "text": "some positive feedback on that and it"
+    },
+    {
+      "seconds": 2736,
+      "text": "looks like hopefully they'll implement"
+    },
+    {
+      "seconds": 2739,
+      "text": "that and then when I do future workshops"
+    },
+    {
+      "seconds": 2741,
+      "text": "I could just say hey import this"
+    },
+    {
+      "seconds": 2743,
+      "text": "configuration profile and I don't have"
+    },
+    {
+      "seconds": 2745,
+      "text": "to spend you know 30 45 minutes doing"
+    },
+    {
+      "seconds": 2748,
+      "text": "this to get everybody up to date on how"
+    },
+    {
+      "seconds": 2751,
+      "text": "I want it to look but this is still good"
+    },
+    {
+      "seconds": 2753,
+      "text": "because this shows you guys a bit more"
+    },
+    {
+      "seconds": 2757,
+      "text": "about Wireshark than you may not have"
+    },
+    {
+      "seconds": 2758,
+      "text": "already known to this point and before"
+    },
+    {
+      "seconds": 2765,
+      "text": "we move on to the Windows malware"
+    },
+    {
+      "seconds": 2766,
+      "text": "traffic let's look at identifying hosts"
+    },
+    {
+      "seconds": 2768,
+      "text": "and users we're still on the first pcap"
+    },
+    {
+      "seconds": 2771,
+      "text": "to identify Hostin users we can look at"
+    },
+    {
+      "seconds": 2774,
+      "text": "DHCP traffic which is kind of rare"
+    },
+    {
+      "seconds": 2779,
+      "text": "normally at DHCP lease renews every"
+    },
+    {
+      "seconds": 2782,
+      "text": "eight hours or a week if you're a land"
+    },
+    {
+      "seconds": 2786,
+      "text": "connected host and then we could use"
+    },
+    {
+      "seconds": 2788,
+      "text": "NetBIOS name service traffic to identify"
+    },
+    {
+      "seconds": 2791,
+      "text": "the hostname of a Windows machine and"
+    },
+    {
+      "seconds": 2793,
+      "text": "then we could also if this isn't an"
+    },
+    {
+      "seconds": 2796,
+      "text": "Active Directory environment with a"
+    },
+    {
+      "seconds": 2797,
+      "text": "domain controller we can not only get"
+    },
+    {
+      "seconds": 2801,
+      "text": "the hostname we could get the Windows"
+    },
+    {
+      "seconds": 2802,
+      "text": "user account name which in my case for"
+    },
+    {
+      "seconds": 2806,
+      "text": "my exercises that I always post online"
+    },
+    {
+      "seconds": 2809,
+      "text": "it's always first name dot last name but"
+    },
+    {
+      "seconds": 2812,
+      "text": "in many enterprise environments they may"
+    },
+    {
+      "seconds": 2815,
+      "text": "not follow that naming scheme there was"
+    },
+    {
+      "seconds": 2817,
+      "text": "one place I've worked at where the"
+    },
+    {
+      "seconds": 2819,
+      "text": "Windows user account name was the first"
+    },
+    {
+      "seconds": 2821,
+      "text": "four letters of your last name and then"
+    },
+    {
+      "seconds": 2823,
+      "text": "four random numbers but let's filter on"
+    },
+    {
+      "seconds": 2830,
+      "text": "DHCP on that very first pcap so you're"
+    },
+    {
+      "seconds": 2835,
+      "text": "either going to filter on DHCP if you're"
+    },
+    {
+      "seconds": 2837,
+      "text": "using an older version of Wireshark"
+    },
+    {
+      "seconds": 2839,
+      "text": "older than you know you're using to"
+    },
+    {
+      "seconds": 2841,
+      "text": "point X you'll have to filter on boot P"
+    },
+    {
+      "seconds": 2845,
+      "text": "but you're going to expand this very"
+    },
+    {
+      "seconds": 2848,
+      "text": "last line you're going to scroll down to"
+    },
+    {
+      "seconds": 2851,
+      "text": "where it says hostname right now keep in"
+    },
+    {
+      "seconds": 2855,
+      "text": "mind that when we filter on DHCP traffic"
+    },
+    {
+      "seconds": 2859,
+      "text": "we've got the packet that we're going to"
+    },
+    {
+      "seconds": 2862,
+      "text": "look at is going to be the one from the"
+    },
+    {
+      "seconds": 2865,
+      "text": "windows host as it requests either an IP"
+    },
+    {
+      "seconds": 2869,
+      "text": "address for the initial DHCP lease or it"
+    },
+    {
+      "seconds": 2872,
+      "text": "renews its lease but either way this the"
+    },
+    {
+      "seconds": 2878,
+      "text": "the packet that we're looking at that"
+    },
+    {
+      "seconds": 2880,
+      "text": "has the host name for that host the"
+    },
+    {
+      "seconds": 2882,
+      "text": "source IP is always going to be for that"
+    },
+    {
+      "seconds": 2885,
+      "text": "Windows host in this case one 92168 one"
+    },
+    {
+      "seconds": 2889,
+      "text": "103 and when we scroll down when we"
+    },
+    {
+      "seconds": 2893,
+      "text": "expand that we find that host name line"
+    },
+    {
+      "seconds": 2895,
+      "text": "we look we see a host name that says"
+    },
+    {
+      "seconds": 2897,
+      "text": "fine ash debt-financed - 8 f - 5 - PC is"
+    },
+    {
+      "seconds": 2902,
+      "text": "anybody not able to find this"
+    },
+    {
+      "seconds": 2914,
+      "text": "so filter on DHCP or bootp if you're"
+    },
+    {
+      "seconds": 2914,
+      "text": "using an older version of Wireshark"
+    },
+    {
+      "seconds": 2915,
+      "text": "expand that very bottom line in the"
+    },
+    {
+      "seconds": 2918,
+      "text": "frame details scroll down till you find"
+    },
+    {
+      "seconds": 2920,
+      "text": "option to hostname expand that and you"
+    },
+    {
+      "seconds": 2923,
+      "text": "should have your host name this has got"
+    },
+    {
+      "seconds": 2925,
+      "text": "to be in the very first packet of your"
+    },
+    {
+      "seconds": 2928,
+      "text": "results now dhcp traffic is not as"
+    },
+    {
+      "seconds": 2941,
+      "text": "frequent as NetBIOS name service traffic"
+    },
+    {
+      "seconds": 2944,
+      "text": "and bns traffic so if you want to get a"
+    },
+    {
+      "seconds": 2947,
+      "text": "hostname the quickest a way that I found"
+    },
+    {
+      "seconds": 2949,
+      "text": "of getting a host name for traffic on a"
+    },
+    {
+      "seconds": 2951,
+      "text": "Windows host is is filtering in"
+    },
+    {
+      "seconds": 2953,
+      "text": "Wireshark on NB and s and in this first"
+    },
+    {
+      "seconds": 2959,
+      "text": "pcap if you filter on NB and s"
+    },
+    {
+      "seconds": 2961,
+      "text": "everything should be yellow and you'll"
+    },
+    {
+      "seconds": 2968,
+      "text": "see what you're looking for is either"
+    },
+    {
+      "seconds": 2969,
+      "text": "refresh in B or register and B and in"
+    },
+    {
+      "seconds": 2973,
+      "text": "this case you're only going to see"
+    },
+    {
+      "seconds": 2974,
+      "text": "refresh in B in this particular p cap"
+    },
+    {
+      "seconds": 2977,
+      "text": "well you want to look for a refresh NB"
+    },
+    {
+      "seconds": 2979,
+      "text": "and your info column or registration in"
+    },
+    {
+      "seconds": 2983,
+      "text": "B and that will give you both the host"
+    },
+    {
+      "seconds": 2987,
+      "text": "names of the Windows host involved and"
+    },
+    {
+      "seconds": 2990,
+      "text": "it will give you if there's a domain"
+    },
+    {
+      "seconds": 2992,
+      "text": "controller it will give you the name of"
+    },
+    {
+      "seconds": 2994,
+      "text": "that domain NetBIOS wise and if it's not"
+    },
+    {
+      "seconds": 2998,
+      "text": "there's no domain if you got like a home"
+    },
+    {
+      "seconds": 3000,
+      "text": "computer setup your default name will be"
+    },
+    {
+      "seconds": 3002,
+      "text": "workgroup now you see all these other"
+    },
+    {
+      "seconds": 3008,
+      "text": "name queries here with the random"
+    },
+    {
+      "seconds": 3011,
+      "text": "alphabetical characters anybody know"
+    },
+    {
+      "seconds": 3014,
+      "text": "what that is I'm sure somebody has an"
+    },
+    {
+      "seconds": 3017,
+      "text": "idea that is caused by Google Chrome so"
+    },
+    {
+      "seconds": 3024,
+      "text": "what Google Chrome does when you open up"
+    },
+    {
+      "seconds": 3026,
+      "text": "Google Chrome it does no it does DNS"
+    },
+    {
+      "seconds": 3029,
+      "text": "requests for strings of alphabetic"
+    },
+    {
+      "seconds": 3032,
+      "text": "characters no actual TLD no top-level"
+    },
+    {
+      "seconds": 3035,
+      "text": "domain it will just do a DNS query it"
+    },
+    {
+      "seconds": 3038,
+      "text": "will generate a DNS"
+    },
+    {
+      "seconds": 3039,
+      "text": "for a random string of alphabetic"
+    },
+    {
+      "seconds": 3041,
+      "text": "characters now windows is not able to"
+    },
+    {
+      "seconds": 3044,
+      "text": "resolve that I'm sorry DNS is not able"
+    },
+    {
+      "seconds": 3046,
+      "text": "to resolve that so in a Windows host if"
+    },
+    {
+      "seconds": 3049,
+      "text": "you can't find that particular host name"
+    },
+    {
+      "seconds": 3051,
+      "text": "through DNS it's going to try doing it"
+    },
+    {
+      "seconds": 3054,
+      "text": "through NetBIOS name service traffic so"
+    },
+    {
+      "seconds": 3058,
+      "text": "if you actually filtered on DNS you"
+    },
+    {
+      "seconds": 3060,
+      "text": "would see these same queries before they"
+    },
+    {
+      "seconds": 3063,
+      "text": "come up in in bns traffic does that make"
+    },
+    {
+      "seconds": 3066,
+      "text": "sense to everybody"
+    },
+    {
+      "seconds": 3067,
+      "text": "if you're curious filter on DNS look"
+    },
+    {
+      "seconds": 3071,
+      "text": "through all the DNS traffic there you"
+    },
+    {
+      "seconds": 3072,
+      "text": "should see these names than your DNS"
+    },
+    {
+      "seconds": 3075,
+      "text": "traffic do you not sir why does it do"
+    },
+    {
+      "seconds": 3078,
+      "text": "that somebody I've taught this workshop"
+    },
+    {
+      "seconds": 3081,
+      "text": "this lab several times every once in a"
+    },
+    {
+      "seconds": 3084,
+      "text": "while somebody is able to tell me why"
+    },
+    {
+      "seconds": 3088,
+      "text": "Google Chrome does that and then I"
+    },
+    {
+      "seconds": 3090,
+      "text": "always forget like the very next day"
+    },
+    {
+      "seconds": 3092,
+      "text": "because I'm like ah say I think it's"
+    },
+    {
+      "seconds": 3094,
+      "text": "looking for proxies or something like"
+    },
+    {
+      "seconds": 3096,
+      "text": "that"
+    },
+    {
+      "seconds": 3103,
+      "text": "there's w patent isatap which is another"
+    },
+    {
+      "seconds": 3103,
+      "text": "you know default Windows configuration"
+    },
+    {
+      "seconds": 3106,
+      "text": "issue that generates that traffic now if"
+    },
+    {
+      "seconds": 3112,
+      "text": "I didn't want to look at these extra"
+    },
+    {
+      "seconds": 3114,
+      "text": "queries for names in NetBIOS name"
+    },
+    {
+      "seconds": 3119,
+      "text": "service traffic I could filter on this"
+    },
+    {
+      "seconds": 3121,
+      "text": "and that would only give me the"
+    },
+    {
+      "seconds": 3125,
+      "text": "refreshen be in the registration Envy"
+    },
+    {
+      "seconds": 3127,
+      "text": "lines if I wanted to do it that way but"
+    },
+    {
+      "seconds": 3130,
+      "text": "I'm not going to worry about this I'm"
+    },
+    {
+      "seconds": 3132,
+      "text": "just showing this here giving this"
+    },
+    {
+      "seconds": 3133,
+      "text": "information to you in case you wanted to"
+    },
+    {
+      "seconds": 3137,
+      "text": "use that filter and it is this will be"
+    },
+    {
+      "seconds": 3141,
+      "text": "available in the PDF file with the other"
+    },
+    {
+      "seconds": 3145,
+      "text": "pcaps"
+    },
+    {
+      "seconds": 3151,
+      "text": "and I'm not going to on this first pcap"
+    },
+    {
+      "seconds": 3151,
+      "text": "I'm not going to use the Kerberos C name"
+    },
+    {
+      "seconds": 3155,
+      "text": "string filter we'll do that in our next"
+    },
+    {
+      "seconds": 3156,
+      "text": "pcap when we actually start finally"
+    },
+    {
+      "seconds": 3160,
+      "text": "looking at Windows malware traffic so a"
+    },
+    {
+      "seconds": 3166,
+      "text": "couple of words about Windows malware"
+    },
+    {
+      "seconds": 3167,
+      "text": "traffic"
+    },
+    {
+      "seconds": 3177,
+      "text": "malicious spam is the most common method"
+    },
+    {
+      "seconds": 3177,
+      "text": "for mass distribution of Windows malware"
+    },
+    {
+      "seconds": 3179,
+      "text": "you're trying to reach clients with this"
+    },
+    {
+      "seconds": 3182,
+      "text": "not servers but clients servers they get"
+    },
+    {
+      "seconds": 3186,
+      "text": "their own special attacks people are"
+    },
+    {
+      "seconds": 3188,
+      "text": "like pounding them all the time trying"
+    },
+    {
+      "seconds": 3190,
+      "text": "to find you know trying to get in"
+    },
+    {
+      "seconds": 3191,
+      "text": "through our DP for example where SSH or"
+    },
+    {
+      "seconds": 3195,
+      "text": "some Apache struts vulnerability or"
+    },
+    {
+      "seconds": 3197,
+      "text": "something like that so servers are"
+    },
+    {
+      "seconds": 3199,
+      "text": "getting attacked clients are not"
+    },
+    {
+      "seconds": 3202,
+      "text": "directly getting attacked there you kind"
+    },
+    {
+      "seconds": 3205,
+      "text": "of have to go at it indirectly so email"
+    },
+    {
+      "seconds": 3207,
+      "text": "as I mentioned earlier is so cost"
+    },
+    {
+      "seconds": 3209,
+      "text": "effective for criminals to send out"
+    },
+    {
+      "seconds": 3211,
+      "text": "hundreds of thousands or millions of"
+    },
+    {
+      "seconds": 3213,
+      "text": "emails periodically so so low of a cost"
+    },
+    {
+      "seconds": 3215,
+      "text": "to them that they could do that and have"
+    },
+    {
+      "seconds": 3217,
+      "text": "a very very small successful rate and it"
+    },
+    {
+      "seconds": 3220,
+      "text": "somehow"
+    },
+    {
+      "seconds": 3220,
+      "text": "still is profitable now there are other"
+    },
+    {
+      "seconds": 3226,
+      "text": "ways of mass distribution of commodity"
+    },
+    {
+      "seconds": 3228,
+      "text": "malware malware that everybody sees not"
+    },
+    {
+      "seconds": 3231,
+      "text": "targeted attacks but normally it's"
+    },
+    {
+      "seconds": 3235,
+      "text": "through Mouse man that's how I get my"
+    },
+    {
+      "seconds": 3237,
+      "text": "examples so the mouse behavior that has"
+    },
+    {
+      "seconds": 3240,
+      "text": "some type of attachment or it's got a"
+    },
+    {
+      "seconds": 3242,
+      "text": "link to an executable file or some"
+    },
+    {
+      "seconds": 3246,
+      "text": "installer that is then saved at"
+    },
+    {
+      "seconds": 3250,
+      "text": "localhost and run on that localhost so"
+    },
+    {
+      "seconds": 3255,
+      "text": "for our second pcap we're in an Active"
+    },
+    {
+      "seconds": 3257,
+      "text": "Directory environment we're going to use"
+    },
+    {
+      "seconds": 3259,
+      "text": "that Kerberos C name string filter at"
+    },
+    {
+      "seconds": 3262,
+      "text": "some point to figure out who this is but"
+    },
+    {
+      "seconds": 3264,
+      "text": "somebody got infected on pizza jukebox"
+    },
+    {
+      "seconds": 3267,
+      "text": "comm within that network in 10.0 dot"
+    },
+    {
+      "seconds": 3270,
+      "text": "40.0 now here's a I was talking with one"
+    },
+    {
+      "seconds": 3278,
+      "text": "of the developers Christian last year"
+    },
+    {
+      "seconds": 3281,
+      "text": "and because my presentation last year"
+    },
+    {
+      "seconds": 3286,
+      "text": "was focused on okay we got these alerts"
+    },
+    {
+      "seconds": 3289,
+      "text": "here's how you find them we got these"
+    },
+    {
+      "seconds": 3291,
+      "text": "alerts here's how you find them in were"
+    },
+    {
+      "seconds": 3293,
+      "text": "shark and he was saying hey you know"
+    },
+    {
+      "seconds": 3295,
+      "text": "most of our people of the the people"
+    },
+    {
+      "seconds": 3298,
+      "text": "coming to shark fest they're taking this"
+    },
+    {
+      "seconds": 3300,
+      "text": "class they aren't necessarily looking at"
+    },
+    {
+      "seconds": 3303,
+      "text": "this room and"
+    },
+    {
+      "seconds": 3304,
+      "text": "environment angle right he was telling"
+    },
+    {
+      "seconds": 3306,
+      "text": "me that so for example he would get a"
+    },
+    {
+      "seconds": 3308,
+      "text": "peek at from some is as I think"
+    },
+    {
+      "seconds": 3311,
+      "text": "something is wrong with my Windows"
+    },
+    {
+      "seconds": 3312,
+      "text": "machine you know I recorded the traffic"
+    },
+    {
+      "seconds": 3314,
+      "text": "union take a look at it so there were no"
+    },
+    {
+      "seconds": 3316,
+      "text": "alerts involved but so I thought about"
+    },
+    {
+      "seconds": 3320,
+      "text": "that I thought about that a lot and I"
+    },
+    {
+      "seconds": 3322,
+      "text": "was like okay how do i how do I you know"
+    },
+    {
+      "seconds": 3325,
+      "text": "kind change the tone for a mostly non"
+    },
+    {
+      "seconds": 3328,
+      "text": "security audience and the thing is I"
+    },
+    {
+      "seconds": 3332,
+      "text": "can't really do that right if you get"
+    },
+    {
+      "seconds": 3334,
+      "text": "infected if your home PC gets infected"
+    },
+    {
+      "seconds": 3336,
+      "text": "with an information stealer you're not"
+    },
+    {
+      "seconds": 3338,
+      "text": "gonna know it's only when you start"
+    },
+    {
+      "seconds": 3342,
+      "text": "seeing things that degrade your system"
+    },
+    {
+      "seconds": 3344,
+      "text": "performance and a lot of these"
+    },
+    {
+      "seconds": 3345,
+      "text": "information stealers are a good deal of"
+    },
+    {
+      "seconds": 3349,
+      "text": "them are just smash-and-grab right"
+    },
+    {
+      "seconds": 3352,
+      "text": "they'll get on your computer they'll"
+    },
+    {
+      "seconds": 3354,
+      "text": "steal your information send it somewhere"
+    },
+    {
+      "seconds": 3356,
+      "text": "and then they'll delete themselves and"
+    },
+    {
+      "seconds": 3358,
+      "text": "then you have no idea that you've just"
+    },
+    {
+      "seconds": 3360,
+      "text": "been compromised you know that your your"
+    },
+    {
+      "seconds": 3364,
+      "text": "Windows client has had you know the the"
+    },
+    {
+      "seconds": 3367,
+      "text": "browser's caches have been scraped if"
+    },
+    {
+      "seconds": 3371,
+      "text": "you keep your passwords stored in your"
+    },
+    {
+      "seconds": 3372,
+      "text": "browser right low key bots in this case"
+    },
+    {
+      "seconds": 3378,
+      "text": "low key bot is one that remains"
+    },
+    {
+      "seconds": 3380,
+      "text": "persistent in an infected Windows host"
+    },
+    {
+      "seconds": 3383,
+      "text": "so it will even if you reboot sets of a"
+    },
+    {
+      "seconds": 3387,
+      "text": "Windows registry entry so it keeps"
+    },
+    {
+      "seconds": 3388,
+      "text": "itself live but in this case we don't"
+    },
+    {
+      "seconds": 3392,
+      "text": "really have too much traffic we only"
+    },
+    {
+      "seconds": 3394,
+      "text": "have traffic on the command control the"
+    },
+    {
+      "seconds": 3397,
+      "text": "post infection traffic that low key bot"
+    },
+    {
+      "seconds": 3399,
+      "text": "generates after it infects your windows"
+    },
+    {
+      "seconds": 3402,
+      "text": "host and in this case what I have is"
+    },
+    {
+      "seconds": 3406,
+      "text": "here I'm using security onion is anybody"
+    },
+    {
+      "seconds": 3410,
+      "text": "familiar with security onion okay I got"
+    },
+    {
+      "seconds": 3412,
+      "text": "a one two three hands four five six so"
+    },
+    {
+      "seconds": 3415,
+      "text": "security onion is a linux distro set up"
+    },
+    {
+      "seconds": 3417,
+      "text": "for network security monitoring right so"
+    },
+    {
+      "seconds": 3420,
+      "text": "I'm using this for security onion I've"
+    },
+    {
+      "seconds": 3424,
+      "text": "got it set up with sericata as the IDs"
+    },
+    {
+      "seconds": 3426,
+      "text": "and I'm using in this case the emerging"
+    },
+    {
+      "seconds": 3429,
+      "text": "threats open rule set a completely"
+    },
+    {
+      "seconds": 3431,
+      "text": "refree rule set so if you were so"
+    },
+    {
+      "seconds": 3434,
+      "text": "inclined"
+    },
+    {
+      "seconds": 3435,
+      "text": "you could get security onion set it up"
+    },
+    {
+      "seconds": 3438,
+      "text": "get that you know with sericata and the"
+    },
+    {
+      "seconds": 3441,
+      "text": "emerging threats open rule set and then"
+    },
+    {
+      "seconds": 3444,
+      "text": "you can use TCP replay to get that pcap"
+    },
+    {
+      "seconds": 3447,
+      "text": "and literally generate these alerts but"
+    },
+    {
+      "seconds": 3452,
+      "text": "for the sake of argument here for our"
+    },
+    {
+      "seconds": 3454,
+      "text": "first few peek apps that we're going to"
+    },
+    {
+      "seconds": 3455,
+      "text": "review let's look at it from an"
+    },
+    {
+      "seconds": 3457,
+      "text": "enterprise aspect where you've got"
+    },
+    {
+      "seconds": 3459,
+      "text": "networks being monitored for for"
+    },
+    {
+      "seconds": 3462,
+      "text": "suspicious traffic and then occasionally"
+    },
+    {
+      "seconds": 3466,
+      "text": "you'll get alerts like these that you"
+    },
+    {
+      "seconds": 3468,
+      "text": "would have to investigate so in this"
+    },
+    {
+      "seconds": 3472,
+      "text": "case if you investigated it you'd find"
+    },
+    {
+      "seconds": 3476,
+      "text": "the following open up your second peak"
+    },
+    {
+      "seconds": 3479,
+      "text": "app SF 19 US MTA lab o to filter on your"
+    },
+    {
+      "seconds": 3486,
+      "text": "basic filter we're looking at in this"
+    },
+    {
+      "seconds": 3488,
+      "text": "case loci bot only generates regular"
+    },
+    {
+      "seconds": 3492,
+      "text": "HTTP traffic that's how it exfiltrate"
+    },
+    {
+      "seconds": 3495,
+      "text": "data"
+    },
+    {
+      "seconds": 3510,
+      "text": "so our second peak app and if anybody"
+    },
+    {
+      "seconds": 3510,
+      "text": "needs a USB key please do it because you"
+    },
+    {
+      "seconds": 3514,
+      "text": "will be bored to tears without the"
+    },
+    {
+      "seconds": 3516,
+      "text": "material anybody else here you go sir"
+    },
+    {
+      "seconds": 3519,
+      "text": "that's those USB keys around if anybody"
+    },
+    {
+      "seconds": 3522,
+      "text": "is still without the peak apps that"
+    },
+    {
+      "seconds": 3525,
+      "text": "we're covering here today please look"
+    },
+    {
+      "seconds": 3528,
+      "text": "around if you get done with your USB key"
+    },
+    {
+      "seconds": 3530,
+      "text": "kind of hold it up for other people to"
+    },
+    {
+      "seconds": 3531,
+      "text": "see so they can get a copy of it and"
+    },
+    {
+      "seconds": 3534,
+      "text": "this will be online I'll have the URL at"
+    },
+    {
+      "seconds": 3536,
+      "text": "the end of this lab so this second peak"
+    },
+    {
+      "seconds": 3542,
+      "text": "app we have alerts on this IP right this"
+    },
+    {
+      "seconds": 3547,
+      "text": "destination IP is straight from the"
+    },
+    {
+      "seconds": 3549,
+      "text": "alerts and they're saying this is all"
+    },
+    {
+      "seconds": 3551,
+      "text": "Loki bot and we got some weird dot C F"
+    },
+    {
+      "seconds": 3557,
+      "text": "domain which is you know I'm not saying"
+    },
+    {
+      "seconds": 3560,
+      "text": "that any TLD using dot C F is bad but"
+    },
+    {
+      "seconds": 3565,
+      "text": "any of the ones I've seen have certainly"
+    },
+    {
+      "seconds": 3566,
+      "text": "been a little"
+    },
+    {
+      "seconds": 3568,
+      "text": "usually associated with some suspicious"
+    },
+    {
+      "seconds": 3571,
+      "text": "of malicious activity and these are"
+    },
+    {
+      "seconds": 3574,
+      "text": "posts as what is it posts I know slash"
+    },
+    {
+      "seconds": 3578,
+      "text": "free dot PHP so this doesn't really tell"
+    },
+    {
+      "seconds": 3582,
+      "text": "us anything just by looking at the"
+    },
+    {
+      "seconds": 3586,
+      "text": "Wireshark column display other than"
+    },
+    {
+      "seconds": 3587,
+      "text": "we're able to confirm that the IP"
+    },
+    {
+      "seconds": 3589,
+      "text": "address matches the same IP address of"
+    },
+    {
+      "seconds": 3592,
+      "text": "the alerts so what we need to do is we"
+    },
+    {
+      "seconds": 3596,
+      "text": "need to follow one of these TCP streams"
+    },
+    {
+      "seconds": 3598,
+      "text": "so select that very first HTTP POST a"
+    },
+    {
+      "seconds": 3602,
+      "text": "request and your frame results up in"
+    },
+    {
+      "seconds": 3604,
+      "text": "your comm display make sure you got that"
+    },
+    {
+      "seconds": 3606,
+      "text": "selected right click to bring up a menu"
+    },
+    {
+      "seconds": 3609,
+      "text": "and then follow TCP stream left click to"
+    },
+    {
+      "seconds": 3615,
+      "text": "select it right click to bring up a menu"
+    },
+    {
+      "seconds": 3617,
+      "text": "and then follow TCP stream you should"
+    },
+    {
+      "seconds": 3624,
+      "text": "see something like this now all the HTTP"
+    },
+    {
+      "seconds": 3629,
+      "text": "responses to this say 404 not found when"
+    },
+    {
+      "seconds": 3633,
+      "text": "you look at those HTTP response headers"
+    },
+    {
+      "seconds": 3640,
+      "text": "but one of the interesting things here"
+    },
+    {
+      "seconds": 3640,
+      "text": "is you look at the HTTP request headers"
+    },
+    {
+      "seconds": 3642,
+      "text": "you'll see a user agent that says"
+    },
+    {
+      "seconds": 3644,
+      "text": "Mozilla slash 4.08"
+    },
+    {
+      "seconds": 3646,
+      "text": "char on inferno now normal HTTP user"
+    },
+    {
+      "seconds": 3652,
+      "text": "agents will give you an indication of"
+    },
+    {
+      "seconds": 3654,
+      "text": "the operating system and the browser so"
+    },
+    {
+      "seconds": 3656,
+      "text": "Internet Explorer 11 for example has a"
+    },
+    {
+      "seconds": 3659,
+      "text": "particular user agent line that's"
+    },
+    {
+      "seconds": 3662,
+      "text": "specific to Internet Explorer 11 Google"
+    },
+    {
+      "seconds": 3665,
+      "text": "Chrome Microsoft edge Apple Safari"
+    },
+    {
+      "seconds": 3669,
+      "text": "they've got distinct user agent lines"
+    },
+    {
+      "seconds": 3671,
+      "text": "that you can tell that you know this is"
+    },
+    {
+      "seconds": 3673,
+      "text": "this is Chrome or this is Firefox or"
+    },
+    {
+      "seconds": 3676,
+      "text": "this is a edge if anybody actually uses"
+    },
+    {
+      "seconds": 3679,
+      "text": "Microsoft edge but this user agent is"
+    },
+    {
+      "seconds": 3686,
+      "text": "unique to low key bot now I can tell you"
+    },
+    {
+      "seconds": 3693,
+      "text": "this right now because I know I've"
+    },
+    {
+      "seconds": 3694,
+      "text": "looked at this often enough right if"
+    },
+    {
+      "seconds": 3696,
+      "text": "you're looking at this and you you're"
+    },
+    {
+      "seconds": 3697,
+      "text": "like I was when I started out and you're"
+    },
+    {
+      "seconds": 3699,
+      "text": "asking"
+    },
+    {
+      "seconds": 3700,
+      "text": "I why does this do that why is this"
+    },
+    {
+      "seconds": 3702,
+      "text": "malicious why is this not malicious you"
+    },
+    {
+      "seconds": 3704,
+      "text": "don't have anybody to tell you you"
+    },
+    {
+      "seconds": 3706,
+      "text": "eventually just got to work up that"
+    },
+    {
+      "seconds": 3708,
+      "text": "information yourself so you know at some"
+    },
+    {
+      "seconds": 3712,
+      "text": "point I realized that hey I started"
+    },
+    {
+      "seconds": 3715,
+      "text": "looking at those signatures where I"
+    },
+    {
+      "seconds": 3716,
+      "text": "could look at the the pcre the the the"
+    },
+    {
+      "seconds": 3720,
+      "text": "the criteria that it looks for and one"
+    },
+    {
+      "seconds": 3723,
+      "text": "of those alerts specifically looks for"
+    },
+    {
+      "seconds": 3725,
+      "text": "this user agent in the HTTP header and I"
+    },
+    {
+      "seconds": 3732,
+      "text": "don't know if this is a legitimate user"
+    },
+    {
+      "seconds": 3734,
+      "text": "agent the fact that it says Mozilla"
+    },
+    {
+      "seconds": 3736,
+      "text": "slash 4.08 indicates to me that even if"
+    },
+    {
+      "seconds": 3740,
+      "text": "it was a legitimate user agent at some"
+    },
+    {
+      "seconds": 3742,
+      "text": "time I don't think it is anymore I mean"
+    },
+    {
+      "seconds": 3745,
+      "text": "literally and then look at this look at"
+    },
+    {
+      "seconds": 3749,
+      "text": "the data it's posting in red or whatever"
+    },
+    {
+      "seconds": 3754,
+      "text": "you call this color reddish orange you"
+    },
+    {
+      "seconds": 3757,
+      "text": "see something that looks like Alice"
+    },
+    {
+      "seconds": 3758,
+      "text": "O'Brien"
+    },
+    {
+      "seconds": 3759,
+      "text": "you see Hamburg 1 7 9 2 - PC and you see"
+    },
+    {
+      "seconds": 3763,
+      "text": "pizza jukebox"
+    },
+    {
+      "seconds": 3764,
+      "text": "now I already told you that our domain"
+    },
+    {
+      "seconds": 3767,
+      "text": "is pizza jukebox calm the domain"
+    },
+    {
+      "seconds": 3769,
+      "text": "controller is that domain and NetBIOS"
+    },
+    {
+      "seconds": 3773,
+      "text": "you know as far as Microsoft is"
+    },
+    {
+      "seconds": 3776,
+      "text": "concerned is just pizza jukebox internal"
+    },
+    {
+      "seconds": 3778,
+      "text": "to the network so what happens here is"
+    },
+    {
+      "seconds": 3781,
+      "text": "you literally have the Windows user"
+    },
+    {
+      "seconds": 3783,
+      "text": "account name and then Hamburg once of 92"
+    },
+    {
+      "seconds": 3791,
+      "text": "PC for the Windows hostname so just by"
+    },
+    {
+      "seconds": 3793,
+      "text": "looking at this traffic yes sir"
+    },
+    {
+      "seconds": 3801,
+      "text": "yes now that secaf dot are you that I"
+    },
+    {
+      "seconds": 3801,
+      "text": "see every single time but there is a"
+    },
+    {
+      "seconds": 3806,
+      "text": "particular pattern to this if you see"
+    },
+    {
+      "seconds": 3808,
+      "text": "this stuff often enough if you're"
+    },
+    {
+      "seconds": 3810,
+      "text": "fortunate you know enough to be able to"
+    },
+    {
+      "seconds": 3812,
+      "text": "cobble together equipment to have a lab"
+    },
+    {
+      "seconds": 3817,
+      "text": "in your own home to actually say ok you"
+    },
+    {
+      "seconds": 3819,
+      "text": "know I'm gonna infect this Windows PC"
+    },
+    {
+      "seconds": 3822,
+      "text": "and be able to record it and see what"
+    },
+    {
+      "seconds": 3824,
+      "text": "happens then you you see enough of this"
+    },
+    {
+      "seconds": 3827,
+      "text": "stuff this is remarkably consistent for"
+    },
+    {
+      "seconds": 3829,
+      "text": "low key but the traffic always looks"
+    },
+    {
+      "seconds": 3831,
+      "text": "like this"
+    },
+    {
+      "seconds": 3833,
+      "text": "there's always that ckvr you as you were"
+    },
+    {
+      "seconds": 3835,
+      "text": "saying sir right there's always this"
+    },
+    {
+      "seconds": 3838,
+      "text": "user-agent there's always the Windows"
+    },
+    {
+      "seconds": 3841,
+      "text": "user account name and then the host name"
+    },
+    {
+      "seconds": 3843,
+      "text": "and then where it says pizza jukebox I"
+    },
+    {
+      "seconds": 3847,
+      "text": "can tell that this is an Active"
+    },
+    {
+      "seconds": 3848,
+      "text": "Directory environment with a domain"
+    },
+    {
+      "seconds": 3850,
+      "text": "controller otherwise I think it just"
+    },
+    {
+      "seconds": 3853,
+      "text": "does the hostname again I'm not sure"
+    },
+    {
+      "seconds": 3859,
+      "text": "that one I haven't been able to figure"
+    },
+    {
+      "seconds": 3862,
+      "text": "out what that is it could be it could be"
+    },
+    {
+      "seconds": 3863,
+      "text": "the Machine gooood but it definitely is"
+    },
+    {
+      "seconds": 3870,
+      "text": "this I believe is information"
+    },
+    {
+      "seconds": 3873,
+      "text": "checking off and I normally I would"
+    },
+    {
+      "seconds": 3875,
+      "text": "associate something like that with a"
+    },
+    {
+      "seconds": 3877,
+      "text": "machine GUI or some other good within"
+    },
+    {
+      "seconds": 3880,
+      "text": "that Microsoft host and they always says"
+    },
+    {
+      "seconds": 3883,
+      "text": "404 not found possibly as a way to"
+    },
+    {
+      "seconds": 3886,
+      "text": "convince people that hey no connection"
+    },
+    {
+      "seconds": 3889,
+      "text": "was actually done here but guess what"
+    },
+    {
+      "seconds": 3891,
+      "text": "loke bot traffic always generates that"
+    },
+    {
+      "seconds": 3894,
+      "text": "so the server that is collecting this"
+    },
+    {
+      "seconds": 3897,
+      "text": "information as being HTTP posted from"
+    },
+    {
+      "seconds": 3901,
+      "text": "that host from that infected Windows"
+    },
+    {
+      "seconds": 3904,
+      "text": "host it's always going to say hey didn't"
+    },
+    {
+      "seconds": 3906,
+      "text": "you know you didn't find the server but"
+    },
+    {
+      "seconds": 3908,
+      "text": "it actually gets the information yes sir"
+    },
+    {
+      "seconds": 3917,
+      "text": "c-captain are you is that Kaspersky"
+    },
+    {
+      "seconds": 3917,
+      "text": "antivirus I don't know if that is"
+    },
+    {
+      "seconds": 3920,
+      "text": "supposed to represent that or not I can"
+    },
+    {
+      "seconds": 3923,
+      "text": "tell you that this Windows host doesn't"
+    },
+    {
+      "seconds": 3924,
+      "text": "have any antivirus on it when I test it"
+    },
+    {
+      "seconds": 3926,
+      "text": "in a lab environment so it may very well"
+    },
+    {
+      "seconds": 3929,
+      "text": "be associated with that I couldn't tell"
+    },
+    {
+      "seconds": 3931,
+      "text": "you sir now that really is all there is"
+    },
+    {
+      "seconds": 3937,
+      "text": "to this particular pcap as far as the"
+    },
+    {
+      "seconds": 3939,
+      "text": "infection traffic you've got those HTTP"
+    },
+    {
+      "seconds": 3942,
+      "text": "POST requests and those are all"
+    },
+    {
+      "seconds": 3945,
+      "text": "associated with low key about it's very"
+    },
+    {
+      "seconds": 3947,
+      "text": "simple straightforward infection there's"
+    },
+    {
+      "seconds": 3950,
+      "text": "nothing really complicated about this it"
+    },
+    {
+      "seconds": 3951,
+      "text": "will just keep doing those posts every"
+    },
+    {
+      "seconds": 3954,
+      "text": "minute or two it's not exactly quiet or"
+    },
+    {
+      "seconds": 3958,
+      "text": "subtle or sneaky on a network but if"
+    },
+    {
+      "seconds": 3961,
+      "text": "this gotten infected we already saw what"
+    },
+    {
+      "seconds": 3964,
+      "text": "I told you at least was when"
+    },
+    {
+      "seconds": 3966,
+      "text": "user account name and host name and we"
+    },
+    {
+      "seconds": 3969,
+      "text": "can find this through Kerberos"
+    },
+    {
+      "seconds": 3970,
+      "text": "authentication traffic so if you'd be so"
+    },
+    {
+      "seconds": 3973,
+      "text": "kind as to on that second peak app that"
+    },
+    {
+      "seconds": 3976,
+      "text": "we're still on filter on Kerberos see"
+    },
+    {
+      "seconds": 3979,
+      "text": "name string it's case sensitive and what"
+    },
+    {
+      "seconds": 3986,
+      "text": "we're going to do is we're going to find"
+    },
+    {
+      "seconds": 3987,
+      "text": "that Kerberos C name string value we're"
+    },
+    {
+      "seconds": 3989,
+      "text": "going to apply that as a column we'll"
+    },
+    {
+      "seconds": 3992,
+      "text": "keep that column hidden because we"
+    },
+    {
+      "seconds": 3996,
+      "text": "really only need that that Kerberos C"
+    },
+    {
+      "seconds": 3999,
+      "text": "name string column only when we're"
+    },
+    {
+      "seconds": 4001,
+      "text": "trying to identify a particular host"
+    },
+    {
+      "seconds": 4003,
+      "text": "that is using Kerberos like a Windows"
+    },
+    {
+      "seconds": 4006,
+      "text": "Active Directory environment so filter"
+    },
+    {
+      "seconds": 4012,
+      "text": "on Kerberos dot C name string we're"
+    },
+    {
+      "seconds": 4017,
+      "text": "going to select that very first frame"
+    },
+    {
+      "seconds": 4019,
+      "text": "that's listed in the column display make"
+    },
+    {
+      "seconds": 4022,
+      "text": "sure you're selected on that left click"
+    },
+    {
+      "seconds": 4023,
+      "text": "on that go down to where it says"
+    },
+    {
+      "seconds": 4025,
+      "text": "transmission protocol I'm sorry where it"
+    },
+    {
+      "seconds": 4029,
+      "text": "says Kerberos that should be your bottom"
+    },
+    {
+      "seconds": 4030,
+      "text": "line the expand Kerberos we expand a s"
+    },
+    {
+      "seconds": 4034,
+      "text": "dash req you expand our EQ dash body"
+    },
+    {
+      "seconds": 4040,
+      "text": "then we continue to work our way down"
+    },
+    {
+      "seconds": 4043,
+      "text": "under our EQ dash body there is C name"
+    },
+    {
+      "seconds": 4046,
+      "text": "under C name is C name string and that"
+    },
+    {
+      "seconds": 4051,
+      "text": "very first TCP segment the C name string"
+    },
+    {
+      "seconds": 4057,
+      "text": "should show us Hamburg 1 792 - pc - 1"
+    },
+    {
+      "seconds": 4061,
+      "text": "792 - PC with a dollar sign at the end"
+    },
+    {
+      "seconds": 4064,
+      "text": "of it anybody not able to find this so"
+    },
+    {
+      "seconds": 4073,
+      "text": "what you're going to do on that line"
+    },
+    {
+      "seconds": 4074,
+      "text": "where it says Hamburg or 1792 PC you're"
+    },
+    {
+      "seconds": 4078,
+      "text": "gonna left click on to select it you're"
+    },
+    {
+      "seconds": 4081,
+      "text": "gonna right click to bring up a menu"
+    },
+    {
+      "seconds": 4082,
+      "text": "apply as column left click on it to"
+    },
+    {
+      "seconds": 4087,
+      "text": "select it right click to bring up a menu"
+    },
+    {
+      "seconds": 4089,
+      "text": "and apply as column and now we have a"
+    },
+    {
+      "seconds": 4094,
+      "text": "cname string column if you scroll to the"
+    },
+    {
+      "seconds": 4096,
+      "text": "very bottom I don't even think you have"
+    },
+    {
+      "seconds": 4098,
+      "text": "to scroll on"
+    },
+    {
+      "seconds": 4099,
+      "text": "this one this is a relatively short pcap"
+    },
+    {
+      "seconds": 4101,
+      "text": "we see the host name up here the host"
+    },
+    {
+      "seconds": 4103,
+      "text": "names the windows host names in Kerberos"
+    },
+    {
+      "seconds": 4106,
+      "text": "traffic this authentication traffic"
+    },
+    {
+      "seconds": 4108,
+      "text": "always end with a dollar sign and the"
+    },
+    {
+      "seconds": 4112,
+      "text": "Windows user account names in this sort"
+    },
+    {
+      "seconds": 4114,
+      "text": "of authentication traffic that we see -"
+    },
+    {
+      "seconds": 4116,
+      "text": "the domain controller back and forth the"
+    },
+    {
+      "seconds": 4119,
+      "text": "Windows user account names do not have a"
+    },
+    {
+      "seconds": 4121,
+      "text": "dollar sign so now we can confirm okay"
+    },
+    {
+      "seconds": 4125,
+      "text": "Alice Oh Brian is the Windows user"
+    },
+    {
+      "seconds": 4128,
+      "text": "account name fortunately this fictional"
+    },
+    {
+      "seconds": 4131,
+      "text": "company that I've just invented here"
+    },
+    {
+      "seconds": 4133,
+      "text": "pizza jukebox com they use first name"
+    },
+    {
+      "seconds": 4135,
+      "text": "dot last name as their Windows user"
+    },
+    {
+      "seconds": 4138,
+      "text": "account name now we can track down Alice"
+    },
+    {
+      "seconds": 4139,
+      "text": "we could say hey that that Windows a PC"
+    },
+    {
+      "seconds": 4144,
+      "text": "that you have in Hamburg is infected"
+    },
+    {
+      "seconds": 4146,
+      "text": "we need to wipe it we need to fix it so"
+    },
+    {
+      "seconds": 4153,
+      "text": "if you guys would all be so kind if"
+    },
+    {
+      "seconds": 4155,
+      "text": "anybody not able to get this yet if"
+    },
+    {
+      "seconds": 4158,
+      "text": "you've got it right click on that column"
+    },
+    {
+      "seconds": 4162,
+      "text": "and just hide it for now because we're"
+    },
+    {
+      "seconds": 4165,
+      "text": "not going to use it for the rest of this"
+    },
+    {
+      "seconds": 4166,
+      "text": "lab but now you've got a C name string"
+    },
+    {
+      "seconds": 4169,
+      "text": "column in the in the event that you have"
+    },
+    {
+      "seconds": 4173,
+      "text": "the traffic from a Windows client in a"
+    },
+    {
+      "seconds": 4178,
+      "text": "Active Directory environment then you"
+    },
+    {
+      "seconds": 4180,
+      "text": "can find out some more information about"
+    },
+    {
+      "seconds": 4182,
+      "text": "that client all right we're up to our"
+    },
+    {
+      "seconds": 4188,
+      "text": "third pcap if anybody's walked in so"
+    },
+    {
+      "seconds": 4194,
+      "text": "we've gone through the first two P caps"
+    },
+    {
+      "seconds": 4196,
+      "text": "there are USB keys floating around that"
+    },
+    {
+      "seconds": 4199,
+      "text": "have the training material along this so"
+    },
+    {
+      "seconds": 4202,
+      "text": "we're on our third P cap open up that"
+    },
+    {
+      "seconds": 4203,
+      "text": "third P cap in water shock now this is"
+    },
+    {
+      "seconds": 4205,
+      "text": "there's no domain this is just a home"
+    },
+    {
+      "seconds": 4208,
+      "text": "computer 10.4 dot 22.0 it's somewhere"
+    },
+    {
+      "seconds": 4211,
+      "text": "within that last octet that network"
+    },
+    {
+      "seconds": 4214,
+      "text": "segment"
+    },
+    {
+      "seconds": 4224,
+      "text": "now this is a ziyal Rolt this is what I"
+    },
+    {
+      "seconds": 4224,
+      "text": "refer to as smash-and-grab as far as an"
+    },
+    {
+      "seconds": 4229,
+      "text": "information stealer this is one of those"
+    },
+    {
+      "seconds": 4230,
+      "text": "that gets delivered to a Windows host"
+    },
+    {
+      "seconds": 4233,
+      "text": "somehow through email or through exploit"
+    },
+    {
+      "seconds": 4236,
+      "text": "kits over the just casual web browsing"
+    },
+    {
+      "seconds": 4238,
+      "text": "you can get on your computer and it will"
+    },
+    {
+      "seconds": 4241,
+      "text": "collect all the information that it can"
+    },
+    {
+      "seconds": 4243,
+      "text": "about your host and any passwords that"
+    },
+    {
+      "seconds": 4245,
+      "text": "are cached anywhere on your host and it"
+    },
+    {
+      "seconds": 4247,
+      "text": "will send it out it will do two HTTP"
+    },
+    {
+      "seconds": 4250,
+      "text": "POST request then deletes itself so in"
+    },
+    {
+      "seconds": 4254,
+      "text": "this case this particular infection one"
+    },
+    {
+      "seconds": 4257,
+      "text": "I did in my lamppost is I've found an"
+    },
+    {
+      "seconds": 4259,
+      "text": "email that had a malicious attachment"
+    },
+    {
+      "seconds": 4262,
+      "text": "this attachment is a rich text file but"
+    },
+    {
+      "seconds": 4265,
+      "text": "it's a it is not a real document it"
+    },
+    {
+      "seconds": 4268,
+      "text": "takes advantage of it exploits a"
+    },
+    {
+      "seconds": 4270,
+      "text": "vulnerability that was categorized in"
+    },
+    {
+      "seconds": 4272,
+      "text": "2017 almost two years ago and we still"
+    },
+    {
+      "seconds": 4277,
+      "text": "see examples of this on a daily basis"
+    },
+    {
+      "seconds": 4280,
+      "text": "multiple examples in Wireshark so this"
+    },
+    {
+      "seconds": 4282,
+      "text": "is still being sent out there as we"
+    },
+    {
+      "seconds": 4285,
+      "text": "speak so you know there's got to be some"
+    },
+    {
+      "seconds": 4290,
+      "text": "money in this for the criminals that"
+    },
+    {
+      "seconds": 4291,
+      "text": "they keep doing this but it will use a"
+    },
+    {
+      "seconds": 4293,
+      "text": "dot doc file extension so it will open"
+    },
+    {
+      "seconds": 4296,
+      "text": "up in Microsoft Word a vulnerable"
+    },
+    {
+      "seconds": 4298,
+      "text": "version of Microsoft Office that has not"
+    },
+    {
+      "seconds": 4301,
+      "text": "been patched is not up to date it will"
+    },
+    {
+      "seconds": 4304,
+      "text": "just immediately upon opening the"
+    },
+    {
+      "seconds": 4307,
+      "text": "document it will generate an HTTP"
+    },
+    {
+      "seconds": 4310,
+      "text": "request to a web server somewhere to"
+    },
+    {
+      "seconds": 4312,
+      "text": "retrieve Windows executable which is the"
+    },
+    {
+      "seconds": 4315,
+      "text": "azo wrote malware binary and it will run"
+    },
+    {
+      "seconds": 4319,
+      "text": "it on the host usually it's in the users"
+    },
+    {
+      "seconds": 4323,
+      "text": "updated local temp directory on a"
+    },
+    {
+      "seconds": 4325,
+      "text": "Windows host because normally by default"
+    },
+    {
+      "seconds": 4330,
+      "text": "even if you're in an Active Directory"
+    },
+    {
+      "seconds": 4332,
+      "text": "environment you still have executable"
+    },
+    {
+      "seconds": 4336,
+      "text": "privileges as a user in that directory"
+    },
+    {
+      "seconds": 4344,
+      "text": "here is an example of the email I got"
+    },
+    {
+      "seconds": 4344,
+      "text": "this email from virustotal intelligence"
+    },
+    {
+      "seconds": 4347,
+      "text": "I'm fortunate enough to have access to"
+    },
+    {
+      "seconds": 4349,
+      "text": "virus to VT Intel does anybody here have"
+    },
+    {
+      "seconds": 4352,
+      "text": "access to it it's pretty expensive"
+    },
+    {
+      "seconds": 4354,
+      "text": "apparently I know that whenever you go"
+    },
+    {
+      "seconds": 4358,
+      "text": "to virustotal intelligence didn't look"
+    },
+    {
+      "seconds": 4359,
+      "text": "for access it says well you want a trial"
+    },
+    {
+      "seconds": 4362,
+      "text": "period and then apparently it is so"
+    },
+    {
+      "seconds": 4364,
+      "text": "expensive that I'd never seen anybody"
+    },
+    {
+      "seconds": 4366,
+      "text": "pay for it on their own it's always uh"
+    },
+    {
+      "seconds": 4369,
+      "text": "you know through your employer if you"
+    },
+    {
+      "seconds": 4371,
+      "text": "get it and I'm just fortunate enough to"
+    },
+    {
+      "seconds": 4374,
+      "text": "get it so anything submitted to"
+    },
+    {
+      "seconds": 4376,
+      "text": "virustotal"
+    },
+    {
+      "seconds": 4376,
+      "text": "like for example this email I'm able to"
+    },
+    {
+      "seconds": 4381,
+      "text": "retrieve a copy of it this was from last"
+    },
+    {
+      "seconds": 4383,
+      "text": "month"
+    },
+    {
+      "seconds": 4384,
+      "text": "I'm sorry not last month two months ago"
+    },
+    {
+      "seconds": 4386,
+      "text": "month and a half ago so normal people"
+    },
+    {
+      "seconds": 4392,
+      "text": "they're going to say oh yeah I got an"
+    },
+    {
+      "seconds": 4394,
+      "text": "email about 22,000 metric tons of steel"
+    },
+    {
+      "seconds": 4397,
+      "text": "billets and there's a document there"
+    },
+    {
+      "seconds": 4400,
+      "text": "what's the harm if I open it and check"
+    },
+    {
+      "seconds": 4402,
+      "text": "it you know it's obviously not to me in"
+    },
+    {
+      "seconds": 4409,
+      "text": "fact usually these things they will keep"
+    },
+    {
+      "seconds": 4411,
+      "text": "the bill they'll go out to multiple"
+    },
+    {
+      "seconds": 4413,
+      "text": "recipients and you won't see a two-line"
+    },
+    {
+      "seconds": 4417,
+      "text": "in the email headers in visibly in your"
+    },
+    {
+      "seconds": 4423,
+      "text": "email client so this is what this looked"
+    },
+    {
+      "seconds": 4426,
+      "text": "like when I opened it in Mozilla"
+    },
+    {
+      "seconds": 4432,
+      "text": "Thunderbird but you have an attachment"
+    },
+    {
+      "seconds": 4435,
+      "text": "right this says vessel particulars dock"
+    },
+    {
+      "seconds": 4438,
+      "text": "this is the rich text file and it's"
+    },
+    {
+      "seconds": 4441,
+      "text": "going to shows a word document in"
+    },
+    {
+      "seconds": 4442,
+      "text": "Microsoft Windows when you open it and I"
+    },
+    {
+      "seconds": 4448,
+      "text": "was using office 2007 unpatched on"
+    },
+    {
+      "seconds": 4452,
+      "text": "Windows 7 host Service Pack 1 unpatched"
+    },
+    {
+      "seconds": 4456,
+      "text": "and I open it and it shows that it's"
+    },
+    {
+      "seconds": 4459,
+      "text": "converting right as it's doing this it's"
+    },
+    {
+      "seconds": 4463,
+      "text": "doing the malicious activity in the"
+    },
+    {
+      "seconds": 4464,
+      "text": "background where it goes to that web"
+    },
+    {
+      "seconds": 4465,
+      "text": "server and grabs that Windows bound"
+    },
+    {
+      "seconds": 4468,
+      "text": "where binary"
+    },
+    {
+      "seconds": 4477,
+      "text": "after the infection has already started"
+    },
+    {
+      "seconds": 4477,
+      "text": "may even be finished he opened it up and"
+    },
+    {
+      "seconds": 4479,
+      "text": "it looks like a bunch of hex characters"
+    },
+    {
+      "seconds": 4481,
+      "text": "right I've got what says 15 of 16 pages"
+    },
+    {
+      "seconds": 4484,
+      "text": "516 very long words all that looks like"
+    },
+    {
+      "seconds": 4488,
+      "text": "to the average viewer the average user"
+    },
+    {
+      "seconds": 4491,
+      "text": "is just a bunch of gibberish or garbage"
+    },
+    {
+      "seconds": 4493,
+      "text": "and you think if you don't know any"
+    },
+    {
+      "seconds": 4495,
+      "text": "better you think it out okay well that's"
+    },
+    {
+      "seconds": 4497,
+      "text": "just a corrupt document or something"
+    },
+    {
+      "seconds": 4499,
+      "text": "I'll just close it and move on with my"
+    },
+    {
+      "seconds": 4501,
+      "text": "day"
+    },
+    {
+      "seconds": 4509,
+      "text": "meanwhile if you have somebody actually"
+    },
+    {
+      "seconds": 4509,
+      "text": "monitoring the network traffic they may"
+    },
+    {
+      "seconds": 4513,
+      "text": "see alerts that indicate that a ziyal"
+    },
+    {
+      "seconds": 4517,
+      "text": "wrote this information stealer was"
+    },
+    {
+      "seconds": 4518,
+      "text": "active on your network if you're on a"
+    },
+    {
+      "seconds": 4522,
+      "text": "home computer you're probably just"
+    },
+    {
+      "seconds": 4524,
+      "text": "screwed it's got your stuff"
+    },
+    {
+      "seconds": 4528,
+      "text": "once again this is smash-and-grab this"
+    },
+    {
+      "seconds": 4531,
+      "text": "malware will delete itself after it"
+    },
+    {
+      "seconds": 4534,
+      "text": "sends the information out to whatever"
+    },
+    {
+      "seconds": 4536,
+      "text": "server it's got set up now the alerts on"
+    },
+    {
+      "seconds": 4541,
+      "text": "this one are all to a particular IP"
+    },
+    {
+      "seconds": 4543,
+      "text": "address and when we open up that third"
+    },
+    {
+      "seconds": 4548,
+      "text": "pcap in Wireshark and we filter on our"
+    },
+    {
+      "seconds": 4553,
+      "text": "basic filter we see an HTTP URL over"
+    },
+    {
+      "seconds": 4563,
+      "text": "bitly we don't know what it is is HTTP"
+    },
+    {
+      "seconds": 4566,
+      "text": "traffic we see an HTTP request the"
+    },
+    {
+      "seconds": 4569,
+      "text": "support service thought site for get"
+    },
+    {
+      "seconds": 4571,
+      "text": "slash suge su GPOs and then we see two"
+    },
+    {
+      "seconds": 4576,
+      "text": "HTTP post requests to the same IP"
+    },
+    {
+      "seconds": 4578,
+      "text": "address that we saw in those alerts"
+    },
+    {
+      "seconds": 4593,
+      "text": "so according to the alerts these HTTP"
+    },
+    {
+      "seconds": 4593,
+      "text": "POST request stays Amman to to to XYZ"
+    },
+    {
+      "seconds": 4595,
+      "text": "are already you know identified as a zo"
+    },
+    {
+      "seconds": 4600,
+      "text": "role if I can trust the alerts normally"
+    },
+    {
+      "seconds": 4603,
+      "text": "you would have somebody investigate it"
+    },
+    {
+      "seconds": 4604,
+      "text": "and be able to somehow confirm that yes"
+    },
+    {
+      "seconds": 4607,
+      "text": "this is a zeal role if you're in an"
+    },
+    {
+      "seconds": 4609,
+      "text": "enterprise environment right I don't"
+    },
+    {
+      "seconds": 4611,
+      "text": "know anything about this bitly URL bitly"
+    },
+    {
+      "seconds": 4614,
+      "text": "is a legitimate service so I can't find"
+    },
+    {
+      "seconds": 4617,
+      "text": "anything about that but what about this"
+    },
+    {
+      "seconds": 4619,
+      "text": "Support Service site that get s ug POS"
+    },
+    {
+      "seconds": 4624,
+      "text": "left click on that particular frame for"
+    },
+    {
+      "seconds": 4628,
+      "text": "support service dot site follow that TCP"
+    },
+    {
+      "seconds": 4630,
+      "text": "stream for that HTTP request to support"
+    },
+    {
+      "seconds": 4634,
+      "text": "service site select that follow the TCP"
+    },
+    {
+      "seconds": 4637,
+      "text": "stream now this is one of the first"
+    },
+    {
+      "seconds": 4644,
+      "text": "things that I learned when I started out"
+    },
+    {
+      "seconds": 4646,
+      "text": "as an analyst looking at this stuff is"
+    },
+    {
+      "seconds": 4649,
+      "text": "how do i how to recognize the follow TCP"
+    },
+    {
+      "seconds": 4652,
+      "text": "stream and recognize the Windows"
+    },
+    {
+      "seconds": 4654,
+      "text": "executable or dll file right I'm seeing"
+    },
+    {
+      "seconds": 4657,
+      "text": "some head nods here right this is one of"
+    },
+    {
+      "seconds": 4659,
+      "text": "the first things that you learn when you"
+    },
+    {
+      "seconds": 4661,
+      "text": "use Wireshark if you're looking at yeah"
+    },
+    {
+      "seconds": 4663,
+      "text": "it doesn't amount of to be malicious"
+    },
+    {
+      "seconds": 4665,
+      "text": "traffic well here's what we have right"
+    },
+    {
+      "seconds": 4669,
+      "text": "the first two bytes of any Windows exe"
+    },
+    {
+      "seconds": 4672,
+      "text": "or dll file always show up as the ASCII"
+    },
+    {
+      "seconds": 4675,
+      "text": "characters MZ and then you'll I want to"
+    },
+    {
+      "seconds": 4681,
+      "text": "say 95 times out of a hundred in the"
+    },
+    {
+      "seconds": 4685,
+      "text": "cases that I've seen there will always"
+    },
+    {
+      "seconds": 4686,
+      "text": "be something that says this program must"
+    },
+    {
+      "seconds": 4689,
+      "text": "be run under win32 this program cannot"
+    },
+    {
+      "seconds": 4692,
+      "text": "be run in DOS mode this programs"
+    },
+    {
+      "seconds": 4695,
+      "text": "something now another thing that if you"
+    },
+    {
+      "seconds": 4702,
+      "text": "take a closer look at this particular"
+    },
+    {
+      "seconds": 4703,
+      "text": "TCP stream you look at the user agent"
+    },
+    {
+      "seconds": 4706,
+      "text": "right and that user agent is an old user"
+    },
+    {
+      "seconds": 4709,
+      "text": "agent string that I think at one time"
+    },
+    {
+      "seconds": 4711,
+      "text": "was legitimate was legitimately used in"
+    },
+    {
+      "seconds": 4717,
+      "text": "Microsoft Windows host I don't know if"
+    },
+    {
+      "seconds": 4719,
+      "text": "it was Internet Explorer 7 but"
+    },
+    {
+      "seconds": 4721,
+      "text": "you see msie 7.0 and you see some other"
+    },
+    {
+      "seconds": 4726,
+      "text": "like older versions of.net but what I'm"
+    },
+    {
+      "seconds": 4733,
+      "text": "seeing here the fact that it says MSI"
+    },
+    {
+      "seconds": 4736,
+      "text": "you said well now this is not a normal"
+    },
+    {
+      "seconds": 4738,
+      "text": "user agent string this is not something"
+    },
+    {
+      "seconds": 4741,
+      "text": "that you see in legitimate Windows"
+    },
+    {
+      "seconds": 4743,
+      "text": "traffic or anything that I see has"
+    },
+    {
+      "seconds": 4745,
+      "text": "anybody seen this HTTP user agent string"
+    },
+    {
+      "seconds": 4749,
+      "text": "in legitimate traffic you may not you"
+    },
+    {
+      "seconds": 4754,
+      "text": "may not have you know at this point if"
+    },
+    {
+      "seconds": 4757,
+      "text": "you just starting out looking at this"
+    },
+    {
+      "seconds": 4758,
+      "text": "stuff you may not realize this but this"
+    },
+    {
+      "seconds": 4760,
+      "text": "is not legitimate the fact that the HTTP"
+    },
+    {
+      "seconds": 4762,
+      "text": "response headers from the server that"
+    },
+    {
+      "seconds": 4765,
+      "text": "returned this this Windows executable"
+    },
+    {
+      "seconds": 4767,
+      "text": "file is saying that content type is text"
+    },
+    {
+      "seconds": 4770,
+      "text": "slash plain it is not plain text right"
+    },
+    {
+      "seconds": 4775,
+      "text": "it should say at the very least it"
+    },
+    {
+      "seconds": 4777,
+      "text": "should say application slash octet dash"
+    },
+    {
+      "seconds": 4779,
+      "text": "stream then it was like okay you know I"
+    },
+    {
+      "seconds": 4781,
+      "text": "can believe that it is what you're"
+    },
+    {
+      "seconds": 4783,
+      "text": "saying it is or sometimes you see like a"
+    },
+    {
+      "seconds": 4787,
+      "text": "ms-dos executable or something along"
+    },
+    {
+      "seconds": 4789,
+      "text": "those lines but here is trying to tell"
+    },
+    {
+      "seconds": 4791,
+      "text": "you that this is plain text it is not"
+    },
+    {
+      "seconds": 4794,
+      "text": "plain text and this is common that we'll"
+    },
+    {
+      "seconds": 4797,
+      "text": "see servers hosting Windows malware"
+    },
+    {
+      "seconds": 4801,
+      "text": "these malicious executable files this is"
+    },
+    {
+      "seconds": 4803,
+      "text": "a common tactic they'll say oh this is"
+    },
+    {
+      "seconds": 4805,
+      "text": "HTML and they send you a Windows"
+    },
+    {
+      "seconds": 4808,
+      "text": "executable file or oh this is an image"
+    },
+    {
+      "seconds": 4810,
+      "text": "this is a PNG image and they're sending"
+    },
+    {
+      "seconds": 4813,
+      "text": "a Windows executable file that's wrong"
+    },
+    {
+      "seconds": 4816,
+      "text": "my friends that is wrong and if you see"
+    },
+    {
+      "seconds": 4819,
+      "text": "that that's an indicator that's an"
+    },
+    {
+      "seconds": 4822,
+      "text": "indicator that you've got some strange"
+    },
+    {
+      "seconds": 4824,
+      "text": "goings on mount where frequently does"
+    },
+    {
+      "seconds": 4828,
+      "text": "this right and this was caused by that"
+    },
+    {
+      "seconds": 4833,
+      "text": "rich text file that was attached to that"
+    },
+    {
+      "seconds": 4836,
+      "text": "email that we just saw earlier now we"
+    },
+    {
+      "seconds": 4842,
+      "text": "can extract this this Windows executable"
+    },
+    {
+      "seconds": 4845,
+      "text": "file from the pcap so if you go to file"
+    },
+    {
+      "seconds": 4850,
+      "text": "export objects HTTP now what I will say"
+    },
+    {
+      "seconds": 4854,
+      "text": "is if you do this on a Windows hosts and"
+    },
+    {
+      "seconds": 4857,
+      "text": "this is already a couple of months old"
+    },
+    {
+      "seconds": 4859,
+      "text": "malware Windows Defender will probably"
+    },
+    {
+      "seconds": 4862,
+      "text": "delete it so I show a hands well first"
+    },
+    {
+      "seconds": 4868,
+      "text": "let's let's go through extracting this"
+    },
+    {
+      "seconds": 4870,
+      "text": "so file export objects HTTP it brings up"
+    },
+    {
+      "seconds": 4873,
+      "text": "the export HTTP objects list it's going"
+    },
+    {
+      "seconds": 4877,
+      "text": "to be a second one now someone where the"
+    },
+    {
+      "seconds": 4878,
+      "text": "file name says su GPOs so even if your"
+    },
+    {
+      "seconds": 4882,
+      "text": "Windows computer doesn't automatically"
+    },
+    {
+      "seconds": 4886,
+      "text": "delete this you're not going to be able"
+    },
+    {
+      "seconds": 4888,
+      "text": "to accidentally double-click it and run"
+    },
+    {
+      "seconds": 4890,
+      "text": "it because it's got a it's got a dot POS"
+    },
+    {
+      "seconds": 4893,
+      "text": "as a file extension it shouldn't do"
+    },
+    {
+      "seconds": 4895,
+      "text": "anything I don't think but just to be on"
+    },
+    {
+      "seconds": 4898,
+      "text": "the safe side"
+    },
+    {
+      "seconds": 4899,
+      "text": "don't double click it now a show of"
+    },
+    {
+      "seconds": 4906,
+      "text": "hands if anybody's on a Windows host and"
+    },
+    {
+      "seconds": 4908,
+      "text": "they tried exporting this Windows"
+    },
+    {
+      "seconds": 4910,
+      "text": "executable file from the pcap as your"
+    },
+    {
+      "seconds": 4913,
+      "text": "antivirus already deleted it yet they"
+    },
+    {
+      "seconds": 4917,
+      "text": "got a couple of show of hands now this"
+    },
+    {
+      "seconds": 4919,
+      "text": "is why I always say if you've got any"
+    },
+    {
+      "seconds": 4922,
+      "text": "real interest in doing this for a living"
+    },
+    {
+      "seconds": 4924,
+      "text": "to actually investigate this sort of"
+    },
+    {
+      "seconds": 4927,
+      "text": "stuff you need a non Windows environment"
+    },
+    {
+      "seconds": 4930,
+      "text": "or I should say I say you need it I"
+    },
+    {
+      "seconds": 4934,
+      "text": "highly recommend a non Windows"
+    },
+    {
+      "seconds": 4936,
+      "text": "environment you know use a MacBook if"
+    },
+    {
+      "seconds": 4938,
+      "text": "you got money"
+    },
+    {
+      "seconds": 4939,
+      "text": "use a Linux if you don't but I preferred"
+    },
+    {
+      "seconds": 4946,
+      "text": "DB and myself but I've had some"
+    },
+    {
+      "seconds": 4950,
+      "text": "experience using the redhead CentOS"
+    },
+    {
+      "seconds": 4952,
+      "text": "varieties haven't really must ran with"
+    },
+    {
+      "seconds": 4955,
+      "text": "arch linux or some of the other distros"
+    },
+    {
+      "seconds": 4957,
+      "text": "out there"
+    },
+    {
+      "seconds": 4957,
+      "text": "I prefer Debian or even a boon to but"
+    },
+    {
+      "seconds": 4963,
+      "text": "you know you could easily get that stuff"
+    },
+    {
+      "seconds": 4965,
+      "text": "for free and you can get Wireshark and"
+    },
+    {
+      "seconds": 4967,
+      "text": "you can do this and it won't"
+    },
+    {
+      "seconds": 4968,
+      "text": "automatically delete your malware and if"
+    },
+    {
+      "seconds": 4971,
+      "text": "you're on the non Windows environment"
+    },
+    {
+      "seconds": 4975,
+      "text": "and you've got command line access if"
+    },
+    {
+      "seconds": 4978,
+      "text": "you've got a NICs variety command line"
+    },
+    {
+      "seconds": 4983,
+      "text": "interface you pull up a terminal window"
+    },
+    {
+      "seconds": 4986,
+      "text": "you a file"
+    },
+    {
+      "seconds": 4988,
+      "text": "and on that su GPOs file and you can"
+    },
+    {
+      "seconds": 4991,
+      "text": "confirm that that is a Windows"
+    },
+    {
+      "seconds": 4992,
+      "text": "executable file right and then you can"
+    },
+    {
+      "seconds": 4995,
+      "text": "do a show some command to get the"
+    },
+    {
+      "seconds": 4998,
+      "text": "sha-256 hash of that now why wouldn't I"
+    },
+    {
+      "seconds": 5002,
+      "text": "want to just submit this device total"
+    },
+    {
+      "seconds": 5004,
+      "text": "and let virustotal take care of all that"
+    },
+    {
+      "seconds": 5006,
+      "text": "for me anybody why wouldn't I just"
+    },
+    {
+      "seconds": 5010,
+      "text": "submit this the virustotal right if this"
+    },
+    {
+      "seconds": 5015,
+      "text": "was a targeted attack right if I don't"
+    },
+    {
+      "seconds": 5017,
+      "text": "know anything about this Windows"
+    },
+    {
+      "seconds": 5019,
+      "text": "executable file and this is a targeted"
+    },
+    {
+      "seconds": 5023,
+      "text": "attack yeah they can be sure that the"
+    },
+    {
+      "seconds": 5027,
+      "text": "attackers are monitoring virustotal to"
+    },
+    {
+      "seconds": 5029,
+      "text": "see if somebody found their piece of"
+    },
+    {
+      "seconds": 5031,
+      "text": "malware that they're trying to"
+    },
+    {
+      "seconds": 5032,
+      "text": "infiltrate your network with right in"
+    },
+    {
+      "seconds": 5034,
+      "text": "this case this is commodity mount where"
+    },
+    {
+      "seconds": 5037,
+      "text": "this is this stuff is really only good"
+    },
+    {
+      "seconds": 5039,
+      "text": "for about you know a week at the most"
+    },
+    {
+      "seconds": 5042,
+      "text": "before they and they're literally"
+    },
+    {
+      "seconds": 5044,
+      "text": "generating new new new new viruses new"
+    },
+    {
+      "seconds": 5051,
+      "text": "samples of azo rolt"
+    },
+    {
+      "seconds": 5053,
+      "text": "every single day but I can check that"
+    },
+    {
+      "seconds": 5059,
+      "text": "against Rayo although if you actually"
+    },
+    {
+      "seconds": 5060,
+      "text": "check that file hash or even if you"
+    },
+    {
+      "seconds": 5062,
+      "text": "submit the file to virustotal you'll see"
+    },
+    {
+      "seconds": 5064,
+      "text": "that it's malware and just for the sake"
+    },
+    {
+      "seconds": 5070,
+      "text": "of argument let's follow one of the HTTP"
+    },
+    {
+      "seconds": 5077,
+      "text": "POST request follow the tcp stream for"
+    },
+    {
+      "seconds": 5080,
+      "text": "one of the HTTP POST request so left"
+    },
+    {
+      "seconds": 5082,
+      "text": "click to select one of those HTTP POST"
+    },
+    {
+      "seconds": 5085,
+      "text": "requests right click to bring up a menu"
+    },
+    {
+      "seconds": 5088,
+      "text": "and follow TCP stream and if you look"
+    },
+    {
+      "seconds": 5098,
+      "text": "this is what in an example yeah I think"
+    },
+    {
+      "seconds": 5102,
+      "text": "this is the second HTTP request they're"
+    },
+    {
+      "seconds": 5106,
+      "text": "both on separate TCP streams there's"
+    },
+    {
+      "seconds": 5110,
+      "text": "this HTTP POST request to Aiza man 2 to"
+    },
+    {
+      "seconds": 5114,
+      "text": "2 X Y Z dot X Y Z and some of those"
+    },
+    {
+      "seconds": 5119,
+      "text": "Genki domain top-level domain names I've"
+    },
+    {
+      "seconds": 5122,
+      "text": "never seen anything good come out of dot"
+    },
+    {
+      "seconds": 5126,
+      "text": "XYZ I'm sure there are legitimate"
+    },
+    {
+      "seconds": 5128,
+      "text": "websites using dot XYZ as a domain name"
+    },
+    {
+      "seconds": 5130,
+      "text": "I just I haven't personally run across"
+    },
+    {
+      "seconds": 5133,
+      "text": "them maybe that just means I'm looking"
+    },
+    {
+      "seconds": 5136,
+      "text": "at too much malware but you notice how"
+    },
+    {
+      "seconds": 5142,
+      "text": "the character is kind of repeat there's"
+    },
+    {
+      "seconds": 5145,
+      "text": "a pattern there right it may not be"
+    },
+    {
+      "seconds": 5148,
+      "text": "immediately apparent but I'm seeing the"
+    },
+    {
+      "seconds": 5151,
+      "text": "parentheses not per enthis e9 dot"
+    },
+    {
+      "seconds": 5154,
+      "text": "parentheses 9 dot and kind of there"
+    },
+    {
+      "seconds": 5157,
+      "text": "there's a look to it which people have"
+    },
+    {
+      "seconds": 5162,
+      "text": "figured out to do network based network"
+    },
+    {
+      "seconds": 5166,
+      "text": "style alerts though using snort or"
+    },
+    {
+      "seconds": 5168,
+      "text": "sericata you know those types of there's"
+    },
+    {
+      "seconds": 5171,
+      "text": "a purl compatible regular expression"
+    },
+    {
+      "seconds": 5173,
+      "text": "that you could look at that has been"
+    },
+    {
+      "seconds": 5175,
+      "text": "developed to catch this style of traffic"
+    },
+    {
+      "seconds": 5179,
+      "text": "and look at the user agent this user"
+    },
+    {
+      "seconds": 5186,
+      "text": "agent string says msie 6.0 be right says"
+    },
+    {
+      "seconds": 5191,
+      "text": "windows NT 5.1 if they you if you look"
+    },
+    {
+      "seconds": 5193,
+      "text": "up what Windows NT 5.1 is I believe"
+    },
+    {
+      "seconds": 5196,
+      "text": "Windows NT 5.1 is like windows xp"
+    },
+    {
+      "seconds": 5200,
+      "text": "service pack 1 or without the service"
+    },
+    {
+      "seconds": 5205,
+      "text": "pack but this is not a normal user agent"
+    },
+    {
+      "seconds": 5209,
+      "text": "line in HTTP request headers yes sir"
+    },
+    {
+      "seconds": 5223,
+      "text": "uh-uh"
+    },
+    {
+      "seconds": 5223,
+      "text": "are you talking about the first post"
+    },
+    {
+      "seconds": 5226,
+      "text": "request to ease a man to double check"
+    },
+    {
+      "seconds": 5230,
+      "text": "that thank you"
+    },
+    {
+      "seconds": 5231,
+      "text": "yeah yeah like you said it's another"
+    },
+    {
+      "seconds": 5235,
+      "text": "thing that's another thing I didn't even"
+    },
+    {
+      "seconds": 5236,
+      "text": "think to talk about for this particular"
+    },
+    {
+      "seconds": 5239,
+      "text": "one is that the HTTP POST requests the"
+    },
+    {
+      "seconds": 5241,
+      "text": "first one as a different user agent"
+    },
+    {
+      "seconds": 5244,
+      "text": "string what what is a user agent string"
+    },
+    {
+      "seconds": 5245,
+      "text": "for that first one say do you remember I"
+    },
+    {
+      "seconds": 5255,
+      "text": "got you I think that may have been the"
+    },
+    {
+      "seconds": 5260,
+      "text": "HTTP request for the the get request for"
+    },
+    {
+      "seconds": 5263,
+      "text": "the Windows executable file the I want"
+    },
+    {
+      "seconds": 5267,
+      "text": "to say the HTTP POST requests for the"
+    },
+    {
+      "seconds": 5271,
+      "text": "the two of them should have the same"
+    },
+    {
+      "seconds": 5272,
+      "text": "user agent for in this case you're right"
+    },
+    {
+      "seconds": 5282,
+      "text": "we're talking about normal routine web"
+    },
+    {
+      "seconds": 5285,
+      "text": "browsing traffic right so yeah it should"
+    },
+    {
+      "seconds": 5287,
+      "text": "have the same user request you're right"
+    },
+    {
+      "seconds": 5289,
+      "text": "I'm sorry I misunderstood you sir it so"
+    },
+    {
+      "seconds": 5292,
+      "text": "the fact that you've got that get"
+    },
+    {
+      "seconds": 5294,
+      "text": "request that has one specific user agent"
+    },
+    {
+      "seconds": 5297,
+      "text": "that's markedly different from this now"
+    },
+    {
+      "seconds": 5299,
+      "text": "what I will say is the HTTP POST request"
+    },
+    {
+      "seconds": 5302,
+      "text": "that I've seen for azo ralt"
+    },
+    {
+      "seconds": 5305,
+      "text": "have always used this particular user"
+    },
+    {
+      "seconds": 5308,
+      "text": "agent string which is another identifier"
+    },
+    {
+      "seconds": 5319,
+      "text": "so we have hit three o'clock we'll take"
+    },
+    {
+      "seconds": 5319,
+      "text": "a 15-minute break and then we'll start"
+    },
+    {
+      "seconds": 5323,
+      "text": "in on hopefully some more interesting"
+    },
+    {
+      "seconds": 5326,
+      "text": "malware and we'll look at some stuff"
+    },
+    {
+      "seconds": 5329,
+      "text": "that's not just information stealers"
+    }
+  ]
+}

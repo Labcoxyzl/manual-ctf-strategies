@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="41397ad0bd4be062d9d057bf605f73a9bc09c5ba7414fb05b10fc3510cdb1da8">
+  <link rel="icon" href="data:,">
+  <title>Offline practice and answer checks · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Offline practice and answer checks</h1>
+<p>These small exercises are authored for this refresher, not organiser challenges. The bundled files are synthetic and contain no captured user traffic or malware. Use a copy of the files. Commands assume the repository root as your working directory; installed tools on your travel laptop may differ from this research environment.</p>
+<p>Each block has a no-setup paper route. That route tests interpretation and recall, <strong>not practical proficiency with the application</strong>. If a lab will not start, complete the paper route and record the missing setup; do not count it as tool execution. Answers are below each exercise so you can cover them while attempting it.</p>
+<p><a id="block-1"></a></p>
+<h2>1. Identify before decoding</h2>
+<p><strong>Diagnostic:</strong> Explain the difference between Base64, encryption, metadata and a file signature. If you can also explain why an apparent stego signature needs validation, skim the introductory reading.</p>
+<p><strong>Exercise:</strong> In a prepared local CyberChef copy, decode <code>Q1RGLXJlZnJlc2hlcg==</code>, then encode the result back to Base64. Open <a href="research/learning/practice/http-demo.pcap">http-demo.pcap</a> as bytes in HxD or with <code>xxd -l 16 research/learning/practice/http-demo.pcap</code>. Record the first four bytes. Do not rename it based on a text fragment or assume that binwalk finding a signature proves an embedded file is valid. Read one zsteg extraction example and explain what channel/bit-order selection adds beyond a bulk scan.</p>
+<p><strong>Paper route:</strong> Decode the Base64 using the selected guide's alphabet/process, or explain the recipe and verify against the answer. Given leading bytes <code>d4 c3 b2 a1</code>, distinguish the container identification from an embedded HTTP payload. State what independent check you would perform on extracted bytes.</p>
+<p><strong>Check:</strong> The decoded text is <code>CTF-refresher</code>, with no newline; round-trip encoding reproduces the input. The capture begins <code>d4 c3 b2 a1</code> (classic little-endian PCAP). A valid embedded object should also parse as its claimed format or produce coherent content; a signature alone is a lead. This exercise does not prove that you can solve image steganography. Optional depth: create a tiny steghide carrier on your own machine and recover your own payload, checking byte equality.</p>
+<p><a id="block-2"></a></p>
+<h2>2. Reconstruct a network conversation</h2>
+<p><strong>Diagnostic:</strong> Explain capture filters versus display filters and what Follow TCP Stream reconstructs. Correct answers let you skim the introductory reading.</p>
+<p><strong>Input:</strong> <a href="research/learning/practice/http-demo.pcap">http-demo.pcap</a>, a 541-byte synthetic Ethernet/IPv4/TCP capture containing five packets. The addresses are documentation addresses, not live targets.</p>
+<p><strong>Exercise:</strong> Open the file in Wireshark; apply <code>http.request</code>. Record client/server addresses, method and URI. Follow the TCP stream and recover the response body. Then compare with:</p>
+<pre><code class="language-sh">tshark -r research/learning/practice/http-demo.pcap -Y http.request -T fields -e ip.src -e ip.dst -e http.request.method -e http.request.uri -e tcp.stream
+tshark -r research/learning/practice/http-demo.pcap -q -z follow,tcp,ascii,0
+</code></pre>
+<p><strong>Deliverable:</strong> A five-field request row, the body, and an explanation of which direction supplied it. For depth, compare packet bytes with reassembled content; then read the Zeek quickstart's expected logs and explain how a UID joins records. Executing Zeek is optional and needs its prepared binary.</p>
+<p><strong>Paper route:</strong> Analyze this supplied transcript: client <code>192.0.2.10:40000</code> → server <code>192.0.2.20:80</code>; request <code>GET /clue.txt HTTP/1.1</code>; response <code>HTTP/1.1 200 OK</code>, body <code>CTF-refresher</code> followed by a newline. Identify the same fields and explain why a hostname in the Host header does not change the observed IP endpoints.</p>
+<p><strong>Check:</strong> One HTTP request; source <code>192.0.2.10</code>, destination <code>192.0.2.20</code>, method <code>GET</code>, URI <code>/clue.txt</code>, stream <code>0</code>. The server returns <code>CTF-refresher\n</code> (14 bytes). These TShark results were executed and checked locally; Wireshark GUI and Zeek execution were not tested.</p>
+<p><a id="block-3"></a></p>
+<h2>3. Keep forensic coordinate systems separate</h2>
+<p><strong>Diagnostic:</strong> Distinguish an image byte offset, partition sector offset, filesystem block number and inode/file metadata address. If any distinction is unclear, do the reading before trying recovery commands.</p>
+<p><strong>Paper exercise:</strong> A synthetic partition begins at sector 2048, sectors are 512 bytes, filesystem blocks are 4096 bytes, and a described data block has zero-based index 3 relative to the filesystem. Calculate its absolute byte offset. Separately, suppose <code>fls</code> reports a deleted file with metadata address 128; explain why 128 is not the block index and which input <code>icat</code> expects. Explain what the partition offset option must represent. Consult the selected official manuals rather than the superseded walkthrough.</p>
+<p><strong>Artifact interpretation:</strong> A hypothetical file record contains a name and timestamps. List two facts the record supports and two claims it cannot establish alone (for example, who deliberately deleted the file). Read the selected MFTECmd documentation's export example; identify the input artifact and output format. Do not treat a historical video as current evidence of <code>$LogFile</code> support.</p>
+<p><strong>Optional execution:</strong> Only if you already have a benign local disk image, use Autopsy to add it as a data source, locate a known file and export it to a new folder. Compare a hash of the export with your known original. Do not use a raw system disk as a training input. No disk image is bundled, so this is not a ready-to-run disk-recovery lab.</p>
+<p><strong>Check:</strong> <code>2048 × 512 + 3 × 4096 = 1,060,864</code> bytes. <code>icat</code> uses a metadata address to retrieve file content; partition-offset units must match its documented sector convention. Deleted status does not guarantee recoverable content. File records need corroboration for attribution. The arithmetic is checked; Autopsy, MFTECmd and TSK execution are unperformed.</p>
+<p><a id="block-4"></a></p>
+<h2>4. Read memory evidence without overclaiming</h2>
+<p><strong>Diagnostic:</strong> Explain the difference between a process list and a parent/child tree, and why Volatility 2 profiles cannot simply be substituted into Volatility 3 instructions.</p>
+<p><strong>Paper input:</strong> Synthetic process rows: <code>PID 100 / PPID 4 / services.exe</code>; <code>PID 220 / PPID 100 / helper.exe</code>; <code>PID 330 / PPID 220 / cmd.exe</code>. There are no timestamps, command lines or signatures in this dataset.</p>
+<p><strong>Exercise:</strong> Draw the parent chain for PID 330. Write the next two questions you would ask and name the evidence needed (for example command line, executable path, file signature or surrounding timeline). Explain why the chain alone neither proves compromise nor establishes that the name matches a legitimate executable. Read the official Volatility 3 <code>pslist</code>/<code>pstree</code> examples and compare their output structure with your drawing.</p>
+<p><strong>Setup failure drill:</strong> A plugin reports unsatisfied symbol requirements before producing output. Is that a negative forensic finding? Describe the online preflight step needed for a Windows image and why a fully cached page is not enough.</p>
+<p><strong>Optional execution:</strong> With an independently obtained benign memory image, resolve symbols while online, then run the tutorial's <code>windows.pslist</code> and <code>windows.pstree</code> operations offline. Compare the same PID/PPID pair in both outputs. No memory image or symbol set is bundled; this route has not been executed.</p>
+<p><strong>Check:</strong> <code>4 → 100 → 220 → 330</code> is the chain represented by the rows, though PID 4 has no supplied row. Names and ancestry are leads, not malware verdicts. A symbol error is a failed analysis, not evidence of absence. A local image, working Volatility and matching cached symbols are separate prerequisites.</p>
+<p><a id="block-5"></a></p>
+<h2>5. Recover and verify a program's branch logic</h2>
+<p><strong>Diagnostic:</strong> Explain <code>strcmp</code>'s zero result and distinguish a function's return value from a conditional jump's sense. If fluent, skip one or both introductory videos and start with the executable.</p>
+<p><strong>Input:</strong> <a href="research/learning/practice/check_input.c">check_input.c</a>, a small benign program. To avoid spoiling the answer, compile it before studying its source. On a prepared Linux/WSL toolchain:</p>
+<pre><code class="language-sh">gcc -O0 -g research/learning/practice/check_input.c -o /tmp/ctf-refresher-check
+/tmp/ctf-refresher-check wrong
+gdb /tmp/ctf-refresher-check
+</code></pre>
+<p>In GDB use <code>break main</code>, <code>run wrong</code>, <code>disassemble main</code>, and <code>next</code> to relate the condition to the branch. <code>print argc</code> checks the argument count. Import the same executable into Ghidra, locate <code>main</code>, inspect the comparison, rename the input and write pseudocode. Do not patch the program before explaining it. Finally compare with the source.</p>
+<p><strong>Deliverable:</strong> A three-case table: no user argument, wrong word, accepted word; include printed text and exit status. Explain which comparison decides success. Addresses and generated assembly vary by compiler and architecture; do not copy an address from the video.</p>
+<p><strong>Paper route:</strong> Save the C source and the selected LiveOverflow annotated disassembly before boarding. Draw the three branches from the C source, then trace one comparison/jump in the published disassembly. These are separate examples; do not assume identical addresses or passwords.</p>
+<p><strong>Check:</strong> No argument → <code>usage: check_input WORD</code>, status 2. <code>wrong</code> → <code>rejected</code>, status 1. <code>harbor</code> → <code>accepted</code>, status 0. The comparison is <code>strcmp(argv[1], &quot;harbor&quot;) == 0</code>. All three compiled cases and basic GDB execution were locally tested; Ghidra GUI was not. Delete <code>/tmp/ctf-refresher-check</code> after practice if desired.</p>
+<p><a id="block-6"></a></p>
+<h2>6. Turn static indicators into testable statements</h2>
+<p><strong>Diagnostic:</strong> Explain how FLOSS differs from ordinary strings, and why a capa match is a lead rather than a complete behavioral trace. If fluent, spend the reading time on the YARA conditions section.</p>
+<p><strong>Exercise:</strong> Write a YARA rule requiring both <code>training-marker</code> and the full word <code>harbor</code>. Test against <a href="research/learning/practice/match.txt">match.txt</a> and <a href="research/learning/practice/near-miss.txt">near-miss.txt</a>. Only then compare with <a href="research/learning/practice/training.yar">training.yar</a>.</p>
+<pre><code class="language-sh">yara research/learning/practice/training.yar research/learning/practice/match.txt
+yara research/learning/practice/training.yar research/learning/practice/near-miss.txt
+</code></pre>
+<p><strong>Check:</strong> The first should print the rule name and file; the second should produce no match. Adding <code>harbor</code> without the marker should still fail. Paper route: evaluate those three cases by hand from the rule's condition. Read one capa verbose-output example and state the location you would inspect next; read one FLOSS decoded-string example and explain what an extracted URL does <strong>not</strong> prove about execution.</p>
+<p><strong>Format-routing check:</strong> Choose dnSpyEx for a .NET assembly, JADX for APK/DEX Java-like output, and pyinstxtractor-ng for extracting a PyInstaller package before considering bytecode decompilation. Decompilation is not guaranteed to recover original source.</p>
+<p><strong>Execution status:</strong> YARA CLI was not available on the research PATH and was not installed. The text fixtures and rule logic were reviewed; actual YARA matching and capa/FLOSS execution remain untested. This exercise uses no malware.</p>
+<p><a id="block-7"></a></p>
+<h2>7. Change one HTTP request and explain the response</h2>
+<p><strong>Diagnostic:</strong> Write a minimal HTTP GET request with a Host header. Explain why changing a header is not the same as changing the URL path. If fluent, skip the introductory Repeater video.</p>
+<p><strong>Local target:</strong> In a spare terminal from the repository root:</p>
+<pre><code class="language-sh">python3 -m http.server 8765 --bind 127.0.0.1 --directory research/learning/practice/http
+</code></pre>
+<p>Then in another terminal:</p>
+<pre><code class="language-sh">curl -i http://127.0.0.1:8765/clue.txt
+curl -i http://127.0.0.1:8765/missing.txt
+</code></pre>
+<p><strong>Exercise:</strong> Record each status and body. With a prepared Burp Community installation, open its browser, visit the first URL, send its request from HTTP history to Repeater, change only the path to <code>/missing.txt</code>, and compare the responses. Keep this exercise scoped to <code>127.0.0.1:8765</code>. Stop the server with Ctrl-C afterward.</p>
+<p><strong>Check:</strong> <code>/clue.txt</code> returns 200 and <code>CTF-refresher\n</code>; <code>/missing.txt</code> returns 404. One controlled path change is sufficient to explain the difference. The Python server/curl pair was locally tested. Burp capture/replay was not; if your browser bypasses the proxy for loopback, use Burp's configured browser or the paper route rather than debugging during the flight. No Pro feature is required.</p>
+<p><strong>Paper route:</strong> Rewrite <code>GET /clue.txt HTTP/1.1</code> with <code>Host: 127.0.0.1:8765</code> into the missing-path request. Predict the two responses above and explain which fields you held constant. For ffuf, explain where <code>FUZZ</code> belongs in a path and why a wildcard 200 response can require filtering by content/size rather than status alone. Reading Academy instructions is free; executing its hosted labs still requires registration/connectivity.</p>
+<p><a id="block-8"></a></p>
+<h2>8. Check an attack's assumptions before running it</h2>
+<p><strong>Diagnostic:</strong> Distinguish encoding, hashing and encryption. Explain the RSA roles of <code>n</code>, <code>e</code>, <code>d</code> and why a ZIP header does not automatically imply an AES attack is possible.</p>
+<p><strong>RSA exercise:</strong> Use toy inputs <code>p=61</code>, <code>q=53</code>, <code>e=17</code>, plaintext integer <code>m=42</code>. Calculate <code>n</code>, Euler's totient, the modular inverse <code>d</code>, then encrypt and decrypt. Ordinary Python 3 suffices for these toy values:</p>
+<pre><code class="language-python">p, q, e, m = 61, 53, 17, 42
+n = p * q
+phi = (p - 1) * (q - 1)
+d = pow(e, -1, phi)
+c = pow(m, e, n)
+print(n, phi, d, c, pow(c, d, n))
+</code></pre>
+<p><strong>Check:</strong> <code>3233 3120 2753 2557 42</code>. Confirm <code>17 × 2753 mod 3120 = 1</code>. This is a deliberately weak toy key with known primes, not a general factoring method. Read the RsaCtfTool attack prerequisites and name one reason a selected attack might not apply. Sage is useful for broader number theory but is not required for this exercise.</p>
+<p><strong>Password exercise:</strong> Given MD5 <code>d077f244def8a70e5ea758bd8352fcd8</code> and candidates <code>dog</code>, <code>cat</code>, <code>bird</code>, compare each candidate's hash using Python's <code>hashlib.md5(candidate.encode()).hexdigest()</code>. Explain why the 32 hex characters alone do not prove the algorithm. Then read either hashcat's dictionary guide <strong>or</strong> John's wordlist example, and map the candidate process to that tool; do not run both introductions unless comparing syntax is useful.</p>
+<p><strong>Check:</strong> <code>cat</code> matches. MD5 is explicitly supplied for this exercise. The Python arithmetic and hashes were tested; hashcat/John backend execution was not.</p>
+<p><strong>Optional archive branch:</strong> Use the selected version-pinned bkcrack tutorial and its public <code>secrets.zip</code> only after downloading the exact example while online. Explain the ZipCrypto/known-plaintext conditions and verify the recovered plaintext against the tutorial. Neither that archive nor bkcrack is bundled or executed. The paper alternative is to state why AES ZIP or insufficient plaintext invalidates this attack route.</p>
+<p><a id="block-9"></a></p>
+<h2>9. Close one specific gap</h2>
+<p>Choose <strong>one</strong>, not all three. Use the remaining tools' reference index for a different specialty only if you can name an input and a checkable outcome.</p>
+<ul>
+<li><strong>Audio:</strong> Read Audacity Spectrogram View, especially window-size tradeoffs. Given two nearby tones that blur together, choose a larger analysis window; explain the loss in time resolution. Given very brief clicks, explain why the opposite choice may help. Optional execution requires a local audio sample; none is bundled.</li>
+<li><strong>Managed code:</strong> Read the dnSpyEx/JADX/PyInstaller routing references. Given <code>.NET assembly</code>, <code>APK/DEX</code>, and <code>PyInstaller executable</code>, select the respective entry tool and explain why extraction and decompilation are separate operations. Check against block 6's answer.</li>
+<li><strong>Structured artifacts:</strong> Read SQLite CLI <code>.tables</code> and <code>.schema</code>. Given table <code>visits(url TEXT, ts INTEGER)</code> and rows <code>('a',10), ('b',20)</code>, write <code>SELECT url, ts FROM visits ORDER BY ts DESC;</code>. Expected order is <code>b</code> then <code>a</code>; the schema alone does not tell you the timestamp epoch. Optional execution uses a new toy database, never original evidence.</li>
+</ul>
+<p><strong>Diagnostic:</strong> Before reading, explain your chosen task in two sentences. <strong>Deliverable:</strong> A tiny procedure, its expected output and one failure mode. If you cannot assess the result from the supplied answers or official example, record the unresolved question rather than marking mastery.</p>
+<p><a id="block-10"></a></p>
+<h2>10. Closed-note transfer check</h2>
+<p><strong>Diagnostic:</strong> Without looking, list three inputs you can now route to a tool and state the first non-destructive action. Use any hesitation to choose the two exercises to repeat.</p>
+<p>Repeat one interpretation exercise (blocks 3, 4 or 9) and one executable exercise (blocks 1, 2, 5, 7 or 8) without reading the procedure. If no tools are prepared, repeat its paper route and mark the result <strong>paper only</strong>. Timebox each attempt to 20 minutes. Compare with the supplied answer, then write the smallest correction to your notes.</p>
+<p><strong>Assessment rubric:</strong> For each attempt, award one check each for selecting an appropriate approved tool, preserving the original input, giving the right command/action or accurate paper explanation, and interpreting the result without an unsupported claim. Any missing check means that workflow needs another pass; this is a study heuristic, not a validated proficiency score. Do not count reading an answer as a successful independent attempt.</p>
+<p><strong>Final note:</strong> Record two things you can now do, two unresolved questions, and any untested setup needed before competition. Actual learning gains depend on your attempts and feedback; this pack has not measured them.</p>
+</main>
+  <footer><div class="wrap"><a href="PRACTICE_WORKSHEETS.md">Markdown source</a></div></footer>
+</body>
+</html>

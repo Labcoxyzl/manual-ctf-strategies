@@ -1,0 +1,33 @@
+{
+  "result": "passed",
+  "rows": 200,
+  "resources": 261,
+  "videos": 17,
+  "original_video_depth": {
+    "none": 185,
+    "workflow": 4,
+    "incidental": 4,
+    "intro": 7
+  },
+  "runtime": {
+    "existing_full_seconds": 6214,
+    "new_full_seconds": 25040,
+    "all_full_seconds": 31254,
+    "new_selected_seconds": 16898,
+    "retained_workflow_selected_seconds": 2352,
+    "note": "Full runtime includes explicitly skipped/unapproved/promotional sections. Selected sections are separately deduplicated within each video. Reading/practice estimates are not video time."
+  },
+  "checks": [
+    "exact inventory/reference preservation",
+    "resource mappings and evidence fields",
+    "caption/metadata hashes and selected intervals",
+    "unique runtime arithmetic",
+    "approval exclusion intervals",
+    "local links/anchors and CSV",
+    "known binary/PDF/audio input integrity",
+    "named bundled-capability dispositions",
+    "current per-resource access-audit identity",
+    "recorded benign OLE/RTF extraction inputs and loopback result"
+  ],
+  "limits": "Structural checks do not establish teaching quality; independent reviews cover that. This checker does not add playback, GUI, qpdf or memory-image execution. Benign Ncat/oleobj/rtfobj checks were executed separately in this review pass."
+}

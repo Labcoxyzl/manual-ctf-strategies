@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="e88d2254a7c6cf509f1a21144c6edf703228029ffdfc1cd50366f3f9289da227">
+  <link rel="icon" href="data:,">
+  <title>Approved tools: a practical 24-hour refresher · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    footer { padding:18px 0 28px; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip, footer { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Approved tools: a practical 24-hour refresher</h1>
+<p>Start with the diagnostic in each block. Skim what you already know, then use the saved time to repeat an exercise without instructions. This pack is for someone familiar with CTFs but rusty solving without assistance; it does not claim measured learning gains or exhaustive mastery.</p>
+<p>The organiser workbook approves <strong>39 Windows rows and 161 Kali rows</strong>. Some Windows tools run in WSL; Kali availability is best effort. The original workbook was rechecked against the inventory. Tool approval does not approve every application, paid feature, online service or upload mentioned in a tutorial. <a href="EVENT_SOURCES.html">Approval notes</a> · <a href="APPROVED_TOOL_REFERENCES.html">all 200 tool references</a>.</p>
+<h2>Start here</h2>
+<ol>
+<li>Follow the 10 blocks below. Their allocations total <strong>1,440 minutes (24 hours)</strong>, including practice and assessment; do not add resource estimates to that total. Break time is outside this study budget.</li>
+<li>Choose <strong>reading or its video alternative</strong>, not both by default. Every video has a free reading/practice replacement. No subscription, trial, account creation or organiser portal launch is needed for the core path.</li>
+<li>Open the <a href="PRACTICE_WORKSHEETS.html">practice worksheets</a>. They contain exact inputs, commands or paper tasks, and answer checks. Small local fixtures are bundled; forensic disk/memory images and public archives are not.</li>
+<li>A paper route keeps a block usable when a lab is unavailable. Mark it <strong>paper only</strong>: interpretation practice does not prove that you can operate the application.</li>
+</ol>
+<h2>The 24-hour sequence</h2>
+<p>Diagnostic/study/exercise/check are minute budgets, not media runtimes. Each diagnostic is a skip test: if you can explain and demonstrate the answer, shorten the introductory reading and use that time on the exercise or a transfer example.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Total</th>
+<th>Diagnostic / study / exercise / check</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#block-1">1. Identify and decode files</a></td>
+<td>120 min</td>
+<td>10 / 40 / 50 / 20</td>
+<td>Choose a first inspection operation and validate decoded output.</td>
+</tr>
+<tr>
+<td><a href="#block-2">2. Reconstruct network evidence</a></td>
+<td>180 min</td>
+<td>10 / 50 / 90 / 30</td>
+<td>Follow a complete conversation and reproduce selected fields.</td>
+</tr>
+<tr>
+<td><a href="#block-3">3. Interpret filesystem and Windows artifacts</a></td>
+<td>180 min</td>
+<td>10 / 60 / 80 / 30</td>
+<td>Keep recovery coordinates straight and avoid unsupported attribution.</td>
+</tr>
+<tr>
+<td><a href="#block-4">4. Reason from memory artifacts</a></td>
+<td>120 min</td>
+<td>10 / 40 / 50 / 20</td>
+<td>Read pslist/pstree and distinguish missing prerequisites from negative findings.</td>
+</tr>
+<tr>
+<td><a href="#block-5">5. Recover a native input check</a></td>
+<td>240 min</td>
+<td>15 / 75 / 120 / 30</td>
+<td>Relate source, disassembly and decompiler output, then verify a hypothesis.</td>
+</tr>
+<tr>
+<td><a href="#block-6">6. Test static-analysis claims</a></td>
+<td>120 min</td>
+<td>10 / 40 / 50 / 20</td>
+<td>Write a specific rule and treat extraction/capability labels as evidence leads.</td>
+</tr>
+<tr>
+<td><a href="#block-7">7. Replay controlled HTTP changes</a></td>
+<td>180 min</td>
+<td>10 / 50 / 90 / 30</td>
+<td>Change one request field, compare responses and avoid false discovery conclusions.</td>
+</tr>
+<tr>
+<td><a href="#block-8">8. Check crypto and password assumptions</a></td>
+<td>180 min</td>
+<td>10 / 60 / 80 / 30</td>
+<td>Derive a toy RSA result and map candidate testing to the right tool.</td>
+</tr>
+<tr>
+<td><a href="#block-9">9. Close one specialist gap</a></td>
+<td>60 min</td>
+<td>5 / 15 / 30 / 10</td>
+<td>Apply one narrowly scoped unfamiliar workflow.</td>
+</tr>
+<tr>
+<td><a href="#block-10">10. Transfer without instructions</a></td>
+<td>60 min</td>
+<td>5 / 0 / 40 / 15</td>
+<td>Repeat two workflows independently and record remaining gaps.</td>
+</tr>
+</tbody>
+</table></div>
+<p><a id="block-1"></a></p>
+<h3>1. Identify and decode files — 120 minutes</h3>
+<p><strong>Prerequisites:</strong> Basic byte/text and shell familiarity. <strong>Diagnostic:</strong> Explain encoding versus encryption and why a signature is only a lead.</p>
+<p><strong>Selection:</strong> Read CyberChef recipe order, three ExifTool reading examples, Binwalk scan/extract and zsteg channel-selection examples. The CyberChef video is an alternative, not extra work.</p>
+<p><a href="#crypto-foundations-1">CyberChef: how recipes work and worked examples</a> · <a href="#media-3">ExifTool: application documentation and reading examples</a> · <a href="#media-2">Binwalk: file analysis and extraction</a> · <a href="#media-1">zsteg: detection and extraction examples</a></p>
+<p><strong>Prepare:</strong> Local CyberChef and HxD/xxd only for execution; all paper inputs and the tiny PCAP are bundled.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-1">Worksheet 1</a>. Round-trip Base64, identify the capture header, and state an independent validation check.</p>
+<p><a id="block-2"></a></p>
+<h3>2. Reconstruct network evidence — 180 minutes</h3>
+<p><strong>Prerequisites:</strong> Block 1; basic IP/port and request/response concepts. <strong>Diagnostic:</strong> Explain display versus capture filters and stream reassembly.</p>
+<p><strong>Selection:</strong> Read official display filters/Follow Stream and TShark -r/-Y/-T fields. Use the same tiny capture for GUI/CLI; Zeek quickstart is optional depth within the block.</p>
+<p><a href="#web-network-5">Wireshark: display filters and following protocol streams</a> · <a href="#web-network-6">TShark manual: saved captures and display filters</a> · <a href="#web-network-7">Zeek quick start: turn a PCAP into correlated logs</a></p>
+<p><strong>Prepare:</strong> Bundled http-demo.pcap; Wireshark/TShark for execution. Zeek needs a separately working install.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-2">Worksheet 2</a>. Match the supplied endpoint/URI/body answer key; explain client versus server direction.</p>
+<p><a id="block-3"></a></p>
+<h3>3. Interpret filesystem and Windows artifacts — 180 minutes</h3>
+<p><strong>Prerequisites:</strong> Blocks 1–2; sectors/bytes and file metadata are distinct concepts. <strong>Diagnostic:</strong> Distinguish sector offset, block index and metadata address.</p>
+<p><strong>Selection:</strong> Read TSK fls/mmls/icat arguments, Autopsy case→source→ingest→export, and MFTECmd author documentation or selected video chapters. Use SQLite schema sections if time remains.</p>
+<p><a href="#forensics-1">Sleuth Kit: list files and recover by metadata address</a> · <a href="#forensics-2">Autopsy Quick Start Guide</a> · <a href="#forensics-5">Introduction to MFTECmd - NTFS MFT and Journal Forensics</a> · <a href="#forensics-8">SQLite command-line shell: inspect schema and records</a></p>
+<p><strong>Prepare:</strong> Paper drill is complete locally. Optional Autopsy execution uses a prepared benign image or logical-file folder; no image acquisition is required.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-3">Worksheet 3</a>. Compute 1,060,864 bytes; explain metadata-address extraction and limits of timestamps.</p>
+<p><a id="block-4"></a></p>
+<h3>4. Reason from memory artifacts — 120 minutes</h3>
+<p><strong>Prerequisites:</strong> Block 3; process IDs and parent relationships. <strong>Diagnostic:</strong> Explain Volatility 2 profiles versus Volatility 3 symbols.</p>
+<p><strong>Selection:</strong> Read official process tutorial; video is optional instead of repeated introduction. Compare plugin output structure with the supplied process table.</p>
+<p><a href="#forensics-3">Volatility 3: Windows Tutorial</a> · <a href="#forensics-4">Introduction to Memory Forensics with Volatility 3</a></p>
+<p><strong>Prepare:</strong> Paper process table is bundled. Tool execution separately requires an image, working Volatility and pre-cached matching symbols.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-4">Worksheet 4</a>. Draw the chain, identify missing evidence and diagnose symbol failure without claiming no malware.</p>
+<p><a id="block-5"></a></p>
+<h3>5. Recover a native input check — 240 minutes</h3>
+<p><strong>Prerequisites:</strong> Basic C branches, arguments and strings; skim source syntax first if rusty. <strong>Diagnostic:</strong> Explain strcmp returning zero and how a branch uses the result.</p>
+<p><strong>Selection:</strong> Use Ghidra import/decompiler/references/function graph and the benign companion. Choose at most one video for orientation; spend the rest on the included C program.</p>
+<p><a href="#reverse-1">Introduction to Ghidra — student guide</a> · <a href="#reverse-4">bin 0x05 companion: license-check source and GDB disassembly</a> · <a href="#reverse-2">Ghidra quickstart &amp; tutorial: Solving a simple crackme</a> · <a href="#reverse-3">Reversing and Cracking first simple Program — bin 0x05</a></p>
+<p><strong>Prepare:</strong> Bundled C source; GCC/GDB for executed route, Ghidra optional. Save the published companion source/disassembly for the paper transfer exercise.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-5">Worksheet 5</a>. Predict all three output/status cases; compare your recovered condition with source.</p>
+<p><a id="block-6"></a></p>
+<h3>6. Test static-analysis claims — 120 minutes</h3>
+<p><strong>Prerequisites:</strong> Block 5; strings, conditions and basic file formats. <strong>Diagnostic:</strong> Distinguish decoded strings from executed behavior.</p>
+<p><strong>Selection:</strong> Read capa default/verbose output, FLOSS string types and YARA strings/conditions/fullword. Format-routing references are short optional lookups.</p>
+<p><a href="#reverse-5">capa 9.4.0 usage: interpret capability matches</a> · <a href="#reverse-6">FLOSS usage: static, stack, tight and decoded strings</a> · <a href="#reverse-7">Writing YARA rules</a></p>
+<p><strong>Prepare:</strong> Bundled harmless text files and rule; YARA only for execution. No malware samples needed.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-6">Worksheet 6</a>. One match and two negative cases; name a justified next check for a capa/FLOSS finding.</p>
+<p><a id="block-7"></a></p>
+<h3>7. Replay controlled HTTP changes — 180 minutes</h3>
+<p><strong>Prerequisites:</strong> Block 2; HTTP method/path/header/body. <strong>Diagnostic:</strong> Write a GET and explain path versus header changes.</p>
+<p><strong>Selection:</strong> Read Repeater steps, curl headers/cookies/POST and ffuf FUZZ/filter examples. Video substitutes for the first orientation; no hosted lab required.</p>
+<p><a href="#web-network-1">Burp: reissue requests and investigate unexpected input</a> · <a href="#web-network-3">Everything curl: Command line HTTP</a> · <a href="#web-network-4">ffuf upstream examples: discovery, filters and bounded runs</a> · <a href="#web-network-2">How to resend individual requests with Burp Repeater</a></p>
+<p><strong>Prepare:</strong> Bundled static target served by Python on loopback; curl/Burp Community for execution. Paper requests need no server or account.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-7">Worksheet 7</a>. Show 200 versus 404 after one path change; explain wildcard-response filtering.</p>
+<p><a id="block-8"></a></p>
+<h3>8. Check crypto and password assumptions — 180 minutes</h3>
+<p><strong>Prerequisites:</strong> Integer arithmetic and encoding/hash/encryption distinction. <strong>Diagnostic:</strong> Explain n/e/d, hash candidates and ZipCrypto versus AES.</p>
+<p><strong>Selection:</strong> Read RSA prerequisites and initial Sage arithmetic; do hashcat dictionary OR John wordlist introduction. Use bkcrack metadata/conditions as a separate optional branch.</p>
+<p><a href="#crypto-foundations-4">RsaCtfTool: usage and attack prerequisites</a> · <a href="#crypto-foundations-5">SageMath tutorial: number theory</a> · <a href="#crypto-foundations-6">hashcat: dictionary attacks with a tiny wordlist</a> · <a href="#crypto-foundations-7">John the Ripper: usage examples</a> · <a href="#crypto-foundations-8">bkcrack 1.8.1: stored-plaintext ZIP recovery</a> · <a href="#crypto-foundations-3">CTFlearn: RSA Beginner</a></p>
+<p><strong>Prepare:</strong> Included Python 3 toy inputs need no Sage or network. Optional bkcrack execution needs its exact public archive and installed binary.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-8">Worksheet 8</a>. Recover 42, identify cat, and state when RSA/ZIP attacks do not apply.</p>
+<p><a id="block-9"></a></p>
+<h3>9. Close one specialist gap — 60 minutes</h3>
+<p><strong>Prerequisites:</strong> Choose based on a failed diagnostic, not novelty. <strong>Diagnostic:</strong> Explain the chosen task in two sentences before reading.</p>
+<p><strong>Selection:</strong> Choose exactly one worksheet branch: audio-window tradeoff, managed-format routing, or SQLite schema/query. Other niche families remain indexed references.</p>
+<p><a href="#media-5">Audacity: Spectrogram View</a> · <a href="#reverse-8">dnSpyEx: managed assembly navigation and debugging capabilities</a> · <a href="#reverse-9">JADX: APK/DEX reading and decompiler limits</a> · <a href="#reverse-10">pyinstxtractor-ng: inspect and extract a PyInstaller executable</a> · <a href="#forensics-8">SQLite command-line shell: inspect schema and records</a></p>
+<p><strong>Prepare:</strong> All three paper branches have inputs and answers; actual audio/decompiler use requires a separately prepared file/tool.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-9">Worksheet 9</a>. Check the specified tradeoff, format routing, or query order; record one failure mode.</p>
+<p><a id="block-10"></a></p>
+<h3>10. Transfer without instructions — 60 minutes</h3>
+<p><strong>Prerequisites:</strong> Completed or diagnosed earlier blocks. <strong>Diagnostic:</strong> Name three inputs, approved tools and first non-destructive actions.</p>
+<p><strong>Selection:</strong> No new resource; close the notes and repeat one interpretation task and one executable task.</p>
+<p><strong>Prepare:</strong> Use included exercises; mark paper-only attempts honestly.</p>
+<p><strong>Do and check:</strong> <a href="PRACTICE_WORKSHEETS.html#block-10">Worksheet 10</a>. Assess tool choice, input preservation, correct operation and justified interpretation; record corrections.</p>
+<h2>Prepare for the flight</h2>
+<ul>
+<li>Save the specific lesson sections and figures as PDF or complete pages; saving an index does not save its children. Verify those saved files on the device with networking disabled. This pack contains links and worksheets, <strong>not cached copies of every lesson</strong>.</li>
+<li>Public video viewing is distinct from free offline viewing. YouTube’s documented computer-download route requires a signed-in Premium account and availability varies. Do not buy it for this plan: use each video’s free reading alternative. No video playback or download eligibility was tested. <a href="https://support.google.com/youtube/answer/11977233?hl=en">Official offline-viewing terms</a>.</li>
+<li>The <a href="research/learning/practice/README.html">bundled practice files</a> are tiny, synthetic inputs. Reading them needs no additional account. Executing needs the listed local tools; prepare dependencies before departure.</li>
+<li>For optional disk/memory work, bring a suitable benign image and required symbols. For optional public ZIP or PCAP transfer exercises, save the exact named artifact first. Do not download entire collections for this pack.</li>
+<li>Burp Community manual Proxy/Repeater is sufficient; scanner, Collaborator and full Intruder are not part of this plan. PortSwigger articles are free to read; its hosted labs require a free account and connectivity. The included loopback target avoids that requirement.</li>
+<li>Preserve original evidence and avoid sending event challenge material to public services. The AI/online-service rules in the organiser guide still apply. No portal challenges have been opened or scarce launches consumed.</li>
+</ul>
+<h2>Focused resource menu</h2>
+<p>The <strong>43 selections</strong> below are a menu used by the blocks, not 43 mandatory lessons. Each has an evaluated role and a bounded focus. “Study cap” is an estimate for that selection, including pauses; published runtime is shown separately only when verified. Full retain/replace/shorten/remove reasoning for all 44 original selections is in <a href="RESOURCE_EVALUATION.html">the evaluation ledger</a>.</p>
+<h3>File triage and media</h3>
+<p><a id="media-1"></a></p>
+<p><strong><a href="https://github.com/zed-0xff/zsteg">zsteg: detection and extraction examples</a></strong> — zed-0xff · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Usage: -a, -E and PARAMS SHORTCUT; Simple LSB and Multi-result file examples. Skip wbStego internals unless encountered.</p>
+<p><strong>Prerequisites:</strong> Basic shell, redirects and binary-versus-text distinction; PNG/BMP carrier awareness.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available.</p>
+<p><a id="media-2"></a></p>
+<p><strong><a href="https://github.com/ReFirmLabs/binwalk/wiki/File-Analysis-and-Extraction">Binwalk: file analysis and extraction</a></strong> — ReFirmLabs · read · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Scan versus -e extraction versus -Me recursive extraction; read green/yellow/red confidence definitions. Keep --carve note as version lookup.</p>
+<p><strong>Prerequisites:</strong> Basic shell; understand that a signature is evidence rather than proof of a valid embedded file.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Extraction also depends on locally installed helper programs.</p>
+<p><a id="media-3"></a></p>
+<p><strong><a href="https://exiftool.org/exiftool_pod.html#READING-EXAMPLES">ExifTool: application documentation and reading examples</a></strong> — Phil Harvey / ExifTool · read · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Only -a -u -g1, -s with named tags, and -b -ThumbnailImage. Read caveat that ordinary extraction omits some embedded/expensive metadata. Do not read format tables or writing reference end-to-end.</p>
+<p><strong>Prerequisites:</strong> Shell redirection and basic metadata concepts; perform any later extraction in a scratch directory.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available.</p>
+<p><a id="media-4"></a></p>
+<p><strong><a href="https://github.com/RickdeJager/stegseek">Stegseek: wordlist mode, seed mode and steghide compatibility</a></strong> — Rick de Jager · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Using Stegseek, Detection and passwordless extraction, and Steghide compatibility; skip benchmark tables and install variants.</p>
+<p><strong>Prerequisites:</strong> Existing steghide/stegseek, a sufficiently large local JPEG/BMP/WAV carrier and a small plain-text wordlist for execution. Reading does not need these.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Save any intended wordlist beforehand; no wordlist or binaries downloaded here.</p>
+<p><a id="media-5"></a></p>
+<p><strong><a href="https://manual.audacityteam.org/man/spectrogram_view.html">Audacity: Spectrogram View</a></strong> — Audacity · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Selecting view, frequency limits, gain/range and Time Smearing/Frequency Smearing. Skip spectral editing and window-function catalog.</p>
+<p><strong>Prerequisites:</strong> Know waveform versus frequency plot; working Audacity needed only for GUI practice.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available.</p>
+<p><a id="media-6"></a></p>
+<p><strong><a href="https://ffmpeg.org/ffmpeg.html">FFmpeg: stream selection and streamcopy</a></strong> — FFmpeg project · read · next · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Section 3.1 Streamcopy plus section 4.1 automatic/manual selection. Retain option-order and per-output scoping rules; skip loopback and complex filtergraphs.</p>
+<p><strong>Prerequisites:</strong> Basic shell and the difference between a container and audio/video streams.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the page with images or print to PDF before flying; local tools and any practice files must already be available. Check available codecs and installed help before departure.</p>
+<p><a id="media-7"></a></p>
+<p><strong><a href="https://github.com/Zeecka/AperiSolve">AperiSolve: local deployment and analyzer overview</a></strong> — Zeecka · read · reference · study cap ~5 min.</p>
+<p><strong>Focus:</strong> Key features and localhost deployment prerequisite only. No Docker setup exercise.</p>
+<p><strong>Prerequisites:</strong> No prerequisite for reading. Execution requires a fully prepared local service stack, not just the approved repository checkout.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save README. Offline use requires an already working local deployment and dependencies; a git checkout alone is insufficient. Never upload event challenge files to the public service.</p>
+<p><a id="media-8"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=pJYyyz6HPbQ">MORSE CODE Steganography (2/2) BsidesCT CTF 2018</a></strong> — John Hammond · watch · next · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Opening audio/metadata investigation; skip decoding-site interaction and sponsorship. Alternative: Sonic Visualiser reference sections 1.1–1.4, 6.1, 6.3 and 8.</p>
+<p><strong>Prerequisites:</strong> Understand waveform versus spectrogram; encoding basics for the latter half. No portal or event files needed.</p>
+<p><strong>Access:</strong> Public viewing appears free; no purchase needed for the reading alternative. YouTube-supported desktop offline downloads require Premium. No account used for metadata/transcript research. Supported desktop downloads require signing into Premium; regional/video availability varies. <strong>Published runtime:</strong> 09:29 (creator video metadata retrieved by Exa; playback not checked)</p>
+<p><strong>Free offline route:</strong> <a href="https://www.sonicvisualiser.org/doc/reference/5.2.1/en/">Read/practice instead</a>; save this material before flying. Free offline video availability not established. Save the official Sonic Visualiser guide and figures instead; no subscription required for that reading route.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Inspected creator video metadata and full retrieved transcript via Exa, not playback. Transcript explicitly names Sonic Visualiser and ExifTool and includes online upload steps. Published 2018-11-06; historical UI.</p>
+<h3>Web and network evidence</h3>
+<p><a id="web-network-1"></a></p>
+<p><strong><a href="https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests">Burp: reissue requests and investigate unexpected input</a></strong> — PortSwigger · read · core · study cap ~30 min.</p>
+<p><strong>Focus:</strong> Proxy history → Repeater; baseline valid input, another valid ID, invalid input; explain response changes. Skip the mixed-edition scanner continuation.</p>
+<p><strong>Prerequisites:</strong> HTTP request/response basics; for execution, Burp Community, prepared browser proxy and reachable Academy lab.</p>
+<p><strong>Access:</strong> Free reading. None for reading. Hosted Academy exercise requires a free account. <strong>Offline:</strong> Save this page and linked Proxy/scope steps before flying. Academy execution requires an account and reachable lab server; saved HTML does not preserve the lab.</p>
+<p><a id="web-network-2"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=_Wifm2g9ugg">How to resend individual requests with Burp Repeater</a></strong> — PortSwigger · watch · core · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Watch only if moving a request between Proxy and Repeater is unfamiliar; recall redirect/history behavior.</p>
+<p><strong>Prerequisites:</strong> Basic HTTP; reading resource 1 is sufficient without playback.</p>
+<p><strong>Access:</strong> Ordinary viewing is public; official desktop offline workflow requires paid YouTube Premium. No purchase needed for curriculum. No account created; download workflow requires signed-in Premium account. <strong>Published runtime:</strong> 06:30</p>
+<p><strong>Free offline route:</strong> <a href="https://portswigger.net/burp/documentation/desktop/getting-started/reissuing-http-requests">Read/practice instead</a>; save this material before flying. Free offline video entitlement not established; use free saved reading instead.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Inspected creator metadata, description and transcript; did not watch the video.</p>
+<p><a id="web-network-3"></a></p>
+<p><strong><a href="https://everything.curl.dev/http/">Everything curl: Command line HTTP</a></strong> — Daniel Stenberg and curl contributors · read · core · study cap ~30 min.</p>
+<p><strong>Focus:</strong> Customize headers; writing cookies; Simple POST; response codes. Explain why a successful transfer can still return HTTP 404.</p>
+<p><strong>Prerequisites:</strong> Know method, URL, headers and body; execution requires curl and a prepared target.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the selected child pages as well as the chapter index. Header examples: https://everything.curl.dev/http/modify/headers.html ; cookie jar: https://everything.curl.dev/http/cookies/writing.html . Sending requests needs a local prepared server or connectivity.</p>
+<p><a id="web-network-4"></a></p>
+<p><strong><a href="https://github.com/ffuf/ffuf">ffuf upstream examples: discovery, filters and bounded runs</a></strong> — ffuf maintainers · read · next · study cap ~35 min.</p>
+<p><strong>Focus:</strong> One wordlist, one FUZZ position, baseline response, -fs/-fc filtering, -maxtime. Validate an interesting result manually with Burp/curl.</p>
+<p><strong>Prerequisites:</strong> Complete manual-request work first; local wordlist and reachable target for execution.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save README and a small selected wordlist. Optional home practice: https://github.com/adamtlangley/ffufme offers a local Docker target; build and verify before travel. The hosted ffuf.me requires internet; no local lab was prepared.</p>
+<p><a id="web-network-5"></a></p>
+<p><strong><a href="https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html">Wireshark: display filters and following protocol streams</a></strong> — Wireshark Foundation · read · core · study cap ~25 min.</p>
+<p><strong>Focus:</strong> Protocol/field presence, ip.addr equality, and/or; Analyze → Follow → TCP Stream, direction selection, and the filter left by closing the dialog. Avoid advanced/new filter syntax.</p>
+<p><strong>Prerequisites:</strong> Basic TCP/client-server concepts; saved capture and Wireshark for hands-on work.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save display-filter guide and https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStreamSection.html with figures. Free text; no account. Saved-PCAP practice requires an installed Wireshark and downloaded sample.</p>
+<p><a id="web-network-6"></a></p>
+<p><strong><a href="https://www.wireshark.org/docs/man-pages/tshark.html">TShark manual: saved captures and display filters</a></strong> — Wireshark Foundation · read · next · study cap ~15 min.</p>
+<p><strong>Focus:</strong> -r input, -Y display filter, -T fields and repeated -e, -E header=y; distinguish -f capture filters.</p>
+<p><strong>Prerequisites:</strong> Complete Wireshark filtering exercise; TShark installed and same saved PCAP.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save manual and sample PCAP; run locally after checking TShark is installed. No live network needed for saved-capture analysis.</p>
+<p><a id="web-network-7"></a></p>
+<p><strong><a href="https://docs.zeek.org/en/current/quickstart.html">Zeek quick start: turn a PCAP into correlated logs</a></strong> — Zeek project · practice · next · study cap ~30 min.</p>
+<p><strong>Focus:</strong> Run saved quickstart.pcap; join conn/http/weird records by uid, identify the unusual method.</p>
+<p><strong>Prerequisites:</strong> Zeek installed in WSL or Unix; save the PCAP and guide before travel.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the guide and linked quickstart.pcap in advance; verify Zeek in WSL and local analysis before departure. The live-traffic exercise uses external HTTP and is not flight practice.</p>
+<p><a id="web-network-8"></a></p>
+<p><strong><a href="https://wiki.wireshark.org/SampleCaptures#hypertext-transport-protocol-http">Wireshark http.cap: match one HTTP request to its response</a></strong> — Wireshark community wiki · practice · next · study cap ~30 min.</p>
+<p><strong>Focus:</strong> Use http.cap; compare GUI-selected fields with TShark output, explain what following a stream adds beyond one packet.</p>
+<p><strong>Prerequisites:</strong> Wireshark and TShark available; artifact downloaded before travel.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save http.cap from https://wiki.wireshark.org/uploads/27707187aeb30df68e70c8fb9d614981/http.cap plus official filter/stream pages before travel. No account or lab server is required. Artifact was not downloaded or executed during this review.</p>
+<p><a id="web-network-9"></a></p>
+<p><strong><a href="https://nmap.org/book/man.html">Nmap reference: interpret ports, services and saved results</a></strong> — Nmap project / Gordon Lyon · read · next · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Distinguish open/closed/filtered; port-number label versus -sV identification; -oN and -oX output.</p>
+<p><strong>Prerequisites:</strong> Basic TCP ports; actual scanning requires a prepared authorized local target.</p>
+<p><strong>Access:</strong> Free reading. None for reading. <strong>Offline:</strong> Save the reference for reading. Actual scanning needs a prepared local target or a reachable authorized lab; the online example target is not available without network.</p>
+<h3>Filesystem, memory and artifact analysis</h3>
+<p><a id="forensics-1"></a></p>
+<p><strong><a href="https://www.sleuthkit.org/sleuthkit/man/fls.html">Sleuth Kit: list files and recover by metadata address</a></strong> — The Sleuth Kit · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Read fls -o/-r/-d/-p and Examples; mmls description and sector-size option; icat -o/-r and stdout behavior. Skip timeline and split-image options on the first pass.</p>
+<p><strong>Prerequisites:</strong> Basic shell syntax and redirection; know disk image versus filesystem image.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save fls plus https://www.sleuthkit.org/sleuthkit/man/mmls.html and https://www.sleuthkit.org/sleuthkit/man/icat.html . The supplied paper drill needs no disk image. Executing requires an installed Sleuth Kit and a separately staged compatible image.</p>
+<p><a id="forensics-2"></a></p>
+<p><strong><a href="https://www.sleuthkit.org/autopsy/docs/user-docs/4.22.0/quick_start_guide.html">Autopsy Quick Start Guide</a></strong> — The Sleuth Kit / Autopsy · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Cases and Data Sources; File Type Identification and Keyword Search; Analysis Basics; Web Artifacts. Skip multi-user setup, hash-set downloads and reporting formats.</p>
+<p><strong>Prerequisites:</strong> Recognize a case as a results container; execution requires installed Windows Autopsy, but reading/recall does not.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save the 4.22.0 guide with screenshots. The required recall exercise uses no image; optional hands-on work can use a newly created folder of harmless text files as a logical data source. Installed Autopsy and sufficient local case storage are required for execution.</p>
+<p><a id="forensics-3"></a></p>
+<p><strong><a href="https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html">Volatility 3: Windows Tutorial</a></strong> — Volatility Foundation · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Plugin discovery, CLI shape, pslist, pstree and the symbol-download note; reconstruct relationships from the displayed PID/PPID columns.</p>
+<p><strong>Prerequisites:</strong> Understand PID/PPID and memory snapshot; hands-on requires a compatible local dump, installed Volatility 3 and resolved symbols.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save the page. Stage the memory image and resolve its symbols while online, then test the chosen commands offline: Windows symbol files may otherwise require Microsoft downloads. Volatility does not acquire memory.</p>
+<p><a id="forensics-4"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=Uk3DEgY5Ue8">Introduction to Memory Forensics with Volatility 3</a></strong> — DFIRScience / Joshua I. James · watch · next · study cap ~20 min.</p>
+<p><strong>Focus:</strong> If the official process exercise is easy, skip this item. Otherwise use the creator explanation to connect processes with handles and extracted files; consult installed help for plugin names. Do not copy windows.registay or windows.dumpfile from the notes.</p>
+<p><strong>Prerequisites:</strong> Volatility 3 core process lesson; distinguish PowerShell Select-String from WSL shell commands.</p>
+<p><strong>Access:</strong> Free online viewing is the intended public route; desktop offline download is a YouTube Premium feature, not a verified free download. No account was used for metadata/text access. Premium download requires sign-in; playback restrictions can vary. <strong>Published runtime:</strong> Not verified; the study cap is not a runtime.</p>
+<p><strong>Free offline route:</strong> <a href="https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html">Read/practice instead</a>; save this material before flying. Use saved free reading alternative. If already entitled to platform offline viewing, verify this video downloads and plays on the intended device before flying; do not buy access for this plan.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Read the creator companion page and inspected its HTML embedding this exact YouTube ID; YouTube fetch confirmed title and 2022 publication date but provided no transcript. Not watched. Companion command notes contain apparent typos including windows.registay and windows.dumpfile, so do not use them as a verbatim command sheet.</p>
+<p><a id="forensics-5"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=_qElVZJqlGY">Introduction to MFTECmd - NTFS MFT and Journal Forensics</a></strong> — 13Cubed · watch · core · study cap ~25 min.</p>
+<p><strong>Focus:</strong> 00:00–06:00 artifact concepts and 10:33–20:36 MFTECmd/Timeline Explorer analysis; skip KAPE at 06:00–10:33. Concentrate on UpdateReasons and file-entry filtering, not treating timestamp anomalies alone as proof.</p>
+<p><strong>Prerequisites:</strong> NTFS basics; understand current metadata versus change journal. Execution needs supplied $MFT/$J, applicable Zimmerman executables/runtime and a CSV viewer; no KAPE requirement.</p>
+<p><strong>Access:</strong> Free online viewing is the intended public route; desktop offline download is a YouTube Premium feature, not a verified free download. No account was used for metadata/text access. Premium download requires sign-in; playback restrictions can vary. <strong>Published runtime:</strong> 22:01 (retrieved YouTube metadata); selected chapters approximately 16:03, study estimate 25 minutes including recall.</p>
+<p><strong>Free offline route:</strong> <a href="https://github.com/EricZimmerman/MFTECmd">Read/practice instead</a>; save this material before flying. Use saved free reading alternative. If already entitled to platform offline viewing, verify this video downloads and plays on the intended device before flying; do not buy access for this plan.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Fetched title, channel, description, chapter markers and transcript excerpts. The video demonstrates MFTECmd and Timeline Explorer and discusses a historical $LogFile limitation; no claim of current installed support. Not watched.</p>
+<p><a id="forensics-6"></a></p>
+<p><strong><a href="https://qpdf.readthedocs.io/en/stable/cli.html#pdf-inspection">qpdf: PDF inspection options</a></strong> — qpdf project · read · next · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Basic Invocation inspection-mode exception; PDF Inspection: show-pages, show-object, raw-stream-data, filtered-stream-data, list-attachments and show-attachment.</p>
+<p><strong>Prerequisites:</strong> Know that a PDF contains numbered objects and streams; no PDF sample needed for recall. Execution requires local qpdf and a harmless PDF copy.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save the PDF Inspection section. Hands-on use needs installed qpdf and local sample PDFs; retain original files and use inspection operations. Unsupported stream filters may prevent decoding.</p>
+<p><a id="forensics-7"></a></p>
+<p><strong><a href="https://github.com/WithSecureOpenSource/chainsaw#examples">Chainsaw: searching and hunting Windows event logs</a></strong> — WithSecure Countercept · read · next · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Examples → Searching, then one Hunting command and its output. Explain the separate log input, rules and mapping; use 4104 in the example command despite the prose typo 4014.</p>
+<p><strong>Prerequisites:</strong> Understand EVTX event fields; execution needs local logs. Rule-based hunting additionally needs matching Sigma/Chainsaw rule files and mapping.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save README examples and, for a local exercise, stage a small EVTX set plus matching rules and mapping files. Check the installed 2.16.5 help against the current README. No hosted backend is needed for the documented local-file workflow.</p>
+<p><a id="forensics-8"></a></p>
+<p><strong><a href="https://sqlite.org/cli.html">SQLite command-line shell: inspect schema and records</a></strong> — SQLite project · read · next · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Opening Database Files (--readonly/--ifexists), .tables, .schema, .mode list and basic SELECT examples; distinguish dot-commands from SQL statements.</p>
+<p><strong>Prerequisites:</strong> Basic SQL SELECT/WHERE/ORDER BY; no sample database required for the included in-memory exercise.</p>
+<p><strong>Access:</strong> Free reading; no trial or paid course required. None for inspected page. <strong>Offline:</strong> Save these sections, not the whole manual as a study assignment. Use a local copy of a database and preserve any supplied WAL/SHM companions. This is SQLite CLI instruction, not deleted-record recovery or SQLCipher decryption.</p>
+<h3>Reversing and static triage</h3>
+<p><a id="reverse-1"></a></p>
+<p><strong><a href="https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html">Introduction to Ghidra — student guide</a></strong> — Ghidra project / NSA · read · core · study cap ~25 min.</p>
+<p><strong>Focus:</strong> Import/auto-analysis, decompiler, references, rename/type correction, function graph. Skip installation, server and window customization unless blocked.</p>
+<p><strong>Prerequisites:</strong> Basic C control flow and recognition of executable formats; running Ghidra only for optional lab.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save the guide with images before travel; confirm it opens offline. The exercises accept a program of your choice, so use the benign reverse-4 companion.</p>
+<p><a id="reverse-2"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=fTGTnrgjuGA">Ghidra quickstart &amp; tutorial: Solving a simple crackme</a></strong> — stacksmashing · watch · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Choose this OR the basic Ghidra guide if navigation is rusty; focus on correcting main signature and deriving the three input conditions.</p>
+<p><strong>Prerequisites:</strong> Basic C expressions, argv and zero-based indexing.</p>
+<p><strong>Access:</strong> Free online viewing; computer offline video uses paid YouTube Premium where available. No sign-in used to inspect page; Premium downloads require signed-in account. <strong>Published runtime:</strong> Not verified; the study cap is not a runtime.</p>
+<p><strong>Free offline route:</strong> <a href="https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html">Read/practice instead</a>; save this material before flying. Video download eligibility/playback unverified. Use the free reading/practice alternative, saved before flying.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Exa retrieved the original video title, creator and transcript covering import, analysis and decompiler navigation. Published 2019; skip the historical scrolling-patch suggestion and expect changed UI. Not watched or executed; study_minutes is a planning estimate, not video runtime.</p>
+<p><a id="reverse-3"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=VroEiMOJPm8">Reversing and Cracking first simple Program — bin 0x05</a></strong> — LiveOverflow · watch · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Use alongside reverse-4, not instead of attempting its branch exercise. Review disassemble main and connect conditional jumps to the source.</p>
+<p><strong>Prerequisites:</strong> Basic x86-64 registers, cmp/test and conditional branches; use guide notes if rusty.</p>
+<p><strong>Access:</strong> Free online viewing; computer offline video uses paid YouTube Premium where available. No sign-in used to inspect page; Premium downloads require signed-in account. <strong>Published runtime:</strong> Not verified; the study cap is not a runtime.</p>
+<p><strong>Free offline route:</strong> <a href="https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler">Read/practice instead</a>; save this material before flying. Video download eligibility/playback unverified. Use the free reading/practice alternative, saved before flying.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Exa fetched the original YouTube title/date; full primary-page transcript was unavailable, and web fallback failed. Inspected the creator repository and raw C/disassembly to verify the exercise and plain-GDB basis. Video content itself was not fully independently inspected. Not watched or executed; study_minutes is a planning estimate, not video runtime.</p>
+<p><a id="reverse-4"></a></p>
+<p><strong><a href="https://github.com/LiveOverflow/liveoverflow_youtube/tree/master/0x05_simple_crackme_intro_assembler">bin 0x05 companion: license-check source and GDB disassembly</a></strong> — LiveOverflow · practice · next · study cap ~35 min.</p>
+<p><strong>Focus:</strong> Reconstruct branch graph and output cases from disassembly before opening license_1.c. Then verify one dynamic hypothesis if a local lab is already prepared.</p>
+<p><strong>Prerequisites:</strong> C argv/argc and strcmp; x86-64 argument registers and zero/nonzero return reasoning.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save gdb_disassembly and license_1.c before departure. Optional hands-on work requires a prepared local GDB/Ghidra environment; use the readable benign source, and check your compiled output because addresses will differ.</p>
+<p><a id="reverse-5"></a></p>
+<p><strong><a href="https://github.com/mandiant/capa/blob/v9.4.0/doc/usage.md">capa 9.4.0 usage: interpret capability matches</a></strong> — Mandiant / FLARE · read · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Default versus -v/-vv, nested matches and -t filtering; ignore alternate commercial/cloud backends.</p>
+<p><strong>Prerequisites:</strong> Know what strings, disassembly and an address are; no malware execution needed.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save the usage page; inspect its printed examples on the plane. CLI reading needs no live malware. Skip cloud uploads, IDA/Binary Ninja backends and sandbox integration for this study path.</p>
+<p><a id="reverse-6"></a></p>
+<p><strong><a href="https://github.com/mandiant/flare-floss/blob/master/doc/usage.md">FLOSS usage: static, stack, tight and decoded strings</a></strong> — Mandiant / FLARE · read · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Default extraction plus static/stack/tight/decoded distinctions; one string-type selection example. Skip tag databases, HTML viewer and new filtering controls.</p>
+<p><strong>Prerequisites:</strong> Know why a plain-text string scan can miss runtime-constructed values.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save the Markdown page before travel. Read the examples without executing sample malware; newer filtering/summary options need a local version check.</p>
+<p><a id="reverse-7"></a></p>
+<p><strong><a href="https://yara.readthedocs.io/en/stable/writingrules.html">Writing YARA rules</a></strong> — YARA project · read · next · study cap ~25 min.</p>
+<p><strong>Focus:</strong> strings/condition, ASCII case sensitivity, nocase, hex wildcards and all-of logic. Skip exotic modifiers/modules on first pass.</p>
+<p><strong>Prerequisites:</strong> Boolean AND/OR and elementary byte/hex representation.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save the relevant sections as HTML/PDF; the benign text-file drill is local once YARA is available. No malware collection or network service is required.</p>
+<p><a id="reverse-8"></a></p>
+<p><strong><a href="https://github.com/dnSpyEx/dnSpy">dnSpyEx: managed assembly navigation and debugging capabilities</a></strong> — dnSpyEx maintainers · read · reference · study cap ~5 min.</p>
+<p><strong>Focus:</strong> Entry point, string search, find callers, IL versus C# and breakpoint/locals capabilities.</p>
+<p><strong>Prerequisites:</strong> Recognize .NET assemblies; basic C# syntax helps.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save README and relevant screenshots before travel. Practical debugging requires a prepared Windows environment and a benign assembly; no additional Unity setup is needed for this reading path.</p>
+<p><a id="reverse-9"></a></p>
+<p><strong><a href="https://github.com/skylot/jadx">JADX: APK/DEX reading and decompiler limits</a></strong> — JADX maintainers · read · reference · study cap ~10 min.</p>
+<p><strong>Focus:</strong> APK/DEX input; decoded manifest/resources; search, go-to-declaration, find usage; decompilation can be incomplete.</p>
+<p><strong>Prerequisites:</strong> Recognize APK/DEX and simple Java syntax; prepared Java/JADX only for execution.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save README before departure; prepare any benign APK locally. GUI/CLI use can be offline once Java and JADX are working. Do not assume cloud deobfuscation is permitted.</p>
+<p><a id="reverse-10"></a></p>
+<p><strong><a href="https://github.com/pyinstxtractor/pyinstxtractor-ng">pyinstxtractor-ng: inspect and extract a PyInstaller executable</a></strong> — pyinstxtractor-ng maintainers · read · reference · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Extract locally; distinguish extraction from recovered source; identify bytecode version before choosing decompiler. Avoid the README example that immediately executes extracted code.</p>
+<p><strong>Prerequisites:</strong> Understand executable container versus Python bytecode; simple Python familiarity.</p>
+<p><strong>Access:</strong> Free reading and saving public text. None for reading or saving the linked text. <strong>Offline:</strong> Save README before travel. Read its examples without executing extracted code; prepare a benign sample only if you want an offline drill. Do not use the linked web service for event files.</p>
+<h3>Encodings, crypto and passwords</h3>
+<p><a id="crypto-foundations-1"></a></p>
+<p><strong><a href="https://github.com/gchq/CyberChef">CyberChef: how recipes work and worked examples</a></strong> — GCHQ · read · core · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Read How it works, breakpoints, save/load recipes, and the Base64/hexdump examples. Decode the embedded two-layer string and save the recipe.</p>
+<p><strong>Prerequisites:</strong> Comfort with encodings versus encryption; local CyberChef needed only for interactive practice.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save the README and prepare a working local CyberChef build before departure; a bookmark alone is not an offline copy. Test it with networking disabled.</p>
+<p><a id="crypto-foundations-2"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=UtqmiI7k9lU">Cryptography Lab 5: Cooking with the Cyberchef</a></strong> — Level Effect · watch · core · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Optional 7:17 watch or skim first recipe construction and inversion; use the typed-text example or the embedded known-answer recipe instead of course assets.</p>
+<p><strong>Prerequisites:</strong> None beyond the CyberChef basics; later course lab file not supplied.</p>
+<p><strong>Access:</strong> Free streaming; desktop offline feature is paid YouTube Premium. No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads. <strong>Published runtime:</strong> 07:17</p>
+<p><strong>Free offline route:</strong> <a href="https://github.com/gchq/CyberChef">Read/practice instead</a>; save this material before flying. Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Inspected creator video metadata and transcript covering the interface and layered encoding through Exa; not watched. Listed runtime is 7:17; study estimate includes pausing.</p>
+<p><a id="crypto-foundations-3"></a></p>
+<p><strong><a href="https://www.youtube.com/watch?v=20K1ctFzu2Y">CTFlearn: RSA Beginner</a></strong> — Almond Force · watch · core · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Optional 5:44 walkthrough of factorization, phi, inverse and modular decryption. Reproduce n=3233, e=17, c=2790 locally; skip the portal submission and online converter.</p>
+<p><strong>Prerequisites:</strong> Integer arithmetic and Python pow; Sage optional for the tiny fixture.</p>
+<p><strong>Access:</strong> Free streaming; desktop offline feature is paid YouTube Premium. No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads. <strong>Published runtime:</strong> 05:44</p>
+<p><strong>Free offline route:</strong> <a href="https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html">Read/practice instead</a>; save this material before flying. Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.</p>
+<p><strong>Evidence limit:</strong> 2026-10-22: Inspected creator metadata and full retrieved transcript through Exa; not watched. Listed runtime is 5:44. This demonstrates textbook weak RSA, not general RSA breaking.</p>
+<p><a id="crypto-foundations-4"></a></p>
+<p><strong><a href="https://github.com/RsaCtfTool/RsaCtfTool">RsaCtfTool: usage and attack prerequisites</a></strong> — RsaCtfTool maintainers · read · core · study cap ~20 min.</p>
+<p><strong>Focus:</strong> Read key creation/inspection and named-attack examples; choose attacks from observed weaknesses. Know why arbitrary RSA keys are not automatically recoverable. Avoid FactorDB and sendtofdb in offline/event workflows.</p>
+<p><strong>Prerequisites:</strong> Basic RSA n/e/c/p/q/phi/d; local Python 3.9+ and tool dependencies if executing; Sage only for supported attacks that need it.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save README and help output. Prepare dependencies beforehand; Sage is optional for some attacks but needed for others. Avoid network-backed attacks such as FactorDB offline.</p>
+<p><a id="crypto-foundations-5"></a></p>
+<p><strong><a href="https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html">SageMath tutorial: number theory</a></strong> — SageMath documentation team · read · next · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Read gcd/factor, inverse_mod, extended Euclid and CRT; skip p-adics, number fields and unrelated sequences. Check CRT gives 11 for residues 2 mod 3 and 1 mod 5.</p>
+<p><strong>Prerequisites:</strong> Modular arithmetic; local Sage for Sage commands. Python pow(...,-1,...) can cover the small RSA exercise without Sage.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save this chapter and test local Sage first. The workbook records no Sage installation information; ordinary Python alone does not provide sage.all.</p>
+<p><a id="crypto-foundations-6"></a></p>
+<p><strong><a href="https://hashcat.net/wiki/doku.php?id=dictionary_attack">hashcat: dictionary attacks with a tiny wordlist</a></strong> — hashcat project · read · core · study cap ~15 min.</p>
+<p><strong>Focus:</strong> Read dictionary Description and the first command. Use -m 0 (raw MD5) with -a 0 and a three-word list; compare with -a 3 and a constrained mask. Use local help for installed-version flags; skip page suggestions for newer modes.</p>
+<p><strong>Prerequisites:</strong> Hash format identification; working hashcat backend for execution, otherwise use the Python known-answer fallback.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.</p>
+<p><a id="crypto-foundations-7"></a></p>
+<p><strong><a href="https://www.openwall.com/john/doc/EXAMPLES.shtml">John the Ripper: usage examples</a></strong> — Openwall · read · core · study cap ~10 min.</p>
+<p><strong>Focus:</strong> Read --wordlist, --rules, --show and session/restore examples; skip password-file acquisition, account filters and exhaustive incremental demonstrations. Compare John --format=raw-md5 with hashcat -m 0 on the same toy file.</p>
+<p><strong>Prerequisites:</strong> John Jumbo for raw-md5; no real account files needed. Verify the local format is present before flight.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save the examples and prepare a tiny synthetic hash file and wordlist. The page teaches general John behavior; Jumbo-specific formats and extractors need the installed build’s help.</p>
+<p><a id="crypto-foundations-8"></a></p>
+<p><strong><a href="https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md">bkcrack 1.8.1: stored-plaintext ZIP recovery</a></strong> — kimci86 / bkcrack project · practice · next · study cap ~25 min.</p>
+<p><strong>Focus:</strong> Read archive metadata, stored-file known plaintext, internal-key recovery and password removal. Work from the printed metadata if the sample archive was not prepared.</p>
+<p><strong>Prerequisites:</strong> ZipCrypto versus AES; stored versus deflated members; local bkcrack 1.8.1 plus public example only if executing.</p>
+<p><strong>Access:</strong> Free reading; local software is free/open source for this selection. None for reading. <strong>Offline:</strong> Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.</p>
+<h2>Compatibility and coverage limits</h2>
+<p>The exact inventory versions and locations remain in the <a href="APPROVED_TOOL_REFERENCES.html">all-tool index</a>. Important families that are not scheduled retain explicit reference-only rationales there. Broad category familiarity is not claimed as proficiency in every approved tool.</p>
+<ul>
+<li>The inaccurate historical TSK walkthrough was replaced with official <code>fls</code>/<code>mmls</code>/<code>icat</code> instructions. <code>strings</code> retains its own original reference.</li>
+<li>capa and bkcrack instructions are pinned to recorded versions 9.4.0 and 1.8.1. Autopsy documentation is 4.22.0; the installed version still needs checking. Moving docs for tools listed as “Latest” or unspecified are not guarantees of installed flags.</li>
+<li>Binwalk major versions differ. SSTV is listed as a decoder but its installation note names the PySSTV encoder. Sage has no installation information recorded. Neither is an execution prerequisite for the included exercises.</li>
+<li>The MFTECmd video is historical: use the current author README for <code>$LogFile</code> support. DFIRScience companion command notes have typos; use the official Volatility tutorial for syntax.</li>
+<li>Specialized lattice attacks were removed from scheduled reading; <code>crypto-attacks</code> remains approved and referenced. Alternative debuggers, mobile artifacts, OSINT, CAN/wireless and vulnerability-specific utilities remain available as targeted lookups, not implicitly mastered by the core path.</li>
+</ul>
+<h2>Evidence and remaining work</h2>
+<p>Researchers inspected substantive documentation, worked examples and available creator transcripts, comparing alternatives where the original was weak. <a href="RESOURCE_EVALUATION.html">Per-resource evaluations</a> and <a href="research/learning-resources.json">machine-readable evidence</a> preserve the decisions, prerequisites, access limits and source observations. <a href="research/learning/review.html">Independent review</a> checks the revised pack.</p>
+<p>Executed here: the synthetic PCAP with TShark; the benign program with GCC and basic GDB; the Python loopback server with curl; toy RSA/hash arithmetic. These are local preparation checks, not organiser-machine validation. GUI applications, forensic image labs, YARA CLI, public archive exercises, video playback and saved-page/video offline operation were not tested. Those optional execution paths remain labeled; the included paper routes require none of them. Actual learning gains require your attempts and feedback.</p>
+</main>
+  <footer><div class="wrap"><a href="LEARNING_RESOURCES.md">Markdown source</a></div></footer>
+</body>
+</html>

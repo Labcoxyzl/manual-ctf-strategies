@@ -1,0 +1,3499 @@
+{
+  "video_id": "Uk3DEgY5Ue8",
+  "title": "Introduction to Memory Forensics with Volatility 3",
+  "channel": "DFIRScience",
+  "duration_seconds": 1920,
+  "caption_source": "research/learning/video-pack/captions/Uk3DEgY5Ue8.en-orig.vtt",
+  "caption_sha256": "6e90f7f46ec3a5c686b206d4df8eb9ca2807ad34a2672844d24d65ec48d90b8c",
+  "caption_kind": "automatic",
+  "entries": [
+    {
+      "seconds": 1,
+      "text": "welcome back everyone today is an"
+    },
+    {
+      "seconds": 1,
+      "text": "introduction to volatility 3 and"
+    },
+    {
+      "seconds": 3,
+      "text": "volatility is a ram analysis tool that"
+    },
+    {
+      "seconds": 6,
+      "text": "we use from the command line it has a"
+    },
+    {
+      "seconds": 8,
+      "text": "lot of different options for parsing"
+    },
+    {
+      "seconds": 9,
+      "text": "information out of a memory image on a"
+    },
+    {
+      "seconds": 12,
+      "text": "computer there's a lot of things running"
+    },
+    {
+      "seconds": 14,
+      "text": "in memory that will never be written to"
+    },
+    {
+      "seconds": 16,
+      "text": "disk if we want to be able to extract"
+    },
+    {
+      "seconds": 18,
+      "text": "things that were not saved to disk they"
+    },
+    {
+      "seconds": 20,
+      "text": "might still be in memory we use it a lot"
+    },
+    {
+      "seconds": 22,
+      "text": "for malware analysis and personally i"
+    },
+    {
+      "seconds": 24,
+      "text": "use it a lot to reconstruct user"
+    },
+    {
+      "seconds": 26,
+      "text": "activities so to install volatility 3 on"
+    },
+    {
+      "seconds": 28,
+      "text": "windows we need a couple of things first"
+    },
+    {
+      "seconds": 30,
+      "text": "off we need python3 go to python.org go"
+    },
+    {
+      "seconds": 33,
+      "text": "to downloads and make sure you're"
+    },
+    {
+      "seconds": 34,
+      "text": "downloading python 3 and installing"
+    },
+    {
+      "seconds": 37,
+      "text": "python is very easy i'll have the links"
+    },
+    {
+      "seconds": 39,
+      "text": "for all of these below next you'll need"
+    },
+    {
+      "seconds": 41,
+      "text": "git for windows you've been watching my"
+    },
+    {
+      "seconds": 42,
+      "text": "channel for a while i download a lot of"
+    },
+    {
+      "seconds": 45,
+      "text": "these forensic tools using git and"
+    },
+    {
+      "seconds": 47,
+      "text": "knowing how to use git is very handy for"
+    },
+    {
+      "seconds": 50,
+      "text": "digital investigators go to"
+    },
+    {
+      "seconds": 51,
+      "text": "getforwindows.org click download run the"
+    },
+    {
+      "seconds": 54,
+      "text": "installer and then you will have git for"
+    },
+    {
+      "seconds": 55,
+      "text": "windows installed in your system the"
+    },
+    {
+      "seconds": 57,
+      "text": "next thing we're going to need is the"
+    },
+    {
+      "seconds": 59,
+      "text": "visualstudio.microsoft.com visual studio"
+    },
+    {
+      "seconds": 61,
+      "text": "cpp build tools this is to build python"
+    },
+    {
+      "seconds": 65,
+      "text": "modules that way we can run volatility"
+    },
+    {
+      "seconds": 67,
+      "text": "click download build tools and then"
+    },
+    {
+      "seconds": 69,
+      "text": "follow the installer and the c plus"
+    },
+    {
+      "seconds": 71,
+      "text": "build tools should install next is the"
+    },
+    {
+      "seconds": 74,
+      "text": "volatility foundation so"
+    },
+    {
+      "seconds": 75,
+      "text": "volatilityfoundation.org"
+    },
+    {
+      "seconds": 77,
+      "text": "you can go to downloads and then if you"
+    },
+    {
+      "seconds": 80,
+      "text": "click on volatility 3 tab you'll notice"
+    },
+    {
+      "seconds": 82,
+      "text": "that they have volatility 3 but it's"
+    },
+    {
+      "seconds": 84,
+      "text": "version 1 the python 3 rewrite so"
+    },
+    {
+      "seconds": 87,
+      "text": "instead we want to go to the github"
+    },
+    {
+      "seconds": 89,
+      "text": "release page this is at github.com"
+    },
+    {
+      "seconds": 92,
+      "text": "volatility foundation volatility 3 and"
+    },
+    {
+      "seconds": 95,
+      "text": "then we can see the code and you notice"
+    },
+    {
+      "seconds": 97,
+      "text": "that under the releases tab we have"
+    },
+    {
+      "seconds": 99,
+      "text": "volatility 3 2.0 so this is actually an"
+    },
+    {
+      "seconds": 102,
+      "text": "updated version and they haven't updated"
+    },
+    {
+      "seconds": 103,
+      "text": "the link on their website so this is why"
+    },
+    {
+      "seconds": 105,
+      "text": "i prefer getting everything directly"
+    },
+    {
+      "seconds": 107,
+      "text": "from github and then even volatility 3"
+    },
+    {
+      "seconds": 110,
+      "text": "2.0 was released in january but they've"
+    },
+    {
+      "seconds": 112,
+      "text": "had updates since then so i want to work"
+    },
+    {
+      "seconds": 115,
+      "text": "with this development branch directly"
+    },
+    {
+      "seconds": 117,
+      "text": "that way i can get all of the features"
+    },
+    {
+      "seconds": 119,
+      "text": "that are currently available so assuming"
+    },
+    {
+      "seconds": 121,
+      "text": "that you've already gotten python you"
+    },
+    {
+      "seconds": 122,
+      "text": "have git you have microsoft c plus plus"
+    },
+    {
+      "seconds": 125,
+      "text": "installed we're now at the volatility 3"
+    },
+    {
+      "seconds": 127,
+      "text": "github i'm going to click the code"
+    },
+    {
+      "seconds": 129,
+      "text": "button"
+    },
+    {
+      "seconds": 130,
+      "text": "and copy the https url then i'm going to"
+    },
+    {
+      "seconds": 133,
+      "text": "open powershell for now i'm going to"
+    },
+    {
+      "seconds": 136,
+      "text": "go to my desktop and i'm going to clone"
+    },
+    {
+      "seconds": 139,
+      "text": "the volatility code into my desktop so i"
+    },
+    {
+      "seconds": 141,
+      "text": "will do git clone"
+    },
+    {
+      "seconds": 144,
+      "text": "right click and then it'll copy that"
+    },
+    {
+      "seconds": 146,
+      "text": "whole url hit enter and then we'll"
+    },
+    {
+      "seconds": 149,
+      "text": "download the current version of"
+    },
+    {
+      "seconds": 150,
+      "text": "volatility now if i want to update"
+    },
+    {
+      "seconds": 153,
+      "text": "volatility in the future all i have to"
+    },
+    {
+      "seconds": 154,
+      "text": "do is type git"
+    },
+    {
+      "seconds": 156,
+      "text": "pull"
+    },
+    {
+      "seconds": 157,
+      "text": "and then rebuild any of the code that's"
+    },
+    {
+      "seconds": 159,
+      "text": "pulled in so this is an easy way to keep"
+    },
+    {
+      "seconds": 161,
+      "text": "your software up to date before i"
+    },
+    {
+      "seconds": 163,
+      "text": "actually build this i need to install"
+    },
+    {
+      "seconds": 164,
+      "text": "one thing and that is the python snappy"
+    },
+    {
+      "seconds": 166,
+      "text": "extension and in windows i had a lot of"
+    },
+    {
+      "seconds": 168,
+      "text": "trouble installing snappy this is really"
+    },
+    {
+      "seconds": 171,
+      "text": "the only place where i could find the"
+    },
+    {
+      "seconds": 173,
+      "text": "wheel file that would actually work for"
+    },
+    {
+      "seconds": 174,
+      "text": "it for me i'm using amd 64. so i want to"
+    },
+    {
+      "seconds": 177,
+      "text": "click on python snappy win amd 64. if"
+    },
+    {
+      "seconds": 181,
+      "text": "you're using a different system make"
+    },
+    {
+      "seconds": 182,
+      "text": "sure you choose the one for for your"
+    },
+    {
+      "seconds": 184,
+      "text": "individual system i'm going to save that"
+    },
+    {
+      "seconds": 187,
+      "text": "file and it's saved into my downloads"
+    },
+    {
+      "seconds": 189,
+      "text": "folder so next let's check that we have"
+    },
+    {
+      "seconds": 190,
+      "text": "python installed so let's type python"
+    },
+    {
+      "seconds": 192,
+      "text": "and then dash capital v"
+    },
+    {
+      "seconds": 195,
+      "text": "and you should get python and then its"
+    },
+    {
+      "seconds": 197,
+      "text": "version number that you have installed"
+    },
+    {
+      "seconds": 199,
+      "text": "make sure that the first number is at"
+    },
+    {
+      "seconds": 200,
+      "text": "least a three now if we have python"
+    },
+    {
+      "seconds": 202,
+      "text": "installed i'm gonna type pip install and"
+    },
+    {
+      "seconds": 204,
+      "text": "then i'm going to give the full path to"
+    },
+    {
+      "seconds": 207,
+      "text": "where i downloaded the"
+    },
+    {
+      "seconds": 209,
+      "text": "snappy.whl or the wheel file python will"
+    },
+    {
+      "seconds": 212,
+      "text": "install this wheel file directly i"
+    },
+    {
+      "seconds": 215,
+      "text": "already had it installed so everything's"
+    },
+    {
+      "seconds": 216,
+      "text": "okay you shouldn't really get any errors"
+    },
+    {
+      "seconds": 218,
+      "text": "if everything went well so next i have"
+    },
+    {
+      "seconds": 220,
+      "text": "on my desktop the volatility 3 folder so"
+    },
+    {
+      "seconds": 223,
+      "text": "i'm going to cd volatility3 type ls or"
+    },
+    {
+      "seconds": 227,
+      "text": "dir and then you should see a list of"
+    },
+    {
+      "seconds": 230,
+      "text": "all of the files inside the volatility 3"
+    },
+    {
+      "seconds": 232,
+      "text": "folder i have val.pi so i know this is"
+    },
+    {
+      "seconds": 234,
+      "text": "the right folder what we need to do now"
+    },
+    {
+      "seconds": 236,
+      "text": "is install all the requirements to run"
+    },
+    {
+      "seconds": 238,
+      "text": "volatility you can do requirements"
+    },
+    {
+      "seconds": 241,
+      "text": "minimal and it will stall fewer things"
+    },
+    {
+      "seconds": 243,
+      "text": "you need to download fewer things but if"
+    },
+    {
+      "seconds": 245,
+      "text": "you want all of the features of"
+    },
+    {
+      "seconds": 246,
+      "text": "volatility you should do"
+    },
+    {
+      "seconds": 248,
+      "text": "requirements.txt which i recommend so"
+    },
+    {
+      "seconds": 250,
+      "text": "what we need to type inside the"
+    },
+    {
+      "seconds": 253,
+      "text": "three folder we type"
+    },
+    {
+      "seconds": 255,
+      "text": "pip"
+    },
+    {
+      "seconds": 256,
+      "text": "install dash r"
+    },
+    {
+      "seconds": 258,
+      "text": "requirements"
+    },
+    {
+      "seconds": 260,
+      "text": "dot txt pip install dash r"
+    },
+    {
+      "seconds": 263,
+      "text": "requirements dot txt press enter and"
+    },
+    {
+      "seconds": 266,
+      "text": "then what should happen is everything"
+    },
+    {
+      "seconds": 267,
+      "text": "will go through and check if everything"
+    },
+    {
+      "seconds": 269,
+      "text": "is installed if you don't have a package"
+    },
+    {
+      "seconds": 272,
+      "text": "that's already been installed it will"
+    },
+    {
+      "seconds": 273,
+      "text": "try to download the package and compile"
+    },
+    {
+      "seconds": 276,
+      "text": "it so this is where installing the"
+    },
+    {
+      "seconds": 277,
+      "text": "microsoft c plus plus build tools is"
+    },
+    {
+      "seconds": 279,
+      "text": "really important if this is not"
+    },
+    {
+      "seconds": 281,
+      "text": "installed properly you might have errors"
+    },
+    {
+      "seconds": 283,
+      "text": "at this stage so if you do have errors"
+    },
+    {
+      "seconds": 285,
+      "text": "go back and check that microsoft build"
+    },
+    {
+      "seconds": 287,
+      "text": "tools are installed properly so we see"
+    },
+    {
+      "seconds": 289,
+      "text": "if everything was installed correctly by"
+    },
+    {
+      "seconds": 291,
+      "text": "running pythonvol.pi inside the"
+    },
+    {
+      "seconds": 294,
+      "text": "volatility 3 folder so python vol.5 and"
+    },
+    {
+      "seconds": 298,
+      "text": "then dash lowercase v so for python to"
+    },
+    {
+      "seconds": 302,
+      "text": "check the version it was an uppercase v"
+    },
+    {
+      "seconds": 304,
+      "text": "for volatility it's a lowercase v now"
+    },
+    {
+      "seconds": 307,
+      "text": "whenever we run this we see a couple of"
+    },
+    {
+      "seconds": 308,
+      "text": "things we have the volatility three"
+    },
+    {
+      "seconds": 310,
+      "text": "framework and then the version of this"
+    },
+    {
+      "seconds": 312,
+      "text": "is 2.0.2 so this is volatility three"
+    },
+    {
+      "seconds": 315,
+      "text": "version two zero two so it is newer than"
+    },
+    {
+      "seconds": 317,
+      "text": "the most recent release that we saw and"
+    },
+    {
+      "seconds": 319,
+      "text": "then i have a couple of things here for"
+    },
+    {
+      "seconds": 321,
+      "text": "example the symbols path is interesting"
+    },
+    {
+      "seconds": 324,
+      "text": "this is where any symbols will be"
+    },
+    {
+      "seconds": 325,
+      "text": "downloaded for analysis and we can"
+    },
+    {
+      "seconds": 327,
+      "text": "download additional symbols if we need"
+    },
+    {
+      "seconds": 329,
+      "text": "to as well as where the plugins can be"
+    },
+    {
+      "seconds": 332,
+      "text": "installed so volatility does have a lot"
+    },
+    {
+      "seconds": 334,
+      "text": "of plugins that are separate that you"
+    },
+    {
+      "seconds": 336,
+      "text": "can install into these main packages"
+    },
+    {
+      "seconds": 338,
+      "text": "this is the location folder where you"
+    },
+    {
+      "seconds": 340,
+      "text": "would want to install those plugins if"
+    },
+    {
+      "seconds": 342,
+      "text": "that ran then volatility is at least"
+    },
+    {
+      "seconds": 344,
+      "text": "working it's just installed in the"
+    },
+    {
+      "seconds": 346,
+      "text": "volatility 3 folder which is fine if"
+    },
+    {
+      "seconds": 348,
+      "text": "that's where we want to run it from so"
+    },
+    {
+      "seconds": 349,
+      "text": "the next thing we need to do is actually"
+    },
+    {
+      "seconds": 351,
+      "text": "get a memory image so i'm going to open"
+    },
+    {
+      "seconds": 353,
+      "text": "up and i have a folder on my z drive"
+    },
+    {
+      "seconds": 356,
+      "text": "called memory image and the image that"
+    },
+    {
+      "seconds": 358,
+      "text": "i'm going to be analyzing today is the"
+    },
+    {
+      "seconds": 360,
+      "text": "actf"
+    },
+    {
+      "seconds": 362,
+      "text": "dot mem so i need to get the location of"
+    },
+    {
+      "seconds": 365,
+      "text": "my memory image z drive memory image"
+    },
+    {
+      "seconds": 368,
+      "text": "actf dot mim and then the first thing we"
+    },
+    {
+      "seconds": 370,
+      "text": "normally want to do is run python ball"
+    },
+    {
+      "seconds": 373,
+      "text": "dot pi"
+    },
+    {
+      "seconds": 374,
+      "text": "dash f this is the file that we're going"
+    },
+    {
+      "seconds": 376,
+      "text": "to be analyzing i'm going to paste in"
+    },
+    {
+      "seconds": 379,
+      "text": "memory image and then the ac tf dot mem"
+    },
+    {
+      "seconds": 383,
+      "text": "so python vol.pi dash f"
+    },
+    {
+      "seconds": 386,
+      "text": "and then wherever your memory image is"
+    },
+    {
+      "seconds": 389,
+      "text": "located and then we want to get the"
+    },
+    {
+      "seconds": 391,
+      "text": "information about this memory image so"
+    },
+    {
+      "seconds": 394,
+      "text": "i'm going to run windows dot info"
+    },
+    {
+      "seconds": 397,
+      "text": "volatility 3 is a little bit different"
+    },
+    {
+      "seconds": 399,
+      "text": "in that the plugin that we're using is"
+    },
+    {
+      "seconds": 401,
+      "text": "specified at the end here like i'm"
+    },
+    {
+      "seconds": 403,
+      "text": "analyzing windows and i want to get the"
+    },
+    {
+      "seconds": 405,
+      "text": "info for windows i'll show you how to"
+    },
+    {
+      "seconds": 407,
+      "text": "use this as a filter shortly so let's go"
+    },
+    {
+      "seconds": 409,
+      "text": "ahead and run that so now it's scanning"
+    },
+    {
+      "seconds": 411,
+      "text": "through the memory image and this will"
+    },
+    {
+      "seconds": 413,
+      "text": "take a little bit we get some basic"
+    },
+    {
+      "seconds": 414,
+      "text": "information here about the system itself"
+    },
+    {
+      "seconds": 417,
+      "text": "all this is read from memory so for"
+    },
+    {
+      "seconds": 419,
+      "text": "example we have number of processors"
+    },
+    {
+      "seconds": 421,
+      "text": "could be interesting the system time at"
+    },
+    {
+      "seconds": 423,
+      "text": "the time of imaging could be interesting"
+    },
+    {
+      "seconds": 425,
+      "text": "system root was set to c drive windows"
+    },
+    {
+      "seconds": 427,
+      "text": "that could be interesting for the rest"
+    },
+    {
+      "seconds": 429,
+      "text": "of our investigation major operating"
+    },
+    {
+      "seconds": 430,
+      "text": "system version things like that so this"
+    },
+    {
+      "seconds": 432,
+      "text": "is usually the first thing we want to do"
+    },
+    {
+      "seconds": 434,
+      "text": "and if i wanted to run the same command"
+    },
+    {
+      "seconds": 436,
+      "text": "and save the output then i would use a"
+    },
+    {
+      "seconds": 438,
+      "text": "greater than sign and that's piping to a"
+    },
+    {
+      "seconds": 440,
+      "text": "file called actf.mem.info.txt"
+    },
+    {
+      "seconds": 449,
+      "text": "something like that and then i would run"
+    },
+    {
+      "seconds": 449,
+      "text": "it again and then all of this output"
+    },
+    {
+      "seconds": 450,
+      "text": "would be saved into this text file so"
+    },
+    {
+      "seconds": 453,
+      "text": "that way i can use it for later"
+    },
+    {
+      "seconds": 454,
+      "text": "reference so let's say you're starting"
+    },
+    {
+      "seconds": 455,
+      "text": "out with volatility and you have your"
+    },
+    {
+      "seconds": 457,
+      "text": "memory image and you were able to get"
+    },
+    {
+      "seconds": 459,
+      "text": "windows info but you're thinking okay"
+    },
+    {
+      "seconds": 460,
+      "text": "what else can i do with this maybe you"
+    },
+    {
+      "seconds": 462,
+      "text": "don't remember the command that you want"
+    },
+    {
+      "seconds": 464,
+      "text": "to use what you can do is specify your"
+    },
+    {
+      "seconds": 467,
+      "text": "memory image and then specify the plugin"
+    },
+    {
+      "seconds": 470,
+      "text": "that you want to use just as windows"
+    },
+    {
+      "seconds": 471,
+      "text": "instead of saying the entire name just"
+    },
+    {
+      "seconds": 473,
+      "text": "say windows and hit enter and then what"
+    },
+    {
+      "seconds": 476,
+      "text": "this will tell you it'll give you an"
+    },
+    {
+      "seconds": 478,
+      "text": "error and then it will show you all of"
+    },
+    {
+      "seconds": 480,
+      "text": "the different commands that are"
+    },
+    {
+      "seconds": 481,
+      "text": "available right now so everything that's"
+    },
+    {
+      "seconds": 483,
+      "text": "installed that i can currently run on my"
+    },
+    {
+      "seconds": 485,
+      "text": "memory image is here for windows you can"
+    },
+    {
+      "seconds": 488,
+      "text": "do the same for"
+    },
+    {
+      "seconds": 490,
+      "text": "mac os or linux but we're focusing on"
+    },
+    {
+      "seconds": 492,
+      "text": "windows today so these are all the"
+    },
+    {
+      "seconds": 494,
+      "text": "different modules that i can run and"
+    },
+    {
+      "seconds": 496,
+      "text": "then for each of these modules you can"
+    },
+    {
+      "seconds": 498,
+      "text": "also"
+    },
+    {
+      "seconds": 499,
+      "text": "access a help menu which i'll show you"
+    },
+    {
+      "seconds": 501,
+      "text": "shortly and there are some things for"
+    },
+    {
+      "seconds": 503,
+      "text": "example like windows dot mft scan"
+    },
+    {
+      "seconds": 506,
+      "text": "if you have something that looks like"
+    },
+    {
+      "seconds": 508,
+      "text": "this where you have two of the same word"
+    },
+    {
+      "seconds": 510,
+      "text": "volatility automatically tries to search"
+    },
+    {
+      "seconds": 512,
+      "text": "for the most appropriate model so for"
+    },
+    {
+      "seconds": 513,
+      "text": "example if there's only one sub module"
+    },
+    {
+      "seconds": 516,
+      "text": "called mft scan then all you have to do"
+    },
+    {
+      "seconds": 519,
+      "text": "is type"
+    },
+    {
+      "seconds": 520,
+      "text": "windows.mftscan but for example windows"
+    },
+    {
+      "seconds": 523,
+      "text": "registry has multiple modules underneath"
+    },
+    {
+      "seconds": 527,
+      "text": "it so in that case you would have to"
+    },
+    {
+      "seconds": 528,
+      "text": "actually type out windows registry hive"
+    },
+    {
+      "seconds": 531,
+      "text": "scan that way it doesn't get confused"
+    },
+    {
+      "seconds": 533,
+      "text": "with windows registry user assist so my"
+    },
+    {
+      "seconds": 535,
+      "text": "point here is you don't necessarily need"
+    },
+    {
+      "seconds": 538,
+      "text": "to type out the entire thing you can"
+    },
+    {
+      "seconds": 540,
+      "text": "type out the unique module name and then"
+    },
+    {
+      "seconds": 542,
+      "text": "volatility will type the rest for you"
+    },
+    {
+      "seconds": 544,
+      "text": "essentially it seems a bit silly now but"
+    },
+    {
+      "seconds": 546,
+      "text": "it will save you time later so one of"
+    },
+    {
+      "seconds": 547,
+      "text": "the first things we usually do or at"
+    },
+    {
+      "seconds": 549,
+      "text": "least one of the first things i usually"
+    },
+    {
+      "seconds": 551,
+      "text": "do whenever i'm analyzing memory i want"
+    },
+    {
+      "seconds": 553,
+      "text": "to see a process list so that is the"
+    },
+    {
+      "seconds": 556,
+      "text": "windows.pslist"
+    },
+    {
+      "seconds": 559,
+      "text": "module and then i'm going to pipe that"
+    },
+    {
+      "seconds": 562,
+      "text": "into"
+    },
+    {
+      "seconds": 562,
+      "text": "more so i am in powershell in windows"
+    },
+    {
+      "seconds": 565,
+      "text": "and more is usually a linux command line"
+    },
+    {
+      "seconds": 568,
+      "text": "tool but powershell also supports the"
+    },
+    {
+      "seconds": 570,
+      "text": "more anything yellow is a command the"
+    },
+    {
+      "seconds": 572,
+      "text": "powershell understands i'm going to"
+    },
+    {
+      "seconds": 574,
+      "text": "print out all the processes that were in"
+    },
+    {
+      "seconds": 576,
+      "text": "windows at the time of imaging and i'm"
+    },
+    {
+      "seconds": 577,
+      "text": "going to use more so that way it doesn't"
+    },
+    {
+      "seconds": 579,
+      "text": "go by really quickly so let's go ahead"
+    },
+    {
+      "seconds": 580,
+      "text": "and hit enter so now we have process the"
+    },
+    {
+      "seconds": 583,
+      "text": "process list coming out and you can see"
+    },
+    {
+      "seconds": 585,
+      "text": "that i have more here with more if i hit"
+    },
+    {
+      "seconds": 587,
+      "text": "the space bar then it will go to the"
+    },
+    {
+      "seconds": 589,
+      "text": "next page"
+    },
+    {
+      "seconds": 590,
+      "text": "if i don't use more then you're just"
+    },
+    {
+      "seconds": 591,
+      "text": "gonna have all this text flying by and"
+    },
+    {
+      "seconds": 593,
+      "text": "you won't be able to see any of it so"
+    },
+    {
+      "seconds": 596,
+      "text": "from this process list i can see for"
+    },
+    {
+      "seconds": 598,
+      "text": "example first we have the process id"
+    },
+    {
+      "seconds": 601,
+      "text": "that would be this number four here we"
+    },
+    {
+      "seconds": 602,
+      "text": "have the parent process id in this case"
+    },
+    {
+      "seconds": 605,
+      "text": "we have a zero we have the image file"
+    },
+    {
+      "seconds": 607,
+      "text": "name which is the name of basically the"
+    },
+    {
+      "seconds": 609,
+      "text": "executable the offset where it was found"
+    },
+    {
+      "seconds": 611,
+      "text": "in the memory image the number of"
+    },
+    {
+      "seconds": 613,
+      "text": "threads that are currently running the"
+    },
+    {
+      "seconds": 615,
+      "text": "number of handles which could be for"
+    },
+    {
+      "seconds": 617,
+      "text": "example file handles creation time exit"
+    },
+    {
+      "seconds": 619,
+      "text": "time and then file output what i'm"
+    },
+    {
+      "seconds": 621,
+      "text": "usually interested in is image file name"
+    },
+    {
+      "seconds": 624,
+      "text": "that way i can filter and focus on"
+    },
+    {
+      "seconds": 626,
+      "text": "programs that i'm interested in their"
+    },
+    {
+      "seconds": 628,
+      "text": "process id and the parent process id"
+    },
+    {
+      "seconds": 632,
+      "text": "as well as sometimes how many threads it"
+    },
+    {
+      "seconds": 634,
+      "text": "has but many times what handles are"
+    },
+    {
+      "seconds": 638,
+      "text": "available so i tend to focus on things"
+    },
+    {
+      "seconds": 641,
+      "text": "like what files is this process"
+    },
+    {
+      "seconds": 643,
+      "text": "accessing at the time and that's where"
+    },
+    {
+      "seconds": 645,
+      "text": "handles would come in the most"
+    },
+    {
+      "seconds": 646,
+      "text": "interesting if we take this system"
+    },
+    {
+      "seconds": 648,
+      "text": "process we have a process id of four and"
+    },
+    {
+      "seconds": 651,
+      "text": "then the parent process id is zero well"
+    },
+    {
+      "seconds": 653,
+      "text": "why is that system is effectively one of"
+    },
+    {
+      "seconds": 655,
+      "text": "the first processes that are started"
+    },
+    {
+      "seconds": 657,
+      "text": "right and then everything else is"
+    },
+    {
+      "seconds": 658,
+      "text": "started by system so you can see that we"
+    },
+    {
+      "seconds": 661,
+      "text": "have zero meaning that it's one of the"
+    },
+    {
+      "seconds": 663,
+      "text": "first processes it's process id is four"
+    },
+    {
+      "seconds": 666,
+      "text": "and then here we have the registry was"
+    },
+    {
+      "seconds": 668,
+      "text": "opened by process four and the"
+    },
+    {
+      "seconds": 671,
+      "text": "registries process id is 108"
+    },
+    {
+      "seconds": 675,
+      "text": "sms.exe was also opened by process 4 and"
+    },
+    {
+      "seconds": 678,
+      "text": "its process id is 396. so using this"
+    },
+    {
+      "seconds": 682,
+      "text": "we can basically reconstruct how"
+    },
+    {
+      "seconds": 684,
+      "text": "applications were opened who were the"
+    },
+    {
+      "seconds": 686,
+      "text": "parents like where are they coming from"
+    },
+    {
+      "seconds": 689,
+      "text": "okay so this gets really interesting"
+    },
+    {
+      "seconds": 691,
+      "text": "whenever we're trying to find out how"
+    },
+    {
+      "seconds": 692,
+      "text": "different programs were executed so we"
+    },
+    {
+      "seconds": 695,
+      "text": "need to know the process id of the"
+    },
+    {
+      "seconds": 697,
+      "text": "process we're interested in and then"
+    },
+    {
+      "seconds": 698,
+      "text": "very often it's interesting to know the"
+    },
+    {
+      "seconds": 700,
+      "text": "parent process id as well so again i"
+    },
+    {
+      "seconds": 702,
+      "text": "tend to focus on process id sometimes"
+    },
+    {
+      "seconds": 705,
+      "text": "parent process id definitely file name"
+    },
+    {
+      "seconds": 707,
+      "text": "because i want to filter using that"
+    },
+    {
+      "seconds": 710,
+      "text": "sometimes the threads and then many"
+    },
+    {
+      "seconds": 711,
+      "text": "times for me many times handles if"
+    },
+    {
+      "seconds": 714,
+      "text": "you're doing something like malware"
+    },
+    {
+      "seconds": 715,
+      "text": "analysis this might be very different"
+    },
+    {
+      "seconds": 717,
+      "text": "i'm usually use looking at user"
+    },
+    {
+      "seconds": 719,
+      "text": "activities you can see that as we go"
+    },
+    {
+      "seconds": 721,
+      "text": "down there's a lot of processes that"
+    },
+    {
+      "seconds": 723,
+      "text": "we're running at the time if we know"
+    },
+    {
+      "seconds": 725,
+      "text": "what process we're interested in we need"
+    },
+    {
+      "seconds": 727,
+      "text": "to be able to filter this out so i could"
+    },
+    {
+      "seconds": 730,
+      "text": "just dump this entire process list and"
+    },
+    {
+      "seconds": 731,
+      "text": "then search through it but if i'm"
+    },
+    {
+      "seconds": 733,
+      "text": "already interested in a specific process"
+    },
+    {
+      "seconds": 735,
+      "text": "then i can hit q to get out of the more"
+    },
+    {
+      "seconds": 738,
+      "text": "and then instead of more i can use"
+    },
+    {
+      "seconds": 739,
+      "text": "powershell's built-in string searcher"
+    },
+    {
+      "seconds": 742,
+      "text": "select string now select string is not"
+    },
+    {
+      "seconds": 745,
+      "text": "part of volatility it's just kind of"
+    },
+    {
+      "seconds": 747,
+      "text": "helping me to filter so let's say that"
+    },
+    {
+      "seconds": 750,
+      "text": "i'm interested in anything in this"
+    },
+    {
+      "seconds": 752,
+      "text": "memory image related to the chrome"
+    },
+    {
+      "seconds": 754,
+      "text": "browser so i'm going to type chrome so"
+    },
+    {
+      "seconds": 757,
+      "text": "here we still have python volatility.pi"
+    },
+    {
+      "seconds": 760,
+      "text": "our image file"
+    },
+    {
+      "seconds": 761,
+      "text": "actf.mem that's my actual data i'm"
+    },
+    {
+      "seconds": 764,
+      "text": "listing all of the process list but it's"
+    },
+    {
+      "seconds": 766,
+      "text": "so big i want to filter it so i'm going"
+    },
+    {
+      "seconds": 768,
+      "text": "to use a pipe which is an up and down"
+    },
+    {
+      "seconds": 770,
+      "text": "bar for me that's above the enter key"
+    },
+    {
+      "seconds": 774,
+      "text": "and then i use the powershell command"
+    },
+    {
+      "seconds": 776,
+      "text": "select dash string and it has to be"
+    },
+    {
+      "seconds": 778,
+      "text": "capitalized and then i'm searching for"
+    },
+    {
+      "seconds": 781,
+      "text": "chrome now what i would do in linux is"
+    },
+    {
+      "seconds": 783,
+      "text": "basically the same command except select"
+    },
+    {
+      "seconds": 785,
+      "text": "string would be grep and i would be"
+    },
+    {
+      "seconds": 787,
+      "text": "grepping for chrome whenever we do that"
+    },
+    {
+      "seconds": 789,
+      "text": "i hit enter and then you can see that we"
+    },
+    {
+      "seconds": 791,
+      "text": "still had quite a few"
+    },
+    {
+      "seconds": 793,
+      "text": "quite a few processes but all of these"
+    },
+    {
+      "seconds": 795,
+      "text": "are related to chrome.exe so now we can"
+    },
+    {
+      "seconds": 797,
+      "text": "focus in our investigation on chrome.exe"
+    },
+    {
+      "seconds": 800,
+      "text": "and it looks like one of the first"
+    },
+    {
+      "seconds": 801,
+      "text": "processes is"
+    },
+    {
+      "seconds": 802,
+      "text": "1328. so the parent id of all of these"
+    },
+    {
+      "seconds": 806,
+      "text": "processes is 1328. if i want to focus on"
+    },
+    {
+      "seconds": 809,
+      "text": "the parent chrome process then"
+    },
+    {
+      "seconds": 812,
+      "text": "1328 is the process that i'm going to be"
+    },
+    {
+      "seconds": 815,
+      "text": "focusing on so using volatility with"
+    },
+    {
+      "seconds": 818,
+      "text": "filtering tools like select string can"
+    },
+    {
+      "seconds": 820,
+      "text": "help you focus in really quick on"
+    },
+    {
+      "seconds": 821,
+      "text": "certain keywords that you might be"
+    },
+    {
+      "seconds": 823,
+      "text": "interested in what we're really"
+    },
+    {
+      "seconds": 824,
+      "text": "interested in is the process id that way"
+    },
+    {
+      "seconds": 827,
+      "text": "i can use the id as a filter whenever i"
+    },
+    {
+      "seconds": 829,
+      "text": "do other things so let's go ahead and"
+    },
+    {
+      "seconds": 831,
+      "text": "see what files chrome is currently"
+    },
+    {
+      "seconds": 834,
+      "text": "accessing so instead of using"
+    },
+    {
+      "seconds": 836,
+      "text": "windows.pslist"
+    },
+    {
+      "seconds": 838,
+      "text": "i'm going to use windows dot"
+    },
+    {
+      "seconds": 841,
+      "text": "handles"
+    },
+    {
+      "seconds": 842,
+      "text": "and then maybe i don't know how to use"
+    },
+    {
+      "seconds": 844,
+      "text": "handles so i'm going to type dash h to"
+    },
+    {
+      "seconds": 847,
+      "text": "give me a help menu for windows handles"
+    },
+    {
+      "seconds": 850,
+      "text": "okay and our option here for"
+    },
+    {
+      "seconds": 852,
+      "text": "windows.handles we can give it a process"
+    },
+    {
+      "seconds": 855,
+      "text": "id i need to do dash dash pid if i want"
+    },
+    {
+      "seconds": 858,
+      "text": "to specify a process id otherwise it"
+    },
+    {
+      "seconds": 860,
+      "text": "will give me all of the file handles in"
+    },
+    {
+      "seconds": 862,
+      "text": "the memory image and again it's going to"
+    },
+    {
+      "seconds": 864,
+      "text": "be a lot of data so if i just want to"
+    },
+    {
+      "seconds": 866,
+      "text": "focus it on chrome"
+    },
+    {
+      "seconds": 868,
+      "text": "now we have chrome's process id of 1328"
+    },
+    {
+      "seconds": 872,
+      "text": "so i can specify the process id and we"
+    },
+    {
+      "seconds": 874,
+      "text": "will just get those handles so let's go"
+    },
+    {
+      "seconds": 876,
+      "text": "ahead and do that"
+    },
+    {
+      "seconds": 878,
+      "text": "dash dash pid"
+    },
+    {
+      "seconds": 881,
+      "text": "1328"
+    },
+    {
+      "seconds": 884,
+      "text": "and then i'm going to pipe this into"
+    },
+    {
+      "seconds": 886,
+      "text": "more again because i expect a lot of"
+    },
+    {
+      "seconds": 888,
+      "text": "data"
+    },
+    {
+      "seconds": 889,
+      "text": "we have the pid we have the process the"
+    },
+    {
+      "seconds": 890,
+      "text": "offset in memory handle value and the"
+    },
+    {
+      "seconds": 893,
+      "text": "type which we'll use in a second so"
+    },
+    {
+      "seconds": 895,
+      "text": "let's say that we have these event types"
+    },
+    {
+      "seconds": 897,
+      "text": "i o completion type let's go ahead and"
+    },
+    {
+      "seconds": 900,
+      "text": "scroll down a little bit we can see that"
+    },
+    {
+      "seconds": 902,
+      "text": "this has a full path to a file and the"
+    },
+    {
+      "seconds": 906,
+      "text": "type is specified as file we also have a"
+    },
+    {
+      "seconds": 908,
+      "text": "key type which is related to the windows"
+    },
+    {
+      "seconds": 910,
+      "text": "registry so that could be interesting"
+    },
+    {
+      "seconds": 912,
+      "text": "for me as well but for now i'm"
+    },
+    {
+      "seconds": 914,
+      "text": "interested in the file type so i'm going"
+    },
+    {
+      "seconds": 916,
+      "text": "to use the select string keyword again"
+    },
+    {
+      "seconds": 918,
+      "text": "instead of more i'm going to type select"
+    },
+    {
+      "seconds": 921,
+      "text": "string and i'm looking for file so i'm"
+    },
+    {
+      "seconds": 925,
+      "text": "going to pipe that into more notice that"
+    },
+    {
+      "seconds": 926,
+      "text": "the the volatility command is exactly"
+    },
+    {
+      "seconds": 929,
+      "text": "the same i'm printing out all the"
+    },
+    {
+      "seconds": 931,
+      "text": "handles"
+    },
+    {
+      "seconds": 932,
+      "text": "for pid 1328 i'm just filtering based on"
+    },
+    {
+      "seconds": 936,
+      "text": "whether it is a file or not so here we"
+    },
+    {
+      "seconds": 938,
+      "text": "have our file and we can see the file"
+    },
+    {
+      "seconds": 940,
+      "text": "that was accessed we also have a"
+    },
+    {
+      "seconds": 942,
+      "text": "registry key in here because the image"
+    },
+    {
+      "seconds": 944,
+      "text": "file name matched our search query we"
+    },
+    {
+      "seconds": 947,
+      "text": "have a dat file basically all the files"
+    },
+    {
+      "seconds": 950,
+      "text": "that it was accessing but not all of"
+    },
+    {
+      "seconds": 951,
+      "text": "these are going to be interesting maybe"
+    },
+    {
+      "seconds": 953,
+      "text": "the ones that include for example john"
+    },
+    {
+      "seconds": 955,
+      "text": "doe our user might be interesting for us"
+    },
+    {
+      "seconds": 958,
+      "text": "or maybe we're only interested in"
+    },
+    {
+      "seconds": 959,
+      "text": "databases so let's go ahead and change"
+    },
+    {
+      "seconds": 962,
+      "text": "our query again let's add another filter"
+    },
+    {
+      "seconds": 965,
+      "text": "i'm going to select"
+    },
+    {
+      "seconds": 967,
+      "text": "string"
+    },
+    {
+      "seconds": 968,
+      "text": "and i'm going to search for history"
+    },
+    {
+      "seconds": 971,
+      "text": "because i know that chrome has a history"
+    },
+    {
+      "seconds": 973,
+      "text": "file so notice i'm taking the output of"
+    },
+    {
+      "seconds": 975,
+      "text": "volatility i haven't changed that"
+    },
+    {
+      "seconds": 977,
+      "text": "command at all i'm piping that into a"
+    },
+    {
+      "seconds": 978,
+      "text": "keyword search filter for file filtering"
+    },
+    {
+      "seconds": 981,
+      "text": "out everything that's not a file and"
+    },
+    {
+      "seconds": 983,
+      "text": "then i'm piping that into another"
+    },
+    {
+      "seconds": 985,
+      "text": "keyword for history so i'm looking for"
+    },
+    {
+      "seconds": 987,
+      "text": "any file that has the word history in it"
+    },
+    {
+      "seconds": 990,
+      "text": "and then i pipe that into more and we"
+    },
+    {
+      "seconds": 992,
+      "text": "see what we get here okay so we have a"
+    },
+    {
+      "seconds": 993,
+      "text": "couple different files here so we have"
+    },
+    {
+      "seconds": 996,
+      "text": "what looks like three files were"
+    },
+    {
+      "seconds": 998,
+      "text": "returned"
+    },
+    {
+      "seconds": 999,
+      "text": "one is the history journal one is media"
+    },
+    {
+      "seconds": 1001,
+      "text": "history and then one is the history file"
+    },
+    {
+      "seconds": 1004,
+      "text": "so actually this history file looks very"
+    },
+    {
+      "seconds": 1006,
+      "text": "interesting if i want to"
+    },
+    {
+      "seconds": 1008,
+      "text": "understand john's chrome browser history"
+    },
+    {
+      "seconds": 1012,
+      "text": "i know that i'm interested in this file"
+    },
+    {
+      "seconds": 1013,
+      "text": "and i want to analyze his browser"
+    },
+    {
+      "seconds": 1015,
+      "text": "history you take the address specified"
+    },
+    {
+      "seconds": 1017,
+      "text": "for this file and then i have my basic"
+    },
+    {
+      "seconds": 1020,
+      "text": "volatility command this really isn't"
+    },
+    {
+      "seconds": 1021,
+      "text": "going to change ever and i'm going to"
+    },
+    {
+      "seconds": 1023,
+      "text": "specify an output directory i want to"
+    },
+    {
+      "seconds": 1025,
+      "text": "output the file but before i can output"
+    },
+    {
+      "seconds": 1027,
+      "text": "the file i need to create an output"
+    },
+    {
+      "seconds": 1029,
+      "text": "directory so i'm going to make"
+    },
+    {
+      "seconds": 1031,
+      "text": "dir mkdir a folder called dump"
+    },
+    {
+      "seconds": 1037,
+      "text": "okay so now i've created a folder called"
+    },
+    {
+      "seconds": 1039,
+      "text": "dump and that's where i'm going to save"
+    },
+    {
+      "seconds": 1041,
+      "text": "everything that i'm carving out of this"
+    },
+    {
+      "seconds": 1043,
+      "text": "memory image we can go back to our"
+    },
+    {
+      "seconds": 1044,
+      "text": "volatility command and i need to do dash"
+    },
+    {
+      "seconds": 1046,
+      "text": "o"
+    },
+    {
+      "seconds": 1047,
+      "text": "to specify the output directory i'm"
+    },
+    {
+      "seconds": 1050,
+      "text": "going to say save it into the dump"
+    },
+    {
+      "seconds": 1053,
+      "text": "folder"
+    },
+    {
+      "seconds": 1054,
+      "text": "and then i'm going to use the command"
+    },
+    {
+      "seconds": 1056,
+      "text": "windows.dump"
+    },
+    {
+      "seconds": 1058,
+      "text": "file"
+    },
+    {
+      "seconds": 1060,
+      "text": "and then i'm going to specify the pid of"
+    },
+    {
+      "seconds": 1064,
+      "text": "1328 which is our chrome process"
+    },
+    {
+      "seconds": 1068,
+      "text": "and in that chrome process i have the"
+    },
+    {
+      "seconds": 1070,
+      "text": "virtual address"
+    },
+    {
+      "seconds": 1072,
+      "text": "that we just copied okay"
+    },
+    {
+      "seconds": 1074,
+      "text": "so what i have here is python"
+    },
+    {
+      "seconds": 1077,
+      "text": "volatility.pi our memory image that"
+    },
+    {
+      "seconds": 1079,
+      "text": "we're analyzing i'm specifying an output"
+    },
+    {
+      "seconds": 1081,
+      "text": "directory of dump i'm using the plugin"
+    },
+    {
+      "seconds": 1084,
+      "text": "windows dump file to extract a file from"
+    },
+    {
+      "seconds": 1087,
+      "text": "that memory image and i want to search"
+    },
+    {
+      "seconds": 1089,
+      "text": "by process id for the chrome process"
+    },
+    {
+      "seconds": 1092,
+      "text": "and then with the virtual address that"
+    },
+    {
+      "seconds": 1094,
+      "text": "we got from uh the file handle so then"
+    },
+    {
+      "seconds": 1098,
+      "text": "this should output"
+    },
+    {
+      "seconds": 1099,
+      "text": "a"
+    },
+    {
+      "seconds": 1100,
+      "text": "history file for us into the dump folder"
+    },
+    {
+      "seconds": 1104,
+      "text": "so let's go ahead and press enter a file"
+    },
+    {
+      "seconds": 1105,
+      "text": "was created the history.dat and we see"
+    },
+    {
+      "seconds": 1109,
+      "text": "the history.dat file was created here"
+    },
+    {
+      "seconds": 1111,
+      "text": "okay so now we have the history file.dap"
+    },
+    {
+      "seconds": 1114,
+      "text": "i have"
+    },
+    {
+      "seconds": 1116,
+      "text": "hxd installed so i can just do open with"
+    },
+    {
+      "seconds": 1119,
+      "text": "hxd hex editor i recommend you get that"
+    },
+    {
+      "seconds": 1122,
+      "text": "if you're going to be analyzing any type"
+    },
+    {
+      "seconds": 1123,
+      "text": "of binary data let's go ahead and open"
+    },
+    {
+      "seconds": 1125,
+      "text": "it and at the beginning of this we see"
+    },
+    {
+      "seconds": 1127,
+      "text": "sql lite format 3 which means this is an"
+    },
+    {
+      "seconds": 1130,
+      "text": "sqlite file probably an"
+    },
+    {
+      "seconds": 1133,
+      "text": "sqlite file"
+    },
+    {
+      "seconds": 1134,
+      "text": "if we scroll through here we see some"
+    },
+    {
+      "seconds": 1137,
+      "text": "urls we see some information so actually"
+    },
+    {
+      "seconds": 1139,
+      "text": "this does look like a chrome history"
+    },
+    {
+      "seconds": 1142,
+      "text": "file"
+    },
+    {
+      "seconds": 1143,
+      "text": "i would get some sort of sqlite viewer"
+    },
+    {
+      "seconds": 1145,
+      "text": "now to view this if i instead of using"
+    },
+    {
+      "seconds": 1147,
+      "text": "the hex editor now that i know that it"
+    },
+    {
+      "seconds": 1149,
+      "text": "is an sqlite formatted file that's how"
+    },
+    {
+      "seconds": 1152,
+      "text": "we can find for example an individual"
+    },
+    {
+      "seconds": 1154,
+      "text": "file inside a process and then dump that"
+    },
+    {
+      "seconds": 1157,
+      "text": "directly from memory is using the"
+    },
+    {
+      "seconds": 1159,
+      "text": "windows dump file"
+    },
+    {
+      "seconds": 1161,
+      "text": "with our pid give it the virtual address"
+    },
+    {
+      "seconds": 1163,
+      "text": "of the file we're interested in and the"
+    },
+    {
+      "seconds": 1165,
+      "text": "output directory what you can also do is"
+    },
+    {
+      "seconds": 1167,
+      "text": "dump all of the files in this memory"
+    },
+    {
+      "seconds": 1169,
+      "text": "image for a particular process id just"
+    },
+    {
+      "seconds": 1171,
+      "text": "don't specify the address of the file so"
+    },
+    {
+      "seconds": 1174,
+      "text": "here we have windows dump file"
+    },
+    {
+      "seconds": 1176,
+      "text": "i still have the output dump directory"
+    },
+    {
+      "seconds": 1178,
+      "text": "and i specify the pid let's go ahead and"
+    },
+    {
+      "seconds": 1180,
+      "text": "press enter this is going to give us a"
+    },
+    {
+      "seconds": 1182,
+      "text": "lot of files that we're not necessarily"
+    },
+    {
+      "seconds": 1184,
+      "text": "interested in okay it's just going to"
+    },
+    {
+      "seconds": 1185,
+      "text": "dump every file related to that process"
+    },
+    {
+      "seconds": 1188,
+      "text": "id so i usually just dump one file at a"
+    },
+    {
+      "seconds": 1191,
+      "text": "time as i realize that i need it maybe"
+    },
+    {
+      "seconds": 1193,
+      "text": "i'm going to dump every file related to"
+    },
+    {
+      "seconds": 1195,
+      "text": "a process and then do a virus scan of"
+    },
+    {
+      "seconds": 1197,
+      "text": "the files for example so that could be"
+    },
+    {
+      "seconds": 1200,
+      "text": "you know a way to automate"
+    },
+    {
+      "seconds": 1202,
+      "text": "analysis of a specific process whether"
+    },
+    {
+      "seconds": 1204,
+      "text": "you want to dump everything or focus on"
+    },
+    {
+      "seconds": 1206,
+      "text": "a specific file i tend to focus on files"
+    },
+    {
+      "seconds": 1208,
+      "text": "but if you're doing a bulk scanning then"
+    },
+    {
+      "seconds": 1211,
+      "text": "maybe it's interesting for you another"
+    },
+    {
+      "seconds": 1212,
+      "text": "thing that tends to be interesting is"
+    },
+    {
+      "seconds": 1213,
+      "text": "the windows cmd line command"
+    },
+    {
+      "seconds": 1217,
+      "text": "and i want to pipe this into more"
+    },
+    {
+      "seconds": 1219,
+      "text": "because it's usually quite a bit of data"
+    },
+    {
+      "seconds": 1220,
+      "text": "this shows command line usage but more"
+    },
+    {
+      "seconds": 1223,
+      "text": "than that it shows switches that were"
+    },
+    {
+      "seconds": 1225,
+      "text": "used whenever programs were started so"
+    },
+    {
+      "seconds": 1228,
+      "text": "we have a couple different programs here"
+    },
+    {
+      "seconds": 1230,
+      "text": "and and for example we can see the"
+    },
+    {
+      "seconds": 1232,
+      "text": "switches that were used to launch these"
+    },
+    {
+      "seconds": 1235,
+      "text": "programs so"
+    },
+    {
+      "seconds": 1237,
+      "text": "just looking at the windows registry for"
+    },
+    {
+      "seconds": 1240,
+      "text": "example we might see the"
+    },
+    {
+      "seconds": 1241,
+      "text": "svchost.exe was run"
+    },
+    {
+      "seconds": 1244,
+      "text": "we might see the entire executable but"
+    },
+    {
+      "seconds": 1246,
+      "text": "we wouldn't necessarily see the options"
+    },
+    {
+      "seconds": 1248,
+      "text": "that it was ran with so if somebody was"
+    },
+    {
+      "seconds": 1250,
+      "text": "running something from the command line"
+    },
+    {
+      "seconds": 1252,
+      "text": "in other places you might just see that"
+    },
+    {
+      "seconds": 1254,
+      "text": "the the command was ran but you wouldn't"
+    },
+    {
+      "seconds": 1256,
+      "text": "see all of the options that was ran with"
+    },
+    {
+      "seconds": 1259,
+      "text": "it this is a really quick way to see"
+    },
+    {
+      "seconds": 1261,
+      "text": "what's been run"
+    },
+    {
+      "seconds": 1262,
+      "text": "where things were run from"
+    },
+    {
+      "seconds": 1264,
+      "text": "and if they had any special options"
+    },
+    {
+      "seconds": 1266,
+      "text": "while they were running for example at"
+    },
+    {
+      "seconds": 1268,
+      "text": "the very bottom here we have ftk imager"
+    },
+    {
+      "seconds": 1270,
+      "text": "that was ran to create this disk image"
+    },
+    {
+      "seconds": 1272,
+      "text": "and it was run from the e drive okay so"
+    },
+    {
+      "seconds": 1276,
+      "text": "everything else pretty much was run from"
+    },
+    {
+      "seconds": 1278,
+      "text": "the c drive as we would expect for like"
+    },
+    {
+      "seconds": 1280,
+      "text": "system options but in this case we had"
+    },
+    {
+      "seconds": 1282,
+      "text": "ftk imager ran from e drive and it looks"
+    },
+    {
+      "seconds": 1286,
+      "text": "like imager light was ran so maybe"
+    },
+    {
+      "seconds": 1288,
+      "text": "that's an you know an external usb stick"
+    },
+    {
+      "seconds": 1290,
+      "text": "like where is that drive coming from so"
+    },
+    {
+      "seconds": 1293,
+      "text": "if we saw you know a malicious"
+    },
+    {
+      "seconds": 1295,
+      "text": "executable ran from an e drive then"
+    },
+    {
+      "seconds": 1298,
+      "text": "maybe somebody came in"
+    },
+    {
+      "seconds": 1300,
+      "text": "plugged in a usb stick"
+    },
+    {
+      "seconds": 1302,
+      "text": "installed a virus and then plugged out"
+    },
+    {
+      "seconds": 1304,
+      "text": "the usb stick that's possible so so"
+    },
+    {
+      "seconds": 1306,
+      "text": "checking command line might be"
+    },
+    {
+      "seconds": 1308,
+      "text": "interesting for that next something that"
+    },
+    {
+      "seconds": 1310,
+      "text": "i pretty much always run along with"
+    },
+    {
+      "seconds": 1312,
+      "text": "process list would be net stat"
+    },
+    {
+      "seconds": 1316,
+      "text": "and it's going to give me a lot of stuff"
+    },
+    {
+      "seconds": 1317,
+      "text": "so i'm going to pipe it into more so"
+    },
+    {
+      "seconds": 1319,
+      "text": "what we get here is the offset in the"
+    },
+    {
+      "seconds": 1321,
+      "text": "memory image uh the protocol that was"
+    },
+    {
+      "seconds": 1323,
+      "text": "used the local address of the computer"
+    },
+    {
+      "seconds": 1326,
+      "text": "that this memory image was taken from"
+    },
+    {
+      "seconds": 1328,
+      "text": "and then the local port the foreign"
+    },
+    {
+      "seconds": 1331,
+      "text": "address or the external address that"
+    },
+    {
+      "seconds": 1334,
+      "text": "we were connecting to"
+    },
+    {
+      "seconds": 1335,
+      "text": "and then the foreign port that was"
+    },
+    {
+      "seconds": 1337,
+      "text": "connected so let's say that we're"
+    },
+    {
+      "seconds": 1338,
+      "text": "interested in chrome.exe this is our"
+    },
+    {
+      "seconds": 1341,
+      "text": "local address that chrome was running on"
+    },
+    {
+      "seconds": 1343,
+      "text": "and then it was connecting to the"
+    },
+    {
+      "seconds": 1345,
+      "text": "address"
+    },
+    {
+      "seconds": 1346,
+      "text": "185 70 41 35 well now we can just go and"
+    },
+    {
+      "seconds": 1350,
+      "text": "do a quick search it comes back to"
+    },
+    {
+      "seconds": 1353,
+      "text": "proton ag so"
+    },
+    {
+      "seconds": 1355,
+      "text": "protonmail.ch so"
+    },
+    {
+      "seconds": 1357,
+      "text": "at least from this we very quickly find"
+    },
+    {
+      "seconds": 1360,
+      "text": "out that the user either was connected"
+    },
+    {
+      "seconds": 1362,
+      "text": "to protonmail at the time of imaging or"
+    },
+    {
+      "seconds": 1364,
+      "text": "had just closed it so now protonmail is"
+    },
+    {
+      "seconds": 1367,
+      "text": "interesting"
+    },
+    {
+      "seconds": 1368,
+      "text": "for the case because we have a"
+    },
+    {
+      "seconds": 1370,
+      "text": "connection back to protonmail we can go"
+    },
+    {
+      "seconds": 1372,
+      "text": "through and check all of these ip"
+    },
+    {
+      "seconds": 1374,
+      "text": "addresses and see where they're calling"
+    },
+    {
+      "seconds": 1376,
+      "text": "back to and it might give us some really"
+    },
+    {
+      "seconds": 1378,
+      "text": "interesting information about you know"
+    },
+    {
+      "seconds": 1379,
+      "text": "malware that was installed if it's"
+    },
+    {
+      "seconds": 1381,
+      "text": "calling back home how it was calling"
+    },
+    {
+      "seconds": 1382,
+      "text": "back home"
+    },
+    {
+      "seconds": 1384,
+      "text": "or just user activities like for example"
+    },
+    {
+      "seconds": 1386,
+      "text": "this address is protonmail"
+    },
+    {
+      "seconds": 1388,
+      "text": "most of these are probably calling back"
+    },
+    {
+      "seconds": 1390,
+      "text": "to protonmail related to chrome so"
+    },
+    {
+      "seconds": 1392,
+      "text": "finding out network connections we're"
+    },
+    {
+      "seconds": 1394,
+      "text": "also interested in the name of the"
+    },
+    {
+      "seconds": 1395,
+      "text": "process and the process id this is how"
+    },
+    {
+      "seconds": 1398,
+      "text": "we can go back and see the process list"
+    },
+    {
+      "seconds": 1401,
+      "text": "what things are running what is it"
+    },
+    {
+      "seconds": 1402,
+      "text": "connecting to what files is it opening"
+    },
+    {
+      "seconds": 1405,
+      "text": "and then also what kind of network"
+    },
+    {
+      "seconds": 1407,
+      "text": "connections is it making so again if i'm"
+    },
+    {
+      "seconds": 1409,
+      "text": "only interested in chrome then i can do"
+    },
+    {
+      "seconds": 1412,
+      "text": "the same search again select"
+    },
+    {
+      "seconds": 1415,
+      "text": "string chrome"
+    },
+    {
+      "seconds": 1420,
+      "text": "and then that will filter out everything"
+    },
+    {
+      "seconds": 1420,
+      "text": "that's not related to chrome so that way"
+    },
+    {
+      "seconds": 1422,
+      "text": "i can focus my investigation on only"
+    },
+    {
+      "seconds": 1424,
+      "text": "addresses that chrome was accessing for"
+    },
+    {
+      "seconds": 1427,
+      "text": "example use filtering often another"
+    },
+    {
+      "seconds": 1429,
+      "text": "thing that's useful especially if you're"
+    },
+    {
+      "seconds": 1430,
+      "text": "trying to investigate a certain suspect"
+    },
+    {
+      "seconds": 1433,
+      "text": "and you want to know their password and"
+    },
+    {
+      "seconds": 1434,
+      "text": "then maybe how that password is used on"
+    },
+    {
+      "seconds": 1436,
+      "text": "other systems we want to do hash dump"
+    },
+    {
+      "seconds": 1439,
+      "text": "what this will do is output the password"
+    },
+    {
+      "seconds": 1441,
+      "text": "hash values for this window system so"
+    },
+    {
+      "seconds": 1444,
+      "text": "let's take a look at that so once we"
+    },
+    {
+      "seconds": 1445,
+      "text": "have those hash values then we can try"
+    },
+    {
+      "seconds": 1447,
+      "text": "to crack the hash values get the"
+    },
+    {
+      "seconds": 1449,
+      "text": "password for the user there so for"
+    },
+    {
+      "seconds": 1451,
+      "text": "example john doe now we have the"
+    },
+    {
+      "seconds": 1453,
+      "text": "password hash if we can crack that"
+    },
+    {
+      "seconds": 1455,
+      "text": "password hash then maybe that password"
+    },
+    {
+      "seconds": 1458,
+      "text": "is used on other systems or maybe"
+    },
+    {
+      "seconds": 1461,
+      "text": "you know it'll give us some insight into"
+    },
+    {
+      "seconds": 1462,
+      "text": "how the user is actually coming up with"
+    },
+    {
+      "seconds": 1465,
+      "text": "their passwords so getting those"
+    },
+    {
+      "seconds": 1466,
+      "text": "passwords gives us potentially access to"
+    },
+    {
+      "seconds": 1469,
+      "text": "another local system if the password was"
+    },
+    {
+      "seconds": 1471,
+      "text": "being used maybe the passwords used in"
+    },
+    {
+      "seconds": 1473,
+      "text": "online accounts so doing a hash dump"
+    },
+    {
+      "seconds": 1475,
+      "text": "getting the password hash and then"
+    },
+    {
+      "seconds": 1477,
+      "text": "trying to crack that password hash can"
+    },
+    {
+      "seconds": 1479,
+      "text": "really help us in the investigation to"
+    },
+    {
+      "seconds": 1481,
+      "text": "uncover more data and then another thing"
+    },
+    {
+      "seconds": 1483,
+      "text": "that i tend to use a lot whenever i'm"
+    },
+    {
+      "seconds": 1485,
+      "text": "dealing with windows is windows registry"
+    },
+    {
+      "seconds": 1487,
+      "text": "analysis one of those is the"
+    },
+    {
+      "seconds": 1489,
+      "text": "user assist so we can do registry"
+    },
+    {
+      "seconds": 1497,
+      "text": "registry user assist and i'm going to"
+    },
+    {
+      "seconds": 1497,
+      "text": "use the dash h just to see if we have"
+    },
+    {
+      "seconds": 1499,
+      "text": "any options we have the hive offset"
+    },
+    {
+      "seconds": 1501,
+      "text": "option if i want to focus on that or we"
+    },
+    {
+      "seconds": 1503,
+      "text": "don't have to put it and everything in"
+    },
+    {
+      "seconds": 1505,
+      "text": "user assist will be shown so i'm just"
+    },
+    {
+      "seconds": 1507,
+      "text": "going to run this again with more"
+    },
+    {
+      "seconds": 1510,
+      "text": "and user assist tells us a lot of"
+    },
+    {
+      "seconds": 1511,
+      "text": "interesting things about user activities"
+    },
+    {
+      "seconds": 1513,
+      "text": "in the system so for example we have the"
+    },
+    {
+      "seconds": 1516,
+      "text": "hive offset the hive name where we're"
+    },
+    {
+      "seconds": 1518,
+      "text": "getting all this from last write time so"
+    },
+    {
+      "seconds": 1520,
+      "text": "this is essentially you can almost think"
+    },
+    {
+      "seconds": 1522,
+      "text": "of it like the last time that an action"
+    },
+    {
+      "seconds": 1525,
+      "text": "took place related to that key so if"
+    },
+    {
+      "seconds": 1527,
+      "text": "it's related to a program then that"
+    },
+    {
+      "seconds": 1529,
+      "text": "might be the last time that the user ran"
+    },
+    {
+      "seconds": 1531,
+      "text": "that program"
+    },
+    {
+      "seconds": 1532,
+      "text": "we also have the count which is the"
+    },
+    {
+      "seconds": 1534,
+      "text": "number of times the the program was run"
+    },
+    {
+      "seconds": 1537,
+      "text": "the focus count so the number of times"
+    },
+    {
+      "seconds": 1539,
+      "text": "that the user focused on that particular"
+    },
+    {
+      "seconds": 1542,
+      "text": "window for the program and then the time"
+    },
+    {
+      "seconds": 1544,
+      "text": "focused is the total amount of time that"
+    },
+    {
+      "seconds": 1546,
+      "text": "the user was looking at that over time"
+    },
+    {
+      "seconds": 1548,
+      "text": "not in an individual session you got to"
+    },
+    {
+      "seconds": 1550,
+      "text": "be a little bit careful with count focus"
+    },
+    {
+      "seconds": 1552,
+      "text": "count and time focus don't take it as"
+    },
+    {
+      "seconds": 1554,
+      "text": "100 accurate but it can still establish"
+    },
+    {
+      "seconds": 1557,
+      "text": "that for example the user"
+    },
+    {
+      "seconds": 1559,
+      "text": "did open up this program and did"
+    },
+    {
+      "seconds": 1562,
+      "text": "focus on it for a particular period of"
+    },
+    {
+      "seconds": 1563,
+      "text": "time okay so let's go ahead and see what"
+    },
+    {
+      "seconds": 1565,
+      "text": "that looks like so for example here i"
+    },
+    {
+      "seconds": 1567,
+      "text": "have ms"
+    },
+    {
+      "seconds": 1569,
+      "text": "was executed and it seems like it was"
+    },
+    {
+      "seconds": 1571,
+      "text": "executed seven times it was the focus"
+    },
+    {
+      "seconds": 1574,
+      "text": "seven times and then it had a total"
+    },
+    {
+      "seconds": 1576,
+      "text": "focus time of like one minute so"
+    },
+    {
+      "seconds": 1578,
+      "text": "basically it was open several times but"
+    },
+    {
+      "seconds": 1580,
+      "text": "not really accessed here's another one"
+    },
+    {
+      "seconds": 1582,
+      "text": "microsoft edge the browser it was opened"
+    },
+    {
+      "seconds": 1585,
+      "text": "three times and then it was the focus 16"
+    },
+    {
+      "seconds": 1588,
+      "text": "times which means the user kind of went"
+    },
+    {
+      "seconds": 1590,
+      "text": "away from the browser and then came back"
+    },
+    {
+      "seconds": 1592,
+      "text": "to it so focused on it and the total"
+    },
+    {
+      "seconds": 1594,
+      "text": "focus time was about an hour 50 minutes"
+    },
+    {
+      "seconds": 1596,
+      "text": "56 seconds or so so this establishes"
+    },
+    {
+      "seconds": 1599,
+      "text": "that they at least were using microsoft"
+    },
+    {
+      "seconds": 1601,
+      "text": "edge uh they'd focused on and away from"
+    },
+    {
+      "seconds": 1604,
+      "text": "it several times and they'd use it for a"
+    },
+    {
+      "seconds": 1606,
+      "text": "considerable amount of time are these"
+    },
+    {
+      "seconds": 1608,
+      "text": "100 accurate maybe not but this is"
+    },
+    {
+      "seconds": 1610,
+      "text": "already a really good place to start"
+    },
+    {
+      "seconds": 1612,
+      "text": "user assist is really interesting for"
+    },
+    {
+      "seconds": 1614,
+      "text": "investigations especially to establish"
+    },
+    {
+      "seconds": 1616,
+      "text": "user behaviors and whether programs were"
+    },
+    {
+      "seconds": 1618,
+      "text": "used how long they were used things like"
+    },
+    {
+      "seconds": 1620,
+      "text": "that and again you can use the same"
+    },
+    {
+      "seconds": 1622,
+      "text": "filtering technique that we've been"
+    },
+    {
+      "seconds": 1623,
+      "text": "using to focus in on for example"
+    },
+    {
+      "seconds": 1625,
+      "text": "microsoft edge chrome whatever it is"
+    },
+    {
+      "seconds": 1628,
+      "text": "that you're that you're looking for but"
+    },
+    {
+      "seconds": 1629,
+      "text": "sometimes you might want to find and"
+    },
+    {
+      "seconds": 1632,
+      "text": "list all of the registry hives that are"
+    },
+    {
+      "seconds": 1634,
+      "text": "available in the system and then we"
+    },
+    {
+      "seconds": 1635,
+      "text": "might want to carve them out for example"
+    },
+    {
+      "seconds": 1637,
+      "text": "so using that we can use hive list so"
+    },
+    {
+      "seconds": 1641,
+      "text": "windows.registry.hivelist"
+    },
+    {
+      "seconds": 1643,
+      "text": "let's see if there's any options for"
+    },
+    {
+      "seconds": 1645,
+      "text": "that we have a filter so string to"
+    },
+    {
+      "seconds": 1648,
+      "text": "filter hive names returned and then dump"
+    },
+    {
+      "seconds": 1650,
+      "text": "extract listed registry hives if we just"
+    },
+    {
+      "seconds": 1652,
+      "text": "run it without any options then we get"
+    },
+    {
+      "seconds": 1655,
+      "text": "all of the registry files that we could"
+    },
+    {
+      "seconds": 1656,
+      "text": "find let's say that we're interested"
+    },
+    {
+      "seconds": 1658,
+      "text": "though in john doe so let's try to"
+    },
+    {
+      "seconds": 1661,
+      "text": "filter by john"
+    },
+    {
+      "seconds": 1663,
+      "text": "okay and then we only get back anything"
+    },
+    {
+      "seconds": 1664,
+      "text": "that looks like a registry file related"
+    },
+    {
+      "seconds": 1666,
+      "text": "to john doe in the string so basically"
+    },
+    {
+      "seconds": 1669,
+      "text": "we're using volatility to do the keyword"
+    },
+    {
+      "seconds": 1671,
+      "text": "searching for us"
+    },
+    {
+      "seconds": 1672,
+      "text": "and let's say that i'm actually"
+    },
+    {
+      "seconds": 1674,
+      "text": "interested in nt user dot dat"
+    },
+    {
+      "seconds": 1677,
+      "text": "so let's do a filter for doe slash nt"
+    },
+    {
+      "seconds": 1679,
+      "text": "user dot dat"
+    },
+    {
+      "seconds": 1680,
+      "text": "do slash nt user.dat"
+    },
+    {
+      "seconds": 1683,
+      "text": "so now we're focused on the file that we"
+    },
+    {
+      "seconds": 1685,
+      "text": "want so let's go ahead and dump"
+    },
+    {
+      "seconds": 1691,
+      "text": "and just like before we need to specify"
+    },
+    {
+      "seconds": 1691,
+      "text": "an output directory i'm going to put"
+    },
+    {
+      "seconds": 1693,
+      "text": "that into the dump folder"
+    },
+    {
+      "seconds": 1696,
+      "text": "windowsregistry.hivelist filterdo slash"
+    },
+    {
+      "seconds": 1699,
+      "text": "ntuser.dat and then dash dash dump"
+    },
+    {
+      "seconds": 1703,
+      "text": "and then if we go check our dump folder"
+    },
+    {
+      "seconds": 1705,
+      "text": "we have our hive file so i'm going to"
+    },
+    {
+      "seconds": 1706,
+      "text": "open that and then we have our registry"
+    },
+    {
+      "seconds": 1708,
+      "text": "file header here so i've just dumped"
+    },
+    {
+      "seconds": 1711,
+      "text": "john's nt user.dat file so now i can use"
+    },
+    {
+      "seconds": 1714,
+      "text": "another program to actually analyze the"
+    },
+    {
+      "seconds": 1716,
+      "text": "into user.dat registry file if i need to"
+    },
+    {
+      "seconds": 1719,
+      "text": "let's say we don't want to dump the"
+    },
+    {
+      "seconds": 1720,
+      "text": "entire registry file i would normally"
+    },
+    {
+      "seconds": 1722,
+      "text": "prefer to dump it and then analyze it"
+    },
+    {
+      "seconds": 1724,
+      "text": "with a different program but maybe you"
+    },
+    {
+      "seconds": 1725,
+      "text": "have a just one specific key you want to"
+    },
+    {
+      "seconds": 1728,
+      "text": "check we can use windows registry print"
+    },
+    {
+      "seconds": 1731,
+      "text": "key and then let's check the options for"
+    },
+    {
+      "seconds": 1733,
+      "text": "that"
+    },
+    {
+      "seconds": 1735,
+      "text": "with print key we can have the offset to"
+    },
+    {
+      "seconds": 1737,
+      "text": "the hive the key that we're looking for"
+    },
+    {
+      "seconds": 1739,
+      "text": "and then recurse so recurs through all"
+    },
+    {
+      "seconds": 1741,
+      "text": "of the keys if we're at like a top level"
+    },
+    {
+      "seconds": 1744,
+      "text": "so what i want to do is print key"
+    },
+    {
+      "seconds": 1747,
+      "text": "and then i'm going to give it a key"
+    },
+    {
+      "seconds": 1748,
+      "text": "value and a key that we very very"
+    },
+    {
+      "seconds": 1750,
+      "text": "commonly use is software"
+    },
+    {
+      "seconds": 1752,
+      "text": "microsoft"
+    },
+    {
+      "seconds": 1754,
+      "text": "windows"
+    },
+    {
+      "seconds": 1756,
+      "text": "current version"
+    },
+    {
+      "seconds": 1760,
+      "text": "okay and then i'm going to pipe that"
+    },
+    {
+      "seconds": 1760,
+      "text": "into more because it's going to be a lot"
+    },
+    {
+      "seconds": 1762,
+      "text": "now we're listing all of the keys inside"
+    },
+    {
+      "seconds": 1764,
+      "text": "current version we're not necessarily"
+    },
+    {
+      "seconds": 1766,
+      "text": "getting the values because we haven't"
+    },
+    {
+      "seconds": 1767,
+      "text": "gone low enough if we actually wanted to"
+    },
+    {
+      "seconds": 1769,
+      "text": "go lower then we could do something like"
+    },
+    {
+      "seconds": 1770,
+      "text": "dash dash recurse"
+    },
+    {
+      "seconds": 1773,
+      "text": "and then that will actually go into each"
+    },
+    {
+      "seconds": 1775,
+      "text": "of the key directories and then look for"
+    },
+    {
+      "seconds": 1778,
+      "text": "the value pairs so recurse and then i'm"
+    },
+    {
+      "seconds": 1780,
+      "text": "going to pipe this into more as well we"
+    },
+    {
+      "seconds": 1782,
+      "text": "can see the key and then inside that key"
+    },
+    {
+      "seconds": 1784,
+      "text": "we can see the values that are"
+    },
+    {
+      "seconds": 1785,
+      "text": "associated with this so this reg binary"
+    },
+    {
+      "seconds": 1787,
+      "text": "and then we actually have the data here"
+    },
+    {
+      "seconds": 1789,
+      "text": "if you know exactly the key that you're"
+    },
+    {
+      "seconds": 1791,
+      "text": "looking for and you only have one or two"
+    },
+    {
+      "seconds": 1792,
+      "text": "to search for or if you write a script"
+    },
+    {
+      "seconds": 1795,
+      "text": "and want to print out specific keys then"
+    },
+    {
+      "seconds": 1797,
+      "text": "you can use the print key option inside"
+    },
+    {
+      "seconds": 1801,
+      "text": "volatility by far i use user assist the"
+    },
+    {
+      "seconds": 1803,
+      "text": "most with a search filter or i use hive"
+    },
+    {
+      "seconds": 1806,
+      "text": "list dump the hive that i'm interested"
+    },
+    {
+      "seconds": 1808,
+      "text": "in and then process it with a different"
+    },
+    {
+      "seconds": 1810,
+      "text": "tool but that's my workflow"
+    },
+    {
+      "seconds": 1812,
+      "text": "if you know exactly what key you're"
+    },
+    {
+      "seconds": 1813,
+      "text": "going for and you don't have too many"
+    },
+    {
+      "seconds": 1814,
+      "text": "keys to search for then it totally makes"
+    },
+    {
+      "seconds": 1816,
+      "text": "sense to use print key so with that"
+    },
+    {
+      "seconds": 1818,
+      "text": "we've shown how to install volatility"
+    },
+    {
+      "seconds": 1820,
+      "text": "and keep it updated inside a git"
+    },
+    {
+      "seconds": 1822,
+      "text": "repository we've shown how to process a"
+    },
+    {
+      "seconds": 1824,
+      "text": "ram image with volatility we've gone"
+    },
+    {
+      "seconds": 1826,
+      "text": "through how to do things like get the"
+    },
+    {
+      "seconds": 1828,
+      "text": "memory image we've listed processes"
+    },
+    {
+      "seconds": 1831,
+      "text": "we've listed file handles we were able"
+    },
+    {
+      "seconds": 1833,
+      "text": "to extract files from memory using dump"
+    },
+    {
+      "seconds": 1836,
+      "text": "files we were able to see command line"
+    },
+    {
+      "seconds": 1837,
+      "text": "options we were able to see the network"
+    },
+    {
+      "seconds": 1839,
+      "text": "we could dump windows password hashes"
+    },
+    {
+      "seconds": 1842,
+      "text": "that we can later crack if we need to we"
+    },
+    {
+      "seconds": 1844,
+      "text": "were able to query the user assist in"
+    },
+    {
+      "seconds": 1846,
+      "text": "the windows registry and then try to"
+    },
+    {
+      "seconds": 1848,
+      "text": "find programs that were accessed and how"
+    },
+    {
+      "seconds": 1850,
+      "text": "much they were accessed we were able to"
+    },
+    {
+      "seconds": 1852,
+      "text": "both list all of the hives that are"
+    },
+    {
+      "seconds": 1854,
+      "text": "available in the memory image as well as"
+    },
+    {
+      "seconds": 1856,
+      "text": "focus on a specific hive and dump it"
+    },
+    {
+      "seconds": 1859,
+      "text": "using the hive list function and then we"
+    },
+    {
+      "seconds": 1862,
+      "text": "were also able to focus in on a specific"
+    },
+    {
+      "seconds": 1864,
+      "text": "registry key using the print key tool if"
+    },
+    {
+      "seconds": 1868,
+      "text": "you can basically list processes you"
+    },
+    {
+      "seconds": 1870,
+      "text": "understand how to dump a file"
+    },
+    {
+      "seconds": 1872,
+      "text": "you can access the windows registry and"
+    },
+    {
+      "seconds": 1874,
+      "text": "do some searching through it or at least"
+    },
+    {
+      "seconds": 1875,
+      "text": "dump a registry hive then you can"
+    },
+    {
+      "seconds": 1878,
+      "text": "already do a lot of things with memory"
+    },
+    {
+      "seconds": 1880,
+      "text": "okay now there's a lot more we can do"
+    },
+    {
+      "seconds": 1882,
+      "text": "with this there's really advanced stuff"
+    },
+    {
+      "seconds": 1884,
+      "text": "that volatility can do there's a lot of"
+    },
+    {
+      "seconds": 1886,
+      "text": "extra plugins that volatility has but if"
+    },
+    {
+      "seconds": 1889,
+      "text": "you can at least"
+    },
+    {
+      "seconds": 1890,
+      "text": "list processes list networks"
+    },
+    {
+      "seconds": 1892,
+      "text": "dump files look through the windows"
+    },
+    {
+      "seconds": 1894,
+      "text": "registry you already have a great start"
+    },
+    {
+      "seconds": 1896,
+      "text": "to using volatility you just need to get"
+    },
+    {
+      "seconds": 1898,
+      "text": "used to the way that the commands work"
+    },
+    {
+      "seconds": 1901,
+      "text": "and everything else will be easy from"
+    },
+    {
+      "seconds": 1903,
+      "text": "there so that's it for this introduction"
+    },
+    {
+      "seconds": 1904,
+      "text": "to volatility 3 i hope that was useful"
+    },
+    {
+      "seconds": 1906,
+      "text": "thank you very much"
+    }
+  ]
+}

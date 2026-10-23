@@ -1,0 +1,15 @@
+{
+  "result": "passed",
+  "resources": 43,
+  "evaluated_original_resources": 44,
+  "approved_rows": 200,
+  "schedule_minutes": 1440,
+  "executed": [
+    "base64, offsets, RSA, MD5, SQLite, synthetic journal/process and ASCII paper-match checks",
+    "TShark request fields and TCP stream",
+    "GCC program: all three output/exit cases",
+    "GDB breakpoint, argc, disassembly and rejected branch",
+    "Python loopback server/curl: 200 body and 404"
+  ],
+  "skipped": []
+}

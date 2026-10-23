@@ -1,0 +1,2282 @@
+{
+  "checked_on": "2026-10-23",
+  "scope": "51 assigned approved rows; video coverage only, distinct from existing written references. Essential is inferred high-yield preparation, not organiser mandate or a prediction of challenge presence.",
+  "runtime_context": {
+    "all_current_videos_seconds": 6214,
+    "reverse_current_videos_seconds": 1233,
+    "note": "8 current videos total 1h43m34s; two reverse videos total 20m33s. Candidate runtimes are not added to current coverage and no 12-hour quota is imposed."
+  },
+  "rows": [
+    {
+      "tool_id": "windows-9",
+      "family": "Native dynamic analysis",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "VroEiMOJPm8"
+      ],
+      "missing_skills": "Memory examination, conditional breakpoints/watchpoints, calling conventions, runtime decode buffers, ASLR-aware addresses and API tracing.",
+      "reason": "The GDB video demonstrates disassemble, break, run, info registers, si/ni, continue and setting eax; one local branch bypass is not a general reversing workflow.",
+      "learning_resource_ids": [
+        "reverse-depth-gdb"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "windows-10",
+      "family": "Native static analysis",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recover structures, arrays, pointers and calling conventions; reconcile decompiler output with assembly; follow cross-references in stripped code.",
+      "reason": "objdump: Inspect disassembly and sections. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:windows-10"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "windows-22",
+      "family": "Native static analysis",
+      "priority": "essential",
+      "video_depth": "intro",
+      "current_video_ids": [
+        "fTGTnrgjuGA"
+      ],
+      "missing_skills": "Recover structures, arrays, pointers and calling conventions; reconcile decompiler output with assembly; follow cross-references in stripped code.",
+      "reason": "At 04:44 the datatype manager is explicitly skipped; at 04:52 scripts/console are skipped. Only argc/length/character constraints are solved.",
+      "learning_resource_ids": [
+        "reverse-depth-video-1",
+        "reverse-depth-video-2",
+        "reverse-depth-android"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "windows-27",
+      "family": "Assembler support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Architecture/bitness/endianness selection; assemble/disassemble small sequences and validate bytes.",
+      "reason": "llvm-mc (LLVM tools): Translate assembly and machine code. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:windows-27"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "windows-33",
+      "family": "Native dynamic analysis",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Memory examination, conditional breakpoints/watchpoints, calling conventions, runtime decode buffers, ASLR-aware addresses and API tracing.",
+      "reason": "x64dbg: Debug Windows executables. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-video-3"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "windows-38",
+      "family": "Managed .NET",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Entry point and caller tracing, IL/C# discrepancies, managed breakpoints/locals, unpacking dynamically loaded assemblies and configuration decoding.",
+      "reason": "dnSpyEx (dnSpy): Inspect managed assemblies. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-dotnet",
+        "reverse-depth-dotnet-dynamic",
+        "reverse-depth-dotnet-modules"
+      ],
+      "coverage_disposition": "workflow instruction supplied: static settings decoding plus selected managed memory extraction and module-load inspection; requires supplied/pre-extracted stage. Arbitrary packer and obfuscator support is not claimed."
+    },
+    {
+      "tool_id": "kali-5",
+      "family": "Android and Java",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "Android Studio: Inspect Android packages. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-5"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-6",
+      "family": "Specialized native analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "reason": "angr: Study path constraints and symbolic execution. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-6"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-8",
+      "family": "Android and Java",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "Apktool: Decode Android resources and smali. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-apktool"
+      ],
+      "coverage_disposition": "supporting operation: decode reference paired with JADX analysis workshop; rebuilding/signing only if task demands it"
+    },
+    {
+      "tool_id": "kali-9",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "asar (@electron/asar): Inspect Electron archives. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-9"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-11",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "AutoIt-Ripper: Extract compiled AutoIt scripts. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-11"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-12",
+      "family": "Specialized native analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "reason": "BinDiff: Compare compiled program versions. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-12"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-16",
+      "family": "Android and Java",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "Bytecode Viewer: Inspect Java bytecode. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-16"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-19",
+      "family": "Malware static triage and signatures",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "reason": "capa: Identify executable capabilities. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-capa"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-21",
+      "family": "Specialized native analysis",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "reason": "checksec: Identify executable protections. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-21"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "kali-24",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "Cutter: Inspect program control flow. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-24"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-27",
+      "family": "Malware static triage and signatures",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "reason": "Detect It Easy (DIE): Identify binary formats and packers. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-die"
+      ],
+      "coverage_disposition": "workflow instruction supplied through CLI: format/architecture, entropy and heuristic evidence comparison; GUI duplication is unnecessary. Practice and installed version untested."
+    },
+    {
+      "tool_id": "kali-28",
+      "family": "Android and Java",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "dex2jar: Convert Android bytecode to a JAR for Java analysis.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-28"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-29",
+      "family": "Malicious documents",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Enumerate Office/PDF/OneNote objects, select and decode streams, extract macros/embedded payloads, follow deobfuscation chains without opening active content.",
+      "reason": "Didier Stevens Beta tools (onedump.py): Inspect objects in a OneNote document.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-29"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-30",
+      "family": "Malicious documents",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Enumerate Office/PDF/OneNote objects, select and decode streams, extract macros/embedded payloads, follow deobfuscation chains without opening active content.",
+      "reason": "Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others): Triage Office macros and PDF objects.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-documents"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-33",
+      "family": "Android and Java",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "Eclipse Temurin JDK (OpenJDK): Run Java tools and inspect class bytecode.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-33"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "kali-37",
+      "family": "Unpacking and runtime malware analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recognize packer layers; dump decoded memory and distinguish mapped/raw PE; capture behavior in an isolated lab and understand instrumentation limits.",
+      "reason": "FakeNet-NG: Observe network behavior in a malware lab.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-37"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-38",
+      "family": "Android and Java",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "Fernflower: Decompile Java classes and JARs.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-38"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-43",
+      "family": "Malware static triage and signatures",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "reason": "FLOSS (FLARE Obfuscated String Solver): Recover obscured strings from binaries.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-floss"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-46",
+      "family": "Unpacking and runtime malware analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recognize packer layers; dump decoded memory and distinguish mapped/raw PE; capture behavior in an isolated lab and understand instrumentation limits.",
+      "reason": "Frida: Observe runtime function calls.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-46"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-48",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "GEF (GDB Enhanced Features): Inspect register and stack state in GDB.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-48"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-55",
+      "family": "Specialized native analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "reason": "GoReSym: Recover symbols in a Go binary.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-55"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-69",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "innoextract: Unpack an Inno Setup installer.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-69"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-70",
+      "family": "Unpacking and runtime malware analysis",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recognize packer layers; dump decoded memory and distinguish mapped/raw PE; capture behavior in an isolated lab and understand instrumentation limits.",
+      "reason": "internet_detector: Simulate internet services in a malware lab.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-70"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-72",
+      "family": "Android and Java",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "reason": "jadx (jadx-gui): Inspect Android application logic.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-android"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-75",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "js-beautify: Format compressed JavaScript for inspection.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-75"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-76",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "js-deobfuscator: Simplify JavaScript string arrays and proxy functions.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-76"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-83",
+      "family": "Native dynamic analysis",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Memory examination, conditional breakpoints/watchpoints, calling conventions, runtime decode buffers, ASLR-aware addresses and API tracing.",
+      "reason": "ltrace: Observe dynamic library calls.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-83"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "kali-93",
+      "family": "Assembler support",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Architecture/bitness/endianness selection; assemble/disassemble small sequences and validate bytes.",
+      "reason": "NASM (Netwide Assembler): Assemble or inspect x86 instructions.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-93"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "kali-96",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "obfuscator-io-deobfuscator: Recover readable JavaScript from Obfuscator.io output.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-96"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-98",
+      "family": "Malicious documents",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Enumerate Office/PDF/OneNote objects, select and decode streams, extract macros/embedded payloads, follow deobfuscation chains without opening active content.",
+      "reason": "oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf): Inspect Office documents and extract macros or embedded objects.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-olevba"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-99",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "OllyDbg: Debug 32-bit Windows executables.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-99"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-104",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "peda: Inspect debugging state and cyclic-pattern offsets.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-104"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-105",
+      "family": "Malicious documents",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Enumerate Office/PDF/OneNote objects, select and decode streams, extract macros/embedded payloads, follow deobfuscation chains without opening active content.",
+      "reason": "peepdf-3: Inspect PDF objects and streams.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-105"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-109",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "pwndbg: Inspect binary debugging state and offsets.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-109"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-110",
+      "family": "Python packaged executables",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify PyInstaller and Python bytecode version, extract embedded modules, choose compatible decompiler, disassemble unsupported opcodes and verify recovered logic.",
+      "reason": "pycdc (Decompyle++): Decompile or disassemble Python bytecode.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-python"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-111",
+      "family": "Python packaged executables",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify PyInstaller and Python bytecode version, extract embedded modules, choose compatible decompiler, disassemble unsupported opcodes and verify recovered logic.",
+      "reason": "pyinstxtractor-ng: Extract files bundled by PyInstaller.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-python"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-116",
+      "family": "Debugger interfaces and alternatives",
+      "priority": "alternative",
+      "video_depth": "incidental",
+      "current_video_ids": [
+        "VroEiMOJPm8"
+      ],
+      "missing_skills": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "reason": "A radare2 control-flow graph is shown at 08:44 as a comparison; no commands or analysis workflow are taught.",
+      "learning_resource_ids": [
+        "ref:kali-116"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-117",
+      "family": "Script and installer extraction",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "reason": "rat-king-parser: Extract configuration from supported RAT families.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-117"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-121",
+      "family": "Specialized native analysis",
+      "priority": "specialist",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "reason": "Binary exploitation is not an explicitly listed event category; keep gadget work conditional on an actual task.",
+      "learning_resource_ids": [
+        "ref:kali-121"
+      ],
+      "coverage_disposition": "specialist: trigger on matching format/technique; exact primary reference retained, no claim of demonstrated workflow"
+    },
+    {
+      "tool_id": "kali-138",
+      "family": "Native dynamic analysis",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Memory examination, conditional breakpoints/watchpoints, calling conventions, runtime decode buffers, ASLR-aware addresses and API tracing.",
+      "reason": "strace: Observe a program's file and system-call behavior.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-138"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    },
+    {
+      "tool_id": "kali-145",
+      "family": "Python packaged executables",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify PyInstaller and Python bytecode version, extract embedded modules, choose compatible decompiler, disassemble unsupported opcodes and verify recovered logic.",
+      "reason": "Runtime Python compatibility and supported input bytecode versions must be distinguished.",
+      "learning_resource_ids": [
+        "reverse-depth-python"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-146",
+      "family": "Python packaged executables",
+      "priority": "alternative",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify PyInstaller and Python bytecode version, extract embedded modules, choose compatible decompiler, disassemble unsupported opcodes and verify recovered logic.",
+      "reason": "The approved fork records only minimal Python 3.10 support; successful source recovery cannot be assumed.",
+      "learning_resource_ids": [
+        "ref:kali-146"
+      ],
+      "coverage_disposition": "alternative: use if the primary tool fails or this interface is already familiar; consult exact per-tool reference, no duplicate course required"
+    },
+    {
+      "tool_id": "kali-149",
+      "family": "Unpacking and runtime malware analysis",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Recognize packer layers; dump decoded memory and distinguish mapped/raw PE; capture behavior in an isolated lab and understand instrumentation limits.",
+      "reason": "UPX decompression is useful but does not teach arbitrary packer recovery.",
+      "learning_resource_ids": [
+        "reverse-depth-upx"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-157",
+      "family": "Malware static triage and signatures",
+      "priority": "essential",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "reason": "YARA: Create signatures and scan sample files.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "reverse-depth-yara"
+      ],
+      "coverage_disposition": "workflow instruction supplied; execution and proficiency untested"
+    },
+    {
+      "tool_id": "kali-158",
+      "family": "Malware static triage and signatures",
+      "priority": "support",
+      "video_depth": "none",
+      "current_video_ids": [],
+      "missing_skills": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "reason": "yara-python (and YARA on Linux): Compile YARA rules and scan files from Python.. No current video demonstrates this tool; shared concepts and separate reading are not video coverage.",
+      "learning_resource_ids": [
+        "ref:kali-158"
+      ],
+      "coverage_disposition": "support: short command/API lookup when needed; no standalone course warranted"
+    }
+  ],
+  "families": [
+    {
+      "name": "Native static analysis",
+      "tool_ids": [
+        "windows-22",
+        "windows-10"
+      ],
+      "priority": "essential",
+      "current_coverage": "Only basic Ghidra navigation and a three-condition crackme.",
+      "gap": "Recover structures, arrays, pointers and calling conventions; reconcile decompiler output with assembly; follow cross-references in stripped code.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Native dynamic analysis",
+      "tool_ids": [
+        "windows-9",
+        "windows-33",
+        "kali-83",
+        "kali-138"
+      ],
+      "priority": "essential",
+      "current_coverage": "GDB single strcmp branch only; no Windows debugging or tracing.",
+      "gap": "Memory examination, conditional breakpoints/watchpoints, calling conventions, runtime decode buffers, ASLR-aware addresses and API tracing.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Debugger interfaces and alternatives",
+      "tool_ids": [
+        "kali-48",
+        "kali-104",
+        "kali-109",
+        "kali-99",
+        "kali-24",
+        "kali-116"
+      ],
+      "priority": "alternative",
+      "current_coverage": "radare2 graph appears as a comparison; otherwise no tool demonstration.",
+      "gap": "Choose one supported debugger enhancement; inspect stack/context/maps; alternate debugger/disassembler navigation.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Managed .NET",
+      "tool_ids": [
+        "windows-38"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video; separate dnSpyEx repository reading exists.",
+      "gap": "Entry point and caller tracing, IL/C# discrepancies, managed breakpoints/locals, unpacking dynamically loaded assemblies and configuration decoding.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Android and Java",
+      "tool_ids": [
+        "kali-5",
+        "kali-8",
+        "kali-16",
+        "kali-28",
+        "kali-33",
+        "kali-38",
+        "kali-72"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video; separate JADX README reading exists.",
+      "gap": "Manifest/resources and entry points, DEX cross-references, smali when decompilation fails, APK decode/rebuild limits and native-library boundary.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Python packaged executables",
+      "tool_ids": [
+        "kali-110",
+        "kali-111",
+        "kali-145",
+        "kali-146"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video; extraction README exists.",
+      "gap": "Identify PyInstaller and Python bytecode version, extract embedded modules, choose compatible decompiler, disassemble unsupported opcodes and verify recovered logic.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Malware static triage and signatures",
+      "tool_ids": [
+        "kali-19",
+        "kali-27",
+        "kali-43",
+        "kali-157",
+        "kali-158"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video; capa/FLOSS/YARA documentation reading exists.",
+      "gap": "Identify packing and architecture; interpret capability evidence, recover stack/decoded strings, validate offsets; write and test specific YARA rules against negatives.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Malicious documents",
+      "tool_ids": [
+        "kali-29",
+        "kali-30",
+        "kali-98",
+        "kali-105"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video.",
+      "gap": "Enumerate Office/PDF/OneNote objects, select and decode streams, extract macros/embedded payloads, follow deobfuscation chains without opening active content.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Unpacking and runtime malware analysis",
+      "tool_ids": [
+        "kali-37",
+        "kali-46",
+        "kali-70",
+        "kali-149"
+      ],
+      "priority": "essential",
+      "current_coverage": "No video.",
+      "gap": "Recognize packer layers; dump decoded memory and distinguish mapped/raw PE; capture behavior in an isolated lab and understand instrumentation limits.",
+      "desired_video_depth": "deep"
+    },
+    {
+      "name": "Script and installer extraction",
+      "tool_ids": [
+        "kali-9",
+        "kali-11",
+        "kali-69",
+        "kali-75",
+        "kali-76",
+        "kali-96",
+        "kali-117"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No video.",
+      "gap": "Identify container/obfuscator/family first, extract without execution, validate recovered code/configuration; tool success is not complete analysis.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Specialized native analysis",
+      "tool_ids": [
+        "kali-6",
+        "kali-12",
+        "kali-55",
+        "kali-121",
+        "kali-21"
+      ],
+      "priority": "specialist",
+      "current_coverage": "No video.",
+      "gap": "Constrained symbolic execution and path explosion, binary diff interpretation, Go metadata recovery, mitigation-aware gadget analysis.",
+      "desired_video_depth": "workflow"
+    },
+    {
+      "name": "Assembler support",
+      "tool_ids": [
+        "windows-27",
+        "kali-93"
+      ],
+      "priority": "support",
+      "current_coverage": "No video.",
+      "gap": "Architecture/bitness/endianness selection; assemble/disassemble small sequences and validate bytes.",
+      "desired_video_depth": "intro"
+    }
+  ],
+  "current_video_assessments": [
+    {
+      "video_id": "fTGTnrgjuGA",
+      "depth": "intro",
+      "duration_seconds": 690,
+      "evidence": "Full local transcript read: 01:19\u201303:14 import/analysis; 04:44 datatype manager skipped; 04:52 scripting skipped; 06:17\u201307:36 main signature correction; 07:39\u201311:18 argc/length/single-character conditions and testing. Useful onboarding, not advanced reversing."
+    },
+    {
+      "video_id": "VroEiMOJPm8",
+      "depth": "intro",
+      "duration_seconds": 543,
+      "evidence": "Full local automatic transcript read: 01:00\u201303:55 disassembly/branch sketch; 04:06\u201306:40 breakpoint/registers/step; 06:45\u201307:50 changing eax bypasses strcmp; 08:28\u201308:48 graph comparisons including radare2. No memory/watchpoints/unpacking/stripped-target workflow. Creator caption timing anomaly already documented; use automatic local transcript."
+    }
+  ],
+  "candidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=RFG5FuqY0CE",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 3",
+      "creator": "HACKADAY / Matthew Alt (wrongbaud)",
+      "duration_seconds": 3639,
+      "tool_ids": [
+        "windows-22"
+      ],
+      "content_evidence": [
+        {
+          "url": "https://hackaday.io/course/172292/log/180316-class-3-video",
+          "inspected": "Official chapter outline read: 08:03 structs, 20:19 pointers, 35:30 enums, 40:00 syscalls, 45:40 file operations, 51:02 patching/bookmarks/search/comments."
+        },
+        {
+          "url": "https://wrongbaud.github.io/posts/ghidra-training/",
+          "inspected": "Instructor explains sample C-to-assembly comparisons, structure padding and reconstruction, creating/applying data types and instruction pattern searches."
+        }
+      ],
+      "access": "Public course page fetched without login; YouTube page resolves but Exa yielded only title, not playable-video verification.",
+      "caveats": "Substantive creator syllabus verified, not full transcript. Runtime needs metadata verification. Course calls itself introductory, but this session is materially deeper than the existing crackme. 2020 patch/export and debugger statements are historical; do not apply to current Ghidra.",
+      "runtime_verification": "Parent obtained direct video metadata 2026-10-23; caption requests later rate-limited."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5QBXNF7FKxM",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 4",
+      "creator": "HACKADAY / Matthew Alt (wrongbaud)",
+      "duration_seconds": 3162,
+      "tool_ids": [
+        "windows-22"
+      ],
+      "content_evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=5QBXNF7FKxM",
+          "inspected": "Fetched substantive transcript and chapters: 03:14 external libraries (resolve shared-object calls); 10:31 patch diff/version tracking; 19:30 checksums; 21:38 memory manager (addresses, permissions, overlays); 25:39 P-code/SLEIGH; 39:00 extensions; 45:00 scripting. Transcript explicitly says internals are an overview."
+        },
+        {
+          "url": "https://wrongbaud.github.io/posts/ghidra-training/",
+          "inspected": "Instructor states patch analysis, P-code and SLEIGH deserve separate courses and only basics are covered here."
+        }
+      ],
+      "access": "Public YouTube metadata/chapters/transcript retrieved by Exa without login; length reported 52:42.",
+      "caveats": "Target sections to avoid setup overhead. Breadth beyond starter, not advanced mastery of all features. Old Eclipse/Jython setup may differ from current Ghidra; not a BinDiff demonstration.",
+      "runtime_verification": "Parent obtained direct video metadata 2026-10-23; caption requests later rate-limited."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YXnNO3TipvM",
+      "title": "Unpacking Redaman Malware & Basics of Self-Injection Packers - ft. OALabs",
+      "creator": "LiveOverflow featuring OALabs",
+      "duration_seconds": 1578,
+      "tool_ids": [
+        "windows-33"
+      ],
+      "content_evidence": [
+        {
+          "url": "https://liveoverflow.com/unpacking-buhtrap-malware-basics-of-self-injection-packers-ft-oalabs-2/",
+          "inspected": "Read full creator companion walkthrough: VirtualAlloc return breakpoint, VirtualProtect entry breakpoint, follow allocation in dump/map, dump PE and distinguish mapped/raw sections, XOR/rotate decode loop, stack strings/dynamic API resolution, RtlDecompressBuffer, catch loaded DLL path. Creator says video includes more detailed steps."
+        }
+      ],
+      "access": "Public creator companion fetched; exact YouTube title/date confirmed by Exa, but video transcript/runtime not retrieved.",
+      "caveats": "Two-stage workflow is deeper than a branch patch but still an unpacking introduction. Uses IDA Pro and PE-Bear as well as x64dbg; these demonstrations do not establish event approval. Transfer static reasoning to approved tools; do not follow uploads to public sandboxes. Actual malware execution requires a prepared isolated lab. Creator article contains imprecise Windows string/API generalizations; validate API semantics against official docs.",
+      "runtime_verification": "Parent obtained direct video metadata 2026-10-23; caption requests later rate-limited."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dLIbkg_8O68",
+      "title": "Malware Analysis - Unpacking NetWiredRC With DnSpy",
+      "creator": "MalwareAnalysisForHedgehogs",
+      "duration_seconds": 1625,
+      "selected_segments_seconds": [
+        [
+          780,
+          990
+        ]
+      ],
+      "selected_runtime_seconds": 210,
+      "content_evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=dLIbkg_8O68",
+          "local_caption_file": "research/learning/video-coverage/candidates/dLIbkg_8O68.en-orig.vtt",
+          "caption_sha256": "cdba20480215dce2e107296b4dd2d14f9a53df6bbd112a7031c6a40975adb82e",
+          "inspected": "Read local automatic captions for 13:00\u201316:30. 13:07\u201314:37 traces bytes through splitting/decrypt/Assembly.Load; 15:02\u201315:30 places breakpoint after decode; 15:34\u201316:00 inspects Locals and MZ-like prefix; 16:04\u201316:23 Show in Memory and save selected bytes; 16:23 explicitly stops instead of running recovered stage. Automatic captions misrecognize dnSpy and hex values; MZ alone is a lead, validate PE headers afterwards."
+        }
+      ],
+      "access": {
+        "cost": "Free streaming; no new account used for metadata/captions.",
+        "offline": "Video download rights not established. Free text alternative covers loaded-module inspection, not identical byte-array dumping.",
+        "playback": "Untested; metadata and captions inspected."
+      },
+      "caveats": "Only 13:00\u201316:30 is assigned. Start from a supplied or already-extracted .NET stage in a prepared isolated lab. Earlier PEStudio/PortEx/Visual Studio and later de4dot workflows are excluded, not event-approved dependencies. Historical dnSpy UI; verify dnSpyEx equivalents. No claim that this handles every .NET packer or supplies a complete standalone extraction lab.",
+      "tool_ids": [
+        "windows-38"
+      ]
+    }
+  ],
+  "unverified_leads": [
+    {
+      "url": "https://www.youtube.com/watch?v=u2HEGDzd8KM",
+      "title": "Unpacking a Trojan with Ghidra and x64dbg",
+      "status": "Search title only; fetch returned YouTube shell. Not accepted as a depth-verified candidate."
+    }
+  ],
+  "limitations": "No audiovisual watch, new video downloads, tool execution, installations or event portal access. Candidate video runtime/caption enrichment is owned by parent. New guides and practice prompts improve workflow coverage but no practice success is claimed. Specialist/alternative references retain earlier provenance and are not counted as newly inspected workflows.",
+  "learning_resources": [
+    {
+      "id": "reverse-depth-video-1",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 3",
+      "url": "https://www.youtube.com/watch?v=RFG5FuqY0CE",
+      "kind": "video",
+      "tool_ids": [
+        "windows-22"
+      ],
+      "skills": "Study the selected concepts in content_evidence; pause and explain the next analysis step before following the demonstration.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Substantive creator syllabus verified, not full transcript. Runtime needs metadata verification. Course calls itself introductory, but this session is materially deeper than the existing crackme. 2020 patch/export and debugger statements are historical; do not apply to current Ghidra.",
+      "access": {
+        "cost": "Free streaming; no account used for metadata retrieval.",
+        "offline": "No free video-file download entitlement verified. Use free linked creator written lesson as reading alternative.",
+        "playback": "Not tested."
+      },
+      "evidence": [
+        {
+          "url": "https://hackaday.io/course/172292/log/180316-class-3-video",
+          "inspected": "Official chapter outline read: 08:03 structs, 20:19 pointers, 35:30 enums, 40:00 syscalls, 45:40 file operations, 51:02 patching/bookmarks/search/comments."
+        },
+        {
+          "url": "https://wrongbaud.github.io/posts/ghidra-training/",
+          "inspected": "Instructor explains sample C-to-assembly comparisons, structure padding and reconstruction, creating/applying data types and instruction pattern searches."
+        }
+      ],
+      "duration_seconds": 3639,
+      "runtime_verification": "Parent direct metadata 2026-10-23."
+    },
+    {
+      "id": "reverse-depth-video-2",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 4",
+      "url": "https://www.youtube.com/watch?v=5QBXNF7FKxM",
+      "kind": "video",
+      "tool_ids": [
+        "windows-22"
+      ],
+      "skills": "Study the selected concepts in content_evidence; pause and explain the next analysis step before following the demonstration.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Target sections to avoid setup overhead. Breadth beyond starter, not advanced mastery of all features. Old Eclipse/Jython setup may differ from current Ghidra; not a BinDiff demonstration.",
+      "access": {
+        "cost": "Free streaming; no account used for metadata retrieval.",
+        "offline": "No free video-file download entitlement verified. Use free linked creator written lesson as reading alternative.",
+        "playback": "Not tested."
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=5QBXNF7FKxM",
+          "inspected": "Fetched substantive transcript and chapters: 03:14 external libraries (resolve shared-object calls); 10:31 patch diff/version tracking; 19:30 checksums; 21:38 memory manager (addresses, permissions, overlays); 25:39 P-code/SLEIGH; 39:00 extensions; 45:00 scripting. Transcript explicitly says internals are an overview."
+        },
+        {
+          "url": "https://wrongbaud.github.io/posts/ghidra-training/",
+          "inspected": "Instructor states patch analysis, P-code and SLEIGH deserve separate courses and only basics are covered here."
+        }
+      ],
+      "duration_seconds": 3162,
+      "runtime_verification": "Parent direct metadata 2026-10-23."
+    },
+    {
+      "id": "reverse-depth-video-3",
+      "title": "Unpacking Redaman Malware & Basics of Self-Injection Packers - ft. OALabs",
+      "url": "https://www.youtube.com/watch?v=YXnNO3TipvM",
+      "kind": "video",
+      "tool_ids": [
+        "windows-33"
+      ],
+      "skills": "Study the selected concepts in content_evidence; pause and explain the next analysis step before following the demonstration.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Two-stage workflow is deeper than a branch patch but still an unpacking introduction. Uses IDA Pro and PE-Bear as well as x64dbg; these demonstrations do not establish event approval. Transfer static reasoning to approved tools; do not follow uploads to public sandboxes. Actual malware execution requires a prepared isolated lab. Creator article contains imprecise Windows string/API generalizations; validate API semantics against official docs.",
+      "access": {
+        "cost": "Free streaming; no account used for metadata retrieval.",
+        "offline": "No free video-file download entitlement verified. Use free linked creator written lesson as reading alternative.",
+        "playback": "Not tested."
+      },
+      "evidence": [
+        {
+          "url": "https://liveoverflow.com/unpacking-buhtrap-malware-basics-of-self-injection-packers-ft-oalabs-2/",
+          "inspected": "Read full creator companion walkthrough: VirtualAlloc return breakpoint, VirtualProtect entry breakpoint, follow allocation in dump/map, dump PE and distinguish mapped/raw sections, XOR/rotate decode loop, stack strings/dynamic API resolution, RtlDecompressBuffer, catch loaded DLL path. Creator says video includes more detailed steps."
+        }
+      ],
+      "duration_seconds": 1578,
+      "runtime_verification": "Parent direct metadata 2026-10-23."
+    },
+    {
+      "id": "reverse-depth-gdb",
+      "title": "GDB memory examination and watchpoint exercises",
+      "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Memory.html",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-9"
+      ],
+      "skills": "Interpret x/nfu sizes/formats; inspect stack and strings; correlate x/i with current PC; watch changing memory rather than guessing a code location.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Reading inspected; commands and practice not executed.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Memory.html",
+          "inspected": "Read x/3uh, x/4xw $sp, x/5i $pc-6 worked examples and address/default pitfalls. Also read Set-Watchpoints.html: dereferenced address versus constant; hardware limits, scope and slow software fallback."
+        }
+      ],
+      "supporting_urls": [
+        "https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Watchpoints.html"
+      ],
+      "practice": "Reuse research/learning/practice/check_input.c: compile with symbols, break main, inspect argv with x/s and byte format; explain the difference. On a benign local variable, set a dereferenced watchpoint and identify its changing instruction; do not reuse tutorial absolute addresses."
+    },
+    {
+      "id": "reverse-depth-android",
+      "title": "Android App RE: JADX entry points, DEX logic and JNI",
+      "url": "https://maddiestone.github.io/AndroidAppRE/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-72",
+        "windows-22"
+      ],
+      "skills": "Choose entry points from manifest/API usage; follow DEX data/control flow across components; identify native-library boundaries; reconstruct string deobfuscation.",
+      "depth": "deep",
+      "prerequisites": "Java/C reading; native-library sections additionally require assembly.",
+      "limitations": "Static-only workshop; no dynamic instrumentation lesson. VM is historical Ubuntu 18.04, not a required install. Exercise 7 solution is Python 2 and needs syntax/integer-division adaptation for Python 3; inspect algorithm without executing malicious app.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://maddiestone.github.io/AndroidAppRE/",
+          "inspected": "Read reversing_intro.md exercise 1; reversing_dex.md exercises 2\u20134 and written privileged receiver solution; obfuscation.md includes encoded bytes, XOR key, solution output and algorithm; reversing_native_libs.md explains load/loadLibrary, JNI_OnLoad, RegisterNatives and JNINativeMethod layout."
+        }
+      ],
+      "supporting_urls": [
+        "https://github.com/maddiestone/AndroidAppRE/blob/master/reversing_intro.md",
+        "https://github.com/maddiestone/AndroidAppRE/blob/master/reversing_dex.md",
+        "https://github.com/maddiestone/AndroidAppRE/blob/master/obfuscation.md",
+        "https://github.com/maddiestone/AndroidAppRE/blob/master/reversing_native_libs.md"
+      ],
+      "practice": "Do exercises 1\u20133 then 7; write entry-point\u2192sensitive-call evidence chain before viewing solutions. JNI section only if native methods appear. No exploitation of live devices is part of this study."
+    },
+    {
+      "id": "reverse-depth-apktool",
+      "title": "Apktool decoding inputs and output directories",
+      "url": "https://apktool.org/docs/the-basics/decoding/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-8"
+      ],
+      "skills": "Decode APK/JAR resources and smali into an explicit output directory; use decoded artifacts alongside JADX when decompilation is incomplete.",
+      "depth": "intro",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Short operational reference, not an Android analysis course; combine with AndroidAppRE. Current docs may differ from approved 2.7.0-dirty.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://apktool.org/docs/the-basics/decoding/",
+          "inspected": "Official d/decode examples for foo.jar and bar.apk and -o baz inspected."
+        }
+      ]
+    },
+    {
+      "id": "reverse-depth-dotnet",
+      "title": "AsyncRAT: trace settings and reconstruct configuration decoding",
+      "url": "https://eln0ty.github.io/malware%20analysis/asyncRAT/",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-38"
+      ],
+      "skills": "Follow initialization to settings, reconstruct Base64\u2192PBKDF2\u2192AES-CBC data flow, distinguish HMAC/IV/ciphertext fields, compare recovered config with subsequent branches.",
+      "depth": "workflow",
+      "prerequisites": "Comfort reading C#; basic encoding and block-cipher concepts.",
+      "limitations": "Use only Initialization through Config Decryption on an already-unpacked assembly or shown code. Online unpacker step is excluded by event rules. This is not a complete dnSpy debugger/unpacking course. Author extractor omits HMAC verification; treat output as hypothesis and compare code/structure. Do not adopt imprecise anti-analysis claims as Windows documentation.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://eln0ty.github.io/malware%20analysis/asyncRAT/",
+          "inspected": "Full substantive creator post fetched: key bytes, salt, 50000 iterations, data[:32]/[32:48]/[48:] layout, extraction loop and displayed output."
+        }
+      ],
+      "practice": "Without running malware, label inputs and output boundaries in the shown settings routine; explain which values control persistence and connection behavior. Pair with reverse-8 for dnSpyEx entry-point/caller navigation; dynamically loaded/obfuscated .NET remains specialist follow-up."
+    },
+    {
+      "id": "reverse-depth-python",
+      "title": "PyInstaller extraction to version-aware bytecode analysis",
+      "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-111",
+        "kali-110",
+        "kali-145"
+      ],
+      "skills": "Inspect archive metadata, identify application entry-point pyc rather than bootstrap, extract without execution, select compatible decompiler and retain disassembly when source recovery fails.",
+      "depth": "workflow",
+      "prerequisites": "Python source reading and shell basics.",
+      "limitations": "Use approved ng executable; upstream classic extractor is explanatory context only. Its matching-Python requirement does not apply to ng. pycdc goal of all-version support is not a guarantee; uncompyle6 runtime support is not bytecode support. Do not execute recovered files.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/pyinstxtractor/pyinstxtractor-ng",
+          "inspected": "NG --info/--one-dir usage fetched; classic upstream worked output distinguishes Python36, bootstrap and test.pyc, then uncompyle6 path. pycdc README specifies pycdas vs pycdc stdout/stderr and raw marshal version requirement."
+        }
+      ],
+      "supporting_urls": [
+        "https://github.com/extremecoders-re/pyinstxtractor/",
+        "https://github.com/zrax/pycdc"
+      ],
+      "practice": "Using an already-owned benign PyInstaller executable, record detected Python version and entry candidates, extract, compare recovered application logic with known behavior; record any unsupported opcode as unresolved rather than deleting it.",
+      "improves_existing_resource_id": "reverse-10"
+    },
+    {
+      "id": "reverse-depth-capa",
+      "title": "capa: interpret matches and test the evidence",
+      "url": "https://github.com/mandiant/capa",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-19"
+      ],
+      "skills": "Compare default/-v/-vv, nested capability matches and evidence addresses; pivot to relevant functions in Ghidra; recognize packed/installer and wrapper-function false-negative limits.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Use CLI and approved Ghidra only; ignore cloud/web upload and commercial backend paths. New options must be checked against installed capa 9.4.0.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/mandiant/capa",
+          "inspected": "Read full example output through detailed -vv CreateProcess/CreatePipe rule evidence; usage doc explains -t and --restrict-to-functions; limitations doc describes packing/installers and missing wrapper propagation."
+        }
+      ],
+      "supporting_urls": [
+        "https://github.com/mandiant/capa/blob/master/doc/usage.md",
+        "https://github.com/mandiant/capa/blob/master/doc/limitations.md"
+      ],
+      "practice": "Explain why each listed API supports the example shell capability, and one reason no-match does not prove absence. For a prepared sample, inspect the -vv address in Ghidra and confirm the control-flow relationship.",
+      "improves_existing_resource_id": "reverse-5"
+    },
+    {
+      "id": "reverse-depth-floss",
+      "title": "FLOSS: string categories, offsets and targeted decoding",
+      "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-43"
+      ],
+      "skills": "Separate static/stack/tight/decoded strings; select one type, inspect verbose function offsets, constrain decoding functions and choose sc32/sc64 when raw shellcode is known.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Current upstream includes newer summary/tag/HTML features not assumed in approved build. Focus established default, types, -v, -n and function targeting, confirming local help. Strings are clues, not demonstrated execution.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/mandiant/flare-floss/blob/master/doc/usage.md",
+          "inspected": "Read default/type filtering, -v, -n tradeoff, --analyze-functions address examples and shellcode -f modes."
+        }
+      ],
+      "practice": "For prepared benign sample compare ordinary strings with FLOSS categories, then trace one recovered string address to the relevant decode function. Explain why changing minimum length can both remove noise and miss data.",
+      "improves_existing_resource_id": "reverse-6"
+    },
+    {
+      "id": "reverse-depth-yara",
+      "title": "YARA rule semantics and positive/negative checks",
+      "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-157"
+      ],
+      "skills": "Write text/hex patterns and conditions; choose nocase/wide only when encoding warrants it; constrain specificity and verify a near miss.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Stable docs version and installed 4.5.8 can differ; no execution performed here.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://yara.readthedocs.io/en/stable/writingrules.html",
+          "inspected": "Read concrete rules through wildcard nibble/jump/alternative patterns and text/nocase/wide examples. Reuse existing local training.yar, match.txt and near-miss.txt."
+        }
+      ],
+      "practice": "Use PRACTICE_WORKSHEETS.md YARA exercise and supplied positive/negative files; change one byte and explain resulting match. Add an unrelated benign negative before trusting a broader rule.",
+      "improves_existing_resource_id": "reverse-7"
+    },
+    {
+      "id": "reverse-depth-documents",
+      "title": "Nested PDF\u2192Office payload analysis",
+      "url": "https://blog.didierstevens.com/2017/04/20/malicious-documents-the-matryoshka-edition/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-30"
+      ],
+      "skills": "Triage /OpenAction /JavaScript /EmbeddedFile, select object and decompress stream, extract nested Office data, then inspect macros without launching document.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Historical mitigation/UI descriptions are not current advice. Read analysis portion only; no active document opening. Commands using re-search are optional and its row approval must be checked separately.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://blog.didierstevens.com/2017/04/20/malicious-documents-the-matryoshka-edition/",
+          "inspected": "Full creator walkthrough read: JavaScript object 5, embedded document object 3, -f/-d extraction, pipe into oledump and -s a -v macro extraction."
+        }
+      ],
+      "practice": "Before reading each next step, predict which object to inspect and why. Explain why keyword presence alone cannot prove maliciousness; distinguish stream extraction from execution."
+    },
+    {
+      "id": "reverse-depth-olevba",
+      "title": "olevba: extraction, decoded strings and triage interpretation",
+      "url": "https://github.com/decalage2/oletools/wiki/olevba",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-98"
+      ],
+      "skills": "Choose single-file detailed versus bulk triage output; read macro source, autoexec indicators and decoded strings; distinguish IOC/suspicious keyword from proof.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Docs contain historical API examples and inconsistent old encrypted-document wording; use modern CLI section and verify installed help. Not every oletools subcommand is covered.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/decalage2/oletools/wiki/olevba",
+          "inspected": "Usage and worked DIAN sample output inspected, --decode/--reveal/--deobf, ZIP password and wildcard quoting, flags table and benign Normal_Document comparison."
+        }
+      ],
+      "practice": "Explain differences among Normal_Document.doc, Normal_Document_Macro.doc and suspicious flags in example output. Given extracted benign VBA text, predict strings before running --decode; do not open unknown Office documents."
+    },
+    {
+      "id": "reverse-depth-upx",
+      "title": "UPX list, test and decompress boundaries",
+      "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-149"
+      ],
+      "skills": "Use -l/-t/-d and explicit output/backup; distinguish decompression integrity from malware verdict.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "devel docs newer than approved 4.2.4. Parser security context matters; work in prepared lab. Modified/non-UPX packers require separate debugging.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/upx/upx/blob/devel/doc/upx-doc.txt",
+          "inspected": "Commands section read: test only checks compressed/decompressed portion, not complete file; -o output and -k backup options."
+        }
+      ],
+      "practice": "On an already-owned benign UPX-packed executable, preserve original, list/test and decompress to another path; compare file properties and behavior with known source."
+    },
+    {
+      "id": "reverse-depth-die",
+      "title": "Detect It Easy CLI: file identity, entropy and heuristic comparison",
+      "url": "https://www.kali.org/tools/detect-it-easy/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-27"
+      ],
+      "skills": "Run diec target; use -i for file information, -e for entropy, -j for JSON and -u for heuristic scan; corroborate format/architecture against binary headers before choosing a reversing workflow.",
+      "depth": "workflow",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Official Kali page documents diec 3.21; approval does not guarantee this version or working installation. Check installed --help. Signature/heuristic hits and high entropy are investigative leads, not malware proof. No separate GUI course is required for this triage capability.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Substantive text fetched through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://www.kali.org/tools/detect-it-easy/",
+          "inspected": "Fetched complete CLI help table for v3.21: positional target, -i/--info, -e/--entropy, -j/--json, -u/--heuristicscan and other option meanings."
+        },
+        {
+          "url": "https://github.com/horsicq/Detect-It-Easy",
+          "inspected": "Previously inspected native parser/signature/heuristic distinction and evidence-based interpretation."
+        }
+      ],
+      "practice": "Choose an already-owned benign executable. Compare diec target, diec -i target, diec -e target, diec -j target and diec -u target. Record type/architecture and compare with objdump/header inspection. Explain any heuristic difference; do not label a file malicious solely because it is packed or high entropy.",
+      "supporting_urls": [
+        "https://github.com/horsicq/Detect-It-Easy"
+      ]
+    },
+    {
+      "id": "ref:windows-10",
+      "title": "objdump targeted reference",
+      "url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-10"
+      ],
+      "skills": "Inspect disassembly and sections",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://sourceware.org/binutils/docs/binutils/objdump.html",
+          "inspected": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:windows-27",
+      "title": "llvm-mc (LLVM tools) targeted reference",
+      "url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-27"
+      ],
+      "skills": "Translate assembly and machine code",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://llvm.org/docs/CommandGuide/llvm-mc.html",
+          "inspected": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-5",
+      "title": "Android Studio targeted reference",
+      "url": "https://developer.android.com/studio/debug/apk-debugger",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-5"
+      ],
+      "skills": "Inspect Android packages",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://developer.android.com/studio/debug/apk-debugger",
+          "inspected": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-6",
+      "title": "angr targeted reference",
+      "url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-6"
+      ],
+      "skills": "Study path constraints and symbolic execution",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html",
+          "inspected": "Primary Simulation Managers chapter read 2026-10-19 confirms explore(find, avoid), entry_state and found stash. Installed version and AI Overview not measured."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-9",
+      "title": "asar (@electron/asar) targeted reference",
+      "url": "https://github.com/electron/asar",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-9"
+      ],
+      "skills": "Inspect Electron archives",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/electron/asar",
+          "inspected": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-11",
+      "title": "AutoIt-Ripper targeted reference",
+      "url": "https://github.com/nazywam/AutoIt-Ripper",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-11"
+      ],
+      "skills": "Extract compiled AutoIt scripts",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/nazywam/AutoIt-Ripper",
+          "inspected": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-12",
+      "title": "BinDiff targeted reference",
+      "url": "https://www.zynamics.com/bindiff/manual/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-12"
+      ],
+      "skills": "Compare compiled program versions",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://www.zynamics.com/bindiff/manual/",
+          "inspected": "Primary documentation opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-16",
+      "title": "Bytecode Viewer targeted reference",
+      "url": "https://github.com/Konloch/bytecode-viewer",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-16"
+      ],
+      "skills": "Inspect Java bytecode",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/Konloch/bytecode-viewer",
+          "inspected": "Primary repository opened 2026-10-19 to check tool identity and scope. Search wording is a task-specific recommendation; Google AI Overview quality and installed behavior not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-21",
+      "title": "checksec targeted reference",
+      "url": "https://github.com/slimm609/checksec/releases",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-21"
+      ],
+      "skills": "Identify executable protections",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/slimm609/checksec/releases",
+          "inspected": "Primary releases read 2026-10-19 list 2.6.0 and historical equals-only options; current main uses a newer Go CLI. Queries pin workbook Bash 2.6.0 to avoid incompatible syntax. Installed behavior and AI Overview unverified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-24",
+      "title": "Cutter targeted reference",
+      "url": "https://github.com/rizinorg/cutter",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-24"
+      ],
+      "skills": "Inspect program control flow",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/rizinorg/cutter",
+          "inspected": "Primary rizinorg/Cutter repository opened 2026-10-19 identifies Rizin-powered reverse engineering platform; old graph-menu URL failed. Installed version and AI Overview not measured."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-28",
+      "title": "dex2jar targeted reference",
+      "url": "https://github.com/pxb1988/dex2jar",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-28"
+      ],
+      "skills": "Convert Android bytecode to a JAR for Java analysis.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/pxb1988/dex2jar",
+          "inspected": "Upstream README shows APK conversion and d2j-dex2jar; nightly build not verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-29",
+      "title": "Didier Stevens Beta tools (onedump.py) targeted reference",
+      "url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-29"
+      ],
+      "skills": "Inspect objects in a OneNote document.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/DidierStevens/Beta/blob/master/onedump.py",
+          "inspected": "Read upstream onedump.py: identifies itself as a OneNote dump tool; manual remains incomplete and installed version is unknown."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-33",
+      "title": "Eclipse Temurin JDK (OpenJDK) targeted reference",
+      "url": "https://adoptium.net/temurin",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-33"
+      ],
+      "skills": "Run Java tools and inspect class bytecode.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://adoptium.net/temurin",
+          "inspected": "Opened Eclipse Temurin page establishing OpenJDK identity; workbook patch version not independently verified."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-37",
+      "title": "FakeNet-NG targeted reference",
+      "url": "https://github.com/mandiant/flare-fakenet-ng",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-37"
+      ],
+      "skills": "Observe network behavior in a malware lab.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/mandiant/flare-fakenet-ng",
+          "inspected": "Opened Mandiant FakeNet-NG repository; Linux qualifier avoids Windows-only setup instructions."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-38",
+      "title": "Fernflower targeted reference",
+      "url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-38"
+      ],
+      "skills": "Decompile Java classes and JARs.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/JetBrains/fernflower/blob/master/README.md",
+          "inspected": "Read JetBrains README with standalone command and examples; original IntelliJ source URL fetch failed."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-46",
+      "title": "Frida targeted reference",
+      "url": "https://frida.re/docs/javascript-api/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-46"
+      ],
+      "skills": "Observe runtime function calls.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://frida.re/docs/javascript-api/",
+          "inspected": "Opened current Frida JavaScript API; major version matters because Frida 17 changed bridge packaging."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-48",
+      "title": "GEF (GDB Enhanced Features) targeted reference",
+      "url": "https://hugsy.github.io/gef/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-48"
+      ],
+      "skills": "Inspect register and stack state in GDB.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://hugsy.github.io/gef/",
+          "inspected": "Opened GEF documentation; workbook says load explicitly to avoid PEDA conflict."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-55",
+      "title": "GoReSym targeted reference",
+      "url": "https://github.com/mandiant/GoReSym",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-55"
+      ],
+      "skills": "Recover symbols in a Go binary.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/mandiant/GoReSym",
+          "inspected": "Opened Mandiant GoReSym repository; explicit author avoids generic Go symbols results."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-69",
+      "title": "innoextract targeted reference",
+      "url": "https://constexpr.org/innoextract/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-69"
+      ],
+      "skills": "Unpack an Inno Setup installer.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://constexpr.org/innoextract/",
+          "inspected": "Opened author project page; recorded development build may have different format support."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-70",
+      "title": "internet_detector targeted reference",
+      "url": "https://www.inetsim.org/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-70"
+      ],
+      "skills": "Simulate internet services in a malware lab.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://www.inetsim.org/",
+          "inspected": "Official INetSim homepage and Kali package page confirm service simulation; neither confirms internet_detector executable. Mapping relies on workbook package note."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-75",
+      "title": "js-beautify targeted reference",
+      "url": "https://github.com/beautifier/js-beautify",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-75"
+      ],
+      "skills": "Format compressed JavaScript for inspection.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/beautifier/js-beautify",
+          "inspected": "Opened upstream beautifier README; formatting alone does not undo semantic obfuscation."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-76",
+      "title": "js-deobfuscator targeted reference",
+      "url": "https://github.com/ben-sb/javascript-deobfuscator",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-76"
+      ],
+      "skills": "Simplify JavaScript string arrays and proxy functions.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/ben-sb/javascript-deobfuscator",
+          "inspected": "Read npm package and ben-sb README confirming npm install js-deobfuscator. Other repositories share the name; installed package version not captured."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-83",
+      "title": "ltrace targeted reference",
+      "url": "https://ltrace.org/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-83"
+      ],
+      "skills": "Observe dynamic library calls.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://ltrace.org/",
+          "inspected": "Opened official ltrace homepage confirming dynamic-library tracing; static or inlined calls may not appear."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-93",
+      "title": "NASM (Netwide Assembler) targeted reference",
+      "url": "https://www.nasm.us/docs.html",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-93"
+      ],
+      "skills": "Assemble or inspect x86 instructions.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://www.nasm.us/docs.html",
+          "inspected": "Opened official NASM documentation index; syntax should match selected CPU mode and output format."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-96",
+      "title": "obfuscator-io-deobfuscator targeted reference",
+      "url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-96"
+      ],
+      "skills": "Recover readable JavaScript from Obfuscator.io output.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/ben-sb/obfuscator-io-deobfuscator",
+          "inspected": "ben-sb README documents CLI input/output and string recovery. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-99",
+      "title": "OllyDbg targeted reference",
+      "url": "https://www.ollydbg.de/quickst.htm",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-99"
+      ],
+      "skills": "Debug 32-bit Windows executables.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://www.ollydbg.de/quickst.htm",
+          "inspected": "Official OllyDbg site identifies v1.10; quickst.htm documents tracing and breakpoints. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-104",
+      "title": "peda targeted reference",
+      "url": "https://github.com/longld/peda",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-104"
+      ],
+      "skills": "Inspect debugging state and cyclic-pattern offsets.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/longld/peda",
+          "inspected": "longld PEDA README documents cyclic patterns and GDB assistance. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-105",
+      "title": "peepdf-3 targeted reference",
+      "url": "https://github.com/digitalsleuth/peepdf-3",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-105"
+      ],
+      "skills": "Inspect PDF objects and streams.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/digitalsleuth/peepdf-3",
+          "inspected": "digitalsleuth peepdf-3 README identifies the Python 3 port and PDF object/stream inspection. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-109",
+      "title": "pwndbg targeted reference",
+      "url": "https://pwndbg.re/stable/commands/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-109"
+      ],
+      "skills": "Inspect binary debugging state and offsets.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://pwndbg.re/stable/commands/",
+          "inspected": "Corrected an obsolete documentation path to the maintainer\u2019s stable command reference."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-116",
+      "title": "radare2 targeted reference",
+      "url": "https://book.rada.re/analysis/intro.html",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-116"
+      ],
+      "skills": "Locate and disassemble binary functions.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://book.rada.re/analysis/intro.html",
+          "inspected": "Official radare2 book analysis chapter checked; queries recommend function-analysis command discovery. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-117",
+      "title": "rat-king-parser targeted reference",
+      "url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-117"
+      ],
+      "skills": "Extract configuration from supported RAT families.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/jeFF0Falltrades/rat_king_parser",
+          "inspected": "Author README confirms supported RAT families and normalized configuration extraction. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-121",
+      "title": "ROPgadget targeted reference",
+      "url": "https://github.com/JonathanSalwan/ROPgadget",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-121"
+      ],
+      "skills": "Find instruction gadgets in a binary.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/JonathanSalwan/ROPgadget",
+          "inspected": "ROPgadget author README documents binary input and instruction filtering. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-138",
+      "title": "strace targeted reference",
+      "url": "https://strace.io/",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-138"
+      ],
+      "skills": "Observe a program's file and system-call behavior.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://strace.io/",
+          "inspected": "Official strace homepage identifies system-call tracing and process attachment. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-146",
+      "title": "unpyc3 (unpyc37-3.10) targeted reference",
+      "url": "https://github.com/greyblue9/unpyc37-3.10",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-146"
+      ],
+      "skills": "Decompile supported Python bytecode; this fork has only minimal Python 3.10 support.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/greyblue9/unpyc37-3.10",
+          "inspected": "greyblue9 README states good 3.7, decent 3.8, mostly complete 3.9 and minimal 3.10 support; do not assume complete 3.10 decompilation. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "ref:kali-158",
+      "title": "yara-python (and YARA on Linux) targeted reference",
+      "url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+      "kind": "guide",
+      "tool_ids": [
+        "kali-158"
+      ],
+      "skills": "Compile YARA rules and scan files from Python.",
+      "depth": "reference",
+      "prerequisites": "Basic shell and binary/file-format awareness.",
+      "limitations": "Inherited prior research verification only; not newly fetched here and not promoted to workflow instruction.",
+      "access": {
+        "cost": "Free public reading; no account required for inspected pages.",
+        "offline": "Save HTML with figures or source Markdown before travel; linked samples/VMs are separate and were not fetched.",
+        "verification": "Prior inventory research provenance; see evidence."
+      },
+      "evidence": [
+        {
+          "url": "https://yara.readthedocs.io/en/stable/yarapython.html",
+          "inspected": "Official YARA Python reference documents compile and match(filepath); installed binding version unknown. Query recommendation; Google AI Overview not observed in this research lane."
+        }
+      ]
+    },
+    {
+      "id": "reverse-depth-dotnet-dynamic",
+      "title": "Malware Analysis - Unpacking NetWiredRC With DnSpy",
+      "url": "https://www.youtube.com/watch?v=dLIbkg_8O68",
+      "kind": "video",
+      "creator": "MalwareAnalysisForHedgehogs",
+      "tool_ids": [
+        "windows-38"
+      ],
+      "skills": "Trace a managed decrypt-to-Assembly.Load path; break after decryption, inspect Locals, show byte array in memory and save selected payload without executing the recovered stage.",
+      "depth": "workflow",
+      "duration_seconds": 1625,
+      "selected_segments_seconds": [
+        [
+          780,
+          990
+        ]
+      ],
+      "selected_runtime_seconds": 210,
+      "prerequisites": "Supplied/pre-extracted managed stage, C# reading, basic dnSpyEx navigation, prepared isolated lab if practicing.",
+      "limitations": "Only 13:00\u201316:30 is assigned. Start from a supplied or already-extracted .NET stage in a prepared isolated lab. Earlier PEStudio/PortEx/Visual Studio and later de4dot workflows are excluded, not event-approved dependencies. Historical dnSpy UI; verify dnSpyEx equivalents. No claim that this handles every .NET packer or supplies a complete standalone extraction lab.",
+      "access": {
+        "cost": "Free streaming; no new account used for metadata/captions.",
+        "offline": "Video download rights not established. Free text alternative covers loaded-module inspection, not identical byte-array dumping.",
+        "playback": "Untested; metadata and captions inspected."
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=dLIbkg_8O68",
+          "local_caption_file": "research/learning/video-coverage/candidates/dLIbkg_8O68.en-orig.vtt",
+          "caption_sha256": "cdba20480215dce2e107296b4dd2d14f9a53df6bbd112a7031c6a40975adb82e",
+          "inspected": "Read local automatic captions for 13:00\u201316:30. 13:07\u201314:37 traces bytes through splitting/decrypt/Assembly.Load; 15:02\u201315:30 places breakpoint after decode; 15:34\u201316:00 inspects Locals and MZ-like prefix; 16:04\u201316:23 Show in Memory and save selected bytes; 16:23 explicitly stops instead of running recovered stage. Automatic captions misrecognize dnSpy and hex values; MZ alone is a lead, validate PE headers afterwards."
+        }
+      ],
+      "free_text_alternative": "https://docs.bepinex.dev/articles/advanced/debug/assemblies_dnSpy.html#using-dnspys-module-view",
+      "practice": "On a benign pre-existing managed loader, predict the point at which decoded bytes become available. Pause before loading the payload, inspect array length/header, and explain why successful byte dumping does not prove a valid or safe executable."
+    },
+    {
+      "id": "reverse-depth-dotnet-modules",
+      "title": "dnSpy module view and module-load breakpoints",
+      "url": "https://docs.bepinex.dev/articles/advanced/debug/assemblies_dnSpy.html#using-dnspys-module-view",
+      "kind": "guide",
+      "tool_ids": [
+        "windows-38"
+      ],
+      "skills": "In debug mode open Debug > Windows > Modules; open an already-loaded module; use Module Breakpoints to pause on named module loading.",
+      "depth": "workflow",
+      "prerequisites": "An existing debug session with a benign managed process or prepared isolated lab.",
+      "limitations": "Assign only Using dnSpy's module view. Do not follow BepInEx installation/configuration or Mono/game-specific setup. Module inspection is a useful free reading alternative but not a verbatim replacement for the byte-array dump demonstration.",
+      "access": {
+        "cost": "Free public reading without login.",
+        "offline": "Save selected section with figures.",
+        "verification": "Fetched substantive section through Exa 2026-10-23."
+      },
+      "evidence": [
+        {
+          "url": "https://docs.bepinex.dev/articles/advanced/debug/assemblies_dnSpy.html#using-dnspys-module-view",
+          "inspected": "Module view section documents menu paths, double-click opening modules, normal breakpoints, and Module Breakpoints for dynamically loaded assemblies."
+        }
+      ]
+    }
+  ],
+  "unresolved_required_gaps": [],
+  "gap_closure_note": "DIE triage is taught through substantive diec CLI instruction rather than requiring GUI-only content. .NET dynamic extraction now has a caption-verified narrow lesson plus module-view reading; full arbitrary packer recovery remains specialist work, not a claimed outcome."
+}

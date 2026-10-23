@@ -1,0 +1,486 @@
+{
+  "checked_on": "2026-10-22",
+  "evaluations": [
+    {
+      "id": "crypto-foundations-1",
+      "decision": "shorten",
+      "rationale": "The README explains recipe order, stepping and saving clearly, but installation and contributor sections add little to an experienced participant. Keep the worked examples; skip build details unless local preparation fails.",
+      "focus": "Read How it works, breakpoints, save/load recipes, and the Base64/hexdump examples. Decode the embedded two-layer string and save the recipe.",
+      "prerequisites": "Comfort with encodings versus encryption; local CyberChef needed only for interactive practice.",
+      "estimated_study_minutes": 10,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/gchq/CyberChef"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/gchq/CyberChef",
+          "inspected": "2026-10-22: Refetched substantive README interface, worked examples, local execution and recipe-saving sections.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-2",
+      "decision": "shorten",
+      "rationale": "Useful visual refresher if the interface is rusty; redundant after the diagnostic succeeds. Its later obfuscated-code task depends on an external course file, so do not make that the exercise.",
+      "focus": "Optional 7:17 watch or skim first recipe construction and inversion; use the typed-text example or the embedded known-answer recipe instead of course assets.",
+      "prerequisites": "None beyond the CyberChef basics; later course lab file not supplied.",
+      "estimated_study_minutes": 10,
+      "published_runtime": "07:17",
+      "access": {
+        "viewing": "Publicly accessible creator video; metadata/transcript inspected, playback not tested.",
+        "cost": "Free streaming; desktop offline feature is paid YouTube Premium.",
+        "registration": "No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads.",
+        "offline": "Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.",
+        "free_alternative_url": "https://github.com/gchq/CyberChef"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=UtqmiI7k9lU",
+          "inspected": "2026-10-22: Reused previously inspected Level Effect description and substantive transcript covering reverse/Base64/octal and the course-file transition; no playback.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Official desktop download steps require a signed-in YouTube Premium account; downloaded videos need periodic reconnection.",
+          "limitation": "Regional and per-video availability not tested; no subscription purchased."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-3",
+      "decision": "shorten",
+      "rationale": "The short derivation is a useful recall check, but repeats elementary RSA and uses online SageCell. Restrict it to readers who cannot derive d; the local known-answer exercise removes service dependence.",
+      "focus": "Optional 5:44 walkthrough of factorization, phi, inverse and modular decryption. Reproduce n=3233, e=17, c=2790 locally; skip the portal submission and online converter.",
+      "prerequisites": "Integer arithmetic and Python pow; Sage optional for the tiny fixture.",
+      "estimated_study_minutes": 10,
+      "published_runtime": "05:44",
+      "access": {
+        "viewing": "Publicly accessible creator video; metadata/transcript inspected, playback not tested.",
+        "cost": "Free streaming; desktop offline feature is paid YouTube Premium.",
+        "registration": "No course registration needed for the selected viewing; signed-in Premium required for documented desktop downloads.",
+        "offline": "Video offline availability for this exact item was not tested. Do not buy anything for this pack; use the linked free reading alternative and embedded exercise.",
+        "free_alternative_url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html"
+      },
+      "evidence": [
+        {
+          "url": "https://www.youtube.com/watch?v=20K1ctFzu2Y",
+          "inspected": "2026-10-22: Reused previously inspected creator transcript: derives factors, phi and d, decrypts with Python, and uses SageCell for factorization.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        },
+        {
+          "url": "https://support.google.com/youtube/answer/11977233",
+          "inspected": "2026-10-22: Official desktop download steps require a signed-in YouTube Premium account; downloaded videos need periodic reconnection.",
+          "limitation": "Regional and per-video availability not tested; no subscription purchased."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-4",
+      "decision": "retain",
+      "rationale": "Directly matches the approved tool and explains usable inputs and attack prerequisites. It is a reference rather than a complete math lesson; the paired small RSA fixture supplies the missing feedback loop.",
+      "focus": "Read key creation/inspection and named-attack examples; choose attacks from observed weaknesses. Know why arbitrary RSA keys are not automatically recoverable. Avoid FactorDB and sendtofdb in offline/event workflows.",
+      "prerequisites": "Basic RSA n/e/c/p/q/phi/d; local Python 3.9+ and tool dependencies if executing; Sage only for supported attacks that need it.",
+      "estimated_study_minutes": 20,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/RsaCtfTool/RsaCtfTool"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/RsaCtfTool/RsaCtfTool",
+          "inspected": "2026-10-22: Refetched README requirements, usage, factorization table, online FactorDB examples and network test markers.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-5",
+      "decision": "shorten",
+      "rationale": "The first examples teach exactly the operations needed for CTF RSA; the p-adic/number-field material is irrelevant to this refresher. Retain a narrow slice instead of 35 minutes of general number theory.",
+      "focus": "Read gcd/factor, inverse_mod, extended Euclid and CRT; skip p-adics, number fields and unrelated sequences. Check CRT gives 11 for residues 2 mod 3 and 1 mod 5.",
+      "prerequisites": "Modular arithmetic; local Sage for Sage commands. Python pow(...,-1,...) can cover the small RSA exercise without Sage.",
+      "estimated_study_minutes": 15,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html"
+      },
+      "evidence": [
+        {
+          "url": "https://doc.sagemath.org/html/en/tutorial/tour_numtheory.html",
+          "inspected": "2026-10-22: Refetched official tutorial with explicit outputs for modular rings, factor, inverse_mod and CRT; inspected the transition into advanced sections.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-6",
+      "decision": "replace",
+      "rationale": "The original full option dump is hard to study and blends reading with lookup. The short official dictionary page directly explains candidate generation and gives a command; mask syntax is a targeted follow-on reference, not a second course.",
+      "focus": "Read dictionary Description and the first command. Use -m 0 (raw MD5) with -a 0 and a three-word list; compare with -a 3 and a constrained mask. Use local help for installed-version flags; skip page suggestions for newer modes.",
+      "prerequisites": "Hash format identification; working hashcat backend for execution, otherwise use the Python known-answer fallback.",
+      "estimated_study_minutes": 15,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack"
+      },
+      "evidence": [
+        {
+          "url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+          "inspected": "2026-10-22: Fetched official dictionary page including the plain wordlist command and rules discussion; compared official mask page examples and version caveats.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "secondary_reference": {
+        "url": "https://hashcat.net/wiki/doku.php?id=mask_attack",
+        "focus": "Description, built-in charsets and password?d example only.",
+        "version_caveat": "The page explicitly labels PCFG mode 4 as master-only, unavailable in 7.1.2. Other examples may also track newer code; use installed help.",
+        "comparison": "Mask page explains the candidate-space tradeoff well, but long charset-file and grammar sections would overfill this block."
+      },
+      "replacement": {
+        "id": "crypto-foundations-6",
+        "title": "hashcat: dictionary attacks with a tiny wordlist",
+        "url": "https://hashcat.net/wiki/doku.php?id=dictionary_attack",
+        "type": "read",
+        "publisher": "hashcat project",
+        "tool_ids": [
+          "kali-59",
+          "kali-120"
+        ],
+        "learn": "Read dictionary Description and the first command. Use -m 0 (raw MD5) with -a 0 and a three-word list; compare with -a 3 and a constrained mask. Use local help for installed-version flags; skip page suggestions for newer modes.",
+        "priority": "core",
+        "study_minutes": 15,
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "verification": "2026-10-22: Fetched official dictionary page including the plain wordlist command and rules discussion; compared official mask page examples and version caveats.",
+        "lane": "crypto-foundations"
+      }
+    },
+    {
+      "id": "crypto-foundations-7",
+      "decision": "shorten",
+      "rationale": "Retain John as a short CPU-friendly alternative and for its own pot/session behavior, not a second full password-cracking introduction. The upstream page is clear but spends substantial space on account filters and unbounded incremental search.",
+      "focus": "Read --wordlist, --rules, --show and session/restore examples; skip password-file acquisition, account filters and exhaustive incremental demonstrations. Compare John --format=raw-md5 with hashcat -m 0 on the same toy file.",
+      "prerequisites": "John Jumbo for raw-md5; no real account files needed. Verify the local format is present before flight.",
+      "estimated_study_minutes": 10,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://www.openwall.com/john/doc/EXAMPLES.shtml"
+      },
+      "evidence": [
+        {
+          "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml",
+          "inspected": "2026-10-22: Refetched complete usage sections through wordlists, pot display, sessions, restore and incremental limits.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ]
+    },
+    {
+      "id": "crypto-foundations-8",
+      "decision": "replace",
+      "rationale": "The official walkthrough has an explicit success result and teaches why compressed plaintext is difficult. Pin it to the organiser\u2019s recorded v1.8.1 instead of moving master, and stop after recovering data. Password reconstruction is a separate exercise with poor time value here.",
+      "focus": "Read archive metadata, stored-file known plaintext, internal-key recovery and password removal. Work from the printed metadata if the sample archive was not prepared.",
+      "prerequisites": "ZipCrypto versus AES; stored versus deflated members; local bkcrack 1.8.1 plus public example only if executing.",
+      "estimated_study_minutes": 25,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+          "inspected": "2026-10-22: Fetched v1.8.1 tutorial and raw Markdown to recover the XML prefix stripped by rendered extraction; verified the exact 20-byte prefix and expected internal keys. Repository README previously inspected for 12 known bytes including 8 contiguous.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ],
+      "version_caveat": "Tutorial\u2019s displayed progress still says 13 known bytes although its current prefix is 20 bytes plus a check byte. Treat progress/timing as illustrative, not an expected exact transcript.",
+      "replacement": {
+        "id": "crypto-foundations-8",
+        "title": "bkcrack 1.8.1: stored-plaintext ZIP recovery",
+        "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+        "type": "practice",
+        "publisher": "kimci86 / bkcrack project",
+        "tool_ids": [
+          "kali-13"
+        ],
+        "learn": "Read archive metadata, stored-file known plaintext, internal-key recovery and password removal. Work from the printed metadata if the sample archive was not prepared.",
+        "priority": "next",
+        "study_minutes": 25,
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "verification": "2026-10-22: Fetched v1.8.1 tutorial and raw Markdown to recover the XML prefix stripped by rendered extraction; verified the exact 20-byte prefix and expected internal keys. Repository README previously inspected for 12 known bytes including 8 contiguous.",
+        "lane": "crypto-foundations"
+      }
+    },
+    {
+      "id": "crypto-foundations-9",
+      "decision": "remove",
+      "rationale": "The concrete example is credible but requires lattice parameter tuning and a working Sage/PyCryptodome environment. A 35-minute slot risks copying a specialized attack without learning when it applies. Keep the approved-tool reference and revisit only after a matching weakness is found.",
+      "focus": "Reference-only: consult test vectors and attack prerequisites when a matching RSA/ECC/symmetric weakness appears. No scheduled Boneh\u2013Durfee exercise.",
+      "prerequisites": "Comfort with the specific attack, lattice bounds and m/t tradeoffs; Sage/Python/PyCryptodome compatibility.",
+      "estimated_study_minutes": 0,
+      "published_runtime": null,
+      "access": {
+        "viewing": "Public primary documentation fetched without authentication.",
+        "cost": "Free reading; local software is free/open source for this selection.",
+        "registration": "None for reading.",
+        "offline": "Save selected text before departure. Reading a saved page is free; running examples also requires a working local tool and dependencies.",
+        "free_alternative_url": "https://github.com/jvdsn/crypto-attacks"
+      },
+      "evidence": [
+        {
+          "url": "https://github.com/jvdsn/crypto-attacks",
+          "inspected": "2026-10-22: Refetched README worked Boneh\u2013Durfee example and m/t lattice-dimension discussion; compared its assumed knowledge with the basic Sage/RSA sequence.",
+          "limitation": "No installed-tool execution or full video playback; only the explicitly listed Python fixture checks were executed."
+        }
+      ]
+    }
+  ],
+  "block8": {
+    "id": "block-8",
+    "suggested_minutes": 120,
+    "outcome": "Without assistance, distinguish encoding, weak textbook RSA, candidate-based hash recovery and ZipCrypto known-plaintext recovery, and choose a local approved tool for each.",
+    "diagnostic": {
+      "minutes": 10,
+      "prompts": [
+        "Decode NjY2YzYxNjc3YjZmNjY2NjZjNjk2ZTY1N2Q= and name both transformations.",
+        "Given p=61,q=53,e=17, explain how to get d and what pow(c,d,n) returns.",
+        "Explain hashcat -m versus -a, and why a 32-digit hex string does not uniquely identify a hash algorithm.",
+        "An encrypted ZIP member is Deflate-compressed: are the first bytes of its original PNG automatically usable as bkcrack plaintext?"
+      ],
+      "assessment": "Answers: From Base64 then From Hex -> flag{offline}; d is inverse of e modulo 3120 and decryption returns an integer; -m is hash type, -a candidate attack mode and formats can overlap; no, plaintext must match the compressed stream. Skip only the matching introductory resource if correct."
+    },
+    "sequence": [
+      {
+        "minutes": 10,
+        "activity": "Diagnostic."
+      },
+      {
+        "minutes": 20,
+        "activity": "CyberChef recipe and RSA recall; use one video only if its diagnostic failed, otherwise use free text."
+      },
+      {
+        "minutes": 20,
+        "activity": "RsaCtfTool input/attack selection and Sage inverse/CRT snippets."
+      },
+      {
+        "minutes": 20,
+        "activity": "One hashcat wordlist workflow plus brief John equivalence; do not read both manuals end to end."
+      },
+      {
+        "minutes": 20,
+        "activity": "bkcrack stored-versus-deflated tutorial and metadata exercise."
+      },
+      {
+        "minutes": 25,
+        "activity": "Execute or trace the known-answer fixtures below; reproduce the commands from memory."
+      },
+      {
+        "minutes": 5,
+        "activity": "Write the four decision rules and identify remaining installation gaps."
+      }
+    ],
+    "preparation": "Save selected free text and this fixture card. Optional tools: local CyberChef, Python 3.8+, hashcat with working backend, John Jumbo, Sage, bkcrack. Reading and fixture tracing require no accounts. No sample download is required for completion; actual bkcrack execution needs the public archive prepared ahead of time.",
+    "exercises": [
+      {
+        "name": "Two-layer decoding",
+        "input": "NjY2YzYxNjc3YjZmNjY2NjZjNjk2ZTY1N2Q=",
+        "action": "In CyberChef use From Base64 then From Hex; inspect intermediate output before saving the recipe.",
+        "expected": "Intermediate 666c61677b6f66666c696e657d; final flag{offline}.",
+        "fallback": "Decode base64 and hex with Python standard library, or trace the supplied intermediate string on paper.",
+        "validation": "Python standard-library roundtrip executed and asserted on 2026-10-22; CyberChef UI not run."
+      },
+      {
+        "name": "Tiny RSA",
+        "input": {
+          "n": 3233,
+          "e": 17,
+          "c": 2790,
+          "p": 61,
+          "q": 53
+        },
+        "action": "Compute phi=(p-1)*(q-1), d=pow(e,-1,phi), m=pow(c,d,n); convert m to a byte, then re-encrypt. In Sage compare inverse_mod(17,3120).",
+        "expected": {
+          "phi": 3120,
+          "d": 2753,
+          "m": 65,
+          "byte": "A",
+          "reencrypted": 2790
+        },
+        "fallback": "Python 3.8+ only; no Sage/FactorDB or sample file needed. On paper check 17*2753 mod 3120=1 and use the supplied power result to assess the method.",
+        "validation": "Python inverse, decrypt and re-encrypt executed and asserted; Sage and RsaCtfTool not executed."
+      },
+      {
+        "name": "Known hash and candidates",
+        "input": {
+          "raw_md5": "5f4dcc3b5aa765d61d8327deb882cf99",
+          "wordlist": [
+            "dragon",
+            "password",
+            "letmein"
+          ]
+        },
+        "action": "Create a scratch directory; put the hash on one line in hash.txt and the three words on separate lines in words.txt. Run hashcat -m 0 -a 0 --potfile-disable hash.txt words.txt; expected recovered plaintext password. Optional John: john --format=raw-md5 --wordlist=words.txt --pot=toy.pot hash.txt, then john --format=raw-md5 --show --pot=toy.pot hash.txt. Use a fresh scratch directory to avoid stale pot results.",
+        "expected": "password is the matching candidate; adding only digits would never find it. A mask password?d tries ten different strings, none equal to password.",
+        "fallback": "Python: import hashlib; words=[\"dragon\",\"password\",\"letmein\"]; print([w for w in words if hashlib.md5(w.encode()).hexdigest()==\"5f4dcc3b5aa765d61d8327deb882cf99\"]). Expected [\"password\"].",
+        "validation": "Expected MD5 computed and asserted in Python; hashcat/John commands not executed and backend availability unknown."
+      },
+      {
+        "name": "Archive classification without a download",
+        "input": {
+          "entry_1": "advice.jpg: ZipCrypto, Deflate",
+          "entry_2": "spiral.svg: ZipCrypto, Store",
+          "known_prefix": "<?xml version=\"1.0\" "
+        },
+        "action": "Choose the member whose plaintext is directly usable and explain why. Write the exact prefix to plain.txt without a newline, name the bkcrack -C/-c/-p arguments, and explain why an internal key is enough to recover content. No archive needed for this recall check.",
+        "expected": "Choose spiral.svg because it is stored; prefix is 20 bytes. With the upstream secrets.zip: bkcrack -C secrets.zip -c spiral.svg -p plain.txt. Tutorial\u2019s keys are c4490e28 b414a23d 91404b31; these enable password removal. Do not infer those keys for other archives.",
+        "fallback": "Use the printed metadata and expected answer only. Optional executable fixture creates an unencrypted ZIP below to check that archive presence alone does not justify a cracking attack.",
+        "validation": "Prefix length asserted in Python; keys read from pinned upstream tutorial, not reproduced."
+      },
+      {
+        "name": "Tiny local archive sanity check",
+        "input": "note.txt containing exactly flag{offline} followed by a newline (14 bytes).",
+        "action": "Python in a fresh scratch directory: import zipfile; z=zipfile.ZipFile(\"toy.zip\",\"w\",compression=zipfile.ZIP_STORED); z.writestr(\"note.txt\",b\"flag{offline}\\n\"); z.close(). Reopen with zipfile.ZipFile(\"toy.zip\"), inspect getinfo(\"note.txt\").flag_bits & 1 and compress_type, then read(\"note.txt\").",
+        "expected": "Encryption bit 0, compression type 0, plaintext b\"flag{offline}\\n\". No bkcrack attack is needed.",
+        "fallback": "If no interpreter is available, classify the given flags (0) and method (0) on paper.",
+        "validation": "Equivalent in-memory Python ZIP creation, flags, compression and readback executed and asserted; no external archive binary tested."
+      }
+    ],
+    "assessment": "Pass when each workflow produces its known answer or, for reading-only use, the written method correctly states prerequisites and expected output. Reading-only recall does not establish tool installation or command execution readiness."
+  },
+  "family_rationales": [
+    {
+      "tool_ids": [
+        "kali-22"
+      ],
+      "rationale": "crypto-attacks remains a searchable implementation/test-vector library. Specialized lattice tuning is outside the scheduled refresher; removal from study does not remove approval or its inventory reference."
+    },
+    {
+      "tool_ids": [
+        "kali-36"
+      ],
+      "rationale": "factordb-python is network-dependent and unnecessary for the tiny local RSA fixture. Keep reference only; approval is not authorization to transmit event challenge material."
+    },
+    {
+      "tool_ids": [
+        "kali-64",
+        "kali-101"
+      ],
+      "rationale": "hlextend and padding-oracle-attacker are pattern-specific helpers needing a vulnerable construction/oracle. General RSA/hash exercises do not cover them; retain exact upstream references and state this gap instead of claiming broad cryptographic mastery."
+    },
+    {
+      "tool_ids": [
+        "kali-102"
+      ],
+      "rationale": "PARI/GP is an alternative number-theory runtime; Sage/Python cover this block\u2019s arithmetic. Use the existing reference if a supplied solver specifically needs GP."
+    },
+    {
+      "tool_ids": [
+        "kali-60"
+      ],
+      "rationale": "hashid is triage, not proof of algorithm identity; check context and known format examples before selecting a cracking mode."
+    },
+    {
+      "tool_ids": [
+        "kali-120"
+      ],
+      "rationale": "rockyou is a wordlist, not a separate tool course. The three-word fixture teaches candidate handling without downloading a large corpus."
+    },
+    {
+      "tool_ids": [
+        "windows-24"
+      ],
+      "rationale": "OpenSSL remains reference-only for explicit cipher, key, IV and salt parameters; the curated block does not claim AES/OpenSSL coverage."
+    },
+    {
+      "tool_ids": [
+        "kali-91"
+      ],
+      "rationale": "multimon-ng signal decoding needs an appropriate recorded signal and modulation knowledge; reference-only pending a matching challenge, not covered by the crypto refresh."
+    },
+    {
+      "tool_ids": [
+        "kali-56",
+        "kali-58"
+      ],
+      "rationale": "GTFOBins and HackTricks offline copies are broad lookups, not sequential course material. Preserve references and use matching sections when a concrete binary or technique appears."
+    },
+    {
+      "tool_ids": [
+        "windows-6",
+        "windows-7",
+        "windows-8",
+        "windows-21",
+        "windows-25",
+        "windows-37",
+        "kali-1",
+        "kali-2",
+        "kali-17",
+        "kali-18",
+        "kali-26",
+        "kali-31",
+        "kali-47",
+        "kali-52",
+        "kali-53",
+        "kali-57",
+        "kali-71",
+        "kali-81",
+        "kali-82",
+        "kali-84",
+        "kali-85",
+        "kali-90",
+        "kali-95",
+        "kali-97",
+        "kali-113",
+        "kali-114",
+        "kali-119",
+        "kali-123",
+        "kali-140",
+        "kali-141",
+        "kali-144",
+        "kali-147",
+        "kali-148",
+        "kali-150",
+        "kali-155",
+        "kali-156",
+        "kali-159",
+        "kali-160"
+      ],
+      "rationale": "Runtimes, editors, archive utilities and environment/data helpers are supporting tools. Preserve every existing row-specific reference; use the participant\u2019s familiar editor/runtime and a small archive exercise rather than parallel language or editor courses. Python 2 differs from the Python 3.8+ inverse example."
+    }
+  ],
+  "checks": [
+    "All nine original resource IDs evaluated exactly once.",
+    "Block sequence sums to 120 minutes.",
+    "Python RSA/MD5/encoding/archive known-answer assertions executed successfully.",
+    "No video playback, paid access, tool install, large download, portal access or external cracking exercise executed."
+  ],
+  "integration_notes": [
+    "Replacement records preserve IDs for stable coverage mapping. Resource 9 should leave the scheduled list but keep kali-22\u2019s reference-only coverage.",
+    "Do not add all per-resource estimates to block time: optional videos replace text/diagnostic review, and the block uses selected sections.",
+    "Preparation tasks are separate from reading; the no-download fixture path is complete for recall, not proof that all installed tools work."
+  ]
+}
