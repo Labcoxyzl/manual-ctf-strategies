@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="53789eceb8e5b2e969726771fe6be38f03692082e3e599efb9792f5c332ea837">
+  <link rel="icon" href="data:,">
+  <title>Core-tool practice · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Core-tool practice</h1>
+<p>These are small, authored practice inputs—not organiser challenges. Run commands from the root of the copied guide. Check the inputs with <code>sha256sum -c examples/core/SHA256SUMS</code>; use a new <code>practice-output</code> directory for results. Tools must already be available in the environment where you run them.</p>
+<p><a href="#cyberchef">CyberChef</a> · <a href="#packets">Packets</a> · <a href="#images">Images</a> · <a href="#pdf">PDF</a> · <a href="#disk">Disk</a> · <a href="#native">Native code</a> · <a href="#rsa">RSA</a></p>
+<pre><code class="language-bash">mkdir practice-output
+</code></pre>
+<p><a id="cyberchef"></a></p>
+<h2>CyberChef: reproduce a layered decode</h2>
+<p>Open your offline CyberChef copy. Load <a href="examples/core/cyberchef-recipe.json">cyberchef-recipe.json</a> through the recipe Load control, then paste <a href="examples/core/gzip-base64.txt">gzip-base64.txt</a> into Input. The operations are <strong>From Base64 → Gunzip</strong>. Compare the output with <a href="examples/core/expected.txt">expected.txt</a>: 51 bytes, SHA-256 <code>45ccc5cf7b56c0d158ad7920dc13d203b363fad7a7e13be0da5da5969374d963</code>.</p>
+<p>Replace the input with <a href="examples/core/not-gzip-base64.txt">not-gzip-base64.txt</a>. Base64 decoding still works, but Gunzip must report an invalid signature. This distinguishes a wrong decoding hypothesis from an empty result. Save a recipe separately from input; never share a URL containing challenge data.</p>
+<p><a id="packets"></a></p>
+<h2>Wireshark/TShark: reconstruct the response</h2>
+<p><a href="examples/core/http.pcap">http.pcap</a> contains a response split across three TCP segments plus a retransmission. Open it in Wireshark, follow the TCP stream, then use <strong>File → Export Objects → HTTP</strong>. The exported <code>report.txt</code> must match <a href="examples/core/expected.txt">expected.txt</a>.</p>
+<p>The supplemental TShark path performs that export directly:</p>
+<pre><code class="language-bash">tshark -r examples/core/http.pcap --export-objects http,practice-output/http -q
+cmp practice-output/http/report.txt examples/core/expected.txt
+</code></pre>
+<p>Run the missing-middle control into a different, new directory:</p>
+<pre><code class="language-bash">tshark -r examples/core/http-incomplete.pcap --export-objects http,practice-output/incomplete -q
+</code></pre>
+<p>Expect no exported object. Do not reuse a directory containing an earlier success. Captured TCP payloads concatenated in packet order duplicate retransmissions; <code>follow,tcp,raw</code> also includes hexadecimal framing and directions, not just raw file bytes.</p>
+<p><a href="examples/core/http-port19091.pcap">http-port19091.pcap</a> carries HTTP on a nonstandard port. Use Decode As in Wireshark, or:</p>
+<pre><code class="language-bash">tshark -r examples/core/http-port19091.pcap -d tcp.port==19091,http --export-objects http,practice-output/port19091 -q
+cmp practice-output/port19091/payload.bin examples/core/expected-payload.bin
+</code></pre>
+<p><a id="images"></a></p>
+<h2>Images: extract a selected plane or inspect an appended archive</h2>
+<p>Read metadata from <a href="examples/core/carrier.png">carrier.png</a>, scan it, then extract the specific red-channel LSB plane:</p>
+<pre><code class="language-bash">exiftool -a -u -g1 examples/core/carrier.png
+zsteg examples/core/carrier.png
+(set -C; zsteg -E 'b1,r,lsb,xy' examples/core/carrier.png &gt; practice-output/lsb.bin)
+cmp practice-output/lsb.bin examples/core/expected-lsb.txt
+</code></pre>
+<p>Expected: <code>TRAINING-LSB</code> followed by LF. The tested zsteg version strips trailing NULs; the fixture includes that padding, so this does not prove exact recovery of a binary file ending in NUL. The green-plane selector <code>b1,g,lsb,xy</code> yields an empty result. If scanning fails because its <code>file</code> dependency is missing, <code>--no-file</code> permits text scanning but disables file-type identification.</p>
+<p><a href="examples/core/appended.png">appended.png</a> contains an appended ZIP. Run <code>binwalk examples/core/appended.png</code>, then <code>7z l examples/core/appended.png</code>. Record the reported byte boundary; test the recovered archive and its CRC rather than assuming a signature match proves recovery. No recursive extraction is necessary.</p>
+<p><a id="pdf"></a></p>
+<h2>PDF: distinguish attachments from page streams</h2>
+<pre><code class="language-bash">qpdf --check examples/core/attachment.pdf
+qpdf --list-attachments examples/core/attachment.pdf
+(set -C; qpdf --show-attachment=training-payload examples/core/attachment.pdf &gt; practice-output/pdf-attachment.bin)
+cmp practice-output/pdf-attachment.bin examples/core/expected-payload.bin
+qpdf --show-pages examples/core/streams.pdf
+(set -C; qpdf --show-object=4 --filtered-stream-data examples/core/streams.pdf &gt; practice-output/pdf-stream.bin)
+cmp practice-output/pdf-stream.bin examples/core/expected-stream.txt
+</code></pre>
+<p>The attachment is 17 bytes, including NUL and <code>ff</code>; text display is insufficient to check it. The page stream is <code>% TRAINING-STREAM</code> followed by LF, so the rendered page can be blank despite stored content. Copy object numbers and attachment keys from the actual PDF; these values belong only to the supplied fixtures.</p>
+<p><a id="disk"></a></p>
+<h2>Disk image: recover the deleted entry</h2>
+<p><a href="examples/core/disk.img">disk.img</a> is an authored MBR disk with an ext2 partition starting at sector 2048, using 512-byte sectors. Find the deleted <code>training.bin</code> metadata address rather than inferring it from a filename:</p>
+<pre><code class="language-bash">mmls -b 512 examples/core/disk.img
+fsstat -b 512 -o 2048 examples/core/disk.img
+fls -r -p -d -b 512 -o 2048 examples/core/disk.img
+(set -C; icat -r -b 512 -o 2048 examples/core/disk.img 12 &gt; practice-output/deleted.bin)
+cmp practice-output/deleted.bin examples/core/expected-payload.bin
+</code></pre>
+<p>The supplied entry is inode 12; other images will differ. As a negative control, <code>fls -o 1048576 examples/core/disk.img</code> must fail: that number is the byte offset, while <code>-o</code> requires sectors. Never mount or repair an original image to perform this exercise.</p>
+<p><a id="native"></a></p>
+<h2>Native checker: derive and test the comparison</h2>
+<p><a href="examples/core/checker.c">checker.c</a> is a benign comparison exercise. Build it before opening the source if you want to practise recovery; compilation needs an already installed C compiler:</p>
+<pre><code class="language-bash">gcc -O0 -fno-builtin -fno-pie -no-pie examples/core/checker.c -o practice-output/checker
+</code></pre>
+<p>Import the resulting ELF into Ghidra, analyse it, and follow the <code>accepted</code>/<code>rejected</code> string references to the comparison. For an installed headless launcher, <a href="examples/core/RecoverComparison.java">RecoverComparison.java</a> exports the named function and refuses to overwrite its output:</p>
+<pre><code class="language-bash">ghidra-headless practice-output fixture -import practice-output/checker -scriptPath examples/core -postScript RecoverComparison.java check_phrase practice-output/decompiled.c -analysisTimeoutPerFile 60 -max-cpu 2 -deleteProject
+</code></pre>
+<p>The recovered comparison uses <code>strcmp</code>. The derived input must produce <code>accepted</code>/exit 0; a one-character mutation produces <code>rejected</code>/exit 1; no argument exits 2. A successful import alone is not the check. Ghidra can return exit 0 after a post-script error; require a freshly created output and inspect the log. Repeating this command with the same output should preserve it and log an overwrite refusal. The launcher name and Java runtime are installation-specific; the GUI route does not require that wrapper.</p>
+<p>For GDB operand inspection, <a href="examples/core/gdb-checker.c">gdb-checker.c</a> builds its expected string at runtime. Compile it with <code>gcc -O0 -g -fno-builtin ...</code>; stop before its comparison and inspect both operands, then verify the caller's branch. Do not copy x86-64 System V register assumptions to another architecture or Windows ABI.</p>
+<p><a id="rsa"></a></p>
+<h2>RSA: test an evidenced close-factor case</h2>
+<p>This toy modulus deliberately has close factors:</p>
+<pre><code class="language-bash">RsaCtfTool -n 1000000016000000063 -e 65537 --attack fermat --private --decrypt 481265877869100520 --timeout 10
+</code></pre>
+<p>Expect factors 1000000007 and 1000000009 and plaintext <code>LEARN</code>. Independently check their product, then decrypt and re-encrypt the integer in Python. This is textbook RSA; do not apply bare integer conversion to OAEP or PKCS#1 padded ciphertext.</p>
+<p>The tested tool prints results on stderr alongside other messages. Empty stdout is not an empty recovery; do not redirect stdout to a PEM file and assume it is a key. Check flags against the installed version and parse any copied PEM block before relying on it.</p>
+<p><a id="can"></a></p>
+<h2>CAN log: preserve records and time meaning</h2>
+<p><a href="examples/core/can-capture.txt">can-capture.txt</a> has five authored classic-CAN frames; no interface is needed. With can-utils available:</p>
+<pre><code class="language-bash">(set -C; log2long &lt; examples/core/can-capture.txt &gt; practice-output/can-readable.txt)
+log2asc -I examples/core/can-capture.txt -O practice-output/can.asc can0 can1
+asc2log -I practice-output/can.asc -O practice-output/can-roundtrip.txt
+</code></pre>
+<p>Check five records and their exact IDs/DLC/data, not merely exit 0. ID <code>123</code> changes its final byte from <code>08</code> to <code>09</code> over 10 ms. Extended ID <code>1ABCDEFF</code> carries <code>00 A5 FF</code>; ID <code>321</code> is a remote request for four bytes, with no payload; ID <code>456</code> is a zero-byte data frame. Interface names here are labels from the log, not interfaces to open. Compare absolute time as well as elapsed intervals; the ASC header does not establish a timezone.</p>
+<p>As a negative control, convert <a href="examples/core/can-malformed.asc">can-malformed.asc</a> separately. The tested asc2log drops its malformed DLC row yet returns 0; that is not a complete conversion. Missing required locales can also replace absolute timestamps while only warning. Stock can-utils 2023.03-1 additionally showed silent one-hour/DST shifts and an AM parsing defect. The prepared local container has a narrow date-parser patch, but other installations need the same comparison against the original. Read stderr and compare records before trusting output. On the prepared project machine, prefix these converter names with <code>tools/distro/run-container</code> and work inside the project; an export elsewhere needs a native can-utils installation.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,203 @@
+{
+  "original_reproduction_checks": [
+    {
+      "name": "math-100-fragmented-and-coalesced",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "math-slowdrip-deadline",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-nonintegral",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-zero-divisor",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-early-eof",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-overlong",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-nonascii",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-banner",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "math-crlf",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-short-content-length",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-truncated-chunked",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-too-large",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-header-value-and-count-limits",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "http-relative-redirect",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-body-timeout",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "http-slowdrip-per-socket-contract",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-intel-opaque.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "inspect-opaque.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-baseline-opaque.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-intel-escaped.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "inspect-escaped.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-baseline-escaped.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-intel-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "inspect-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-baseline-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-intel-truncated-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "inspect-truncated-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "file-baseline-truncated-record.bin",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "binary-valid-offset",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "binary-truncated",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "binary-fifo",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "file-intel-fifo",
+      "expected_returncode": 1,
+      "passed": true
+    },
+    {
+      "name": "inspect-fifo",
+      "expected_returncode": 2,
+      "passed": true
+    },
+    {
+      "name": "inspect-ordinary.zip",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "7zip-list-ordinary.zip",
+      "expected_returncode": 0,
+      "passed": true
+    },
+    {
+      "name": "inspect-bad-local-offset.zip",
+      "expected_returncode": 2,
+      "passed": true
+    },
+    {
+      "name": "7zip-list-bad-local-offset.zip",
+      "expected_returncode": 2,
+      "passed": true
+    }
+  ],
+  "original_checks_passed": 37,
+  "heldout_checks_passed": 34,
+  "new_header_checks_passed": 8,
+  "demo_controls_passed": 2,
+  "source_hashes": {
+    "scripts/ctf.py": "fe4ce7177695ae40f3a5523e03dcfa6606ef5e792bbf8d8a9c67be58d6445b92",
+    "scripts/templates/http_probe.py": "f6fb3f7a25f22666aff58cb9d2b5acb1da6fe840ac025ce04789c2780785c031",
+    "scripts/templates/pwntools_starter.py": "0091350e793a67836fb1855c7cea0f21ec8ee9a830f38fa82acef2434b5e9421",
+    "scripts/templates/file_intel.py": "5dbd1e6553c90f693f2a286bd9f235d7b37ac2dee99e54db311632c661b45ca4",
+    "scripts/templates/binary_parser.py": "7896aa81739ce17b5ebb093576f3e94d1d57d41ae937272f04037c60bf22dd37",
+    "scripts/templates/math_client.py": "8c0dfa9937cf651f9fcf8e68a8a234f38cceeb0598e2cf5ca1d6f37042907a8f",
+    "scripts/templates/math_demo.py": "8dc37021209ad1b8614674d3a7c286f4f9e6f3490bd1b02e1de9582f0717aadc"
+  },
+  "source_hashes_stable_across_all_post_repair_runs": true
+}

@@ -1,0 +1,14 @@
+{
+  "asc2log.c": {
+    "url": "https://raw.githubusercontent.com/linux-can/can-utils/cfe41963f3425e9adb01a70cfaddedf5e5982720/asc2log.c",
+    "sha256": "112cd3c4cf7bf13eb966749ad6b55e8c70614dae22631a19c625249a99c09796"
+  },
+  "lib.c": {
+    "url": "https://raw.githubusercontent.com/linux-can/can-utils/cfe41963f3425e9adb01a70cfaddedf5e5982720/lib.c",
+    "sha256": "6bcb87689e0a965a7d15a72b5708595bbfa98d44c881e546cfe817f0008e9022"
+  },
+  "lib.h": {
+    "url": "https://raw.githubusercontent.com/linux-can/can-utils/cfe41963f3425e9adb01a70cfaddedf5e5982720/lib.h",
+    "sha256": "433ad45605a4219ecf0b67e0bb755550baf432a72cf6dffdad1e0ef3c6a47c32"
+  }
+}

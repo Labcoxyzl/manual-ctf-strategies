@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
+work="$PWD"
+case "$work/" in
+  "$root/"*) ;;
+  *) printf 'This project launcher cannot access the current directory. Run inside %s or use a native installed tool.\n' "$root" >&2; exit 2 ;;
+esac
+args=(--rm -i --user "$(id -u):$(id -g)" --cap-drop ALL --security-opt no-new-privileges --mount "type=bind,src=$root,dst=$root" -w "$work" -e HOME=/tmp -e "XDG_RUNTIME_DIR=/tmp/runtime-$(id -u)" -e GSETTINGS_BACKEND=memory -e DCONF_PROFILE=/tmp/ctf-dconf-profile)
+[[ -t 0 && -t 1 ]] && args+=(-t)
+if [[ -d /mnt/wslg && -n "${DISPLAY:-}" ]]; then
+  args+=(-e DISPLAY -e PULSE_SERVER -v /mnt/wslg:/mnt/wslg:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro)
+fi
+exec docker run "${args[@]}" cyber-sea-game-2026-tools:local sh -c 'mkdir -m 700 -p "$XDG_RUNTIME_DIR"; printf "user-db:user\n" >"$DCONF_PROFILE"; exec "$@"' sh "$@"

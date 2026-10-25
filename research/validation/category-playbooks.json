@@ -1,0 +1,281 @@
+{
+  "forensics": {
+    "title": "Digital forensics",
+    "first_steps": [
+      "Preserve the original and identify its actual format with file or a matching GUI. Record the question, source path and relevant timestamps before extracting anything.",
+      "PCAP: choose a conversation in Wireshark, follow the stream and export a relevant object. Disk image: find the partition start with mmls, list with fls and recover the selected metadata address with icat.",
+      "Memory: resolve Volatility 3 symbols, then inspect image information, process tree and command lines. Windows artifact: select an EVTX, registry, MFT or browser parser for the file actually supplied.",
+      "Media: read ExifTool metadata; check PNG/JPEG structure, a justified zsteg plane or an audio spectrogram. PDF: compare rendered pages with attachments and object streams.",
+      "Validate recovered content using its format, and keep the source offset, packet, record or object identifier that supports the answer.",
+      "A valid image and clean metadata do not exclude appended content. If the clue remains unexplained, list the file with 7z, inspect later strings or container boundaries, and compare related files before carving; preserve offsets and validate recovered members with CRC or their format parser."
+    ],
+    "expected": "A recovered file or specific record supported by a traceable source location and correctly interpreted time/format.",
+    "fallback": "When a parser fails, check format, partition offset, symbols and missing sidecars first. Use carving only when metadata is unusable; false signatures and incomplete recovery remain limitations.",
+    "approved_tools": [
+      "kali-42",
+      "windows-2",
+      "windows-23",
+      "windows-31",
+      "windows-39",
+      "windows-14",
+      "windows-12",
+      "windows-26",
+      "kali-10",
+      "kali-131",
+      "kali-143"
+    ],
+    "helper_links": [
+      {
+        "title": "Bounded file inspection",
+        "path": "scripts/README.md#inspect"
+      },
+      {
+        "title": "Forensic and packet practice",
+        "path": "research/learning/practice/README.md"
+      },
+      {
+        "title": "Audio inspection practice",
+        "path": "research/learning/video-coverage/practice/AUDIO_PRACTICE.md"
+      }
+    ]
+  },
+  "malware": {
+    "title": "Malware analysis",
+    "first_steps": [
+      "Keep the sample local and begin with static identification: file/Detect It Easy for format and architecture, strings or FLOSS for text, and capa for supported executable capabilities.",
+      "Follow meaningful capa/string locations in Ghidra or the format-specific decompiler; record the code that supports each claimed behavior.",
+      "For Office/PDF content, select oletools or the exact Didier Stevens script to list streams/objects and extract code without enabling macros.",
+      "For packaged content, use the identified wrapper's extractor: asar, pyinstxtractor-ng, innoextract or UPX. Identify each output before opening it.",
+      "Use a debugger, Frida or simulated network only when a specific runtime question remains and an isolated compatible lab is available.",
+      "For an obfuscated PHP/HTA script, inspect source as data first. Follow only evidenced literal transforms, cap input and output at each decoding layer, and retain intermediate hashes. Never eval the sample or instantiate serialized objects just to inspect it."
+    ],
+    "expected": "A code-backed behavior or configuration finding, with extracted content tied to its original object/function.",
+    "fallback": "Packing, unsupported bytecode or absent runtime dependencies can limit analysis. Report static hypotheses separately from observed execution and choose one compatible extractor/debugger rather than trying every tool.",
+    "approved_tools": [
+      "kali-27",
+      "windows-11",
+      "kali-43",
+      "kali-19",
+      "windows-22",
+      "kali-98",
+      "kali-30",
+      "kali-9",
+      "kali-111",
+      "kali-149",
+      "kali-37",
+      "kali-117"
+    ],
+    "helper_links": [
+      {
+        "title": "Read-only byte preview",
+        "path": "scripts/templates/README.md#file-intel"
+      },
+      {
+        "title": "Container and document triage practice",
+        "path": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+      },
+      {
+        "title": "YARA match and near-miss practice",
+        "path": "research/learning/practice/README.md"
+      }
+    ]
+  },
+  "web": {
+    "title": "Web security",
+    "first_steps": [
+      "Reproduce the intended action in Chrome and capture its request, session state and response in Burp. Replay an unchanged baseline in Repeater.",
+      "Change one input and compare status, body, headers and protected content with the baseline and a negative control.",
+      "Inspect client code and linked routes before discovery. If discovery is needed, calibrate a nonexistent path and use one bounded ffuf run with a short appropriate wordlist.",
+      "Use the relevant offline PayloadsAllTheThings entry only after identifying a plausible primitive. Match sqlmap, jwt_tool or a padding-oracle tool to demonstrated prerequisites.",
+      "Retest the specific behavior through an independent request; a scanner hit or decoded JWT is not proof of an exploitable condition.",
+      "Read response headers as well as status and body: Server, Content-Type, Location and authentication/session fields can change the next test. Treat a version banner as a lead, not proof of exploitability; preserve redirects and reject incomplete responses."
+    ],
+    "expected": "A reproducible request/response difference that establishes the precise behavior or vulnerability and its session requirements.",
+    "fallback": "Resolve expired cookies, redirects, wildcard responses, throttling and an unstable baseline before broadening tests. Prefer manual Repeater/curl checks when automation obscures the signal.",
+    "approved_tools": [
+      "windows-5",
+      "windows-20",
+      "kali-23",
+      "kali-41",
+      "kali-126",
+      "kali-103",
+      "kali-132",
+      "kali-77",
+      "kali-101",
+      "kali-78"
+    ],
+    "helper_links": [
+      {
+        "title": "Single HTTP request template",
+        "path": "scripts/templates/README.md#http"
+      },
+      {
+        "title": "Reviewed web learning references",
+        "path": "LEARNING_RESOURCES.md"
+      }
+    ]
+  },
+  "reversing": {
+    "title": "Reverse engineering",
+    "first_steps": [
+      "Identify native, .NET, Android, Java, JavaScript or Python bytecode and its architecture/version before choosing a decompiler.",
+      "Find an input prompt or success/failure string and follow references to the validation routine. Use Ghidra for native code, dnSpyEx for .NET or JADX for APK/DEX.",
+      "Trace input parsing, transformations and comparison; record widths, signedness, byte order and character encoding.",
+      "Check reconstructed logic against assembly, IL, smali or bytecode. Use a debugger at a known location when runtime values are the missing evidence.",
+      "Test a candidate through the original checker, including a near-miss input, before claiming the recovered condition is sufficient.",
+      "If an executable has UPX evidence but stock unpacking fails, inspect section names and loader structure before considering a repair. Work on a copy, record the exact byte diff, require upx -t success and validate the unpacked format; do not apply a generic section rename to unrelated packers."
+    ],
+    "expected": "A faithful input condition or transformation and a candidate validated against the actual checker.",
+    "fallback": "Strip packaging first when appropriate; unsupported decompiler output needs a lower-level view. Use angr only after locating the check and modeling its environment, with concrete validation afterward.",
+    "approved_tools": [
+      "kali-42",
+      "windows-22",
+      "windows-9",
+      "windows-10",
+      "windows-33",
+      "windows-38",
+      "kali-72",
+      "kali-8",
+      "kali-110",
+      "kali-6",
+      "kali-109",
+      "kali-21"
+    ],
+    "helper_links": [
+      {
+        "title": "Benign checker practice",
+        "path": "research/learning/practice/README.md"
+      },
+      {
+        "title": "Binary parser template",
+        "path": "scripts/templates/README.md#binary"
+      },
+      {
+        "title": "Transport and packing blocks",
+        "path": "scripts/templates/README.md#transport"
+      }
+    ]
+  },
+  "osint": {
+    "title": "Open-source intelligence",
+    "first_steps": [
+      "Separate supplied evidence from public-source facts. Extract image/document metadata with ExifTool or pdftotext and record explicit time zones and contradictory tags.",
+      "Choose a distinctive public phrase, visible landmark or named entity; search in Chrome and open the underlying source instead of relying on a snippet.",
+      "Record source URL, author/date where available and exactly what the source supports. Distinguish an event date from publication or capture time.",
+      "Corroborate the decisive claim with an independent source. For a public-domain task, Subfinder can suggest names with source provenance; verify those names in their cited sources.",
+      "Keep private challenge artifacts local; use visible/public clues rather than uploading the original to an unrelated hosted analyzer.",
+      "If GPS is absent, compare visible signs, road geometry and buildings with public photographs and maps. Prefer a corroborated camera viewpoint over a business/map pin; check conflicting coordinate fields and preserve signs when rounding to the requested precision. Public event sites may require the year-specific archive."
+    ],
+    "expected": "A supported identity/location/time claim with sources and unresolved contradictions clearly separated.",
+    "fallback": "Metadata can be absent or forged and public indexes stale. Narrow by independent visual/text clues; lack of search results does not establish absence.",
+    "approved_tools": [
+      "windows-5",
+      "windows-14",
+      "windows-15",
+      "kali-139",
+      "kali-52",
+      "kali-23",
+      "windows-19",
+      "kali-97"
+    ],
+    "helper_links": [
+      {
+        "title": "Metadata and format inspection",
+        "path": "scripts/README.md#inspect"
+      },
+      {
+        "title": "Source and learning references",
+        "path": "LEARNING_RESOURCES.md"
+      }
+    ]
+  },
+  "crypto": {
+    "title": "Cryptography",
+    "first_steps": [
+      "Write down the exact provided values, encodings and construction. Distinguish reversible encoding, a password hash, symmetric ciphertext and a mathematical public-key problem.",
+      "Encoding: apply one justified CyberChef operation and inspect bytes after each layer. Use known-key XOR or binary conversion only when key/bit order comes from evidence.",
+      "Hashes: use hashid -m as a candidate shortlist, then match source format, salts and full syntax with Hashcat example hashes before selecting a mode and bounded wordlist attempt.",
+      "RSA/group problems: test the specific weakness with RsaCtfTool, SageMath, PARI/GP or a matching crypto-attacks implementation; verify every prerequisite.",
+      "Verify results independently: factors multiply to n, plaintext re-encrypts to c, or a recovered password actually opens the original artifact.",
+      "Hash shape only yields candidate algorithms: use hashcat --identify or hashid -m, then confirm the mode from the producing application or known pairs. Check candidate length coverage before interpreting Exhausted. For RFID or framed bits, separate byte conversion, demodulation, field extraction and parity checks; a readable field with failed parity is not a valid protocol frame."
+    ],
+    "expected": "A result that satisfies the original cryptographic relation or successfully validates against the supplied artifact.",
+    "fallback": "Do not treat readable output or a hash-length guess as proof. Recheck encoding, padding, modulus/group order, salts and KDF parameters before widening searches; use local math instead of external value submission.",
+    "approved_tools": [
+      "windows-1",
+      "windows-7",
+      "windows-24",
+      "windows-30",
+      "kali-59",
+      "kali-60",
+      "kali-73",
+      "kali-13",
+      "kali-22",
+      "kali-102",
+      "kali-125",
+      "kali-120"
+    ],
+    "helper_links": [
+      {
+        "title": "Hashcat modes, bounded runs and recovery",
+        "path": "HASHCAT.md"
+      },
+      {
+        "title": "Binary text conversion",
+        "path": "scripts/README.md#bits"
+      },
+      {
+        "title": "Known-key XOR",
+        "path": "scripts/README.md#xor"
+      },
+      {
+        "title": "Structured binary parsing",
+        "path": "scripts/templates/README.md#binary"
+      }
+    ]
+  },
+  "misc": {
+    "title": "Miscellaneous and protocol tasks",
+    "first_steps": [
+      "Identify the input type with file and inspect archive members with 7-Zip before extracting into a new directory.",
+      "Use existing tools for focused data work: ripgrep for text, jq for JSON, xxd for bytes and the matching decompressor for a known stream.",
+      "For an assigned service, inspect the specified port/banner with Nmap/Ncat and perform one manual protocol exchange; record exact delimiters, lengths and encoding.",
+      "If repeated interaction is necessary, adapt the existing transport or timed-arithmetic template to the observed protocol and success condition.",
+      "Check the real interpreter/environment and run a known sample plus an incomplete/invalid-input case before relying on an adapted helper.",
+      "For rapid question services, reuse one connection, parse only the expected question grammar, send one correctly formatted answer, and wait for the completion signal. Test split/coalesced packets and total deadlines locally. For five-bit text, preserve incomplete trailing groups and letter/figure shift state rather than silently dropping data."
+    ],
+    "expected": "A correctly identified payload or repeatable protocol exchange with explicit parsing and completion rules.",
+    "fallback": "Wrong format, missing runtime/dependency or a different wire protocol requires a targeted adjustment. Use the approved tool directly when a helper's scope does not cover the task.",
+    "approved_tools": [
+      "kali-42",
+      "kali-2",
+      "kali-119",
+      "windows-21",
+      "windows-28",
+      "kali-94",
+      "kali-127",
+      "windows-7",
+      "windows-8",
+      "windows-6",
+      "kali-114"
+    ],
+    "helper_links": [
+      {
+        "title": "Existing byte and inspection toolkit",
+        "path": "scripts/README.md"
+      },
+      {
+        "title": "Protocol templates",
+        "path": "scripts/templates/README.md#transport"
+      },
+      {
+        "title": "Timed arithmetic client",
+        "path": "scripts/templates/README.md#timed-math"
+      },
+      {
+        "title": "Binary parsing",
+        "path": "scripts/templates/README.md#binary"
+      }
+    ]
+  }
+}

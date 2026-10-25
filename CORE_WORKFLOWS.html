@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="8b75c1ea55b7f6172b6b02ffd8abcb42f93df81fb231ea45eab04874e8015289">
+  <link rel="icon" href="data:,">
+  <title>Core tool workflows · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Core tool workflows</h1>
+<p>These workflows start with the 32 tools proposed by Trend Micro, including their WSL entries. Other approved tools are identified as supplements. <a href="CORE_PRACTICE.html">Practice files and exact checks</a> · <a href="CTF_CHEATSHEET.html">All 200 tool entries</a>.</p>
+<p><a href="#decode">Decode</a> · <a href="#pcap">Packets</a> · <a href="#media">Images</a> · <a href="#pdf">PDF</a> · <a href="#disk">Disk</a> · <a href="#native">Native code</a> · <a href="#web">Web</a> · <a href="#memory">Memory</a> · <a href="#crypto">Crypto</a> · <a href="#can">CAN logs</a></p>
+<p>Use a new working directory, preserve originals and replace uppercase placeholders. Commands below use WSL/Bash unless marked otherwise. Binary redirection belongs in that shell. On the prepared research computer, <code>source tools/activate.sh</code> enables existing launchers; those machine-specific tools are separate from the portable reference files. Project container launchers require a working directory inside this project; for an export copied elsewhere, use tools installed in that environment. On the competition machine, confirm the actual launcher and runtime. A version/help check alone does not establish a working analysis path.</p>
+<p><a id="decode"></a></p>
+<h2>Encoded text or bytes — CyberChef</h2>
+<p>Open the prepared offline CyberChef HTML. Paste encoded text; load a file when the input is binary. Apply one operation, inspect its output, then decide whether another is justified.</p>
+<p>Calibration: <code>VHJhY2U=</code> → <strong>From Base64</strong> → <code>Trace</code>. <code>NTQ3MjYxNjM2NQ==</code> → <strong>From Base64</strong> → <code>5472616365</code> → <strong>From Hex</strong> → <code>Trace</code>. Temporarily append <strong>To Hex</strong> to inspect bytes, then remove that display operation before saving raw output. Save the recipe/settings separately from the input and compare expected byte length or parse the resulting format. Printable output alone is not proof; unreadable UTF-8 can still be correct bytes. Undo a contradictory layer. Magic gives candidates, not validation.</p>
+<p><a id="pcap"></a></p>
+<h2>PCAP — Wireshark; TShark when repetition helps</h2>
+<p>Open the capture → Statistics → Conversations → choose a peer pair → apply its filter. Select a packet → Follow the matching stream. Record packet numbers, endpoints, stream number and direction. Use File → Export Objects → matching protocol for transferred files; save into a fresh directory and inspect the exported file. A displayed ASCII/hex transcript is not automatically the original binary payload.</p>
+<p>If a known protocol uses a nonstandard port, use Analyze → Decode As before treating an empty protocol filter as a negative finding. Missing segments, encryption and an incorrect dissector are different failures. Supplied TLS secrets need the matching Wireshark TLS configuration; a server private key alone does not decrypt every TLS session.</p>
+<p>TShark is a supplemental approved Windows entry. On Windows PowerShell, its default installer path can be invoked as <code>&amp; 'C:\Program Files\Wireshark\tshark.exe' -r 'C:\PATH\capture.pcap' ...</code>; confirm the local path. With a TShark launcher in WSL/Bash:</p>
+<pre><code class="language-bash">tshark -r ./capture.pcap -Y http.request -T fields -e frame.number -e tcp.stream -e http.host -e http.request.uri
+tshark -r ./capture.pcap -q -z follow,tcp,ascii,STREAM_NUMBER
+tshark -r ./capture.pcap --export-objects http,NEW_OBJECT_DIR -q
+</code></pre>
+<p>For independently identified HTTP on port PORT, add <code>-d tcp.port==PORT,http</code> to the reading/export commands. These read an existing capture; do not omit <code>-r</code>. Expect request rows linked to packets, then a parser-valid object. The synthetic exercise exported a segmented binary response exactly. For large captures, a Zeek summary can narrow the pivot: copy the capture into a fresh analysis directory, run <code>zeek -r ./capture.pcap</code> there, then inspect <code>conn.log</code> and relevant protocol logs. The prepared container mounts only its current project directory, so an absolute input outside that directory is not visible. Zeek logs identify flows; they are not reconstructed file bytes.</p>
+<p><a id="media"></a></p>
+<h2>Image or embedded data — ExifTool, zsteg, binwalk</h2>
+<pre><code class="language-bash">exiftool -a -u -g1 ./image.png
+zsteg ./image.png
+zsteg -E 'COPIED_SELECTOR' ./image.png &gt; ./NEW_selected.bin
+binwalk ./artifact.bin
+xxd -s BYTE_OFFSET -l 32 ./artifact.bin
+zbarimg --raw ./code.png
+</code></pre>
+<p>Keep metadata groups and explicit time zones. For decimal coordinates, <code>exiftool -n -GPSLatitude -GPSLongitude -GPSLatitudeRef -GPSLongitudeRef ./image.jpg</code> avoids manually transcribing degree/minute/second displays; inspect sign and reference. Missing metadata does not rule out appended data or pixel steganography.</p>
+<p>For PNG/BMP, copy the entire meaningful zsteg selector, for example <code>b1,r,lsb,xy</code>; do not copy a guessed file-type label. Inspect recovered length and bytes, then run the claimed format's validator. This installed zsteg strips trailing NULs; if a binary format needs that tail, check the plane length independently. If scanning fails because <code>file</code> is missing from the same runtime, <code>zsteg --no-file ./image.png</code> can still scan text but skips file classification. The prepared container now has the missing dependency; test the competition installation separately. For an authored QR fixture, ZBar required a sufficient quiet border and scale before it decoded the exact text; a failed scan on a tight crop does not prove no code is present.</p>
+<p>For an embedded signature, distinguish the original file byte offset from a sector or decoded-stream offset. Check binwalk's major version before extraction flags. If ZIP structure is corroborated, list/test with the installed archive tool or carve the evidenced byte region to a new file and test its CRCs. A signature match alone is a lead, and recursive extraction is not the default next action.</p>
+<p>For a candidate that runs from its start to the end of the file, use approved Python. This example's offset 224 belongs only to the synthetic fixture; replace it with the offset you observed. A format-defined length needs a bounded carve instead.</p>
+<pre><code class="language-python">from pathlib import Path
+from shutil import copyfileobj
+offset = 224
+assert 0 &lt;= offset &lt; Path('artifact.bin').stat().st_size
+with open('artifact.bin', 'rb') as source, open('NEW_candidate.bin', 'xb') as output:
+    source.seek(offset)
+    copyfileobj(source, output)
+</code></pre>
+<p>For a ZIP candidate, <code>7z t ./NEW_candidate.bin</code> tests structure and CRCs when the supplementary approved archive tool is available. Python's <code>zipfile</code> module is another validator.</p>
+<p><a id="pdf"></a></p>
+<h2>PDF — qpdf, pdftotext and the viewer</h2>
+<p>Compare rendered pages with extracted text, attachments and content streams:</p>
+<pre><code class="language-bash">qpdf --check ./document.pdf
+pdftotext -layout ./document.pdf ./NEW_document.txt
+qpdf --list-attachments ./document.pdf
+qpdf --show-attachment='COPIED_KEY' ./document.pdf &gt; ./NEW_attachment.bin
+qpdf --show-pages ./document.pdf
+qpdf --show-object=OBJECT,GEN ./document.pdf
+qpdf --show-object=OBJECT,GEN --filtered-stream-data ./document.pdf &gt; ./NEW_stream.bin
+</code></pre>
+<p>The attachment list's key selects an export; the page listing supplies object and generation numbers. <code>--show-object</code> alone describes an object; <code>--filtered-stream-data</code> returns decoded stream bytes. Validate exported files separately and relate content to the original page/object. A content stream can contain PDF drawing/text operators rather than plain prose. Password errors and malformed/encrypted streams are not empty evidence. Preserve the original: rewriting can drop orphaned objects. <code>pdftotext</code> extracts mapped text, not OCR; a blank text file can coexist with image-only pages or non-text streams.</p>
+<p><a id="disk"></a></p>
+<h2>Disk image — The Sleuth Kit</h2>
+<pre><code class="language-bash">mmls -b SECTOR_BYTES ./disk.img
+fsstat -b SECTOR_BYTES -o START_SECTOR ./disk.img
+fls -r -p -b SECTOR_BYTES -o START_SECTOR ./disk.img
+icat -b SECTOR_BYTES -o START_SECTOR ./disk.img METADATA_ADDRESS &gt; ./NEW_recovered.bin
+</code></pre>
+<p>Use the actual device sector size and the filesystem partition's Start sector. A filesystem-only image uses offset zero; it need not contain a partition table. Copy the metadata address from <code>fls</code>, including all NTFS components such as <code>42-128-1</code>. For a deleted file, add <code>-r</code> to <code>icat</code>; <code>fls -d</code> selects deleted entries, and recursive listing does not traverse deleted directories. Check recovered bytes, not just its filename. Bytes may be overwritten or partial. If <code>fsstat</code> fails, revisit image type, offset and sector size before carving. The synthetic case uses sector 2048 × 512 bytes; passing 1048576 to <code>-o</code> is the wrong coordinate system. For a standalone FAT image, <code>fsck.fat -n ./FAT_FILESYSTEM.img</code> reports structure without repairing it. A local test caught zero logical-sector size, but a separate boot-signature-only edit was not flagged; a clean exit is narrower than full integrity proof.</p>
+<p><a id="native"></a></p>
+<h2>Native checker — Ghidra to GDB</h2>
+<p>In Ghidra, import with the correct architecture and analyse. Find a prompt/success string → show its references → inspect the calling function. Write down input source, length limit, transformation, comparison operands and the success branch. Compare decompiler expressions with instructions before renaming uncertain types.</p>
+<p>In the matching isolated runtime, start GDB with the compatible ELF. Use <code>break main</code>, <code>run INPUT</code>, <code>disassemble /r CHECK_FUNCTION</code>; stop at the actual comparison. Symbols or a breakpoint expressed relative to a known symbol are preferable to copied static addresses. PIE/ASLR changes load addresses; establish the runtime mapping before setting <code>break *ADDRESS</code> on stripped code.</p>
+<p>At <strong>strcmp entry on x86-64 System V</strong>, <code>x/s $rdi</code> and <code>x/s $rsi</code> show the two C strings. For memcmp, inspect its length and bounded byte arrays (<code>x/Nbx ADDRESS</code>), since NUL bytes are data. <code>finish</code>, then <code>p/d $eax</code>, checks the returned comparison result: zero means equal. Inspect the caller's branch too. These registers do not apply to every architecture or Windows ABI. Confirm a derived input and a near miss; record output and exit status. Use the supplementary x64dbg/x32dbg route for Windows PE debugging. To check a proposed x86-64 instruction encoding before using it, <code>llvm-mc -triple=x86_64-pc-linux-gnu -show-encoding ./SAMPLE.s</code> prints encoded bytes; independently disassemble a generated object if the exact instruction matters. The full object file includes metadata and is not raw shellcode.</p>
+<p><a id="web"></a></p>
+<h2>HTTP request — Burp Community</h2>
+<p>Proxy → Intercept → Open Browser. Turn Intercept off while browsing the assigned service, then select its request in Proxy → HTTP history → Send to Repeater. Burp's browser is preconfigured; an external browser needs its proxy and HTTPS trust configured separately.</p>
+<p>Replay unchanged twice and record status, relevant headers/cookies, body and any server-side state change. Change one value, send again, then restore baseline. Check Repeater's actual target host/port/TLS settings, not only the Host header. Empty history means capture setup has not been established. Baseline differences can come from expiry, CSRF values, one-use tokens or dynamic content. These steps use Community features and were source-reviewed, not GUI-tested here.</p>
+<p><a id="memory"></a></p>
+<h2>Memory image — Volatility 3</h2>
+<p>Confirm the installed launcher with help. <code>vol</code> is the prepared suite launcher; use <code>python3 /PATH/vol.py</code> only for an actual source checkout. Before going offline, resolve the image's matching PDB database name, GUID and age; keep the converted symbols and cache together with the image. A local <code>pdbconv -f PDB_PATH</code> conversion needs <code>-p PDB_NAME</code> in the tested Volatility 3 release. Check the generated symbol metadata and run <code>windows.info</code> using the intended paths while connected, then repeat offline. The following commands assume a prepared <code>./symbols/windows/</code> tree and a writable <code>./vol-cache/</code> directory; a bare PDB in the image folder is not searched automatically.</p>
+<pre><code class="language-bash">vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.info
+vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.pstree
+vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.cmdline
+vol windows.dumpfiles --help
+vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw -o ./NEW_DUMPS windows.dumpfiles --pid PID --filter 'EVIDENCED_NAME'
+</code></pre>
+<p>Create the new output directory first. Correlate process, parent, arguments and timestamps; then choose the file name or PID from that evidence. The dump filter is a regex. Validate dumped content: cached files can be incomplete. <code>windows.filescan</code> is another lead source, but confirm its offset layer before selecting <code>--virtaddr</code>/<code>--physaddr</code>. A symbol error means analysis did not run; it is not “no process found.” An <a href="https://github.com/volatilityfoundation/volatility3-test-data/releases/tag/v0.0.1">official 32-bit XP test image</a> was actually checked with Volatility 3 2.28.2: <code>windows.info</code>, <code>pstree</code>, <code>cmdline</code> and one known-address <code>dumpfiles</code> extraction passed offline with a fresh local symbol cache; 47 process rows and two dumped PE files matched the publisher’s regression expectations. That result does not establish modern Windows, arbitrary images, process minidumps or the missing practice challenge dump.</p>
+<p><a id="crypto"></a></p>
+<h2>RSA or password evidence</h2>
+<p>For RSA, inspect n/e and the ciphertext representation before choosing a weakness. Use <code>RsaCtfTool --help</code> and the actual launcher. A small private exponent suggests Wiener; evidenced close factors suggest Fermat; a nontrivial gcd between moduli supplies a shared factor. Do not run all attacks or send integers to external services by default.</p>
+<pre><code class="language-bash">RsaCtfTool --dumpkey --key ./public.pem
+RsaCtfTool --publickey ./public.pem --attack wiener --private --timeout 30
+</code></pre>
+<p>Read both stdout and stderr: the tested RsaCtfTool version prints recovery results on stderr. Do not assume <code>&gt; private.pem</code> creates a usable key; copy only a recovered PEM block or use a locally verified output option, then parse/check it.</p>
+<p>After recovering p/q, check <code>p*q == n</code>, compute the inverse exponent and decrypt the textbook integer. Assert <code>pow(m,e,n) == c</code> before converting with <code>m.to_bytes((m.bit_length()+7)//8, 'big')</code>. A fixed-width block may need leading zero bytes; OAEP/PKCS#1 padding needs its actual decoder. A failed attack only rejects that hypothesis. For password/hash evidence, follow <a href="HASHCAT.html">the Hashcat guide</a>: it covers mode ambiguity, candidate coverage, device failures and recovery verification.</p>
+<p>Local checks exercised the actual offline CyberChef app, TShark on Linux and Windows, Ghidra headless analysis, GDB, qpdf, zsteg, TSK and an explicit RSA attack on synthetic inputs. Burp/Wireshark desktop GUI operation remains source-guided; the memory result covers the official XP fixture only. These checks do not establish competition-host compatibility.</p>
+<p>Primary references: <a href="https://www.wireshark.org/docs/wsug_html_chunked/">Wireshark</a> · <a href="https://www.wireshark.org/docs/man-pages/tshark.html">TShark</a> · <a href="https://github.com/zed-0xff/zsteg">zsteg</a> · <a href="https://qpdf.readthedocs.io/en/stable/cli.html">qpdf</a> · <a href="https://www.sleuthkit.org/sleuthkit/man/icat.html">TSK icat</a> · <a href="https://portswigger.net/burp/documentation/desktop/getting-started/intercepting-http-traffic">Burp capture</a> · <a href="https://volatility3.readthedocs.io/en/latest/getting-started-windows-tutorial.html">Volatility</a> · <a href="https://github.com/RsaCtfTool/RsaCtfTool">RsaCtfTool</a>.</p>
+<p><a id="can"></a></p>
+<h2>A supplied CAN log — can-utils</h2>
+<p>Use can-utils' log converters before opening an interface. For a compact <code>candump</code> log, a line has a timestamp, interface label and <code>ID#DATA</code>; these are recorded fields, not instructions to connect to a bus. Preserve the original and write new outputs:</p>
+<pre><code class="language-bash">log2long &lt; ./capture.log &gt; ./NEW_readable.txt
+log2asc -I ./capture.log -O ./NEW_capture.asc can0 can1
+asc2log -I ./capture.asc -O ./NEW_compact.log
+</code></pre>
+<p>Replace <code>can0 can1</code> with the interface <strong>labels present in the input log</strong>. Their order maps to ASC channel numbers 1, 2, and so on. <code>log2asc</code> only converts selected labels, so omitted labels can remove records. No CAN interface is needed for these commands. On the prepared research computer, these converters are already inside the distro image: from the project root, prefix the tool with <code>tools/distro/run-container</code>, and keep files under the project directory. No new launcher or package is required.</p>
+<p>Check row counts, arbitration IDs, standard/extended format, data lengths, exact bytes and timestamps after conversion. In ASC, an <code>x</code> suffix marks an extended identifier; <code>d</code> identifies a data frame and <code>r</code> a remote request. A classic-CAN remote request with DLC 4 requests four bytes but carries no data payload. The zero-byte data frame is another valid case. These examples are classic CAN with ordinary DLC values 0–8; CAN FD has a different DLC-to-length mapping. Without a supplied signal definition or corroborated experiment, changing bytes do not establish a physical measurement, byte order or scale.</p>
+<p><strong>Calibration:</strong> In the <a href="examples/core/can-capture.txt">authored CAN capture</a>, ID <code>123</code> changes its final byte from <code>08</code> to <code>09</code> over 10 ms. ID <code>1ABCDEFF</code> has three data bytes <code>00 A5 FF</code>; ID <code>321</code> is a remote request with DLC 4; ID <code>456</code> has zero data bytes. The five records convert back with the same IDs, DLCs and bytes. An added <code>R</code>/<code>Rx</code> direction is the converter's default when the original omits direction; it is not evidence of a physical reception.</p>
+<p><strong>If output differs:</strong> Check the input format and selected channel labels first. Do not treat an existing output file or exit 0 as proof of a complete conversion. Stock can-utils 2023.03-1 showed the following limits. The prepared project container now has a narrowly patched <code>asc2log</code> date parser; this does not establish the behavior of the competition installation:</p>
+<ul>
+<li><code>log2long</code> and <code>log2asc</code> reject malformed compact frames with exit 1 but can leave a valid-looking output prefix. Preserve diagnostics and discard that output as a completed conversion.</li>
+<li><code>asc2log</code> can skip an ASC row whose declared DLC exceeds its supplied bytes and still exit 0. If its required date locale is absent, it can substitute the current time while only warning on stderr. The stock parser also produced silent one-hour shifts from an uninitialized DST field and mishandled AM dates. The local patch initializes that field and recognises AM; malformed-row loss and invalid-date fallback still require explicit checks. Frame bytes and relative timing survived this fixture; absolute dates did not. Keep the original time basis and compare timestamp fields explicitly. A converter's date header without a zone does not establish UTC.</li>
+</ul>
+<p>Cannelloni is a live SocketCAN tunnel, not a log decoder. Keep its peer/interface/transport setup in a separate route requiring the assigned topology and a working interface. The prepared upstream build differs from the workbook's unavailable fork; only its help was checked here. No hardware, virtual interface, bridge or frame transmission was tested.</p>
+<p>Sources: <a href="https://github.com/linux-can/can-utils">linux-can converter inventory</a>, <a href="https://github.com/linux-can/can-utils/blob/v2023.03/log2asc.c">2023.03 log2asc source</a>, <a href="https://github.com/linux-can/can-utils/blob/v2023.03/asc2log.c">2023.03 asc2log source</a>, and <a href="https://github.com/mguentner/cannelloni">cannelloni upstream documentation</a>. Installed help and the synthetic results are preserved in this directory; source versions do not prove competition-machine parity.</p>
+</main>
+</body>
+</html>

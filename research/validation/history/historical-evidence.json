@@ -1,0 +1,252 @@
+{
+  "generated_utc": "2026-10-24T20:38:05.125917+00:00",
+  "scope": "Public historical static-source retrieval and local safe analysis only; no unknown hosts probed",
+  "provenance_policy": "Official event records establish event provenance; participant repositories establish file/challenge attribution. Public copy hashes are not organizer authenticity checks.",
+  "sources": {
+    "event2019": {
+      "url": "https://jaif.asean.org/en/news/cyber-sea-game-2019",
+      "kind": "official funder/ASEAN event record",
+      "facts": [
+        "ETDA/AJCCBC organized Cyber SEA Game 2019 on 20\u201322 November 2019",
+        "Thailand won; ten ASEAN countries participated"
+      ]
+    },
+    "event2025": {
+      "url": "https://ajccbc.ncsa.or.th/cyber-sea-game-2025",
+      "kind": "official organizer record",
+      "facts": [
+        "Cyber SEA Game 2025 ran in Bangkok on 16\u201317 October 2025",
+        "Vietnam won; Singapore second; Indonesia third"
+      ]
+    },
+    "participant2021": {
+      "url": "https://nandynarwhals.org/cyberseagame-2021/",
+      "kind": "original participant writeup",
+      "facts": [
+        "Author reports competing for Singapore online on 26 November 2021",
+        "Known Vulnerability 1 begins by reading Server: Apache/2.4.49",
+        "Author explicitly says only a remembered subset of challenges is covered; full archive not established"
+      ]
+    },
+    "ita2": {
+      "url": "https://www.itu.int/rec/dologin_pub.asp?id=T-REC-S.1-199303-I%21%21PDF-E&lang=e&type=items",
+      "kind": "primary protocol standard",
+      "facts": [
+        "S.1 sections 1.2/3 define a five-unit code; 4.4 defines letter/figure shifts; Table 1 gives code values"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "intact2019",
+      "event_year": 2019,
+      "challenge": "Intact",
+      "historical_category": "Network",
+      "guide_route": "Digital Forensics / packet analysis",
+      "source": {
+        "repo": "end1an/Cyber-SEA-GAME-2019",
+        "commit": "92209d0c9418351fc5db14ac1a73561eeeb2dfb4",
+        "repository_path": "Intact (Network - 80)/Intact_8688e1a1263c414450b12985e0d5620b.pcapng",
+        "local_path": "research/validation/history/artifacts/end1an_Cyber-SEA-GAME-2019/Intact (Network - 80)/Intact_8688e1a1263c414450b12985e0d5620b.pcapng",
+        "source_url": "https://github.com/end1an/Cyber-SEA-GAME-2019/blob/92209d0c9418351fc5db14ac1a73561eeeb2dfb4/Intact%20%28Network%20-%2080%29/Intact_8688e1a1263c414450b12985e0d5620b.pcapng",
+        "download_url": "https://raw.githubusercontent.com/end1an/Cyber-SEA-GAME-2019/92209d0c9418351fc5db14ac1a73561eeeb2dfb4/Intact%20%28Network%20-%2080%29/Intact_8688e1a1263c414450b12985e0d5620b.pcapng",
+        "size": 12040,
+        "sha256": "328b5d568a77b23fc898f5656b2c0e2e1a5d0937119a247ccf15ccd596166efa",
+        "git_blob_sha1": "4d4a219bd57fa5b1de5035d3152758a8daa6cfb1",
+        "retrieved_utc": "2026-10-24T20:31:08.210696+00:00",
+        "executed": false
+      },
+      "evidence": "locally reproduced passive reconstruction and image reading",
+      "result_file": "results/intact-verification.json",
+      "observations": [
+        "68 captured frames, 26 FTP control frames and 3 data frames",
+        "TShark and independent Scapy packet lengths/payload bytes agree",
+        "Stream 2 is 4709-byte FLAG.zip; stream 3 is 49-byte passmemo.txt",
+        "Memo password decrypts one 4649-byte FLAG.GIF; visually inspected answer text"
+      ],
+      "helper_observation": "inspect returns complete basic classification application/octet-stream; it does not reconstruct streams or extract content",
+      "recommendation": "Teach FTP control/data linkage, stream reassembly, password-bearing side files and image inspection with Wireshark/tshark and 7-Zip; retain basic helper scope",
+      "approved_tool_ids": [
+        "windows-2",
+        "windows-36",
+        "kali-2",
+        "windows-7"
+      ],
+      "limitations": [
+        "Participant-hosted copy, not an organizer checksum",
+        "No live connection or platform acceptance tested"
+      ]
+    },
+    {
+      "id": "betrayer2025",
+      "event_year": 2025,
+      "challenge": "N4 Betrayer",
+      "historical_category": "Network / Forensics",
+      "guide_route": "Digital Forensics / NTLMSSP",
+      "source": {
+        "repo": "kaisonox/CTFs",
+        "commit": "3ad3035d46d9453811d064866461f23b46349b0a",
+        "repository_path": "2025-Cyber-SEA-Game/Switzerland_N4_betrayer/betrayer.pcap",
+        "local_path": "research/validation/history/artifacts/kaisonox_CTFs/2025-Cyber-SEA-Game/Switzerland_N4_betrayer/betrayer.pcap",
+        "source_url": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Switzerland_N4_betrayer/betrayer.pcap",
+        "download_url": "https://raw.githubusercontent.com/kaisonox/CTFs/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Switzerland_N4_betrayer/betrayer.pcap",
+        "size": 34386,
+        "sha256": "393c0375e12ff0dfc7e755c4afee38e93a652105734dd763e9264dd20a2b7419",
+        "git_blob_sha1": "c3f8d43fdfbee20697c9756968855df62e2f3180",
+        "retrieved_utc": "2026-10-24T20:31:14.791143+00:00",
+        "executed": false
+      },
+      "writeup": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Switzerland_N4_betrayer/README.md",
+      "evidence": "locally reproduced passive field extraction against independent offset parser and author values",
+      "result_file": "results/betrayer-verification.json",
+      "observations": [
+        "166 frames; TShark NTLMSSP message types 1,2,3 at frames 34,37,39 in TCP stream 0",
+        "8-byte server challenge; 326-byte NT response splits into 16-byte proof and 310-byte blob",
+        "Raw scan finds a repeated type-2 challenge; do not assume every signature is a distinct exchange"
+      ],
+      "helper_observation": "inspect recognizes application/vnd.tcpdump.pcap but does not decode authentication",
+      "recommendation": "Filter ntlmssp, pair type 2/3 within the same stream, validate NTLMv2 structure before constructing a hashcat line",
+      "approved_tool_ids": [
+        "windows-2",
+        "windows-36",
+        "kali-59",
+        "windows-7"
+      ],
+      "limitations": [
+        "No password cracking or relay performed",
+        "Packet fields alone do not prove the writeup\u2019s broader poisoning/relay attribution"
+      ]
+    },
+    {
+      "id": "c6-2025",
+      "event_year": 2025,
+      "challenge": "C6 A very old odd file",
+      "historical_category": "Misc / encoding",
+      "guide_route": "Miscellaneous / explicit symbol mapping and stateful text code",
+      "source": {
+        "repo": "kaisonox/CTFs",
+        "commit": "3ad3035d46d9453811d064866461f23b46349b0a",
+        "repository_path": "2025-Cyber-SEA-Game/C6_a_very_old_odd_file/C6_a_very_old_odd_file.txt",
+        "local_path": "research/validation/history/artifacts/kaisonox_CTFs/2025-Cyber-SEA-Game/C6_a_very_old_odd_file/C6_a_very_old_odd_file.txt",
+        "source_url": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/C6_a_very_old_odd_file/C6_a_very_old_odd_file.txt",
+        "download_url": "https://raw.githubusercontent.com/kaisonox/CTFs/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/C6_a_very_old_odd_file/C6_a_very_old_odd_file.txt",
+        "size": 2178,
+        "sha256": "8085616a96201990ade33dc9b4ba2626cd5b5c9f354349b73bd84044bebeb2ae",
+        "git_blob_sha1": "6e541cda9fbd797c018b10d88bdf1db9c9aa6118",
+        "retrieved_utc": "2026-10-24T20:31:15.403275+00:00",
+        "executed": false
+      },
+      "writeup": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/C6_a_very_old_odd_file/README.md",
+      "evidence": "locally reproduced strict failure and explicitly partial decoding baseline",
+      "result_file": "results/c6-verification.json",
+      "observations": [
+        "Payload is line 2, containing 2088 dot/dash symbols",
+        "417 complete five-bit groups and 3 trailing symbols",
+        "Dot=1, dash=0 and normal group order yield Swedish spelling words with 18 shift controls",
+        "First letters and explicit format-word normalization agree with the published answer for the complete groups"
+      ],
+      "helper_observation": "bits --width 5 correctly returns invalid_input/2 after explicit symbol mapping because of the partial trailing group",
+      "recommendation": "Keep the strict check. State group width, bit significance and letter/figure shifts; any dropped suffix is an explicit unresolved limitation",
+      "approved_tool_ids": [
+        "windows-1",
+        "windows-7"
+      ],
+      "limitations": [
+        "Three trailing symbols remain unexplained; no whole-input decoding-complete claim",
+        "Participant solver silently truncates and ignores figure mode; do not copy these shortcuts",
+        "No independent organizer answer checker"
+      ]
+    },
+    {
+      "id": "packer2025",
+      "event_year": 2025,
+      "challenge": "Greece R2 Packer",
+      "historical_category": "Reverse engineering / packer",
+      "guide_route": "Malware Analysis and Reverse Engineering / static unpacking",
+      "source": {
+        "repo": "kaisonox/CTFs",
+        "commit": "3ad3035d46d9453811d064866461f23b46349b0a",
+        "repository_path": "2025-Cyber-SEA-Game/Greece/packed.exe",
+        "local_path": "research/validation/history/artifacts/kaisonox_CTFs/2025-Cyber-SEA-Game/Greece/packed.exe",
+        "source_url": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Greece/packed.exe",
+        "download_url": "https://raw.githubusercontent.com/kaisonox/CTFs/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Greece/packed.exe",
+        "size": 209408,
+        "sha256": "dd8027945aef6c0e5e82d60a5c0908869039bb17c19b370cb32abf4ef29f15ff",
+        "git_blob_sha1": "29deeb20f8c7905c5f8687a980bd3fe7febaac1b",
+        "retrieved_utc": "2026-10-24T20:31:18.016584+00:00",
+        "executed": false
+      },
+      "writeup": "https://github.com/kaisonox/CTFs/blob/3ad3035d46d9453811d064866461f23b46349b0a/2025-Cyber-SEA-Game/Greece/README.md",
+      "evidence": "writeup-informed static transform reproduced; key not independently derived",
+      "result_file": "results/packer-verification.json",
+      "observations": [
+        "209408-byte PE holds an encrypted blob at RVA 0xf370, file offset 57200, length 104960",
+        "Published AES-128-ECB parameters produce a valid AMD64 DLL with 6 sections and one answer-shaped string"
+      ],
+      "helper_observation": "File preview and XOR helper do not perform PE RVA translation or AES unpacking",
+      "recommendation": "Use approved disassembler/Python route, translate RVA to file offset, verify complete ciphertext bounds and decrypted PE headers before interpreting output",
+      "approved_tool_ids": [
+        "windows-7",
+        "windows-10",
+        "windows-11",
+        "kali-116"
+      ],
+      "limitations": [
+        "Published key/RVA used, not independently recovered from stub",
+        "Original packer, DLL and downloaded solver were never executed",
+        "No dynamic malware analysis or platform acceptance tested"
+      ]
+    }
+  ],
+  "web_regression": {
+    "historical_source": "https://nandynarwhals.org/cyberseagame-2021/",
+    "before": "results/http-header-observation.json",
+    "after": "results/http-header-after-observation.json",
+    "status": "reproduced omission before parent repair; independently confirmed fixed on identical loopback fixture",
+    "test_fixture": "HTTP 200, Server Apache/2.4.49, Content-Type text/plain, X-Training-Marker header-visible, body It works! newline",
+    "limitation": "Simulated response only; no vulnerable Apache server or CVE exploitation"
+  },
+  "pwn_source_only": {
+    "event_year": 2022,
+    "challenge": "coal_mine",
+    "source": {
+      "repo": "sudlit/ctf-writeups",
+      "commit": "275a8e965ad4bc4536d52bd711b8f7503d914383",
+      "repository_path": "Cyber SEA Game 2022/coal_mine/coal_mine",
+      "local_path": "research/validation/history/artifacts/sudlit_ctf-writeups/Cyber SEA Game 2022/coal_mine/coal_mine",
+      "source_url": "https://github.com/sudlit/ctf-writeups/blob/275a8e965ad4bc4536d52bd711b8f7503d914383/Cyber%20SEA%20Game%202022/coal_mine/coal_mine",
+      "download_url": "https://raw.githubusercontent.com/sudlit/ctf-writeups/275a8e965ad4bc4536d52bd711b8f7503d914383/Cyber%20SEA%20Game%202022/coal_mine/coal_mine",
+      "size": 2106648,
+      "sha256": "2f540e6f3bf4c5e4e1887e03572a5ab21c7127e926359bb39cce3c3d54f2dfcf",
+      "git_blob_sha1": "7ee32afbdbc19296aeac8725e605cc4d0821ddf9",
+      "retrieved_utc": "2026-10-24T20:31:12.734149+00:00",
+      "executed": false
+    },
+    "solver": "https://github.com/sudlit/ctf-writeups/blob/275a8e965ad4bc4536d52bd711b8f7503d914383/Cyber%20SEA%20Game%202022/coal_mine/solve.py",
+    "evidence": "static binary inspection; no exploitation claim",
+    "observations": [
+      "ELF64 PIE, x86-64, interpreter ./ld-linux-x86-64.so.2",
+      "main passes the fgets-populated buffer as printf format at 0x9aa, then calls gets at 0x9ca",
+      "Stack protector and a separate marker check appear before return",
+      "Participant solver claims positional leaks and libc ROP using pinned libc; not reproduced"
+    ],
+    "recommended_mapping": "Miscellaneous / native exploitation, with Reverse Engineering for static analysis",
+    "limitations": [
+      "No executable/loader run",
+      "No ABI-specific offset or ROP chain validated",
+      "2022 year attribution from participant repository; official challenge-level provenance not independently established"
+    ]
+  },
+  "additional_unreproduced": {
+    "unlock2019": "Downloaded ZIP and writeup; TLS decryption with bundled RSA key is a writeup claim here, not locally reproduced.",
+    "n2_2025": "TShark independently identified 753 packets: 5 SIP and 748 RTP. Audio extraction/Morse decoding remains writeup claim.",
+    "web2019": "Broken router and broken user management writeups inspected; server code absent. Firmware example ZIP is not a complete replayable web service."
+  },
+  "known_failed_experiments": [
+    "ftp-data.data is not a valid field in installed TShark; corrected to tcp.payload, retaining failed log.",
+    "Naive raw NTLM signature count saw duplicate type 2; corrected by comparing challenge and stream-aware TShark dissection.",
+    "Naive Scapy payload bytes included Ethernet padding in five FTP packets; corrected using IPv4 total length and header sizes."
+  ],
+  "export_boundary": "Exclude artifacts/ (binaries, raw copies, derived decoded content and packet diagnostics). Reusable reports and JSON contain no raw answers or credential values.",
+  "helper_revalidation": "results/helper-after-verification.json"
+}

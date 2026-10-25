@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="ef2457f5c3c62979d1e7772f3fb24ddb3e1af0bdf0322dc7e2bde8d4d11c12bd">
+  <meta name="source-sha256" content="6b9b8aeda0904123c010302a95d782f845d3efa1058fc860a6044d6505370e1e">
   <link rel="icon" href="data:,">
   <title>Offline practice and answer checks · Cyber SEA Game 2026</title>
   <style>
@@ -264,7 +264,7 @@ gdb /tmp/ctf-refresher-check
 yara research/learning/practice/training.yar research/learning/practice/near-miss.txt
 </code></pre>
 <p><strong>Check:</strong> The first should print the rule name and file; the second should produce no match. Adding <code>harbor</code> without the marker should still fail. Paper route: evaluate those three cases by hand from the rule's condition. Read one capa verbose-output example and state the location you would inspect next; read one FLOSS decoded-string example and explain what an extracted URL does <strong>not</strong> prove about execution.</p>
-<p><strong>Full-word contrast (paper input):</strong> Evaluate the exact text <code>training-marker harbors</code>. Expected: <strong>no match</strong>. The marker is present, but <code>harbor</code> is followed by the letter <code>s</code>, so it is not a full word. Compare <code>training-marker harbor</code>, which should match. This pair distinguishes a <code>fullword</code> check from a substring-only rule; the missing-marker case alone cannot do that. These are supplied text cases, not YARA CLI results; no YARA CLI run is claimed.</p>
+<p><strong>Full-word contrast (paper input):</strong> Evaluate the exact text <code>training-marker harbors</code>. Expected: <strong>no match</strong>. The marker is present, but <code>harbor</code> is followed by the letter <code>s</code>, so it is not a full word. Compare <code>training-marker harbor</code>, which should match. This pair distinguishes a <code>fullword</code> check from a substring-only rule; the missing-marker case alone cannot do that. Both contrast cases were also checked with the installed YARA CLI; check the same behavior in your chosen environment.</p>
 <p><strong>Format-routing check:</strong> Choose dnSpyEx for a .NET assembly, JADX for APK/DEX Java-like output, and pyinstxtractor-ng for extracting a PyInstaller package before considering bytecode decompilation. Decompilation is not guaranteed to recover original source.</p>
 <p><strong>Setup:</strong> Install an approved YARA build before the executable exercise. The paper route checks rule logic only.</p>
 <p><a id="block-7"></a></p>

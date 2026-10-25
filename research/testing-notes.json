@@ -1,24 +1,40 @@
 {
-  "notes": 7,
+  "notes": 15,
   "errors": [],
   "input_sha256": {
-    "build_notes.py": "c9a8f8bb122ef4f3af6ddd1b11c45f75ac44d04ab52f6720fee08216f5450cd0",
+    "build_notes.py": "7d4d58b273f362eb282e8e73f2c66f685eca5d720abc00757b6dc320f3e469aa",
     "notes-template.html": "dc514d98a02a0ee5ef12a3da7f5c938e96a1a98cda3deb670ecb3c2c11f773b8",
     "LEARNING_RESOURCES.md": "705916555a3e1f33035dece7837d57d9ce844926ff469dbc4b0b51e8ed1a48b4",
-    "PRACTICE_WORKSHEETS.md": "ef2457f5c3c62979d1e7772f3fb24ddb3e1af0bdf0322dc7e2bde8d4d11c12bd",
+    "PRACTICE_WORKSHEETS.md": "6b9b8aeda0904123c010302a95d782f845d3efa1058fc860a6044d6505370e1e",
+    "HASHCAT.md": "d6285fbac8347ce022f21e16f962dfdaca133a815fd8c434269213db55b004fa",
+    "CTF_CHEATSHEET.md": "f41f0f542cc242c34d5416f9914bb4f13335663a60a79514a840f018a4c9eb6c",
+    "CORE_WORKFLOWS.md": "8b75c1ea55b7f6172b6b02ffd8abcb42f93df81fb231ea45eab04874e8015289",
     "APPROVED_TOOL_REFERENCES.md": "38aa779d8bdfaf763815ec8b9c5fae305811b4fb20d7adcabe3a9991e95ad0d7",
     "EVENT_SOURCES.md": "9dfd5f073d32fc60aed5ef9a2d3b652b7e63dfced9a0bb3695ff8f92dddb09f1",
-    "research/learning/practice/README.md": "c45d11cdc2e399bbc97e1f2bb1da3d60cd8920cd92cc0c6e9ce74fcf0919d363",
-    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md": "9f97cf7af539cd6ea2c5dd3a7e0cbacff62bf5643f336fcdca0deceb46d41ae1",
-    "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "28f85c5cfe6c274c8398c7ddf2b8bd8ded3bb5dad7e9ff751d4757f7187beacf"
+    "RESOURCE_EVALUATION.md": "b522fa37836a429d93d9ebfa00a710fa8c33c1f67332641172f18d5df0675100",
+    "research/learning/practice/README.md": "7aed00fe52b3a58ad2a24aba8ec480e2a9fdf0ab54242a36c5de581949c3c325",
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md": "52cd910010a81cf1c964b66dcb6e6e33153987a2d36895045904acfc9ea962c5",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "28f85c5cfe6c274c8398c7ddf2b8bd8ded3bb5dad7e9ff751d4757f7187beacf",
+    "scripts/README.md": "952268a8ab037b5099a96a6793bbadfc277f9e4c350598afc4010db6ae00cba1",
+    "docs/public-rules.md": "4c1545c2b3bd5d8e3f86deb3918d5296c9f8a806ef15e8416f9df2089c788676",
+    "scripts/templates/README.md": "c3d8fee38ad322f6ad2457569281089e765dd8d1cc2158ba531dd4cba8d574e0",
+    "examples/core/README.md": "53789eceb8e5b2e969726771fe6be38f03692082e3e599efb9792f5c332ea837"
   },
   "output_sha256": {
     "LEARNING_RESOURCES.html": "399c60c6e02842642e89197661a8319f75b996c075ca8020b4e64a17a6f619a1",
-    "PRACTICE_WORKSHEETS.html": "03843c3e384777dcd81388c25d211c67d2e048a53d4df9b6c6fbc60e1d09666e",
+    "PRACTICE_WORKSHEETS.html": "f6f95279e8a51abe6975e511dd04f1504400842a4b8c1652cbcd2eb9c256481f",
+    "HASHCAT.html": "eb3c2bf80a07ceeebd1e630251e0ec400d0e13ae0e4d6f0bfb247b12177ec6bc",
+    "CTF_CHEATSHEET.html": "d6cf6ef0d6d8619681fa3caa0dc5f449066bcfb4cbe1bd3ab11cebd7e0241792",
+    "CORE_WORKFLOWS.html": "626a8373f644438e7ca6760842ed6e41286ff3f80b7678ff4d67338135a5d57a",
     "APPROVED_TOOL_REFERENCES.html": "a23e033a62c3e82fb73bad0eb350608f17ffa0ebbd29f90fde0f948d6b8d0e03",
     "EVENT_SOURCES.html": "2a03ad0f7c651061bb838064b453b14aea04cb27f251bdbcdee74a101fc422b2",
-    "research/learning/practice/README.html": "88eb68bd027329ebb36cd366fff6b0073297573be67d264c50702b166ef1cd3e",
-    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.html": "d257faf81a3ce6f73bfa866da1ac9767f22083e5c11246b573341d416c2c7289",
-    "research/learning/video-coverage/practice/AUDIO_PRACTICE.html": "1c6d13cb1ebaadaf3ecbbd65c45a52d9fe15b0ad2397b3eedfaf195cdc935b60"
+    "RESOURCE_EVALUATION.html": "f8de710a6946a92c802ce82bcdf4104a31a89310a6959c9b5105b3f3bb7d6371",
+    "research/learning/practice/README.html": "be4b6cb6b8c43b18d99d4b050392a132440528675b5ea7d8a6a80a238d8a0177",
+    "research/learning/video-coverage/practice/TRIAGE_PRACTICE.html": "9dc32fd46a634da56161e4e6bc1b0409d564ef8079e27537c69b4b0a121830c4",
+    "research/learning/video-coverage/practice/AUDIO_PRACTICE.html": "1c6d13cb1ebaadaf3ecbbd65c45a52d9fe15b0ad2397b3eedfaf195cdc935b60",
+    "TOOLKIT.html": "97b9b62d4a6bb6409acbe31c26814487172640323c8e16c5cfd9e0a105a73055",
+    "RULES.html": "ad931ae8851138e9dfec020353309654decbf10a73401c12385425c6d2414a35",
+    "TEMPLATES.html": "b2ec7d820381a5d9413c7e835d763ff71969d0ad407b8f3ee3953495fa517b7a",
+    "CORE_PRACTICE.html": "4389c337272661563f91d4d863c3b2505c92ae59e7a81380388e912121023f00"
   }
 }

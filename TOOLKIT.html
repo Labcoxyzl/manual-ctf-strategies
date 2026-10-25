@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="952268a8ab037b5099a96a6793bbadfc277f9e4c350598afc4010db6ae00cba1">
+  <link rel="icon" href="data:,">
+  <title>Optional local toolkit · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Optional local toolkit</h1>
+<p>Use these prewritten helpers for repeatable byte conversion and bounded file inspection. They supplement the <a href="index.html#tools">approved tools</a>; they are not additional organiser-approved applications or solvers for every category. Keep challenge files local and follow the <a href="RULES.html">competition rules</a>.</p>
+<p><a id="setup"></a></p>
+<h2>Start here</h2>
+<p>For an editable local/remote connection scaffold, see <a href="TEMPLATES.html">Python challenge templates</a>. That optional starter requires pwntools; the byte and inspection helpers below do not.</p>
+<p>Run commands from the folder containing <code>index.html</code> and <code>scripts/</code>. The entry point is <a href="scripts/ctf.py">scripts/ctf.py</a>; there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.</p>
+<p>The declared runtime is <strong>CPython 3.10 or newer on Linux, including WSL</strong>. Check the interpreter before relying on the script:</p>
+<pre><code class="language-sh">python --version
+python scripts/ctf.py doctor --workflow bytes
+python scripts/ctf.py --help
+</code></pre>
+<p>If your Linux launcher is <code>python3</code>, substitute it in every example. If Python is missing, the shell fails before the toolkit can diagnose anything. The standard-library helpers were tested on Python 3.11.11 and 3.12.3 in Linux/WSL, including a fresh offline export. Python 3.10, Kali and competition-machine checks remain pending. Native Windows execution is unsupported. From Windows, open WSL, change to the copied folder (for example <code>cd &quot;/mnt/c/Users/YourName/CTF toolkit&quot;</code>), and use its Linux Python. A Windows Python installation does not establish that WSL tools are available.</p>
+<p>Quote paths containing spaces. Use paths understood by the running interpreter, such as <code>/mnt/c/...</code> in WSL, rather than <code>C:\...</code>. Unicode paths are supported. For a filename beginning with a dash use <code>--file=-sample.bin</code> or <code>--file=&quot;./-sample.bin&quot;</code>. Inputs must be regular local files; there is no implicit stdin or directory traversal.</p>
+<p>Choose <code>bits</code> for explicitly binary text, <code>xor</code> for raw bytes and a known hex key, or <code>inspect</code> to gather initial evidence. <code>doctor --workflow bytes</code> checks the Python-only transforms; <code>doctor --workflow inspect</code> checks Python, <code>file</code> and ExifTool readiness. A partial doctor result names the unavailable capability and the remaining usable branches. It does not install anything.</p>
+<p><a id="bits"></a></p>
+<h2>Binary text → bytes</h2>
+<p>Approved baseline: local <a href="index.html#tool-windows-1">CyberChef</a>, <strong>From Binary</strong>, or approved <a href="index.html#tool-windows-7">Python</a>. Prefer CyberChef for a short interactive conversion. This helper makes selected payload lines, bit significance and validation repeatable.</p>
+<pre><code class="language-sh">python scripts/ctf.py bits --text &quot;01000001 01000010&quot;
+</code></pre>
+<p>Expected: two output bytes, hex <code>4142</code>, with width 8 and <code>msb</code> bit significance. Printable bytes alone do not establish successful decryption. No output file is created without <code>--out</code>.</p>
+<p>For a file with a header followed by two binary payload rows:</p>
+<pre><code class="language-sh">python scripts/ctf.py bits --file &quot;rows.txt&quot; --lines 2:3 --width 8 --order msb --out &quot;decoded.bin&quot;
+</code></pre>
+<p><code>--file</code> and <code>--text</code> are mutually exclusive. Only <code>0</code>, <code>1</code> and ASCII whitespace are accepted in the selected text; headers containing digits are never harvested automatically. <code>--lines START:END</code> is one-based and inclusive. Selected rows are concatenated for conversion; their boundaries are not output-byte boundaries. Widths 1–8 create one zero-extended output byte per group. <code>--order msb|lsb</code> changes bit significance within each group, not byte order or the order of the stream. The report states selected lines, bit count, group count and parameters.</p>
+<p>Failure example: <code>python scripts/ctf.py bits --text &quot;0100000&quot;</code> returns <code>invalid_input</code>/2 for an incomplete 8-bit group and writes nothing. Empty selections and nonbinary characters are invalid. Inspect the reported position and original rows; do not pad, truncate or discard text merely to obtain output.</p>
+<p>Manual alternative: select the same payload rows, paste into local CyberChef's From Binary operation, and deliberately configure the same grouping and bit significance. With approved Python, split validated bits into groups and use <code>int(group, 2)</code> for MSB, or <code>int(group[::-1], 2)</code> for LSB. Check expected bytes before trusting the result.</p>
+<p><a id="xor"></a></p>
+<h2>Known-key file XOR</h2>
+<p>Approved baseline: local <a href="index.html#tool-windows-1">CyberChef XOR</a> or approved <a href="index.html#tool-windows-7">Python</a>. Use the CLI when repeating a file transform or protecting an output from accidental replacement. It performs no key search or scoring.</p>
+<pre><code class="language-sh">python scripts/ctf.py xor --file &quot;research/learning/practice/match.txt&quot; --key-hex &quot;20&quot; --out &quot;xor-result.bin&quot;
+</code></pre>
+<p>Expected: output has exactly the input byte length; each byte is XORed with <code>0x20</code>. XORing that output with the same key into another new file restores the original bytes. Compare to a known expected result as well as testing the round trip.</p>
+<p>A key is nonempty hexadecimal, with ASCII whitespace allowed between digits. It cycles from file offset zero. Other characters, odd digit counts and keys over 64 KiB decoded are rejected. Raw file bytes are used unchanged; there is no text encoding choice. Empty files yield a valid empty result. Keys are not included in result reports.</p>
+<p>Failure example: <code>python scripts/ctf.py xor --file &quot;research/learning/practice/match.txt&quot; --key-hex &quot;f&quot;</code> returns <code>invalid_input</code>/2 for odd-length hex. An existing <code>--out</code> path is also refused, including on a second run of the example. Choose a new output name.</p>
+<p>Manual alternative: load the file into local CyberChef, choose XOR with a hex key and repetition from offset zero, and save to a new filename. In approved Python, compute <code>bytes(value ^ key[index % len(key)] for index, value in enumerate(data))</code> after explicitly validating the key. Preserve the original and compare bytes independently.</p>
+<p><a id="inspect"></a></p>
+<h2>Gather initial file evidence</h2>
+<p>Approved baseline: <a href="index.html#tool-kali-42">file on Kali</a>, <a href="index.html#tool-windows-14">ExifTool on Windows</a>, <a href="index.html#tool-kali-2">7-Zip on Kali</a>, and approved <a href="index.html#tool-windows-7">Python</a>. The wrapper requires Linux executables in its own environment; an approved Windows installation does not imply an available WSL executable.</p>
+<pre><code class="language-sh">python scripts/ctf.py inspect --file &quot;research/learning/practice/match.txt&quot;
+</code></pre>
+<p>Expected: size, bounded format evidence and check coverage. This plain-text fixture does not need image metadata. Missing <code>file</code> leaves classification unknown and returns <code>partial</code>/3. <code>--sha256</code> requests a whole-file SHA-256 and costs a complete read; a prefix is never labeled a whole-file digest.</p>
+<p>For JPEG/PNG evidence, inspection asks ExifTool for selected tags. No GPS means only that the queried GPS tags were not found. For classic ZIP evidence, it checks bounded directory metadata and reports encrypted entries separately from malformed structure. It shows at most 100 members; a complete report may summarize a fully checked directory beyond those displayed rows. It never extracts, runs an artifact, or proves safe extraction.</p>
+<p>Failure example: <code>python scripts/ctf.py inspect --file &quot;missing-file.bin&quot;</code> returns <code>invalid_input</code>/2. Missing ExifTool affects the image branch, not non-image inspection. Unsupported ZIP64, multidisk, self-extracting or unrecognized directory structures return a partial report with the archive-tool alternative. A malformed ordinary ZIP is invalid input. Other formats can have complete basic inspection while their contents remain unexamined.</p>
+<p>Manual alternative: on the matching approved platform, run <code>file -- &quot;./artifact.bin&quot;</code>, open image metadata in ExifTool, or list an archive with <code>7z l &quot;./archive.zip&quot;</code>. Use absolute or <code>./</code>-prefixed paths so filenames are not options. On Windows invoke the approved ExifTool executable with a full Windows path. For PDF/audio contents and executable analysis, follow the <a href="index.html#forensics">format-specific routes</a>. Do not execute a file to identify it.</p>
+<p><a id="results"></a></p>
+<h2>Interpret results and preserve files</h2>
+<p>Every command supports <code>--json</code> for the same facts in one structured stdout result after argument parsing. Default output is a compact text report; diagnostics use stderr. Help and argument-parser usage errors use normal argparse output. Reports describe sources, scope and limits, with at most two next actions; they do not announce flags or confidence percentages.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Status / exit</th>
+<th>Meaning and next step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>complete</code> / 0</td>
+<td>All requested applicable checks finished, including valid empty XOR output. Read the stated scope; complete classification is not complete content analysis.</td>
+</tr>
+<tr>
+<td><code>invalid_input</code> / 2</td>
+<td>Invalid arguments, selected data, key or input type. Correct the named issue without modifying the original.</td>
+</tr>
+<tr>
+<td><code>unsupported</code> / 3</td>
+<td>Runtime or required capability is unsupported. Use the matching approved manual workflow.</td>
+</tr>
+<tr>
+<td><code>partial</code> / 3</td>
+<td>Useful facts remain, but an applicable capability is unavailable or unsupported. Read which check was skipped.</td>
+</tr>
+<tr>
+<td><code>partial</code> or <code>failed</code> / 1</td>
+<td>I/O, changed input, timeout or a work/output limit prevented completion. No partial transform is published.</td>
+</tr>
+<tr>
+<td>Interrupted / 130</td>
+<td>Ctrl-C cancels the operation and removes task-owned incomplete output.</td>
+</tr>
+</tbody>
+</table></div>
+<p>When both missing capabilities and operational limits occur, exit 1 takes precedence. <code>doctor --workflow inspect</code> requires both <code>file</code> and ExifTool probes for full readiness even if your next input is not an image; 7-Zip is a manual alternative, not a hidden dependency.</p>
+<p>Without <code>--out</code>, transforms show a bounded preview and byte count, never raw binary terminal output. Any estimated or unvalidated scope must be labeled; a complete bits result validates all selected text. With <code>--out</code>, the destination must be new: existing files, same-file aliases, symlinks and nonregular destinations are rejected. There is no force-overwrite option. Output is staged privately beside its destination and published only after validation and an input identity/size/mtime recheck; failures remove task-owned staging output.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Work limit</th>
+<th>First-release boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source bytes per command</td>
+<td>256 MiB, including skipped lines and optional hashing</td>
+</tr>
+<tr>
+<td>Overall command deadline</td>
+<td>30 seconds, including probes and hashing</td>
+</tr>
+<tr>
+<td>Classification prefix / transform chunks</td>
+<td>64 KiB</td>
+</tr>
+<tr>
+<td>Rendered preview</td>
+<td>64 bytes</td>
+</tr>
+<tr>
+<td>Each external tool</td>
+<td>10 seconds; 1 MiB captured output</td>
+</tr>
+<tr>
+<td>ZIP metadata</td>
+<td>8 MiB central directory; 10,000 members; 100 displayed rows</td>
+</tr>
+<tr>
+<td>Decoded XOR key</td>
+<td>64 KiB</td>
+</tr>
+</tbody>
+</table></div>
+<p>Limits and truncation are reported. No unbounded override is provided; use the approved manual route for larger inputs. The toolkit makes no network calls, uploads, automatic dependency installations or recursive decoding attempts. Keep the preparation pages offline; external technical links still require internet.</p>
+</main>
+</body>
+</html>

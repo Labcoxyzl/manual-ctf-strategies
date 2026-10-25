@@ -59,7 +59,7 @@ def check_pages(outputs):
             except ValueError:
                 errors.append(f"Link outside project: {name}: {href}")
                 continue
-            if target.suffix == ".md" and target != (ROOT / name).with_suffix(".md"):
+            if target.suffix == ".md" and str(target.relative_to(ROOT)) not in {source for source, output in build_notes.NOTE_OUTPUTS.items() if output == name}:
                 errors.append(f"Raw Markdown link: {name}: {href}")
             if relative not in pages and not target.is_file():
                 errors.append(f"Missing local target: {name}: {href}")
@@ -72,8 +72,25 @@ def check_pages(outputs):
 
 
 def main():
+    from build_catalog import validate_reference
+    validate_reference({"title": "Hashcat", "url": "HASHCAT.html"})
+    for invalid in ("../HASHCAT.html", "file:///HASHCAT.html", "javascript:alert(1)", "missing.html"):
+        try:
+            validate_reference({"title": "Invalid", "url": invalid})
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError(f"Accepted invalid local reference: {invalid}")
     outputs = {str(name): html for name, html in build_notes.render_notes().items()}
-    assert len(outputs) == len(build_notes.NOTES) == 7, "Expected seven explicit published notes"
+    reads = []
+    def reader(source):
+        reads.append(source)
+        return (ROOT / source).read_bytes()
+    assert build_notes.render_notes(read_bytes=reader) == outputs
+    assert reads == ["notes-template.html", *build_notes.NOTES]
+    assert len(outputs) == len(build_notes.NOTES) == 15, "Expected fifteen explicit published notes"
+    assert build_notes.NOTE_OUTPUTS["scripts/README.md"] == "TOOLKIT.html"
+    assert build_notes.NOTE_OUTPUTS["docs/public-rules.md"] == "RULES.html"
     errors = check_pages(outputs)
     for name, html in outputs.items():
         target = ROOT / name
@@ -83,7 +100,7 @@ def main():
     for source in build_notes.NOTES:
         source = Path(source)
         source = source if source.is_absolute() else ROOT / source
-        output = str(source.relative_to(ROOT).with_suffix(".html"))
+        output = build_notes.NOTE_OUTPUTS[str(source.relative_to(ROOT))]
         page = Page(outputs[output])
         text = source.read_text()
         from markdown_it import MarkdownIt
@@ -95,8 +112,9 @@ def main():
                 href = child.attrGet("href")
                 parsed = urlsplit(href)
                 target = posixpath.normpath(posixpath.join(posixpath.dirname(str(source.relative_to(ROOT))), unquote(parsed.path)))
-                if not parsed.scheme and not parsed.netloc and target in build_notes.NOTES:
-                    href = urlunsplit(parsed._replace(path=parsed.path[:-3] + ".html"))
+                if not parsed.scheme and not parsed.netloc and parsed.path:
+                    target = build_notes.NOTE_LINKS.get(target, target)
+                    href = urlunsplit(parsed._replace(path=posixpath.relpath(target, posixpath.dirname(output) or ".")))
                 if href not in page.links:
                     errors.append(f"Lost or wrongly rewritten source link: {output}: {href}")
         for anchor in re.findall(r'<a\s+id="([^"]+)"', text):
@@ -107,6 +125,20 @@ def main():
         expected_headings = re.findall(r"^(#{1,6})\s+", prose, re.M)
         if len(page.headings) != len(expected_headings):
             errors.append(f"Lost source headings: {output}")
+    assert "hashcat --session ctf --restore" in outputs["HASHCAT.html"]
+    assert "Remove it when longer candidates matter" in outputs["HASHCAT.html"]
+    assert "scripts/templates/pwntools_starter.py" in Page(outputs["TEMPLATES.html"]).links
+    from build_cheatsheet import render_cheatsheet
+    assert (ROOT / "CTF_CHEATSHEET.md").read_text() == render_cheatsheet(), "Stale all-tool Markdown"
+    cheat = Page(outputs["CTF_CHEATSHEET.html"])
+    approved = {"approved-" + row["id"] for row in json.loads((ROOT / "research/inventory.json").read_text())["tools"]}
+    assert {anchor for anchor in cheat.ids if anchor.startswith("approved-")} == approved
+    assert {"forensics", "malware", "web", "reversing", "osint", "crypto", "misc"} <= set(cheat.ids)
+    toolkit = Page(outputs["TOOLKIT.html"])
+    assert {"setup", "bits", "xor", "inspect", "results"} <= set(toolkit.ids)
+    assert "scripts/ctf.py" in toolkit.links
+    assert "RULES.html" in toolkit.links
+    assert "TOOLKIT.html#setup" in Page(outputs["RULES.html"]).links
     bad = check_pages({"negative.html": '<h1 id="same">x</h1><h2 id="same">y</h2><a href="#absent">x</a><a href="no-such-fixture.txt">x</a><a href="LEARNING_RESOURCES.md">x</a>'})
     assert len(bad) == 4, bad
     inputs = [ROOT / "build_notes.py", ROOT / "notes-template.html", *[ROOT / Path(name) for name in build_notes.NOTES]]

@@ -1,5 +1,25 @@
 # Local installations, challenge downloads, and private recovery records.
-/tools/
+/tools/*
+!/tools/distro/
+/tools/distro/*
+!/tools/distro/Dockerfile
+!/tools/distro/.dockerignore
+!/tools/distro/packages.txt
+!/tools/distro/run-container
+!/tools/distro/image-id.txt
+!/tools/distro/base-image-digest.json
+!/tools/distro/README.md
+!/tools/distro/can-utils-date-fix/
+/tools/distro/can-utils-date-fix/*
+!/tools/distro/can-utils-date-fix/README.md
+!/tools/distro/can-utils-date-fix/sources.json
+!/tools/distro/can-utils-date-fix/SHA256SUMS
+!/tools/distro/can-utils-date-fix/PATCHED_SHA256SUMS
+!/tools/distro/can-utils-date-fix/date-fix.patch
+!/tools/distro/can-utils-date-fix/asc2log.c
+!/tools/distro/can-utils-date-fix/lib.c
+!/tools/distro/can-utils-date-fix/lib.h
+!/tools/distro/can-utils-date-fix/LICENSE
 /tools.markdown
 /practice-challenges/
 /recovery/
@@ -17,3 +37,18 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Downloaded historical CTF artifacts stay outside the reusable guide.
+/research/validation/history/artifacts/
+/research/validation/round2/memory/artifacts/
+/research/validation/round2/tool-exercises/work/
+/research/validation/round2/workflow-gaps/run-1/
+/research/validation/round2/workflow-gaps/run-2/
+/research/validation/round2/workflow-gaps/run-3/
+/research/validation/round2/acceptance/export/
+/research/validation/round2/core-utilities/*.img
+/md5this-06.2015.txt
+/md5this-06.2015.txt.gz:Zone.Identifier
+/research/validation/round2/gui-apps/burp-profile/
+/research/validation/round2/gui-apps/work/
+/research/validation/round2/gui-apps/burp-home/

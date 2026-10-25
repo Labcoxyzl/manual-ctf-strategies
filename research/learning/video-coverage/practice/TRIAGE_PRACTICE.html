@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="9f97cf7af539cd6ea2c5dd3a7e0cbacff62bf5643f336fcdca0deceb46d41ae1">
+  <meta name="source-sha256" content="52cd910010a81cf1c964b66dcb6e6e33153987a2d36895045904acfc9ea962c5">
   <link rel="icon" href="data:,">
   <title>Bytes, encodings and PDF streams · Cyber SEA Game 2026</title>
   <style>
@@ -68,7 +68,7 @@ qpdf stream-demo.pdf --show-object=4 --filtered-stream-data
 <details>
 <summary>Check your answer</summary>
 <p>The page references object <code>4 0</code>; its dictionary names <code>/FlateDecode</code>. Decoded bytes are <code>BT /F1 12 Tf 50 100 Td (CTF refresher) Tj ET</code> followed by a newline. The page displays <code>CTF refresher</code>; raw stream bytes are compressed. Selecting an object is not executing its content, and another PDF may use unsupported filters or a different object layout. This is an inspection exercise, not a promise to detect every malicious PDF.</p>
-<p>The qpdf commands remain untested. Paper route: choose the correct option for dictionary/raw/decoded output and compare with these known answers.</p>
+<p>These qpdf inspection commands were checked against this bundled PDF in the prepared local runtime. Paper route: choose the correct option for dictionary/raw/decoded output and compare with these known answers.</p>
 </details>
 </main>
 </body>

@@ -1,0 +1,37 @@
+{
+  "checked_at_utc": "2026-10-24T22:21:00.221725+00:00",
+  "status": "validated_and_promoted",
+  "local_image_id": "sha256:50f47857aaa355668b2c8271c9f51e7e21250df4991b8ba49f4de8b6a9cc1658",
+  "size_bytes": 6169410296,
+  "rollback_image_id": "sha256:0e138ff37dfe13044aebf35f93e60d801ff04c6775c265509f6a2bc618c3f3b3",
+  "rollback_tag": "cyber-sea-game-2026-tools:before-can-date-fix",
+  "source_commit": "cfe41963f3425e9adb01a70cfaddedf5e5982720",
+  "patched_source_sha256": "12c52e7a1fdecfc9773f3ea19c74d6034ef73833c5a6fad5aa41fd1f9d3ef4dd",
+  "local_binary_sha256": "8aa7cdb285a713b483b17f52822ba0f9345d4f6eb871151ae56510bf6288506e",
+  "original_binary_sha256": "fd1cf7ab6f40ba58a80bc8ac1e69f45f8dd3587dff676b1e4dc696c2dd8e5e01",
+  "package_changes": 0,
+  "canonical_tail_matches_tested_derivative": true,
+  "canonical_full_rebuild_executed": false,
+  "candidate_required_checks": 70,
+  "launcher_required_checks": 28,
+  "exact_date_conversions": 70,
+  "exact_classic_roundtrips": 2,
+  "known_limitations": [
+    {
+      "name": "malformed-dlc",
+      "classification": "known_parser_failure_not_a_readiness_pass",
+      "exit": 0,
+      "input_records": 5,
+      "output_records": 4,
+      "stderr": ""
+    },
+    {
+      "name": "invalid-date",
+      "classification": "known_parser_failure_not_a_readiness_pass",
+      "exit": 0,
+      "input_records": 5,
+      "output_records": 5,
+      "stderr": "Not able to determine original log file date. Using current time.\n"
+    }
+  ]
+}

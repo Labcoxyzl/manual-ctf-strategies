@@ -160,7 +160,7 @@ yara research/learning/practice/training.yar research/learning/practice/near-mis
 
 **Check:** The first should print the rule name and file; the second should produce no match. Adding `harbor` without the marker should still fail. Paper route: evaluate those three cases by hand from the rule's condition. Read one capa verbose-output example and state the location you would inspect next; read one FLOSS decoded-string example and explain what an extracted URL does **not** prove about execution.
 
-**Full-word contrast (paper input):** Evaluate the exact text `training-marker harbors`. Expected: **no match**. The marker is present, but `harbor` is followed by the letter `s`, so it is not a full word. Compare `training-marker harbor`, which should match. This pair distinguishes a `fullword` check from a substring-only rule; the missing-marker case alone cannot do that. These are supplied text cases, not YARA CLI results; no YARA CLI run is claimed.
+**Full-word contrast (paper input):** Evaluate the exact text `training-marker harbors`. Expected: **no match**. The marker is present, but `harbor` is followed by the letter `s`, so it is not a full word. Compare `training-marker harbor`, which should match. This pair distinguishes a `fullword` check from a substring-only rule; the missing-marker case alone cannot do that. Both contrast cases were also checked with the installed YARA CLI; check the same behavior in your chosen environment.
 
 **Format-routing check:** Choose dnSpyEx for a .NET assembly, JADX for APK/DEX Java-like output, and pyinstxtractor-ng for extracting a PyInstaller package before considering bytecode decompilation. Decompilation is not guaranteed to recover original source.
 

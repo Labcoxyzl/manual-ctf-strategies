@@ -11,8 +11,16 @@ const htmlFile = htmlArg === -1 ? 'index.html' : process.argv[htmlArg + 1];
 const prefix = htmlFile === 'index.html' ? 'testing' : 'testing-preview';
 const url = pathToFileURL(path.join(root, htmlFile)).href;
 const categories = ['osint', 'reversing', 'forensics', 'crypto', 'misc', 'web', 'malware'];
-const noteSources = ['LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'EVENT_SOURCES.md', 'research/learning/practice/README.md', 'research/learning/video-coverage/practice/TRIAGE_PRACTICE.md', 'research/learning/video-coverage/practice/AUDIO_PRACTICE.md'];
-const noteFiles = ['build_notes.py', 'notes-template.html', ...noteSources, ...noteSources.map(name => name.replace(/\.md$/, '.html'))];
+const noteSources = ['CORE_WORKFLOWS.md', 'CTF_CHEATSHEET.md', 'HASHCAT.md', 'LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'EVENT_SOURCES.md', 'RESOURCE_EVALUATION.md', 'research/learning/practice/README.md', 'research/learning/video-coverage/practice/TRIAGE_PRACTICE.md', 'research/learning/video-coverage/practice/AUDIO_PRACTICE.md'];
+const noteOutputs = Object.fromEntries(noteSources.map(name => [name, name.replace(/\.md$/, '.html')]));
+noteOutputs['examples/core/README.md'] = 'CORE_PRACTICE.html';
+noteSources.push('examples/core/README.md');
+noteOutputs['scripts/templates/README.md'] = 'TEMPLATES.html';
+noteSources.push('scripts/templates/README.md');
+noteOutputs['scripts/README.md'] = 'TOOLKIT.html';
+noteOutputs['docs/public-rules.md'] = 'RULES.html';
+noteSources.push('scripts/README.md', 'docs/public-rules.md');
+const noteFiles = ['build_notes.py', 'notes-template.html', ...noteSources, ...Object.values(noteOutputs)];
 const noteHashes = () => Object.fromEntries(noteFiles.map(name => [name, createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex')]));
 const visibleTools = page => page.locator('[data-source-ids]:visible');
 async function unobscured(page, locator, label) {
@@ -51,11 +59,20 @@ async function unobscured(page, locator, label) {
       const toolsNav = await page.locator('nav a[href="#tools"]').boundingBox();
       assert(toolsNav && toolsNav.x >= 0 && toolsNav.x + toolsNav.width <= width,
         `tools navigation is off-screen at ${width}`);
+      const coreLink = await page.locator('#tools a[href="CORE_WORKFLOWS.html"]').boundingBox();
+      assert(coreLink && coreLink.y >= 0 && coreLink.y + coreLink.height < height,
+        `core workflows link requires scrolling at ${width}×${height}`);
       const rules = page.locator('details.rules');
       await rules.locator('summary').focus();
       await page.keyboard.press('Enter');
       assert(await rules.locator('p').isVisible(), 'competition rules cannot be expanded');
       await page.keyboard.press('Enter');
+      assert.equal(await page.locator('.proposal').count(), 32);
+      for (const catalog of await page.locator('details.catalog').all()) {
+        const origins = await catalog.locator('.catalog-tool').evaluateAll(nodes => nodes.map(n => n.dataset.origin));
+        const firstOther = origins.findIndex(origin => origin !== 'TrendMicro proposal');
+        if (firstOther !== -1) assert(!origins.slice(firstOther).includes('TrendMicro proposal'), 'proposal ordering changed');
+      }
       const details = page.locator('details.catalog');
       assert.equal(await details.count(), 7);
       for (let i = 0; i < 7; i++) {
@@ -152,7 +169,7 @@ async function unobscured(page, locator, label) {
     // Exercise every published note at the narrowest supported viewport.
     let scrollableTables = 0;
     for (const source of noteSources) {
-      const file = source.replace(/\.md$/, '.html');
+      const file = noteOutputs[source];
       await notes.goto(pathToFileURL(path.join(root, file)).href);
       assert.equal(await notes.locator('main h1').count(), 1);
       assert.equal(await notes.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `notes overflow: ${file}`);
@@ -179,6 +196,26 @@ async function unobscured(page, locator, label) {
       }
     }
     assert(scrollableTables > 0, 'narrow table scrolling was not exercised');
+    // Toolkit links and prose must remain usable offline at phone, desktop and short landscape sizes.
+    for (const [width, height] of [[320, 900], [1440, 900], [667, 375]]) {
+      await notes.setViewportSize({ width, height });
+      await notes.goto(url);
+      await notes.locator('a[href="TOOLKIT.html"]').click();
+      await notes.waitForURL('**/TOOLKIT.html');
+      assert.equal(await notes.locator('#setup').count(), 1);
+      assert.equal(await notes.locator('a[href="scripts/ctf.py"]').count(), 1);
+      assert.equal(await notes.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `toolkit overflow at ${width}`);
+      await notes.locator('a[href="RULES.html"]').click();
+      await notes.waitForURL('**/RULES.html');
+      assert.equal(await notes.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `rules overflow at ${width}`);
+      await notes.locator('a[href="TOOLKIT.html#setup"]').focus();
+      await notes.keyboard.press('Enter');
+      await notes.waitForURL('**/TOOLKIT.html#setup');
+      assert.equal(await notes.locator('#setup').count(), 1);
+      if (width === 320) await notes.screenshot({ path: path.join(root, `research/${prefix}-toolkit-320.png`) });
+    }
+    report.toolkit_navigation = 'guide → toolkit → rules → toolkit setup, offline at 320, 1440 and 667×375';
+    await notes.setViewportSize({ width: 320, height: 900 });
     assert.deepEqual(noteErrors, []);
     await notes.goto(pathToFileURL(path.join(root, 'LEARNING_RESOURCES.html')).href);
     await notes.screenshot({ path: path.join(root, `research/${prefix}-notes-320.png`) });

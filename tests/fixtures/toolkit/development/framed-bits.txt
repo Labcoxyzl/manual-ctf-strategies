@@ -1,0 +1,4 @@
+Synthetic header: row count 2; digits 0101 are not payload
+01001111
+01001011
+trailer

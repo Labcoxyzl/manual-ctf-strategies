@@ -1,0 +1,77 @@
+{
+  "scope": "Local practice; no organizer submissions or acceptance claims",
+  "challenges": [
+    {
+      "challenge": 28,
+      "name": "Ramen",
+      "status": "unresolved",
+      "evidence": "Exact JSAC 2023 speaker/avatar established; two independent restaurant searches found no corroborated restaurant code.",
+      "private_report": "practice-challenges/28-ramen/validation/validation.md",
+      "report_sha256": "6ff354716d492beb55acb8226a59c1ccd763cac5778ae21b348d974c00337fff"
+    },
+    {
+      "challenge": 29,
+      "name": "Guess the geolocation",
+      "status": "corroborated candidate",
+      "evidence": "No GPS; public matching photographs and mapped viewpoint support a signed rounded coordinate candidate. Not GPS-measured or organiser-accepted.",
+      "private_report": "practice-challenges/29-guess-the-geolocation/validation/report.md",
+      "report_sha256": "5c19ff0a107692046bed673dd6bb437dc744d4e5d9248e90b085609187bd38f7"
+    },
+    {
+      "challenge": 30,
+      "name": "Matryoshka",
+      "status": "locally derived",
+      "evidence": "64 static layers decoded; independent replay matched every layer hash. PHP was never executed.",
+      "private_report": "practice-challenges/30-matryoshka-is-a-russian-nested-dolls/validation/report.md",
+      "report_sha256": "35ab325caf7093127c30752e4f03d340da304896c6796390316fa06a02d44419"
+    },
+    {
+      "challenge": 31,
+      "name": "Reversing & Packet Analysis",
+      "status": "blocked: missing inputs",
+      "evidence": "Saved portal lists no attachment; required process dump and PCAP not supplied. Historical captures were not substituted.",
+      "private_report": "practice-challenges/31-reversing-packet-analysis/validation/REPORT.md",
+      "report_sha256": "a53cc558c56b099513221bcddd17b7005bee448d38d3e42ab76cfd393aa42959"
+    },
+    {
+      "challenge": 32,
+      "name": "Decode the RFID Tag",
+      "status": "qualified candidate",
+      "evidence": "Seven repeated fields and independent extraction agree, but row/column parity fail. Public method consulted after independent first attempt; no standards-valid or accepted claim.",
+      "private_report": "practice-challenges/32-decode-the-rfid-tag/validation/REPORT.md",
+      "report_sha256": "0efe8bd6837199efe9f94edaf6f87bc91d5b25e96e492c5ac006a36135449006"
+    },
+    {
+      "challenge": 33,
+      "name": "ReverseMe",
+      "status": "locally derived",
+      "evidence": "John recovery, six-byte section-name repair in a copy, UPX validation, static checker and clean reproduction agree. No native execution or organiser acceptance.",
+      "private_report": "practice-challenges/33-reverseme/validation/REPORT.md",
+      "report_sha256": "8007c96cbf12125a6137b57bb0dd27c564a58c12cfda0d17beb82e716fcc567a"
+    },
+    {
+      "challenge": 34,
+      "name": "Plato",
+      "status": "locally recovered",
+      "evidence": "Appended encrypted archive, twelve CRC-valid images, seventeen pixel-adjacency checks and cipher roundtrip reproduced from original.",
+      "private_report": "practice-challenges/34-plato/validation/REPORT.md",
+      "report_sha256": "adde693b507c40e828e83fa981304d65df88143dddfe67c9ae2d110f06f4e6fb"
+    },
+    {
+      "challenge": 35,
+      "name": "Analyze the forgotten password",
+      "status": "locally verified key",
+      "evidence": "Unencrypted ZIP/HTA; recovered all three permuted MD5 pieces, passed source-faithful checker and wrong-key control.",
+      "private_report": "practice-challenges/35-analyze-the-forgotten-password/validation/REPORT.md",
+      "report_sha256": "c40dd78f33873093b516f7353e53303946ef60aee4b42baa582cb152b3567fb3"
+    },
+    {
+      "challenge": 57,
+      "name": "Welcome",
+      "status": "blocked: live resource",
+      "evidence": "Requires assigned organiser PX Kali user profile. Zero launches or submissions; no local substitute flag.",
+      "private_report": "practice-challenges/57-welcome/validation/README.md",
+      "report_sha256": "5e2d3676fbe25825b1cc4a8e9975288753dafd30ba5e58f2dc3d3ce52b97de49"
+    }
+  ]
+}

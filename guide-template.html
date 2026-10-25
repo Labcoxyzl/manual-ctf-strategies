@@ -40,12 +40,13 @@
     .task-route > :last-child { margin-bottom:14px; }
     .steps { padding-left:24px; }
     .steps li + li { margin-top:6px; }
-    .expected, .fallback, .caveat { font-size:.9rem; margin-top:8px; margin-bottom:8px; }
+    .expected, .fallback, .caveat, .toolkit { font-size:.9rem; margin-top:8px; margin-bottom:8px; }
     code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; overflow-wrap:anywhere; }
     pre { overflow-x:auto; padding:10px; background:var(--paper); }
     .catalog > summary { color:var(--green); }
     .catalog-tool { display:grid; grid-template-columns:minmax(135px,.8fr) minmax(0,2fr); gap:8px 16px; padding:12px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
     .catalog-tool > h3 { grid-column:1; grid-row:1 / span 4; margin:0; font-size:1rem; }
+    .proposal { display:block; margin-top:4px; color:var(--green); font-size:.78rem; font-weight:500; }
     .catalog-tool > :not(h3) { grid-column:2; margin-top:0; margin-bottom:0; }
     .caveats, .references { padding-left:20px; font-size:.85rem; }
     .references li + li { margin-top:3px; }
@@ -83,7 +84,7 @@
   <main id="main" class="wrap" tabindex="-1">
     <section id="tools" aria-labelledby="tools-title">
       <h2 id="tools-title">Approved tool catalog</h2>
-      <p class="legend">200 approved entries, grouped by use. Check platform and version details; Kali availability is best effort.</p>
+      <p class="legend">200 approved entries. <a href="CORE_WORKFLOWS.html">Core workflows for 32 Trend Micro proposals</a>; Kali availability is best effort.</p>
       <div class="search-controls" hidden>
         <label for="tool-search">Find an approved tool</label>
         <div class="search-row"><input type="search" id="tool-search" autocomplete="off" placeholder="Tool name or task"><button type="button" id="clear-search">Clear</button></div>
@@ -93,7 +94,7 @@
       <!-- guide:catalog -->
     </section>
     <details class="rules"><summary>Competition rules · keep challenge files local</summary><p>Do not upload challenge files to online services. Generative AI must not generate solutions, code or scripts, or analyze challenges; automatically displayed search summaries are permitted. Unlisted standalone applications need organiser approval; personal commercial licences are prohibited. <a href="EVENT_SOURCES.html">Event rules and sources</a>.</p></details>
-    <p class="legend"><a href="LEARNING_RESOURCES.html">Preparation guide</a> · Saved pages work offline; external links need internet.</p>
+    <p class="legend"><a href="CTF_CHEATSHEET.html">All-tool cheatsheet</a> · <a href="LEARNING_RESOURCES.html">Preparation guide</a> · <a href="TOOLKIT.html">Optional toolkit</a> · Saved pages work offline; external links need internet.</p>
     <!-- guide:routes -->
   </main>
   <footer><div class="wrap">Approved entries from the organiser’s 15 October tool review. Check procedures on the competition machines before relying on them.</div></footer>

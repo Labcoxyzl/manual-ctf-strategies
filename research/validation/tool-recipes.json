@@ -1,0 +1,1345 @@
+{
+  "windows-1": {
+    "first_action": "Load bytes into local CyberChef; apply one justified operation such as From Hex or From Base64, inspect output, then add another layer only if the result supports it.",
+    "expected": "Reproducible bytes and a saved recipe whose output structure can be checked.",
+    "fallback": "Undo a contradictory layer; Magic supplies hypotheses, so validate with the matching file parser.",
+    "verification": "source-guided",
+    "helper": "scripts/README.md#bits"
+  },
+  "windows-2": {
+    "first_action": "Open the supplied capture; choose Statistics → Conversations, filter a peer pair, then Follow the matching stream. Use Export Objects for a relevant transferred file.",
+    "expected": "A conversation or object tied to endpoints and packet numbers.",
+    "fallback": "Check missing packets and encryption; use Zeek summaries to select another stream.",
+    "verification": "source-guided",
+    "helper": "research/learning/practice/README.md"
+  },
+  "windows-3": {
+    "first_action": "Inspect PDF pages, properties and the installed viewer's attachment panel; record the page or attachment behind the clue.",
+    "expected": "Visible text, images or attachment names to compare with object-level analysis.",
+    "fallback": "Use qpdf for objects or pdftotext for existing text; an image-only page will not become text without OCR.",
+    "verification": "source-guided",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "windows-4": {
+    "first_action": "Import the organiser-provided VPN profile into the installed client; connect and inspect authentication, address and route messages.",
+    "expected": "A completed connection with routes for the assigned network.",
+    "fallback": "Check client variant, profile files and clock; connected status alone does not establish application reachability.",
+    "verification": "source-guided"
+  },
+  "windows-5": {
+    "first_action": "Open DevTools → Network before reproducing an action; inspect its request URL, headers, cookies, payload and response.",
+    "expected": "One HTTP exchange and the session state that produced it.",
+    "fallback": "Reload with DevTools open and check filters; use Burp Repeater for controlled changes or Sources for client-side code.",
+    "verification": "source-guided"
+  },
+  "windows-6": {
+    "first_action": "List WSL distributions from Windows, then enter the distribution containing the approved Linux tools and check its Linux paths.",
+    "expected": "The intended distribution can access the copied evidence.",
+    "fallback": "Check distribution and PATH if a tool is missing; native Windows tools are not automatically installed in WSL.",
+    "verification": "source-guided",
+    "command": "wsl --list --verbose",
+    "helper": "scripts/README.md#setup"
+  },
+  "windows-7": {
+    "first_action": "Use Python for a known binary or protocol format; adapt the existing bounded parser or transport template only after inspecting the bytes.",
+    "expected": "Known input produces expected fields with explicit byte order and incomplete-input handling.",
+    "fallback": "Use an approved format parser first, or CyberChef for a simple transform, before writing new code.",
+    "verification": "source-guided",
+    "command": "python3 --version",
+    "helper": "scripts/templates/README.md"
+  },
+  "windows-8": {
+    "first_action": "Check the script's Python requirement; use uv to select that interpreter and a separate environment with already available, permitted dependencies.",
+    "expected": "The environment's interpreter and imports match the script.",
+    "fallback": "If offline packages are missing, use a prepared environment or standard-library route; uv does not guarantee offline installation.",
+    "verification": "source-guided",
+    "command": "uv --version",
+    "helper": "scripts/templates/README.md"
+  },
+  "windows-9": {
+    "first_action": "Open a compatible ELF in GDB, set a breakpoint at the statically located check, then run a known input in an isolated challenge environment and inspect operands.",
+    "expected": "Registers or compared memory explain the validation branch.",
+    "fallback": "For stripped code, use a disassembly address and account for runtime loading; use x64dbg for Windows PE debugging.",
+    "verification": "source-guided",
+    "command": "gdb ./CHALLENGE_ELF",
+    "helper": "research/learning/practice/README.md"
+  },
+  "windows-10": {
+    "first_action": "Read executable headers and sections before disassembling the selected native-code region. Match syntax and architecture to the file.",
+    "expected": "Section addresses and instructions around the relevant function.",
+    "fallback": "Import into Ghidra for control-flow navigation and compare its decompiler with assembly.",
+    "verification": "source-guided",
+    "command": "objdump -f -h ./CHALLENGE_ELF"
+  },
+  "windows-11": {
+    "first_action": "Extract ASCII strings with hex offsets; repeat in UTF-16LE for Windows-oriented data and inspect meaningful hits in the original file.",
+    "expected": "Candidate messages, paths or URLs with reproducible locations.",
+    "fallback": "Encoded or packed content may have no strings; identify the format or use FLOSS for a supported executable.",
+    "verification": "source-guided",
+    "command": "strings -a -t x ./ARTIFACT.bin\nstrings -a -e l -t x ./ARTIFACT.bin",
+    "helper": "scripts/templates/README.md#file-intel"
+  },
+  "windows-12": {
+    "first_action": "Scan the original PNG/BMP, choose a meaningful channel/bit-order hit, and extract with its exact reported -E selector into a new file.",
+    "expected": "Repeatable extracted bytes that validate as the claimed format or message.",
+    "fallback": "Random signatures are common; check carrier format and inspect relevant planes with StegSolve.",
+    "verification": "source-guided",
+    "command": "zsteg ./IMAGE.png"
+  },
+  "windows-13": {
+    "first_action": "Scan the original blob for embedded signatures; inspect candidate offsets and check the installed major version before selecting extraction flags.",
+    "expected": "A plausible embedded region corroborated by bytes or a valid extracted object.",
+    "fallback": "Confirm helper extractors and false positives; inspect an offset with xxd before recursive extraction.",
+    "verification": "source-guided",
+    "command": "binwalk ./ARTIFACT.bin"
+  },
+  "windows-14": {
+    "first_action": "Read duplicate/unknown metadata with group names; compare dates, GPS and comments across groups and preserve explicit time-zone fields.",
+    "expected": "Source-tagged clues suitable for corroboration.",
+    "fallback": "Missing metadata does not rule out hidden content; move to format or pixel analysis and treat conflicts as unverified.",
+    "verification": "source-guided",
+    "command": "exiftool -a -u -g1 ./IMAGE.jpg",
+    "helper": "scripts/README.md#inspect"
+  },
+  "windows-15": {
+    "first_action": "Extract existing PDF text with layout preserved into a new file and compare it with rendered pages.",
+    "expected": "Searchable text and line placement linked to page content.",
+    "fallback": "Empty output can mean image-only pages or unusual font mappings; inspect PDF objects and remember this is not OCR.",
+    "verification": "Local pdftotext 24.02.0 extracted exact authored PDF text with page separator. Image-only OCR was not tested.",
+    "command": "pdftotext -layout ./DOCUMENT.pdf ./NEW_DOCUMENT.txt"
+  },
+  "windows-16": {
+    "first_action": "Group a supplied CAN log by arbitration ID and compare timing and payload changes. For an assigned SocketCAN interface, observe frames with candump first.",
+    "expected": "Message IDs and changing bytes associated with the event.",
+    "fallback": "Check interface availability and log format; WSL does not imply SocketCAN hardware support.",
+    "verification": "source-guided",
+    "command": "candump CAN_INTERFACE"
+  },
+  "windows-17": {
+    "first_action": "Confirm the installed cannelloni fork, transport and local interface; map organiser-provided remote address/ports to its local help before starting the tunnel.",
+    "expected": "Frames appear on the intended SocketCAN interface for candump inspection.",
+    "fallback": "Check interface state and matching peer settings; upstream documentation does not establish workbook-fork compatibility.",
+    "verification": "source-guided"
+  },
+  "windows-18": {
+    "first_action": "Work from a fresh analysis directory containing a copied capture, run Zeek on that local filename, then inspect conn.log and the relevant protocol log to choose endpoints and time windows. The project container launcher mounts only its current project directory.",
+    "expected": "Connection summaries that identify a Wireshark pivot.",
+    "fallback": "If Zeek cannot open an absolute capture path, copy it into the analysis directory first. Encrypted traffic may produce connections without application content; preserve the capture and check dissector/protocol visibility.",
+    "verification": "Local Zeek 9.0.0 parsed an authored HTTP PCAP: conn.log had one TCP connection and http.log matched the request, status 200 and 51-byte body. No encrypted or arbitrary-port case was tested.",
+    "command": "zeek -r ./CAPTURE.pcap"
+  },
+  "windows-19": {
+    "first_action": "Decode a local visible QR/barcode image and compare the text with the code; inspect decoded URLs before navigating.",
+    "expected": "A symbology label and payload.",
+    "fallback": "Try a derived crop or contrast improvement; damage or unsupported symbology can prevent decoding.",
+    "verification": "Local zbarimg 0.23.93 decoded an authored padded QR as CORE-QR-2026; the unpadded 25×25 version gave no payload. Damaged-code recovery was not tested.",
+    "command": "zbarimg ./CODE.png"
+  },
+  "windows-20": {
+    "first_action": "Send a captured request to Repeater, replay it unchanged, then modify one input and compare status, body, headers and session effects.",
+    "expected": "A reproducible difference attributable to that input.",
+    "fallback": "Restore the baseline and refresh expired session state; this manual route works in Community Edition.",
+    "verification": "source-guided",
+    "helper": "scripts/templates/README.md#http"
+  },
+  "windows-21": {
+    "first_action": "Parse JSON, inspect its object/array structure, then select the actual field; use raw string output only when needed by the next tool.",
+    "expected": "Focused values without manual quote/escape removal.",
+    "fallback": "Check for JSON Lines, surrounding logs or truncation before blaming the filter.",
+    "verification": "Local jq 1.7 selected the expected ID from an authored JSON document. JSON Lines were not tested.",
+    "command": "jq . ./DATA.json"
+  },
+  "windows-22": {
+    "first_action": "Import into Ghidra with the correct architecture, analyze, find a prompt/success string and follow references to the check; compare decompiler and assembly.",
+    "expected": "A located validation routine with a documented transformation or comparison.",
+    "fallback": "Correct types only with evidence; check ambiguous decompilation instruction by instruction or in a debugger.",
+    "verification": "source-guided",
+    "helper": "research/learning/practice/README.md"
+  },
+  "windows-23": {
+    "first_action": "Find the partition start sector, list its files using that offset, then recover a selected metadata address to a new destination.",
+    "expected": "A path and metadata address linked to recovered bytes.",
+    "fallback": "Check sector size, format and offset; use Autopsy for GUI inspection or PhotoRec when metadata recovery fails.",
+    "verification": "source-guided",
+    "command": "mmls ./DISK.img\nfls -r -o START_SECTOR ./DISK.img\nicat -o START_SECTOR ./DISK.img METADATA_ADDRESS > ./NEW_RECOVERED.bin"
+  },
+  "windows-24": {
+    "first_action": "Establish cipher, mode, key/IV representation and password derivation before decrypting. For a PEM public key, inspect its parameters to select a crypto route.",
+    "expected": "Known encryption settings or readable public-key parameters.",
+    "fallback": "A Salted__ prefix does not identify all settings; recover the producer's cipher, digest and KDF rather than guessing.",
+    "verification": "Local OpenSSL 3.0.13 round-tripped authored AES-256-CBC/PBKDF2 bytes and rejected a wrong password. CBC authenticity and unknown settings were not established.",
+    "command": "openssl pkey -pubin -in ./PUBLIC_KEY.pem -text -noout"
+  },
+  "windows-25": {
+    "first_action": "Test XZ integrity, then decompress to a new file while preserving the input.",
+    "expected": "A valid stream and separate payload to identify.",
+    "fallback": "Check XZ versus raw LZMA and truncation; a different decoder cannot restore missing bytes.",
+    "verification": "Local xz 5.4.5 integrity check and decompression reproduced authored bytes. Raw LZMA/truncated input was not tested.",
+    "command": "xz -t ./ARCHIVE.xz\nxz -dc ./ARCHIVE.xz > ./NEW_PAYLOAD.bin"
+  },
+  "windows-26": {
+    "first_action": "List PDF attachments and pages, then inspect a relevant object; save decoded streams separately and compare with the document.",
+    "expected": "Attachment identifiers, object references or stream content.",
+    "fallback": "Return to the original if rewriting loses a clue; orphaned objects can disappear. Use pdf-parser or mutool for another view.",
+    "verification": "source-guided",
+    "command": "qpdf --list-attachments ./DOCUMENT.pdf\nqpdf --show-pages ./DOCUMENT.pdf",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "windows-27": {
+    "first_action": "Match a target triple and instruction mode; use llvm-mc's encoding display on a short assembly sequence to check exact bytes.",
+    "expected": "Instruction bytes for the selected architecture.",
+    "fallback": "Check syntax dialect and target support; this component is not a full linker or emulator.",
+    "verification": "Local LLVM 16.0.6 assembled authored x86-64 nop/ret to bytes 90 c3; objdump of the generated object independently showed both instructions. Other targets and shellcode extraction were not tested.",
+    "command": "llvm-mc -triple=x86_64-pc-linux-gnu -show-encoding ./SAMPLE.s"
+  },
+  "windows-28": {
+    "first_action": "Inspect a bounded byte prefix with offsets. Before reversing a hex dump, distinguish plain hex from xxd's address-bearing format.",
+    "expected": "Exact bytes and offsets in a known representation.",
+    "fallback": "Reverse mode can skip malformed text; verify reconstructed length and bytes independently.",
+    "verification": "Local xxd round-tripped an authored plain-hex dump and displayed the expected bounded bytes. Address-bearing reverse dumps were not tested.",
+    "command": "xxd -l 128 ./ARTIFACT.bin",
+    "helper": "scripts/templates/README.md#binary"
+  },
+  "windows-29": {
+    "first_action": "Run the non-writing FAT check on a standalone filesystem image and record structural errors.",
+    "expected": "FAT, directory or allocation diagnostics without source repair.",
+    "fallback": "For a whole disk, locate the FAT partition first; perform any repair only on a separate copy.",
+    "verification": "Local fsck.fat 4.2 checked an authored FAT12 image with -n without changing it and rejected zero logical-sector size. A separate boot-signature-only edit was not flagged.",
+    "command": "fsck.fat -n ./FAT_FILESYSTEM.img"
+  },
+  "windows-30": {
+    "first_action": "Inspect RSA n and e, select a local attack matching a demonstrated weakness, then verify recovered factors or plaintext mathematically.",
+    "expected": "Factors satisfy p*q == n; a plaintext integer satisfies pow(m,e,n) == c.",
+    "fallback": "Check installed flags/dependencies; avoid indiscriminate attacks or external integer submission.",
+    "verification": "source-guided",
+    "command": "RsaCtfTool --dumpkey --key ./PUBLIC_KEY.pem"
+  },
+  "windows-31": {
+    "first_action": "With the prepared Volatility 3 launcher, supply the image’s matching converted symbols and a writable cache, then inspect Windows image information, process tree and command lines. A source checkout may use its own vol.py instead.",
+    "expected": "Consistent PID/parent relationships and arguments that select an artifact.",
+    "fallback": "A symbol error is failed analysis, not an empty finding. Check PDB name, GUID and age, `./symbols/windows/` layout, cache path, image format and installed plugin version before interpreting output. Volatility 2 uses profiles and different commands.",
+    "verification": "Local Volatility 3 2.28.2 check on an official 32-bit XP test image: info, pstree, cmdline and a known-address file extraction passed offline with matching symbols. Modern Windows, process minidumps and competition machines were not tested.",
+    "command": "vol --offline --cache-path ./vol-cache -s ./symbols -f ./MEMORY.raw windows.info\nvol --offline --cache-path ./vol-cache -s ./symbols -f ./MEMORY.raw windows.pstree\nvol --offline --cache-path ./vol-cache -s ./symbols -f ./MEMORY.raw windows.cmdline",
+    "helper": "CORE_WORKFLOWS.md#memory"
+  },
+  "windows-32": {
+    "first_action": "Check the recovery repository's support requirements; pair supplied Linux memory with matching SSH traffic and confirm OpenSSH layout, plugin and symbols.",
+    "expected": "Compatible session material associated with the captured connection.",
+    "fallback": "Unsupported memory/build or missing session evidence is a limitation; this is not arbitrary SSH decryption.",
+    "verification": "source-guided"
+  },
+  "windows-33": {
+    "first_action": "Open the copied checker in x64dbg, or x32dbg for 32-bit code, in an isolated environment; break at the statically located input check and submit a known input.",
+    "expected": "Buffers, registers and branch decisions explain the comparison.",
+    "fallback": "Locate the module entry point if stopped in loader code; use Ghidra while resolving runtime dependencies.",
+    "verification": "source-guided"
+  },
+  "windows-34": {
+    "first_action": "Create an Autopsy case, add the image and enable relevant ingest modules; inspect keywords, deleted files and artifact views.",
+    "expected": "A file/event tied to its source path and metadata.",
+    "fallback": "If broad ingest is slow, list the relevant partition and recover one file with Sleuth Kit.",
+    "verification": "source-guided"
+  },
+  "windows-35": {
+    "first_action": "Open a copy in HxD; inspect signature, size and clue offset, then byte-search or compare the suspected region.",
+    "expected": "A reproducible byte location with surrounding context.",
+    "fallback": "Check search encoding and byte order; save any changes only to a derived copy.",
+    "verification": "source-guided"
+  },
+  "windows-36": {
+    "first_action": "Read an existing capture with a display filter and emit only the needed fields, including packet numbers for traceability.",
+    "expected": "Searchable rows linked to packets in Wireshark.",
+    "fallback": "Check local field names and dissection; -Y display filters differ from capture filters.",
+    "verification": "source-guided",
+    "command": "tshark -r ./CAPTURE.pcap -Y http.request -T fields -e frame.number -e http.host -e http.request.uri",
+    "helper": "research/learning/practice/README.md"
+  },
+  "windows-37": {
+    "first_action": "Choose normal, extended or regex search deliberately in Notepad++; use Find All for a known token and inspect surrounding records.",
+    "expected": "Matching lines with their file context.",
+    "fallback": "Use ripgrep for large text or HxD for binary data; do not normalize whitespace-steganography evidence on save.",
+    "verification": "source-guided"
+  },
+  "windows-38": {
+    "first_action": "Open the .NET assembly, locate entry point or prompt references and inspect the validation method; compare C# reconstruction with IL.",
+    "expected": "A managed method and its input transformation or expected value.",
+    "fallback": "Native code needs a native disassembler; resolve uncertain conditions/types from IL.",
+    "verification": "source-guided"
+  },
+  "windows-39": {
+    "first_action": "Select MFTECmd for $MFT, EvtxECmd for EVTX or RECmd for registry hives; read that installed binary's help and export focused records separately.",
+    "expected": "Artifact-specific records and timestamps with parser provenance.",
+    "fallback": "Check installed subset and .NET runtime; the collection name does not guarantee every parser.",
+    "verification": "source-guided"
+  },
+  "kali-1": {
+    "first_action": "Run the SDK inventory, then build the supplied managed project using its declared target framework and already available dependencies.",
+    "expected": "The installed SDK/runtime compatibility is known and the project builds with meaningful diagnostics.",
+    "fallback": "Missing targeting packs or NuGet packages can block offline builds; inspect the assembly with dnSpyEx when building is unnecessary.",
+    "verification": "source-guided",
+    "command": "dotnet --info"
+  },
+  "kali-2": {
+    "first_action": "List archive members and sizes before extraction; extract selected content into a fresh directory without running it.",
+    "expected": "Member paths identify the useful artifact and extracted bytes remain separate from the archive.",
+    "fallback": "Test integrity if extraction fails; check encryption, unsupported format and unsafe member paths before retrying.",
+    "verification": "source-guided",
+    "command": "7z l ./ARCHIVE.bin\n7z x ./ARCHIVE.bin -oNEW_EXTRACTED_DIR",
+    "helper": "scripts/README.md#inspect"
+  },
+  "kali-3": {
+    "first_action": "Inspect the supplied wireless capture for a suitable handshake and target network; run an offline candidate-wordlist test only against that recorded evidence.",
+    "expected": "A supported handshake and, if a candidate matches, a password validated against it.",
+    "fallback": "Missing handshake messages, wrong network selection or the wrong security mode need better evidence, not more guesses.",
+    "verification": "source-guided"
+  },
+  "kali-4": {
+    "first_action": "Select the supplied Android extraction type in ALEAPP, choose relevant artifact parsers and write a report to a new output directory.",
+    "expected": "App/device records linked to original artifact files and parser output.",
+    "fallback": "Verify the app/schema version and completeness of the extraction; inspect a relevant SQLite/protobuf artifact directly if unsupported.",
+    "verification": "source-guided"
+  },
+  "kali-5": {
+    "first_action": "Use Android Studio's APK inspection/debug workflow on the supplied APK; identify package, resources and native libraries before starting a compatible emulator/device.",
+    "expected": "Package structure and, for a debuggable app, breakpoints in the relevant code.",
+    "fallback": "A non-debuggable APK or missing device setup blocks that route; use JADX and Apktool for static inspection.",
+    "verification": "source-guided"
+  },
+  "kali-6": {
+    "first_action": "Locate success/failure addresses in the checker first. Adapt an angr example with bounded symbolic input and explicit state/environment assumptions, then seek the success state.",
+    "expected": "A concrete candidate input from a satisfiable state that can be checked against the original checker.",
+    "fallback": "If exploration explodes or APIs are unmodeled, narrow the function/input constraints; use GDB to verify assumptions rather than trusting a symbolic result.",
+    "verification": "source-guided"
+  },
+  "kali-7": {
+    "first_action": "Confirm a working local AperiSolve deployment before loading an image; inspect metadata, bit planes and embedded-file results relevant to the clue.",
+    "expected": "Local analysis reports with an actionable channel, offset or embedded object.",
+    "fallback": "If the stack is unavailable, use ExifTool, zsteg and binwalk directly; do not upload challenge files to the public service.",
+    "verification": "source-guided"
+  },
+  "kali-8": {
+    "first_action": "Decode the APK into a new directory, then inspect AndroidManifest.xml, resources and the smali for the method found in JADX.",
+    "expected": "Manifest settings and bytecode-level behavior that can resolve decompiler ambiguity.",
+    "fallback": "Check the installed 2.x options and malformed resources; avoid force-overwriting an existing analysis directory.",
+    "verification": "source-guided",
+    "command": "apktool d ./APP.apk -o ./NEW_APK_DIR"
+  },
+  "kali-9": {
+    "first_action": "List app.asar members, extract into a fresh directory and inspect package.json plus its JavaScript entry point.",
+    "expected": "Application source/assets available for static reading.",
+    "fallback": "Missing files may live in an adjacent unpacked directory; ASAR packaging itself is not encryption.",
+    "verification": "source-guided",
+    "command": "asar list ./app.asar\nasar extract ./app.asar ./NEW_ASAR_DIR",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "kali-10": {
+    "first_action": "Open audio in Audacity, inspect each channel and switch to Spectrogram; adjust frequency range and window size around the suspected signal.",
+    "expected": "Visible tone, pulse or time-frequency structure that supports a specific decoder.",
+    "fallback": "Change display settings and inspect channel differences before concluding no signal exists; keep edits in a derived copy.",
+    "verification": "source-guided",
+    "helper": "research/learning/video-coverage/practice/AUDIO_PRACTICE.md"
+  },
+  "kali-11": {
+    "first_action": "Confirm the executable appears to contain supported AutoIt data, then use the installed AutoIt-Ripper extraction workflow on a copy.",
+    "expected": "An extracted script or embedded resources for static reading.",
+    "fallback": "A failed extraction may reflect a variant or packing; inspect the wrapper with Detect It Easy and preserve the original.",
+    "verification": "source-guided"
+  },
+  "kali-12": {
+    "first_action": "Prepare compatible analysis exports for two binary versions and compare them in BinDiff; inspect low-similarity or unmatched functions first.",
+    "expected": "Candidate changed functions with similarity and graph context.",
+    "fallback": "Confirm architecture and export compatibility; compare functions manually in Ghidra when the installed exporter is unavailable.",
+    "verification": "source-guided"
+  },
+  "kali-13": {
+    "first_action": "List ZIP entries and encryption, then establish at least 12 known plaintext bytes with 8 contiguous bytes matching the encrypted compressed stream before using bkcrack's tutorial workflow.",
+    "expected": "ZipCrypto internal-key candidates that decrypt a member into valid bytes.",
+    "fallback": "ZIP AES is outside this attack; compression differences or an incorrect plaintext offset invalidate known-plaintext assumptions.",
+    "verification": "source-guided"
+  },
+  "kali-14": {
+    "first_action": "Run bulk_extractor on a copied image into a new report directory, then inspect only the relevant feature file and follow its reported offsets.",
+    "expected": "Candidate emails, URLs or other features tied to byte locations.",
+    "fallback": "Broad scanning is noisy; use an artifact-specific parser first when a filesystem or application format is already known.",
+    "verification": "source-guided",
+    "command": "bulk_extractor -o ./NEW_FEATURES_DIR ./IMAGE.raw"
+  },
+  "kali-15": {
+    "first_action": "Open the binary in bvi's read-only mode and search for a known text or byte pattern; record its offset and neighboring bytes.",
+    "expected": "A precise location suitable for carving or format inspection.",
+    "fallback": "If the terminal setup is unusable, inspect a bounded region with xxd or use HxD; do not save changes to the evidence copy.",
+    "verification": "source-guided"
+  },
+  "kali-16": {
+    "first_action": "Open the JAR/class in Bytecode Viewer, find the input check and compare decompiler views when the source looks inconsistent.",
+    "expected": "A readable candidate method plus bytecode supporting its branches and constants.",
+    "fallback": "Decompilers can disagree or fail on obfuscation; inspect bytecode and use Fernflower as another view.",
+    "verification": "source-guided"
+  },
+  "kali-17": {
+    "first_action": "Test the BZip2 stream, then decompress to a new output without deleting the compressed original.",
+    "expected": "A valid stream and separate decoded payload.",
+    "fallback": "Check whether the input is BZip2, a concatenated stream or truncated; partial output is not a validated recovery.",
+    "verification": "source-guided",
+    "command": "bzip2 -t ./ARCHIVE.bz2\nbzip2 -dc ./ARCHIVE.bz2 > ./NEW_PAYLOAD.bin"
+  },
+  "kali-18": {
+    "first_action": "List CAB members, identify the relevant file and extract into a separate directory with the installed cabextract options.",
+    "expected": "Cabinet member names and an unpacked artifact.",
+    "fallback": "A multi-part cabinet needs its neighboring volumes; distinguish CAB from a different installer wrapper.",
+    "verification": "source-guided",
+    "command": "cabextract -l ./ARCHIVE.cab"
+  },
+  "kali-19": {
+    "first_action": "Run capa with verbose matches on the supported sample; use rule names and addresses to choose functions for manual inspection.",
+    "expected": "Capability hypotheses linked to specific code locations.",
+    "fallback": "Packing or unsupported formats can hide behavior; inspect the format and corroborate matches in Ghidra.",
+    "verification": "source-guided",
+    "command": "capa -v ./SAMPLE.bin"
+  },
+  "kali-20": {
+    "first_action": "Search the supplied EVTX directory for a known event ID or distinctive string; inspect full matching records before adding Sigma rules and their matching mapping.",
+    "expected": "Timestamped events with host/user fields that answer a focused question.",
+    "fallback": "Check rule/mapping versions and time zone; a rule hit alone is not a confirmed malicious event.",
+    "verification": "source-guided"
+  },
+  "kali-21": {
+    "first_action": "Run the installed Bash-era checksec against the ELF and record architecture-related protection properties before analyzing a crash.",
+    "expected": "PIE, NX, canary and RELRO information relevant to runtime address and overwrite assumptions.",
+    "fallback": "Confirm local help: newer Go checksec syntax differs; protection metadata does not establish a reachable vulnerability.",
+    "verification": "source-guided",
+    "command": "checksec --file=./CHALLENGE_ELF",
+    "references": [
+      {
+        "title": "checksec 2.6.0: Bash command-line options",
+        "url": "https://raw.githubusercontent.com/slimm609/checksec/2.6.0/checksec"
+      }
+    ]
+  },
+  "kali-22": {
+    "first_action": "Identify a concrete mathematical weakness, select the matching crypto-attacks implementation and read its test vector and prerequisites before substituting challenge values.",
+    "expected": "A candidate solution satisfying the original equations or encryption relation.",
+    "fallback": "Check Sage/Python requirements and input assumptions; repository presence does not imply every attack runs or fits the problem.",
+    "verification": "source-guided"
+  },
+  "kali-23": {
+    "first_action": "Reproduce one observed HTTP request and inspect status, headers and body before changing a single parameter. Keep redirects visible during baseline comparison.",
+    "expected": "An exchange comparable with the browser/Burp request.",
+    "fallback": "Check quoting, cookies and content type if behavior differs; follow a redirect only after inspecting its destination.",
+    "verification": "source-guided",
+    "command": "curl -i 'https://ASSIGNED_HOST/KNOWN_PATH'",
+    "helper": "scripts/templates/README.md#http"
+  },
+  "kali-24": {
+    "first_action": "Open the binary in Cutter, verify architecture and analysis settings, then follow strings/references into the check's graph and disassembly.",
+    "expected": "A navigable function graph and candidate input condition.",
+    "fallback": "If the AppImage cannot launch, check its GUI/FUSE requirement or use Ghidra; Cutter's Rizin backend is not radare2 CLI compatibility.",
+    "verification": "source-guided"
+  },
+  "kali-25": {
+    "first_action": "Open a copied SQLite database with its WAL/sidecars in DB Browser; inspect tables and schema, then run a focused SELECT without Write Changes.",
+    "expected": "Rows with source-table and timestamp context.",
+    "fallback": "Check WAL completeness and schema if records are absent; use FQLite when deleted-record recovery is the actual need.",
+    "verification": "source-guided"
+  },
+  "kali-26": {
+    "first_action": "Create a local connection to the copied database using the appropriate installed driver; inspect schema and run a bounded SELECT.",
+    "expected": "Query results with table/column context and known connection settings.",
+    "fallback": "Offline driver downloads may block setup; use sqlite3 or DB Browser for SQLite rather than rebuilding a general database environment.",
+    "verification": "source-guided"
+  },
+  "kali-27": {
+    "first_action": "Open the sample in Detect It Easy and inspect format, architecture, sections and probable compiler/packer.",
+    "expected": "A format/packing hypothesis that selects the next analysis tool.",
+    "fallback": "Confirm signature matches with bytes and code; a detected packer name is not proof of successful unpacking.",
+    "verification": "source-guided"
+  },
+  "kali-28": {
+    "first_action": "If direct JADX output is incomplete, convert the relevant DEX/APK with the installed dex2jar launcher into a new JAR and inspect it in a Java decompiler.",
+    "expected": "An alternative Java view of the input check.",
+    "fallback": "Conversion can lose information or reject malformed code; return to Apktool smali for the decisive instructions.",
+    "verification": "source-guided"
+  },
+  "kali-29": {
+    "first_action": "Use installed onedump.py help to list objects in the supplied OneNote file; select a relevant object explicitly and extract it to a new file.",
+    "expected": "An object index and extracted bytes with their original container retained.",
+    "fallback": "The beta interface may differ; identify the extracted format before choosing another tool and do not execute embedded content.",
+    "verification": "source-guided"
+  },
+  "kali-30": {
+    "first_action": "For PDF, run PDFiD for indicators then inspect referenced objects with pdf-parser; for OLE, list streams with oledump and select the macro/object stream.",
+    "expected": "Suspicious object types or extracted code linked to object/stream identifiers.",
+    "fallback": "Counts are triage only; compressed or indirect objects need the matching stream parser, not a malware verdict from keyword counts.",
+    "verification": "source-guided",
+    "command": "python3 /PATH/TO/DIDIER_SUITE/pdfid.py /ABSOLUTE/PATH/DOCUMENT.pdf\npython3 /PATH/TO/DIDIER_SUITE/pdf-parser.py /ABSOLUTE/PATH/DOCUMENT.pdf",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "kali-31": {
+    "first_action": "Inspect an existing approved Compose project's services, status and logs before starting or changing its local lab.",
+    "expected": "The relevant service, port mapping and failure log are identified.",
+    "fallback": "Missing images or dependencies can prevent offline startup; use the supplied artifact route when a container lab is unnecessary.",
+    "verification": "source-guided",
+    "command": "docker compose ps"
+  },
+  "kali-32": {
+    "first_action": "Obtain the exact kernel's vmlinux debug data and optional System.map; generate Volatility 3 Linux symbols into a new JSON file.",
+    "expected": "A symbol table matching the memory image's kernel build.",
+    "fallback": "A similar kernel version is insufficient; confirm debug symbols and available memory before processing large DWARF data.",
+    "verification": "source-guided",
+    "command": "dwarf2json linux --elf /PATH/TO/MATCHING/vmlinux > ./NEW_KERNEL_SYMBOLS.json"
+  },
+  "kali-33": {
+    "first_action": "Inspect the Java runtime version and compare it with the approved Java analysis tool's requirements before launching its JAR.",
+    "expected": "A compatible runtime or a specific version mismatch.",
+    "fallback": "Select an already installed compatible JDK; Java availability alone does not prove a GUI display or tool dependencies are ready.",
+    "verification": "source-guided",
+    "command": "java -version"
+  },
+  "kali-34": {
+    "first_action": "Inspect E01 metadata and segment completeness, then expose/export its raw image with the installed libewf tools for filesystem analysis.",
+    "expected": "Acquisition metadata and a readable raw view of the full image.",
+    "fallback": "Verify all segments and local tool options for the old recorded release; a missing segment can make later filesystem errors misleading.",
+    "verification": "source-guided",
+    "command": "ewfinfo ./IMAGE.E01"
+  },
+  "kali-35": {
+    "first_action": "Search the offline Exploit-DB archive using the identified product and version; read candidate code and prerequisites before selecting any procedure.",
+    "expected": "A relevant reference with a specific version/configuration condition to verify.",
+    "fallback": "A title match is not applicability; inspect service evidence and avoid running unrelated proof-of-concept code.",
+    "verification": "source-guided",
+    "command": "searchsploit 'PRODUCT VERSION'"
+  },
+  "kali-36": {
+    "first_action": "Inspect the factordb-python API using its public example integers only; determine whether a result contains complete prime factors and verify their product locally.",
+    "expected": "A known public example demonstrates the query/result model without disclosing challenge values.",
+    "fallback": "Use local SageMath/PARI factorization for challenge integers unless external submission is explicitly allowed; network lookup is not local computation.",
+    "verification": "source-guided"
+  },
+  "kali-37": {
+    "first_action": "In a disposable isolated lab, configure FakeNet-NG's simulated services and capture/log destinations before running an authorised sample.",
+    "expected": "Attempted DNS/HTTP or other supported connections visible in local logs.",
+    "fallback": "If containment or required privileges are unavailable, use static strings/capa and supplied captures; do not redirect the shared network.",
+    "verification": "source-guided"
+  },
+  "kali-38": {
+    "first_action": "Run the installed Fernflower JAR on a copied class/JAR with a fresh destination directory, then inspect the validation method.",
+    "expected": "Reconstructed Java source suitable for tracing input and constants.",
+    "fallback": "Inspect bytecode or another approved decompiler where reconstruction is incomplete; preserve the original JAR.",
+    "verification": "source-guided"
+  },
+  "kali-39": {
+    "first_action": "Establish an assigned-host baseline and nonexistent-path response, then use Feroxbuster with a small wordlist, bounded depth/rate and a short run.",
+    "expected": "Candidate nested paths that differ from wildcard responses and can be opened manually.",
+    "fallback": "Stop recursion if hits are repetitive; check local limit options or use the reviewed bounded ffuf route instead.",
+    "verification": "source-guided"
+  },
+  "kali-40": {
+    "first_action": "Inspect input stream metadata, choose the exact audio/video stream and extract a relevant interval, frame or stream into a derived file.",
+    "expected": "Media matching the selected stream and time range, ready for spectrogram or image analysis.",
+    "fallback": "Default stream selection may miss secondary content; distinguish lossless stream copy from transcoding and retain the original.",
+    "verification": "source-guided"
+  },
+  "kali-41": {
+    "first_action": "Request a unique nonexistent path first, then fuzz one marker on the assigned host with a short list, low rate and time limit; verify interesting hits manually.",
+    "expected": "Responses distinguishable from the baseline by content, status or size.",
+    "fallback": "Wildcard/calibration behavior can hide or invent hits; compare candidates with negative controls and narrow the list.",
+    "verification": "source-guided",
+    "command": "ffuf -w ./PATHS.txt -u 'https://ASSIGNED_HOST/FUZZ' -rate 10 -t 1 -maxtime 60 -ac"
+  },
+  "kali-42": {
+    "first_action": "Identify a supplied file by its bytes before choosing an extractor or executing anything.",
+    "expected": "A format hypothesis, encoding clue or generic data classification.",
+    "fallback": "Truncated/polyglot files can mislead magic detection; inspect the header with xxd and validate using the actual format parser.",
+    "verification": "source-guided",
+    "command": "file -- ./ARTIFACT.bin",
+    "helper": "scripts/README.md#inspect"
+  },
+  "kali-43": {
+    "first_action": "Run FLOSS on a supported executable to recover static, stack-built or decoded strings, then follow meaningful results into the code.",
+    "expected": "Candidate hidden strings with enough context to choose a function or address.",
+    "fallback": "FLOSS is not a universal unpacker; inspect packing/architecture and use Ghidra when emulation cannot recover strings.",
+    "verification": "source-guided",
+    "command": "floss ./SAMPLE.exe"
+  },
+  "kali-44": {
+    "first_action": "Select relevant file types after inspecting the raw input, then carve into a fresh output directory and inspect its audit report.",
+    "expected": "Candidate recovered files with source offsets.",
+    "fallback": "Fragmentation and false headers can produce incomplete files; validate each object and prefer filesystem recovery when metadata survives.",
+    "verification": "source-guided"
+  },
+  "kali-45": {
+    "first_action": "Load the copied SQLite database together with WAL/journal evidence into FQLite; inspect deleted or unallocated records and their provenance.",
+    "expected": "Recoverable row fragments linked to pages or sidecar data.",
+    "fallback": "Overwritten bytes cannot be recovered; corroborate fragments with schema and live rows instead of treating every fragment as a complete record.",
+    "verification": "source-guided"
+  },
+  "kali-46": {
+    "first_action": "Locate the relevant native/Java method statically, then use Frida in the isolated compatible runtime to observe arguments or returns for known inputs.",
+    "expected": "Runtime values that confirm or reject a specific validation hypothesis.",
+    "fallback": "Check matching client/server versions and Frida 17 bridge packaging; if attach fails, continue with static code or a debugger.",
+    "verification": "source-guided"
+  },
+  "kali-47": {
+    "first_action": "Compile a reviewed small C/C++ source with debug information and low optimization before using a debugger to test a specific behavior.",
+    "expected": "A reproducible local binary whose source lines and variables are inspectable.",
+    "fallback": "Read existing build files before running them; missing libraries or architecture mismatch require matching the project toolchain, not stripping checks.",
+    "verification": "source-guided",
+    "command": "gcc -g -O0 ./REVIEWED_SOURCE.c -o ./NEW_PROGRAM",
+    "helper": "research/learning/practice/README.md"
+  },
+  "kali-48": {
+    "first_action": "Start GDB with the existing GEF configuration only, stop at a known check and inspect its register/stack/context display.",
+    "expected": "Execution state tied to the breakpoint and input.",
+    "fallback": "If startup fails, use plain GDB or one other frontend; do not load GEF, PEDA and pwndbg together.",
+    "verification": "source-guided"
+  },
+  "kali-49": {
+    "first_action": "Inspect all local branches' history and the changed files around a suspicious commit; read a historical blob without altering the working tree.",
+    "expected": "A deleted/changed value tied to a commit and path.",
+    "fallback": "Shallow or incomplete history limits recovery; inspect available refs and avoid pushing or publishing recovered content.",
+    "verification": "source-guided",
+    "command": "git log --all --oneline --decorate"
+  },
+  "kali-50": {
+    "first_action": "Scan the supplied repository history with the installed Gitleaks workflow and redacted reporting, then inspect each relevant commit locally.",
+    "expected": "Candidate embedded secrets with commit/path context.",
+    "fallback": "False positives need contextual verification; choose the local version's git/history command and keep detected values out of shared output.",
+    "verification": "source-guided"
+  },
+  "kali-51": {
+    "first_action": "Load a copied image into G'MIC and apply normalization or channel inspection only to a derived output for a specific low-contrast clue.",
+    "expected": "Previously faint structure becomes visible while the untouched original remains available.",
+    "fallback": "Normalization changes pixel values; use original bytes for zsteg and ImageMagick for simpler channel inspection.",
+    "verification": "source-guided"
+  },
+  "kali-52": {
+    "first_action": "Download an explicitly identified public file to a new local name, then verify its type and expected size before analysis.",
+    "expected": "A local copy of the intended public artifact.",
+    "fallback": "An HTML error/login page is not the requested file; inspect response behavior and use the source's direct download link.",
+    "verification": "source-guided",
+    "command": "wget -O ./NEW_PUBLIC_ARTIFACT 'https://PUBLIC_HOST/PUBLIC_FILE'"
+  },
+  "kali-53": {
+    "first_action": "Check the installed Go version and a reviewed local project's module requirements; build using already available dependencies.",
+    "expected": "A compiled utility matching the required Go toolchain.",
+    "fallback": "Missing modules can block offline work; use an existing binary or equivalent approved tool instead of assuming dependency fetching will succeed.",
+    "verification": "source-guided",
+    "command": "go version"
+  },
+  "kali-54": {
+    "first_action": "Choose Gobuster's directory or virtual-host mode from the observed need, establish a nonexistent-name baseline and use a short focused list against the assigned host.",
+    "expected": "Candidate paths or hosts that differ from the baseline.",
+    "fallback": "Modes and wildcard handling differ; verify candidates manually or use the existing bounded ffuf route instead of parallel broad scans.",
+    "verification": "source-guided"
+  },
+  "kali-55": {
+    "first_action": "Run the installed GoReSym workflow on a stripped Go binary and inspect recovered function names, source metadata and addresses.",
+    "expected": "Go runtime metadata that makes functions easier to locate in Ghidra.",
+    "fallback": "A newer/modified Go layout may be unsupported; verify reported addresses against the binary before importing or renaming.",
+    "verification": "source-guided"
+  },
+  "kali-56": {
+    "first_action": "Search the offline GTFOBins entry for a binary already present in the challenge and match its documented execution context to the observed permissions.",
+    "expected": "A narrowly applicable behavior and its prerequisites.",
+    "fallback": "A shell, SUID or sudo recipe is not interchangeable; if permissions differ, discard it rather than assuming the binary name is sufficient.",
+    "verification": "source-guided"
+  },
+  "kali-57": {
+    "first_action": "Test gzip integrity, then decompress to a new file with the original retained.",
+    "expected": "A checked stream and separate content for identification.",
+    "fallback": "Confirm gzip versus raw DEFLATE/zlib and inspect truncation; a filename suffix alone is insufficient.",
+    "verification": "source-guided",
+    "command": "gzip -t ./ARCHIVE.gz\ngzip -dc ./ARCHIVE.gz > ./NEW_PAYLOAD.bin"
+  },
+  "kali-58": {
+    "first_action": "Search the offline HackTricks copy for the confirmed format, service or vulnerability primitive, then read the relevant prerequisites and examples.",
+    "expected": "A focused procedure that can be mapped to approved tools and observed evidence.",
+    "fallback": "Skip unrelated branches and unapproved dependencies; broad reference coverage does not prove a technique fits the target.",
+    "verification": "source-guided"
+  },
+  "kali-59": {
+    "first_action": "Match the full hash syntax and source format to Hashcat's example hashes; choose the numeric mode, check the backend, then run one bounded dictionary attempt.",
+    "expected": "A recovered candidate shown by --show and validated against the original artifact.",
+    "fallback": "Use hashid only for candidate modes; ambiguous formats, missing salts and backend errors must be resolved before increasing guesses.",
+    "verification": "source-guided",
+    "command": "hashcat -m MODE ./HASHES.txt ./WORDLIST.txt --runtime 60\nhashcat -m MODE ./HASHES.txt --show",
+    "helper": "HASHCAT.md"
+  },
+  "kali-60": {
+    "first_action": "Ask hashid for candidate hash types and Hashcat mode numbers, then compare full syntax, length, salt and source context with Hashcat example hashes.",
+    "expected": "A shortlist of plausible algorithms/modes, not a deterministic identification.",
+    "fallback": "Equal-length hashes can map to many algorithms; use the producing application's format or a known test value to distinguish them.",
+    "verification": "source-guided",
+    "command": "hashid -m ./HASHES.txt",
+    "helper": "HASHCAT.md"
+  },
+  "kali-61": {
+    "first_action": "Generate a Hayabusa timeline from the relevant EVTX files and filter by host, event type and the question's time window.",
+    "expected": "Ordered event records and rule matches with their original event context.",
+    "fallback": "Normalize time zones and validate a hit in the source log; avoid duplicating a broad Chainsaw hunt without a new question.",
+    "verification": "source-guided"
+  },
+  "kali-62": {
+    "first_action": "Inspect the supplied wireless capture, then use the installed hcxtools converter to produce the authentication format required by the chosen offline cracking mode.",
+    "expected": "Converted records with capture-quality warnings that guide a valid offline attempt.",
+    "fallback": "Incomplete handshakes or unsupported capture types need different evidence; preserve the PCAP and avoid online upload helpers.",
+    "verification": "source-guided"
+  },
+  "kali-63": {
+    "first_action": "Parse a copied browser profile with Hindsight into a new report; inspect visits, downloads and timestamps relevant to the clue.",
+    "expected": "A browser-activity timeline linked to profile artifacts.",
+    "fallback": "Preserve SQLite sidecars and profile completeness; use direct SQLite inspection if the browser/schema version is unsupported.",
+    "verification": "source-guided"
+  },
+  "kali-64": {
+    "first_action": "Read the hlextend example and confirm a secret-prefix hash construction, supported digest, known message/tag and plausible secret-length range before adapting it locally.",
+    "expected": "An extended message/tag candidate whose exact padding bytes are accepted by the vulnerable verifier.",
+    "fallback": "HMAC is not vulnerable to this construction; wrong secret length or changed transport encoding invalidates the candidate.",
+    "verification": "source-guided"
+  },
+  "kali-65": {
+    "first_action": "Identify the assigned login protocol and manually confirm one known failure response; configure a small candidate set and conservative concurrency for that exact service.",
+    "expected": "A reported credential candidate that succeeds in an independent normal login.",
+    "fallback": "Lockouts, throttling and incorrect failure matching can create false results; stop and fix the signal before expanding the attempt.",
+    "verification": "source-guided"
+  },
+  "kali-66": {
+    "first_action": "Point iLEAPP at the supplied iOS extraction and select relevant app/device artifacts with a fresh report destination.",
+    "expected": "Parsed records linked to source plist, database or log files.",
+    "fallback": "It does not acquire or decrypt arbitrary devices; check extraction completeness, encryption and supported app versions.",
+    "verification": "source-guided"
+  },
+  "kali-67": {
+    "first_action": "Inspect image dimensions, channels and format with ImageMagick 7; create a separate crop/channel/contrast derivative only for a visual hypothesis.",
+    "expected": "A reproducible derived view and known image properties.",
+    "fallback": "Transcoding can destroy LSB evidence; retain the original for zsteg and distinguish visual changes from recovered bytes.",
+    "verification": "source-guided",
+    "command": "magick identify ./IMAGE.png"
+  },
+  "kali-68": {
+    "first_action": "Choose Impacket's SMB client example for a supplied share and supplied access; use its local help to select the wrapper, then list only relevant shares/files.",
+    "expected": "An accessible path or file that answers the challenge question.",
+    "fallback": "Confirm protocol, domain and credentials before trying another example; Impacket's broad collection is not a reason to run unrelated credential-extraction tools.",
+    "verification": "source-guided"
+  },
+  "kali-69": {
+    "first_action": "List the Inno Setup installer's files without executing it, then extract relevant content into a fresh directory.",
+    "expected": "Installer members available for static inspection.",
+    "fallback": "Unsupported installer revisions or a different wrapper require format re-identification; do not run the installer to identify its payload.",
+    "verification": "source-guided",
+    "command": "innoextract --list ./INSTALLER.exe"
+  },
+  "kali-70": {
+    "first_action": "Resolve the workbook's identity conflict first: inspect the recorded launcher/package locally and determine whether it is INetSim or a separate internet_detector program.",
+    "expected": "A confirmed executable, package and version that can be matched to documentation.",
+    "fallback": "If identity remains unclear, keep this entry reference-only. Do not assume INetSim options or network-simulation behavior from the row label.",
+    "verification": "source-guided"
+  },
+  "kali-71": {
+    "first_action": "Use IPython to inspect already loaded data types, lengths and representations, then run a small known transform with an explicit expected result.",
+    "expected": "Interactive values reveal encoding or parser assumptions without a full new script.",
+    "fallback": "Avoid executing unknown pasted code; move a confirmed repeatable transform into the existing parser template when needed.",
+    "verification": "source-guided"
+  },
+  "kali-72": {
+    "first_action": "Open APK/DEX in jadx-gui, inspect manifest entry points and search for the prompt or success text; follow usages to the validation method.",
+    "expected": "Java-like logic that connects input to its comparison.",
+    "fallback": "A failed or suspicious decompilation needs Apktool smali or another bytecode view; reconstructed code is not authoritative.",
+    "verification": "source-guided"
+  },
+  "kali-73": {
+    "first_action": "Convert the supplied archive/document into John's matching hash representation with the installed jumbo converter, then run a short dictionary attempt and show results.",
+    "expected": "A password candidate tied to the correct extracted hash format.",
+    "fallback": "Check converter availability and format names; a generic hash guess cannot replace archive-specific extraction.",
+    "verification": "source-guided",
+    "command": "john --wordlist=./WORDLIST.txt --max-run-time=60 ./EXTRACTED_HASHES.txt\njohn --show ./EXTRACTED_HASHES.txt",
+    "references": [
+      {
+        "title": "John the Ripper jumbo command-line options",
+        "url": "https://raw.githubusercontent.com/openwall/john/bleeding-jumbo/doc/OPTIONS"
+      }
+    ]
+  },
+  "kali-74": {
+    "first_action": "Check JPEG structure and decoding errors before interpreting unusual image behavior as steganography.",
+    "expected": "Integrity diagnostics distinguish a normal file from a malformed or truncated JPEG.",
+    "fallback": "Valid JPEG structure does not exclude appended or hidden content; inspect metadata and embedded-file clues next.",
+    "verification": "source-guided",
+    "command": "jpeginfo -c ./IMAGE.jpg"
+  },
+  "kali-75": {
+    "first_action": "Pretty-print the JavaScript locally into a new file, then trace names, constants and branches around input handling without executing it.",
+    "expected": "Readable formatting with the original semantics still available for comparison.",
+    "fallback": "Beautifying does not resolve string arrays or control-flow obfuscation; use a matching deobfuscator only when the pattern fits.",
+    "verification": "source-guided",
+    "command": "js-beautify ./SCRIPT.js > ./NEW_FORMATTED.js"
+  },
+  "kali-76": {
+    "first_action": "Confirm the installed package is ben-sb's js-deobfuscator; use its documented local workflow on a copy to simplify supported string arrays/proxy functions.",
+    "expected": "A transformed script whose relevant expressions are easier to follow.",
+    "fallback": "Compare transformed code with the original; unsupported patterns or semantic changes require manual analysis, not blind execution.",
+    "verification": "source-guided"
+  },
+  "kali-77": {
+    "first_action": "Decode the token with jwt_tool to inspect header and claims; select any modification only from the algorithm and trust model actually observed.",
+    "expected": "Token fields and a controlled comparison of original, modified and missing-token requests.",
+    "fallback": "Decoding is not signature verification; check actual protected content and session behavior before calling a modification accepted.",
+    "verification": "source-guided",
+    "command": "python3 /PATH/TO/JWT_TOOL/jwt_tool.py 'CHALLENGE_JWT'"
+  },
+  "kali-78": {
+    "first_action": "Crawl the assigned web root with explicit scope and a small depth; inspect linked and JavaScript-discovered routes before wordlist discovery.",
+    "expected": "Routes linked to source pages/scripts, including potentially unlinked application endpoints.",
+    "fallback": "Refresh authentication if necessary and check scope; a crawler can miss runtime-only or inaccessible routes, so use manual DevTools evidence next.",
+    "verification": "source-guided"
+  },
+  "kali-79": {
+    "first_action": "Add only the assigned host(s) to Legion and inspect discovered ports/services in its GUI, using existing scan evidence when available.",
+    "expected": "A service inventory that can be checked with a focused tool.",
+    "fallback": "If GUI/helper dependencies fail, use Nmap directly; do not repeat broad scans merely to populate a dashboard.",
+    "verification": "source-guided"
+  },
+  "kali-80": {
+    "first_action": "Confirm the file is an ESE database, inspect metadata with libesedb tools and export selected tables into a separate directory.",
+    "expected": "Table records ready for application-specific interpretation.",
+    "fallback": "The .edb suffix is ambiguous; verify format and schema, and preserve transaction-related sidecars where supplied.",
+    "verification": "source-guided",
+    "command": "esedbinfo ./DATABASE.edb"
+  },
+  "kali-81": {
+    "first_action": "Open a copied benign document with macros disabled or use LibreOffice's documented conversion mode to a new output directory for page/text inspection.",
+    "expected": "A readable rendering that can be compared with the original container.",
+    "fallback": "Rendering can omit hidden objects or alter formatting; use oletools/qpdf for embedded content instead of enabling macros.",
+    "verification": "source-guided"
+  },
+  "kali-82": {
+    "first_action": "Inspect local lrzip help for test/decompression mode, then decode the supplied .lrz stream to a separate output while preserving it.",
+    "expected": "A validated decompressed payload and any integrity diagnostics.",
+    "fallback": "Memory needs and stream damage can block decoding; identify the actual compression format before choosing another tool.",
+    "verification": "source-guided"
+  },
+  "kali-83": {
+    "first_action": "In an isolated environment, trace a trusted challenge binary's library calls with a known input and look for comparisons or transformed buffers.",
+    "expected": "Dynamic library-call arguments that explain the input check.",
+    "fallback": "Static/inlined code may produce no relevant calls; use GDB breakpoints or Ghidra rather than treating absence as no comparison.",
+    "verification": "source-guided",
+    "command": "ltrace ./CHALLENGE_ELF"
+  },
+  "kali-84": {
+    "first_action": "Test the LZ4 stream with the installed CLI, then decompress into a new file.",
+    "expected": "A decoded payload whose size/content can be checked.",
+    "fallback": "LZ4 frames and raw blocks are different; raw data needs the format's external size/settings rather than arbitrary CLI guesses.",
+    "verification": "source-guided",
+    "command": "lz4 -t ./ARCHIVE.lz4\nlz4 -d ./ARCHIVE.lz4 ./NEW_PAYLOAD.bin"
+  },
+  "kali-85": {
+    "first_action": "Check the lzip stream, then decompress to a new destination while retaining the source.",
+    "expected": "An integrity-checked LZMA-based stream and separate decoded content.",
+    "fallback": "Distinguish lzip from .xz and raw .lzma; inspect truncation or concatenated members before changing formats.",
+    "verification": "source-guided",
+    "command": "lzip -t ./ARCHIVE.lz\nlzip -dc ./ARCHIVE.lz > ./NEW_PAYLOAD.bin"
+  },
+  "kali-86": {
+    "first_action": "Match mac_apt's supported image/artifact mode to the saved macOS evidence and run only relevant plugins into a new report directory.",
+    "expected": "Parsed macOS records with source paths and timestamps.",
+    "fallback": "Check filesystem, encryption and OS-version support; use extracted SQLite/plist artifacts when whole-image parsing is unavailable.",
+    "verification": "source-guided"
+  },
+  "kali-87": {
+    "first_action": "Inspect the local file with MediaInfo and record container, stream IDs, codecs, channels and duration before extraction.",
+    "expected": "The exact stream characteristics needed for FFmpeg or audio analysis.",
+    "fallback": "Metadata alone does not reveal hidden content; select the relevant stream and inspect a spectrogram/frame sequence.",
+    "verification": "source-guided",
+    "command": "mediainfo ./MEDIA_FILE"
+  },
+  "kali-88": {
+    "first_action": "Search Metasploit for the identified service/product, then read a candidate module's info, options and prerequisites before considering a targeted check.",
+    "expected": "An applicability hypothesis with explicit version, configuration and input requirements.",
+    "fallback": "Module availability is not target validation; return to observed service evidence if prerequisites are missing.",
+    "verification": "source-guided"
+  },
+  "kali-89": {
+    "first_action": "Read mimikatz's offline minidump workflow only for an explicitly supplied authentication-memory artifact; confirm supported Windows build and architecture before parsing in the isolated lab.",
+    "expected": "Supported authentication structures can be inspected locally with their source context.",
+    "fallback": "Wine presence does not establish functionality; use pypykatz for a supported offline dump or report incompatibility without live collection.",
+    "verification": "source-guided"
+  },
+  "kali-90": {
+    "first_action": "Inspect existing conda environments and the required interpreter/library versions; select a prepared environment or create an isolated one from available permitted packages.",
+    "expected": "The analysis script uses a known environment without changing unrelated dependencies.",
+    "fallback": "Offline caches may be incomplete; use a compatible existing environment or standard-library route.",
+    "verification": "source-guided",
+    "command": "conda env list"
+  },
+  "kali-91": {
+    "first_action": "Identify the audio modulation from challenge clues/spectrogram, check sample rate and encoding, then select only the corresponding multimon-ng decoder.",
+    "expected": "A decoded candidate message from a supported modulation.",
+    "fallback": "Wrong sample representation or modulation yields noise; use SoX/FFmpeg on a derived file and verify against a known signal.",
+    "verification": "source-guided"
+  },
+  "kali-92": {
+    "first_action": "Use mutool to inspect the PDF object tree; identify relevant objects or extract images/fonts into a separate directory.",
+    "expected": "Object content or resources that can be compared with rendered pages.",
+    "fallback": "Extraction is not OCR and may include unrelated assets; use qpdf/pdf-parser for another object-level view.",
+    "verification": "source-guided",
+    "command": "mutool show ./DOCUMENT.pdf trailer"
+  },
+  "kali-93": {
+    "first_action": "Match x86 bitness and desired output format, then assemble a small reviewed experiment with NASM to check its instruction encoding.",
+    "expected": "Bytes/object code for the exact chosen instruction mode.",
+    "fallback": "Raw binary, ELF and PE objects are not interchangeable; inspect output with objdump or xxd before using it.",
+    "verification": "source-guided"
+  },
+  "kali-94": {
+    "first_action": "Probe only the assigned host/port for service information, then use Ncat for one protocol-appropriate exchange; use TLS mode only when the service specifies it.",
+    "expected": "A banner or response establishes the actual protocol and prompt.",
+    "fallback": "Service detection can be uncertain; compare raw behavior and supplied instructions before automating. Nping serves packet diagnostics, not application parsing.",
+    "verification": "source-guided",
+    "command": "nmap -sV -p PORT ASSIGNED_HOST\nncat ASSIGNED_HOST PORT",
+    "helper": "scripts/templates/README.md#transport"
+  },
+  "kali-95": {
+    "first_action": "Use Node's Buffer API for a known byte representation and verify both decoded bytes and round-trip encoding before adapting a JavaScript helper.",
+    "expected": "Explicit binary/text conversion without accidental Unicode assumptions.",
+    "fallback": "Buffer decoding may accept malformed input differently from a strict parser; validate the source alphabet and length first.",
+    "verification": "source-guided",
+    "command": "node --version"
+  },
+  "kali-96": {
+    "first_action": "Confirm the script resembles supported Obfuscator.io output; run the installed local deobfuscator on a copy and inspect recovered strings/control flow.",
+    "expected": "Readable candidate expressions that can be compared with the original.",
+    "fallback": "Unsupported transforms need manual analysis or js-beautify; do not upload challenge code to the advertised service.",
+    "verification": "source-guided"
+  },
+  "kali-97": {
+    "first_action": "Open a local Obsidian vault and keep one note per question with evidence paths, observations and linked hypotheses.",
+    "expected": "Notes distinguish observed facts, candidate explanations and the next check.",
+    "fallback": "If plugins or startup fail, use the existing Markdown editor; plain local notes are sufficient and do not require synchronization.",
+    "verification": "source-guided"
+  },
+  "kali-98": {
+    "first_action": "Choose the Office parser by artifact: oleid for triage, olevba for VBA, rtfobj/oleobj for embedded objects, and msodde when DDE is the clue.",
+    "expected": "Extracted code or objects tied to their document streams.",
+    "fallback": "Never enable macros to inspect them; unsupported containers need archive/object inspection and decoded content still requires analysis.",
+    "verification": "source-guided",
+    "command": "olevba ./DOCUMENT.docm",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "kali-99": {
+    "first_action": "For a legacy 32-bit Windows checker, open it in the existing OllyDbg setup and break at the identified check before testing a known input.",
+    "expected": "Registers and memory show the comparison and branch.",
+    "fallback": "The recorded Wine build may not run reliably; use x32dbg where available or continue static inspection.",
+    "verification": "source-guided"
+  },
+  "kali-100": {
+    "first_action": "If clues point to OpenStego, use its Extract Data workflow on the image with the supplied/clue-derived password and a fresh output directory.",
+    "expected": "A recovered embedded payload validated by its content.",
+    "fallback": "An incorrect password or different embedding scheme can look like no data; use carrier-specific evidence rather than treating OpenStego as a universal LSB decoder.",
+    "verification": "source-guided"
+  },
+  "kali-101": {
+    "first_action": "Confirm a stable valid/invalid padding distinction with a baseline and negative control on the assigned CBC endpoint; match block size and transport encoding before using the attacker.",
+    "expected": "Oracle responses are reproducible enough for a candidate plaintext/decryption result to be checked.",
+    "fallback": "Rate limits, generic errors or inconsistent responses invalidate the oracle; resolve the signal before spending requests.",
+    "verification": "source-guided"
+  },
+  "kali-102": {
+    "first_action": "In GP, use a small known integer to confirm factorization and modular-arithmetic conventions, then apply the operation justified by the challenge.",
+    "expected": "Factors or modular results that satisfy the original equation.",
+    "fallback": "Large inputs may be infeasible; use structural clues rather than assuming generic factorization is cheap.",
+    "verification": "source-guided",
+    "command": "gp"
+  },
+  "kali-103": {
+    "first_action": "Open the local PayloadsAllTheThings section for the suspected vulnerability and compare its prerequisites with a captured request before selecting one test.",
+    "expected": "A single input change and negative control support or reject the hypothesis.",
+    "fallback": "Syntax examples may depend on a different parser/version; adapt from actual errors and do not treat linked tools as automatically approved.",
+    "verification": "source-guided"
+  },
+  "kali-104": {
+    "first_action": "Use the preconfigured PEDA session in GDB, stop at the known check and inspect its register, stack and disassembly context.",
+    "expected": "State at the breakpoint explains how a known input is handled.",
+    "fallback": "If plugin initialization conflicts, use plain GDB or one frontend; do not stack PEDA with GEF/pwndbg.",
+    "verification": "source-guided"
+  },
+  "kali-105": {
+    "first_action": "Open the PDF in peepdf-3 and inspect its object graph, suspicious references and decoded streams relevant to the clue.",
+    "expected": "A specific object/stream explains embedded code or unusual document behavior.",
+    "fallback": "Optional JavaScript features may be unavailable; extract/inspect the stream with qpdf or pdf-parser rather than executing it.",
+    "verification": "source-guided"
+  },
+  "kali-106": {
+    "first_action": "Inspect PST/OST metadata, then export relevant messages and attachments to a separate directory using the installed libpff tools.",
+    "expected": "Message headers, timestamps and attachment files linked to the mailbox.",
+    "fallback": "Check supported mailbox variant and local pffexport options; corruption or partial stores may limit recovery.",
+    "verification": "source-guided",
+    "command": "pffinfo ./MAILBOX.pst"
+  },
+  "kali-107": {
+    "first_action": "Parse only the relevant artifact set into a new Plaso storage file; inspect its metadata with pinfo and export the question's interval with psort.",
+    "expected": "A timeline retaining parser/source provenance and normalized timestamp interpretation.",
+    "fallback": "Whole-image parsing may waste time; narrow inputs and verify time zones and timestamp semantics before correlating events.",
+    "verification": "source-guided"
+  },
+  "kali-108": {
+    "first_action": "Inspect PNG chunks and integrity before attempting pixel-bit analysis. Record text chunks, unexpected trailing data and any CRC/truncation errors.",
+    "expected": "Structural findings distinguish format damage from a steganography lead.",
+    "fallback": "Check local version options and confirm with another PNG reader; valid structure does not exclude LSB content.",
+    "verification": "source-guided",
+    "command": "pngcheck -v ./IMAGE.png"
+  },
+  "kali-109": {
+    "first_action": "Start the existing pwndbg configuration alone, stop at a known input-check location and inspect registers, stack and pointed-to memory.",
+    "expected": "Runtime operands tied to the supplied input and instruction.",
+    "fallback": "Resolve debugger/plugin compatibility or fall back to plain GDB; do not combine competing .gdbinit frontends.",
+    "verification": "source-guided"
+  },
+  "kali-110": {
+    "first_action": "Identify the PYC version and try pycdc; compare incomplete or questionable reconstruction with pycdas disassembly.",
+    "expected": "Candidate Python logic supported by bytecode instructions.",
+    "fallback": "Unsupported opcodes can make output partial or wrong; select another decompiler only if it supports that bytecode version.",
+    "verification": "source-guided",
+    "command": "pycdc ./MODULE.pyc\npycdas ./MODULE.pyc"
+  },
+  "kali-111": {
+    "first_action": "Extract a copied PyInstaller bundle with pyinstxtractor-ng, record the reported Python version and identify the application PYC among bundled dependencies.",
+    "expected": "Bytecode and resources available for static inspection.",
+    "fallback": "Extraction is not decompilation; use a version-compatible decompiler and inspect the wrapper if the bundle format is unsupported.",
+    "verification": "source-guided",
+    "command": "pyinstxtractor-ng ./BUNDLE.exe",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "kali-112": {
+    "first_action": "Select pypykatz's offline minidump parser for an explicitly supplied Windows authentication dump and inspect only relevant records locally.",
+    "expected": "Supported authentication structures with source context.",
+    "fallback": "Build/dump incompatibility is not proof of absent data; keep recovered values private and avoid replacing offline analysis with live acquisition.",
+    "verification": "source-guided"
+  },
+  "kali-113": {
+    "first_action": "Use Python 2.7 only for a reviewed legacy script; verify byte-string, integer-division and struct assumptions with a known sample before challenge input.",
+    "expected": "The legacy interpreter reproduces the expected parser behavior.",
+    "fallback": "Port a small understood operation to Python 3 when practical; a Python 2 script's imports may still be missing offline.",
+    "verification": "source-guided",
+    "command": "python2.7 --version"
+  },
+  "kali-114": {
+    "first_action": "Check whether uv already has Python 3.11 available and select it for a script that requires that version; confirm the executable actually used.",
+    "expected": "Interpreter output identifies Python 3.11 in the intended environment.",
+    "fallback": "The workbook has no installation evidence; if unavailable offline, use a compatible prepared interpreter or document the requirement.",
+    "verification": "source-guided",
+    "command": "uv python find --offline --no-python-downloads 3.11",
+    "helper": "scripts/templates/README.md"
+  },
+  "kali-115": {
+    "first_action": "Inspect virtual-disk format and backing files before converting a copy to raw with enough free output space.",
+    "expected": "Correct source format/backing chain and a raw image suitable for filesystem tools.",
+    "fallback": "Missing backing files make dependent images incomplete; do not modify an image in use or mistake conversion for recovery.",
+    "verification": "source-guided",
+    "command": "qemu-img info ./VIRTUAL_DISK"
+  },
+  "kali-116": {
+    "first_action": "Open the binary in radare2, inspect information/strings and analyze only enough functions to locate the input check; disassemble that routine.",
+    "expected": "Function addresses and references explain the comparison.",
+    "fallback": "Broad analysis can be costly or misleading; use targeted navigation or Ghidra, and do not assume Cutter/Rizin commands are identical.",
+    "verification": "source-guided",
+    "command": "r2 ./CHALLENGE_ELF"
+  },
+  "kali-117": {
+    "first_action": "Confirm evidence for a supported RAT family, then select the matching rat-king-parser family workflow on a copied sample.",
+    "expected": "Extracted configuration fields that agree with the sample's code or strings.",
+    "fallback": "Variant coverage is finite; empty output does not prove no configuration, so inspect the storage/decryption routine manually.",
+    "verification": "source-guided"
+  },
+  "kali-118": {
+    "first_action": "Identify the offline registry hive type and select the relevant installed RegRipper 3 plugin; retain plugin name and source hive with its output.",
+    "expected": "Keys, values and available timestamps relevant to the question.",
+    "fallback": "Transaction logs are not replayed automatically; note missing recent state and use another approved parser if replay is required.",
+    "verification": "source-guided"
+  },
+  "kali-119": {
+    "first_action": "Search a relevant directory for a literal clue with line numbers; include hidden files only when the evidence warrants it.",
+    "expected": "Matches with paths and line context for focused inspection.",
+    "fallback": "Ignored/hidden/binary files are normally skipped; deliberately adjust scope rather than assuming no match means absence.",
+    "verification": "source-guided",
+    "command": "rg -n -F 'KNOWN_NEEDLE' ./EVIDENCE_DIR",
+    "helper": "scripts/templates/README.md#file-intel"
+  },
+  "kali-120": {
+    "first_action": "Locate the installed rockyou wordlist and check whether it is compressed; make a separate decompressed copy if needed and pass its real path to one offline cracking attempt.",
+    "expected": "A readable local candidate dictionary used by the selected cracking tool.",
+    "fallback": "A wordlist is not a cracking engine and may omit the answer; use challenge clues to narrow candidates rather than repeatedly rerunning it.",
+    "verification": "source-guided",
+    "helper": "HASHCAT.md"
+  },
+  "kali-121": {
+    "first_action": "Search the copied native binary for the small gadget class required by an already identified exploitation primitive; inspect candidate instructions in disassembly.",
+    "expected": "Usable instruction sequences with file-relative/runtime-address assumptions recorded.",
+    "fallback": "A gadget address needs the correct load base and safe side effects; its existence alone does not establish an exploit.",
+    "verification": "source-guided",
+    "command": "ROPgadget --binary ./CHALLENGE_ELF --only 'pop|ret'"
+  },
+  "kali-122": {
+    "first_action": "Identify whether the supplied recording is an rtptools dump or a PCAP; use the matching rtptools inspection/replay workflow only for its supported RTP dump format.",
+    "expected": "RTP headers, sequence numbers and timing can be examined or replayed in an isolated endpoint.",
+    "fallback": "Replay is not audio decoding; for PCAP use Wireshark RTP analysis and decode the payload with the correct codec.",
+    "verification": "source-guided"
+  },
+  "kali-123": {
+    "first_action": "Inspect the installed Rust toolchain and a reviewed project's Cargo manifest; build using locally available dependencies when a Rust utility is required.",
+    "expected": "A compiled program matching the required edition/toolchain.",
+    "fallback": "Missing crates block offline builds; use an existing executable or approved equivalent rather than introducing a new dependency stack.",
+    "verification": "source-guided",
+    "command": "rustc --version\ncargo --version"
+  },
+  "kali-124": {
+    "first_action": "Use RustScan only when port discovery is needed for the assigned host; choose conservative batch/timeout settings, then verify selected ports with Nmap service detection.",
+    "expected": "A small list of reachable TCP ports with independently checked services.",
+    "fallback": "High concurrency can lose results or overload the environment; use direct Nmap for explicit ports or unclear results.",
+    "verification": "source-guided"
+  },
+  "kali-125": {
+    "first_action": "Confirm SageMath availability, reproduce a small known finite-field/group example, then formulate the exact modular equation or discrete-log problem from challenge parameters.",
+    "expected": "A candidate solution verified by substitution or exponentiation in the original group.",
+    "fallback": "Missing installation or a large hard group blocks the method; use structural weaknesses and check group order rather than assuming arbitrary logs are easy.",
+    "verification": "source-guided"
+  },
+  "kali-126": {
+    "first_action": "Locate the installed SecLists data directory and select a short list suited to paths, usernames or the specific content-discovery task.",
+    "expected": "A deliberate wordlist path and scope for the chosen tool.",
+    "fallback": "The workbook's executable-like location is not proof of the data directory; inspect installed files and avoid using the largest list by default.",
+    "verification": "source-guided"
+  },
+  "kali-127": {
+    "first_action": "Connect standard input/output to the assigned plaintext TCP endpoint with socat and send one protocol-appropriate line.",
+    "expected": "A banner or response confirms stream behavior.",
+    "fallback": "Check address syntax and whether TLS is required; prefer Ncat for a simple interaction rather than adding unnecessary bridges/listeners.",
+    "verification": "source-guided",
+    "command": "socat - TCP:ASSIGNED_HOST:PORT",
+    "helper": "scripts/templates/README.md#transport"
+  },
+  "kali-128": {
+    "first_action": "Open audio in Sonic Visualiser, add a spectrogram layer and align separate panes/channels to measure tone frequencies or pulse timing.",
+    "expected": "Measurable time/frequency intervals supporting a decoder or symbol mapping.",
+    "fallback": "Adjust FFT/window settings and channel selection; use Audacity for basic inspection when measurement detail is unnecessary.",
+    "verification": "source-guided",
+    "helper": "research/learning/video-coverage/practice/AUDIO_PRACTICE.md"
+  },
+  "kali-129": {
+    "first_action": "Confirm whether the installed executable is SoX_ng and inspect its supported effects; create a spectrogram or channel derivative only after checking input rate/channels.",
+    "expected": "A repeatable derived audio view with explicit processing settings.",
+    "fallback": "Exact options may differ from legacy SoX; use Audacity or FFmpeg when the local build cannot perform the intended operation.",
+    "verification": "source-guided",
+    "command": "sox --help",
+    "helper": "research/learning/video-coverage/practice/AUDIO_PRACTICE.md"
+  },
+  "kali-130": {
+    "first_action": "Open the copied SQLCipher database, supply the known key interactively and set the required compatibility/KDF parameters before the first query.",
+    "expected": "A readable schema and rows from the encrypted database.",
+    "fallback": "Wrong compatibility settings can resemble a wrong key; verify the producer's SQLCipher version rather than treating this CLI as a password cracker.",
+    "verification": "source-guided"
+  },
+  "kali-131": {
+    "first_action": "Open the copied SQLite database read-only with its sidecars; inspect tables/schema, then query only the relevant rows and timestamp fields.",
+    "expected": "Records whose table, column and time encoding can be explained.",
+    "fallback": "Preserve WAL files and check application-specific timestamp units; missing rows may require deleted-record analysis.",
+    "verification": "source-guided",
+    "command": "sqlite3 -readonly ./DATABASE.sqlite '.tables'"
+  },
+  "kali-132": {
+    "first_action": "Save a reproducible captured HTTP request and identify the suspected parameter; run the low-risk single-thread sqlmap check against that parameter only.",
+    "expected": "Injection evidence tied to a specific input and reproducible response distinction.",
+    "fallback": "Refresh authentication and verify baseline/negative controls; do not raise risk or enumerate data to compensate for an unstable request.",
+    "verification": "source-guided",
+    "command": "sqlmap -r ./REQUEST.txt -p PARAMETER --batch --level=1 --risk=1 --threads=1"
+  },
+  "kali-133": {
+    "first_action": "Inspect the actual installed executable/package before decoding: the workbook labels sstv a decoder but records PySSTV, which is an encoder.",
+    "expected": "A confirmed identity shows whether an approved decoder is actually available.",
+    "fallback": "Do not assume colaclanth/sstv is installed from the row name. If only PySSTV exists, inspect audio visually and record the decoding gap.",
+    "verification": "source-guided"
+  },
+  "kali-134": {
+    "first_action": "Inspect supported carrier information, then extract with the supplied or clue-derived passphrase into a new file.",
+    "expected": "A steghide payload whose recovered bytes validate.",
+    "fallback": "PNG is not a supported steghide carrier; wrong passphrase or a different embedding scheme needs a new hypothesis.",
+    "verification": "source-guided",
+    "command": "steghide info ./CARRIER.jpg"
+  },
+  "kali-135": {
+    "first_action": "For a likely steghide carrier, run a focused wordlist attempt to a new output; use seed detection only with its documented limits.",
+    "expected": "A validated payload and, where found, its matching password candidate.",
+    "fallback": "Seed mode detects structure; passwordless recovery requires unencrypted data. A wrong carrier or exhausted list needs evidence, not claims of decryption.",
+    "verification": "source-guided"
+  },
+  "kali-136": {
+    "first_action": "Preserve the original text's trailing spaces/tabs and use stegsnow's decode mode, adding a supplied password only if the clue requires it.",
+    "expected": "Decoded bytes from the untouched whitespace carrier.",
+    "fallback": "Copy/paste or editor cleanup can destroy the payload; return to the original file and check whether compression/password settings apply.",
+    "verification": "source-guided",
+    "command": "stegsnow ./WHITESPACE.txt"
+  },
+  "kali-137": {
+    "first_action": "Open the original image in a working StegSolve GUI and inspect the clue's channel/bit planes; use Data Extract only after choosing a concrete order/plane hypothesis.",
+    "expected": "A visible pattern or extracted byte sequence that can be reproduced.",
+    "fallback": "The recorded launch failed headlessly and the reference fork may differ; use zsteg or derived channel views if the GUI is unavailable.",
+    "verification": "source-guided"
+  },
+  "kali-138": {
+    "first_action": "In an isolated environment, trace the challenge binary's relevant file/process syscalls with a known input and save the trace separately.",
+    "expected": "Paths, failures or child-process activity explain missing inputs or hidden dependencies.",
+    "fallback": "Linux execution is required; for static triage or incompatible binaries, inspect strings/disassembly instead.",
+    "verification": "source-guided",
+    "command": "strace -f -o ./NEW_TRACE.txt ./CHALLENGE_ELF"
+  },
+  "kali-139": {
+    "first_action": "Query a challenge-supplied public domain with Subfinder while retaining source provenance, then corroborate candidate names in their cited public sources.",
+    "expected": "Hostname candidates with source information and observation time.",
+    "fallback": "Public indexes can be stale and private domains may have no entries; absence is not evidence that no host exists.",
+    "verification": "source-guided",
+    "command": "subfinder -d PUBLIC_DOMAIN -oJ -cs -o ./NEW_HOSTS.jsonl"
+  },
+  "kali-140": {
+    "first_action": "Open the local source/notes directory in Sublime Text and use project search for an identified symbol or clue; inspect surrounding code before editing a copy.",
+    "expected": "Relevant definitions and call sites with file context.",
+    "fallback": "Use ripgrep for large trees or unsupported encodings; an editor search does not parse binary formats.",
+    "verification": "source-guided"
+  },
+  "kali-141": {
+    "first_action": "List archive members first, inspect paths and sizes, then extract the relevant members into a fresh directory.",
+    "expected": "Expected files recovered without overwriting the source tree.",
+    "fallback": "Check compression and missing multipart data; treat absolute/traversal paths and symlink members carefully before extraction.",
+    "verification": "source-guided",
+    "command": "tar -tf ./ARCHIVE.tar"
+  },
+  "kali-142": {
+    "first_action": "Read a supplied capture with a narrow host/port/protocol filter and a bounded packet count before escalating to stream reconstruction.",
+    "expected": "Packet summaries identify relevant peers and protocols.",
+    "fallback": "tcpdump filters differ from Wireshark display filters; use Wireshark/TShark when payload reassembly or protocol fields are needed.",
+    "verification": "source-guided",
+    "command": "tcpdump -nn -r ./CAPTURE.pcap -c 50"
+  },
+  "kali-143": {
+    "first_action": "Use TestDisk's file-list/copy workflow on an image when filesystem metadata survives; use PhotoRec carving only when metadata recovery cannot locate the content.",
+    "expected": "Recovered files in a separate destination, with names/paths where metadata permits.",
+    "fallback": "Carving loses original names and fragmented files may fail; validate file content and never recover into the source image/device.",
+    "verification": "source-guided"
+  },
+  "kali-144": {
+    "first_action": "List supported archive contents with the accompanying lsar tool, then extract selected content with unar to a new directory using local options.",
+    "expected": "Member metadata and extracted files for the next format-specific tool.",
+    "fallback": "Check multipart volumes, passwords and format support; use 7-Zip for another local archive view.",
+    "verification": "source-guided",
+    "command": "lsar ./ARCHIVE"
+  },
+  "kali-145": {
+    "first_action": "Identify the PYC bytecode version before using uncompyle6 and compare important conditions with disassembly.",
+    "expected": "Reconstructed older Python source supported by the bytecode.",
+    "fallback": "Its documented support reaches Python 3.8 bytecode; running it under a newer interpreter does not add newer opcode support.",
+    "verification": "source-guided",
+    "command": "uncompyle6 ./MODULE.pyc"
+  },
+  "kali-146": {
+    "first_action": "Match the supplied PYC to unpyc37-3.10's documented version coverage, then use its installed entry point for an alternate decompilation view.",
+    "expected": "Partial or complete candidate source with version limits explicitly recorded.",
+    "fallback": "Support declines across 3.7–3.10; use pycdas or another version-compatible view rather than trusting incomplete output.",
+    "verification": "source-guided"
+  },
+  "kali-147": {
+    "first_action": "List the RAR archive, test its integrity and extract needed members into a new directory with all supplied volumes present.",
+    "expected": "Member names and integrity results before recovery.",
+    "fallback": "Missing volumes or a password are different from corruption; resolve those inputs before repeatedly extracting.",
+    "verification": "source-guided",
+    "command": "unrar l ./ARCHIVE.rar\nunrar t ./ARCHIVE.rar"
+  },
+  "kali-148": {
+    "first_action": "List ZIP members and test the archive before extracting selected entries to a fresh directory.",
+    "expected": "Names, sizes and integrity diagnostics that select the useful file.",
+    "fallback": "Check encryption and unsupported ZIP features; use 7-Zip for another parser and do not ignore failed CRC checks.",
+    "verification": "source-guided",
+    "command": "unzip -l ./ARCHIVE.zip\nunzip -t ./ARCHIVE.zip"
+  },
+  "kali-149": {
+    "first_action": "Test a suspected UPX executable, then unpack to a new file and identify/analyze that output statically.",
+    "expected": "A recognized packed file and a separate unpacked executable.",
+    "fallback": "Modified packers can defeat normal unpacking; inspect code/sections rather than claiming every UPX-like file is handled.",
+    "verification": "source-guided",
+    "command": "upx -t ./SAMPLE.exe\nupx -d -o ./NEW_UNPACKED.exe ./SAMPLE.exe",
+    "helper": "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md"
+  },
+  "kali-150": {
+    "first_action": "Open the local analysis folder in VS Code with untrusted-workspace restrictions appropriate to unknown code; search the input handling and edit only reviewed scripts.",
+    "expected": "Definitions, call sites and the intended interpreter/build context are visible.",
+    "fallback": "Do not accept automatic tasks/extensions from an unknown repository; use plain text search when code execution is unnecessary.",
+    "verification": "source-guided"
+  },
+  "kali-151": {
+    "first_action": "For a supported legacy Windows memory image, obtain profile suggestions and corroborate the OS/build before running process or network plugins with that profile.",
+    "expected": "Consistent legacy memory structures and process records.",
+    "fallback": "Wrong profiles produce misleading output; use matching evidence and Volatility 3 for a supported newer image rather than mixing command syntax.",
+    "verification": "source-guided"
+  },
+  "kali-152": {
+    "first_action": "Select one Volatility 2 community plugin for the artifact missing from core coverage; read its dependencies and load it with the matching profile.",
+    "expected": "The plugin appears in help and returns records consistent with known core-plugin findings.",
+    "fallback": "Check plugin API/Python compatibility; a directory of community plugins is not blanket proof that every plugin works.",
+    "verification": "source-guided"
+  },
+  "kali-153": {
+    "first_action": "Match the memory image's exact Linux/macOS build to an available Volatility 2 profile and verify recognized core structures before using artifact plugins.",
+    "expected": "A profile whose output agrees with independent OS/kernel evidence.",
+    "fallback": "A similarly named kernel is insufficient; if no exact profile exists, report the gap or use the compatible Volatility 3 symbol route.",
+    "verification": "source-guided"
+  },
+  "kali-154": {
+    "first_action": "Choose the specific Volatility 3 community plugin needed, inspect its release requirements and load it from an explicit plugin directory.",
+    "expected": "The plugin is discoverable and produces plausible records with the image's matching symbols.",
+    "fallback": "Upstream warns of incompatibility with current Volatility 3; use a core plugin or report unsupported behavior instead of assuming presence means readiness.",
+    "verification": "source-guided"
+  },
+  "kali-155": {
+    "first_action": "Select the built C/C++ executable and matching GDB/debug symbols in VS Code's C/C++ debug configuration, then stop at a known source line in a reviewed local program.",
+    "expected": "Source breakpoints correspond to actual instructions and variables.",
+    "fallback": "Rebuild with debug information and check working directory/architecture; use standalone GDB if editor integration obscures the failure.",
+    "verification": "source-guided"
+  },
+  "kali-156": {
+    "first_action": "Select the intended Python environment through the VS Code Python extension and confirm the displayed interpreter matches a terminal version check before debugging a reviewed script.",
+    "expected": "Imports and breakpoints use the same interpreter as the command-line workflow.",
+    "fallback": "If imports differ, fix interpreter selection rather than installing duplicates globally; verify extension availability offline.",
+    "verification": "source-guided"
+  },
+  "kali-157": {
+    "first_action": "Compile a small meaningful YARA rule and scan a local sample plus a near-miss control; inspect matched strings and offsets.",
+    "expected": "A pattern match that distinguishes the intended bytes from the control.",
+    "fallback": "A hit is not a malware verdict; refine overly broad strings and validate syntax/conditions before scanning a large corpus.",
+    "verification": "source-guided",
+    "command": "yara -s ./RULES.yar ./SAMPLE.bin",
+    "helper": "research/learning/practice/README.md"
+  },
+  "kali-158": {
+    "first_action": "Use yara-python only when an existing Python workflow needs structured matches; compile the same rule used by the CLI and compare results on the same sample/control.",
+    "expected": "Python match data agrees with the CLI for the selected rule and files.",
+    "fallback": "Check binding/library version compatibility; use the YARA CLI directly when no structured integration is needed.",
+    "verification": "source-guided"
+  },
+  "kali-159": {
+    "first_action": "Package only the intended harmless files into a new ZIP, then list/test it and compare member names before transferring or keeping it as a fixture.",
+    "expected": "An archive with the selected files and unchanged originals.",
+    "fallback": "Check relative paths and accidental sensitive files; use an existing archive tool rather than a new packaging script.",
+    "verification": "source-guided",
+    "command": "zip ./NEW_ARCHIVE.zip ./FILE_ONE.txt ./FILE_TWO.txt"
+  },
+  "kali-160": {
+    "first_action": "Test the Zstandard stream and decompress to a separate destination using the installed CLI.",
+    "expected": "Integrity diagnostics and a decoded payload to identify.",
+    "fallback": "A dictionary-compressed frame needs its matching dictionary; confirm framing and missing inputs before blaming the decoder.",
+    "verification": "source-guided",
+    "command": "zstd -t ./ARCHIVE.zst\nzstd -dc ./ARCHIVE.zst > ./NEW_PAYLOAD.bin"
+  },
+  "kali-161": {
+    "first_action": "Import an already supported capture-derived dataset into Zui and query connections/protocol records by the relevant endpoint or time window.",
+    "expected": "A small set of records that can be traced to packets or source logs.",
+    "fallback": "Verify the installed version and PCAP-import dependencies; use Zeek plus Wireshark if direct import is unavailable.",
+    "verification": "source-guided"
+  }
+}

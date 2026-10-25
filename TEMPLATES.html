@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="c3d8fee38ad322f6ad2457569281089e765dd8d1cc2158ba531dd4cba8d574e0">
+  <link rel="icon" href="data:,">
+  <title>Python challenge scripts · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Python challenge scripts</h1>
+<p><a href="#file-intel">File preview</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a></p>
+<p>The file preview runs unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools; file preview, binary parsing and HTTP use only the Python standard library.</p>
+<p><a id="file-intel"></a></p>
+<h2>File intel: run before editing a parser</h2>
+<p>Run <a href="scripts/templates/file_intel.py">file_intel.py</a> on a challenge file without changing the
+script:</p>
+<pre><code class="language-bash">python3 scripts/templates/file_intel.py challenge.bin
+</code></pre>
+<p>It reports size, examined bytes, the first 64 bytes as hex, and up to 20
+printable ASCII strings with exact byte offsets. Reads stop at the first
+1 MiB; each string preview is limited to 100 displayed characters. It marks
+sampling and display limits explicitly. It accepts regular files, never
+executes, extracts, or modifies them, and makes no flag or file-format claims.</p>
+<p>For file type and supported archive/image metadata, use the existing
+<a href="TOOLKIT.html#inspect">inspect command</a>:</p>
+<pre><code class="language-bash">python3 scripts/ctf.py inspect --file challenge.bin
+</code></pre>
+<p><a id="timed-math"></a></p>
+<h2>Timed arithmetic: 100 questions</h2>
+<p><a href="scripts/templates/math_client.py">math_client.py</a> receives a question, calculates its answer and sends it over the same connection. It uses a bounded arithmetic parser, not <code>eval</code>. First try the harmless <a href="scripts/templates/math_demo.py">math_demo.py</a>:</p>
+<pre><code class="language-bash">python3 scripts/templates/math_client.py --local python3 scripts/templates/math_demo.py
+</code></pre>
+<p>Expected: <code>Answered 100; completion: b'DONE practice-complete'</code>. Both scripts run locally. Use an interpreter with pwntools installed; in this workspace it is <code>/opt/ctf-tools/py312/bin/python</code>.</p>
+<p>For an assigned service, replace HOST and PORT:</p>
+<pre><code class="language-bash">python3 scripts/templates/math_client.py --remote HOST PORT --budget 60 --max-questions 100
+</code></pre>
+<p>The example wire format is <code>Q 1: (2 + 3) * 4</code> followed by a newline; the client sends <code>20</code> and a newline. Question IDs start at 1 and increase by one. After the final answer, it waits for <code>DONE message</code> before reporting completion. Edit <code>QUESTION</code>, the completion condition and answer formatting to match the actual service; arbitrary banners and natural-language questions are not supported.</p>
+<p>Supported arithmetic: integer literals, parentheses, unary signs, <code>+</code>, <code>-</code>, <code>*</code>, <code>//</code>, <code>%</code>, and <code>/</code> only when the result is an exact integer. Floor division and remainder follow Python semantics. Nonintegral division, powers, calls, names, excessive expression sizes and oversized intermediate values are rejected. Timeout, unexpected EOF or protocol errors fail explicitly rather than sending a guessed answer. The 60-second budget covers connection and question processing; real network latency still matters.</p>
+<p>For menu handshakes or prompts without LF, use the <a href="#menu-math">tested replacement block</a>.</p>
+<p>Run the local tests with the same interpreter:</p>
+<pre><code class="language-bash">python3 -m unittest discover -s tests -p test_math_client.py -v
+</code></pre>
+<p><a id="transport"></a></p>
+<h2>Pwntools transport</h2>
+<p>Copy <a href="scripts/templates/pwntools_starter.py">pwntools_starter.py</a> into your challenge directory and edit <code>PROMPT</code>,
+<code>PAYLOAD</code>, and the response handling. The unchanged script waits for <code>&gt; </code>,
+sends <code>hello</code> plus a newline, and prints one newline-terminated reply as bytes.
+A reply is not proof that a challenge is solved.</p>
+<p>Use <code>python3</code> from an environment with <strong>pwntools</strong> installed:</p>
+<pre><code class="language-bash">python3 scripts/templates/pwntools_starter.py --local ./challenge
+python3 scripts/templates/pwntools_starter.py --remote 127.0.0.1 31337 --timeout 5
+</code></pre>
+<p>In this workspace, replace <code>python3</code> with <code>/opt/ctf-tools/py312/bin/python</code>
+to use the preinstalled environment. Check the competition laptop separately.</p>
+<p>Replace the example endpoint with your assigned challenge host and port. Local
+mode runs the binary directly with its normal ASLR settings; remote mode makes
+one TCP connection. There are no retries, scans, or automatic exploit guesses.
+Both close on exit. Timeout, early EOF, or a missing delimiter within 4096 bytes
+returns a nonzero exit status. Each receive stage has its own total time limit.</p>
+<h2>Editing the payload</h2>
+<p>Keep protocol data as <code>bytes</code>. If the challenge expects raw binary data,
+replace <code>sendline</code> with <code>send</code>. Adjust prompt and response delimiters to the
+actual protocol. For addresses, choose packing explicitly after checking the
+binary's architecture and byte order:</p>
+<pre><code class="language-python">from pwn import p32, p64
+
+# Packing examples only; these are not challenge addresses.
+assert p32(0x12345678, endian=&quot;little&quot;) == b&quot;\x78\x56\x34\x12&quot;
+assert p64(0x12345678, endian=&quot;little&quot;) == b&quot;\x78\x56\x34\x12\x00\x00\x00\x00&quot;
+# Once independently established: PAYLOAD = b&quot;A&quot; * offset + p64(address, endian=&quot;little&quot;)
+</code></pre>
+<p>Offsets, addresses, leaks, and the final success condition must come from your
+challenge analysis. This starter does not assume an overflow, architecture,
+libc version, or a shell. Its single-line exchange must be edited for menus,
+length-prefixed messages, TLS, or multi-stage challenges.</p>
+<p>Reference: <a href="https://docs.pwntools.com/en/stable/tubes.html">pwntools tubes</a>,
+<a href="https://docs.pwntools.com/en/stable/tubes/processes.html">process</a>, and
+<a href="https://docs.pwntools.com/en/stable/tubes/sockets.html">remote</a>.</p>
+<p>Run the harmless process and loopback checks from the repository root:</p>
+<pre><code class="language-bash">/opt/ctf-tools/py312/bin/python -m unittest discover -s tests -p test_templates.py -v
+</code></pre>
+<p><a id="binary"></a></p>
+<h2>Binary parsing</h2>
+<p>Copy <a href="scripts/templates/binary_parser.py">binary_parser.py</a> and edit <code>RECORD</code>, <code>MAGIC</code>, the
+unpacked fields, and validation for your format. This read-only example parses
+one synthetic eight-byte record: <code>CTF!</code> followed by a little-endian unsigned
+32-bit integer. It accepts regular files and checks the offset and available length before unpacking; pipes and devices are rejected.
+It does not identify arbitrary formats.</p>
+<p>Create a disposable sample and parse it:</p>
+<pre><code class="language-bash">python3 -c 'import struct; from pathlib import Path; p = Path(&quot;sample-record.bin&quot;); p.open(&quot;xb&quot;).write(struct.pack(&quot;&lt;4sI&quot;, b&quot;CTF!&quot;, 42))'
+python3 scripts/templates/binary_parser.py sample-record.bin --offset 0x0
+</code></pre>
+<p><code>&lt;</code> selects little endian; use <code>&gt;</code> for big endian. Avoid native <code>@</code> layouts
+unless the format explicitly requires host alignment. This template needs
+only Python's standard library.</p>
+<p><a id="http"></a></p>
+<h2>HTTP request/response experiments</h2>
+<p>Copy <a href="scripts/templates/http_probe.py">http_probe.py</a> and edit <code>HEADERS</code> or the request/response
+handling for your challenge. It needs only Python's standard library. These
+examples require your own local challenge service on port 8000:</p>
+<pre><code class="language-bash">python3 scripts/templates/http_probe.py http://127.0.0.1:8000/ --timeout 5
+python3 scripts/templates/http_probe.py http://127.0.0.1:8000/echo --data 'hello'
+</code></pre>
+<p>It sends one GET, or a POST with UTF-8 <code>text/plain</code> content when <code>--data</code> is
+supplied. Change <code>Content-Type</code> when your body uses another format. It prints
+the HTTP status, up to 40 escaped response headers (512 characters per value), and a byte representation of at most 64 KiB of body; a larger
+body is marked truncated and returns nonzero. Redirects are reported without
+following them, so edited headers are never forwarded to a redirect target.
+HTTP errors, redirects, incomplete declared bodies, connection failures, and timeouts also return nonzero. A Server header is a clue to investigate, not proof of a product version or vulnerability.
+A 2xx response is transport evidence, not proof that a challenge is solved.</p>
+<p>The timeout applies to blocking socket operations, not a total elapsed-time
+budget; a slowly streaming service can take longer. HTTPS uses normal
+certificate verification. The template has no retry loop, cookie session,
+authentication helper, or scanner. Keep challenge credentials out of committed
+copies and command-line arguments.</p>
+<p>Standard-library references: <a href="https://docs.python.org/3/library/struct.html">struct</a>
+and <a href="https://docs.python.org/3/library/urllib.request.html">urllib.request</a>.</p>
+<h2>Common pwntools blocks</h2>
+<p>Use these inside your copied starter; <code>receive_until</code> is the bounded helper
+already defined there. Choose one transport per run:</p>
+<pre><code class="language-python">from pwn import process, remote
+
+# Local executable:
+with process([&quot;./challenge&quot;], timeout=5) as io:
+    receive_until(io, b&quot;&gt; &quot;, 5)
+    io.sendline(b&quot;hello&quot;)  # Adds a newline.
+    reply = receive_until(io, b&quot;\n&quot;, 5)
+    print(repr(reply))
+
+# Or remote TCP (replace with your assigned endpoint):
+with remote(&quot;127.0.0.1&quot;, 31337, timeout=5) as io:
+    receive_until(io, b&quot;data: &quot;, 5)
+    io.send(b&quot;ABCD&quot;)  # Exactly four bytes; no newline added.
+    reply = io.recvn(4, timeout=5)
+    if len(reply) != 4:
+        raise TimeoutError(&quot;expected four reply bytes&quot;)
+    print(repr(reply))
+</code></pre>
+<p><code>recvn</code> can return an empty value on timeout and raise <code>EOFError</code> when the
+peer closes early. Keep these blocks inside the starter's error handling;
+do not treat empty or partial input as a completed reply. Delimiters and
+lengths must match the challenge protocol.</p>
+<p><a id="menu-math"></a></p>
+<h2>Adapt to a menu and prompts without newlines</h2>
+<p>First record the actual banner, menu, question boundary, answer prompt and completion message. The default arithmetic client reads LF-terminated questions; a prompt ending in <code>: </code> or <code>= </code> needs delimiter-based receiving.</p>
+<p>Copy <code>math_client.py</code> and <code>pwntools_starter.py</code> together. Remove the old <code>QUESTION</code> definition and replace <code>exchange()</code> with the following block, including its import and constants. Keep <code>solve</code>, <code>remaining</code>, <code>read_line</code>, the CLI and error handling. This example selects menu option 1 and requires 100 recognised answers plus the service's terminal token; edit its protocol literals for your challenge.</p>
+<pre><code class="language-python">from pwntools_starter import receive_until
+
+QUESTION = re.compile(rb&quot;Round ([0-9]{3})/100: (?:evaluate|calculate) (.+)\r\n&quot;)
+TOKEN = re.compile(rb&quot;token: ([a-z0-9-]{1,128})\r\n&quot;)
+
+
+def exchange(tube, deadline, max_questions):
+    receive_until(tube, b&quot;choice: &quot;, remaining(deadline))
+    tube.settimeout(remaining(deadline))
+    tube.sendline(b&quot;1&quot;)
+    answered = 0
+    while True:
+        line = read_line(tube, deadline)
+        if line == b&quot;RESULT ok 100/100\r\n&quot;:
+            if answered != 100:
+                raise ValueError(&quot;completion before 100 answered rounds&quot;)
+            token = TOKEN.fullmatch(read_line(tube, deadline))
+            if not token:
+                raise ValueError(&quot;missing terminal token&quot;)
+            print(f&quot;Answered {answered}; token: {token[1]!r}&quot;)
+            return
+        match = QUESTION.fullmatch(line)
+        if not match:
+            raise ValueError(f&quot;unexpected protocol line: {line!r}&quot;)
+        if answered &gt;= max_questions:
+            raise ValueError(&quot;question limit exceeded; expected RESULT&quot;)
+        if int(match[1]) != answered + 1:
+            raise ValueError(&quot;question IDs must start at 1 and increase by one&quot;)
+        answer = solve(match[2].decode(&quot;ascii&quot;))
+        if receive_until(tube, b&quot;answer = &quot;, remaining(deadline)) != b&quot;answer = &quot;:
+            raise ValueError(&quot;unexpected answer prompt&quot;)
+        tube.settimeout(remaining(deadline))
+        tube.sendline(str(answer).encode(&quot;ascii&quot;))
+        answered += 1
+</code></pre>
+<p>The existing <code>--remote HOST PORT --budget 60</code> options still apply. Each receive/send uses the remaining session budget. An unexpected banner, a changed expression format or premature completion is an error, not permission to send a guessed answer.</p>
+<p><a id="binary-frame"></a></p>
+<h2>Read a length-prefixed binary reply</h2>
+<p>Place this block inside the transport starter's error handling after the request. This example protocol uses a two-byte big-endian length and a 512-byte cap; use the actual protocol's byte order and limit.</p>
+<pre><code class="language-python">prefix = io.recvn(2, timeout=5)
+if len(prefix) != 2:
+    raise TimeoutError(&quot;expected two-byte reply length&quot;)
+length = int.from_bytes(prefix, &quot;big&quot;)
+if not 1 &lt;= length &lt;= 512:
+    raise ValueError(&quot;invalid reply length&quot;)
+body = io.recvn(length, timeout=5)
+if len(body) != length:
+    raise TimeoutError(&quot;incomplete reply body&quot;)
+</code></pre>
+<p><code>recvn</code> handles fragmented delivery; timeout may return empty bytes and early closure may raise <code>EOFError</code>. For a whole-session deadline, pass the remaining budget to each stage.</p>
+<p><a id="http-session"></a></p>
+<h2>Keep HTTP cookies across an explicit flow</h2>
+<p>For a challenge requiring session state, replace the one-request opener with one shared cookie opener. Retain the template's redirect policy and bounded body/status checks:</p>
+<pre><code class="language-python">from http.cookiejar import CookieJar
+from urllib.parse import urlencode
+from urllib.request import HTTPCookieProcessor, build_opener
+
+opener = build_opener(NoRedirect(), HTTPCookieProcessor(CookieJar()))
+# Reuse opener for the selected requests, applying the existing response checks.
+# After obtaining and validating the expected nonce from the first response:
+request = Request(url, data=urlencode({&quot;nonce&quot;: nonce}).encode(&quot;ascii&quot;),
+                  headers={**HEADERS, &quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded&quot;})
+# opener.open(request, timeout=5)
+</code></pre>
+<p>Cookie storage does not provide the login sequence, nonce parser or success condition. Those are explicit edits. Match form versus JSON content types, and require the actual terminal response before claiming the flow succeeded.</p>
+</main>
+</body>
+</html>

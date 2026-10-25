@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="d6285fbac8347ce022f21e16f962dfdaca133a815fd8c434269213db55b004fa">
+  <link rel="icon" href="data:,">
+  <title>Hashcat competition cheatsheet · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Hashcat competition cheatsheet</h1>
+<p>Use one process with <code>-O -w 3</code> as a high-throughput starting point for a dictionary attack. No flag combination is fastest for every hash, device or candidate set. These settings have not been benchmarked on competition machines.</p>
+<h2>Choose the mode and devices</h2>
+<p>Match the full hash syntax and its source to <a href="https://hashcat.net/wiki/doku.php?id=example_hashes">Hashcat example hashes</a>. A hash identifier's guess alone is insufficient. Replace <code>MODE</code> with the numeric hash mode.</p>
+<p>For a file of hashes, use the existing tools to list candidates:</p>
+<pre><code class="language-sh">hashcat --identify hashes.txt
+hashid -m hashes.txt
+</code></pre>
+<p>Use whichever is installed. These commands match structure, not provenance: a bare 32-hex-character digest can fit MD5, NTLM and other modes. Narrow the list using the source application, salt/encoding format, or a known input/output pair; do not start cracking the first listed mode merely because it appears first.</p>
+<pre><code class="language-sh">hashcat -I
+</code></pre>
+<p>Replace <code>GPU_IDS</code> with the GPU device numbers reported above. Use <code>1,2</code> only if those are your GPUs; one process can use both. Check that the competition environment actually exposes a working GPU backend.</p>
+<h2>Dictionary attempt</h2>
+<p>Run from the folder containing <code>hashes.txt</code> and <code>candidates.txt</code>:</p>
+<pre><code class="language-sh">hashcat -m MODE -a 0 hashes.txt candidates.txt \
+  -d GPU_IDS -O -w 3 \
+  --session ctf --status --status-timer 10
+</code></pre>
+<p>This tests the wordlist unchanged. Add <code>--runtime=60</code> for a bounded first attempt. Keep the installed wordlist unchanged and choose candidates from the challenge evidence.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>When to change it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-O</code></td>
+<td>Enables optimized kernels but limits candidate length. Check the startup maximum and <code>Rejected</code> count. Remove it when longer candidates matter; rejected candidates were not tested.</td>
+</tr>
+<tr>
+<td><code>-w 3</code></td>
+<td>High workload. Use <code>-w 2</code> if the desktop becomes unresponsive. <code>-w 4</code> targets headless workloads and is not automatically faster. Compare sustained speed on the actual attack.</td>
+</tr>
+<tr>
+<td><code>-d GPU_IDS</code></td>
+<td>Selects devices. For independent simultaneous attacks, use disjoint device IDs and different session names. Competing processes on the same GPU are not a default speed improvement.</td>
+</tr>
+<tr>
+<td><code>--session ctf</code></td>
+<td>Names the checkpoint files. Use a new name for a separate attack. It does not increase cracking speed.</td>
+</tr>
+<tr>
+<td><code>--status --status-timer 10</code></td>
+<td>Prints progress every ten seconds; monitoring does not increase speed.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Leave <code>-n</code>, <code>-u</code> and <code>-T</code> to autotuning unless measurements justify manual tuning. Do not use <code>--force</code> or disable thermal monitoring as performance shortcuts.</p>
+<h2>Stop, resume and read results</h2>
+<p>Press <strong>c</strong> to stop at the next checkpoint. Keep the session files and inputs in place, then resume from the original working directory:</p>
+<pre><code class="language-sh">hashcat --session ctf --restore
+</code></pre>
+<p>Display recovered values using the same hash mode:</p>
+<pre><code class="language-sh">hashcat -m MODE hashes.txt --show
+</code></pre>
+<p>Validate recovered values against the supplied artifact and keep password output private. <code>Cracked</code> means recovery succeeded. <code>Exhausted</code> means the tested candidates were consumed; it does not prove the password is unrecoverable. A parser or backend error means the attempt did not run correctly.</p>
+<h2>If there is no match</h2>
+<p>Check the mode, device support and rejected candidates first. Also check what lengths and patterns your wordlist actually contains: an exhausted list with no four-character entries has not tested any four-character passwords. If a recovered checker constrains length or rearranges input, reconstruct that transformation before choosing candidates. Then use evidence to choose a better wordlist, an appropriate rule set (<code>-r RULE_FILE</code>) or a known-pattern mask. More rules and more candidates are not automatically more efficient. Archives and documents may need a format-specific extractor, such as the matching installed John jumbo converter, before Hashcat can use them.</p>
+<p><a href="https://hashcat.net/wiki/?id=hashcat">Hashcat options</a> · <a href="https://hashcat.net/wiki/doku.php?id=frequently_asked_questions">Performance and troubleshooting FAQ</a></p>
+</main>
+</body>
+</html>

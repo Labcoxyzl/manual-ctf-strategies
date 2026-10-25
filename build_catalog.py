@@ -13,6 +13,7 @@ CATEGORIES = {
     "osint": "OSINT", "crypto": "Cryptography", "misc": "Miscellaneous",
 }
 RESOURCE_FILES = ("forensics", "web-network", "reverse", "media", "crypto-foundations")
+TOOL_ORIGINS = json.loads((ROOT / "research/tool-origins.json").read_text())["tools"]
 esc = html.escape
 
 
@@ -22,7 +23,9 @@ def inline(text):
 
 def validate_reference(reference):
     url = urlsplit(reference["url"])
-    assert url.scheme in {"http", "https"} and url.netloc, reference
+    from build_notes import NOTE_OUTPUTS
+    local = not url.scheme and not url.netloc and url.path in NOTE_OUTPUTS.values()
+    assert local or (url.scheme in {"http", "https"} and url.netloc), reference
     assert reference["title"].strip(), reference
 
 
@@ -35,6 +38,9 @@ def load_data():
     by_id = {record["id"]: record for record in resources}
     approved = {tool["id"] for tool in inventory}
     assert len(inventory) == len(approved) == len(resources) == len(by_id) == 200
+    assert set(TOOL_ORIGINS) == approved
+    assert set(TOOL_ORIGINS.values()) == {"TrendMicro proposal", "participant request"}
+    assert sum(origin == "TrendMicro proposal" for origin in TOOL_ORIGINS.values()) == 32
     assert set(by_id) == approved
     assert all(re.fullmatch(r'(windows|kali)-\d+', tool_id) for tool_id in approved)
     for record in resources:
@@ -52,6 +58,9 @@ def load_data():
             assert isinstance(route[field], str) and route[field].strip(), (route["id"], field)
         assert route["tool_ids"] and set(route["tool_ids"]) <= approved, route["id"]
         assert route["steps"] and all(isinstance(step, str) and step.strip() for step in route["steps"])
+        if "toolkit" in route:
+            assert route["toolkit"]["anchor"] in {"inspect", "bits", "xor"}, route["id"]
+            assert route["toolkit"]["text"].strip(), route["id"]
         assert route["references"], route["id"]
         for reference in route["references"]:
             validate_reference(reference)
@@ -68,6 +77,14 @@ def platform_label(tool):
     return "Windows / WSL" if tool["location"] == "installed in WSL" else tool["platform"].title()
 
 
+def is_proposed(tool):
+    return TOOL_ORIGINS[tool["id"]] == "TrendMicro proposal"
+
+
+def tool_order(tool):
+    return (not is_proposed(tool), tool["name"].casefold(), tool["id"])
+
+
 def render_route(route, inventory):
     tools = ' · '.join(f'<a href="#tool-{tool_id}">{esc(inventory[tool_id]["name"])} '
                        f'({esc(platform_label(inventory[tool_id]))})</a>' for tool_id in route["tool_ids"])
@@ -75,6 +92,10 @@ def render_route(route, inventory):
     body = ''.join(f'<p class="{field}"><strong>{label}:</strong> {inline(route[field])}</p>'
                    for field, label in (("expected", "Expected"), ("fallback", "If stuck"),
                                         ("caveat", "Note")))
+    if "toolkit" in route:
+        helper = route["toolkit"]
+        body += (f'<p class="toolkit"><strong>Optional helper:</strong> {inline(helper["text"])} '
+                 f'<a href="TOOLKIT.html#{helper["anchor"]}">Setup, example and manual alternative</a>.</p>')
     return (f'<details class="task-route" id="route-{route["id"]}">'
             f'<summary><span>{esc(route["title"])}</span><small>{inline(route["input"])}</small></summary>'
             f'<div class="route-body"><p class="route-tools">{tools}</p><ol class="steps">{steps}</ol>'
@@ -87,9 +108,10 @@ def render(tool, record):
                                             ("location", "Location"), ("remarks", "Remarks")))
     caveats = ''.join(f'<li>{inline(caveat)}</li>' for caveat in record["caveats"])
     platform = platform_label(tool)
-    search_text = ' '.join([tool["name"], tool["id"], platform, record["challenge_use"], *record["categories"]])
+    proposal = '<small class="proposal">Trend Micro proposal</small>' if is_proposed(tool) else ''
+    search_text = ' '.join([tool["name"], tool["id"], platform, "Trend Micro proposal" if is_proposed(tool) else "Participant request", record["challenge_use"], *record["categories"]])
     return (f'<article class="catalog-tool" id="tool-{tool["id"]}" data-source-ids="{tool["id"]}" '
-            f'data-search="{esc(search_text)}"><h3>{esc(tool["name"])} '
+            f'data-search="{esc(search_text)}" data-origin="{esc(TOOL_ORIGINS[tool["id"]])}"><h3>{esc(tool["name"])}{proposal}'
             f'</h3><p class="platform">{esc(platform)}</p>'
             f'<p>{esc(record["challenge_use"])}</p>'
             f'<ul class="caveats">{caveats}</ul>{references(record["resources"])}'
@@ -119,7 +141,7 @@ def render_page(template, inventory, resources, routes):
         route_sections.append(f'<section id="{slug}" aria-labelledby="{slug}-title">'
                               f'<h2 id="{slug}-title">{name}</h2>{category_routes}</section>')
         tools = sorted((tool for tool in inventory if resources[tool["id"]]["categories"][0] == name),
-                       key=lambda tool: tool["name"].casefold())
+                       key=tool_order)
         entries = '\n'.join(render(tool, resources[tool["id"]]) for tool in tools)
         catalogs.append(f'<details class="catalog" data-category="{slug}">'
                         f'<summary>{name} ({len(tools)})</summary>{entries}</details>')
@@ -140,6 +162,8 @@ def main():
 
     inventory, resources, routes = load_data()
     page = render_page((ROOT / "guide-template.html").read_text(), inventory, resources, routes)
+    from build_cheatsheet import render_cheatsheet
+    (ROOT / "CTF_CHEATSHEET.md").write_text(render_cheatsheet())
     notes = render_notes()
     for filename, content in notes.items():
         (ROOT / filename).write_text(content)

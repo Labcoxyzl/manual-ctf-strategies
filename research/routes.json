@@ -118,7 +118,11 @@
         "title": "qpdf — official documentation",
         "url": "https://qpdf.readthedocs.io/en/stable/cli.html"
       }
-    ]
+    ],
+    "toolkit": {
+      "anchor": "inspect",
+      "text": "Use `python scripts/ctf.py inspect --file \"image.jpg\"` for bounded format evidence and selected image tags. A missing metadata tool produces a partial report; audio and PDF contents still need the approved format tools above."
+    }
   },
   {
     "id": "executable-triage",
@@ -454,7 +458,11 @@
         "title": "ExifTool application manual (upstream repository)",
         "url": "https://github.com/exiftool/exiftool/blob/master/html/exiftool_pod.html"
       }
-    ]
+    ],
+    "toolkit": {
+      "anchor": "inspect",
+      "text": "Use `python scripts/ctf.py inspect --file \"image.jpg\"` to keep format evidence and selected tags together. No GPS is only a result for the queried tags; corroborate any clue using the approved route above."
+    }
   },
   {
     "id": "public-source",
@@ -526,13 +534,17 @@
         "title": "CyberChef — Build a decoding recipe",
         "url": "https://github.com/gchq/CyberChef"
       }
-    ]
+    ],
+    "toolkit": {
+      "anchor": "bits",
+      "text": "For binary text, use `python scripts/ctf.py bits --file \"bits.txt\" --lines 2:3`; select only known payload rows. The toolkit also offers known-key file XOR with protected output. Keep CyberChef for short interactive recipes."
+    }
   },
   {
     "id": "password-recovery",
     "category": "crypto",
-    "title": "Hash/password → bounded candidates",
-    "input": "A known-format hash file `hashes.txt` and a short local candidate list `candidates.txt`; replace MODE.",
+    "title": "Hash/password → Hashcat recovery",
+    "input": "A known-format hash file `hashes.txt` and local `candidates.txt`; replace MODE and GPU_IDS before running.",
     "tool_ids": [
       "kali-59",
       "kali-73",
@@ -540,15 +552,19 @@
       "kali-120"
     ],
     "steps": [
-      "Match the complete hash syntax and source format to hashcat example hashes; select the numeric MODE. hashid guesses alone are insufficient.",
-      "Run `hashcat -m MODE -a 0 hashes.txt candidates.txt --runtime=60` for a bounded dictionary attempt.",
+      "Match the complete hash syntax and source format to Hashcat example hashes; select the numeric MODE. hashid guesses alone are insufficient.",
+      "Use the linked Hashcat cheatsheet to select devices, run a dictionary attempt, check optimized-kernel length limits and resume interrupted work.",
       "Run `hashcat -m MODE hashes.txt --show`; validate any recovered value against the supplied artifact."
     ],
-    "expected": "A recovered candidate or a bounded exhausted/paused attempt with no match.",
-    "fallback": "For an archive/document requiring conversion, use the matching installed John jumbo converter and format; a parser/backend error is not an exhausted search.",
-    "caveat": "Check supported modes and compute backend locally. No match only rejects tried candidates. Keep password output private; preserve the installed wordlist.",
+    "expected": "Status shows the selected devices, speed and recovery count. Cracked means recovery succeeded; Exhausted means the tested candidates were consumed, not that the password is impossible to recover.",
+    "fallback": "A parser/backend error is not an exhausted search. Check mode and device support first. If candidates are exhausted, use evidence to choose a better wordlist, an appropriate rule set (`-r RULE_FILE`) or a known-pattern mask; more rules or a larger search is not automatically more efficient. Archives/documents may need the matching installed John jumbo converter and format.",
+    "caveat": "Check mode, backend and candidate-length limits locally. Keep password output private and preserve the installed wordlist. No match only rejects candidates that were actually tested.",
     "verification": "Source-reviewed; not executed on competition machines.",
     "references": [
+      {
+        "title": "Hashcat commands and performance cheatsheet",
+        "url": "HASHCAT.html"
+      },
       {
         "title": "hashcat — Match hash formats and choose a recovery mode",
         "url": "https://hashcat.net/wiki/doku.php?id=example_hashes"
@@ -556,6 +572,14 @@
       {
         "title": "John the Ripper usage examples",
         "url": "https://www.openwall.com/john/doc/EXAMPLES.shtml"
+      },
+      {
+        "title": "Hashcat options: devices, optimized kernels and workload profiles",
+        "url": "https://hashcat.net/wiki/?id=hashcat"
+      },
+      {
+        "title": "Hashcat performance and troubleshooting FAQ",
+        "url": "https://hashcat.net/wiki/doku.php?id=frequently_asked_questions"
       }
     ]
   },
@@ -614,7 +638,11 @@
         "title": "7-Zip (7z) — Inspect and extract archives",
         "url": "https://7-zip.org/"
       }
-    ]
+    ],
+    "toolkit": {
+      "anchor": "inspect",
+      "text": "Use `python scripts/ctf.py inspect --file \"artifact.bin\"` for a bounded report of format evidence and applicable ZIP/image metadata. It never extracts files; partial or unsupported results point back to the approved tools above."
+    }
   },
   {
     "id": "focused-extraction",
@@ -649,7 +677,11 @@
         "title": "Python 3 — Parse binary data",
         "url": "https://docs.python.org/3/library/struct.html"
       }
-    ]
+    ],
+    "toolkit": {
+      "anchor": "bits",
+      "text": "For selected binary-text rows, use `python scripts/ctf.py bits --file \"rows.txt\" --lines 2:3`. Invalid characters and incomplete groups stop conversion; inspect the source before changing grouping or line selection."
+    }
   },
   {
     "id": "service-interaction",

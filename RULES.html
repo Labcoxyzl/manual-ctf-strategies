@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="4c1545c2b3bd5d8e3f86deb3918d5296c9f8a806ef15e8416f9df2089c788676">
+  <link rel="icon" href="data:,">
+  <title>Competition rules for this toolkit · Cyber SEA Game 2026</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>Competition rules for this toolkit</h1>
+<p>This summary covers the restrictions relevant to the field guide and prewritten helpers. It reflects the organiser's October 2026 tool review and setup guidance; confirm current instructions on the competition machines.</p>
+<ul>
+<li><strong>Keep challenge data local.</strong> Do not upload challenge files to online services, obtain external assistance or share challenge content outside the team.</li>
+<li><strong>No generative AI challenge assistance.</strong> Generative AI must not generate solutions, code or scripts, or analyze challenges. Automatically displayed search-result AI summaries are permitted.</li>
+<li><strong>Prewritten material is allowed.</strong> Physical and electronic notes, personal repositories and scripts created before the competition are allowed. These helpers are prewritten scripts, not additional approved application entries.</li>
+<li><strong>Use the approved tool and platform.</strong> The inventory contains 39 Windows entries and 161 Kali entries. Windows-list entries are pre-approved and provided on competition PCs; some run in WSL. Kali installation is best effort and does not guarantee working tools. Check versions, locations and remarks in the <a href="index.html#tools">approved catalog</a>.</li>
+<li><strong>Understand the highlighted lists.</strong> The workbook identifies 32 Trend Micro proposals and 168 participant requests. These are origin labels, not evidence that an individual installation works. The guide places the proposed set first for preparation.</li>
+<li><strong>Respect installation restrictions.</strong> Libraries, dependencies, plugins and packages unrelated to generative AI are permitted. Unlisted standalone applications require organiser approval. Personal commercial software licences are prohibited.</li>
+<li><strong>Check access and availability.</strong> The competition uses organiser-provided Windows 11 Pro laptops, with a separate Kali environment available. A tool available in one environment is not automatically available in another. Search and technical references are allowed, but external links need internet; competition services require approved networks.</li>
+</ul>
+<p>The toolkit's first release runs on Linux/WSL with CPython 3.10 or newer. Native Windows is unsupported, and organiser-machine compatibility must be checked locally. See <a href="TOOLKIT.html#setup">setup and manual alternatives</a>. The guide preserves all seven categories and 24 task routes; the helpers cover only the explicitly documented byte and inspection operations.</p>
+</main>
+</body>
+</html>

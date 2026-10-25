@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-23T09:08:56.863365+00:00",
+  "checked_at": "2026-10-25T09:30:07.887302+00:00",
   "html_file": "index.html",
-  "html_sha256": "f4b6fda34dfc293f3472ea63da759c48c736dfa9cdb0709f64950339f6ea4c89",
-  "anchors": 330,
+  "html_sha256": "cc0ecaa855d3f3efa4bcb1f934ed1a67c01a5583d719a32e9f5999c117735ddd",
+  "anchors": 341,
   "ids": 245,
   "errors": [],
   "inventory_rows": 200,
@@ -11,7 +11,8 @@
   "html_source_ids": 200,
   "input_sha256": {
     "research/inventory.json": "d4e8f647ffc71eac3ca307f9b542bf553fa3385c70d95fde8e90ebab41bb4f0f",
-    "research/routes.json": "2193bde7bcdad6c53f16cb92ebe5be042880a64faf8c31998397d7f89a26a712",
+    "research/tool-origins.json": "56b99b74d174c47f600160e37585915145be553bf34806f204a503184c84b38f",
+    "research/routes.json": "391b77529e44c264038da0d869db9ba5db1283c6ab673b8800752785436f0df0",
     "research/resources/forensics.json": "05f455ce6f36e498efbf16291b0b406b71efe9ff487373a3f1638c431eea4e0c",
     "research/resources/web-network.json": "aa5eed931335a97f339397c5bb66435118389873c0b95e8e173128467c98ff9c",
     "research/resources/reverse.json": "c745d8a162e63301c7ad2caee7b56c5746f5ff4324f319769d13d049f30c012a",

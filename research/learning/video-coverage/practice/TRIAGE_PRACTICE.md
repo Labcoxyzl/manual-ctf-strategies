@@ -40,6 +40,6 @@ qpdf stream-demo.pdf --show-object=4 --filtered-stream-data
 
 The page references object `4 0`; its dictionary names `/FlateDecode`. Decoded bytes are `BT /F1 12 Tf 50 100 Td (CTF refresher) Tj ET` followed by a newline. The page displays `CTF refresher`; raw stream bytes are compressed. Selecting an object is not executing its content, and another PDF may use unsupported filters or a different object layout. This is an inspection exercise, not a promise to detect every malicious PDF.
 
-The qpdf commands remain untested. Paper route: choose the correct option for dictionary/raw/decoded output and compare with these known answers.
+These qpdf inspection commands were checked against this bundled PDF in the prepared local runtime. Paper route: choose the correct option for dictionary/raw/decoded output and compare with these known answers.
 
 </details>

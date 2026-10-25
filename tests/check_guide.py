@@ -7,12 +7,14 @@ from html.parser import HTMLParser
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 
 class Guide(HTMLParser):
@@ -152,7 +154,9 @@ def check_catalog(guide, records=None, routes=None):
             errors.append(f"Missing rendered {label}")
     def valid_url(url):
         parsed = urllib.parse.urlsplit(url)
-        return parsed.scheme in ("http", "https") and bool(parsed.hostname) and not any(c.isspace() for c in url)
+        from build_notes import NOTE_OUTPUTS
+        local = not parsed.scheme and not parsed.netloc and parsed.path in NOTE_OUTPUTS.values()
+        return (local or (parsed.scheme in ("http", "https") and bool(parsed.hostname))) and not any(c.isspace() for c in url)
     by_id = {row["id"]: row for row in inventory}
     for row in records:
         node = nodes.get("tool-" + row["id"])
@@ -204,6 +208,10 @@ def check_catalog(guide, records=None, routes=None):
         for ref in row.get("references", []):
             if not valid_url(ref["url"]) or ref["url"] not in node["links"]:
                 errors.append(f"Invalid or missing route reference: {row['id']}")
+    proposed = {node["attrs"]["data-source-ids"] for node in guide.nodes
+                if node["attrs"].get("data-origin") == "TrendMicro proposal"}
+    if proposed != {f"windows-{i}" for i in range(1, 33)}:
+        errors.append("Wrong Trend Micro proposal grouping")
     for category in ROUTE_COUNTS:
         if category not in nodes or "#" + category not in guide.links:
             errors.append(f"Missing category/navigation: {category}")
@@ -269,7 +277,7 @@ def main():
         catalog_errors, counts = check_catalog(guide) if args.catalog else check_archive(guide)
         errors.extend(catalog_errors)
         report.update(counts)
-        inputs = [ROOT / "research/inventory.json", ROOT / "research/routes.json", *RESOURCE_FILES] if args.catalog else [ROOT / "research/inventory.json", ROOT / "research/categories.json", *sorted((ROOT / "research").glob("queries-*.json"))]
+        inputs = [ROOT / "research/inventory.json", ROOT / "research/tool-origins.json", ROOT / "research/routes.json", *RESOURCE_FILES] if args.catalog else [ROOT / "research/inventory.json", ROOT / "research/categories.json", *sorted((ROOT / "research").glob("queries-*.json"))]
         report["input_sha256"] = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
     if args.catalog:
         import copy

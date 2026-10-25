@@ -42,7 +42,7 @@ def main():
     data = json.loads(route_bytes)
     routes = {route["id"]: route for route in data}
     results = []
-    with tempfile.TemporaryDirectory(prefix="guide-recipes-") as temporary:
+    with tempfile.TemporaryDirectory(prefix=".guide-recipes-", dir=ROOT) as temporary:
         directory = Path(temporary)
         fixtures(directory)
 
