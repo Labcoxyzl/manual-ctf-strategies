@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-25T22:42:33.392Z",
+  "checked_at": "2026-10-25T22:54:50.279Z",
   "html_file": "index.html",
-  "html_sha256": "c9b8170105c2797d3cd956a3ff242572690ce5f30af6514b42fec014e06efa97",
+  "html_sha256": "4f43755e148bcff5fb4a7a965dda0abc418fbcd91a1cf9c87ae9678077ea6912",
   "browser": "153.0.8010.12",
   "notes_sha256": {
     "build_notes.py": "7d4d58b273f362eb282e8e73f2c66f685eca5d720abc00757b6dc320f3e469aa",
@@ -19,7 +19,7 @@
     "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "28f85c5cfe6c274c8398c7ddf2b8bd8ded3bb5dad7e9ff751d4757f7187beacf",
     "examples/core/README.md": "53789eceb8e5b2e969726771fe6be38f03692082e3e599efb9792f5c332ea837",
     "scripts/templates/README.md": "5789c3ca1bf1f8cc5f1c8b76f3e060fd65b6bd367702bf7ad57dba6eeee04db4",
-    "scripts/README.md": "f1df3ad8bf39a8929f23208da9c03b7755cd6248f8ea73dd81e1aaac3790b02d",
+    "scripts/README.md": "2971e81cdee656a0949dd6355f264d1ecdd3770ddc04c6bb7c8b55256964d066",
     "docs/public-rules.md": "4c1545c2b3bd5d8e3f86deb3918d5296c9f8a806ef15e8416f9df2089c788676",
     "CORE_WORKFLOWS.html": "a64df5ac6d84c5d12feacd9df05c4ac86a92d90001a1798b779d32dd6a7fac31",
     "CTF_CHEATSHEET.html": "50308fc77e352113248e5c3e0a39a96376d51e9a52eaa8a0f6f3c9bc2e6444c9",
@@ -34,7 +34,7 @@
     "research/learning/video-coverage/practice/AUDIO_PRACTICE.html": "c9c25c7ac3cf24a9b5cc4725fe690a33d7e2afcd9addc1c51d2ef97365d60566",
     "CORE_PRACTICE.html": "cd877aa6cddae0d5f5cc3aec503d2b39c9065223d600dc0f126ed416b3f1bebb",
     "TEMPLATES.html": "eb0ea4f9500d9154be5315512a80c67e4d69ce7238c69b6b8c97b6b29e8917c0",
-    "TOOLKIT.html": "179f19a08ed60bacf1410f8588443d9ac3abc26fd9a6342da9c43350b15ac09a",
+    "TOOLKIT.html": "925f0a6a77446d2e10a2a9a0806bc4d0a836bdb33557bd5f32ba19ca3fce5ade",
     "RULES.html": "a3eecd02778028d168f1bfa68943366eb0b0ceb60806fc31b2875a0d15a580a6"
   },
   "cases": [

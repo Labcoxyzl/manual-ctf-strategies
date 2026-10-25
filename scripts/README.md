@@ -7,16 +7,21 @@ Use these prewritten helpers for repeatable byte conversion and bounded file ins
 
 For an editable local/remote connection scaffold, see [Python challenge templates](templates/README.md). That optional starter requires pwntools; the byte and inspection helpers below do not.
 
-For broader competition preparation, install the [no-AI Python requirements](../requirements.txt) in a fresh **Linux/WSL or Kali** CPython 3.11/3.12 virtual environment:
+For broader competition preparation, install the [no-AI Python requirements](../requirements.txt) in a fresh **Linux/WSL or Kali** CPython 3.11/3.12 virtual environment. For a new checkout, use a GitHub account with access to this private repository:
 
 ```sh
+git clone https://github.com/Labcoxyzl/manual-ctf-strategies.git
+cd manual-ctf-strategies
+python3 --version  # Confirm 3.11.x or 3.12.x before continuing.
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --only-binary=:all: -r requirements.txt
 python -m pip check
+python scripts/ctf.py doctor --workflow bytes
+python scripts/templates/math_client.py --local python scripts/templates/math_demo.py
 ```
 
-Run these from the repository root before the competition. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep [constraints.txt](../constraints.txt) beside the requirements file: it pins the reviewed dependencies. `--only-binary` rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.
+If you already have a checkout or the offline export, skip the first two commands and start from its root. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep [constraints.txt](../constraints.txt) beside the requirements file: it pins the reviewed dependencies. `--only-binary` rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.
 
 Run commands from the folder containing `index.html` and `scripts/`. The entry point is [scripts/ctf.py](ctf.py); there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.
 

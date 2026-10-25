@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="f1df3ad8bf39a8929f23208da9c03b7755cd6248f8ea73dd81e1aaac3790b02d">
+  <meta name="source-sha256" content="2971e81cdee656a0949dd6355f264d1ecdd3770ddc04c6bb7c8b55256964d066">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -48,13 +48,18 @@
 <p><a id="setup"></a></p>
 <h2>Start here</h2>
 <p>For an editable local/remote connection scaffold, see <a href="TEMPLATES.html">Python challenge templates</a>. That optional starter requires pwntools; the byte and inspection helpers below do not.</p>
-<p>For broader competition preparation, install the <a href="requirements.txt">no-AI Python requirements</a> in a fresh <strong>Linux/WSL or Kali</strong> CPython 3.11/3.12 virtual environment:</p>
-<pre><code class="language-sh">python3 -m venv .venv
+<p>For broader competition preparation, install the <a href="requirements.txt">no-AI Python requirements</a> in a fresh <strong>Linux/WSL or Kali</strong> CPython 3.11/3.12 virtual environment. For a new checkout, use a GitHub account with access to this private repository:</p>
+<pre><code class="language-sh">git clone https://github.com/Labcoxyzl/manual-ctf-strategies.git
+cd manual-ctf-strategies
+python3 --version  # Confirm 3.11.x or 3.12.x before continuing.
+python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --only-binary=:all: -r requirements.txt
 python -m pip check
+python scripts/ctf.py doctor --workflow bytes
+python scripts/templates/math_client.py --local python scripts/templates/math_demo.py
 </code></pre>
-<p>Run these from the repository root before the competition. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep <a href="constraints.txt">constraints.txt</a> beside the requirements file: it pins the reviewed dependencies. <code>--only-binary</code> rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.</p>
+<p>If you already have a checkout or the offline export, skip the first two commands and start from its root. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep <a href="constraints.txt">constraints.txt</a> beside the requirements file: it pins the reviewed dependencies. <code>--only-binary</code> rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.</p>
 <p>Run commands from the folder containing <code>index.html</code> and <code>scripts/</code>. The entry point is <a href="scripts/ctf.py">scripts/ctf.py</a>; there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.</p>
 <p>The declared runtime is <strong>CPython 3.10 or newer on Linux, including WSL</strong>. Check the interpreter before relying on the script:</p>
 <pre><code class="language-sh">python --version

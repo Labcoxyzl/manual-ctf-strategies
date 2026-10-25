@@ -15,7 +15,7 @@
     "research/learning/practice/README.md": "7aed00fe52b3a58ad2a24aba8ec480e2a9fdf0ab54242a36c5de581949c3c325",
     "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md": "52cd910010a81cf1c964b66dcb6e6e33153987a2d36895045904acfc9ea962c5",
     "research/learning/video-coverage/practice/AUDIO_PRACTICE.md": "28f85c5cfe6c274c8398c7ddf2b8bd8ded3bb5dad7e9ff751d4757f7187beacf",
-    "scripts/README.md": "f1df3ad8bf39a8929f23208da9c03b7755cd6248f8ea73dd81e1aaac3790b02d",
+    "scripts/README.md": "2971e81cdee656a0949dd6355f264d1ecdd3770ddc04c6bb7c8b55256964d066",
     "docs/public-rules.md": "4c1545c2b3bd5d8e3f86deb3918d5296c9f8a806ef15e8416f9df2089c788676",
     "scripts/templates/README.md": "5789c3ca1bf1f8cc5f1c8b76f3e060fd65b6bd367702bf7ad57dba6eeee04db4",
     "examples/core/README.md": "53789eceb8e5b2e969726771fe6be38f03692082e3e599efb9792f5c332ea837"
@@ -32,7 +32,7 @@
     "research/learning/practice/README.html": "81e116a9af3a9a6722afcb6709b495acd14c7b0369a419f2b7837e2317bde650",
     "research/learning/video-coverage/practice/TRIAGE_PRACTICE.html": "f66170368ebcd246117a7ff153ba3e987c325b721cf758994c103111a410b7b8",
     "research/learning/video-coverage/practice/AUDIO_PRACTICE.html": "c9c25c7ac3cf24a9b5cc4725fe690a33d7e2afcd9addc1c51d2ef97365d60566",
-    "TOOLKIT.html": "179f19a08ed60bacf1410f8588443d9ac3abc26fd9a6342da9c43350b15ac09a",
+    "TOOLKIT.html": "925f0a6a77446d2e10a2a9a0806bc4d0a836bdb33557bd5f32ba19ca3fce5ade",
     "RULES.html": "a3eecd02778028d168f1bfa68943366eb0b0ceb60806fc31b2875a0d15a580a6",
     "TEMPLATES.html": "eb0ea4f9500d9154be5315512a80c67e4d69ce7238c69b6b8c97b6b29e8917c0",
     "CORE_PRACTICE.html": "cd877aa6cddae0d5f5cc3aec503d2b39c9065223d600dc0f126ed416b3f1bebb"
