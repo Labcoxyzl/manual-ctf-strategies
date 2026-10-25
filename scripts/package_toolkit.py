@@ -61,7 +61,7 @@ INTERNAL_EVIDENCE = {
     'research/learning/validation.json', 'research/learning/review.md',
     'research/learning/review.html',
 }
-PUBLIC_README = '''# Cyber SEA Game offline toolkit
+PUBLIC_README = '''# Manual CTF Strategies offline toolkit
 
 Open [index.html](index.html) in a browser. Instructions, search, worksheets and
 bundled synthetic inputs work offline. External technical references need internet.

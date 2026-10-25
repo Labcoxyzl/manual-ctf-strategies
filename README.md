@@ -1,6 +1,6 @@
-# Cyber SEA Game 2026 field guide
+# Manual CTF Strategies
 
-Open [index.html](index.html) directly in a browser. The guide provides **24 task routes across seven categories** and a searchable catalog of all **200 approved workbook entries**. Routes include local instructions, expected observations and fallback steps; tool entries retain curated references and platform/version caveats. The earlier `keyword-preview.html` link opens the same guide.
+Open [index.html](index.html) directly in a browser. The guide provides **24 task routes across seven categories** and a searchable catalog of all **200 Cyber SEA Game 2026 approved workbook entries**. Routes include local instructions, expected observations and fallback steps; tool entries retain curated references and platform/version caveats. The earlier `keyword-preview.html` link opens the same guide.
 
 Start with [core workflows](CORE_WORKFLOWS.md) and the [synthetic practice inputs](examples/core/README.md) for the tools proposed by Trend Micro.
 
