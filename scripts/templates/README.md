@@ -2,7 +2,7 @@
 
 [File preview](#file-intel) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http)
 
-The file preview runs unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools; file preview, binary parsing and HTTP use only the Python standard library.
+The file preview runs unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, binary parsing and HTTP use only the Python standard library.
 
 <a id="file-intel"></a>
 ## File intel: run before editing a parser

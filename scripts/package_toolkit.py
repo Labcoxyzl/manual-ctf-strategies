@@ -50,7 +50,7 @@ FIXTURES = (
     'tests/fixtures/toolkit/development/framed-bits.txt',
     'tests/fixtures/toolkit/development/wrapped-bits.txt',
 )
-CODE = ('scripts/ctf.py', 'scripts/README.md', 'tests/test_toolkit.py',
+CODE = ('scripts/ctf.py', 'scripts/README.md', 'requirements.txt', 'constraints.txt', 'tests/test_toolkit.py',
         'tests/test_toolkit_acceptance.py', 'scripts/templates/pwntools_starter.py',
         'scripts/templates/README.md', 'tests/test_templates.py',
         'scripts/templates/binary_parser.py', 'scripts/templates/http_probe.py',
@@ -70,6 +70,8 @@ Read [TOOLKIT.html](TOOLKIT.html) for commands, limits and approved manual alter
 [Core workflows](CORE_WORKFLOWS.md) and [practice inputs](CORE_PRACTICE.html)
 prioritize the 32 Trend Micro proposals; [Hashcat cheatsheet](HASHCAT.md) is editable Markdown; [Python templates](TEMPLATES.html)
 include file preview, binary parsing, HTTP experiments and optional pwntools clients.
+[Python requirements](requirements.txt) and [reviewed dependency pins](constraints.txt)
+list the optional, non-AI packages for Linux/WSL CPython 3.11/3.12.
 
 From this folder, in Linux or WSL with CPython 3.10 or newer:
 

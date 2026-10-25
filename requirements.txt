@@ -1,0 +1,33 @@
+# CTF preparation stack for CPython 3.11/3.12 on Linux, Kali, or WSL.
+# No AI/LLM packages or optional extras. The standard-library helpers work without this file.
+-c constraints.txt
+
+# Native exploits, binary inspection, and arithmetic
+pwntools==4.15.0
+capstone==5.0.6
+pyelftools==0.32
+python-dateutil==2.9.0.post0
+pycryptodome==3.24.1
+gmpy2==2.3.0
+sympy==1.14.0
+z3-solver==4.13.0.0
+
+# Packet, web, image, PDF, and PE analysis
+scapy==2.7.0
+requests==2.34.2
+beautifulsoup4==4.14.3
+lxml==6.1.1
+Pillow==10.4.0
+pypdf==6.11.0
+pefile==2024.8.26
+
+# Approved Python-based forensic and network tools
+volatility3==2.28.0
+yara-python==4.5.4
+impacket==0.13.1
+oletools==0.60.2
+
+# Rebuilding this repository's Markdown pages
+markdown-it-py==4.2.0
+
+# angr is intentionally excluded: its optional "llm" extra is AI-related.

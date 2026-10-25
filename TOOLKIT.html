@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="952268a8ab037b5099a96a6793bbadfc277f9e4c350598afc4010db6ae00cba1">
+  <meta name="source-sha256" content="f1df3ad8bf39a8929f23208da9c03b7755cd6248f8ea73dd81e1aaac3790b02d">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -48,6 +48,13 @@
 <p><a id="setup"></a></p>
 <h2>Start here</h2>
 <p>For an editable local/remote connection scaffold, see <a href="TEMPLATES.html">Python challenge templates</a>. That optional starter requires pwntools; the byte and inspection helpers below do not.</p>
+<p>For broader competition preparation, install the <a href="requirements.txt">no-AI Python requirements</a> in a fresh <strong>Linux/WSL or Kali</strong> CPython 3.11/3.12 virtual environment:</p>
+<pre><code class="language-sh">python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --only-binary=:all: -r requirements.txt
+python -m pip check
+</code></pre>
+<p>Run these from the repository root before the competition. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep <a href="constraints.txt">constraints.txt</a> beside the requirements file: it pins the reviewed dependencies. <code>--only-binary</code> rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.</p>
 <p>Run commands from the folder containing <code>index.html</code> and <code>scripts/</code>. The entry point is <a href="scripts/ctf.py">scripts/ctf.py</a>; there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.</p>
 <p>The declared runtime is <strong>CPython 3.10 or newer on Linux, including WSL</strong>. Check the interpreter before relying on the script:</p>
 <pre><code class="language-sh">python --version

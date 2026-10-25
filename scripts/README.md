@@ -7,6 +7,17 @@ Use these prewritten helpers for repeatable byte conversion and bounded file ins
 
 For an editable local/remote connection scaffold, see [Python challenge templates](templates/README.md). That optional starter requires pwntools; the byte and inspection helpers below do not.
 
+For broader competition preparation, install the [no-AI Python requirements](../requirements.txt) in a fresh **Linux/WSL or Kali** CPython 3.11/3.12 virtual environment:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --only-binary=:all: -r requirements.txt
+python -m pip check
+```
+
+Run these from the repository root before the competition. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep [constraints.txt](../constraints.txt) beside the requirements file: it pins the reviewed dependencies. `--only-binary` rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.
+
 Run commands from the folder containing `index.html` and `scripts/`. The entry point is [scripts/ctf.py](ctf.py); there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.
 
 The declared runtime is **CPython 3.10 or newer on Linux, including WSL**. Check the interpreter before relying on the script:
