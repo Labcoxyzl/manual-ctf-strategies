@@ -1,30 +1,288 @@
 # Manual CTF Strategies
 
-[Open the guide](https://labcoxyzl.github.io/manual-ctf-strategies/) for 24 challenge routes, an offline search, and 200 tool entries from the Cyber SEA Game 2026 approved workbook. Tool approval and competition rules are specific to that event.
+[Web guide](https://labcoxyzl.github.io/manual-ctf-strategies/) · [Core workflows](CORE_WORKFLOWS.md) · [Hashcat](HASHCAT.md) · [Python scripts](scripts/templates/README.md) · [Practice](PRACTICE_WORKSHEETS.md) · [Rules](docs/public-rules.md)
 
-- **Start solving:** [Core workflows](CORE_WORKFLOWS.md) and [practice worksheets](PRACTICE_WORKSHEETS.md).
-- **Find a tool:** [All-tool cheatsheet](CTF_CHEATSHEET.md) and [approved-tool references](APPROVED_TOOL_REFERENCES.md).
-- **Crack hashes:** [Hashcat cheatsheet](HASHCAT.md).
-- **Try the examples:** [Synthetic practice files](examples/core/README.md).
-- **Use a script:** [Python helpers](scripts/README.md), [challenge templates](scripts/templates/README.md), and [no-AI Python requirements](requirements.txt).
-- **Prepare for the event:** [Learning resources](LEARNING_RESOURCES.md), [rules](docs/public-rules.md), and [source notes](EVENT_SOURCES.md).
+The tables cover all 200 entries approved for Cyber SEA Game 2026, grouped by the guide's categories with organiser proposals first. Tools useful in several categories appear more than once. Origin comes from the [workbook-derived CSV](research/validation/round2/authority/priority-authority.csv): **Trend Micro proposal** means organiser-proposed; **participant request** means requested and approved, but the workbook does not identify which team asked. Approval does not guarantee Kali availability. Tool names open their Markdown guides; **Web** opens the exact public catalog entry.
 
-## Install
+[Forensics](#digital-forensics) · [Malware](#malware-analysis) · [Web](#web-security) · [Reversing](#reverse-engineering) · [OSINT](#osint) · [Crypto](#cryptography) · [Misc](#miscellaneous)
 
-Use Linux, Kali, or WSL with Git and CPython 3.11 or 3.12. The repository is private, so clone with a GitHub account that has access. For a new checkout, run:
+<!-- approved-tools:start -->
+## Digital Forensics
 
-```sh
-git clone https://github.com/Labcoxyzl/manual-ctf-strategies.git
-cd manual-ctf-strategies
-python3 --version  # Confirm 3.11.x or 3.12.x before continuing.
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install --only-binary=:all: -r requirements.txt
-python -m pip check
-python scripts/ctf.py doctor --workflow bytes
-python scripts/templates/math_client.py --local python scripts/templates/math_demo.py
-```
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [binwalk](CTF_CHEATSHEET.md#approved-windows-13) · Windows / WSL<br>**Trend Micro proposal** | Find embedded files or compressed regions inside an unknown blob or firmware image. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-13) · [Core workflow](CORE_WORKFLOWS.md#media) |
+| [can-utils](CTF_CHEATSHEET.md#approved-windows-16) · Windows / WSL<br>**Trend Micro proposal** | Inspect CAN IDs and payload changes in supplied logs or challenge interfaces. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-16) · [Core workflow](CORE_WORKFLOWS.md#can) |
+| [CyberChef](CTF_CHEATSHEET.md#approved-windows-1) · Windows<br>**Trend Micro proposal** | Decode layered encodings and inspect byte transformations. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-1) · [Core workflow](CORE_WORKFLOWS.md#decode) |
+| [ExifTool](CTF_CHEATSHEET.md#approved-windows-14) · Windows / WSL<br>**Trend Micro proposal** | Read metadata, comments, timestamps and location clues before deeper media analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-14) · [Core workflow](CORE_WORKFLOWS.md#media) |
+| [fsck.fat (dosfstools)](CTF_CHEATSHEET.md#approved-windows-29) · Windows / WSL<br>**Trend Micro proposal** | Check FAT structure without repair · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-29) |
+| [OpenSSH-Session-Key-Recovery](CTF_CHEATSHEET.md#approved-windows-32) · Windows<br>**Trend Micro proposal** | Recover SSH session keys from supported memory evidence · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-32) |
+| [PDF Viewer](CTF_CHEATSHEET.md#approved-windows-3) · Windows<br>**Trend Micro proposal** | Inspect PDF text and attachments; viewer identity is unspecified · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-3) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [pdftotext (Poppler utils)](CTF_CHEATSHEET.md#approved-windows-15) · Windows / WSL<br>**Trend Micro proposal** | Extract PDF text · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-15) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [qpdf](CTF_CHEATSHEET.md#approved-windows-26) · Windows / WSL<br>**Trend Micro proposal** | Inspect PDF objects and streams · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-26) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [strings](CTF_CHEATSHEET.md#approved-windows-11) · Windows / WSL<br>**Trend Micro proposal** | Extract readable strings · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-11) |
+| [The Sleuth Kit](CTF_CHEATSHEET.md#approved-windows-23) · Windows / WSL<br>**Trend Micro proposal** | Inspect filesystem images · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-23) · [Core workflow](CORE_WORKFLOWS.md#disk) |
+| [volatility3](CTF_CHEATSHEET.md#approved-windows-31) · Windows / WSL<br>**Trend Micro proposal** | Inspect Windows memory images · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-31) · [Core workflow](CORE_WORKFLOWS.md#memory) |
+| [Wireshark](CTF_CHEATSHEET.md#approved-windows-2) · Windows<br>**Trend Micro proposal** | Follow suspicious conversations and export transferred objects from a supplied PCAP. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-2) · [Core workflow](CORE_WORKFLOWS.md#pcap) |
+| [xxd](CTF_CHEATSHEET.md#approved-windows-28) · Windows / WSL<br>**Trend Micro proposal** | Inspect magic bytes or turn a supplied hexadecimal dump back into bytes. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-28) |
+| [xz](CTF_CHEATSHEET.md#approved-windows-25) · Windows / WSL<br>**Trend Micro proposal** | Inspect and decompress XZ data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-25) |
+| [ZBar](CTF_CHEATSHEET.md#approved-windows-19) · Windows / WSL<br>**Trend Micro proposal** | Decode a visible or reconstructed QR/barcode locally. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-19) |
+| [zeek](CTF_CHEATSHEET.md#approved-windows-18) · Windows / WSL<br>**Trend Micro proposal** | Turn a large PCAP into connection and protocol logs for triage. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-18) · [Core workflow](CORE_WORKFLOWS.md#pcap) |
+| [zsteg](CTF_CHEATSHEET.md#approved-windows-12) · Windows / WSL<br>**Trend Micro proposal** | PNG/BMP pixel-bit steganography: enumerate plausible channels, then extract only a meaningful hit. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-12) · [Core workflow](CORE_WORKFLOWS.md#media) |
+| [7-Zip (7z)](CTF_CHEATSHEET.md#approved-kali-2) · Kali<br>**Participant request** | Inspect and extract archives · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-2) |
+| [aircrack-ng](CTF_CHEATSHEET.md#approved-kali-3) · Kali<br>**Participant request** | Test a supplied wireless handshake capture against a candidate wordlist offline. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-3) |
+| [ALEAPP (Android Logs Events And Protobuf Parser)](CTF_CHEATSHEET.md#approved-kali-4) · Kali<br>**Participant request** | Parse Android forensic artifacts · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-4) |
+| [AperiSolve](CTF_CHEATSHEET.md#approved-kali-7) · Kali<br>**Participant request** | Aggregate local image metadata, bit-plane and embedded-file inspection when a working local deployment exists. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-7) |
+| [Audacity](CTF_CHEATSHEET.md#approved-kali-10) · Kali<br>**Participant request** | Inspect audio for frequency-domain text, tones, pulses and channel differences. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-10) |
+| [Autopsy](CTF_CHEATSHEET.md#approved-windows-34) · Windows<br>**Participant request** | Inspect forensic images · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-34) |
+| [bulk_extractor](CTF_CHEATSHEET.md#approved-kali-14) · Kali<br>**Participant request** | Extract forensic features from bulk data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-14) |
+| [bvi](CTF_CHEATSHEET.md#approved-kali-15) · Kali<br>**Participant request** | Inspect binary data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-15) |
+| [bzip2](CTF_CHEATSHEET.md#approved-kali-17) · Kali<br>**Participant request** | Decompress BZip2 data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-17) |
+| [cabextract](CTF_CHEATSHEET.md#approved-kali-18) · Kali<br>**Participant request** | Inspect Microsoft cabinet archives · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-18) |
+| [Chainsaw](CTF_CHEATSHEET.md#approved-kali-20) · Kali<br>**Participant request** | Search Windows event logs · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-20) |
+| [DB Browser for SQLite](CTF_CHEATSHEET.md#approved-kali-25) · Kali<br>**Participant request** | Inspect SQLite records · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-25) |
+| [DBeaver Community Edition](CTF_CHEATSHEET.md#approved-kali-26) · Kali<br>**Participant request** | Query local databases · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-26) |
+| [dwarf2json](CTF_CHEATSHEET.md#approved-kali-32) · Kali<br>**Participant request** | Generate Linux memory-analysis symbols. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-32) |
+| [Eric Zimmerman&#x27;s Tools](CTF_CHEATSHEET.md#approved-windows-39) · Windows<br>**Participant request** | Select an artifact-specific Windows parser · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-39) |
+| [ewf-tools (libewf)](CTF_CHEATSHEET.md#approved-kali-34) · Kali<br>**Participant request** | Read or export an E01 disk image. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-34) |
+| [FFmpeg](CTF_CHEATSHEET.md#approved-kali-40) · Kali<br>**Participant request** | Extract relevant audio/video streams or frames before inspecting hidden media content. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-40) |
+| [file (libmagic)](CTF_CHEATSHEET.md#approved-kali-42) · Kali<br>**Participant request** | Triage an unknown artifact by content instead of its filename extension. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-42) |
+| [foremost](CTF_CHEATSHEET.md#approved-kali-44) · Kali<br>**Participant request** | Carve known file types from a raw image or combined binary after initial identification. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-44) |
+| [FQLite](CTF_CHEATSHEET.md#approved-kali-45) · Kali<br>**Participant request** | Inspect deleted SQLite records. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-45) |
+| [G&#x27;MIC (gmic)](CTF_CHEATSHEET.md#approved-kali-51) · Kali<br>**Participant request** | Reveal low-contrast image content or inspect channels with an alternative image processor. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-51) |
+| [Git](CTF_CHEATSHEET.md#approved-kali-49) · Kali<br>**Participant request** | Trace file history in a local repository. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-49) |
+| [Gitleaks](CTF_CHEATSHEET.md#approved-kali-50) · Kali<br>**Participant request** | Locate exposed secrets in local repository history. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-50) |
+| [gzip](CTF_CHEATSHEET.md#approved-kali-57) · Kali<br>**Participant request** | Unpack and check gzip files · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-57) |
+| [Hayabusa](CTF_CHEATSHEET.md#approved-kali-61) · Kali<br>**Participant request** | Build a Windows event timeline. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-61) |
+| [hcxtools](CTF_CHEATSHEET.md#approved-kali-62) · Kali<br>**Participant request** | Convert supplied wireless authentication evidence into offline cracking input. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-62) |
+| [Hindsight (pyhindsight)](CTF_CHEATSHEET.md#approved-kali-63) · Kali<br>**Participant request** | Parse a saved browser profile. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-63) |
+| [HxD](CTF_CHEATSHEET.md#approved-windows-35) · Windows<br>**Participant request** | Inspect bytes in a hex editor · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-35) |
+| [iLEAPP (iOS Logs, Events, And Plists Parser)](CTF_CHEATSHEET.md#approved-kali-66) · Kali<br>**Participant request** | Parse iOS forensic artifacts. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-66) |
+| [ImageMagick](CTF_CHEATSHEET.md#approved-kali-67) · Kali<br>**Participant request** | Inspect dimensions and channels and create derived images for visual analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-67) |
+| [Jpeginfo](CTF_CHEATSHEET.md#approved-kali-74) · Kali<br>**Participant request** | Distinguish malformed or truncated JPEG structure from ordinary steganography clues. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-74) |
+| [libesedb tools](CTF_CHEATSHEET.md#approved-kali-80) · Kali<br>**Participant request** | Inspect Windows ESE database tables. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-80) |
+| [lrzip](CTF_CHEATSHEET.md#approved-kali-82) · Kali<br>**Participant request** | Unpack long-range compressed files · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-82) |
+| [lz4](CTF_CHEATSHEET.md#approved-kali-84) · Kali<br>**Participant request** | Unpack LZ4 data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-84) |
+| [lzip](CTF_CHEATSHEET.md#approved-kali-85) · Kali<br>**Participant request** | Unpack and check lzip files · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-85) |
+| [mac_apt](CTF_CHEATSHEET.md#approved-kali-86) · Kali<br>**Participant request** | Parse macOS artifacts from saved evidence. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-86) |
+| [MediaInfo](CTF_CHEATSHEET.md#approved-kali-87) · Kali<br>**Participant request** | Read audio/video container, codec, stream and duration information to choose an extraction route. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-87) |
+| [mimikatz](CTF_CHEATSHEET.md#approved-kali-89) · Kali<br>**Participant request** | Understand offline Windows authentication-dump analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-89) |
+| [multimon-ng](CTF_CHEATSHEET.md#approved-kali-91) · Kali<br>**Participant request** | Decode supported audio modulation formats · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-91) |
+| [mupdf-tools (mutool)](CTF_CHEATSHEET.md#approved-kali-92) · Kali<br>**Participant request** | Inspect PDF objects and extract resources. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-92) |
+| [OpenStego](CTF_CHEATSHEET.md#approved-kali-100) · Kali<br>**Participant request** | Extract a payload when clues indicate an OpenStego image carrier. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-100) |
+| [pff-tools (libpff)](CTF_CHEATSHEET.md#approved-kali-106) · Kali<br>**Participant request** | Inspect and extract Outlook personal-folder data. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-106) |
+| [Plaso (log2timeline, psort, pinfo)](CTF_CHEATSHEET.md#approved-kali-107) · Kali<br>**Participant request** | Build a forensic timeline from artifacts. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-107) |
+| [pngcheck](CTF_CHEATSHEET.md#approved-kali-108) · Kali<br>**Participant request** | Inspect PNG chunks, integrity failures and text metadata before pixel analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-108) |
+| [pypykatz](CTF_CHEATSHEET.md#approved-kali-112) · Kali<br>**Participant request** | Parse a supplied Windows memory dump. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-112) |
+| [qemu-img (qemu-utils)](CTF_CHEATSHEET.md#approved-kali-115) · Kali<br>**Participant request** | Identify and convert virtual disk formats. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-115) |
+| [RegRipper](CTF_CHEATSHEET.md#approved-kali-118) · Kali<br>**Participant request** | Extract artifacts from offline Windows registry hives. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-118) |
+| [rtptools (rtpdump, rtpplay and others)](CTF_CHEATSHEET.md#approved-kali-122) · Kali<br>**Participant request** | Parse RTP recordings and understand replay formats. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-122) |
+| [Sonic Visualiser](CTF_CHEATSHEET.md#approved-kali-128) · Kali<br>**Participant request** | Inspect and measure audio spectrograms in separate panes/layers. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-128) |
+| [SoX (Sound eXchange)](CTF_CHEATSHEET.md#approved-kali-129) · Kali<br>**Participant request** | Create repeatable audio spectrograms and manipulate channels using the installed SoX_ng build. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-129) |
+| [SQLCipher Community Edition — CLI](CTF_CHEATSHEET.md#approved-kali-130) · Kali<br>**Participant request** | Open a SQLCipher database with its known key and settings. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-130) |
+| [sqlite3](CTF_CHEATSHEET.md#approved-kali-131) · Kali<br>**Participant request** | Inspect a SQLite database without changing it. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-131) |
+| [sstv (command-line SSTV decoder)](CTF_CHEATSHEET.md#approved-kali-133) · Kali<br>**Participant request** | Decode SSTV audio only if the installed executable is actually a decoder. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-133) |
+| [steghide](CTF_CHEATSHEET.md#approved-kali-134) · Kali<br>**Participant request** | Inspect and extract a steghide carrier using a known or clue-derived passphrase. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-134) |
+| [stegseek](CTF_CHEATSHEET.md#approved-kali-135) · Kali<br>**Participant request** | Recover a steghide payload with a wordlist; use seed mode to detect steghide structure. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-135) |
+| [stegsnow (SNOW)](CTF_CHEATSHEET.md#approved-kali-136) · Kali<br>**Participant request** | Decode trailing-space/tab steganography in text when whitespace is the clue. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-136) |
+| [StegSolve](CTF_CHEATSHEET.md#approved-kali-137) · Kali<br>**Participant request** | Visually inspect image bit planes and investigate a specific data-extraction hypothesis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-137) |
+| [tar](CTF_CHEATSHEET.md#approved-kali-141) · Kali<br>**Participant request** | List and extract archive members · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-141) |
+| [tcpdump](CTF_CHEATSHEET.md#approved-kali-142) · Kali<br>**Participant request** | Read a capture using host/port filters for quick packet triage. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-142) |
+| [TestDisk and PhotoRec](CTF_CHEATSHEET.md#approved-kali-143) · Kali<br>**Participant request** | Recover files from a disk image. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-143) |
+| [tshark](CTF_CHEATSHEET.md#approved-windows-36) · Windows<br>**Participant request** | Extract selected packet fields into compact text for searching or sorting. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-36) |
+| [unar](CTF_CHEATSHEET.md#approved-kali-144) · Kali<br>**Participant request** | List and extract supported archive formats · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-144) |
+| [unrar](CTF_CHEATSHEET.md#approved-kali-147) · Kali<br>**Participant request** | List, test and extract RAR archives · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-147) |
+| [unzip](CTF_CHEATSHEET.md#approved-kali-148) · Kali<br>**Participant request** | List and extract ZIP members · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-148) |
+| [Volatility 2](CTF_CHEATSHEET.md#approved-kali-151) · Kali<br>**Participant request** | Identify a memory image profile and inspect processes. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-151) |
+| [Volatility 2 community plugins](CTF_CHEATSHEET.md#approved-kali-152) · Kali<br>**Participant request** | Load community plugins for Volatility 2. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-152) |
+| [Volatility 2 profiles (Linux and macOS)](CTF_CHEATSHEET.md#approved-kali-153) · Kali<br>**Participant request** | Match Linux or macOS profiles to memory images. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-153) |
+| [Volatility 3 community plugins (community3)](CTF_CHEATSHEET.md#approved-kali-154) · Kali<br>**Participant request** | Load Volatility 3 community plugins; check each plugin against the installed release. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-154) |
+| [zstd](CTF_CHEATSHEET.md#approved-kali-160) · Kali<br>**Participant request** | Inspect and decompress Zstandard data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-160) |
+| [Zui (formerly Brim)](CTF_CHEATSHEET.md#approved-kali-161) · Kali<br>**Participant request** | Explore large imported capture-derived datasets with queries. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-161) |
 
-If you already have a checkout, start at `python3 --version` in its root. The install uses both [requirements.txt](requirements.txt) and [constraints.txt](constraints.txt). The byte helpers work without these packages; [setup and limits](scripts/README.md#setup) explain the optional stack.
+## Malware Analysis
 
-To update the site and generated cheatsheet, edit [the guide template](guide-template.html) or [task routes](research/routes.json), then run `python build_catalog.py`. Run `python tests/check_guide.py --catalog`, `python tests/check_notes.py`, and the relevant tests before publishing.
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [Ghidra](CTF_CHEATSHEET.md#approved-windows-22) · Windows / WSL<br>**Trend Micro proposal** | Import binary, analyze, follow string cross-references and rename the validation routine. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-22) · [Core workflow](CORE_WORKFLOWS.md#native) |
+| [strings](CTF_CHEATSHEET.md#approved-windows-11) · Windows / WSL<br>**Trend Micro proposal** | Extract readable strings · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-11) |
+| [Apktool](CTF_CHEATSHEET.md#approved-kali-8) · Kali<br>**Participant request** | Decode Android manifest, resources and smali into a fresh output directory. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-8) |
+| [asar (@electron/asar)](CTF_CHEATSHEET.md#approved-kali-9) · Kali<br>**Participant request** | List and extract app.asar, then inspect JavaScript entry points. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-9) |
+| [AutoIt-Ripper](CTF_CHEATSHEET.md#approved-kali-11) · Kali<br>**Participant request** | Extract an embedded AutoIt script from an identified AutoIt executable. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-11) |
+| [capa](CTF_CHEATSHEET.md#approved-kali-19) · Kali<br>**Participant request** | Identify likely capabilities, then use verbose match locations to select functions to inspect. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-19) |
+| [Detect It Easy (DIE)](CTF_CHEATSHEET.md#approved-kali-27) · Kali<br>**Participant request** | Identify file type, compiler and probable packer before choosing the next tool. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-27) |
+| [Didier Stevens Beta tools (onedump.py)](CTF_CHEATSHEET.md#approved-kali-29) · Kali<br>**Participant request** | List OneNote embedded objects and extract the suspicious object for separate inspection. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-29) |
+| [Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others)](CTF_CHEATSHEET.md#approved-kali-30) · Kali<br>**Participant request** | Triage PDF indicators, inspect referenced streams, or extract OLE macro streams. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-30) |
+| [dnSpyEx (dnSpy)](CTF_CHEATSHEET.md#approved-windows-38) · Windows<br>**Participant request** | Open a managed assembly, find the validation method and inspect its C# and IL. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-38) |
+| [FakeNet-NG](CTF_CHEATSHEET.md#approved-kali-37) · Kali<br>**Participant request** | Observe attempted DNS/HTTP behavior against simulated network services. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-37) |
+| [FLOSS (FLARE Obfuscated String Solver)](CTF_CHEATSHEET.md#approved-kali-43) · Kali<br>**Participant request** | Recover decoded and stack-built strings, then cross-reference meaningful results. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-43) |
+| [GoReSym](CTF_CHEATSHEET.md#approved-kali-55) · Kali<br>**Participant request** | Recover function names and metadata from a stripped Go binary. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-55) |
+| [HxD](CTF_CHEATSHEET.md#approved-windows-35) · Windows<br>**Participant request** | Inspect bytes in a hex editor · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-35) |
+| [internet_detector](CTF_CHEATSHEET.md#approved-kali-70) · Kali<br>**Participant request** | Consult INetSim service simulation only after confirming what this workbook row installed. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-70) |
+| [jadx (jadx-gui)](CTF_CHEATSHEET.md#approved-kali-72) · Kali<br>**Participant request** | Open APK/DEX, search strings and follow usages to the input-validation method. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-72) |
+| [js-beautify](CTF_CHEATSHEET.md#approved-kali-75) · Kali<br>**Participant request** | Format a JavaScript payload before following variables and control flow. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-75) |
+| [js-deobfuscator](CTF_CHEATSHEET.md#approved-kali-76) · Kali<br>**Participant request** | Simplify JavaScript string arrays and proxy functions for static reading. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-76) |
+| [obfuscator-io-deobfuscator](CTF_CHEATSHEET.md#approved-kali-96) · Kali<br>**Participant request** | Recover readable strings and control flow from recognized Obfuscator.io output. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-96) |
+| [oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf)](CTF_CHEATSHEET.md#approved-kali-98) · Kali<br>**Participant request** | Triage an Office file and extract VBA, DDE or embedded objects using the matching suite tool. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-98) |
+| [peepdf-3](CTF_CHEATSHEET.md#approved-kali-105) · Kali<br>**Participant request** | Inspect a PDF object graph and decode suspicious streams interactively. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-105) |
+| [pycdc (Decompyle++)](CTF_CHEATSHEET.md#approved-kali-110) · Kali<br>**Participant request** | Try Python bytecode decompilation; fall back to pycdas disassembly on unsupported constructs. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-110) |
+| [pyinstxtractor-ng](CTF_CHEATSHEET.md#approved-kali-111) · Kali<br>**Participant request** | Extract a PyInstaller bundle, identify its Python bytecode version, then choose a decompiler. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-111) |
+| [rat-king-parser](CTF_CHEATSHEET.md#approved-kali-117) · Kali<br>**Participant request** | Extract configuration after evidence identifies a supported RAT family. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-117) |
+| [UPX](CTF_CHEATSHEET.md#approved-kali-149) · Kali<br>**Participant request** | Test a suspected UPX file and unpack a copy before normal static analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-149) |
+| [x64dbg](CTF_CHEATSHEET.md#approved-windows-33) · Windows<br>**Participant request** | Set a Windows input-check breakpoint and inspect the compared buffers. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-33) |
+| [YARA](CTF_CHEATSHEET.md#approved-kali-157) · Kali<br>**Participant request** | Write a small signature and scan a local sample corpus for related files. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-157) |
+| [yara-python (and YARA on Linux)](CTF_CHEATSHEET.md#approved-kali-158) · Kali<br>**Participant request** | Use Python bindings only when a prewritten batch-scanning workflow needs structured match data. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-158) |
+
+## Web Security
+
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [Burp Suite Community Edition](CTF_CHEATSHEET.md#approved-windows-20) · Windows / WSL<br>**Trend Micro proposal** | Replay an observed HTTP request while changing one parameter at a time. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-20) · [Core workflow](CORE_WORKFLOWS.md#web) |
+| [CyberChef](CTF_CHEATSHEET.md#approved-windows-1) · Windows<br>**Trend Micro proposal** | Decode layered encodings and inspect byte transformations. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-1) · [Core workflow](CORE_WORKFLOWS.md#decode) |
+| [Google Chrome](CTF_CHEATSHEET.md#approved-windows-5) · Windows<br>**Trend Micro proposal** | Inspect request headers, response bodies, JavaScript and public-source pages. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-5) |
+| [curl](CTF_CHEATSHEET.md#approved-kali-23) · Kali<br>**Participant request** | Reproduce HTTP requests and inspect headers, redirects and cookies. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-23) |
+| [Exploit-DB / searchsploit (offline archive)](CTF_CHEATSHEET.md#approved-kali-35) · Kali<br>**Participant request** | Match an identified product/version to offline vulnerability references. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-35) |
+| [Feroxbuster](CTF_CHEATSHEET.md#approved-kali-39) · Kali<br>**Participant request** | Discover nested web paths when recursive traversal is useful. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-39) |
+| [ffuf](CTF_CHEATSHEET.md#approved-kali-41) · Kali<br>**Participant request** | Compare path, parameter or virtual-host responses using one FUZZ marker. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-41) |
+| [Gobuster](CTF_CHEATSHEET.md#approved-kali-54) · Kali<br>**Participant request** | Discover directories or virtual hosts with explicit separate modes. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-54) |
+| [hlextend](CTF_CHEATSHEET.md#approved-kali-64) · Kali<br>**Participant request** | Study secret-prefix hash length extension. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-64) |
+| [Hydra](CTF_CHEATSHEET.md#approved-kali-65) · Kali<br>**Participant request** | Test challenge login candidates when protocol and failure condition are understood. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-65) |
+| [jwt_tool](CTF_CHEATSHEET.md#approved-kali-77) · Kali<br>**Participant request** | Inspect JWT claims and choose a test matching the token algorithm and trust model. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-77) |
+| [Katana](CTF_CHEATSHEET.md#approved-kali-78) · Kali<br>**Participant request** | Extract linked and JavaScript-discovered routes before wordlist discovery. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-78) |
+| [Metasploit Framework](CTF_CHEATSHEET.md#approved-kali-88) · Kali<br>**Participant request** | Inspect module descriptions and requirements for an already identified service. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-88) |
+| [Nmap (with Ncat / Nping)](CTF_CHEATSHEET.md#approved-kali-94) · Kali<br>**Participant request** | Identify services with Nmap; use Ncat for protocol interaction and Nping for connectivity diagnostics. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-94) |
+| [padding-oracle-attacker](CTF_CHEATSHEET.md#approved-kali-101) · Kali<br>**Participant request** | Study CBC padding-oracle behavior in an authorized web challenge. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-101) |
+| [PayloadsAllTheThings (offline copy)](CTF_CHEATSHEET.md#approved-kali-103) · Kali<br>**Participant request** | Look up syntax and prerequisites for a specific suspected web vulnerability. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-103) |
+| [SecLists](CTF_CHEATSHEET.md#approved-kali-126) · Kali<br>**Participant request** | Select a short task-specific content-discovery list. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-126) |
+| [sqlmap](CTF_CHEATSHEET.md#approved-kali-132) · Kali<br>**Participant request** | Test a suspected injection point using a captured, reproducible HTTP request. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-132) |
+| [Subfinder](CTF_CHEATSHEET.md#approved-kali-139) · Kali<br>**Participant request** | Collect publicly indexed subdomains for a challenge-supplied public domain. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-139) |
+
+## Reverse Engineering
+
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [gdb](CTF_CHEATSHEET.md#approved-windows-9) · Windows / WSL<br>**Trend Micro proposal** | Stop at the input check; inspect registers, memory and the comparison. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-9) · [Core workflow](CORE_WORKFLOWS.md#native) |
+| [Ghidra](CTF_CHEATSHEET.md#approved-windows-22) · Windows / WSL<br>**Trend Micro proposal** | Import binary, analyze, follow string cross-references and rename the validation routine. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-22) · [Core workflow](CORE_WORKFLOWS.md#native) |
+| [llvm-mc (LLVM tools)](CTF_CHEATSHEET.md#approved-windows-27) · Windows / WSL<br>**Trend Micro proposal** | Translate a short instruction sequence between assembly and bytes. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-27) |
+| [objdump](CTF_CHEATSHEET.md#approved-windows-10) · Windows / WSL<br>**Trend Micro proposal** | Inspect headers and disassemble a native checker before opening a GUI. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-10) |
+| [strings](CTF_CHEATSHEET.md#approved-windows-11) · Windows / WSL<br>**Trend Micro proposal** | Extract readable strings · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-11) |
+| [xxd](CTF_CHEATSHEET.md#approved-windows-28) · Windows / WSL<br>**Trend Micro proposal** | Inspect magic bytes or turn a supplied hexadecimal dump back into bytes. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-28) |
+| [.NET SDK](CTF_CHEATSHEET.md#approved-kali-1) · Kali<br>**Participant request** | Build and run managed projects · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-1) |
+| [Android Studio](CTF_CHEATSHEET.md#approved-kali-5) · Kali<br>**Participant request** | Inspect APK contents and debug a compatible pre-built app when static inspection stalls. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-5) |
+| [angr](CTF_CHEATSHEET.md#approved-kali-6) · Kali<br>**Participant request** | Model a small checker with symbolic input and explicit success/failure targets. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-6) |
+| [Apktool](CTF_CHEATSHEET.md#approved-kali-8) · Kali<br>**Participant request** | Decode Android manifest, resources and smali into a fresh output directory. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-8) |
+| [asar (@electron/asar)](CTF_CHEATSHEET.md#approved-kali-9) · Kali<br>**Participant request** | List and extract app.asar, then inspect JavaScript entry points. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-9) |
+| [BinDiff](CTF_CHEATSHEET.md#approved-kali-12) · Kali<br>**Participant request** | Compare two binary versions to find changed functions worth reversing. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-12) |
+| [Bytecode Viewer](CTF_CHEATSHEET.md#approved-kali-16) · Kali<br>**Participant request** | Inspect a JAR using multiple decompiler views when one view is misleading. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-16) |
+| [checksec](CTF_CHEATSHEET.md#approved-kali-21) · Kali<br>**Participant request** | Read ELF protection properties before analyzing a crash or native target. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-21) |
+| [Cutter](CTF_CHEATSHEET.md#approved-kali-24) · Kali<br>**Participant request** | Use a graph and string references to locate the checker as a GUI alternative. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-24) |
+| [dex2jar](CTF_CHEATSHEET.md#approved-kali-28) · Kali<br>**Participant request** | Convert DEX to JAR when a Java decompiler provides a useful second view. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-28) |
+| [dnSpyEx (dnSpy)](CTF_CHEATSHEET.md#approved-windows-38) · Windows<br>**Participant request** | Open a managed assembly, find the validation method and inspect its C# and IL. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-38) |
+| [Eclipse Temurin JDK (OpenJDK)](CTF_CHEATSHEET.md#approved-kali-33) · Kali<br>**Participant request** | Provide the Java runtime needed by approved Java analysis tools. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-33) |
+| [Fernflower](CTF_CHEATSHEET.md#approved-kali-38) · Kali<br>**Participant request** | Decompile a Java class or JAR to inspect a validation method. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-38) |
+| [FLOSS (FLARE Obfuscated String Solver)](CTF_CHEATSHEET.md#approved-kali-43) · Kali<br>**Participant request** | Recover decoded and stack-built strings, then cross-reference meaningful results. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-43) |
+| [Frida](CTF_CHEATSHEET.md#approved-kali-46) · Kali<br>**Participant request** | Observe native or Java method arguments at runtime after locating the relevant method. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-46) |
+| [GCC, G++ and build tools (build-essential, make, CMake, pkg-config)](CTF_CHEATSHEET.md#approved-kali-47) · Kali<br>**Participant request** | Build small local programs with debug information · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-47) |
+| [GEF (GDB Enhanced Features)](CTF_CHEATSHEET.md#approved-kali-48) · Kali<br>**Participant request** | Inspect registers, stack and memory with the existing GDB enhancement. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-48) |
+| [GoReSym](CTF_CHEATSHEET.md#approved-kali-55) · Kali<br>**Participant request** | Recover function names and metadata from a stripped Go binary. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-55) |
+| [HxD](CTF_CHEATSHEET.md#approved-windows-35) · Windows<br>**Participant request** | Inspect bytes in a hex editor · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-35) |
+| [innoextract](CTF_CHEATSHEET.md#approved-kali-69) · Kali<br>**Participant request** | List and extract an Inno Setup installer without running its payload. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-69) |
+| [jadx (jadx-gui)](CTF_CHEATSHEET.md#approved-kali-72) · Kali<br>**Participant request** | Open APK/DEX, search strings and follow usages to the input-validation method. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-72) |
+| [js-beautify](CTF_CHEATSHEET.md#approved-kali-75) · Kali<br>**Participant request** | Format a JavaScript payload before following variables and control flow. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-75) |
+| [js-deobfuscator](CTF_CHEATSHEET.md#approved-kali-76) · Kali<br>**Participant request** | Simplify JavaScript string arrays and proxy functions for static reading. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-76) |
+| [ltrace](CTF_CHEATSHEET.md#approved-kali-83) · Kali<br>**Participant request** | Observe dynamically linked library calls around a password comparison. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-83) |
+| [NASM (Netwide Assembler)](CTF_CHEATSHEET.md#approved-kali-93) · Kali<br>**Participant request** | Check x86 assembly syntax or assemble a minimal local experiment. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-93) |
+| [obfuscator-io-deobfuscator](CTF_CHEATSHEET.md#approved-kali-96) · Kali<br>**Participant request** | Recover readable strings and control flow from recognized Obfuscator.io output. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-96) |
+| [OllyDbg](CTF_CHEATSHEET.md#approved-kali-99) · Kali<br>**Participant request** | Trace a legacy 32-bit Windows checker using its existing debugger. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-99) |
+| [peda](CTF_CHEATSHEET.md#approved-kali-104) · Kali<br>**Participant request** | Use the preconfigured PEDA context view for a native debugging session. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-104) |
+| [pwndbg](CTF_CHEATSHEET.md#approved-kali-109) · Kali<br>**Participant request** | Inspect native execution state and memory using pwndbg commands. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-109) |
+| [pycdc (Decompyle++)](CTF_CHEATSHEET.md#approved-kali-110) · Kali<br>**Participant request** | Try Python bytecode decompilation; fall back to pycdas disassembly on unsupported constructs. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-110) |
+| [pyinstxtractor-ng](CTF_CHEATSHEET.md#approved-kali-111) · Kali<br>**Participant request** | Extract a PyInstaller bundle, identify its Python bytecode version, then choose a decompiler. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-111) |
+| [radare2](CTF_CHEATSHEET.md#approved-kali-116) · Kali<br>**Participant request** | Analyze functions, list strings and disassemble a chosen routine from the terminal. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-116) |
+| [ROPgadget](CTF_CHEATSHEET.md#approved-kali-121) · Kali<br>**Participant request** | Find and inspect a small set of instruction gadgets for a native binary task. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-121) |
+| [strace](CTF_CHEATSHEET.md#approved-kali-138) · Kali<br>**Participant request** | Trace file access and system calls to explain missing inputs or hidden file dependencies. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-138) |
+| [uncompyle6](CTF_CHEATSHEET.md#approved-kali-145) · Kali<br>**Participant request** | Decompile a supported older Python PYC after checking its bytecode version. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-145) |
+| [unpyc3 (unpyc37-3.10)](CTF_CHEATSHEET.md#approved-kali-146) · Kali<br>**Participant request** | Try the approved alternate Python decompiler when its supported bytecode matches. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-146) |
+| [UPX](CTF_CHEATSHEET.md#approved-kali-149) · Kali<br>**Participant request** | Test a suspected UPX file and unpack a copy before normal static analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-149) |
+| [VS Code extension: C/C++ (ms-vscode.cpptools)](CTF_CHEATSHEET.md#approved-kali-155) · Kali<br>**Participant request** | Configure C/C++ source debugging · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-155) |
+| [x64dbg](CTF_CHEATSHEET.md#approved-windows-33) · Windows<br>**Participant request** | Set a Windows input-check breakpoint and inspect the compared buffers. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-33) |
+
+## OSINT
+
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [ExifTool](CTF_CHEATSHEET.md#approved-windows-14) · Windows / WSL<br>**Trend Micro proposal** | Read metadata, comments, timestamps and location clues before deeper media analysis. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-14) · [Core workflow](CORE_WORKFLOWS.md#media) |
+| [Google Chrome](CTF_CHEATSHEET.md#approved-windows-5) · Windows<br>**Trend Micro proposal** | Inspect request headers, response bodies, JavaScript and public-source pages. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-5) |
+| [Subfinder](CTF_CHEATSHEET.md#approved-kali-139) · Kali<br>**Participant request** | Collect publicly indexed subdomains for a challenge-supplied public domain. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-139) |
+
+## Cryptography
+
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [CyberChef](CTF_CHEATSHEET.md#approved-windows-1) · Windows<br>**Trend Micro proposal** | Decode layered encodings and inspect byte transformations. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-1) · [Core workflow](CORE_WORKFLOWS.md#decode) |
+| [OpenSSL](CTF_CHEATSHEET.md#approved-windows-24) · Windows / WSL<br>**Trend Micro proposal** | Decrypt symmetric ciphertext when cipher and key derivation are known. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-24) |
+| [RsaCtfTool](CTF_CHEATSHEET.md#approved-windows-30) · Windows / WSL<br>**Trend Micro proposal** | Recover weak textbook RSA keys or decrypt given ciphertext. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-30) · [Core workflow](CORE_WORKFLOWS.md#crypto) |
+| [aircrack-ng](CTF_CHEATSHEET.md#approved-kali-3) · Kali<br>**Participant request** | Test a supplied wireless handshake capture against a candidate wordlist offline. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-3) |
+| [bkcrack](CTF_CHEATSHEET.md#approved-kali-13) · Kali<br>**Participant request** | Recover ZipCrypto internal keys from known plaintext. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-13) |
+| [crypto-attacks](CTF_CHEATSHEET.md#approved-kali-22) · Kali<br>**Participant request** | Use mathematical implementations after identifying a concrete crypto weakness. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-22) |
+| [factordb-python](CTF_CHEATSHEET.md#approved-kali-36) · Kali<br>**Participant request** | Understand how known integer factors are looked up. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-36) |
+| [hashcat](CTF_CHEATSHEET.md#approved-kali-59) · Kali<br>**Participant request** | Recover passwords offline from a correctly identified hash format. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-59) · [Hashcat commands](HASHCAT.md) |
+| [hashid](CTF_CHEATSHEET.md#approved-kali-60) · Kali<br>**Participant request** | Generate candidate hash algorithms from encoded hash syntax. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-60) |
+| [hcxtools](CTF_CHEATSHEET.md#approved-kali-62) · Kali<br>**Participant request** | Convert supplied wireless authentication evidence into offline cracking input. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-62) |
+| [hlextend](CTF_CHEATSHEET.md#approved-kali-64) · Kali<br>**Participant request** | Study secret-prefix hash length extension. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-64) |
+| [John the Ripper (jumbo)](CTF_CHEATSHEET.md#approved-kali-73) · Kali<br>**Participant request** | Recover passwords offline using supported jumbo formats. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-73) |
+| [jwt_tool](CTF_CHEATSHEET.md#approved-kali-77) · Kali<br>**Participant request** | Inspect JWT claims and choose a test matching the token algorithm and trust model. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-77) |
+| [padding-oracle-attacker](CTF_CHEATSHEET.md#approved-kali-101) · Kali<br>**Participant request** | Study CBC padding-oracle behavior in an authorized web challenge. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-101) |
+| [PARI/GP](CTF_CHEATSHEET.md#approved-kali-102) · Kali<br>**Participant request** | Perform integer factorization and modular arithmetic. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-102) |
+| [rockyou.txt (Kali &#x27;wordlists&#x27; package)](CTF_CHEATSHEET.md#approved-kali-120) · Kali<br>**Participant request** | Supply the approved local dictionary to offline password tools. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-120) |
+| [SageMath](CTF_CHEATSHEET.md#approved-kali-125) · Kali<br>**Participant request** | Solve supported finite-group logarithms and mathematical crypto subproblems. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-125) |
+
+## Miscellaneous
+
+| Tool and origin | What it does and where to read more |
+| --- | --- |
+| [can-utils](CTF_CHEATSHEET.md#approved-windows-16) · Windows / WSL<br>**Trend Micro proposal** | Inspect CAN IDs and payload changes in supplied logs or challenge interfaces. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-16) · [Core workflow](CORE_WORKFLOWS.md#can) |
+| [cannelloni](CTF_CHEATSHEET.md#approved-windows-17) · Windows / WSL<br>**Trend Micro proposal** | Connect a challenge-provided CAN-over-Ethernet endpoint to SocketCAN. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-17) |
+| [jq](CTF_CHEATSHEET.md#approved-windows-21) · Windows / WSL<br>**Trend Micro proposal** | Filter JSON · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-21) |
+| [OpenVPN Client](CTF_CHEATSHEET.md#approved-windows-4) · Windows<br>**Trend Micro proposal** | Import the organiser VPN profile and inspect connection status. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-4) |
+| [PDF Viewer](CTF_CHEATSHEET.md#approved-windows-3) · Windows<br>**Trend Micro proposal** | Inspect PDF text and attachments; viewer identity is unspecified · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-3) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [pdftotext (Poppler utils)](CTF_CHEATSHEET.md#approved-windows-15) · Windows / WSL<br>**Trend Micro proposal** | Extract PDF text · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-15) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [Python 3](CTF_CHEATSHEET.md#approved-windows-7) · Windows / WSL<br>**Trend Micro proposal** | Parse binary data · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-7) · [Python templates](scripts/templates/README.md) |
+| [qpdf](CTF_CHEATSHEET.md#approved-windows-26) · Windows / WSL<br>**Trend Micro proposal** | Inspect PDF objects and streams · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-26) · [Core workflow](CORE_WORKFLOWS.md#pdf) |
+| [uv](CTF_CHEATSHEET.md#approved-windows-8) · Windows / WSL<br>**Trend Micro proposal** | Manage Python environments · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-8) |
+| [Windows Subsystem for Linux (WSL)](CTF_CHEATSHEET.md#approved-windows-6) · Windows<br>**Trend Micro proposal** | Use the installed Linux environment · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-6) |
+| [ZBar](CTF_CHEATSHEET.md#approved-windows-19) · Windows / WSL<br>**Trend Micro proposal** | Decode a visible or reconstructed QR/barcode locally. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-19) |
+| [.NET SDK](CTF_CHEATSHEET.md#approved-kali-1) · Kali<br>**Participant request** | Build and run managed projects · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-1) |
+| [Docker Engine and Compose plugin](CTF_CHEATSHEET.md#approved-kali-31) · Kali<br>**Participant request** | Run and inspect a local container lab · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-31) |
+| [Exploit-DB / searchsploit (offline archive)](CTF_CHEATSHEET.md#approved-kali-35) · Kali<br>**Participant request** | Match an identified product/version to offline vulnerability references. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-35) |
+| [GCC, G++ and build tools (build-essential, make, CMake, pkg-config)](CTF_CHEATSHEET.md#approved-kali-47) · Kali<br>**Participant request** | Build small local programs with debug information · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-47) |
+| [GNU Wget](CTF_CHEATSHEET.md#approved-kali-52) · Kali<br>**Participant request** | Save public files for local analysis · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-52) |
+| [Go](CTF_CHEATSHEET.md#approved-kali-53) · Kali<br>**Participant request** | Build or run local Go utilities · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-53) |
+| [GTFOBins (offline copy)](CTF_CHEATSHEET.md#approved-kali-56) · Kali<br>**Participant request** | Look up behavior of an already identified Unix binary. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-56) |
+| [HackTricks (offline copy)](CTF_CHEATSHEET.md#approved-kali-58) · Kali<br>**Participant request** | Find a technique reference after challenge triage. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-58) |
+| [Hydra](CTF_CHEATSHEET.md#approved-kali-65) · Kali<br>**Participant request** | Test challenge login candidates when protocol and failure condition are understood. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-65) |
+| [Impacket](CTF_CHEATSHEET.md#approved-kali-68) · Kali<br>**Participant request** | Use SMB protocol examples to inspect a challenge share with supplied access. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-68) |
+| [IPython](CTF_CHEATSHEET.md#approved-kali-71) · Kali<br>**Participant request** | Explore Python objects and run small scripts · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-71) |
+| [legion](CTF_CHEATSHEET.md#approved-kali-79) · Kali<br>**Participant request** | Organize network reconnaissance visually when several services need tracking. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-79) |
+| [LibreOffice](CTF_CHEATSHEET.md#approved-kali-81) · Kali<br>**Participant request** | Convert documents to inspectable formats · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-81) |
+| [Metasploit Framework](CTF_CHEATSHEET.md#approved-kali-88) · Kali<br>**Participant request** | Inspect module descriptions and requirements for an already identified service. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-88) |
+| [Miniforge3 (conda)](CTF_CHEATSHEET.md#approved-kali-90) · Kali<br>**Participant request** | Create a separate dependency environment · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-90) |
+| [mupdf-tools (mutool)](CTF_CHEATSHEET.md#approved-kali-92) · Kali<br>**Participant request** | Inspect PDF objects and extract resources. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-92) |
+| [Nmap (with Ncat / Nping)](CTF_CHEATSHEET.md#approved-kali-94) · Kali<br>**Participant request** | Identify services with Nmap; use Ncat for protocol interaction and Nping for connectivity diagnostics. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-94) |
+| [Node.js (with npm)](CTF_CHEATSHEET.md#approved-kali-95) · Kali<br>**Participant request** | Convert binary representations in JavaScript · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-95) |
+| [Notepad++](CTF_CHEATSHEET.md#approved-windows-37) · Windows<br>**Participant request** | Search structured text · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-windows-37) |
+| [Obsidian](CTF_CHEATSHEET.md#approved-kali-97) · Kali<br>**Participant request** | Organize investigation notes with links · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-97) |
+| [Python 2.7](CTF_CHEATSHEET.md#approved-kali-113) · Kali<br>**Participant request** | Read binary records in legacy Python scripts · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-113) |
+| [Python 3.11 (via uv)](CTF_CHEATSHEET.md#approved-kali-114) · Kali<br>**Participant request** | Select Python 3.11 through uv; workbook records no installation information · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-114) · [Python templates](scripts/templates/README.md) |
+| [ripgrep (rg)](CTF_CHEATSHEET.md#approved-kali-119) · Kali<br>**Participant request** | Search text and selectively include hidden or binary files · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-119) |
+| [Rust (rustup, rustc, cargo)](CTF_CHEATSHEET.md#approved-kali-123) · Kali<br>**Participant request** | Build and run a Rust analysis utility · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-123) |
+| [rustscan](CTF_CHEATSHEET.md#approved-kali-124) · Kali<br>**Participant request** | Discover TCP ports before targeted service identification. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-124) |
+| [socat](CTF_CHEATSHEET.md#approved-kali-127) · Kali<br>**Participant request** | Connect standard input to a challenge TCP service or bridge required stream types. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-127) |
+| [sstv (command-line SSTV decoder)](CTF_CHEATSHEET.md#approved-kali-133) · Kali<br>**Participant request** | Decode SSTV audio only if the installed executable is actually a decoder. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-133) |
+| [stegsnow (SNOW)](CTF_CHEATSHEET.md#approved-kali-136) · Kali<br>**Participant request** | Decode trailing-space/tab steganography in text when whitespace is the clue. · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-136) |
+| [Sublime Text](CTF_CHEATSHEET.md#approved-kali-140) · Kali<br>**Participant request** | Search source and notes in an editor · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-140) |
+| [Visual Studio Code](CTF_CHEATSHEET.md#approved-kali-150) · Kali<br>**Participant request** | Search and edit analysis code · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-150) |
+| [VS Code extension: C/C++ (ms-vscode.cpptools)](CTF_CHEATSHEET.md#approved-kali-155) · Kali<br>**Participant request** | Configure C/C++ source debugging · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-155) |
+| [VS Code extension: Python (ms-python.python)](CTF_CHEATSHEET.md#approved-kali-156) · Kali<br>**Participant request** | Select a Python interpreter for analysis scripts · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-156) |
+| [zip](CTF_CHEATSHEET.md#approved-kali-159) · Kali<br>**Participant request** | Package files into ZIP archives · [Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-kali-159) |
+<!-- approved-tools:end -->

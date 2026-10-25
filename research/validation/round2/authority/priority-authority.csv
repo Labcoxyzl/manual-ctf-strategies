@@ -1,0 +1,201 @@
+id,name,platform,sheet,name_cell,origin_cell,origin,preparation_order,documented_official_priority,approval,availability_evidence,operation_guarantee,declared_install_location,install_location_cell,category
+windows-1,CyberChef,windows,Approved Tool List for Windows,C8,D8,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,Bookmark,I8,"Forensic, Network, Crypto, Web"
+windows-2,Wireshark,windows,Approved Tool List for Windows,C9,D9,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in Windows,I9,"Network, Forensic"
+windows-3,PDF Viewer,windows,Approved Tool List for Windows,C10,D10,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in Windows,I10,Stegano
+windows-4,OpenVPN Client,windows,Approved Tool List for Windows,C11,D11,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in Windows,I11,MISC
+windows-5,Google Chrome,windows,Approved Tool List for Windows,C12,D12,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in Windows,I12,All
+windows-6,Windows Subsystem for Linux (WSL),windows,Approved Tool List for Windows,C13,D13,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in Windows,I13,All
+windows-7,Python 3,windows,Approved Tool List for Windows,C14,D14,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I14,"OSINT, Stegano, Crypto, Reversing, Web, Forensic, MISC"
+windows-8,uv,windows,Approved Tool List for Windows,C15,D15,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I15,MISC (Python package/env manager)
+windows-9,gdb,windows,Approved Tool List for Windows,C16,D16,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I16,"MISC, Reversing"
+windows-10,objdump,windows,Approved Tool List for Windows,C17,D17,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I17,"MISC, Reversing"
+windows-11,strings,windows,Approved Tool List for Windows,C18,D18,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I18,Stegano
+windows-12,zsteg,windows,Approved Tool List for Windows,C19,D19,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I19,"Stegano, Crypto"
+windows-13,binwalk,windows,Approved Tool List for Windows,C20,D20,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I20,Stegano
+windows-14,ExifTool,windows,Approved Tool List for Windows,C21,D21,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I21,OSINT
+windows-15,pdftotext (Poppler utils),windows,Approved Tool List for Windows,C22,D22,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I22,OSINT
+windows-16,can-utils,windows,Approved Tool List for Windows,C23,D23,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I23,Network
+windows-17,cannelloni,windows,Approved Tool List for Windows,C24,D24,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I24,Network
+windows-18,zeek,windows,Approved Tool List for Windows,C25,D25,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I25,Network
+windows-19,ZBar,windows,Approved Tool List for Windows,C26,D26,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I26,Stegano
+windows-20,Burp Suite Community Edition,windows,Approved Tool List for Windows,C27,D27,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I27,Web
+windows-21,jq,windows,Approved Tool List for Windows,C28,D28,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I28,"MISC, Web"
+windows-22,Ghidra,windows,Approved Tool List for Windows,C29,D29,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I29,Reversing
+windows-23,The Sleuth Kit,windows,Approved Tool List for Windows,C30,D30,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I30,"Forensic, Reversing"
+windows-24,OpenSSL,windows,Approved Tool List for Windows,C31,D31,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I31,"Forensic, Network, OSINT, Crypto"
+windows-25,xz,windows,Approved Tool List for Windows,C32,D32,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I32,Forensic
+windows-26,qpdf,windows,Approved Tool List for Windows,C33,D33,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I33,Stegano
+windows-27,llvm-mc (LLVM tools),windows,Approved Tool List for Windows,C34,D34,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I34,Reversing
+windows-28,xxd,windows,Approved Tool List for Windows,C35,D35,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I35,Reversing
+windows-29,fsck.fat (dosfstools),windows,Approved Tool List for Windows,C36,D36,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I36,Reversing
+windows-30,RsaCtfTool,windows,Approved Tool List for Windows,C37,D37,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I37,Crypto
+windows-31,volatility3,windows,Approved Tool List for Windows,C38,D38,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in WSL,I38,Forensic
+windows-32,OpenSSH-Session-Key-Recovery,windows,Approved Tool List for Windows,C39,D39,TrendMicro proposal,1,,approved,wb-windows-availability,not stated,installed in volatility3,I39,
+windows-33,x64dbg,windows,Approved Tool List for Windows,C40,D40,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I40,Reversing
+windows-34,Autopsy,windows,Approved Tool List for Windows,C41,D41,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I41,Forensic
+windows-35,HxD,windows,Approved Tool List for Windows,C42,D42,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I42,"Forensic, Reversing, Stegano"
+windows-36,tshark,windows,Approved Tool List for Windows,C43,D43,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I43,"Network, Forensic"
+windows-37,Notepad++,windows,Approved Tool List for Windows,C44,D44,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I44,Reversing
+windows-38,dnSpyEx (dnSpy),windows,Approved Tool List for Windows,C45,D45,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I45,Reversing
+windows-39,Eric Zimmerman's Tools,windows,Approved Tool List for Windows,C46,D46,participant request,2,,approved,wb-windows-availability,not stated,installed in Windows,I46,Forensic
+kali-1,.NET SDK,kali,Approved Tool List for Kali,C8,D8,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F8,
+kali-2,7-Zip (7z),kali,Approved Tool List for Kali,C9,D9,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F9,
+kali-3,aircrack-ng,kali,Approved Tool List for Kali,C10,D10,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F10,
+kali-4,ALEAPP (Android Logs Events And Protobuf Parser),kali,Approved Tool List for Kali,C11,D11,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F11,
+kali-5,Android Studio,kali,Approved Tool List for Kali,C12,D12,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F12,
+kali-6,angr,kali,Approved Tool List for Kali,C13,D13,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (angr),F13,
+kali-7,AperiSolve,kali,Approved Tool List for Kali,C14,D14,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/AperiSolve),F14,
+kali-8,Apktool,kali,Approved Tool List for Kali,C15,D15,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F15,
+kali-9,asar (@electron/asar),kali,Approved Tool List for Kali,C16,D16,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F16,
+kali-10,Audacity,kali,Approved Tool List for Kali,C17,D17,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/usr/bin/audacity,F17,
+kali-11,AutoIt-Ripper,kali,Approved Tool List for Kali,C18,D18,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (autoit-ripper),F18,
+kali-12,BinDiff,kali,Approved Tool List for Kali,C19,D19,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F19,
+kali-13,bkcrack,kali,Approved Tool List for Kali,C20,D20,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F20,
+kali-14,bulk_extractor,kali,Approved Tool List for Kali,C21,D21,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F21,
+kali-15,bvi,kali,Approved Tool List for Kali,C22,D22,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F22,
+kali-16,Bytecode Viewer,kali,Approved Tool List for Kali,C23,D23,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,Fat Jar,F23,
+kali-17,bzip2,kali,Approved Tool List for Kali,C24,D24,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F24,
+kali-18,cabextract,kali,Approved Tool List for Kali,C25,D25,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F25,
+kali-19,capa,kali,Approved Tool List for Kali,C26,D26,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F26,
+kali-20,Chainsaw,kali,Approved Tool List for Kali,C27,D27,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F27,
+kali-21,checksec,kali,Approved Tool List for Kali,C28,D28,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F28,
+kali-22,crypto-attacks,kali,Approved Tool List for Kali,C29,D29,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/crypto-attacks),F29,
+kali-23,curl,kali,Approved Tool List for Kali,C30,D30,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F30,
+kali-24,Cutter,kali,Approved Tool List for Kali,C31,D31,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,AppImage (/opt/tools/cutter.AppImage),F31,
+kali-25,DB Browser for SQLite,kali,Approved Tool List for Kali,C32,D32,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F32,
+kali-26,DBeaver Community Edition,kali,Approved Tool List for Kali,C33,D33,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F33,
+kali-27,Detect It Easy (DIE),kali,Approved Tool List for Kali,C34,D34,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F34,
+kali-28,dex2jar,kali,Approved Tool List for Kali,C35,D35,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F35,
+kali-29,Didier Stevens Beta tools (onedump.py),kali,Approved Tool List for Kali,C36,D36,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/Beta),F36,
+kali-30,"Didier Stevens Suite (pdfid.py, pdf-parser.py, oledump.py and others)",kali,Approved Tool List for Kali,C37,D37,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/DidierStevensSuite),F37,
+kali-31,Docker Engine and Compose plugin,kali,Approved Tool List for Kali,C38,D38,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F38,
+kali-32,dwarf2json,kali,Approved Tool List for Kali,C39,D39,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F39,
+kali-33,Eclipse Temurin JDK (OpenJDK),kali,Approved Tool List for Kali,C40,D40,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F40,
+kali-34,ewf-tools (libewf),kali,Approved Tool List for Kali,C41,D41,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F41,
+kali-35,Exploit-DB / searchsploit (offline archive),kali,Approved Tool List for Kali,C42,D42,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F42,
+kali-36,factordb-python,kali,Approved Tool List for Kali,C43,D43,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pip (factordb-python),F43,
+kali-37,FakeNet-NG,kali,Approved Tool List for Kali,C44,D44,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/flare-fakenet-ng (fakenet in PATH),F44,
+kali-38,Fernflower,kali,Approved Tool List for Kali,C45,D45,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/fernflower/build/libs/fernflower.jar (/usr/local/bin/fernflower),F45,
+kali-39,Feroxbuster,kali,Approved Tool List for Kali,C46,D46,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F46,
+kali-40,FFmpeg,kali,Approved Tool List for Kali,C47,D47,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,apt (ffmpeg),F47,
+kali-41,ffuf,kali,Approved Tool List for Kali,C48,D48,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F48,
+kali-42,file (libmagic),kali,Approved Tool List for Kali,C49,D49,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F49,
+kali-43,FLOSS (FLARE Obfuscated String Solver),kali,Approved Tool List for Kali,C50,D50,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (flare-floss),F50,
+kali-44,foremost,kali,Approved Tool List for Kali,C51,D51,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F51,
+kali-45,FQLite,kali,Approved Tool List for Kali,C52,D52,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/fqlite/bin/fqlite (symlinked to /usr/local/bin),F52,
+kali-46,Frida,kali,Approved Tool List for Kali,C53,D53,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F53,
+kali-47,"GCC, G++ and build tools (build-essential, make, CMake, pkg-config)",kali,Approved Tool List for Kali,C54,D54,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F54,
+kali-48,GEF (GDB Enhanced Features),kali,Approved Tool List for Kali,C55,D55,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/gef.py,F55,
+kali-49,Git,kali,Approved Tool List for Kali,C56,D56,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F56,
+kali-50,Gitleaks,kali,Approved Tool List for Kali,C57,D57,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F57,
+kali-51,G'MIC (gmic),kali,Approved Tool List for Kali,C58,D58,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F58,
+kali-52,GNU Wget,kali,Approved Tool List for Kali,C59,D59,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F59,
+kali-53,Go,kali,Approved Tool List for Kali,C60,D60,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F60,
+kali-54,Gobuster,kali,Approved Tool List for Kali,C61,D61,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F61,
+kali-55,GoReSym,kali,Approved Tool List for Kali,C62,D62,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,go install (github.com/mandiant/GoReSym@latest),F62,
+kali-56,GTFOBins (offline copy),kali,Approved Tool List for Kali,C63,D63,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/GTFOBins.github.io),F63,
+kali-57,gzip,kali,Approved Tool List for Kali,C64,D64,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F64,
+kali-58,HackTricks (offline copy),kali,Approved Tool List for Kali,C65,D65,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/hacktricks),F65,
+kali-59,hashcat,kali,Approved Tool List for Kali,C66,D66,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F66,
+kali-60,hashid,kali,Approved Tool List for Kali,C67,D67,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F67,
+kali-61,Hayabusa,kali,Approved Tool List for Kali,C68,D68,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F68,
+kali-62,hcxtools,kali,Approved Tool List for Kali,C69,D69,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F69,
+kali-63,Hindsight (pyhindsight),kali,Approved Tool List for Kali,C70,D70,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (pyhindsight),F70,
+kali-64,hlextend,kali,Approved Tool List for Kali,C71,D71,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,Python module (/usr/local/lib/python3.14/dist-packages/hlextend.py),F71,
+kali-65,Hydra,kali,Approved Tool List for Kali,C72,D72,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F72,
+kali-66,"iLEAPP (iOS Logs, Events, And Plists Parser)",kali,Approved Tool List for Kali,C73,D73,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F73,
+kali-67,ImageMagick,kali,Approved Tool List for Kali,C74,D74,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F74,
+kali-68,Impacket,kali,Approved Tool List for Kali,C75,D75,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F75,
+kali-69,innoextract,kali,Approved Tool List for Kali,C76,D76,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F76,
+kali-70,internet_detector,kali,Approved Tool List for Kali,C77,D77,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,apt (inetsim),F77,
+kali-71,IPython,kali,Approved Tool List for Kali,C78,D78,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F78,
+kali-72,jadx (jadx-gui),kali,Approved Tool List for Kali,C79,D79,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F79,
+kali-73,John the Ripper (jumbo),kali,Approved Tool List for Kali,C80,D80,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F80,
+kali-74,Jpeginfo,kali,Approved Tool List for Kali,C81,D81,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F81,
+kali-75,js-beautify,kali,Approved Tool List for Kali,C82,D82,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F82,
+kali-76,js-deobfuscator,kali,Approved Tool List for Kali,C83,D83,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,npm (js-deobfuscator),F83,
+kali-77,jwt_tool,kali,Approved Tool List for Kali,C84,D84,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/jwt_tool (/usr/local/bin/jwt_tool),F84,
+kali-78,Katana,kali,Approved Tool List for Kali,C85,D85,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,go install (github.com/projectdiscovery/katana/cmd/katana@latest),F85,
+kali-79,legion,kali,Approved Tool List for Kali,C86,D86,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F86,
+kali-80,libesedb tools,kali,Approved Tool List for Kali,C87,D87,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F87,
+kali-81,LibreOffice,kali,Approved Tool List for Kali,C88,D88,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F88,
+kali-82,lrzip,kali,Approved Tool List for Kali,C89,D89,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F89,
+kali-83,ltrace,kali,Approved Tool List for Kali,C90,D90,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F90,
+kali-84,lz4,kali,Approved Tool List for Kali,C91,D91,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F91,
+kali-85,lzip,kali,Approved Tool List for Kali,C92,D92,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F92,
+kali-86,mac_apt,kali,Approved Tool List for Kali,C93,D93,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/mac_apt),F93,
+kali-87,MediaInfo,kali,Approved Tool List for Kali,C94,D94,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F94,
+kali-88,Metasploit Framework,kali,Approved Tool List for Kali,C95,D95,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F95,
+kali-89,mimikatz,kali,Approved Tool List for Kali,C96,D96,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,Wine (Windows binary),F96,
+kali-90,Miniforge3 (conda),kali,Approved Tool List for Kali,C97,D97,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/home/kali/miniforge3,F97,
+kali-91,multimon-ng,kali,Approved Tool List for Kali,C98,D98,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,apt (multimon-ng),F98,
+kali-92,mupdf-tools (mutool),kali,Approved Tool List for Kali,C99,D99,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F99,
+kali-93,NASM (Netwide Assembler),kali,Approved Tool List for Kali,C100,D100,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F100,
+kali-94,Nmap (with Ncat / Nping),kali,Approved Tool List for Kali,C101,D101,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F101,
+kali-95,Node.js (with npm),kali,Approved Tool List for Kali,C102,D102,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F102,
+kali-96,obfuscator-io-deobfuscator,kali,Approved Tool List for Kali,C103,D103,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F103,
+kali-97,Obsidian,kali,Approved Tool List for Kali,C104,D104,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F104,
+kali-98,"oletools (full suite: olevba, oleid, oleobj, rtfobj, mraptor, msodde, olemeta, oletimes, pyxswf)",kali,Approved Tool List for Kali,C105,D105,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (oletools),F105,
+kali-99,OllyDbg,kali,Approved Tool List for Kali,C106,D106,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,Wine (Windows binary),F106,
+kali-100,OpenStego,kali,Approved Tool List for Kali,C107,D107,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,GitHub .deb package,F107,
+kali-101,padding-oracle-attacker,kali,Approved Tool List for Kali,C108,D108,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F108,
+kali-102,PARI/GP,kali,Approved Tool List for Kali,C109,D109,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F109,
+kali-103,PayloadsAllTheThings (offline copy),kali,Approved Tool List for Kali,C110,D110,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/PayloadsAllTheThings),F110,
+kali-104,peda,kali,Approved Tool List for Kali,C111,D111,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/peda (sourced in ~/.gdbinit),F111,
+kali-105,peepdf-3,kali,Approved Tool List for Kali,C112,D112,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (peepdf-3),F112,
+kali-106,pff-tools (libpff),kali,Approved Tool List for Kali,C113,D113,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F113,
+kali-107,"Plaso (log2timeline, psort, pinfo)",kali,Approved Tool List for Kali,C114,D114,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F114,
+kali-108,pngcheck,kali,Approved Tool List for Kali,C115,D115,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,apt (pngcheck),F115,
+kali-109,pwndbg,kali,Approved Tool List for Kali,C116,D116,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/pwndbg,F116,
+kali-110,pycdc (Decompyle++),kali,Approved Tool List for Kali,C117,D117,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F117,
+kali-111,pyinstxtractor-ng,kali,Approved Tool List for Kali,C118,D118,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pipx (pyinstxtractor-ng),F118,
+kali-112,pypykatz,kali,Approved Tool List for Kali,C119,D119,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F119,
+kali-113,Python 2.7,kali,Approved Tool List for Kali,C120,D120,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F120,
+kali-114,Python 3.11 (via uv),kali,Approved Tool List for Kali,C121,D121,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F121,
+kali-115,qemu-img (qemu-utils),kali,Approved Tool List for Kali,C122,D122,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F122,
+kali-116,radare2,kali,Approved Tool List for Kali,C123,D123,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F123,
+kali-117,rat-king-parser,kali,Approved Tool List for Kali,C124,D124,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F124,
+kali-118,RegRipper,kali,Approved Tool List for Kali,C125,D125,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F125,
+kali-119,ripgrep (rg),kali,Approved Tool List for Kali,C126,D126,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F126,
+kali-120,rockyou.txt (Kali 'wordlists' package),kali,Approved Tool List for Kali,C127,D127,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/usr/share/wordlists/rockyou.txt,F127,
+kali-121,ROPgadget,kali,Approved Tool List for Kali,C128,D128,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F128,
+kali-122,"rtptools (rtpdump, rtpplay and others)",kali,Approved Tool List for Kali,C129,D129,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/opt/tools/rtptools,F129,
+kali-123,"Rust (rustup, rustc, cargo)",kali,Approved Tool List for Kali,C130,D130,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F130,
+kali-124,rustscan,kali,Approved Tool List for Kali,C131,D131,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F131,
+kali-125,SageMath,kali,Approved Tool List for Kali,C132,D132,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F132,
+kali-126,SecLists,kali,Approved Tool List for Kali,C133,D133,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/usr/bin/seclists,F133,
+kali-127,socat,kali,Approved Tool List for Kali,C134,D134,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F134,
+kali-128,Sonic Visualiser,kali,Approved Tool List for Kali,C135,D135,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F135,
+kali-129,SoX (Sound eXchange),kali,Approved Tool List for Kali,C136,D136,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F136,
+kali-130,SQLCipher Community Edition — CLI,kali,Approved Tool List for Kali,C137,D137,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F137,
+kali-131,sqlite3,kali,Approved Tool List for Kali,C138,D138,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F138,
+kali-132,sqlmap,kali,Approved Tool List for Kali,C139,D139,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F139,
+kali-133,sstv (command-line SSTV decoder),kali,Approved Tool List for Kali,C140,D140,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pip (PySSTV),F140,
+kali-134,steghide,kali,Approved Tool List for Kali,C141,D141,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F141,
+kali-135,stegseek,kali,Approved Tool List for Kali,C142,D142,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F142,
+kali-136,stegsnow (SNOW),kali,Approved Tool List for Kali,C143,D143,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,apt (stegsnow),F143,
+kali-137,StegSolve,kali,Approved Tool List for Kali,C144,D144,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F144,
+kali-138,strace,kali,Approved Tool List for Kali,C145,D145,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F145,
+kali-139,Subfinder,kali,Approved Tool List for Kali,C146,D146,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F146,
+kali-140,Sublime Text,kali,Approved Tool List for Kali,C147,D147,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F147,
+kali-141,tar,kali,Approved Tool List for Kali,C148,D148,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F148,
+kali-142,tcpdump,kali,Approved Tool List for Kali,C149,D149,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F149,
+kali-143,TestDisk and PhotoRec,kali,Approved Tool List for Kali,C150,D150,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F150,
+kali-144,unar,kali,Approved Tool List for Kali,C151,D151,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F151,
+kali-145,uncompyle6,kali,Approved Tool List for Kali,C152,D152,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F152,
+kali-146,unpyc3 (unpyc37-3.10),kali,Approved Tool List for Kali,C153,D153,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/unpyc3),F153,
+kali-147,unrar,kali,Approved Tool List for Kali,C154,D154,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,/usr/bin/unrar,F154,
+kali-148,unzip,kali,Approved Tool List for Kali,C155,D155,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F155,
+kali-149,UPX,kali,Approved Tool List for Kali,C156,D156,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F156,
+kali-150,Visual Studio Code,kali,Approved Tool List for Kali,C157,D157,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F157,
+kali-151,Volatility 2,kali,Approved Tool List for Kali,C158,D158,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/volatility),F158,
+kali-152,Volatility 2 community plugins,kali,Approved Tool List for Kali,C159,D159,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/community),F159,
+kali-153,Volatility 2 profiles (Linux and macOS),kali,Approved Tool List for Kali,C160,D160,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/profiles),F160,
+kali-154,Volatility 3 community plugins (community3),kali,Approved Tool List for Kali,C161,D161,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,git (/opt/tools/community3),F161,
+kali-155,VS Code extension: C/C++ (ms-vscode.cpptools),kali,Approved Tool List for Kali,C162,D162,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,VS Code extension (ms-vscode.cpptools),F162,
+kali-156,VS Code extension: Python (ms-python.python),kali,Approved Tool List for Kali,C163,D163,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,VS Code extension (ms-python.python),F163,
+kali-157,YARA,kali,Approved Tool List for Kali,C164,D164,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F164,
+kali-158,yara-python (and YARA on Linux),kali,Approved Tool List for Kali,C165,D165,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,pip (yara-python),F165,
+kali-159,zip,kali,Approved Tool List for Kali,C166,D166,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F166,
+kali-160,zstd,kali,Approved Tool List for Kali,C167,D167,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F167,
+kali-161,Zui (formerly Brim),kali,Approved Tool List for Kali,C168,D168,participant request,2,,approved,wb-kali-availability,explicitly not guaranteed; wb-kali-best-effort,,F168,

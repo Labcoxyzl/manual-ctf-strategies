@@ -1,4 +1,5 @@
 """Build the standalone field guide from approved inventory and reviewed resources."""
+import csv
 import html
 from html.parser import HTMLParser
 import json
@@ -157,6 +158,49 @@ def render_page(template, inventory, resources, routes):
     return template
 
 
+def render_readme_catalog(inventory, resources):
+    with (ROOT / "research/validation/round2/authority/priority-authority.csv").open(newline="", encoding="utf-8") as source:
+        rows = list(csv.DictReader(source))
+    by_id = {tool["id"]: tool for tool in inventory}
+    assert len(rows) == len(by_id) == 200
+    assert {row["id"] for row in rows} == set(by_id)
+    assert all(row["name"] == by_id[row["id"]]["name"] and
+               row["origin"] == TOOL_ORIGINS[row["id"]] and row["approval"] == "approved"
+               for row in rows), "Workbook CSV differs from the approved inventory"
+    core = {
+        "windows-1": "decode", "windows-2": "pcap", "windows-3": "pdf",
+        "windows-9": "native", "windows-12": "media", "windows-13": "media",
+        "windows-14": "media", "windows-15": "pdf", "windows-16": "can",
+        "windows-18": "pcap", "windows-20": "web", "windows-22": "native",
+        "windows-23": "disk", "windows-26": "pdf", "windows-30": "crypto",
+        "windows-31": "memory",
+    }
+    lines = []
+    for category in CATEGORIES.values():
+        tools = sorted((tool for tool in inventory if category in resources[tool["id"]]["categories"]),
+                       key=tool_order)
+        lines += [f"## {category}", "", "| Tool and origin | What it does and where to read more |", "| --- | --- |"]
+        for tool in tools:
+            tool_id = tool["id"]
+            origin = "Trend Micro proposal" if is_proposed(tool) else "Participant request"
+            name = esc(tool["name"]).replace("|", "\\|")
+            purpose = esc(resources[tool_id]["challenge_use"]).replace("|", "\\|")
+            links = [f"[Web](https://labcoxyzl.github.io/manual-ctf-strategies/#tool-{tool_id})"]
+            if tool_id in core:
+                links.append(f"[Core workflow](CORE_WORKFLOWS.md#{core[tool_id]})")
+            if tool_id == "kali-59":
+                links.append("[Hashcat commands](HASHCAT.md)")
+            if tool_id in {"windows-7", "kali-114"}:
+                links.append("[Python templates](scripts/templates/README.md)")
+            lines.append(
+                f"| [{name}](CTF_CHEATSHEET.md#approved-{tool_id}) · {esc(platform_label(tool))}"
+                f"<br>**{origin}** | {purpose} · {' · '.join(links)} |"
+            )
+        lines.append("")
+    assert sum(line.startswith("| [") for line in lines) == sum(len(row["categories"]) for row in resources.values())
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def main():
     from build_notes import render_notes
 
@@ -169,6 +213,12 @@ def main():
         (ROOT / filename).write_text(content)
     for filename in ("index.html", "keyword-preview.html"):
         (ROOT / filename).write_text(page)
+    readme = (ROOT / "README.md").read_text()
+    start, end = "<!-- approved-tools:start -->", "<!-- approved-tools:end -->"
+    assert readme.count(start) == readme.count(end) == 1
+    before, rest = readme.split(start)
+    _, after = rest.split(end)
+    (ROOT / "README.md").write_text(before + start + "\n" + render_readme_catalog(inventory, resources) + end + after)
     print(f"Rendered {len(inventory)} approved entries and {len(routes)} task routes in {len(CATEGORIES)} categories")
 
 
