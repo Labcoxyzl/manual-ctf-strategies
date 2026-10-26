@@ -18,9 +18,7 @@ def main():
     args = parser.parse_args()
     try:
         path = Path(args.file)
-        if not stat.S_ISREG(path.stat().st_mode):
-            raise ValueError("input must be a regular file")
-        with path.open("rb") as source:
+        with os.fdopen(os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)), "rb") as source:
             info = os.fstat(source.fileno())
             if not stat.S_ISREG(info.st_mode):
                 raise ValueError("input must be a regular file")

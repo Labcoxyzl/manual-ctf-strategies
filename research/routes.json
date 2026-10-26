@@ -712,5 +712,289 @@
         "url": "https://nmap.org/ncat/guide/ncat-usage.html"
       }
     ]
+  },
+  {
+    "id": "wireless-auth",
+    "category": "forensics",
+    "title": "Supplied Wi-Fi capture → offline candidate check",
+    "input": "A supplied 802.11 capture and a local candidate wordlist; no live wireless activity.",
+    "tool_ids": [
+      "windows-2",
+      "kali-62",
+      "kali-59",
+      "kali-3"
+    ],
+    "steps": [
+      "Inspect the capture in Wireshark for the target network and PMKID or EAPOL handshake evidence; record the BSSID/ESSID and any missing messages.",
+      "For a supported capture, choose a new nonexistent output path and run `hcxpcapngtool -o NEW_capture.22000 capture.pcapng`; inspect converter warnings and confirm the new records belong to this capture before selecting Hashcat mode 22000.",
+      "Run `hashcat -m 22000 -a 0 NEW_capture.22000 candidates.txt`, then `hashcat -m 22000 NEW_capture.22000 --show`; validate any result against the recorded network evidence."
+    ],
+    "expected": "A supported authentication record and an explicit candidate result: a verified match or only the tested candidates exhausted.",
+    "fallback": "No converted records may mean an incomplete handshake, a different security mode, or unsupported capture framing. Reinspect the capture before changing wordlists; a backend error is not exhaustion.",
+    "caveat": "Only analyze supplied captures offline. Do not transmit deauthentication frames or use online upload helpers. hcxtools may append to an existing output file; a stale nonempty file is not conversion evidence.",
+    "verification": "Source-reviewed against upstream hcxtools and Hashcat documentation; not run on competition machines.",
+    "references": [
+      {
+        "title": "hcxtools — upstream conversion tools",
+        "url": "https://github.com/ZerBea/hcxtools"
+      },
+      {
+        "title": "Hashcat example hashes — mode 22000",
+        "url": "https://hashcat.net/wiki/doku.php?id=example_hashes"
+      },
+      {
+        "title": "Aircrack-ng — offline capture reference",
+        "url": "https://www.aircrack-ng.org/doku.php?id=aircrack-ng"
+      }
+    ]
+  },
+  {
+    "id": "evtx-timeline",
+    "category": "forensics",
+    "title": "EVTX → event lead → source record",
+    "input": "Supplied Windows EVTX files and a question about an event, host or time window.",
+    "tool_ids": [
+      "kali-20",
+      "kali-61"
+    ],
+    "steps": [
+      "Identify the relevant log channel and event ID from the clue. For PowerShell script-block event 4104, run `chainsaw search -t 'Event.System.EventID: =4104' ./logs` on a copied EVTX directory.",
+      "Inspect matching records in their source log; record file, Event ID, record ID, host, account, timestamp and time zone before correlating events.",
+      "If the question needs broader detection or ordering, use a prepared local Sigma rule/mapping with Chainsaw or the installed Hayabusa timeline command; confirm its version and rules before interpreting hits."
+    ],
+    "expected": "A traceable event or ordered event set tied to source files and record identifiers, with a bounded interpretation.",
+    "fallback": "No result: check whether the expected channel exists, whether parsing produced errors, and whether the selected time window or event ID is too narrow. Missing logs are not negative evidence.",
+    "caveat": "Rule hits are leads, not a malware verdict. Normalize time zones and distinguish event time from file timestamps. Hayabusa command names differ across versions.",
+    "verification": "Source-reviewed against Chainsaw and Hayabusa documentation; no EVTX fixture or competition-machine run.",
+    "references": [
+      {
+        "title": "Chainsaw — search and hunt examples",
+        "url": "https://github.com/WithSecureOpenSource/chainsaw"
+      },
+      {
+        "title": "Hayabusa — Windows event timelines",
+        "url": "https://github.com/Yamato-Security/hayabusa"
+      }
+    ]
+  },
+  {
+    "id": "native-exploit-triage",
+    "category": "reversing",
+    "title": "Native crash → controlled primitive",
+    "input": "A supplied native executable and its documented local input path; an assigned service is optional.",
+    "tool_ids": [
+      "kali-21",
+      "windows-9",
+      "kali-109",
+      "kali-121",
+      "windows-7"
+    ],
+    "steps": [
+      "Identify the executable format and architecture, then run `checksec --file=./challenge` for an ELF; record PIE, NX, canary and RELRO before interpreting a crash.",
+      "Reproduce the observed input under GDB. If input reaches a corrupted control value, use a bounded cyclic pattern and `cyclic_find` with the same subsequence size and byte order to establish an offset; confirm with a near miss.",
+      "Only after proving a usable primitive, inspect a specific gadget class with `ROPgadget --binary ./challenge --only 'pop|ret'` and verify address/load-base assumptions locally before adapting the TCP starter to an assigned service."
+    ],
+    "expected": "A reproducible crash with a measured controlled value or a clear reason that this input has not established control.",
+    "fallback": "If the process exits normally or a canary aborts first, trace the input path and failing check. Do not guess an offset or copy a gadget address into a different build.",
+    "caveat": "Protection flags do not prove a vulnerability. PIE/ASLR, architecture, endianness and remote library versions affect addresses; keep unknown executables in the intended isolated runtime.",
+    "verification": "Source-reviewed against checksec, pwntools and ROPgadget references; no exploit or competition-machine run.",
+    "references": [
+      {
+        "title": "checksec 2.6.0 syntax",
+        "url": "https://raw.githubusercontent.com/slimm609/checksec/2.6.0/checksec"
+      },
+      {
+        "title": "pwntools cyclic and cyclic_find",
+        "url": "https://docs.pwntools.com/en/stable/util/cyclic.html"
+      },
+      {
+        "title": "ROPgadget usage",
+        "url": "https://github.com/JonathanSalwan/ROPgadget"
+      }
+    ]
+  },
+  {
+    "id": "zip-known-plaintext",
+    "category": "crypto",
+    "title": "ZipCrypto ZIP → known plaintext → checked recovery",
+    "input": "A supplied ZipCrypto archive and exact known bytes for one member; use new output filenames.",
+    "tool_ids": [
+      "kali-2",
+      "kali-13",
+      "kali-59"
+    ],
+    "steps": [
+      "Run `7z l -slt archive.zip`; identify the member, encryption method and compression method. Continue with bkcrack only for ZipCrypto and known bytes of its encrypted compressed stream.",
+      "Prepare at least 11 exact supplied plaintext bytes, including eight contiguous; bkcrack adds one inferred ZIP header check byte for archive input. Run `bkcrack -C archive.zip -c MEMBER -p known.bin` against the matching member.",
+      "If internal keys are recovered, use `bkcrack -C archive.zip -c MEMBER -k KEY1 KEY2 KEY3 -d NEW_member` for the selected member and validate its bytes. Use `-D NEW_archive.zip` and `7z t` only when all archive members share the same keys."
+    ],
+    "expected": "Recovered internal keys and a structurally valid decrypted member, or a clear failed precondition; the original password need not be recovered.",
+    "fallback": "ZIP AES is outside this attack. For a deflated member, original file-header bytes may not match the compressed stream; revisit that assumption instead of extending a blind search.",
+    "caveat": "The tutorial's easy case is stored data. A deflated member's decrypted bytes still need decompression. Do not treat guessed bytes or reported keys as verified until the selected member passes an independent check.",
+    "verification": "Source-reviewed against the bkcrack 1.8.1 tutorial; no local bkcrack run or competition-machine check.",
+    "references": [
+      {
+        "title": "bkcrack 1.8.1 known-plaintext tutorial",
+        "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md"
+      },
+      {
+        "title": "7-Zip command-line reference",
+        "url": "https://7-zip.org/"
+      },
+      {
+        "title": "Hashcat format examples",
+        "url": "https://hashcat.net/wiki/doku.php?id=example_hashes"
+      }
+    ]
+  },
+  {
+    "id": "registry-hive",
+    "category": "forensics",
+    "title": "Registry hive → key evidence → corroboration",
+    "input": "A copied Windows registry hive and, when supplied, its transaction logs.",
+    "tool_ids": [
+      "kali-118",
+      "windows-39"
+    ],
+    "steps": [
+      "Identify whether the source is SYSTEM, SOFTWARE, SAM, SECURITY or a user hive; keep its path and any LOG1/LOG2 companions with a working copy.",
+      "From the installed RegRipper directory, use `rip.pl -l` to choose a plugin, then run `rip.pl -r HIVE -p PLUGIN` on the copied hive; record the plugin, source hive, key/value and displayed last-write time.",
+      "Check the decisive value in a second approved registry view or related artifact and resolve the timestamp's time basis before drawing a timeline conclusion."
+    ],
+    "expected": "A specific key/value or other registry artifact tied to its hive, plugin and corroborating evidence.",
+    "fallback": "If the hive is dirty or a recent value is missing, account for transaction logs; RegRipper does not replay them automatically. A plugin mismatch or missing hive is not absence of the artifact.",
+    "caveat": "Run on copies. Last-write time belongs to a key and does not identify the actor or prove that every value changed then; keep log replay and time-zone assumptions explicit.",
+    "verification": "Source-reviewed against RegRipper 3.0 CLI; no Windows hive or competition-machine run.",
+    "references": [
+      {
+        "title": "RegRipper 3.0 CLI syntax and transaction-log limit",
+        "url": "https://github.com/keydet89/RegRipper3.0/blob/master/rip.pl"
+      },
+      {
+        "title": "Eric Zimmerman's tools",
+        "url": "https://ericzimmerman.github.io/"
+      }
+    ]
+  },
+  {
+    "id": "sqlite-artifact",
+    "category": "forensics",
+    "title": "SQLite + WAL → schema → selected records",
+    "input": "A local SQLite database, with any -wal and -shm sidecars from the same snapshot.",
+    "tool_ids": [
+      "kali-131",
+      "kali-25",
+      "kali-63"
+    ],
+    "steps": [
+      "Preserve a coherent copy of the database and its matching -wal/-shm files in a working directory; record if a sidecar is missing or the source was live during collection.",
+      "Run `sqlite3 -readonly COPY.db '.tables'`, then `sqlite3 -readonly COPY.db '.schema TABLE'`; query only the relevant rows with an explicit order and inspect timestamp units before converting dates.",
+      "Cross-check a decisive row against the source application context or a second read-only view; if this is browser history, use Hindsight only when its parser supports the supplied profile version."
+    ],
+    "expected": "A table, selected row and interpreted time field with database and sidecar provenance.",
+    "fallback": "A read-only WAL open can fail when sidecars or directory permissions are unsuitable. Copy the complete set into a writable analysis directory; do not infer empty data from a missing WAL or parser error.",
+    "caveat": "The CLI opens the database read-only but may create working shared-memory files. Do not use Write Changes on evidence or treat a schema field name as proof of its time epoch.",
+    "verification": "SQLite -readonly with copied DB/WAL/SHM locally checked on a synthetic database; competition-machine and browser-profile behavior unverified.",
+    "references": [
+      {
+        "title": "SQLite CLI schema and read-only mode",
+        "url": "https://www.sqlite.org/cli.html"
+      },
+      {
+        "title": "SQLite WAL and read-only conditions",
+        "url": "https://www.sqlite.org/wal.html"
+      },
+      {
+        "title": "Hindsight browser artifact parser",
+        "url": "https://github.com/RyanDFIR/hindsight"
+      }
+    ]
+  },
+  {
+    "id": "sqli-differential",
+    "category": "web",
+    "title": "Suspected SQL input → paired response check",
+    "input": "A working request to an assigned challenge endpoint and one suspected query parameter.",
+    "tool_ids": [
+      "windows-20",
+      "kali-103",
+      "kali-132"
+    ],
+    "steps": [
+      "Replay the unchanged request twice in Burp Repeater; record status, relevant body content, cookies and any server-side state before editing the suspected parameter.",
+      "Use one syntax probe and a matched true/false condition appropriate to the observed input type and quoting; compare both with the unchanged request and a non-SQL negative control.",
+      "Only after a repeatable SQL-specific difference, consult the matching local PayloadsAllTheThings topic or use a narrowly configured approved sqlmap test for that request and parameter; verify any result in the application."
+    ],
+    "expected": "A stable response or state difference explained by the paired SQL condition, or an explicit inconclusive result.",
+    "fallback": "Generic errors, reflections, cache changes, validation failures and expired sessions can mimic a signal. Restore the baseline and choose a control that separates those causes.",
+    "caveat": "SQL syntax varies by database and query position. Avoid broad automation or write-changing statements without challenge evidence and scope; a single quote error alone is not a SQLi finding.",
+    "verification": "Source-reviewed against PortSwigger SQL injection and Repeater guidance; no challenge service tested.",
+    "references": [
+      {
+        "title": "PortSwigger SQL injection detection",
+        "url": "https://portswigger.net/web-security/sql-injection"
+      },
+      {
+        "title": "Burp Repeater",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+      }
+    ]
+  },
+  {
+    "id": "server-fetch",
+    "category": "web",
+    "title": "URL input → server-side fetch evidence",
+    "input": "An assigned application with a URL-like input and a challenge-provided benign destination or request log.",
+    "tool_ids": [
+      "windows-20"
+    ],
+    "steps": [
+      "Replay the application's normal URL-input request unchanged and determine whether the browser redirects, the server fetches content, or an asynchronous job handles it.",
+      "In Repeater, change only the URL to an authorized benign destination with a unique marker, then use a malformed or blocked destination as a control; inspect response content and any available challenge-provided request log.",
+      "Only when server-originated fetching is evidenced, test the specific URL parser or trust boundary suggested by the challenge and confirm the observed effect at the authorized destination."
+    ],
+    "expected": "A marker or log entry tied to a server-originated request, separated from a client redirect or reflected URL.",
+    "fallback": "A changed status, echoed URL or browser navigation alone does not establish SSRF. Check caching, asynchronous timing, redirects and whether the destination is reachable from the server.",
+    "caveat": "Keep destinations within the assigned challenge scope. Do not send challenge content to an external callback or probe arbitrary internal addresses based only on a URL field.",
+    "verification": "Source-reviewed against PortSwigger SSRF and Repeater guidance; no live endpoint tested.",
+    "references": [
+      {
+        "title": "PortSwigger SSRF guide",
+        "url": "https://portswigger.net/web-security/ssrf"
+      },
+      {
+        "title": "Burp Repeater",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+      }
+    ]
+  },
+  {
+    "id": "object-authorization",
+    "category": "web",
+    "title": "Object reference → authorization comparison",
+    "input": "Two permitted principals with objects whose ownership is known from the challenge.",
+    "tool_ids": [
+      "windows-20",
+      "windows-5"
+    ],
+    "steps": [
+      "Record a working request for an object owned by principal A and a comparable object owned by principal B; keep their sessions separate and save a nonexistent-object control.",
+      "In Repeater, send A's object reference under B's authenticated session while keeping other request fields stable; compare with B's own-object and nonexistent-object responses.",
+      "Inspect the actual returned object data or state change and the challenge's intended access rule before calling the difference an authorization bypass."
+    ],
+    "expected": "A demonstrated cross-principal access to data or action that the intended rule forbids, or a checked rejection.",
+    "fallback": "Shared/public objects, generic 200 pages, cache hits, missing CSRF values or no second principal make the result inconclusive. Do not enumerate object IDs to replace missing ownership evidence.",
+    "caveat": "Keep tokens private, avoid cross-user state changes without a challenge need, and distinguish read access from write authorization.",
+    "verification": "Source-reviewed against PortSwigger IDOR/access-control guidance; no live challenge tested.",
+    "references": [
+      {
+        "title": "PortSwigger IDOR and access control",
+        "url": "https://portswigger.net/web-security/access-control/idor"
+      },
+      {
+        "title": "Burp Repeater",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+      }
+    ]
   }
 ]

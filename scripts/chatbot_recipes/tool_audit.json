@@ -1,0 +1,9 @@
+{
+  "chat": {
+    "path": "/api/chat",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "audit_path": "/api/audit/REPLACE_SESSION_ID"
+}

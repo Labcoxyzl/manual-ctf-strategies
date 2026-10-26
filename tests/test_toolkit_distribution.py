@@ -148,6 +148,18 @@ class DistributionTests(unittest.TestCase):
         result = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)['status'], 'complete')
+        with tempfile.TemporaryDirectory(dir=cwd) as temp:
+            source = Path(temp) / 'encoded.txt'
+            source.write_bytes(b'SEVMTE8=')
+            command = [sys.executable, '-I', str(destination / 'scripts/autosolve.py'), '--json',
+                       'analyze', str(source), '--category', 'encoding',
+                       '--runs-root', str(Path(temp) / 'runs')]
+            result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+            manifest = json.loads((Path(json.loads(result.stdout)['run']) / 'manifest.json').read_text())
+            self.assertTrue(any(item['depth'] > 0 and Path(item['path']).read_bytes() == b'HELLO'
+                                for item in manifest['artifacts']))
+            self.assertEqual(source.read_bytes(), b'SEVMTE8=')
 
     @unittest.skipUnless(shutil.which('unshare'), 'Linux namespace isolation unavailable')
     def test_offline_with_development_workspace_hidden(self):

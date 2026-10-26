@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import shlex
 import shutil
+import sqlite3
 import struct
 import subprocess
 import tempfile
@@ -31,6 +32,19 @@ def fixtures(directory):
     png += chunk(b"tEXt", b"Comment\x00benign_metadata_marker")
     png += chunk(b"IDAT", zlib.compress(b"\x00\x00\x00\x00")) + chunk(b"IEND", b"")
     (directory / "image.png").write_bytes(png)
+    source_dir = directory / "source"
+    source_dir.mkdir()
+    source = source_dir / "source.db"
+    database = sqlite3.connect(source)
+    database.execute("PRAGMA journal_mode=WAL")
+    database.execute("PRAGMA wal_autocheckpoint=0")
+    database.execute("CREATE TABLE visits(url TEXT, ts INTEGER)")
+    database.execute("INSERT INTO visits VALUES (?, ?)", ("synthetic", 42))
+    database.commit()
+    copy = directory / "COPY.db"
+    for suffix in ("", "-wal", "-shm"):
+        shutil.copy2(Path(str(source) + suffix), Path(str(copy) + suffix))
+    return database
 
 
 def main():
@@ -44,7 +58,7 @@ def main():
     results = []
     with tempfile.TemporaryDirectory(prefix=".guide-recipes-", dir=ROOT) as temporary:
         directory = Path(temporary)
-        fixtures(directory)
+        database = fixtures(directory)
 
         def check(route_id, command, version_args, expected, *, published=True, success=True):
             route = routes[route_id]
@@ -61,10 +75,14 @@ def main():
             version = subprocess.run([executable, *version_args], text=True, capture_output=True, timeout=10)
             assert version.returncode == 0, (argv[0], "version query failed", version.stderr)
             version_text = (version.stdout or version.stderr).strip().splitlines()[0]
-            results.append((route_id, command, "PASS" if published else "PASS (failure control)", version_text))
+            status = "PASS" if published else "PASS (local check)" if success else "PASS (failure control)"
+            results.append((route_id, command, status, version_text))
 
         # Checks below must retain exact command text from the published route.
-        run_checks(check, directory)
+        try:
+            run_checks(check, directory)
+        finally:
+            database.close()
 
     lines = ["# Recipe fixture validation", "", f"Run: {datetime.now(timezone.utc).isoformat()}",
              f"Routes SHA-256: `{hashlib.sha256(route_bytes).hexdigest()}`", "",
@@ -107,6 +125,10 @@ def run_checks(check, directory):
           lambda r: "benign_metadata_marker" in r.stdout and "Image Width" in r.stdout and "---- PNG ----" in r.stdout)
     check("media-inspection", "pngcheck -v image.png", ["-h"],
           lambda r: "No errors detected" in r.stdout)
+    check("sqlite-artifact", "sqlite3 -readonly COPY.db '.tables'", ["--version"],
+          lambda r: "visits" in r.stdout)
+    check("sqlite-artifact", "sqlite3 -readonly COPY.db 'SELECT url,ts FROM visits;'", ["--version"],
+          lambda r: r.stdout.strip() == "synthetic|42", published=False)
 
 
 if __name__ == "__main__":

@@ -14,8 +14,8 @@ from urllib.parse import unquote, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_PAGES = (
-    'index.html', 'keyword-preview.html', 'TOOLKIT.html', 'RULES.html', 'HASHCAT.html', 'TEMPLATES.html', 'CTF_CHEATSHEET.html', 'CORE_WORKFLOWS.html', 'CORE_PRACTICE.html',
-    'LEARNING_RESOURCES.html', 'PRACTICE_WORKSHEETS.html',
+    'index.html', 'keyword-preview.html', 'TOOLKIT.html', 'CHATBOT_STRATEGIES.html', 'RULES.html', 'HASHCAT.html', 'TEMPLATES.html', 'CTF_CHEATSHEET.html', 'CORE_WORKFLOWS.html', 'CORE_PRACTICE.html',
+    'LEARNING_RESOURCES.html', 'PRACTICE_WORKSHEETS.html', 'SPECIALIST_WORKFLOWS.html',
     'APPROVED_TOOL_REFERENCES.html', 'RESOURCE_EVALUATION.html',
     'research/learning/practice/README.html',
     'research/learning/video-coverage/practice/TRIAGE_PRACTICE.html',
@@ -50,10 +50,48 @@ FIXTURES = (
     'tests/fixtures/toolkit/development/framed-bits.txt',
     'tests/fixtures/toolkit/development/wrapped-bits.txt',
 )
-CODE = ('scripts/ctf.py', 'scripts/README.md', 'requirements.txt', 'constraints.txt', 'tests/test_toolkit.py',
+CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init__.py',
+        'scripts/autosolve_lib/core.py', 'scripts/autosolve_lib/setup.py',
+        'scripts/autosolve_lib/candidates.py', 'tests/test_autosolve_candidates.py',
+        'scripts/autosolve_lib/family_catalog.json', 'scripts/autosolve_lib/profiles/__init__.py',
+        'scripts/autosolve_lib/profiles/encoding.py', 'scripts/autosolve_lib/profiles/documents.py',
+        'scripts/autosolve_lib/profiles/xor.py', 'tests/test_autosolve_xor.py',
+        'scripts/autosolve_lib/profiles/rsa.py', 'tests/test_autosolve_rsa.py',
+        'scripts/autosolve_lib/profiles/symmetric.py', 'tests/test_autosolve_symmetric.py',
+        'scripts/autosolve_lib/profiles/image_metadata.py', 'tests/test_autosolve_image_metadata.py',
+        'scripts/autosolve_lib/profiles/canlog.py', 'tests/test_autosolve_canlog.py',
+        'scripts/autosolve_lib/profiles/packets.py', 'tests/test_autosolve_packets.py',
+        'scripts/autosolve_lib/profiles/sqlite.py', 'tests/test_autosolve_sqlite.py',
+        'scripts/autosolve_lib/profiles/images.py', 'tests/test_autosolve_images.py',
+        'scripts/autosolve_lib/profiles/zsteg.py', 'tests/test_autosolve_zsteg.py',
+        'scripts/autosolve_lib/profiles/mime.py', 'tests/test_autosolve_mime.py',
+        'scripts/autosolve_lib/profiles/pdf.py', 'tests/test_autosolve_pdf.py',
+        'scripts/autosolve_lib/profiles/office.py', 'tests/test_autosolve_office.py',
+        'scripts/autosolve_lib/profiles/chatbot.py',
+        'scripts/autosolve_lib/profiles/chatbot_strategies.py',
+        'scripts/ai_model.py', 'tests/test_ai_model.py', 'tests/test_autosolve_chatbot.py',
+        'scripts/ai_model_attack.py', 'tests/test_ai_model_attack.py',
+        'scripts/templates/ai_model_adapter.py',
+        'scripts/chatbot_evidence.py', 'tests/test_chatbot_evidence.py',
+        'scripts/chatbot_callback.py', 'tests/test_chatbot_callback.py',
+        'scripts/chatbot_strategies.md',
+        'scripts/chatbot_recipes/context_bloat.json',
+        'scripts/chatbot_recipes/kb_article.json',
+        'scripts/chatbot_recipes/history_idor.json',
+        'scripts/chatbot_recipes/vector_store.json',
+        'scripts/chatbot_recipes/tool_audit.json',
+        'scripts/chatbot_recipes/workflow_action.json',
+        'scripts/chatbot_recipes/debug_verifier.json',
+        'scripts/chatbot_recipes/scorer_batch.json',
+        'scripts/chatbot_recipes/sign_network.json',
+        'scripts/chatbot_recipes/model_parity.json',
+        'tests/test_autosolve_core.py', 'tests/test_autosolve_encoding.py',
+        'tests/test_autosolve_documents.py', 'tests/test_autosolve_setup.py',
+        'scripts/README.md', 'requirements.txt', 'constraints.txt', 'tests/test_toolkit.py',
         'tests/test_toolkit_acceptance.py', 'scripts/templates/pwntools_starter.py',
         'scripts/templates/README.md', 'tests/test_templates.py',
         'scripts/templates/binary_parser.py', 'scripts/templates/http_probe.py',
+        'scripts/templates/jwt_inspect.py',
         'scripts/templates/file_intel.py', 'scripts/templates/math_client.py',
         'scripts/templates/math_demo.py', 'tests/test_math_client.py')
 INTERNAL_EVIDENCE = {
@@ -67,9 +105,10 @@ Open [index.html](index.html) in a browser. Instructions, search, worksheets and
 bundled synthetic inputs work offline. External technical references need internet.
 Read [TOOLKIT.html](TOOLKIT.html) for commands, limits and approved manual alternatives;
 [RULES.html](RULES.html) summarizes competition restrictions.
-[Core workflows](CORE_WORKFLOWS.md) and [practice inputs](CORE_PRACTICE.html)
-prioritize the 32 Trend Micro proposals; [Hashcat cheatsheet](HASHCAT.md) is editable Markdown; [Python templates](TEMPLATES.html)
-include file preview, binary parsing, HTTP experiments and optional pwntools clients.
+[Core workflows](CORE_WORKFLOWS.md) prioritize the 32 Trend Micro proposals;
+[specialist workflows](SPECIALIST_WORKFLOWS.html) cover the other prepared task routes.
+[Practice inputs](CORE_PRACTICE.html) and the [Hashcat cheatsheet](HASHCAT.md) are available offline; [Python templates](TEMPLATES.html)
+include file preview, JWT inspection, binary parsing, HTTP experiments and optional pwntools clients.
 [Python requirements](requirements.txt) and [reviewed dependency pins](constraints.txt)
 list the optional, non-AI packages for Linux/WSL CPython 3.11/3.12.
 
@@ -80,7 +119,16 @@ python3 --version
 python3 scripts/ctf.py doctor --workflow bytes
 python3 scripts/ctf.py bits --text '01000001' --json
 python3 -m unittest discover -s tests -p 'test_toolkit*.py'
+python3 scripts/autosolve.py --help
 ```
+
+`autosolve.py` supports bounded local encoding, declared AES/RSA checks,
+ZIP/MIME/PDF extraction, PNG trailing containers, image metadata/views, and an
+explicit-origin chatbot profile with selected plans. `ai_model.py` inspects
+offline model metadata and checks explicit wrapper parity. Chatbot runs keep
+private reports and resume records; offline model reports are private.
+Its reports mark remaining planned families as not implemented; a candidate
+is not a validated challenge answer.
 
 Use paths understood by that interpreter; quote paths containing spaces.
 Native Windows Python is unsupported. The byte workflows use only the standard
@@ -253,7 +301,7 @@ def validate_export(files, originals):
     index = pages['index.html']
     canonical = {f'windows-{number}' for number in range(1, 40)} | {f'kali-{number}' for number in range(1, 162)}
     if (len(index.tools) != 200 or len(set(index.tools)) != 200
-            or index.routes != 24 or index.categories != 7):
+            or index.routes != 33 or index.categories != 7):
         raise ValueError('Public guide lost approved tools, categories or routes')
     if set(index.tools) != canonical:
         raise ValueError('Public guide changed canonical inventory identities')

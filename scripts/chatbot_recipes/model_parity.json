@@ -1,0 +1,7 @@
+{
+  "reference": ["python3", "REPLACE_REFERENCE_WRAPPER.py"],
+  "candidate": ["python3", "REPLACE_CANDIDATE_WRAPPER.py"],
+  "cases": [{"input": "canary-one"}, {"input": "canary-two"}],
+  "timeout": 5,
+  "budget": 30
+}

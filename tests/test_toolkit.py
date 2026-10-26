@@ -167,6 +167,11 @@ class ToolkitTests(unittest.TestCase):
         broken.symlink_to(self.directory / "absent")
         for target in (source, alias, symlink, broken, self.directory):
             self.run_cli("xor", "--file", source, "--key-hex", "01", "--out", target, code=2)
+        for operation, arguments in (("xor", ("--file", source, "--key-hex", "01")),
+                                     ("bits", ("--text", "01000001"))):
+            report = self.run_cli(operation, *arguments, "--out", "", code=2)
+            self.assertEqual(report["status"], "invalid_input")
+            self.assertIn("Output path must not be empty", " ".join(report["notices"]))
         self.assertEqual(source.read_bytes(), b"abc")
 
     def test_unicode_dash_paths_and_determinism(self):

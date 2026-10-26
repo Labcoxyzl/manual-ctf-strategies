@@ -1,6 +1,6 @@
 # Manual CTF Strategies
 
-[Web guide](https://labcoxyzl.github.io/manual-ctf-strategies/) · [Core workflows](CORE_WORKFLOWS.md) · [Hashcat](HASHCAT.md) · [Python scripts](scripts/templates/README.md) · [Practice](PRACTICE_WORKSHEETS.md) · [Rules](docs/public-rules.md)
+[Web guide](https://labcoxyzl.github.io/manual-ctf-strategies/) · [Offline kit](manual-ctf-strategies-offline-2026-10-27.zip) · [Core workflows](CORE_WORKFLOWS.md) · [Specialist workflows](SPECIALIST_WORKFLOWS.md) · [Hashcat](HASHCAT.md) · [Python scripts](scripts/templates/README.md) · [Practice](PRACTICE_WORKSHEETS.md) · [Rules](docs/public-rules.md)
 
 The tables cover all 200 entries approved for Cyber SEA Game 2026, grouped by the guide's categories with organiser proposals first. Tools useful in several categories appear more than once. Origin comes from the [workbook-derived CSV](research/validation/round2/authority/priority-authority.csv): **Trend Micro proposal** means organiser-proposed; **participant request** means requested and approved, but the workbook does not identify which team asked. Approval does not guarantee Kali availability. Tool names open their Markdown guides; **Web** opens the exact public catalog entry.
 

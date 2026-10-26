@@ -1,0 +1,14 @@
+{
+  "chat": {
+    "path": "/api/chat",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply",
+    "conversation_field": "conversation_id",
+    "conversation_response_field": "conversation_id"
+  },
+  "strategy_params": {
+    "sizes": [512, 2048, 8192],
+    "filler": "Neutral context padding. "
+  }
+}

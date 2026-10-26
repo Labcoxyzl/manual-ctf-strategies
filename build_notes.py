@@ -10,13 +10,13 @@ from markdown_it import MarkdownIt
 
 ROOT = Path(__file__).resolve().parent
 NOTE_OUTPUTS = {source: str(Path(source).with_suffix(".html")) for source in (
-    "LEARNING_RESOURCES.md", "PRACTICE_WORKSHEETS.md", "HASHCAT.md", "CTF_CHEATSHEET.md", "CORE_WORKFLOWS.md",
+    "LEARNING_RESOURCES.md", "PRACTICE_WORKSHEETS.md", "HASHCAT.md", "CTF_CHEATSHEET.md", "CORE_WORKFLOWS.md", "SPECIALIST_WORKFLOWS.md",
     "APPROVED_TOOL_REFERENCES.md", "EVENT_SOURCES.md", "RESOURCE_EVALUATION.md",
     "research/learning/practice/README.md",
     "research/learning/video-coverage/practice/TRIAGE_PRACTICE.md",
     "research/learning/video-coverage/practice/AUDIO_PRACTICE.md",
 )}
-NOTE_OUTPUTS.update({"scripts/README.md": "TOOLKIT.html", "docs/public-rules.md": "RULES.html", "scripts/templates/README.md": "TEMPLATES.html", "examples/core/README.md": "CORE_PRACTICE.html"})
+NOTE_OUTPUTS.update({"scripts/README.md": "TOOLKIT.html", "scripts/chatbot_strategies.md": "CHATBOT_STRATEGIES.html", "docs/public-rules.md": "RULES.html", "scripts/templates/README.md": "TEMPLATES.html", "examples/core/README.md": "CORE_PRACTICE.html"})
 NOTES = tuple(NOTE_OUTPUTS)
 NOTE_LINKS = {**NOTE_OUTPUTS, "research/learning/review.md": "research/learning/review.html"}
 

@@ -1,4 +1,5 @@
 """Exercise the starter with harmless local and loopback prompt/echo services."""
+import base64
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import struct
@@ -157,6 +158,29 @@ class GeneralTemplateTests(unittest.TestCase):
                 fifo = Path(directory) / "input.pipe"
                 os.mkfifo(fifo)
                 self.assertIn(b"regular file", self.run_template("binary_parser.py", str(fifo), code=1).stderr)
+
+    def test_jwt_inspection_is_local_and_unverified(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "token.txt"
+            token = b"eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciJ9.c2ln\n"
+            path.write_bytes(token)
+            result = self.run_template("jwt_inspect.py", str(path))
+            self.assertIn(b'"role": "user"', result.stdout)
+            self.assertIn(b"signature and claims are unverified", result.stdout)
+            self.assertEqual(path.read_bytes(), token)
+            duplicate = b"e30." + base64.urlsafe_b64encode(b'{"role":"user","role":"admin"}').rstrip(b"=") + b".c2ln"
+            non_json = b"e30." + base64.urlsafe_b64encode(b'{"role":NaN}').rstrip(b"=") + b".c2ln"
+            overflow = b"e30." + base64.urlsafe_b64encode(b'{"role":1e1000}').rstrip(b"=") + b".c2ln"
+            surrogate = b"e30." + base64.urlsafe_b64encode(b'{"role":"\\ud800"}').rstrip(b"=") + b".c2ln"
+            for malformed in (b"one.two", b"e30.W10.c2ln", b"e30.?.c2ln", b"e30.e30.a", duplicate, non_json, overflow, surrogate, b"x" * 16385):
+                path.write_bytes(malformed)
+                result = self.run_template("jwt_inspect.py", str(path), code=1)
+                self.assertEqual(result.stdout, b"")
+            self.run_template("jwt_inspect.py", directory, code=1)
+            if hasattr(os, "mkfifo"):
+                fifo = Path(directory) / "token.pipe"
+                os.mkfifo(fifo)
+                self.assertIn(b"regular file", self.run_template("jwt_inspect.py", str(fifo), code=1).stderr)
 
     def test_http_exchange_and_failure_controls(self):
         requests = []

@@ -1,0 +1,13 @@
+{
+  "chat": {
+    "path": "/api/chat",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "allow_state_change": true,
+  "status_path": "/api/status",
+  "strategy_params": {
+    "action_prompt": "REPLACE_ACTION_PROMPT"
+  }
+}

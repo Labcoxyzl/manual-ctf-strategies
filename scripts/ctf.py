@@ -107,7 +107,9 @@ def unchanged(stream, path, original):
 class Output:
     """A private sibling file is linked into place only after full validation."""
     def __init__(self, path, source=None):
-        self.path = os.path.abspath(path) if path else None
+        if path == "":
+            raise Problem("Output path must not be empty.", 2)
+        self.path = os.path.abspath(path) if path is not None else None
         self.stage = None
         self.stream = None
         self.count = 0

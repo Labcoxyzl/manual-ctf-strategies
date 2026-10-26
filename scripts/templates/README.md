@@ -1,8 +1,8 @@
 # Python challenge scripts
 
-[File preview](#file-intel) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http)
+[File preview](#file-intel) · [JWT inspection](#jwt) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http)
 
-The file preview runs unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, binary parsing and HTTP use only the Python standard library.
+File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.
 
 <a id="file-intel"></a>
 ## File intel: run before editing a parser
@@ -26,6 +26,17 @@ For file type and supported archive/image metadata, use the existing
 ```bash
 python3 scripts/ctf.py inspect --file challenge.bin
 ```
+
+<a id="jwt"></a>
+## JWT inspection: decode a local token
+
+Save one token in a private text file, then run [jwt_inspect.py](jwt_inspect.py):
+
+```bash
+python3 scripts/templates/jwt_inspect.py private-token.txt
+```
+
+The script prints the JSON header and payload of a three-part JWT. It accepts up to 16 KiB from a regular local file, makes no network request, and leaves the file unchanged. It rejects invalid base64url/JSON parts and encrypted five-part tokens. **Decoded claims are unverified:** this script does not check the signature, expiry, audience or whether the server accepts the token. Keep the private file out of the repository and use the [JWT workflow](../../SPECIALIST_WORKFLOWS.html#web-jwt) to compare actual server behavior.
 
 <a id="timed-math"></a>
 ## Timed arithmetic: 100 questions

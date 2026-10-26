@@ -26,6 +26,7 @@
 /RECOVERY_CONTEXT.md
 /.playwright-mcp/
 /.venv/
+/.autosolve/
 
 # Downloaded videos remain local; keep research metadata and test fixtures.
 /research/learning/video-pack/videos/

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="5789c3ca1bf1f8cc5f1c8b76f3e060fd65b6bd367702bf7ad57dba6eeee04db4">
+  <meta name="source-sha256" content="37e6e1e6cdc0497bcc5a371356f394cf3c18b65c0880ce16bca6e47fa917b34b">
   <link rel="icon" href="data:,">
   <title>Python challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -44,8 +44,8 @@
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
   <main id="main" class="wrap" tabindex="-1"><h1>Python challenge scripts</h1>
-<p><a href="#file-intel">File preview</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a></p>
-<p>The file preview runs unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, binary parsing and HTTP use only the Python standard library.</p>
+<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a></p>
+<p>File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.</p>
 <p><a id="file-intel"></a></p>
 <h2>File intel: run before editing a parser</h2>
 <p>Run <a href="scripts/templates/file_intel.py">file_intel.py</a> on a challenge file without changing the
@@ -61,6 +61,12 @@ executes, extracts, or modifies them, and makes no flag or file-format claims.</
 <a href="TOOLKIT.html#inspect">inspect command</a>:</p>
 <pre><code class="language-bash">python3 scripts/ctf.py inspect --file challenge.bin
 </code></pre>
+<p><a id="jwt"></a></p>
+<h2>JWT inspection: decode a local token</h2>
+<p>Save one token in a private text file, then run <a href="scripts/templates/jwt_inspect.py">jwt_inspect.py</a>:</p>
+<pre><code class="language-bash">python3 scripts/templates/jwt_inspect.py private-token.txt
+</code></pre>
+<p>The script prints the JSON header and payload of a three-part JWT. It accepts up to 16 KiB from a regular local file, makes no network request, and leaves the file unchanged. It rejects invalid base64url/JSON parts and encrypted five-part tokens. <strong>Decoded claims are unverified:</strong> this script does not check the signature, expiry, audience or whether the server accepts the token. Keep the private file out of the repository and use the <a href="SPECIALIST_WORKFLOWS.html#web-jwt">JWT workflow</a> to compare actual server behavior.</p>
 <p><a id="timed-math"></a></p>
 <h2>Timed arithmetic: 100 questions</h2>
 <p><a href="scripts/templates/math_client.py">math_client.py</a> receives a question, calculates its answer and sends it over the same connection. It uses a bounded arithmetic parser, not <code>eval</code>. First try the harmless <a href="scripts/templates/math_demo.py">math_demo.py</a>:</p>

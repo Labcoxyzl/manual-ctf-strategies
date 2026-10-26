@@ -1,0 +1,20 @@
+{
+  "allow_state_change": true,
+  "strategy_params": {
+    "steps": [
+      {
+        "id": "documented_boundary",
+        "method": "POST",
+        "path": "/api/REPLACE_VALIDATOR_PATH",
+        "body": {"value": "REPLACE_BOUNDARY_INPUT"}
+      },
+      {
+        "id": "official_completion",
+        "method": "GET",
+        "path": "/api/REPLACE_COMPLETION_PATH",
+        "expect": {"field": "complete", "equals": true},
+        "acceptance": true
+      }
+    ]
+  }
+}

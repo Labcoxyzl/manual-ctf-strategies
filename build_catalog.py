@@ -14,6 +14,54 @@ CATEGORIES = {
     "osint": "OSINT", "crypto": "Cryptography", "misc": "Miscellaneous",
 }
 RESOURCE_FILES = ("forensics", "web-network", "reverse", "media", "crypto-foundations")
+LOCAL_ROUTE_HELP = {
+    "pcap-stream": (("PCAP workflow", "CORE_WORKFLOWS.html#pcap"),),
+    "wireless-auth": (("Wireless capture workflow", "SPECIALIST_WORKFLOWS.html#wireless-auth"),),
+    "evtx-timeline": (("EVTX workflow", "SPECIALIST_WORKFLOWS.html#evtx-timeline"),),
+    "registry-hive": (("Registry workflow", "SPECIALIST_WORKFLOWS.html#registry-hive"),),
+    "sqlite-artifact": (("SQLite workflow", "SPECIALIST_WORKFLOWS.html#sqlite-artifact"),),
+    "disk-file": (("Disk workflow", "CORE_WORKFLOWS.html#disk"),),
+    "memory-process": (("Memory workflow", "CORE_WORKFLOWS.html#memory"),),
+    "media-inspection": (("Image workflow", "CORE_WORKFLOWS.html#media"),
+                         ("Audio practice", "research/learning/video-coverage/practice/AUDIO_PRACTICE.html"),
+                         ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
+    "executable-triage": (("Executable workflow", "SPECIALIST_WORKFLOWS.html#malware-executable"),
+                          ("File preview script", "scripts/templates/file_intel.py")),
+    "document-code": (("Document workflow", "SPECIALIST_WORKFLOWS.html#malware-document"),
+                      ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
+    "bundle-extraction": (("Bundle workflow", "SPECIALIST_WORKFLOWS.html#malware-bundle"),
+                          ("File preview script", "scripts/templates/file_intel.py")),
+    "http-baseline": (("HTTP workflow", "CORE_WORKFLOWS.html#web"),
+                      ("Stateless HTTP probe", "scripts/templates/http_probe.py")),
+    "endpoint-discovery": (("Endpoint workflow", "SPECIALIST_WORKFLOWS.html#web-endpoints"),
+                           ("Stateless HTTP probe", "scripts/templates/http_probe.py")),
+    "targeted-web-test": (("Targeted test workflow", "SPECIALIST_WORKFLOWS.html#web-targeted"),),
+    "sqli-differential": (("SQL condition workflow", "SPECIALIST_WORKFLOWS.html#sqli-differential"),),
+    "server-fetch": (("Server fetch workflow", "SPECIALIST_WORKFLOWS.html#server-fetch"),),
+    "object-authorization": (("Authorization workflow", "SPECIALIST_WORKFLOWS.html#object-authorization"),),
+    "jwt-verification": (("JWT workflow", "SPECIALIST_WORKFLOWS.html#web-jwt"),
+                         ("JWT inspection script", "scripts/templates/jwt_inspect.py")),
+    "native-checker": (("Native checker workflow", "CORE_WORKFLOWS.html#native"),),
+    "native-exploit-triage": (("Native crash workflow", "SPECIALIST_WORKFLOWS.html#native-exploit"),
+                              ("Plain TCP starter", "scripts/templates/pwntools_starter.py")),
+    "android-validation": (("APK/DEX workflow", "SPECIALIST_WORKFLOWS.html#reverse-android"),),
+    "dotnet-validation": ((".NET workflow", "SPECIALIST_WORKFLOWS.html#reverse-dotnet"),),
+    "source-view": (("Source-view workflow", "SPECIALIST_WORKFLOWS.html#reverse-source"),),
+    "metadata-corroboration": (("Image workflow", "CORE_WORKFLOWS.html#media"),
+                               ("Source/date workflow", "SPECIALIST_WORKFLOWS.html#osint-source")),
+    "public-source": (("Public-source workflow", "SPECIALIST_WORKFLOWS.html#osint-source"),),
+    "public-domain": (("Public-domain workflow", "SPECIALIST_WORKFLOWS.html#osint-domain"),),
+    "decode-bytes": (("Decoding workflow", "CORE_WORKFLOWS.html#decode"),),
+    "rsa-weakness": (("RSA workflow", "CORE_WORKFLOWS.html#crypto"),),
+    "zip-known-plaintext": (("ZipCrypto workflow", "SPECIALIST_WORKFLOWS.html#zip-known-plaintext"),),
+    "artifact-identification": (("File preview guide", "TEMPLATES.html#file-intel"),
+                                ("File preview script", "scripts/templates/file_intel.py")),
+    "focused-extraction": (("Binary parser guide", "TEMPLATES.html#binary"),
+                           ("Binary parser script", "scripts/templates/binary_parser.py")),
+    "service-interaction": (("Plain TCP client guide", "TEMPLATES.html#transport"),
+                            ("Plain TCP starter", "scripts/templates/pwntools_starter.py"),
+                            ("Timed arithmetic guide", "TEMPLATES.html#timed-math")),
+}
 TOOL_ORIGINS = json.loads((ROOT / "research/tool-origins.json").read_text())["tools"]
 esc = html.escape
 
@@ -51,7 +99,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 24
+    assert len(routes) == len({route["id"] for route in routes}) == 33
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]
@@ -65,6 +113,15 @@ def load_data():
         assert route["references"], route["id"]
         for reference in route["references"]:
             validate_reference(reference)
+    assert set(LOCAL_ROUTE_HELP) <= {route["id"] for route in routes}
+    from build_notes import NOTE_OUTPUTS
+    notes = set(NOTE_OUTPUTS.values())
+    bundled = notes | {str(path.relative_to(ROOT)) for path in (ROOT / "scripts/templates").glob("*.py")}
+    for links in LOCAL_ROUTE_HELP.values():
+        assert all(urlsplit(url).path in bundled and title.strip() for title, url in links)
+    assert all(any(urlsplit(url).path in notes for _, url in LOCAL_ROUTE_HELP.get(route["id"], ())) or
+               any(urlsplit(ref["url"]).path in notes for ref in route["references"])
+               for route in routes), "Every task route needs a bundled local guide"
     return inventory, by_id, routes
 
 
@@ -97,6 +154,10 @@ def render_route(route, inventory):
         helper = route["toolkit"]
         body += (f'<p class="toolkit"><strong>Optional helper:</strong> {inline(helper["text"])} '
                  f'<a href="TOOLKIT.html#{helper["anchor"]}">Setup, example and manual alternative</a>.</p>')
+    local = LOCAL_ROUTE_HELP.get(route["id"], ())
+    if local:
+        links = ' · '.join(f'<a href="{esc(url)}">{esc(title)}</a>' for title, url in local)
+        body += f'<p class="offline"><strong>Offline next step:</strong> {links}</p>'
     return (f'<details class="task-route" id="route-{route["id"]}">'
             f'<summary><span>{esc(route["title"])}</span><small>{inline(route["input"])}</small></summary>'
             f'<div class="route-body"><p class="route-tools">{tools}</p><ol class="steps">{steps}</ol>'

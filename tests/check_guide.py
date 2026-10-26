@@ -133,7 +133,7 @@ def check_archive(guide, rendered=False):
 
 RESOURCE_FILES = [ROOT / "research/resources" / name for name in
                   ("forensics.json", "web-network.json", "reverse.json", "media.json", "crypto-foundations.json")]
-ROUTE_COUNTS = {"forensics": 4, "malware": 3, "web": 4, "reversing": 4, "osint": 3, "crypto": 3, "misc": 3}
+ROUTE_COUNTS = {"forensics": 8, "malware": 3, "web": 7, "reversing": 5, "osint": 3, "crypto": 4, "misc": 3}
 
 
 def check_catalog(guide, records=None, routes=None):
@@ -179,11 +179,11 @@ def check_catalog(guide, records=None, routes=None):
                 errors.append(f"Missing selected resource: {row['id']}")
     if Counter(row["category"] for row in routes) != Counter(ROUTE_COUNTS):
         errors.append("Wrong route category counts")
-    if len({row["id"] for row in routes}) != 24:
-        errors.append("Expected 24 distinct route IDs")
+    if len({row["id"] for row in routes}) != 33:
+        errors.append("Expected 33 distinct route IDs")
     route_nodes = [node for node in guide.nodes if "task-route" in node["attrs"].get("class", "").split()]
-    if len(route_nodes) != 24 or any(node["tag"] != "details" for node in route_nodes):
-        errors.append("Expected 24 rendered route details")
+    if len(route_nodes) != 33 or any(node["tag"] != "details" for node in route_nodes):
+        errors.append("Expected 33 rendered route details")
     for row in routes:
         node = nodes.get("route-" + row["id"])
         if node is None:
@@ -287,6 +287,8 @@ def main():
         escaped = build_catalog.inline('`<script>alert(1)</script>` & "quoted"')
         assert "<script>" not in escaped and "&lt;script&gt;" in escaped
         inv, resource_map, authored_routes = build_catalog.load_data()
+        if build_catalog.render_page((ROOT / "guide-template.html").read_text(), inv, resource_map, authored_routes) != html:
+            errors.append("Stale generated guide")
         try:
             build_catalog.render_page((ROOT / "guide-template.html").read_text() + '<a href="#missing-negative-control">broken</a>', inv, resource_map, authored_routes)
         except AssertionError:

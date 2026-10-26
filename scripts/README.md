@@ -7,6 +7,99 @@ Use these prewritten helpers for repeatable byte conversion and bounded file ins
 
 For an editable local/remote connection scaffold, see [Python challenge templates](templates/README.md). That optional starter requires pwntools; the byte and inspection helpers below do not.
 
+`autosolve.py` is the developing local artifact runner. It can follow bounded
+Base16/32/64, URL, ROT13, single-byte XOR candidates and compressed-byte layers, safely extract regular
+ZIP members, decode MIME leaf parts, extract bounded PDF text/attachments/streams, and detect a validated ZIP appended to a PNG. `doctor` and `setup` show which operations work on this machine;
+setup currently needs no packages. Reports are private under `.autosolve/runs/`
+and mark other planned families as not implemented. A candidate string does not
+mean the challenge accepted an answer.
+
+```sh
+python3 scripts/autosolve.py doctor --profiles encoding documents --self-test
+python3 scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
+python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
+```
+
+For an encrypted ZIP, put candidate passwords in a private file, one per line
+(at most eight), and pass a JSON hints file containing `{"password_file":
+"/path/to/private-passwords.txt"}` with `--hints`. The local `analyze` command never sends
+challenge data over the network. Archive extraction is limited to ZIP and
+keeps the original unchanged; files larger than 8 MiB are recorded but not
+passed to the encoding decoder. Runs remain partial while baseline families
+are still unavailable.
+
+Candidate patterns scan raw bytes in bounded 1 MiB chunks with 4,095 bytes of
+overlap. Matches are limited to 4,096 bytes and retain byte offsets. At most
+64 MiB is scanned per artifact; a report states if that or a work limit leaves
+bytes unchecked. UTF-16 and other text encodings are not decoded by this scan.
+
+For exact textbook RSA integer checks, pass `--hints` with
+`{"rsa_parameters":{"records":[{"n":"0x...","e":3,"c":"0x..."}]}}`.
+The limited methods verify a raw modular preimage; padding and the original
+byte width remain unknown. A reported preimage is not an accepted flag.
+
+Declared AES-GCM, CBC and CTR checks accept a `symmetric_parameters` list in
+the private hints JSON. Each record names `algorithm: "AES"`, `mode`, and hex
+`key`/`ciphertext`, plus the mode's required nonce or IV and GCM tag. GCM must
+authenticate before a transform is validated; CBC/CTR plaintext remains a
+candidate. Keys are excluded from ordinary run reports.
+
+Recorded candump and ASC CAN text logs produce bounded, line-linked frame
+records. Timing bases remain explicit; payload semantics require a supplied
+DBC or protocol schema and are not inferred from the raw bytes.
+
+Offline PCAP/PCAPNG inspection uses local TShark to report frame-linked DNS,
+HTTP, endpoints, and TCP stream IDs. Capture gaps and output limits remain
+visible. Object export and payload reconstruction are not implemented yet.
+
+SQLite inspection copies the supplied database and its WAL/SHM companions
+privately before read-only schema and row queries. Missing companions and
+changed snapshots are reported; source files are never opened for writing.
+
+<a id="aichatbot-challenges"></a>
+## AI/chatbot challenges
+
+The [strategy guide](chatbot_strategies.md) lists selected live playbooks,
+direct API plans, a context bloating check, and an offline model helper.
+
+`chatbot` requires an explicitly authorized origin and finite limits. It reads the
+page, same-origin scripts and source maps first. A single unambiguous HTML form
+can supply the chat request shape. For a JavaScript app or a nested response,
+provide a private JSON protocol file:
+
+```json
+{
+  "chat": {
+    "path": "/api/ask",
+    "encoding": "json",
+    "message_field": "query",
+    "response_field": "data.reply",
+    "conversation_field": "thread",
+    "conversation_response_field": "thread_id"
+  },
+  "lanes": ["capability", "rag"],
+  "history_path": "/api/history"
+}
+```
+
+```sh
+python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN --protocol ./private-chat.json --budget 60 --max-requests 12 --max-prompts 3 --dry-run
+python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN --protocol ./private-chat.json --budget 60 --max-requests 12 --max-prompts 3
+python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 60 --max-requests 20
+python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
+```
+
+The protocol can also set `headers` for auth, `csrf_cookie`/`csrf_header` inside
+`chat`, and `client_id_field`. Put secrets in the private protocol file, not
+command arguments. `verification` requires an explicit same-origin path,
+`success_field`, and `success_value`; a POST checker also needs
+`candidate_field`. `injection` requires an exposed writable `path`, `field`,
+`payload`, `marker`, and `trigger_prompt`. It writes once and tests the later
+chat response; a repeated marker is only a candidate. The private run directory
+contains raw responses and cookies. Stop reasons, transcript line numbers,
+untested probes, and exact request counts appear in `report.md`. A timeout,
+lock, rate limit, ambiguous reply, or unverified route leaves the run partial.
+
 For broader competition preparation, install the [no-AI Python requirements](../requirements.txt) in a fresh **Linux/WSL or Kali** CPython 3.11/3.12 virtual environment. For a new checkout, use a GitHub account with access to this private repository:
 
 ```sh
@@ -23,7 +116,7 @@ python scripts/templates/math_client.py --local python scripts/templates/math_de
 
 If you already have a checkout or the offline export, skip the first two commands and start from its root. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep [constraints.txt](../constraints.txt) beside the requirements file: it pins the reviewed dependencies. `--only-binary` rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.
 
-Run commands from the folder containing `index.html` and `scripts/`. The entry point is [scripts/ctf.py](ctf.py); there is no installation step, network access or Python package dependency. Keep this folder structure when copying the toolkit offline.
+Run commands from the folder containing `index.html` and `scripts/`. The byte and file helpers in [scripts/ctf.py](ctf.py) need no network access or Python package installation. The chatbot command contacts only its explicit origin, and the callback receiver listens only when started. Keep this folder structure when copying the toolkit offline.
 
 The declared runtime is **CPython 3.10 or newer on Linux, including WSL**. Check the interpreter before relying on the script:
 

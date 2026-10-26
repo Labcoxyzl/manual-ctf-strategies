@@ -301,16 +301,16 @@
         "verification": "Opened 2026-10-22 via web; source scope reviewed, installed behavior not tested."
       },
       {
-        "url": "https://github.com/kimci86/bkcrack/blob/master/example/tutorial.md",
-        "title": "bkcrack worked example",
+        "url": "https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md",
+        "title": "bkcrack 1.8.1 worked example",
         "kind": "primary-example",
         "why": "A compact known-plaintext walkthrough tied to upstream sample artifacts.",
-        "verification": "Opened 2026-10-22 via web; example not executed."
+        "verification": "Reviewed upstream v1.8.1 tutorial on 2026-10-27; example not executed."
       }
     ],
     "priority": "core",
     "caveats": [
-      "Requires ZipCrypto, at least 12 known plaintext bytes with 8 contiguous; known bytes must match the encrypted compressed stream. Not ZIP AES."
+      "Requires ZipCrypto and 12 total known bytes: at least 11 supplied bytes with 8 contiguous, plus bkcrack's inferred ZIP header check byte. Supplied bytes must match the encrypted compressed stream. Not ZIP AES."
     ],
     "recipe_candidate": "List archive encryption, establish matching known plaintext, follow upstream tutorial on a synthetic archive.",
     "version": "1.8.1 (2025-10-25)",

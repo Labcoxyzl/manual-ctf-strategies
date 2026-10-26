@@ -1,0 +1,20 @@
+{
+  "headers": {
+    "Authorization": "Bearer REPLACE_TOKEN"
+  },
+  "strategy_params": {
+    "steps": [
+      {
+        "id": "list_chats",
+        "method": "GET",
+        "path": "/api/chats"
+      },
+      {
+        "id": "read_selected_chat",
+        "method": "GET",
+        "path": "/api/chats/REPLACE_CHAT_ID/messages",
+        "expect": {"field": "is_owner", "equals": false}
+      }
+    ]
+  }
+}

@@ -88,7 +88,7 @@ def main():
         return (ROOT / source).read_bytes()
     assert build_notes.render_notes(read_bytes=reader) == outputs
     assert reads == ["notes-template.html", *build_notes.NOTES]
-    assert len(outputs) == len(build_notes.NOTES) == 15, "Expected fifteen explicit published notes"
+    assert len(outputs) == len(build_notes.NOTES) == 17, "Expected seventeen explicit published notes"
     assert build_notes.NOTE_OUTPUTS["scripts/README.md"] == "TOOLKIT.html"
     assert build_notes.NOTE_OUTPUTS["docs/public-rules.md"] == "RULES.html"
     errors = check_pages(outputs)

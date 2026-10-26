@@ -1,0 +1,8 @@
+{
+  "variables": {"byte": [0, 255]},
+  "gates": [
+    {"name": "above_a", "terms": {"byte": 1}, "bias": -65},
+    {"name": "below_z", "terms": {"byte": -1}, "bias": 90}
+  ],
+  "requirements": {"above_a": 1, "below_z": 1}
+}

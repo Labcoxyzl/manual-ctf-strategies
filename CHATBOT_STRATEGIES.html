@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="source-sha256" content="c4fbd79caa0e25db2368cb52c7356b330b7ba45e723c621b17eb482d853ca89c">
+  <link rel="icon" href="data:,">
+  <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
+  <style>
+    :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { max-width:1000px; margin:auto; padding:0 22px; }
+    header { background:#142e32; padding:16px 0; }
+    header a { color:#e0eeea; font-weight:650; }
+    a { color:var(--green); text-underline-offset:3px; }
+    a:hover { text-decoration-thickness:2px; }
+    :focus-visible { outline:3px solid #d88837; outline-offset:3px; }
+    .skip { position:absolute; top:8px; left:12px; background:white; padding:8px; transform:translateY(-150%); }
+    .skip:focus { transform:none; }
+    main { padding-top:20px !important; padding-bottom:32px !important; overflow-wrap:anywhere; }
+    main p, main ul, main ol { max-width:76ch; }
+    h1 { margin:0 0 18px; font-size:clamp(1.65rem,4vw,2.4rem); line-height:1.15; letter-spacing:-.035em; }
+    h2 { margin-top:30px; padding-top:8px; border-top:2px solid var(--ink); font-size:1.35rem; }
+    h3 { font-size:1.1rem; }
+    [id] { scroll-margin-top:16px; }
+    code { font:.88em/1.4 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    pre { max-width:100%; overflow-x:auto; padding:12px; background:#e8f2ed; }
+    pre code { white-space:pre-wrap; overflow-wrap:anywhere; }
+    .table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; background:white; font-size:.9rem; }
+    th, td { padding:9px 12px; border:1px solid var(--line); vertical-align:top; min-width:140px; }
+    th { background:#e8f2ed; text-align:left; }
+    details { margin:12px 0; padding:10px 14px; border:1px solid var(--line); border-radius:6px; background:white; }
+    summary { cursor:pointer; font-weight:650; }
+    img { max-width:100%; height:auto; }
+    blockquote { margin-left:0; padding-left:16px; border-left:4px solid var(--green); }
+    @media (max-width:360px) { .wrap { padding-left:14px; padding-right:14px; } }
+    @media print { header, .skip { display:none; } .wrap { max-width:none; } .table-scroll { overflow:visible; } th, td { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to notes</a>
+  <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
+  <main id="main" class="wrap" tabindex="-1"><h1>AI/chatbot challenge scripts</h1>
+<p>Choose a strategy after inspecting the challenge page and its JavaScript. The
+scripts provide bounded transport, session handling, and evidence collection;
+they do not infer an unknown endpoint, tool grammar, model wrapper, or win
+condition. All live commands require an authorized origin and finite budgets.</p>
+<h2>Live chat playbooks</h2>
+<p>List the built-in plans and their required parameters:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py --json chatbot-strategies
+</code></pre>
+<p>Copy a <a href="scripts/chatbot_recipes/context_bloat.json">protocol example</a>, set the actual
+chat path, fields, cookies or headers from the frontend, and run a dry run first:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
+  --protocol ./private-chat.json --strategy context_bloat \
+  --budget 60 --max-requests 12 --max-prompts 6 --dry-run
+python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
+  --protocol ./private-chat.json --strategy context_bloat \
+  --budget 60 --max-requests 12 --max-prompts 6
+</code></pre>
+<p><code>context_bloat</code> sends an anchor and then 512, 2,048 and 8,192 characters of
+neutral filler by default in one conversation. It records the first size at
+which the target stops returning the original marker. Set <code>strategy_params.sizes</code>
+to one to four increasing sizes, each 128–65,536 characters; <code>filler</code>,
+<code>anchor_prompt</code>, and <code>check_prompt</code> are optional. A lost marker is a behavior
+observation, never a validated challenge solve. The generated marker and queue
+survive resume. The client will not resend a POST whose outcome is uncertain.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Required protocol fields</th>
+<th>What the script does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instruction_leak</code></td>
+<td>none</td>
+<td>Ask for a hidden instruction quote and a short prefix.</td>
+</tr>
+<tr>
+<td><code>rag_sources</code></td>
+<td><code>topic</code></td>
+<td>Ask for source IDs, metadata and one exact quote.</td>
+</tr>
+<tr>
+<td><code>rag_aliases</code></td>
+<td><code>topic</code></td>
+<td>Ask for labels and their backend field names.</td>
+</tr>
+<tr>
+<td><code>tool_schema</code></td>
+<td>none</td>
+<td>Ask for callable names and argument schemas.</td>
+</tr>
+<tr>
+<td><code>tool_audit</code></td>
+<td><code>audit_path</code> in the protocol when exposed</td>
+<td>Ask for the tool call lifecycle; read the audit route once if supplied.</td>
+</tr>
+<tr>
+<td><code>tool_filter</code></td>
+<td><code>tool_name</code>, <code>filter_value</code></td>
+<td>Ask for one exact filter argument; inspect real tool evidence before using the web workflow.</td>
+</tr>
+<tr>
+<td><code>fetch_tool</code>, <code>fetch_blocklist</code></td>
+<td><code>fetch_url</code>; its origin in <code>authorized_destinations</code></td>
+<td>Send one explicit fetch request through the chatbot; no destination is chosen from scraped text.</td>
+</tr>
+<tr>
+<td><code>route_discovery</code></td>
+<td>none</td>
+<td>Ask for chat, history, status, audit and verifier paths.</td>
+</tr>
+<tr>
+<td><code>agent_routing</code></td>
+<td>none</td>
+<td>Ask for agent names, tiers and an escalation trigger.</td>
+</tr>
+<tr>
+<td><code>output_validator</code></td>
+<td>none</td>
+<td>Ask for exact output/schema constraints and missing fields.</td>
+</tr>
+<tr>
+<td><code>guardrail_representation</code></td>
+<td><code>item</code></td>
+<td>Ask for code points and a character array; reconstruct and verify separately.</td>
+</tr>
+<tr>
+<td><code>refusal_policy</code></td>
+<td>none</td>
+<td>Ask for the refusal label and prerequisite.</td>
+</tr>
+<tr>
+<td><code>diagnostic_chat</code></td>
+<td>credentials in private <code>headers</code> or chat fields</td>
+<td>Ask for diagnostic fields and status after the app authorizes the session.</td>
+</tr>
+<tr>
+<td><code>workflow_status</code></td>
+<td><code>status_path</code> when exposed</td>
+<td>Ask for stage and artifact; read the status route once if supplied.</td>
+</tr>
+<tr>
+<td><code>orchestrator_action</code></td>
+<td><code>action_prompt</code>, <code>status_path</code>, <code>allow_state_change: true</code></td>
+<td>Send one explicit final action prompt, then read status once.</td>
+</tr>
+<tr>
+<td><code>kb_injection</code></td>
+<td>an <code>injection</code> object</td>
+<td>Write one exposed lower-trust KB item and send its trigger prompt. A repeated marker stays unvalidated.</td>
+</tr>
+<tr>
+<td><code>custom_chat</code></td>
+<td><code>prompts</code>: one to four strings</td>
+<td>Run a target-specific prompt idea with the same session and evidence controls.</td>
+</tr>
+<tr>
+<td><code>context_bloat</code></td>
+<td>none</td>
+<td>Test context retention at bounded sizes.</td>
+</tr>
+<tr>
+<td><code>scorer_batch</code></td>
+<td><code>path</code>, <code>body_field</code>, <code>score_field</code>, <code>candidates</code>, <code>allow_state_change: true</code></td>
+<td>Score one to fifty explicit inputs serially; numerical scores are observations, not membership proof.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The selected strategy sends its listed probes after one baseline. It does not
+run every strategy or the whole CHY corpus. A response that reveals a route or
+secret stops broad prompting. The private run contains a JSONL transcript,
+candidate and checker evidence, cookies, and a report. The ordinary terminal
+output contains only status and file paths. <code>--max-requests</code> is at most 100,
+<code>--max-prompts</code> at most 20, and <code>--budget</code> at most 600 seconds. The HTTP client
+also caps each response at 128 KiB, each request body at 128 KiB, and its
+transcript at 2 MiB.</p>
+<p>For a tool-header capture, start the bounded callback receiver first. Its
+default bind is loopback, and it exits after one request or its duration. A
+remote challenge can reach it only if you deliberately provide a reachable
+authorized address; put that address in the protocol's
+<code>authorized_destinations</code> before selecting <code>fetch_tool</code>. Raw callback headers
+stay in a private JSONL file.</p>
+<pre><code class="language-sh">python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
+</code></pre>
+<p>When a guardrail returns code points, character arrays, NATO words, initials,
+reversed text, groups, or Base64, save the exact response in a private text
+file and decode it as a candidate. The tool-call audit helper compares
+<code>args_raw</code>, <code>args_validated</code>, <code>args_normalized</code>, and <code>args_applied</code> from a JSON
+response or a chosen transcript line. It reports changed paths and hashes,
+never proof of applied backend state.</p>
+<pre><code class="language-sh">python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
+python3 scripts/chatbot_evidence.py audit --input .autosolve/runs/RUN_ID/transcript.jsonl \
+  --line 5 --raw-field tool_calls.0.args_raw \
+  --validated-field tool_calls.0.args_validated \
+  --normalized-field tool_calls.0.args_normalized \
+  --applied-field tool_calls.0.args_applied
+</code></pre>
+<h2>Direct application routes</h2>
+<p>Select <code>api_plan</code> when the decisive path is a normal API. It uses the same
+origin, cookie jar, redirects, request budget, and private transcript. A plan
+contains one to ten declared GET or POST steps; POST requires
+<code>allow_state_change: true</code>. A configured <code>expect</code> compares an exact response
+field. Only an official checker/completion step marked <code>acceptance: true</code> can
+mark a result validated. An expected field match on a history or vector-store
+response is evidence, not a solve.</p>
+<p>Start from the <a href="scripts/chatbot_recipes/history_idor.json">history</a>,
+<a href="scripts/chatbot_recipes/vector_store.json">vector-store</a>,
+<a href="scripts/chatbot_recipes/debug_verifier.json">debug/verifier</a>,
+<a href="scripts/chatbot_recipes/scorer_batch.json">scorer-batch</a>,
+<a href="scripts/chatbot_recipes/tool_audit.json">tool-audit</a>, or
+<a href="scripts/chatbot_recipes/workflow_action.json">workflow</a> examples. Replace every
+<code>REPLACE_</code> field before live use; the CLI rejects live plans that retain one.
+The <a href="scripts/chatbot_recipes/kb_article.json">KB example</a> shows an explicit writable
+injection surface. Do not enumerate IDs, origins, or ports by changing a plan
+into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
+bugs, use the web workflow once the relevant primitive is observed.</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
+  --protocol ./private-api-plan.json --strategy api_plan \
+  --budget 60 --max-requests 12 --max-prompts 1 --dry-run
+</code></pre>
+<h2>Offline model and scorer routes</h2>
+<p>The offline helper does not deserialize pickle files or run a supplied wrapper
+during inspection. It reports bounded metadata from NPY, NPZ, safetensors,
+zip-backed PyTorch files, and pickle globals. A small pair of NPZ or
+safetensors files can be compared when NumPy (and, for safetensors, that
+package) is installed. Parity runs two explicit wrapper commands on up to 20
+JSON canaries and requires <code>--execute-local</code>.</p>
+<pre><code class="language-sh">python3 scripts/ai_model.py inspect ./model.safetensors
+python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
+python3 scripts/ai_model.py svm ./private-svm-parameters.json
+python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
+python3 scripts/ai_model.py parity ./private-parity.json --execute-local
+python3 scripts/ai_model_attack.py --adapter ./private-adapter.py --execute-local \
+  gradient --model ./model.pt --input ./input.npy --target chosen-class \
+  --epsilon 0.1 --step-size 0.02 --steps 10
+python3 scripts/ai_model_attack.py --adapter ./private-adapter.py --execute-local \
+  recurrent --actions ./actions.json --seed 0
+</code></pre>
+<p>A <a href="scripts/chatbot_recipes/model_parity.json">parity config</a> supplies <code>reference</code> and
+<code>candidate</code> argv arrays, <code>cases</code>, a
+per-call <code>timeout</code> (at most 30 seconds), and a total <code>budget</code> (at most 600
+seconds). Each wrapper reads one JSON value on stdin and prints one JSON value
+on stdout. The script uses no shell and records only case indexes, equality,
+and output hashes in a private report. It never claims that matching canaries
+prove full inference parity.</p>
+<p>Copy the <a href="scripts/templates/ai_model_adapter.py">model adapter template</a> for gradient
+or recurrent runs. Gradient mode needs <code>load_model(path)</code>, <code>load_input(path)</code>
+returning a floating PyTorch tensor, and <code>loss(model, tensor, target)</code> returning
+one scalar to maximize. It applies bounded projected gradient steps and saves
+an NPY candidate; it does not serialize a challenge submission. Recurrent mode
+needs <code>reset(seed)</code>, <code>policy_step(observation, previous_action, hidden)</code>, and
+<code>env_step(action)</code>. It records pre/post auxiliary vectors with one policy call
+per observed state, avoiding a duplicate hidden-state advance. Both modes
+execute the adapter only with <code>--execute-local</code>. That opt-in is not a sandbox.
+NumPy and PyTorch are optional local requirements for gradient mode.</p>
+<p>For a deterministic sign network, export the actual affine gates and input
+bounds into the <a href="scripts/chatbot_recipes/sign_network.json">sign-gate JSON example</a>.
+<code>ai_model.py sign-gates</code> uses Z3 when installed, returns one satisfying input,
+and checks whether another input also satisfies the declared constraints.
+It does not infer gates from a model or treat a satisfying assignment as a
+validated flag. The supplied checker must accept the serialized candidate.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>CHY offline route</th>
+<th>Ready script step</th>
+<th>Target-specific work that remains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sparse model or classical binary SVM</td>
+<td><code>ai_model.py inspect</code>; <code>svm</code> computes primal weight, margins and slack from exported JSON parameters</td>
+<td>Recover exact preprocessing and verify decoded text through the checker.</td>
+</tr>
+<tr>
+<td>Deterministic sign verifier</td>
+<td><code>ai_model.py sign-gates</code> for exported affine gates; parity-check the scorer</td>
+<td>Derive gates from the wrapper and verify a satisfying input.</td>
+</tr>
+<tr>
+<td>Differentiable evasion or inversion</td>
+<td><code>ai_model_attack.py gradient</code> and parity canaries</td>
+<td>Supply the challenge adapter, input bounds, loss direction, serializer, and checker.</td>
+</tr>
+<tr>
+<td>Recurrent policy and world-model state</td>
+<td><code>ai_model_attack.py recurrent</code> and parity canaries</td>
+<td>Supply environment, policy step, action list, and exact hidden-state contract.</td>
+</tr>
+<tr>
+<td>Adapter/delta and weight differences</td>
+<td><code>ai_model.py compare</code> for supported small tensors</td>
+<td>Reproduce merge arithmetic, quantization, and full-model behavior.</td>
+</tr>
+<tr>
+<td>Black-box extraction or membership</td>
+<td><code>scorer_batch</code> for bounded, explicit scorer inputs</td>
+<td>Design controls, statistics, and independent membership oracle.</td>
+</tr>
+<tr>
+<td>Token-identity parity and calibrated behavior search</td>
+<td><code>ai_model.py parity</code> on representative canaries</td>
+<td>Supply tokenizer/model wrappers and calibrated controls.</td>
+</tr>
+</tbody>
+</table></div>
+<p>These scripts cover repeatable mechanics, not arbitrary model semantics. A
+specialized solver still needs the challenge's wrapper, data constraints and
+acceptance endpoint. Refusals, marker echoes, high model scores, and plausible
+identifiers remain candidates until independent state or checker evidence
+confirms the objective.</p>
+<h2>CHY pattern coverage map</h2>
+<p>This map follows the installed CHY chatbot skill's pattern index. &quot;Ready&quot;
+means the command runs after the listed target fields are filled; it does not
+mean the attack will succeed against an arbitrary challenge.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Skill pattern</th>
+<th>Prepared path</th>
+<th>Remaining target-specific work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chat history IDOR</td>
+<td><code>api_plan</code> + <code>history_idor.json</code></td>
+<td>Supply one authorized account and an observed message ID; compare ownership evidence.</td>
+</tr>
+<tr>
+<td>Tool header capture</td>
+<td><code>fetch_tool</code> + <code>chatbot_callback.py</code></td>
+<td>Provide a reachable, separately authorized callback address.</td>
+</tr>
+<tr>
+<td>Tool-backed SQL/filter injection</td>
+<td><code>tool_filter</code></td>
+<td>Learn the exact callable/field, then use the web SQLi workflow for confirmed injection.</td>
+</tr>
+<tr>
+<td>Fetch-tool SSRF and blocklist bypass</td>
+<td><code>fetch_tool</code> / <code>fetch_blocklist</code></td>
+<td>Supply each authorized destination and verify the actual fetch, not a model claim.</td>
+</tr>
+<tr>
+<td>Trusted KB or document injection</td>
+<td><code>kb_injection</code> + <code>kb_article.json</code></td>
+<td>Fill the exposed write route and verify state beyond an echo.</td>
+</tr>
+<tr>
+<td>RAG source and alias mapping</td>
+<td><code>rag_sources</code> / <code>rag_aliases</code></td>
+<td>Supply a topic and verify returned IDs against the app.</td>
+</tr>
+<tr>
+<td>Exposed vector store</td>
+<td><code>api_plan</code> + <code>vector_store.json</code></td>
+<td>Fill collection ID and inspect returned documents and metadata.</td>
+</tr>
+<tr>
+<td>Model/agent switching</td>
+<td><code>agent_routing</code>, then <code>custom_chat</code></td>
+<td>Supply the observed trigger and verify a response field or backend state.</td>
+</tr>
+<tr>
+<td>DLP or guardrail representation</td>
+<td><code>guardrail_representation</code> + <code>chatbot_evidence.py decode</code></td>
+<td>Reconstruct a candidate and check the real verifier.</td>
+</tr>
+<tr>
+<td>Workflow validator and exact output</td>
+<td><code>output_validator</code> / <code>workflow_status</code></td>
+<td>Fill stage/status route and check persisted progress.</td>
+</tr>
+<tr>
+<td>Chat ownership locks and rate limits</td>
+<td>Shared chatbot transport</td>
+<td>Map claim/heartbeat fields from frontend when needed; honor cooldowns.</td>
+</tr>
+<tr>
+<td>Tool-call audit lifecycle</td>
+<td><code>tool_audit</code> + <code>chatbot_evidence.py audit</code></td>
+<td>Fill audit route and check applied state independently.</td>
+</tr>
+<tr>
+<td>Debug validator and direct verifier</td>
+<td><code>api_plan</code> + <code>debug_verifier.json</code></td>
+<td>Fill documented boundary input, nonce/signature rules, and official completion field.</td>
+</tr>
+<tr>
+<td>Credential-gated diagnostic chat</td>
+<td><code>diagnostic_chat</code></td>
+<td>Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields.</td>
+</tr>
+<tr>
+<td>State-prepared AI orchestrator</td>
+<td><code>orchestrator_action</code> + <code>workflow_action.json</code></td>
+<td>Prepare backend state, fill exact action prompt, and confirm status.</td>
+</tr>
+<tr>
+<td>Non-LLM application agent</td>
+<td><code>api_plan</code> for an exposed API; otherwise the web, protocol or reverse workflow</td>
+<td>Identify the actual non-chat transport and its validator.</td>
+</tr>
+<tr>
+<td>Sparse/SVM and sign-network verifiers</td>
+<td><code>ai_model.py inspect</code>, <code>svm</code>, <code>sign-gates</code>, <code>parity</code></td>
+<td>Export parameters/gates, check exact semantics, and run the supplied checker.</td>
+</tr>
+<tr>
+<td>Differentiable evasion and inversion</td>
+<td><code>ai_model_attack.py gradient</code></td>
+<td>Supply exact preprocessing, bounds, loss, and checker serialization.</td>
+</tr>
+<tr>
+<td>Recurrent policy/world-model alignment</td>
+<td><code>ai_model_attack.py recurrent</code></td>
+<td>Supply environment and policy step wrappers with the correct hidden-state timing.</td>
+</tr>
+<tr>
+<td>Adapter/delta weight recovery</td>
+<td><code>ai_model.py compare</code> and <code>parity</code></td>
+<td>Reproduce merge, casts, rounding and full-model behavior.</td>
+</tr>
+<tr>
+<td>Black-box extraction/membership</td>
+<td><code>scorer_batch</code> numeric observations</td>
+<td>Supply representative inputs, statistics and an independent membership oracle.</td>
+</tr>
+<tr>
+<td>Token-identity and inference parity</td>
+<td><code>ai_model.py parity</code></td>
+<td>Supply tokenizer/model wrappers and exact prompt boundaries.</td>
+</tr>
+<tr>
+<td>Calibrated unknown-behavior search</td>
+<td><code>ai_model.py parity</code></td>
+<td>Supply positive/negative controls and a target-specific bounded search objective.</td>
+</tr>
+</tbody>
+</table></div>
+</main>
+</body>
+</html>

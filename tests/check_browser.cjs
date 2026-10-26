@@ -11,15 +11,16 @@ const htmlFile = htmlArg === -1 ? 'index.html' : process.argv[htmlArg + 1];
 const prefix = htmlFile === 'index.html' ? 'testing' : 'testing-preview';
 const url = pathToFileURL(path.join(root, htmlFile)).href;
 const categories = ['osint', 'reversing', 'forensics', 'crypto', 'misc', 'web', 'malware'];
-const noteSources = ['CORE_WORKFLOWS.md', 'CTF_CHEATSHEET.md', 'HASHCAT.md', 'LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'EVENT_SOURCES.md', 'RESOURCE_EVALUATION.md', 'research/learning/practice/README.md', 'research/learning/video-coverage/practice/TRIAGE_PRACTICE.md', 'research/learning/video-coverage/practice/AUDIO_PRACTICE.md'];
+const noteSources = ['CORE_WORKFLOWS.md', 'SPECIALIST_WORKFLOWS.md', 'CTF_CHEATSHEET.md', 'HASHCAT.md', 'LEARNING_RESOURCES.md', 'PRACTICE_WORKSHEETS.md', 'APPROVED_TOOL_REFERENCES.md', 'EVENT_SOURCES.md', 'RESOURCE_EVALUATION.md', 'research/learning/practice/README.md', 'research/learning/video-coverage/practice/TRIAGE_PRACTICE.md', 'research/learning/video-coverage/practice/AUDIO_PRACTICE.md'];
 const noteOutputs = Object.fromEntries(noteSources.map(name => [name, name.replace(/\.md$/, '.html')]));
 noteOutputs['examples/core/README.md'] = 'CORE_PRACTICE.html';
 noteSources.push('examples/core/README.md');
 noteOutputs['scripts/templates/README.md'] = 'TEMPLATES.html';
 noteSources.push('scripts/templates/README.md');
 noteOutputs['scripts/README.md'] = 'TOOLKIT.html';
+noteOutputs['scripts/chatbot_strategies.md'] = 'CHATBOT_STRATEGIES.html';
 noteOutputs['docs/public-rules.md'] = 'RULES.html';
-noteSources.push('scripts/README.md', 'docs/public-rules.md');
+noteSources.push('scripts/README.md', 'scripts/chatbot_strategies.md', 'docs/public-rules.md');
 const noteFiles = ['build_notes.py', 'notes-template.html', ...noteSources, ...Object.values(noteOutputs)];
 const noteHashes = () => Object.fromEntries(noteFiles.map(name => [name, createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex')]));
 const visibleTools = page => page.locator('[data-source-ids]:visible');
@@ -105,8 +106,8 @@ async function unobscured(page, locator, label) {
       assert.equal(await page.locator('#no-results').isVisible(), false);
       // Every route's authored instructions remain usable with all networking disabled.
       const routes = page.locator('details.task-route');
-      assert.equal(await routes.count(), 24);
-      for (let i = 0; i < 24; i++) {
+      assert.equal(await routes.count(), 33);
+      for (let i = 0; i < 33; i++) {
         const route = routes.nth(i);
         await route.locator(':scope > summary').focus();
         await page.keyboard.press('Space');
@@ -140,7 +141,7 @@ async function unobscured(page, locator, label) {
       await page.locator('nav a[href="#forensics"]').click();
       if ([390, 1440].includes(width)) await page.screenshot({ path: path.join(root, `research/${prefix}-${width}.png`) });
       assert.deepEqual(errors, []);
-      report.cases.push({ width, height, offline_routes: 24, initial_search_visible: 'pass', tools_navigation_visible: 'pass', rules_keyboard_expansion: 'pass', keyboard_expansion: 'pass', filter_success_empty_reset: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
+      report.cases.push({ width, height, offline_routes: 33, initial_search_visible: 'pass', tools_navigation_visible: 'pass', rules_keyboard_expansion: 'pass', filter_success_empty_reset: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
       await page.close();
     }
     const notes = await browser.newPage({ viewport: { width: 320, height: 900 } });
@@ -230,7 +231,7 @@ async function unobscured(page, locator, label) {
       for (let i = 0; i < await groups.count(); i++) await groups.nth(i).locator(':scope > summary').click();
     }
     assert.equal(await visibleTools(fallback).count(), 200);
-    assert.equal(await fallback.locator('ol.steps:visible').count(), 24);
+    assert.equal(await fallback.locator('ol.steps:visible').count(), 33);
     report.no_javascript_browsing = 'pass';
     await fallback.emulateMedia({ media: 'print' });
     assert.equal(await fallback.locator('nav').isVisible(), false);

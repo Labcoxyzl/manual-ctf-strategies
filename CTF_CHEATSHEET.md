@@ -3150,7 +3150,7 @@ RsaCtfTool --dumpkey --key ./PUBLIC_KEY.pem
 
 **Use for:** Recover ZipCrypto internal keys from known plaintext.
 
-**First action:** List ZIP entries and encryption, then establish at least 12 known plaintext bytes with 8 contiguous bytes matching the encrypted compressed stream before using bkcrack's tutorial workflow.
+**First action:** List ZIP entries and encryption, then establish at least 11 supplied plaintext bytes with 8 contiguous bytes matching the encrypted compressed stream; bkcrack adds one inferred ZIP header check byte for 12 total.
 
 **Expected:** ZipCrypto internal-key candidates that decrypt a member into valid bytes.
 
@@ -3158,9 +3158,9 @@ RsaCtfTool --dumpkey --key ./PUBLIC_KEY.pem
 
 **Availability:** Version: 1.8.1 (2025-10-25)
 
-- Requires ZipCrypto, at least 12 known plaintext bytes with 8 contiguous; known bytes must match the encrypted compressed stream. Not ZIP AES.
+- Requires ZipCrypto and 12 total known bytes: at least 11 supplied bytes with 8 contiguous, plus bkcrack's inferred ZIP header check byte. Supplied bytes must match the encrypted compressed stream. Not ZIP AES.
 
-[bkcrack — Understand ZIP known-plaintext recovery](https://github.com/kimci86/bkcrack) · [bkcrack worked example](https://github.com/kimci86/bkcrack/blob/master/example/tutorial.md)
+[bkcrack — Understand ZIP known-plaintext recovery](https://github.com/kimci86/bkcrack) · [bkcrack 1.8.1 worked example](https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md)
 
 <a id="approved-kali-22"></a>
 ### crypto-attacks · Kali

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="f41f0f542cc242c34d5416f9914bb4f13335663a60a79514a840f018a4c9eb6c">
+  <meta name="source-sha256" content="d791016f1226d15b1ecb032ae53b71066bce1c9dec065f0192c6ecede0439cf1">
   <link rel="icon" href="data:,">
   <title>CTF tool cheatsheet · Manual CTF Strategies</title>
   <style>
@@ -2017,14 +2017,14 @@ upx -d -o ./NEW_UNPACKED.exe ./SAMPLE.exe
 <p><a id="approved-kali-13"></a></p>
 <h3>bkcrack · Kali</h3>
 <p><strong>Use for:</strong> Recover ZipCrypto internal keys from known plaintext.</p>
-<p><strong>First action:</strong> List ZIP entries and encryption, then establish at least 12 known plaintext bytes with 8 contiguous bytes matching the encrypted compressed stream before using bkcrack's tutorial workflow.</p>
+<p><strong>First action:</strong> List ZIP entries and encryption, then establish at least 11 supplied plaintext bytes with 8 contiguous bytes matching the encrypted compressed stream; bkcrack adds one inferred ZIP header check byte for 12 total.</p>
 <p><strong>Expected:</strong> ZipCrypto internal-key candidates that decrypt a member into valid bytes.</p>
 <p><strong>If blocked:</strong> ZIP AES is outside this attack; compression differences or an incorrect plaintext offset invalidate known-plaintext assumptions.</p>
 <p><strong>Availability:</strong> Version: 1.8.1 (2025-10-25)</p>
 <ul>
-<li>Requires ZipCrypto, at least 12 known plaintext bytes with 8 contiguous; known bytes must match the encrypted compressed stream. Not ZIP AES.</li>
+<li>Requires ZipCrypto and 12 total known bytes: at least 11 supplied bytes with 8 contiguous, plus bkcrack's inferred ZIP header check byte. Supplied bytes must match the encrypted compressed stream. Not ZIP AES.</li>
 </ul>
-<p><a href="https://github.com/kimci86/bkcrack">bkcrack — Understand ZIP known-plaintext recovery</a> · <a href="https://github.com/kimci86/bkcrack/blob/master/example/tutorial.md">bkcrack worked example</a></p>
+<p><a href="https://github.com/kimci86/bkcrack">bkcrack — Understand ZIP known-plaintext recovery</a> · <a href="https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md">bkcrack 1.8.1 worked example</a></p>
 <p><a id="approved-kali-22"></a></p>
 <h3>crypto-attacks · Kali</h3>
 <p><strong>Use for:</strong> Use mathematical implementations after identifying a concrete crypto weakness.</p>

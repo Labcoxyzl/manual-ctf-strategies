@@ -1,0 +1,733 @@
+{
+  "schema_version": 1,
+  "families": [
+    {
+      "id": "ENC01",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Strictly decode Base16/32/64, URL escapes and numeric bytes; preserve alternate valid paths",
+      "limitations": "Finite transforms and depth; no arbitrary punctuation removal"
+    },
+    {
+      "id": "ENC02",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Recognize and decompress supported gzip/zlib/bzip2/xz after decoding",
+      "limitations": "Raw DEFLATE requires an explicit hypothesis; budget may stop nested expansion"
+    },
+    {
+      "id": "ENC03",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Enumerate finite elementary cipher candidates with parameters",
+      "limitations": "Ranking is heuristic; no claim a highest-scoring string is correct"
+    },
+    {
+      "id": "ENC04",
+      "domain": "encoding",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Identify likely families and run only documented available transforms/key searches",
+      "limitations": "No universal substitution solver retained; unknown-key recovery may remain manual"
+    },
+    {
+      "id": "ENC05",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Exhaust single-byte keys and run bounded repeated-key recovery",
+      "limitations": "Short, compressed or random plaintext can defeat statistical recovery"
+    },
+    {
+      "id": "ENC06",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Parse PEM/DER or literal integer parameters and select applicable weak-RSA methods",
+      "limitations": "No execution of supplied Python; multiprime/padding/large factors may be unsupported"
+    },
+    {
+      "id": "ENC07",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Check shared factors/common modulus and declared low-exponent broadcast conditions",
+      "limitations": "Do not combine unrelated messages or assume equal plaintext"
+    },
+    {
+      "id": "ENC08",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Decrypt supported declared modes using supplied key/nonce/IV; verify authentication",
+      "limitations": "Never guess successful authenticated decryption from printable output"
+    },
+    {
+      "id": "ENC09",
+      "domain": "encoding",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Recognize structure; invoke selected weakness-specific method with configured oracle/data",
+      "limitations": "Oracle semantics and protocol adapters are challenge-specific"
+    },
+    {
+      "id": "ENC10",
+      "domain": "encoding",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Identify plausible formats and run selected bounded wordlist/mask jobs",
+      "limitations": "No arbitrary exhaustive search; no unique format inference from hex length"
+    },
+    {
+      "id": "ENC11",
+      "domain": "encoding",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Select documented LCG/state-recovery methods from supplied observations",
+      "limitations": "Truncation/nonlinear generators can need custom mathematics"
+    },
+    {
+      "id": "ENC12",
+      "domain": "encoding",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Expose applicable methods and normalize nonce/leak relations for selected solver",
+      "limitations": "No generic discrete-log solver; Sage and suitable parameters required"
+    },
+    {
+      "id": "ENC13",
+      "domain": "encoding",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Report format, parameters and missing prerequisites only",
+      "limitations": "No general recovery promised"
+    },
+    {
+      "id": "IMG01",
+      "domain": "images",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Inspect tags and validated embedded/trailing containers",
+      "limitations": "Magic hits alone do not establish an extractable file"
+    },
+    {
+      "id": "IMG02",
+      "domain": "images",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run bounded selectors, extract promising candidates and retain exact selector",
+      "limitations": "Custom traversal/packing may remain unsupported; noisy matches likely"
+    },
+    {
+      "id": "IMG03",
+      "domain": "images",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Try supplied/limited candidate passwords; optional bounded seed search",
+      "limitations": "Seed metadata does not mean encrypted content is recoverable"
+    },
+    {
+      "id": "IMG04",
+      "domain": "images",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Generate bounded channel/bit-plane/contact-sheet views for inspection",
+      "limitations": "Visual recognition stays manual; conversions can destroy evidence"
+    },
+    {
+      "id": "IMG05",
+      "domain": "images",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Decode supported symbols using limited rotations/inversion and extracted frames",
+      "limitations": "No arbitrary reconstruction or text OCR"
+    },
+    {
+      "id": "IMG06",
+      "domain": "images",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Diagnose inconsistent structure; propose bounded repair on a copy only",
+      "limitations": "Do not silently repair unknown formats or brute-force huge dimensions"
+    },
+    {
+      "id": "IMG07",
+      "domain": "images",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Extract structural clues and supplied encoder source for human analysis",
+      "limitations": "No universal inversion or arbitrary encoder execution"
+    },
+    {
+      "id": "DOC01",
+      "domain": "documents",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "List and safely extract supported archive members recursively",
+      "limitations": "Never follow archive paths/links outside staging"
+    },
+    {
+      "id": "DOC02",
+      "domain": "documents",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Use supplied/task-local hints or bounded candidate passwords and validate extraction",
+      "limitations": "No guarantee of password recovery; no cross-challenge hint leakage"
+    },
+    {
+      "id": "DOC03",
+      "domain": "documents",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run applicable ZipCrypto known-plaintext recovery",
+      "limitations": "AES ZIP and insufficient plaintext unsupported"
+    },
+    {
+      "id": "DOC04",
+      "domain": "documents",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Extract text, embedded files and selected decoded streams with object references",
+      "limitations": "Images of text are not text extraction; duplicate attachment names preserved"
+    },
+    {
+      "id": "DOC05",
+      "domain": "documents",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract objects, macro text and supported static obfuscations",
+      "limitations": "Custom macro behavior/XLM execution not automated"
+    },
+    {
+      "id": "DOC06",
+      "domain": "documents",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Parse multipart mail, decode transfer encodings and recurse attachments",
+      "limitations": "Ambiguous/broken MIME and missing chunks limit recovery"
+    },
+    {
+      "id": "DOC07",
+      "domain": "documents",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run complementary parsers and retain conflicting interpretations",
+      "limitations": "No universal polyglot or custom parser solver"
+    },
+    {
+      "id": "AV01",
+      "domain": "audio_video",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Produce views and bounded channel/reversal variants",
+      "limitations": "Human visual/audio interpretation remains; no speech AI"
+    },
+    {
+      "id": "AV02",
+      "domain": "audio_video",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Normalize PCM and decode explicitly supported tone modes",
+      "limitations": "DTMF digits do not imply a unique alphanumeric keypad mapping"
+    },
+    {
+      "id": "AV03",
+      "domain": "audio_video",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Decode supported MORSE_CW/AFSK modes and retain raw symbols",
+      "limitations": "Not every radio protocol; CCIR476 text requires separate mapping"
+    },
+    {
+      "id": "AV04",
+      "domain": "audio_video",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Decode documented SSTV modes and route resulting image",
+      "limitations": "Unsupported modes or missing sync may fail"
+    },
+    {
+      "id": "AV05",
+      "domain": "audio_video",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract bounded sample-bit candidates with explicit layout",
+      "limitations": "Compressed audio cannot be treated as PCM bits"
+    },
+    {
+      "id": "AV06",
+      "domain": "audio_video",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Inspect streams/subtitles and sample/extract frames for image/QR analysis",
+      "limitations": "Sampling can miss a brief frame; no universal OCR"
+    },
+    {
+      "id": "AV07",
+      "domain": "audio_video",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Provide spectrum/timing/codec clues for manual continuation",
+      "limitations": "No automatic arbitrary demodulation or AI transcription"
+    },
+    {
+      "id": "NET01",
+      "domain": "packets",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Extract protocol/endpoint statistics, DNS/HTTP fields and packet references",
+      "limitations": "Metadata is not payload reconstruction or attribution"
+    },
+    {
+      "id": "NET02",
+      "domain": "packets",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Export supported protocol objects and recursively analyze content",
+      "limitations": "Export support varies by version/protocol; verify bytes"
+    },
+    {
+      "id": "NET03",
+      "domain": "packets",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Follow streams with direction/sequence evidence and surface gaps",
+      "limitations": "Conflicting retransmissions and missing packets preclude certainty"
+    },
+    {
+      "id": "NET04",
+      "domain": "packets",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract candidate label/payload sequences and try bounded decoding hypotheses",
+      "limitations": "Arbitrary covert coding and timing channels are not automatically solved"
+    },
+    {
+      "id": "NET05",
+      "domain": "packets",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Use explicit compatible TLS key log and export supported decrypted objects",
+      "limitations": "A server private key alone often cannot decrypt modern forward-secret TLS"
+    },
+    {
+      "id": "NET06",
+      "domain": "packets",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Expose supported dissector fields and payload framing leads",
+      "limitations": "New protocol semantics require adapter; no universal HID/message interpretation"
+    },
+    {
+      "id": "NET07",
+      "domain": "packets",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Report metadata and required decryption inputs",
+      "limitations": "No general TLS/WPA content recovery promised"
+    },
+    {
+      "id": "DF01",
+      "domain": "disk_memory",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Discover partitions, list and extract targeted allocated files without mounting",
+      "limitations": "No filesystem repair; container support build-dependent"
+    },
+    {
+      "id": "DF02",
+      "domain": "disk_memory",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Recover supported deleted entries/carved objects with provenance",
+      "limitations": "Overwritten/fractured content may be partial; signatures are leads"
+    },
+    {
+      "id": "DF03",
+      "domain": "disk_memory",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run selected parsers and correlate records with original file/time basis",
+      "limitations": "Schema/OS version and missing companions limit interpretation"
+    },
+    {
+      "id": "DF04",
+      "domain": "disk_memory",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Read copied database plus companions; enumerate schema and bounded records",
+      "limitations": "Copying DB alone can omit latest records; do not mutate originals"
+    },
+    {
+      "id": "DF05",
+      "domain": "disk_memory",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run info/process/command-line/file plugins after symbol validation",
+      "limitations": "Missing symbols is blocked analysis; dumps may be incomplete"
+    },
+    {
+      "id": "DF06",
+      "domain": "disk_memory",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Locate matching symbols and run supported plugins",
+      "limitations": "No universal downloadable symbol collection"
+    },
+    {
+      "id": "DF07",
+      "domain": "disk_memory",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Inspect supported containers and use supplied decryption material where engine supports it",
+      "limitations": "Unknown encryption, absent segment or backend remains unsupported"
+    },
+    {
+      "id": "DF08",
+      "domain": "disk_memory",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Correlate command lines/dumped files and supplied clues into sourced answer fields",
+      "limitations": "No automatic arbitrary account-secret extraction or assumed flag formatting"
+    },
+    {
+      "id": "REV01",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Identify architecture/ABI, sections, imports/symbols and bounded string locations",
+      "limitations": "Static labels and imports do not establish runtime behavior"
+    },
+    {
+      "id": "REV02",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract supported obfuscated strings and decode selected byte sequences",
+      "limitations": "Custom obfuscation and packed code may not resolve"
+    },
+    {
+      "id": "REV03",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run selected rules and report supporting addresses/string matches",
+      "limitations": "Missing rules is unavailable; match is not proof of malicious behavior"
+    },
+    {
+      "id": "REV04",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Recognize supported packers and unpack to new artifacts",
+      "limitations": "Custom/self-modifying packers remain manual"
+    },
+    {
+      "id": "REV05",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract bundled files, record bytecode version and select compatible inspection",
+      "limitations": "Extraction does not imply decompiler supports recent Python"
+    },
+    {
+      "id": "REV06",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract/decompile supported bytecode and inspect manifests/resources",
+      "limitations": "Native libraries, obfuscation and decompiler errors require other profiles"
+    },
+    {
+      "id": "REV07",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Solve bounded checker under explicit input and success/failure model",
+      "limitations": "Unconstrained states or approximate hooks can yield spurious candidate"
+    },
+    {
+      "id": "REV08",
+      "domain": "malware_reversing",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract firmware components and analyze selected architecture/entry hints",
+      "limitations": "No hardware state, encrypted firmware or arbitrary emulation"
+    },
+    {
+      "id": "REV09",
+      "domain": "malware_reversing",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Produce bytecode/disassembly/structure leads only",
+      "limitations": "No automatic arbitrary devirtualization or semantic inversion"
+    },
+    {
+      "id": "PWN01",
+      "domain": "pwn_services",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Record bounded transcript and run explicit delimiter/length framing",
+      "limitations": "Do not infer actions from arbitrary banners; state-changing choices explicit"
+    },
+    {
+      "id": "PWN02",
+      "domain": "pwn_services",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Report protections, symbols and bounded gadget sets",
+      "limitations": "Runtime bases/leaks/libc unresolved; gadgets are leads"
+    },
+    {
+      "id": "PWN03",
+      "domain": "pwn_services",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Use explicit local execution and crash/core information for offset analysis",
+      "limitations": "WSL core/ptrace policy may block; no universal offset guessing"
+    },
+    {
+      "id": "PWN04",
+      "domain": "pwn_services",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Prepare parameterized candidate chain from user-established primitive/leak/goal",
+      "limitations": "No general autopwn or automatic exploitability claim"
+    },
+    {
+      "id": "PWN05",
+      "domain": "pwn_services",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Organize supplied leak observations and explicit bounded probes",
+      "limitations": "No inferred write primitive from a percent-sign echo"
+    },
+    {
+      "id": "PWN06",
+      "domain": "pwn_services",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Collect version/allocator/interface evidence for manual work",
+      "limitations": "No automatic chain generation or environment recreation"
+    },
+    {
+      "id": "WEB01",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Extract links/forms/comments/source maps and literal endpoints from supplied files or explicit origin",
+      "limitations": "Static extraction cannot execute JS or resolve every runtime endpoint"
+    },
+    {
+      "id": "WEB02",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run bounded wordlist discovery with baseline calibration",
+      "limitations": "Soft-404s, dynamic pages and rate limits cause ambiguity"
+    },
+    {
+      "id": "WEB03",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run chosen SQLmap checks from preserved request and selected input",
+      "limitations": "Unsupported DBMS/context or stateful workflow may need manual work"
+    },
+    {
+      "id": "WEB04",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Decode claims, verify supplied keys and run bounded explicit weakness checks",
+      "limitations": "Local signature success does not prove server accepts altered token"
+    },
+    {
+      "id": "WEB05",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Run selected small differential checks or inspect supplied source; retain exact evidence",
+      "limitations": "No broad file sweep or arbitrary code execution; protocol-specific follow-up required"
+    },
+    {
+      "id": "WEB06",
+      "domain": "web",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Locate reflection/context and generate manual browser-validation steps",
+      "limitations": "No browser bot exploitation or universal JS execution in baseline"
+    },
+    {
+      "id": "WEB07",
+      "domain": "web",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Inspect source and compare selected allowed endpoint responses",
+      "limitations": "Blind/OAST confirmation unavailable unless separately configured; no network expansion"
+    },
+    {
+      "id": "WEB08",
+      "domain": "web",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Preserve/replay user-supplied workflows and compare explicitly supplied roles/states",
+      "limitations": "No generic automatic discovery of arbitrary business logic or races"
+    },
+    {
+      "id": "WEB09",
+      "domain": "web",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Record versions, source/request clues and exact missing exploit prerequisites",
+      "limitations": "No universal chain builder or blind payload spray"
+    },
+    {
+      "id": "OS01",
+      "domain": "osint",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Extract duplicate-tag metadata, GPS and date/time fields with source",
+      "limitations": "Coordinates/timestamps are evidence, not truth or confirmed capture location"
+    },
+    {
+      "id": "OS02",
+      "domain": "osint",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Extract bounded identifiers and classify patterns while retaining offsets",
+      "limitations": "Pattern does not prove identity/ownership/secret validity"
+    },
+    {
+      "id": "OS03",
+      "domain": "osint",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Build a source-linked inventory from local HTML/JS/MIME/docs",
+      "limitations": "Offline snapshots cannot establish current live state"
+    },
+    {
+      "id": "OS04",
+      "domain": "osint",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Prepare queries and parse explicitly supplied responses/certificates",
+      "limitations": "Setup internet does not authorize artifact upload or ongoing third-party queries"
+    },
+    {
+      "id": "OS05",
+      "domain": "osint",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Produce crops/metadata/clue sheet for human investigation",
+      "limitations": "No autonomous visual identification, identity attribution or universal social search"
+    },
+    {
+      "id": "CAN01",
+      "domain": "can_misc",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Read supported log formats and report IDs, DLC/data, timing and malformed rows",
+      "limitations": "CAN FD DLC differs from byte length; remote frames carry no data"
+    },
+    {
+      "id": "CAN02",
+      "domain": "can_misc",
+      "delivery_stage": "baseline",
+      "planned_coverage": "covered",
+      "automatic_scope": "Apply supplied compatible signal database and retain raw frames",
+      "limitations": "Physical meaning cannot be invented without schema"
+    },
+    {
+      "id": "CAN03",
+      "domain": "can_misc",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Group IDs and expose text/byte sequences; use verified protocol adapter when available",
+      "limitations": "No generic ISO-TP or proprietary transport reconstruction promised without tested adapter"
+    },
+    {
+      "id": "CAN04",
+      "domain": "can_misc",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Provide per-ID change/timing evidence only",
+      "limitations": "No automatic signal meaning, ECU control, interface setup or hardware bypass"
+    },
+    {
+      "id": "MISC01",
+      "domain": "can_misc",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Reuse bounded arithmetic parser and transport with selected protocol adapter",
+      "limitations": "Existing template wire format is an example, never universal"
+    },
+    {
+      "id": "MISC02",
+      "domain": "can_misc",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Apply explicit dimensions/order to reconstruct candidate images or codes",
+      "limitations": "No arbitrary puzzle semantic solver"
+    },
+    {
+      "id": "MISC03",
+      "domain": "can_misc",
+      "delivery_stage": "deferred",
+      "planned_coverage": "unsupported",
+      "automatic_scope": "Inventory input and identify required human/custom reasoning",
+      "limitations": "No LLM/model solving and no universal script synthesis"
+    },
+    {
+      "id": "NET08",
+      "domain": "packets",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract usable supported handshake/hash data and try bounded candidate passwords",
+      "limitations": "No live capture, WPA3/enterprise or general unknown-password recovery"
+    },
+    {
+      "id": "REV10",
+      "domain": "malware_reversing",
+      "delivery_stage": "extension",
+      "planned_coverage": "partial",
+      "automatic_scope": "Extract supported metadata/string/resource leads and capability matches",
+      "limitations": "No universal CIL decompilation or managed-code execution; use approved dnSpy manually"
+    },
+    {
+      "id": "REV11",
+      "domain": "malware_reversing",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Apply supported static PowerShell simplification and bounded string decoding without executing source",
+      "limitations": "No general JavaScript/PowerShell semantic evaluation or dynamic unpacking"
+    },
+    {
+      "id": "PWN07",
+      "domain": "pwn_services",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Enumerate explicit TCP ports and collect service/banner evidence",
+      "limitations": "No raw scan or arbitrary service exploitation; banners may misidentify service"
+    },
+    {
+      "id": "AIC01",
+      "domain": "ai_chatbot",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Inspect same-origin page/JS/forms; run selected bounded chat, context, KB, scorer-batch, and declared API plans with cookies, resume, private evidence, and explicit checker validation",
+      "limitations": "No general prompt-injection, web exploit, or RAG solve; target-specific request fields and verifier remain necessary; model text alone stays a candidate"
+    },
+    {
+      "id": "AIC02",
+      "domain": "ai_chatbot",
+      "delivery_stage": "baseline",
+      "planned_coverage": "partial",
+      "automatic_scope": "Statically inspect model containers without unpickling, compare bounded NPZ/safetensors tensors, calculate binary SVM margins, solve exported affine sign gates, compare wrapper canaries, and run adapter-backed gradient or recurrent trace mechanics",
+      "limitations": "No universal gradient objective, recurrent policy adapter, sign-network constraint extraction, black-box extraction, or unknown-behavior solver; candidates require the challenge checker"
+    }
+  ]
+}

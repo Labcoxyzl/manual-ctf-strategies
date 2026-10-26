@@ -1,0 +1,9 @@
+{
+  "allow_state_change": true,
+  "strategy_params": {
+    "path": "/api/predict",
+    "body_field": "input",
+    "score_field": "score",
+    "candidates": ["REPLACE_CANDIDATE_ONE", "REPLACE_CANDIDATE_TWO"]
+  }
+}
