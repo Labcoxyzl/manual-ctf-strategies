@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="bcb991c2684bf83da548fcc844ea3e5b092408ca2bdaba124ef57e1f1fe3580e">
+  <meta name="source-sha256" content="215db7d01b8d731bb390be600fd1f9b216ad001cb5386f3af62a8aba29f427b0">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -75,6 +75,14 @@ confirmed user/assistant turns as <code>{role, content}</code> objects plus the 
 prompt. It stores those turns in the private run for resume and stops before a
 POST if the accumulated body exceeds 128 KiB. This adapter assumes standard
 <code>user</code> and <code>assistant</code> roles; custom message shapes need a target adapter.</p>
+<p>The bounded local end-to-end fixture runs the real CLI against an independent
+loopback chat service:</p>
+<pre><code class="language-sh">pytest -q tests/test_autosolve_chatbot.py -k context_bloat_is_bounded_and_records_marker_loss
+</code></pre>
+<p>Observed on 2026-10-27: <code>1 passed, 57 deselected</code>. Its dry run sent 0 requests; the
+live run sent exactly 8 HTTP requests and 5 prompts. The earlier marker was
+retained at 512 and 2,048 filler characters and lost at 8,192. The run was
+partial with 0 validated outcomes, and resume sent no further prompt.</p>
 <p>If the frontend sends fixed body fields with each chat message, declare them
 under <code>chat.static_fields</code> as in the
 <a href="scripts/chatbot_recipes/chat_static_fields.json">static-fields recipe</a>. JSON fields

@@ -40,6 +40,18 @@ prompt. It stores those turns in the private run for resume and stops before a
 POST if the accumulated body exceeds 128 KiB. This adapter assumes standard
 `user` and `assistant` roles; custom message shapes need a target adapter.
 
+The bounded local end-to-end fixture runs the real CLI against an independent
+loopback chat service:
+
+```sh
+pytest -q tests/test_autosolve_chatbot.py -k context_bloat_is_bounded_and_records_marker_loss
+```
+
+Observed on 2026-10-27: `1 passed, 57 deselected`. Its dry run sent 0 requests; the
+live run sent exactly 8 HTTP requests and 5 prompts. The earlier marker was
+retained at 512 and 2,048 filler characters and lost at 8,192. The run was
+partial with 0 validated outcomes, and resume sent no further prompt.
+
 If the frontend sends fixed body fields with each chat message, declare them
 under `chat.static_fields` as in the
 [static-fields recipe](chatbot_recipes/chat_static_fields.json). JSON fields
