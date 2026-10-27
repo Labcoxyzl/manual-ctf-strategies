@@ -155,12 +155,20 @@ Four published-tenth row batches replayed 82 frozen cases: 80 narrow passes,
 with ENC01 Base85 and ENC05 no-crib H2 excluded. A fifth batch on the
 thirteenth commit passed 20/20 more narrow cases. IMG01, ENC02 and DOC01 also
 passed their complete named row contracts on their pinned published commits;
-the other 54 rows remain unproved at that level. The next isolated checkpoint
-adds an authored AV03 Morse/AFSK doctor probe and an opt-in hash-locked AI CPU
-environment whose four Torch gradient tests passed in a clean copied export.
-Optional angr checker setup is held pending a reviewed wheel-only path for two
-sdist-only dependencies. The tracked Offline kit must be regenerated after
-those source changes before publication.
+CAN02 passed a further full named DBC/ARXML row. The other 53 rows remain
+unproved at that level. DOC02 remains partial after a full-row transfer found
+encrypted ZIP corruption reported as a wrong password; a reviewed local
+repair now distinguishes corrupt headers and withholds unverified decrypted
+members.
+
+The next isolated checkpoint adds an authored AV03 Morse/AFSK doctor probe,
+an opt-in hash-locked AI CPU environment whose four Torch gradient tests
+passed in a clean copied export, and a separate wheel-only angr checker
+environment. Two tiny source-only checker dependencies were reviewed and
+vendored as hash-verified wheels so user setup does not run their build code;
+seven public checker cases passed from the copied environment. The tracked
+Offline kit must be regenerated for those source changes and the DOC02
+repair. Combined full-suite, rootless and frozen release gates remain pending.
 
 ## Independent end-to-end evidence
 
