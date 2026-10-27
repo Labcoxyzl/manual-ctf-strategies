@@ -65,6 +65,8 @@ LOCAL_ROUTE_HELP = {
     "native-checker": (("Native checker workflow", "CORE_WORKFLOWS.html#native"),),
     "symbolic-elf-checker": (("Symbolic checker workflow", "SPECIALIST_WORKFLOWS.html#symbolic-elf-checker"),
                              ("Bounded checker helper", "TOOLKIT.html#checker")),
+    "powershell-static-constants": (("Static PowerShell workflow", "SPECIALIST_WORKFLOWS.html#powershell-static"),
+                                    ("Bundled static helper", "TOOLKIT.html#powershell-static")),
     "native-exploit-triage": (("Native crash workflow", "SPECIALIST_WORKFLOWS.html#native-exploit"),
                               ("Plain TCP starter", "scripts/templates/pwntools_starter.py")),
     "android-validation": (("APK/DEX workflow", "SPECIALIST_WORKFLOWS.html#reverse-android"),),
@@ -130,7 +132,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 51
+    assert len(routes) == len({route["id"] for route in routes}) == 52
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

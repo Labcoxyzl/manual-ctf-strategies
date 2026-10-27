@@ -94,6 +94,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/autosolve_lib/profiles/elf.py', 'tests/test_autosolve_elf.py',
         'scripts/autosolve_lib/profiles/binary_static.py', 'tests/test_autosolve_binary_static.py',
         'scripts/autosolve_lib/profiles/checker.py', 'tests/test_autosolve_checker.py',
+        'scripts/autosolve_lib/profiles/powershell.py', 'tests/test_autosolve_powershell.py',
         'scripts/autosolve_lib/profiles/service_transport.py', 'tests/test_autosolve_service_transport.py',
         'tests/test_autosolve_service_cli.py',
         'scripts/autosolve_lib/profiles/service_inventory.py', 'tests/test_autosolve_service_inventory.py',
@@ -355,7 +356,7 @@ def validate_export(files, originals):
     index = pages['index.html']
     canonical = {f'windows-{number}' for number in range(1, 40)} | {f'kali-{number}' for number in range(1, 162)}
     if (len(index.tools) != 200 or len(set(index.tools)) != 200
-            or index.routes != 51 or index.categories != 7):
+            or index.routes != 52 or index.categories != 7):
         raise ValueError('Public guide lost approved tools, categories or routes')
     if set(index.tools) != canonical:
         raise ValueError('Public guide changed canonical inventory identities')

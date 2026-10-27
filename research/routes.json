@@ -471,6 +471,38 @@
     ]
   },
   {
+    "id": "powershell-static-constants",
+    "category": "reversing",
+    "title": "PowerShell source → static literal candidates",
+    "input": "A supplied .ps1/.psm1/.psd1 file or text containing an encoded PowerShell command, inspected without running it.",
+    "tool_ids": [
+      "kali-114"
+    ],
+    "steps": [
+      "Copy and hash the source. Run `python3 scripts/autosolve.py doctor --profiles reversing --self-test` and inspect the `malware_reversing.powershell_constants` operation; the overall doctor status may be partial for other reversing engines.",
+      "On Linux/Kali/WSL, run `python3 scripts/autosolve.py analyze COPY.ps1 --category reversing --budget 30 --runs-root PRIVATE_RUNS`. Inspect REV11 coverage, warnings and the private candidate records. Extensionless text routes when a line starts with `powershell`, `powershell.exe`, `pwsh`, or `pwsh.exe`; a full or quoted executable path also works. The helper recognizes finite literal concatenation, `[Convert]::FromBase64String(...)` with literal strings, and UTF-16LE `-EncodedCommand` forms; it never executes the supplied PowerShell.",
+      "Trace a candidate back through its original byte span, line/column and transform chain. Compare decoded bytes with a separate clue or a valid local check before treating them as an answer; preserve unsupported or malformed expressions as unresolved."
+    ],
+    "expected": "Bounded decoded byte candidates with source spans and explicit transform lineage, or a documented no-finding/truncated status.",
+    "fallback": "Dynamic variables, substitutions, alternate encodings or incomplete grammar remain unresolved. Inspect the original source and use a case-specific static decoder in an isolated Linux/Kali/WSL analysis environment.",
+    "caveat": "REV11 requires Linux/Kali/WSL Python and is a partial static grammar, not PowerShell emulation or a native Windows helper. It reads at most 256 KiB, emits at most 64 records of 64 KiB each, and runs in a bounded subprocess. Extensionless command routing checks only the first 4 KiB for a line-start executable or a `[Convert]::FromBase64String(` call. Mixed supported and dynamic expressions are truncated; here-string contents are treated as data. A plausible decoded string is a candidate, not execution evidence or challenge acceptance; keep private run outputs off shared notes.",
+    "verification": "Clean-tree tests recovered known UTF-16LE encoded-command, nested Base64 and literal-concatenation bytes with source lineage. Bare, path-qualified and quoted-path encoded command lines routed from extensionless text. Generic prose, comment-only auto routing, here-strings with inner quotes and dynamic values produced no false candidate; mixed supported/dynamic sources retained candidates but reported truncated. Resume-change and FIFO controls passed. No challenge source or PowerShell execution was used.",
+    "references": [
+      {
+        "title": "Microsoft PowerShell.exe EncodedCommand encoding",
+        "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_powershell_exe?view=powershell-7.4"
+      },
+      {
+        "title": "Microsoft Convert.FromBase64String",
+        "url": "https://learn.microsoft.com/en-us/dotnet/api/system.convert.frombase64string?view=net-8.0"
+      },
+      {
+        "title": "Microsoft PowerShell quoting and here-strings",
+        "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.5"
+      }
+    ]
+  },
+  {
     "id": "android-validation",
     "category": "reversing",
     "title": "APK/DEX → validation method",

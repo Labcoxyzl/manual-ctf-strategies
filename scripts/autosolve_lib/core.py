@@ -1359,6 +1359,37 @@ def _run_elf(path, timeout):
         parent.close()
 
 
+def _rev_powershell_worker(path, timeout, pipe):
+    from .profiles.powershell import inspect_powershell
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+    try:
+        pipe.send(('ok', *inspect_powershell(path, timeout=timeout)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_rev_powershell(path, timeout):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_rev_powershell_worker, path, timeout, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + 1):
+            raise TimeoutError('REV11 static PowerShell inspection exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
 def _binary_worker(path, pipe):
     from .profiles.binary_static import inspect_binary
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
@@ -3432,6 +3463,107 @@ def _elf_job(run, manifest, artifact, deadline):
     coverage['note'] = 'static x86 ELF protections, defined symbols and short gadget leads; runtime base unknown'
 
 
+def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
+    coverage = manifest['coverage']['REV11']
+    fingerprint = manifest['current_adapter_fingerprints']['rev-powershell'][0]
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:rev-powershell.v1:"
+                         f"{fingerprint}".encode()).hexdigest()
+    old = next((item for item in manifest['jobs'] if item['key'] == key and
+                item['status'] == 'complete'), None)
+    if old:
+        output = Path(old.get('records_path', ''))
+        try:
+            valid = (output.is_file() and not output.is_symlink() and
+                     isinstance(old.get('records_sha256'), str) and
+                     _hash(output, deadline) == old.get('records_sha256'))
+        except OSError:
+            valid = False
+        reused = _reusable_children(manifest, old, deadline) if valid else None
+        if reused is None:
+            old['status'] = 'invalidated'
+            old = None
+    if old:
+        for child in reused:
+            _attach_reused_child(child, old, artifact)
+            queue.append((child, depth + 1))
+        if coverage['status'] in ('not scheduled', 'no finding') or old['coverage_status'] == 'truncated':
+            coverage['status'] = old['coverage_status']
+            coverage['note'] = old['coverage_note']
+        manifest['warnings'].extend(old.get('warnings', []))
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'rev-powershell',
+           'input_ids': [artifact['id']], 'operation': 'finite static PowerShell constants',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': 256 * 1024, 'output_bytes': 64 * 1024,
+                      'records': 64, 'depth': 2, 'time_seconds': 5},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    for item in manifest['intelligence']:
+        if item['artifact_id'] == artifact['id'] and item['tag'] == 'REV11 PowerShell candidate':
+            item['superseded'] = True
+    _write_json(run / 'manifest.json', manifest)
+    warnings = []
+    try:
+        records, warnings = _run_rev_powershell(
+            Path(artifact['path']), min(5, max(.01, deadline - time.monotonic() - 1)))
+        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            raise RuntimeError('PowerShell source changed before REV11 publication')
+        stored = [{**row, 'data_hex': row['data'].hex()} for row in records]
+        for row in stored:
+            del row['data']
+        output = run / 'jobs' / f"{job['id']}.rev-powershell.json"
+        _write_json(output, stored)
+        job['records_path'] = str(output)
+        job['records_sha256'] = _hash(output, deadline)
+        if job['records_sha256'] is None:
+            raise WorkLimit('REV11 record identity incomplete before work budget ended')
+        for record in records:
+            data = record['data']
+            locator = {**record['source_locator'],
+                       'transform_chain': record['transform_chain'],
+                       'candidate_state': 'candidate'}
+            child = _store_child(run, manifest, artifact, data,
+                                 f"REV11 {record['kind']} candidate", deadline,
+                                 source_locator=locator, producer_key=key)
+            if child:
+                if child['id'] not in job['child_ids']:
+                    job['child_ids'].append(child['id'])
+                    queue.append((child, depth + 1))
+            else:
+                warnings.append(f"REV11 {record['kind']} candidate artifact could not be stored")
+            try:
+                preview = data[:128].decode('utf-8')
+            except UnicodeDecodeError:
+                preview = data[:64].hex()
+            manifest['intelligence'].append({
+                'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
+                'tag': 'REV11 PowerShell candidate', 'group': record['kind'],
+                'value': preview,
+                'source_locator': {**locator, 'decoded_sha256': hashlib.sha256(data).hexdigest(),
+                                   'decoded_size': len(data),
+                                   'child_artifact_id': child['id'] if child else None},
+                'next_action': 'Verify this static candidate against the challenge oracle.'})
+        status = 'truncated' if warnings else 'ran' if records else 'no finding'
+        job['record_count'] = len(records)
+        job['coverage_status'] = status
+        job['coverage_note'] = 'literal PowerShell constants only; dynamic evaluation unsupported'
+        job['warnings'] = warnings[:100]
+        job['status'] = 'complete'
+        if coverage['status'] in ('not scheduled', 'no finding') or status == 'truncated':
+            coverage['status'] = status
+            coverage['note'] = job['coverage_note']
+        manifest['warnings'].extend(warnings[:100])
+    except Exception as error:
+        job['status'] = 'truncated' if isinstance(error, (WorkLimit, TimeoutError)) else 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        coverage['status'] = job['status']
+        coverage['note'] = 'REV11 static inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV11 job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
 def _checker_job(run, manifest, artifact, hints, replay, deadline):
     coverage = manifest['coverage']['REV07']
     if not manifest['execute_local']:
@@ -5165,12 +5297,54 @@ def _current_adapter_fingerprints(deadline):
             f'{packet_tls_hash}:{packet_object_hash}:{executable_hash(packet_tls.TSHARK)}'.encode()).hexdigest()],
         'elf': [_elf_fingerprint()],
         'binary-static': [_binary_fingerprint()],
+        'rev-powershell': [module_hash('powershell')],
         'checker': [hashlib.sha256(
             f"{module_hash('checker')}:{angr_version}".encode()).hexdigest()],
         'osint-ids': [module_hash('osint_ids')],
         'image-metadata': [hashlib.sha256(f'{image_hash}:{exif_hash}:views={mode}'.encode()).hexdigest()
                            for mode in (False, True)],
     }
+
+
+def _powershell_source(artifact):
+    if artifact['kind_evidence'] not in ('text', 'binary'):
+        return False
+    path = Path(artifact['path'])
+    if path.suffix.lower() in ('.ps1', '.psm1', '.psd1'):
+        return True
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor, 'rb') as stream:
+            head = stream.read(4096)
+        if head.startswith(b'\xff\xfe'):
+            text = head[2:].decode('utf-16le', 'ignore').lower()
+        else:
+            text = head.decode('utf-8', 'ignore').lower()
+    except OSError:
+        return False
+    from .profiles.powershell import _BASE64_CALL, _COMMAND_FLAG, _TOKEN, _mask_comments, _mask_here_strings
+    code = _mask_comments(_mask_here_strings(text)[0])
+    for line in code.splitlines():
+        command = line.lstrip()
+        if command.startswith('&'):
+            command = command[1:].lstrip()
+        quoted = re.match(r'''^(['"])([^'"\r\n]{1,240})\1(?=\s)''', command)
+        if quoted:
+            executable, arguments = quoted.group(2), command[quoted.end():]
+        else:
+            parts = command.split(None, 1)
+            if len(parts) != 2:
+                continue
+            executable, arguments = parts
+        if (re.split(r'[\\/]', executable)[-1].lower() in
+                ('powershell', 'powershell.exe', 'pwsh', 'pwsh.exe') and
+                _COMMAND_FLAG.search(arguments[:256])):
+            return True
+    chars = list(code)
+    for match in _TOKEN.finditer(code):
+        if match.group().startswith(("'", '"')):
+            chars[match.start():match.end()] = ' ' * (match.end() - match.start())
+    return bool(_BASE64_CALL.search(''.join(chars)))
 
 
 def _scan_artifact(manifest, artifact, deadline, patterns, data=None):
@@ -5356,6 +5530,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             return 'disk_memory'
         if _web_source_name(item):
             return 'web'
+        if _powershell_source(item):
+            return 'malware_reversing'
         return {'sqlite': 'disk_memory', 'disk_image': 'disk_memory',
                 'registry': 'disk_memory', 'evtx': 'disk_memory',
                 'can_log': 'can_misc', 'elf': 'pwn_services', 'pe': 'malware_reversing',
@@ -5828,6 +6004,12 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 _binary_job(run, manifest, artifact, deadline)
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
             continue
+        if reversing_selected and _powershell_source(artifact):
+            if manifest['category'] == 'malware_reversing' and depth == 0:
+                _binary_job(run, manifest, artifact, deadline)
+            _rev_powershell_job(run, manifest, artifact, deadline, queue, depth)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            continue
         if manifest['category'] == 'malware_reversing' and depth == 0:
             _binary_job(run, manifest, artifact, deadline)
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
@@ -6173,7 +6355,7 @@ def capabilities(category='auto'):
                    'AV01', 'AV02', 'AV03', 'AV04', 'AV06',
                    'OS01', 'OS02', 'OS03', 'CAN01', 'CAN02', 'NET01', 'NET02', 'NET03', 'NET05',
                    'DF01', 'DF02', 'DF03', 'DF04', 'DF05',
-                   'PWN01', 'PWN02', 'PWN07', 'REV07', 'WEB01', 'WEB02', 'WEB03', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
+                   'PWN01', 'PWN02', 'PWN07', 'REV07', 'REV11', 'WEB01', 'WEB02', 'WEB03', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
     return [{'id': row['id'], 'domain': row['domain'], 'stage': row['delivery_stage'],
              'status': 'partial' if row['id'] in implemented
              else 'not implemented'} for row in CATALOG

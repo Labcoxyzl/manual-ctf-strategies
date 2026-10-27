@@ -26,6 +26,11 @@ python3 scripts/autosolve.py setup --profiles all
 .autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 ```
 
+<a id="powershell-static"></a>
+### Static PowerShell literal candidates
+
+On Linux/Kali/WSL, `python3 scripts/autosolve.py analyze COPY.ps1 --category reversing --budget 30 --runs-root PRIVATE_RUNS` performs bounded REV11 decoding without executing PowerShell; this helper is not for native Windows. It records original byte spans and transform chains for literal concatenation, literal Base64 and UTF-16LE encoded-command candidates. Extensionless text containing a line-start `powershell`, `powershell.exe`, `pwsh`, or `pwsh.exe` command in its first 4 KiB routes to REV11, optionally path-qualified or quoted. Inspect warnings and compare any result with independent evidence; dynamic expressions and other grammar remain unresolved, even when another literal decodes successfully. Here-string contents are skipped. Private run files may contain decoded source values. See the [static PowerShell workflow](../SPECIALIST_WORKFLOWS.html#powershell-static).
+
 <a id="checker"></a>
 ### Bounded Linux ELF checker search
 

@@ -1313,6 +1313,24 @@ def _binary_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _rev_powershell_probe(self_test):
+    probe = 'not_run'
+    if self_test:
+        try:
+            from .profiles.powershell import inspect_powershell
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'probe.ps1'
+                source.write_text("'REV' + '11_PROBE'")
+                records, warnings = inspect_powershell(source)
+            probe = ('passed' if not warnings and any(
+                row['data'] == b'REV11_PROBE' and row['state'] == 'candidate'
+                for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe, 'status': 'partial',
+            'reason': 'finite_literal_forms_only; dynamic_PowerShell_not_evaluated'}
+
+
 def _checker_probe(self_test):
     from .profiles.checker import inspect_checker
     spec = importlib.util.find_spec('angr')
@@ -1479,6 +1497,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
             'functional_probe': elf_probe['functional_probe'], 'status': elf_probe['status']}
     binary_probe = _binary_probe(self_test) if 'malware_reversing' in selected else None
     checker_probe = _checker_probe(self_test) if 'malware_reversing' in selected else None
+    rev_powershell_probe = _rev_powershell_probe(self_test) if 'malware_reversing' in selected else None
     if checker_probe:
         engines['angr'] = checker_probe[1]
     if 'pefile' in planned:
@@ -1564,6 +1583,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     if "malware_reversing" in selected:
         operations['malware_reversing.binary_static'] = binary_probe
         operations['malware_reversing.checker'] = checker_probe[0]
+        operations['malware_reversing.powershell_constants'] = rev_powershell_probe
     if "web" in selected:
         operations['web.static_inventory'] = _web_static_probe(self_test)
         operations['web.discovery'] = _web_discovery_probe(self_test)

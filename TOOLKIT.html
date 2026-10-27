@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="aeca32a4e1c0effbbf6d90fbac7bae5e1b75171b1b947ac500c5ba23281e33dc">
+  <meta name="source-sha256" content="30a5c2cc6a7b044da802dd1c34362ae2cb79c5d4937a0366e1861abd253f5a5f">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -64,6 +64,9 @@ challenge accepted an answer.</p>
 .autosolve/envs/core/bin/python scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
 .autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 </code></pre>
+<p><a id="powershell-static"></a></p>
+<h3>Static PowerShell literal candidates</h3>
+<p>On Linux/Kali/WSL, <code>python3 scripts/autosolve.py analyze COPY.ps1 --category reversing --budget 30 --runs-root PRIVATE_RUNS</code> performs bounded REV11 decoding without executing PowerShell; this helper is not for native Windows. It records original byte spans and transform chains for literal concatenation, literal Base64 and UTF-16LE encoded-command candidates. Extensionless text containing a line-start <code>powershell</code>, <code>powershell.exe</code>, <code>pwsh</code>, or <code>pwsh.exe</code> command in its first 4 KiB routes to REV11, optionally path-qualified or quoted. Inspect warnings and compare any result with independent evidence; dynamic expressions and other grammar remain unresolved, even when another literal decodes successfully. Here-string contents are skipped. Private run files may contain decoded source values. See the <a href="SPECIALIST_WORKFLOWS.html#powershell-static">static PowerShell workflow</a>.</p>
 <p><a id="checker"></a></p>
 <h3>Bounded Linux ELF checker search</h3>
 <p>For one selected Linux x86 ELF checker, put its input model in a private hints
