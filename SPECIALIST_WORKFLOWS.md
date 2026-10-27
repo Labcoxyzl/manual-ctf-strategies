@@ -176,6 +176,26 @@ Confirm PyInstaller, ASAR or UPX from the file structure and the [bundle route](
 
 **Check:** Identify the output file that contains the next code path and why. Extraction does not establish that decompiled source is complete or that the extracted program is safe to run. [PyInstaller extractor](https://github.com/pyinstxtractor/pyinstxtractor-ng) · [ASAR usage](https://github.com/electron/asar) · [UPX documentation](https://github.com/upx/upx/blob/devel/doc/upx-doc.txt).
 
+<a id="malware-yara-corpus"></a>
+## YARA: correlate observed bytes across a copied corpus
+
+Use this [corpus route](index.html#route-yara-corpus-correlation) after inspecting two specific byte indicators in a seed artifact. A rule detects their coexistence; it does not identify malware or show that code ran. Keep the original corpus untouched. For a flat, small practice corpus, reuse the bundled [two-indicator rule](research/learning/practice/training.yar) from [Practice Block 6](PRACTICE_WORKSHEETS.md#block-6):
+
+```sh
+mkdir -p work
+corpus=$(mktemp -d ./work/yara-corpus.XXXXXX)
+cp research/learning/practice/match.txt "$corpus/positive.txt"
+cp research/learning/practice/near-miss.txt "$corpus/near-miss.txt"
+printf 'training-marker only\n' > "$corpus/marker-only.txt"
+printf 'harbor alone\n' > "$corpus/word-only.txt"
+printf 'training-marker harbors\n' > "$corpus/harbors.txt"
+yara -s research/learning/practice/training.yar "$corpus"
+```
+
+Expect only `positive.txt` to match. `-s` prints each matched string's identifier, hexadecimal byte offset and bytes; inspect those bytes at the reported offsets in the copied file. The marker-only and word-only files test that both indicators are required; the near miss tests spelling, while `harbors` tests the `fullword` boundary. A real rule should use indicators evidenced in that case, with a positive and close negative from the same input family. Scan selected files or one bounded directory first. For nested directories, confirm the supplied root itself is a real directory, then use `yara -s -r -N rule.yar copied-corpus`; `-r` recurses and `-N` skips symlinks found inside it. An explicitly supplied symlink target can still be followed. Do not scan an unbounded tree by habit.
+
+**Check:** Record the rule, file hashes, exact matched bytes and offsets, and outcomes for all five files. If the positive fails, check encoding and your rule syntax. If a negative hits, narrow the rule and rerun all controls. A hit only prioritizes another file for independent format, code and context inspection. [YARA CLI](https://yara.readthedocs.io/en/latest/commandline.html) · [YARA rule syntax](https://yara.readthedocs.io/en/latest/writingrules.html).
+
 <a id="web-endpoints"></a>
 ## Endpoint discovery: distinguish a hit from a wildcard
 

@@ -218,6 +218,34 @@
     ]
   },
   {
+    "id": "yara-corpus-correlation",
+    "category": "malware",
+    "title": "Evidenced indicators → related-file leads",
+    "input": "One copied sample with two independently inspected byte indicators and a small, copied local corpus.",
+    "tool_ids": [
+      "kali-157"
+    ],
+    "steps": [
+      "Write a local YARA rule requiring both observed indicators; choose `fullword` only when the byte boundary matters. Keep the original samples unchanged.",
+      "Run `yara -s rule.yar copied-corpus` for a flat, bounded directory. Read each matching rule, file, string identifier, byte offset, and printed bytes against the copied source.",
+      "Check a known two-indicator positive, marker-only and word-only files, a near miss, and an `harbors` fullword control before applying the rule to unknown files."
+    ],
+    "expected": "A short list of files sharing both selected byte indicators, with exact match offsets for inspection.",
+    "fallback": "If the rule overmatches or misses a known control, inspect encoding and byte boundaries, revise only the evidenced strings, and rerun the controls. If YARA is unavailable, compare the same copied bytes manually.",
+    "caveat": "Hits indicate string similarity, not malware, related provenance, or execution. For nested scans, use `-r -N` on a bounded real directory; an explicitly supplied symlink target can still be followed.",
+    "verification": "Official YARA CLI/rule documentation reviewed; benign corpus controls checked with YARA 4.5.8 in the prepared local image. No live challenge or competition-machine test.",
+    "references": [
+      {
+        "title": "YARA — command-line options",
+        "url": "https://yara.readthedocs.io/en/latest/commandline.html"
+      },
+      {
+        "title": "YARA — writing rules and fullword",
+        "url": "https://yara.readthedocs.io/en/latest/writingrules.html"
+      }
+    ]
+  },
+  {
     "id": "http-baseline",
     "category": "web",
     "title": "HTTP request → one controlled change",
@@ -1263,18 +1291,22 @@
       "kali-131"
     ],
     "steps": [
-      "Record browser/profile path and version; work on a copy. If installed Hindsight help lists `--only`, run `hindsight.py -i PROFILE_DIR -o PRIVATE_OUT --only history` and use `-b Firefox` only when profile detection needs the override.",
+      "Record browser/profile path and version; work on a copy. Check help through the actual runnable Hindsight launcher and its own Python interpreter. Only if that same launcher lists `--only`, run it with `-i PROFILE_DIR -o PRIVATE_OUT --only history` using the version-specific form in the bundled workflow; do not assume `hindsight.py` is executable.",
       "Inspect the parser status, skipped artifacts, selected visit row and time zone. If selective parsing is unavailable, inspect the copied History or places.sqlite schema with `sqlite3 -readonly` and use the browser-specific read-only query in the bundled workflow.",
       "Cross-check a decisive visit against its exact source database row and independent context such as a known local server log. Keep the raw timestamp, UTC interpretation, source file and parser version together."
     ],
     "expected": "A selected visit record with source-profile and time provenance, or a documented parser/schema limit.",
     "fallback": "A missing row may reflect absent WAL sidecars, a different profile, unsupported parser/schema, a filtered artifact, or a wrong time basis. An empty report alone cannot prove the visit never happened.",
     "caveat": "Hindsight can parse cookies and saved passwords by default; require a supported selective filter or use SQLite instead, and keep private output local. A stored visit does not identify the human actor. Download analysis needs its own source-specific check.",
-    "verification": "Hindsight CLI and browser schemas source-reviewed; local synthetic SQLite query exercised; Hindsight and competition-profile execution unverified.",
+    "verification": "Hindsight CLI and browser schemas source-reviewed; local synthetic SQLite query and a pinned upstream filtered Chrome build exercised with one known visit and two skipped downloads. Firefox and competition-machine behavior unverified.",
     "references": [
       {
         "title": "Hindsight CLI and artifact filtering",
         "url": "https://github.com/RyanDFIR/hindsight/blob/main/README.md"
+      },
+      {
+        "title": "Locally tested Hindsight source revision",
+        "url": "https://github.com/RyanDFIR/hindsight/tree/c53de560d0c40eb046d68ce8546c8f77c71ed0a7"
       },
       {
         "title": "Chromium visit database schema",

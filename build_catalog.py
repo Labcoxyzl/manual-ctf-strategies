@@ -37,6 +37,8 @@ LOCAL_ROUTE_HELP = {
                       ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
     "bundle-extraction": (("Bundle workflow", "SPECIALIST_WORKFLOWS.html#malware-bundle"),
                           ("File preview script", "scripts/templates/file_intel.py")),
+    "yara-corpus-correlation": (("YARA corpus workflow", "SPECIALIST_WORKFLOWS.html#malware-yara-corpus"),
+                                ("Two-indicator practice", "PRACTICE_WORKSHEETS.html#block-6")),
     "http-baseline": (("HTTP workflow", "CORE_WORKFLOWS.html#web"),
                       ("Stateless HTTP probe", "scripts/templates/http_probe.py")),
     "endpoint-discovery": (("Endpoint workflow", "SPECIALIST_WORKFLOWS.html#web-endpoints"),
@@ -124,7 +126,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 48
+    assert len(routes) == len({route["id"] for route in routes}) == 49
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

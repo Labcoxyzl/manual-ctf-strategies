@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="8b4183e2e7ea58ac4e52ece4751b18e856251109ac432633dc7b06e447d80aeb">
+  <meta name="source-sha256" content="527df660f5a86e49f5a62252dc4c148a0a93ce54e975beb94b256b528c4e144e">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -166,6 +166,20 @@ PYCODE
 <h2>Bundles: identify before choosing an extractor</h2>
 <p>Confirm PyInstaller, ASAR or UPX from the file structure and the <a href="index.html#route-bundle-extraction">bundle route</a>. Extract into a new directory with the matching approved tool. Keep the original and note the reported runtime or entry point. For PyInstaller, check the reported Python version before using a bytecode decompiler; for ASAR, inspect <code>package.json</code> and the named entry file. UPX decompression changes the file under examination, so compare hashes and paths before switching analysis to the unpacked copy.</p>
 <p><strong>Check:</strong> Identify the output file that contains the next code path and why. Extraction does not establish that decompiled source is complete or that the extracted program is safe to run. <a href="https://github.com/pyinstxtractor/pyinstxtractor-ng">PyInstaller extractor</a> · <a href="https://github.com/electron/asar">ASAR usage</a> · <a href="https://github.com/upx/upx/blob/devel/doc/upx-doc.txt">UPX documentation</a>.</p>
+<p><a id="malware-yara-corpus"></a></p>
+<h2>YARA: correlate observed bytes across a copied corpus</h2>
+<p>Use this <a href="index.html#route-yara-corpus-correlation">corpus route</a> after inspecting two specific byte indicators in a seed artifact. A rule detects their coexistence; it does not identify malware or show that code ran. Keep the original corpus untouched. For a flat, small practice corpus, reuse the bundled <a href="research/learning/practice/training.yar">two-indicator rule</a> from <a href="PRACTICE_WORKSHEETS.html#block-6">Practice Block 6</a>:</p>
+<pre><code class="language-sh">mkdir -p work
+corpus=$(mktemp -d ./work/yara-corpus.XXXXXX)
+cp research/learning/practice/match.txt &quot;$corpus/positive.txt&quot;
+cp research/learning/practice/near-miss.txt &quot;$corpus/near-miss.txt&quot;
+printf 'training-marker only\n' &gt; &quot;$corpus/marker-only.txt&quot;
+printf 'harbor alone\n' &gt; &quot;$corpus/word-only.txt&quot;
+printf 'training-marker harbors\n' &gt; &quot;$corpus/harbors.txt&quot;
+yara -s research/learning/practice/training.yar &quot;$corpus&quot;
+</code></pre>
+<p>Expect only <code>positive.txt</code> to match. <code>-s</code> prints each matched string's identifier, hexadecimal byte offset and bytes; inspect those bytes at the reported offsets in the copied file. The marker-only and word-only files test that both indicators are required; the near miss tests spelling, while <code>harbors</code> tests the <code>fullword</code> boundary. A real rule should use indicators evidenced in that case, with a positive and close negative from the same input family. Scan selected files or one bounded directory first. For nested directories, confirm the supplied root itself is a real directory, then use <code>yara -s -r -N rule.yar copied-corpus</code>; <code>-r</code> recurses and <code>-N</code> skips symlinks found inside it. An explicitly supplied symlink target can still be followed. Do not scan an unbounded tree by habit.</p>
+<p><strong>Check:</strong> Record the rule, file hashes, exact matched bytes and offsets, and outcomes for all five files. If the positive fails, check encoding and your rule syntax. If a negative hits, narrow the rule and rerun all controls. A hit only prioritizes another file for independent format, code and context inspection. <a href="https://yara.readthedocs.io/en/latest/commandline.html">YARA CLI</a> · <a href="https://yara.readthedocs.io/en/latest/writingrules.html">YARA rule syntax</a>.</p>
 <p><a id="web-endpoints"></a></p>
 <h2>Endpoint discovery: distinguish a hit from a wildcard</h2>
 <p>Request one invented path on the assigned host and save its status, size, body and redirect target. Run the bounded <a href="index.html#route-endpoint-discovery">endpoint route</a> with a short local list. Compare candidate paths with the invented path, then verify a promising candidate in a browser or Repeater. <a href="scripts/templates/http_probe.py">http_probe.py</a> can record one unauthenticated response without following redirects; use Repeater for cookies, CSRF or a multi-request flow.</p>
