@@ -688,10 +688,54 @@ def _tone_probe(self_test):
     status = 'ready' if probe == 'passed' else 'partial' if multimon and ffmpeg else 'unavailable'
     dtmf = {'implemented': True, 'functional_probe': probe, 'status': status,
             'reason': 'multimon-ng_or_ffmpeg_missing' if status == 'unavailable' else None}
-    narrow = {'implemented': True, 'functional_probe': 'not_run',
-              'status': 'partial' if multimon and ffmpeg else 'unavailable',
-              'reason': 'independent_morse_afsk_probe_pending' if multimon and ffmpeg
-                        else 'multimon-ng_or_ffmpeg_missing'}
+    narrow_probe = 'not_run'
+    narrow_reason = None
+    fixtures = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio'
+    morse = fixtures / 'morse-sos.wav'
+    afsk = fixtures / 'afsk-hello.wav'
+    if not multimon or not ffmpeg:
+        narrow_reason = 'multimon-ng_or_ffmpeg_missing'
+    elif self_test and not all(source.is_file() for source in (morse, afsk)):
+        narrow_reason = 'morse_afsk_probe_fixture_missing'
+    elif self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                silence = Path(directory) / 'silence.wav'
+                with wave.open(str(silence), 'wb') as writer:
+                    writer.setparams((1, 2, 22050, 0, 'NONE', 'not compressed'))
+                    writer.writeframes(b'\0\0' * 22050)
+                morse_rows, morse_warnings = inspect_tones(
+                    morse, timeout=10, max_output=4096, modes=('MORSE_CW',))
+                afsk_rows, afsk_warnings = inspect_tones(
+                    afsk, timeout=10, max_output=4096, modes=('AFSK1200',))
+                controls = (
+                    inspect_tones(morse, timeout=10, max_output=4096, modes=('AFSK1200',)),
+                    inspect_tones(afsk, timeout=10, max_output=4096, modes=('MORSE_CW',)),
+                    inspect_tones(silence, timeout=10, max_output=4096,
+                                  modes=('MORSE_CW', 'AFSK1200')),
+                )
+                afsk_lines = (afsk_rows[0]['raw_output'].splitlines()
+                              if len(afsk_rows) == 1 else [])
+                narrow_probe = ('passed' if
+                                len(morse_rows) == 1 and not morse_warnings and
+                                morse_rows[0]['mode'] == 'MORSE_CW' and
+                                morse_rows[0]['raw_output'].strip() == 'SOS' and
+                                len(afsk_rows) == 1 and not afsk_warnings and
+                                afsk_rows[0]['mode'] == 'AFSK1200' and
+                                len(afsk_lines) == 2 and
+                                afsk_lines[0].startswith('AFSK1200: ') and
+                                afsk_lines[1] == 'HELLO' and
+                                all(not rows and warnings == ['no supported tone decoder output']
+                                    for rows, warnings in controls)
+                                else 'failed')
+        except Exception:
+            narrow_probe = 'failed'
+        if narrow_probe != 'passed':
+            narrow_reason = 'morse_afsk_probe_failed'
+    narrow = {'implemented': True, 'functional_probe': narrow_probe,
+              'status': 'ready' if narrow_probe == 'passed' else
+                        'partial' if multimon and ffmpeg else 'unavailable',
+              'reason': narrow_reason}
     engine = {'found': bool(multimon), 'path': multimon, 'version': None,
               'options_compatible': bool(multimon and ffmpeg),
               'required_data': 'ffmpeg', 'functional_probe': probe,

@@ -51,6 +51,8 @@ FIXTURES = (
     'tests/fixtures/toolkit/development/framed-bits.txt',
     'tests/fixtures/toolkit/development/wrapped-bits.txt',
     'tests/fixtures/toolkit/audio/robot36.wav',
+    'tests/fixtures/toolkit/audio/morse-sos.wav',
+    'tests/fixtures/toolkit/audio/afsk-hello.wav',
 )
 CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init__.py',
         'scripts/autosolve_lib/core.py', 'scripts/autosolve_lib/service.py',

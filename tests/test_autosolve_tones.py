@@ -167,11 +167,55 @@ class TonesTests(unittest.TestCase):
         self.assertEqual(result["engines"]["multimon"]["status"], "unavailable")
         self.assertEqual(result["operations"]["audio_video.dtmf"]["status"], "unavailable")
         self.assertEqual(result["operations"]["audio_video.morse_afsk"]["status"], "unavailable")
+        self.assertEqual(result["operations"]["audio_video.morse_afsk"]["reason"],
+                         "multimon-ng_or_ffmpeg_missing")
+
+    def test_doctor_missing_morse_fixture_is_distinct_from_tool_failure(self):
+        from scripts.autosolve_lib import setup
+        fake_module = self.root / "a" / "b" / "setup.py"
+        with mock.patch.object(setup, "__file__", str(fake_module)), \
+             mock.patch.object(setup.shutil, "which", return_value="/fake/tool"), \
+             mock.patch.object(tones, "inspect_tones", return_value=([], [])):
+            dtmf, narrow, engine = setup._tone_probe(True)
+        self.assertEqual(narrow["status"], "partial")
+        self.assertEqual(narrow["functional_probe"], "not_run")
+        self.assertEqual(narrow["reason"], "morse_afsk_probe_fixture_missing")
+        self.assertEqual(dtmf["functional_probe"], "failed")
+        self.assertTrue(engine["found"])
+
+    def test_doctor_rejects_positive_decoder_output_on_silent_control(self):
+        from scripts.autosolve_lib import setup
+        def fake_inspect(path, *, modes, **_):
+            if modes == ("DTMF",):
+                return ([{"symbol": "1"}, {"symbol": "2"}], [])
+            if Path(path).name == "morse-sos.wav" and modes == ("MORSE_CW",):
+                return ([{"mode": "MORSE_CW", "raw_output": "SOS \n"}], [])
+            if Path(path).name == "afsk-hello.wav" and modes == ("AFSK1200",):
+                return ([{"mode": "AFSK1200",
+                          "raw_output": "AFSK1200: fm TEST to DEST UI pid=F0\nHELLO\n"}], [])
+            if Path(path).name == "silence.wav":
+                return ([{"mode": "MORSE_CW", "raw_output": "SOS\n"}], [])
+            return ([], ["no supported tone decoder output"])
+        with mock.patch.object(setup.shutil, "which", return_value="/fake/tool"), \
+             mock.patch.object(tones, "inspect_tones", side_effect=fake_inspect):
+            dtmf, narrow, _ = setup._tone_probe(True)
+        self.assertEqual(dtmf["status"], "ready")
+        self.assertEqual(narrow["status"], "partial")
+        self.assertEqual(narrow["functional_probe"], "failed")
+        self.assertEqual(narrow["reason"], "morse_afsk_probe_failed")
 
 
 @unittest.skipUnless(shutil.which("multimon-ng") and shutil.which("ffmpeg"),
                      "approved multimon-ng and ffmpeg required for real waveform decode")
 class RealToneDecoderTests(unittest.TestCase):
+    def test_doctor_proves_morse_afsk_with_independent_controls(self):
+        from scripts.autosolve_lib import setup
+        dtmf, narrow, engine = setup._tone_probe(True)
+        self.assertEqual(dtmf["status"], "ready")
+        self.assertEqual(narrow, {"implemented": True, "functional_probe": "passed",
+                                  "status": "ready", "reason": None})
+        self.assertEqual(engine["status"], "ready")
+
     def test_independent_dtmf_waveform_and_held_out_channel(self):
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary) / "dtmf.wav"
