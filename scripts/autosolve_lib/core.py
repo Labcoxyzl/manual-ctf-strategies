@@ -6739,7 +6739,7 @@ def _render_report(run, manifest):
             lines.append(f"- {item['kind_evidence']}: {json.dumps(item['path'])}; {item['size']} bytes; "
                          f"SHA-256 {item['sha256'] or 'incomplete'}; "
                          f"locator {json.dumps(locator, ensure_ascii=True)}")
-    for job in manifest['jobs']:
+    for job in manifest.get('jobs', []):
         if (job['adapter_id'] == 'memory' and job['status'] == 'complete' and
                 job['input_ids'][0] in manifest.get('memory_routed_input_ids', []) and
                 job.get('tool_fingerprint') in
