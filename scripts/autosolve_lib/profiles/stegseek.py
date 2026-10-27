@@ -46,7 +46,7 @@ def probe_seed(path: Path, output_dir: Path, *, timeout: float) -> str:
             with version_path.open("wb") as stream:
                 version = subprocess.run(
                     [STEGSEEK, "--version"], cwd=scratch, stdin=subprocess.DEVNULL,
-                    stdout=stream, stderr=subprocess.DEVNULL,
+                    stdout=stream, stderr=stream,
                     timeout=min(2, max(.01, deadline - time.monotonic())),
                     preexec_fn=lambda: _limit_output(4096))
         except subprocess.TimeoutExpired:

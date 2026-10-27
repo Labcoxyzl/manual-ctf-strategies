@@ -95,7 +95,8 @@ class StegseekTests(unittest.TestCase):
                         "import pathlib, sys, time\n"
                         "a = sys.argv[1:]\n"
                         "if a == ['--version']:\n"
-                        "    print('StegSeek 0.5' if pathlib.Path(sys.argv[0]).with_suffix('.old').exists() else 'StegSeek 0.6')\n"
+                        "    print('StegSeek 0.5' if pathlib.Path(sys.argv[0]).with_suffix('.old').exists() else 'StegSeek 0.6',\n"
+                        "          file=sys.stderr if pathlib.Path(sys.argv[0]).with_suffix('.stderr').exists() else sys.stdout)\n"
                         "    sys.exit(0)\n"
                         "if '--seed' not in a: sys.exit(1)\n"
                         "source = pathlib.Path(a[-2]).name\n"
@@ -123,6 +124,10 @@ class StegseekTests(unittest.TestCase):
             self.assertEqual(stegseek.probe_seed(self.root / "clean.jpg", self.root / "old",
                                                  timeout=1), "unsupported")
             (self.root / "stegseek-seed-stub.old").unlink()
+            (self.root / "stegseek-seed-stub.stderr").touch()
+            self.assertEqual(stegseek.probe_seed(self.root / "clean.jpg", self.root / "version-stderr",
+                                                 timeout=1), "no_seed")
+            (self.root / "stegseek-seed-stub.stderr").unlink()
             slow = self.root / "slow.jpg"
             slow.write_bytes(b"\xff\xd8\xff" + b"x" * 20)
             self.assertEqual(stegseek.probe_seed(slow, self.root / "slow", timeout=0.2),
