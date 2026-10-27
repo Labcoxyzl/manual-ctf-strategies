@@ -3346,6 +3346,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
         return []
 
     path = Path(artifact['path'])
+    source_suffix = f" (source {json.dumps(artifact['path'], ensure_ascii=True)})"
     module_hash = hashlib.sha256(Path(stegseek.__file__).read_bytes()).hexdigest()
     fingerprint = hashlib.sha256(f'{module_hash}:{_hash(Path(tool), deadline)}'.encode()).hexdigest()
     key = hashlib.sha256(f"{artifact['sha256']}:stegseek.v1:{fingerprint}:{password_hash}:seed:{seed_requested}".encode()).hexdigest()
@@ -3358,7 +3359,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
             _attach_reused_child(child, old, artifact)
         children = reusable
         warnings = old.get('warnings', [])
-        manifest['warnings'].extend(warnings)
+        manifest['warnings'].extend(f"{artifact['id']}: {warning}{source_suffix}" for warning in warnings)
     else:
         job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'stegseek',
                'input_ids': [artifact['id']], 'operation': 'supplied-password Stegseek extraction',
@@ -3416,7 +3417,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
                 else:
                     warnings.append('Stegseek payload publication limit reached; inspection incomplete')
             job['warnings'] = warnings[:100]
-            manifest['warnings'].extend(warnings[:100])
+            manifest['warnings'].extend(f"{artifact['id']}: {warning}{source_suffix}" for warning in warnings[:100])
             job['status'] = ('complete' if not warnings or
                              len(warnings) == 1 and warnings[0].startswith(
                                  'no supplied passphrase validated') else 'truncated')
@@ -3424,7 +3425,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
             job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             warnings = [job['warning']]
-            manifest['warnings'].append(f"Stegseek job failed: {type(error).__name__}")
+            manifest['warnings'].append(f"{artifact['id']}: Stegseek job failed: {type(error).__name__}{source_suffix}")
         finally:
             shutil.rmtree(staging, ignore_errors=True)
         job['ended'] = time.time()

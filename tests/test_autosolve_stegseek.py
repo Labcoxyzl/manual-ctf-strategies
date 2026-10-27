@@ -6,12 +6,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import wave
 from pathlib import Path
 from unittest import mock
 
 from scripts.autosolve_lib.profiles import stegseek
+from scripts.autosolve_lib import core
 from scripts.autosolve_lib import setup as capabilities
 
 
@@ -327,6 +329,64 @@ class StegseekTests(unittest.TestCase):
         self.assertEqual(len([item for item in manifest["artifacts"]
                               if item["current"] and item["source_locator"].get("stego_engine")
                               == "stegseek"]), 1)
+
+    def test_mixed_report_scopes_seed_warning_to_clean_carrier(self):
+        positive_id, clean_id = "a" * 32, "b" * 32
+        positive = self.root / "positive.jpg"
+        clean = self.root / "clean.jpg"
+        positive.write_bytes(b"\xff\xd8\xff" + b"p" * 100)
+        clean.write_bytes(b"\xff\xd8\xff" + b"c" * 100)
+        tool = self.root / "stegseek-stub"
+        tool.write_text("#!/bin/sh\nexit 0\n")
+        tool.chmod(0o700)
+
+        def source(path, identifier):
+            data = path.read_bytes()
+            return {"id": identifier, "path": str(path), "size": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(), "kind_evidence": "jpeg",
+                    "source_locator": {}, "current": True, "depth": 0}
+
+        positive_artifact = source(positive, positive_id)
+        clean_artifact = source(clean, clean_id)
+        run = self.root / "run"
+        run.mkdir()
+        manifest = {
+            "status": "partial", "artifacts": [positive_artifact, clean_artifact],
+            "jobs": [{"id": "positive-job", "key": "positive-job-key", "adapter_id": "stegseek",
+                      "input_ids": [positive_id], "status": "complete", "child_ids": ["child"]}],
+            "findings": [{"state": "candidate", "current": True, "artifact_id": "child",
+                          "source_locator": {}, "evidence": "positive carrier extracted bytes"}],
+            "warnings": [], "intelligence": [], "derived_bytes": 0,
+            "coverage": {"IMG03": {"status": "ran", "note": "carrier-specific outcomes in jobs"}},
+        }
+        with (mock.patch.object(stegseek, "STEGSEEK", str(tool)),
+              mock.patch.object(core, "_run_stegseek", return_value=(
+                  [], ["no supplied passphrase validated; carrier may contain no supported payload"])),
+              mock.patch.object(stegseek, "probe_seed", return_value="no_seed")):
+            self.assertEqual(core._stegseek_job(
+                run, manifest, clean_artifact, time.monotonic() + 60,
+                [b"private-password"], "private-hash", seed_requested=True), [])
+        core._render_report(run, manifest)
+        warning = manifest["jobs"][-1]["warnings"][0]
+        report = (run / "report.md").read_text()
+        self.assertEqual(manifest["coverage"]["IMG03"]["status"], "ran")
+        self.assertIn("no supported Steghide seed", warning)
+        scoped = f"{clean_id}: {warning} (source {json.dumps(str(clean))})"
+        self.assertEqual(manifest["warnings"], [scoped])
+        self.assertNotIn(f"- Limit or prerequisite: {warning}", report)
+        self.assertIn(f"- Limit or prerequisite: {scoped}", report)
+        self.assertEqual(manifest["jobs"][-1]["input_ids"], [clean_id])
+
+        manifest["warnings"].clear()
+        with (mock.patch.object(stegseek, "STEGSEEK", str(tool)),
+              mock.patch.object(core, "_run_stegseek", side_effect=AssertionError("reused job reran"))):
+            core._stegseek_job(run, manifest, clean_artifact, time.monotonic() + 60,
+                               [b"private-password"], "private-hash", seed_requested=True)
+        core._render_report(run, manifest)
+        report = (run / "report.md").read_text()
+        self.assertEqual(len(manifest["jobs"]), 2)
+        self.assertNotIn(f"- Limit or prerequisite: {warning}", report)
+        self.assertIn(f"- Limit or prerequisite: {scoped}", report)
 
 
 @unittest.skipUnless(shutil.which("stegseek") and shutil.which("steghide"),
