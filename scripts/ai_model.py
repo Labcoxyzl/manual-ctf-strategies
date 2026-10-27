@@ -2,6 +2,8 @@
 """Safe AI artifact triage, bounded tensor comparison, and explicit wrapper parity."""
 
 import argparse
+import base64
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
@@ -20,6 +22,7 @@ from pathlib import Path
 
 MAX_HEADER = 8 * 1024 * 1024
 MAX_ENTRIES = 1000
+MAX_PARITY_EVIDENCE = 4 * 1024 * 1024
 
 
 def _private_run(root):
@@ -295,11 +298,27 @@ def sign_gates(path, timeout):
     return result
 
 
-def _child(argv, value, timeout, run):
+def _reject_json_constant(value):
+    raise ValueError(f'non-JSON numeric constant: {value}')
+
+
+class _WrapperFailure(ValueError):
+    def __init__(self, reason, stdout_raw=b'', stderr_raw=b''):
+        super().__init__(reason)
+        self.stdout_raw = stdout_raw
+        self.stderr_raw = stderr_raw
+
+
+def _child(argv, value, timeout, run, *, exact_decimal=False, return_raw=False):
     def cap_output():
         resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024, 64 * 1024))
 
     with tempfile.TemporaryFile(dir=run) as stdout, tempfile.TemporaryFile(dir=run) as stderr:
+        def captured():
+            stdout.seek(0)
+            stderr.seek(0)
+            return stdout.read(64 * 1024), stderr.read(64 * 1024)
+
         process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr,
                                    start_new_session=True, preexec_fn=cap_output)
         try:
@@ -307,45 +326,198 @@ def _child(argv, value, timeout, run):
         except subprocess.TimeoutExpired as error:
             os.killpg(process.pid, signal.SIGKILL)
             process.wait()
-            raise ValueError('wrapper timed out; parity incomplete') from error
+            raise _WrapperFailure('wrapper timed out; run incomplete', *captured()) from error
         if process.returncode:
-            raise ValueError(f'wrapper exited {process.returncode}; parity incomplete')
+            raise _WrapperFailure(f'wrapper exited {process.returncode}; run incomplete', *captured())
         if stdout.tell() > 64 * 1024 or stderr.tell() > 64 * 1024:
-            raise ValueError('wrapper output exceeded 64 KiB')
-        stdout.seek(0)
+            raise _WrapperFailure('wrapper output exceeded 64 KiB', *captured())
+        raw, error_raw = captured()
         try:
-            return json.load(stdout)
-        except (ValueError, UnicodeError) as error:
-            raise ValueError('wrapper did not return one JSON result') from error
+            parsed = json.loads(raw, parse_float=Decimal if exact_decimal else float,
+                                parse_constant=_reject_json_constant)
+            return (parsed, raw) if return_raw else parsed
+        except (ValueError, UnicodeError, InvalidOperation, RecursionError) as error:
+            raise _WrapperFailure('wrapper did not return one JSON result', raw, error_raw) from error
+
+
+def _strict_json_equal(left, right):
+    stack = [(left, right)]
+    while stack:
+        a, b = stack.pop()
+        if type(a) is not type(b):
+            return False
+        if isinstance(a, dict):
+            if a.keys() != b.keys():
+                return False
+            stack.extend((value, b[key]) for key, value in a.items())
+        elif isinstance(a, list):
+            if len(a) != len(b):
+                return False
+            stack.extend(zip(a, b))
+        elif a != b:
+            return False
+    return True
 
 
 def parity(config_path, run):
     path = _regular(config_path)
     if path.stat().st_size > 64 * 1024:
         raise ValueError('parity config exceeds 64 KiB')
-    config = json.loads(path.read_text())
+    try:
+        config = json.loads(path.read_text())
+    except RecursionError as error:
+        raise ValueError('parity config is too deeply nested') from error
     if not isinstance(config, dict) or set(config) != {'reference', 'candidate', 'cases', 'timeout', 'budget'}:
         raise ValueError('parity config needs reference, candidate, cases, timeout, budget')
     for key in ('reference', 'candidate'):
         argv = config[key]
         if not isinstance(argv, list) or not 1 <= len(argv) <= 16 or any(not isinstance(x, str) or not x or len(x) > 1024 for x in argv):
             raise ValueError(f'{key} must be an argv array')
-    if not isinstance(config['cases'], list) or not 1 <= len(config['cases']) <= 20 or not isinstance(config['timeout'], (int, float)) or not 0 < config['timeout'] <= 30 or not isinstance(config['budget'], (int, float)) or not 0 < config['budget'] <= 600:
+    if not isinstance(config['cases'], list) or not 1 <= len(config['cases']) <= 20 or type(config['timeout']) not in (int, float) or not 0 < config['timeout'] <= 30 or type(config['budget']) not in (int, float) or not 0 < config['budget'] <= 600:
         raise ValueError('parity needs 1-20 cases, per-call timeout 0-30s, and total budget 0-600s')
+    for case in config['cases']:
+        try:
+            if len(json.dumps(case, allow_nan=False).encode()) > 8192:
+                raise ValueError('parity canary exceeds 8192 bytes')
+        except (TypeError, RecursionError) as error:
+            raise ValueError('parity canary must be bounded JSON') from error
     deadline = time.monotonic() + config['budget']
-    rows = []
+    evidence = run / 'parity-observations.jsonl'
+    evidence.touch(mode=0o600)
+    rows, limits, evidence_bytes = [], [], 0
+
+    def append_evidence(observation):
+        nonlocal evidence_bytes
+        line = (json.dumps(observation, allow_nan=False) + '\n').encode()
+        if evidence_bytes + len(line) > MAX_PARITY_EVIDENCE:
+            return False
+        with evidence.open('ab') as stream:
+            stream.write(line)
+        evidence_bytes += len(line)
+        return True
+
     for index, case in enumerate(config['cases']):
-        if len(json.dumps(case, allow_nan=False).encode()) > 8192:
-            raise ValueError('parity canary exceeds 8192 bytes')
-        if time.monotonic() >= deadline:
-            raise ValueError('parity budget exhausted; remaining canaries untested')
-        reference = _child(config['reference'], case, min(config['timeout'], deadline - time.monotonic()), run)
-        candidate = _child(config['candidate'], case, min(config['timeout'], max(.001, deadline - time.monotonic())), run)
-        rows.append({'case': index, 'equal': reference == candidate,
-                     'reference_sha256': hashlib.sha256(json.dumps(reference, sort_keys=True).encode()).hexdigest(),
-                     'candidate_sha256': hashlib.sha256(json.dumps(candidate, sort_keys=True).encode()).hexdigest()})
-    return {'cases': rows, 'equal': all(row['equal'] for row in rows),
-            'limit': 'checks the declared canary cases only; local wrapper code is executed'}
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            limits.append(f'budget exhausted before case {index}')
+            break
+        try:
+            phase = 'reference'
+            reference, reference_raw = _child(config['reference'], case, min(config['timeout'], remaining), run,
+                                              exact_decimal=True, return_raw=True)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                limits.append(f'budget exhausted before candidate wrapper for case {index}')
+                break
+            phase = 'candidate'
+            candidate, candidate_raw = _child(config['candidate'], case, min(config['timeout'], remaining), run,
+                                              exact_decimal=True, return_raw=True)
+            observation = {'case': index, 'input': case,
+                           'reference_raw_b64': base64.b64encode(reference_raw).decode(),
+                           'candidate_raw_b64': base64.b64encode(candidate_raw).decode()}
+            if not append_evidence(observation):
+                limits.append(f'private evidence limit reached before case {index}')
+                break
+            rows.append({'case': index, 'equal': _strict_json_equal(reference, candidate),
+                         'reference_sha256': hashlib.sha256(reference_raw).hexdigest(),
+                         'candidate_sha256': hashlib.sha256(candidate_raw).hexdigest()})
+        except _WrapperFailure as error:
+            failure = {'case': index, 'phase': phase, 'input': case,
+                       'stdout_raw_b64': base64.b64encode(error.stdout_raw).decode(),
+                       'stderr_raw_b64': base64.b64encode(error.stderr_raw).decode()}
+            if not append_evidence(failure):
+                limits.append(f'case {index}: private evidence limit prevented failure bytes')
+            limits.append(f'case {index}: {error}')
+            break
+        except (ValueError, RecursionError) as error:
+            limits.append(f'case {index}: {error}')
+            break
+        except OSError:
+            limits.append(f'case {index}: wrapper start failed; run incomplete')
+            break
+    return {'cases': rows, 'equal': len(rows) == len(config['cases']) and all(row['equal'] for row in rows),
+            'evidence_file': str(evidence), 'evidence_bytes': evidence_bytes, 'limits': limits,
+            'limit': 'checks declared canaries only; exact wrapper output is private and local wrapper code is executed'}
+
+
+def calibrated_search(config_path, run):
+    path = _regular(config_path)
+    if path.stat().st_size > 64 * 1024:
+        raise ValueError('calibrated-search config exceeds 64 KiB')
+    raw = path.read_bytes()
+    try:
+        config = json.loads(raw)
+    except RecursionError as error:
+        raise ValueError('calibrated-search config is too deeply nested') from error
+    if not isinstance(config, dict) or set(config) != {'wrapper', 'cases', 'direction', 'timeout', 'budget'}:
+        raise ValueError('calibrated-search needs wrapper, cases, direction, timeout, budget')
+    argv = config['wrapper']
+    cases = config['cases']
+    if not isinstance(argv, list) or not 1 <= len(argv) <= 16 or any(not isinstance(x, str) or not x or len(x) > 1024 for x in argv):
+        raise ValueError('wrapper must be an argv array')
+    if not isinstance(cases, list) or not 1 <= len(cases) <= 50:
+        raise ValueError('calibrated-search needs 1-50 cases')
+    if (config['direction'] not in ('higher', 'lower') or type(config['timeout']) not in (int, float) or
+            not 0 < config['timeout'] <= 30 or type(config['budget']) not in (int, float) or
+            not 0 < config['budget'] <= 600):
+        raise ValueError('calibrated-search needs higher/lower direction, timeout 0-30s and budget 0-600s')
+    encoded = []
+    roles = []
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != {'role', 'input'} or case['role'] not in ('positive', 'negative', 'candidate'):
+            raise ValueError('each case needs a role and input')
+        try:
+            value = json.dumps(case['input'], allow_nan=False).encode() + b'\n'
+        except (TypeError, ValueError, RecursionError) as error:
+            raise ValueError('case input must be bounded JSON') from error
+        if len(value) > 8192:
+            raise ValueError('case input exceeds 8192 bytes')
+        encoded.append(value)
+        roles.append(case['role'])
+    if 'negative' not in roles or 'candidate' not in roles:
+        raise ValueError('calibrated-search needs negative and candidate cases')
+    deadline = time.monotonic() + config['budget']
+    observations, scores, limits = [], [], []
+    for index, case in enumerate(cases):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            limits.append(f'budget exhausted before case {index}')
+            break
+        try:
+            output = _child(argv, case['input'], min(config['timeout'], remaining), run, exact_decimal=True)
+            if type(output) not in (str, int, float, Decimal):
+                raise ValueError('wrapper score must be a finite scalar')
+            if len(str(output)) > 512:
+                raise ValueError('wrapper score exceeds 512 characters')
+            try:
+                score = Decimal(str(output))
+            except InvalidOperation as error:
+                raise ValueError('wrapper score must be a finite scalar') from error
+            if not score.is_finite() or score.copy_abs() > Decimal('1e150'):
+                raise ValueError('wrapper score must be a finite scalar within ±1e150')
+        except ValueError as error:
+            limits.append(f'case {index}: {error}')
+            break
+        except OSError:
+            limits.append(f'case {index}: wrapper start failed; run incomplete')
+            break
+        scores.append(score)
+        observations.append({'case': index, 'role': case['role'], 'input_sha256': hashlib.sha256(encoded[index]).hexdigest(),
+                             'score': str(score)})
+    positive = [score for row, score in zip(observations, scores) if row['role'] == 'positive']
+    negative = [score for row, score in zip(observations, scores) if row['role'] == 'negative']
+    complete = len(observations) == len(cases)
+    separated = None
+    if complete and positive and negative:
+        separated = min(positive) > max(negative) if config['direction'] == 'higher' else max(positive) < min(negative)
+    if complete and not positive:
+        limits.append('no positive control; ranking is uncalibrated')
+    ranked = [row['case'] for row, score in sorted(zip(observations, scores),
+              key=lambda pair: pair[1], reverse=config['direction'] == 'higher') if row['role'] == 'candidate']
+    return {'state': 'exploratory_ranking', 'cases': len(cases), 'observations': observations,
+            'candidate_order': ranked, 'control_ranges_separate': separated, 'limits': limits,
+            'config_sha256': hashlib.sha256(raw).hexdigest(),
+            'limit': 'scores are exploratory; model behavior and identity require the supplied checker'}
 
 
 def main(argv=None):
@@ -359,6 +531,9 @@ def main(argv=None):
     check = modes.add_parser('parity')
     check.add_argument('config')
     check.add_argument('--execute-local', action='store_true')
+    search = modes.add_parser('calibrated-search')
+    search.add_argument('config')
+    search.add_argument('--execute-local', action='store_true')
     svm_mode = modes.add_parser('svm')
     svm_mode.add_argument('parameters', help='JSON exported from the supplied binary-class SVM wrapper')
     gates_mode = modes.add_parser('sign-gates')
@@ -372,8 +547,8 @@ def main(argv=None):
     try:
         if args.mode in ('inspect', 'compare', 'suppression') and not 0 < args.max_bytes <= 1024 * 1024 * 1024:
             raise ValueError('max-bytes must be 1 to 1073741824')
-        if args.mode == 'parity' and not args.execute_local:
-            raise ValueError('parity executes supplied wrappers; pass --execute-local')
+        if args.mode in ('parity', 'calibrated-search') and not args.execute_local:
+            raise ValueError(f'{args.mode} executes a supplied wrapper; pass --execute-local')
         if args.mode == 'sign-gates' and not 0 < args.timeout <= 30:
             raise ValueError('sign-gate timeout must be 0-30 seconds')
         run = _private_run(args.runs_root)
@@ -387,6 +562,8 @@ def main(argv=None):
             result = sign_gates(args.description, args.timeout)
         elif args.mode == 'suppression':
             result = suppress(args.base, args.challenge, args.max_bytes, run)
+        elif args.mode == 'calibrated-search':
+            result = calibrated_search(args.config, run)
         else:
             result = parity(args.config, run)
         (run / 'result.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')

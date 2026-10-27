@@ -1,0 +1,11 @@
+{
+  "wrapper": ["python3", "scripts/templates/ai_score_wrapper.py"],
+  "cases": [
+    {"role": "positive", "input": "REPLACE_KNOWN_BEHAVIOR"},
+    {"role": "negative", "input": "REPLACE_NEGATIVE_CONTROL"},
+    {"role": "candidate", "input": "REPLACE_CANDIDATE"}
+  ],
+  "direction": "higher",
+  "timeout": 5,
+  "budget": 30
+}

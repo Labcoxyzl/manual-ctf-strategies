@@ -9,7 +9,7 @@ import math
 import re
 import statistics
 import uuid
-from decimal import Decimal, localcontext
+from decimal import Decimal, Inexact, InvalidOperation, localcontext
 from pathlib import Path
 
 
@@ -154,13 +154,13 @@ def score_controls(text, positive, negative, candidates, direction):
         row = by_id.get(f'score_{index}')
         value = row.get('score') if row else None
         try:
-            valid_value = type(value) in (int, float) and math.isfinite(value) and abs(value) <= 1e150
-        except OverflowError:
+            number = Decimal(str(value)) if type(value) in (int, float, str) and len(str(value)) <= 512 else None
+            valid_value = number is not None and number.is_finite() and -Decimal('1e150') <= number <= Decimal('1e150')
+        except (OverflowError, ValueError, InvalidOperation):
             valid_value = False
         if (not row or type(row.get('status')) is not int or not 200 <= row['status'] <= 299 or
                 type(row.get('redirect_hops')) is not int or row['redirect_hops'] != 0 or not valid_value):
             raise ValueError(f'score_{index} has no complete bounded nonredirected scalar observation')
-        number = Decimal(str(value))
         return number if sign == 1 else number.copy_negate()
 
     positive_scores = [score(index) for index in groups['positive']]
@@ -169,16 +169,19 @@ def score_controls(text, positive, negative, candidates, direction):
                     key=lambda row: row[1], reverse=True)
     with localcontext() as context:
         context.prec = 512
+        context.clear_flags()
         positive_median = statistics.median(positive_scores)
         negative_median = statistics.median(negative_scores)
         median_gap = positive_median - negative_median
+        medians_rounded = bool(context.flags[Inexact])
     return {'kind': 'exploratory_score_controls', 'direction': direction,
             'source_sha256': hashlib.sha256(text.encode()).hexdigest(),
             'control_probe_ids': {'positive': [f'score_{index}' for index in groups['positive']],
                                   'negative': [f'score_{index}' for index in groups['negative']]},
             'positive_count': len(positive_scores), 'negative_count': len(negative_scores),
             'positive_median': str(positive_median), 'negative_median': str(negative_median),
-            'median_gap': str(median_gap),
+            'median_gap': str(median_gap), 'median_precision_digits': 512,
+            'medians_rounded': medians_rounded,
             'observed_strict_separation': min(positive_scores) > max(negative_scores),
             'ranked_candidates': [{'probe_id': name, 'oriented_score': str(value)} for name, value in ranked],
             'membership_validated': False,

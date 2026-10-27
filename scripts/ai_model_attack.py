@@ -19,22 +19,63 @@ def _regular(path, limit):
 
 def _adapter(path):
     source = _regular(path, 64 * 1024)
+    source_bytes = source.read_bytes()
+    if len(source_bytes) > 64 * 1024:
+        raise ValueError('adapter source exceeds 64 KiB')
     spec = importlib.util.spec_from_file_location('ctf_model_adapter', source)
     if spec is None or spec.loader is None:
         raise ValueError('adapter is not importable Python')
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # Explicit --execute-local authorizes this challenge-specific code.
-    return module, hashlib.sha256(source.read_bytes()).hexdigest()
+    exec(compile(source_bytes, str(source), 'exec'), module.__dict__)  # Explicit --execute-local authorizes this code.
+    return module, hashlib.sha256(source_bytes).hexdigest()
 
 
 def _jsonable(value):
-    if hasattr(value, 'detach'):
-        value = value.detach().cpu()
-    if hasattr(value, 'tolist'):
-        value = value.tolist()
-    encoded = json.dumps(value, allow_nan=False)
+    nodes = 0
+    size_hint = 0
+
+    def charge(size):
+        nonlocal size_hint
+        size_hint += size
+        if size_hint > 64 * 1024:
+            raise ValueError('model state exceeds 64 KiB')
+
+    def convert(item, depth):
+        nonlocal nodes
+        nodes += 1
+        charge(2)
+        if depth > 16 or nodes > 10_000:
+            raise ValueError('model state exceeds nesting or element limit')
+        if hasattr(item, 'detach') or hasattr(item, 'tolist'):
+            size = item.numel() if callable(getattr(item, 'numel', None)) else getattr(item, 'size', None)
+            if not isinstance(size, int) or not 0 <= size <= 10_000:
+                raise ValueError('model state converter exceeds element limit or has unknown size')
+        if hasattr(item, 'detach'):
+            item = item.detach().cpu()
+        if hasattr(item, 'tolist'):
+            item = item.tolist()
+        if isinstance(item, dict):
+            if any(type(key) is not str for key in item):
+                raise ValueError('model state dictionary keys must be strings')
+            for key in item:
+                charge(len(key) + 4)
+            return {key: convert(part, depth + 1) for key, part in item.items()}
+        if isinstance(item, (list, tuple)):
+            return [convert(part, depth + 1) for part in item]
+        if isinstance(item, str):
+            charge(len(item) + 2)
+        elif type(item) in (int, float, bool) or item is None:
+            charge(len(str(item)))
+        else:
+            raise ValueError('model state must be bounded JSON')
+        return item
+
+    try:
+        encoded = json.dumps(convert(value, 0), allow_nan=False)
+    except (TypeError, RecursionError) as error:
+        raise ValueError('model state must be bounded JSON') from error
     if len(encoded.encode()) > 64 * 1024:
-        raise ValueError('model vector exceeds 64 KiB')
+        raise ValueError('model state exceeds 64 KiB')
     return json.loads(encoded)
 
 
@@ -92,27 +133,85 @@ def recurrent(adapter, args, run):
         if not callable(getattr(adapter, function, None)):
             raise ValueError(f'recurrent adapter needs {function}()')
     action_path = _regular(args.actions, 64 * 1024)
-    actions = json.loads(action_path.read_text())
+    action_bytes = action_path.read_bytes()
+    if len(action_bytes) > 64 * 1024:
+        raise ValueError('actions file exceeds 64 KiB')
+    try:
+        actions = json.loads(action_bytes)
+    except RecursionError as error:
+        raise ValueError('actions JSON is too deeply nested') from error
     if not isinstance(actions, list) or not 1 <= len(actions) <= 100:
         raise ValueError('actions must be a JSON list of 1-100 explicit actions')
-    observation, hidden, previous_action = adapter.reset(args.seed)
-    auxiliary, hidden = adapter.policy_step(observation, previous_action, hidden)
     trace = run / 'trace.jsonl'
-    calls = 1
-    with trace.open('w') as stream:
+    trace.touch(mode=0o600)
+    attempts = run / 'attempts.jsonl'
+    attempts.touch(mode=0o600)
+    calls = 0
+    written_bytes = 0
+    completed = 0
+    attempted = 0
+    limits = []
+
+    def outcome():
+        return {'state': 'trace', 'actions': completed, 'attempted_actions': attempted,
+                'planned_actions': len(actions), 'policy_calls': calls,
+                'trace_file': str(trace), 'attempts_file': str(attempts),
+                'actions_sha256': hashlib.sha256(action_bytes).hexdigest(),
+                'limits': limits,
+                'limit': 'pre/post alignment is a trace; decoding and checker validation remain target-specific'}
+
+    try:
+        observation, hidden, previous_action = adapter.reset(args.seed)
+        pre_state = {'observation': _jsonable(observation), 'previous_action': _jsonable(previous_action),
+                     'hidden_in': _jsonable(hidden)}
+        auxiliary, hidden = adapter.policy_step(observation, previous_action, hidden)
+        calls = 1
+        pre_state['hidden_out'] = _jsonable(hidden)
+        pre_aux = _jsonable(auxiliary)
+    except TimeoutError:
+        limits.append('adapter budget exhausted before first observation')
+        return outcome()
+    except Exception as error:
+        limits.append(f'adapter initialization failed: {type(error).__name__}')
+        return outcome()
+    with trace.open('w') as stream, attempts.open('w') as attempt_stream:
         for index, action in enumerate(actions):
-            before = _jsonable(auxiliary)
-            observation = adapter.env_step(action)
-            auxiliary, hidden = adapter.policy_step(observation, action, hidden)
-            calls += 1
-            line = json.dumps({'index': index, 'action': action, 'pre_aux': before,
-                               'post_aux': _jsonable(auxiliary)}, allow_nan=False) + '\n'
-            if stream.tell() + len(line.encode()) > 2 * 1024 * 1024:
-                raise ValueError('recurrent trace exceeds 2 MiB')
+            try:
+                submitted_action = _jsonable(action)
+            except TimeoutError:
+                limits.append(f'adapter budget exhausted before action {index}')
+                break
+            except Exception as error:
+                limits.append(f'action {index} is not bounded JSON ({type(error).__name__}); not dispatched')
+                break
+            attempt_stream.write(json.dumps({'index': index, 'action_sha256': hashlib.sha256(
+                json.dumps(submitted_action).encode()).hexdigest()}) + '\n')
+            attempt_stream.flush()
+            attempted += 1
+            try:
+                observation = adapter.env_step(action)
+                post_state = {'observation': _jsonable(observation), 'previous_action': _jsonable(action),
+                              'hidden_in': _jsonable(hidden)}
+                auxiliary, hidden = adapter.policy_step(observation, action, hidden)
+                calls += 1
+                post_state['hidden_out'] = _jsonable(hidden)
+                post_aux = _jsonable(auxiliary)
+                line = json.dumps({'index': index, 'action': submitted_action, 'pre_aux': pre_aux, 'post_aux': post_aux,
+                                   'pre_state': pre_state, 'post_state': post_state}, allow_nan=False) + '\n'
+            except TimeoutError:
+                limits.append(f'adapter budget exhausted during action {index}')
+                break
+            except Exception as error:
+                limits.append(f'adapter state failed during action {index}: {type(error).__name__}')
+                break
+            if written_bytes + len(line.encode()) > 2 * 1024 * 1024:
+                limits.append(f'trace limit reached after attempted action {index}')
+                break
             stream.write(line)
-    return {'state': 'trace', 'actions': len(actions), 'policy_calls': calls,
-            'trace_file': str(trace), 'actions_sha256': hashlib.sha256(action_path.read_bytes()).hexdigest(),
-            'limit': 'pre/post alignment is a trace; decoding and checker validation remain target-specific'}
+            written_bytes += len(line.encode())
+            completed += 1
+            pre_state, pre_aux = post_state, post_aux
+    return outcome()
 
 
 def main(argv=None):
@@ -158,13 +257,13 @@ def main(argv=None):
             signal.signal(signal.SIGALRM, old_handler)
         report = run / 'result.json'
         report.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
-        print(json.dumps({'status': 'complete', 'report': str(report),
+        print(json.dumps({'status': 'partial' if result.get('limits') else 'complete', 'report': str(report),
                           'candidate_file': result.get('candidate_file'), 'trace_file': result.get('trace_file')}))
-        return 0
+        return 3 if result.get('limits') else 0
     except TimeoutError as error:
         print(json.dumps({'status': 'partial', 'reason': str(error)}))
         return 3
-    except (OSError, ValueError, ImportError, TypeError, RuntimeError, NotImplementedError) as error:
+    except (OSError, ValueError, ImportError, TypeError, RuntimeError, NotImplementedError, SyntaxError) as error:
         print(json.dumps({'status': 'invalid_input', 'reason': str(error)}))
         return 2
 
