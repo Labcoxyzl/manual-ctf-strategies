@@ -1,5 +1,7 @@
 """Public offline AI artifact and wrapper checks with independent small inputs."""
 
+import base64
+import importlib.util
 import json
 import struct
 import subprocess
@@ -7,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/ai_model.py'
@@ -78,8 +81,11 @@ class AIModelTests(unittest.TestCase):
             root = Path(root)
             reference = root / 'reference.py'
             candidate = root / 'candidate.py'
-            reference.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\nprint(json.dumps({"tokens":[x,x+1]}))\n')
-            candidate.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\nprint(json.dumps({"tokens":[x,x+1 if x==1 else x+2]}))\n')
+            reference.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\n'
+                                 'print(json.dumps({"tokens":[x,x+1],"mask":[1,1],"rendered_prompt":"toy prompt"}))\n')
+            candidate.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\n'
+                                 'print(json.dumps({"tokens":[x,x+1 if x==1 else x+2],'
+                                 '"mask":[1,1],"rendered_prompt":"toy prompt"}))\n')
             config = root / 'parity.json'
             config.write_text(json.dumps({'reference': [sys.executable, str(reference)],
                                           'candidate': [sys.executable, str(candidate)],
@@ -89,18 +95,127 @@ class AIModelTests(unittest.TestCase):
             record = json.loads(Path(result['report']).read_text())
             self.assertEqual([row['equal'] for row in record['cases']], [True, False])
             self.assertFalse(record['equal'])
+            evidence = Path(record['evidence_file'])
+            self.assertEqual(evidence.stat().st_mode & 0o777, 0o600)
+            rows = [json.loads(line) for line in evidence.read_text().splitlines()]
+            self.assertEqual([row['input'] for row in rows], [{'x': 1}, {'x': 2}])
+            reference = json.loads(base64.b64decode(rows[1]['reference_raw_b64']))
+            candidate = json.loads(base64.b64decode(rows[1]['candidate_raw_b64']))
+            self.assertEqual(reference['tokens'], [2, 3])
+            self.assertEqual(candidate['tokens'], [2, 4])
+            self.assertEqual(reference['mask'], [1, 1])
+            self.assertEqual(reference['rendered_prompt'], 'toy prompt')
+            self.assertNotIn('toy prompt', json.dumps(result))
 
     def test_parity_timeout_stops_the_child(self):
         with tempfile.TemporaryDirectory() as root:
             root = Path(root)
             sleeper = root / 'sleeper.py'
-            sleeper.write_text('import time\ntime.sleep(1)\n')
+            sleeper.write_text('import json,sys,time\nx=json.load(sys.stdin)["x"]\n'
+                               'if x==2: time.sleep(3)\nprint(json.dumps({"tokens":[x]}))\n')
             config = root / 'parity.json'
             config.write_text(json.dumps({'reference': [sys.executable, str(sleeper)],
                                           'candidate': [sys.executable, str(sleeper)],
-                                          'cases': [{'x': 1}], 'timeout': .05, 'budget': 1}))
-            result = self.command(root, 'parity', config, '--execute-local', code=2)
-            self.assertIn('timed out', result['reason'])
+                                          'cases': [{'x': 1}, {'x': 2}], 'timeout': .8, 'budget': 3}))
+            result = self.command(root, 'parity', config, '--execute-local', code=3)
+            report = json.loads(Path(result['report']).read_text())
+            self.assertIn('timed out', report['limits'][0])
+            self.assertEqual(len(report['cases']), 1)
+            rows = [json.loads(line) for line in Path(report['evidence_file']).read_text().splitlines()]
+            self.assertEqual([row['input'] for row in rows], [{'x': 1}, {'x': 2}])
+            self.assertEqual(rows[1]['phase'], 'reference')
+            self.assertEqual(base64.b64decode(rows[1]['stdout_raw_b64']), b'')
+
+    def test_parity_evidence_limit_retains_only_complete_canaries(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            wrapper = root / 'echo.py'
+            wrapper.write_text('import json,sys\nx=json.load(sys.stdin)\n'
+                               'print(json.dumps({"tokens":[x["x"]],"mask":[1]}))\n')
+            config = root / 'parity.json'
+            plan = {'reference': [sys.executable, str(wrapper)],
+                    'candidate': [sys.executable, str(wrapper)],
+                    'cases': [{'x': 1}], 'timeout': 2, 'budget': 10}
+            config.write_text(json.dumps(plan))
+            spec = importlib.util.spec_from_file_location('ai_model_under_test', SCRIPT)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            first_run = root / 'first'
+            first_run.mkdir(mode=0o700)
+            one = module.parity(config, first_run)
+            plan['cases'].append({'x': 2})
+            config.write_text(json.dumps(plan))
+            limited_run = root / 'limited'
+            limited_run.mkdir(mode=0o700)
+            with patch.object(module, 'MAX_PARITY_EVIDENCE', one['evidence_bytes'] + 1):
+                limited = module.parity(config, limited_run)
+            self.assertEqual(len(limited['cases']), 1)
+            self.assertIn('evidence limit', limited['limits'][0])
+            self.assertEqual(len(Path(limited['evidence_file']).read_text().splitlines()), 1)
+
+    def test_parity_rejects_bool_and_decimal_token_type_mismatches(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            reference = root / 'reference.py'
+            candidate = root / 'candidate.py'
+            reference.write_text('import json,sys\njson.load(sys.stdin)\n'
+                                 'print(json.dumps({"tokens":[1],"mask":[1]}))\n')
+            candidate.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\n'
+                                 'print(json.dumps({"tokens":[True if x==1 else 1.0],"mask":[1]}))\n')
+            config = root / 'parity.json'
+            config.write_text(json.dumps({'reference': [sys.executable, str(reference)],
+                                          'candidate': [sys.executable, str(candidate)],
+                                          'cases': [{'x': 1}, {'x': 2}], 'timeout': 2, 'budget': 10}))
+            result = self.command(root, 'parity', config, '--execute-local')
+            report = json.loads(Path(result['report']).read_text())
+            self.assertEqual([row['equal'] for row in report['cases']], [False, False])
+
+    def test_parity_keeps_escaped_unicode_boundary_canary(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            wrapper = root / 'echo.py'
+            wrapper.write_text('import json,sys\nx=json.load(sys.stdin)\n'
+                               'print(json.dumps({"input":x}))\n')
+            config = root / 'parity.json'
+            config.write_text(json.dumps({'reference': [sys.executable, str(wrapper)],
+                                          'candidate': [sys.executable, str(wrapper)],
+                                          'cases': ['\ud800'], 'timeout': 2, 'budget': 10}))
+            result = self.command(root, 'parity', config, '--execute-local')
+            report = json.loads(Path(result['report']).read_text())
+            self.assertTrue(report['equal'])
+            row = json.loads(Path(report['evidence_file']).read_text().splitlines()[0])
+            self.assertEqual(row['input'], '\ud800')
+            self.assertEqual(json.loads(base64.b64decode(row['reference_raw_b64']))['input'], '\ud800')
+
+    def test_parity_keeps_private_wrapper_failure_bytes(self):
+        for mode in ('malformed', 'exit', 'nonstandard'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root:
+                root = Path(root)
+                reference = root / 'reference.py'
+                candidate = root / 'candidate.py'
+                reference.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\n'
+                                     'print(json.dumps({"tokens":[x]}))\n')
+                payload = ('{"tokens":[2]}\ndebug' if mode == 'malformed' else
+                           '{"tokens":[' if mode == 'exit' else '{"tokens":[NaN]}')
+                candidate.write_text('import json,sys\nx=json.load(sys.stdin)["x"]\n'
+                                     'if x==2:\n'
+                                     ' print(' + repr(payload) + ')\n'
+                                     ' print("toy diagnostic",file=sys.stderr)\n'
+                                     ' sys.exit(' + ('2' if mode == 'exit' else '0') + ')\n'
+                                     'print(json.dumps({"tokens":[x]}))\n')
+                config = root / 'parity.json'
+                config.write_text(json.dumps({'reference': [sys.executable, str(reference)],
+                                              'candidate': [sys.executable, str(candidate)],
+                                              'cases': [{'x': 1}, {'x': 2}], 'timeout': 2, 'budget': 10}))
+                result = self.command(root, 'parity', config, '--execute-local', code=3)
+                report = json.loads(Path(result['report']).read_text())
+                self.assertEqual(len(report['cases']), 1)
+                lines = [json.loads(line) for line in Path(report['evidence_file']).read_text().splitlines()]
+                self.assertEqual(len(lines), 2)
+                self.assertEqual(lines[1]['phase'], 'candidate')
+                self.assertIn(b'tokens', base64.b64decode(lines[1]['stdout_raw_b64']))
+                self.assertIn(b'toy diagnostic', base64.b64decode(lines[1]['stderr_raw_b64']))
+                self.assertNotIn('toy diagnostic', json.dumps(result))
 
     def test_calibrated_search_scores_controls_and_candidates_without_claiming_identity(self):
         with tempfile.TemporaryDirectory() as root:

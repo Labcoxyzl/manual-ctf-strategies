@@ -726,7 +726,7 @@
       "domain": "ai_chatbot",
       "delivery_stage": "baseline",
       "planned_coverage": "partial",
-      "automatic_scope": "Statically inspect model containers without unpickling, compare bounded NPZ/safetensors tensors, evaluate an explicit NPZ suppression inverse, calculate binary SVM margins, solve exported affine sign gates, compare wrapper canaries, run adapter-backed gradient or recurrent trace mechanics, compare bounded user-declared scorer controls, and rank at most 50 explicit local-wrapper cases against known controls",
+      "automatic_scope": "Statically inspect model containers without unpickling, compare bounded NPZ/safetensors tensors, evaluate an explicit NPZ suppression inverse, calculate binary SVM margins, solve exported affine sign gates, compare wrapper canaries with bounded private raw-output evidence, run adapter-backed gradient or recurrent trace mechanics, compare bounded user-declared scorer controls, and rank at most 50 explicit local-wrapper cases against known controls",
       "limitations": "No universal gradient objective, recurrent policy adapter, sign-network constraint extraction, black-box extraction, candidate generation, or universal unknown-behavior solver; local scorer and candidates require the challenge wrapper and checker"
     }
   ]

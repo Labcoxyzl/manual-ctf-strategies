@@ -328,9 +328,17 @@ A [parity config](chatbot_recipes/model_parity.json) supplies `reference` and
 `candidate` argv arrays, `cases`, a
 per-call `timeout` (at most 30 seconds), and a total `budget` (at most 600
 seconds). Each wrapper reads one JSON value on stdin and prints one JSON value
-on stdout. The script uses no shell and records only case indexes, equality,
-and output hashes in a private report. It never claims that matching canaries
-prove full inference parity.
+on stdout. The script uses no shell and records case indexes, equality, and
+raw-output hashes in a private report. A separate 0600 JSONL file keeps each
+completed canary input and the exact reference/candidate output bytes as
+base64, capped at 4 MiB across at most 20 cases. Decode those private bytes to
+inspect token IDs, masks, rendered prompts, and scoring boundaries when parity
+fails. Equality compares parsed JSON types strictly, including Booleans versus
+numbers; hashes identify the exact raw output bytes. A timeout, malformed JSON,
+or nonzero wrapper exit keeps bounded stdout/stderr in a private failure row
+without treating that canary as complete. An evidence limit also marks the run
+partial. Wrapper output may contain secrets; ordinary CLI output shows only
+the report path and count. Matching canaries do not prove full inference parity.
 
 Copy the [model adapter template](templates/ai_model_adapter.py) for gradient
 or recurrent runs. Gradient mode needs `load_model(path)`, `load_input(path)`

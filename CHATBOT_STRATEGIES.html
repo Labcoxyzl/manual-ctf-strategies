@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="83a54bd2b14f96615c98a0e0996613f2fd637c3643929306819c67e6c5bba339">
+  <meta name="source-sha256" content="e2031f6bd5d170901d61524320814ce5ea4961318413fca5df946d7009707ee8">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -416,9 +416,17 @@ python3 scripts/ai_model_attack.py --adapter ./private-adapter.py --execute-loca
 <code>candidate</code> argv arrays, <code>cases</code>, a
 per-call <code>timeout</code> (at most 30 seconds), and a total <code>budget</code> (at most 600
 seconds). Each wrapper reads one JSON value on stdin and prints one JSON value
-on stdout. The script uses no shell and records only case indexes, equality,
-and output hashes in a private report. It never claims that matching canaries
-prove full inference parity.</p>
+on stdout. The script uses no shell and records case indexes, equality, and
+raw-output hashes in a private report. A separate 0600 JSONL file keeps each
+completed canary input and the exact reference/candidate output bytes as
+base64, capped at 4 MiB across at most 20 cases. Decode those private bytes to
+inspect token IDs, masks, rendered prompts, and scoring boundaries when parity
+fails. Equality compares parsed JSON types strictly, including Booleans versus
+numbers; hashes identify the exact raw output bytes. A timeout, malformed JSON,
+or nonzero wrapper exit keeps bounded stdout/stderr in a private failure row
+without treating that canary as complete. An evidence limit also marks the run
+partial. Wrapper output may contain secrets; ordinary CLI output shows only
+the report path and count. Matching canaries do not prove full inference parity.</p>
 <p>Copy the <a href="scripts/templates/ai_model_adapter.py">model adapter template</a> for gradient
 or recurrent runs. Gradient mode needs <code>load_model(path)</code>, <code>load_input(path)</code>
 returning a floating PyTorch tensor, and <code>loss(model, tensor, target)</code> returning
