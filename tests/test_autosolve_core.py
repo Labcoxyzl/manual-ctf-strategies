@@ -82,6 +82,30 @@ int main(int argc, char **argv) {
         self.assertIn(b'analyze', result.stdout)
         self.assertIn(b'doctor', result.stdout)
 
+    def test_report_counts_current_findings_omitted_after_fifty(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            findings = [{'state': 'candidate', 'current': True, 'artifact_id': f'a{index}',
+                         'source_locator': {},
+                         'evidence': f'safe finding {index}' if index < 50
+                         else f'PRIVATE_OMITTED_{index}'} for index in range(52)]
+            findings.append({'state': 'candidate', 'current': False,
+                             'artifact_id': 'old', 'source_locator': {},
+                             'evidence': 'PRIVATE_HISTORICAL'})
+            manifest = {'schema_version': core.SCHEMA, 'status': 'partial',
+                        'findings': findings, 'artifacts': [], 'intelligence': [],
+                        'warnings': [], 'coverage': {}}
+            (run / 'manifest.json').write_text(json.dumps(manifest))
+            core.report(run)
+            report = (run / 'report.md').read_text()
+            self.assertIn('safe finding 0', report)
+            self.assertIn('safe finding 49', report)
+            self.assertIn('2 more current finding(s) omitted', report)
+            self.assertIn(f'`{run / "manifest.json"}` (`findings` array)', report)
+            self.assertFalse((run / 'findings.json').exists())
+            self.assertNotIn('PRIVATE_OMITTED', report)
+            self.assertNotIn('PRIVATE_HISTORICAL', report)
+
     def test_capabilities_reflect_integrated_baselines(self):
         for category, family in (('images', 'IMG02'), ('documents', 'DOC05'),
                                  ('encoding', 'ENC10'), ('audio_video', 'AV04'),

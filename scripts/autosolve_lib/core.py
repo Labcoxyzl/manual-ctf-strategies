@@ -6766,6 +6766,10 @@ def _render_report(run, manifest):
             lines.append(f"- {finding['state']}: {finding['evidence']} "
                          f"({finding['artifact_id'] or finding.get('job_id')}, "
                          f"locator {json.dumps(finding['source_locator'], ensure_ascii=True)})")
+        if len(current_findings) > 50:
+            lines.append(f"- {len(current_findings) - 50} more current finding(s) omitted "
+                         f"from this report; see private findings index `{run / 'manifest.json'}` "
+                         '(`findings` array).')
     else:
         lines.append('No candidate found in the sampled bytes. This does not establish that the challenge is solved.')
     answers = manifest.get('answers')
