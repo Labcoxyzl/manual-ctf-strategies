@@ -162,17 +162,19 @@
     "tool_ids": [
       "kali-27",
       "kali-19",
-      "kali-43"
+      "kali-43",
+      "kali-55"
     ],
     "steps": [
       "Open the file in Detect It Easy and record format, architecture and probable packer.",
       "For a supported executable named `sample.bin`, run `capa -v sample.bin`; record capability names and supporting addresses.",
+      "If the sample is identified as Go, choose a new path in a private directory and run `GoReSym -t -p sample.bin > PRIVATE_DIR/NEW_go.json` on a copy; inspect compiler version, user function names/addresses, source paths and retained types before choosing a code location.",
       "Open a relevant match location in the native-code route; inspect the surrounding function before accepting the capability claim."
     ],
     "expected": "A format hypothesis and code locations worth investigating.",
     "fallback": "If packed or unsupported, select a matching extraction route; use FLOSS only when hidden strings are the specific blocker.",
-    "caveat": "Signature and capability matches are leads, not observed execution. Static inspection does not require running the sample.",
-    "verification": "Source-reviewed; not executed on competition machines.",
+    "caveat": "Signature, capability and recovered Go metadata are static leads, not observed execution. Go types and paths can be absent after optimization; parser failure does not prove the binary is not Go. Keep JSON source paths private. Static inspection does not require running the sample.",
+    "verification": "Detect It Easy/capa source-reviewed; isolated pinned GoReSym source recovered a known function, path and retained type from a stripped Go 1.26.5 ELF. A stripped C ELF returned no valid pclntab. Other Go builds and competition machines unverified.",
     "references": [
       {
         "title": "Detect It Easy (DIE) — primary documentation",
@@ -181,6 +183,10 @@
       {
         "title": "capa — primary documentation",
         "url": "https://github.com/mandiant/capa"
+      },
+      {
+        "title": "GoReSym usage and metadata fields",
+        "url": "https://github.com/mandiant/GoReSym/blob/722897e0a80da0a06c00c5e40591a253a551f04e/README.md"
       }
     ]
   },
@@ -887,11 +893,19 @@
     "expected": "A supported authentication record and an explicit candidate result: a verified match or only the tested candidates exhausted.",
     "fallback": "No converted records may mean an incomplete handshake, a different security mode, or unsupported capture framing. Reinspect the capture before changing wordlists; a backend error is not exhaustion.",
     "caveat": "Only analyze supplied captures offline. Do not transmit deauthentication frames or use online upload helpers. hcxtools may append to an existing output file; a stale nonempty file is not conversion evidence.",
-    "verification": "Source-reviewed against upstream hcxtools and Hashcat documentation; not run on competition machines.",
+    "verification": "Self-authored complete M1/M2 capture produced one mode-22000 record with hcxtools 7.1.2; official Hashcat 7.1.2 recovered and showed the toy password. Repeated conversion appended; incomplete captures yielded no record despite exit zero; invalid capture failed. Competition machines unverified.",
     "references": [
       {
         "title": "hcxtools — upstream conversion tools",
         "url": "https://github.com/ZerBea/hcxtools"
+      },
+      {
+        "title": "hcxtools 7.1.2 release",
+        "url": "https://github.com/ZerBea/hcxtools/releases/tag/7.1.2"
+      },
+      {
+        "title": "Hashcat 7.1.2 release",
+        "url": "https://github.com/hashcat/hashcat/releases/tag/v7.1.2"
       },
       {
         "title": "Hashcat example hashes — mode 22000",
@@ -1050,22 +1064,24 @@
   {
     "id": "sqlite-artifact",
     "category": "forensics",
-    "title": "SQLite + WAL → schema → selected records",
-    "input": "A local SQLite database, with any -wal and -shm sidecars from the same snapshot.",
+    "title": "SQLite/SQLCipher + WAL → schema → selected records",
+    "input": "A local plain SQLite database or identified SQLCipher database with a supplied key/settings, plus any -wal and -shm sidecars from the same snapshot.",
     "tool_ids": [
       "kali-131",
       "kali-25",
-      "kali-63"
+      "kali-63",
+      "kali-130"
     ],
     "steps": [
       "Preserve a coherent copy of the database and its matching -wal/-shm files in a working directory; record if a sidecar is missing or the source was live during collection.",
       "Run `sqlite3 -readonly COPY.db '.tables'`, then `sqlite3 -readonly COPY.db '.schema TABLE'`; query only the relevant rows with an explicit order and inspect timestamp units before converting dates.",
+      "If the database is identified as SQLCipher-encrypted and a passphrase is supplied, use the bundled private getpass-to-stdin example with `sqlcipher -batch -bail -readonly COPY.db`. A raw hex key needs the documented blob-literal form. Set any evidenced cipher compatibility options before the first schema read, require that read to succeed, then query only the relevant rows; do not put the key in argv or shell history.",
       "Cross-check a decisive row against the source application context or a second read-only view; if this is browser history, use Hindsight only when its parser supports the supplied profile version."
     ],
     "expected": "A table, selected row and interpreted time field with database and sidecar provenance.",
-    "fallback": "A read-only WAL open can fail when sidecars or directory permissions are unsuitable. Copy the complete set into a writable analysis directory; do not infer empty data from a missing WAL or parser error.",
-    "caveat": "The CLI opens the database read-only but may create working shared-memory files. Do not use Write Changes on evidence or treat a schema field name as proof of its time epoch.",
-    "verification": "SQLite -readonly with copied DB/WAL/SHM locally checked on a synthetic database; competition-machine and browser-profile behavior unverified.",
+    "fallback": "A read-only WAL open can fail when sidecars or directory permissions are unsuitable. Copy the complete set into a writable analysis directory. For SQLCipher, a failed schema read can mean a wrong key or producer-specific cipher settings, not an empty database. Do not infer absent data from a parser error.",
+    "caveat": "The CLI opens the database read-only but may create working shared-memory files. SQLCipher's PRAGMA key alone does not validate the key; keep passphrases out of process arguments, shell history and shared notes. Do not use Write Changes on evidence or treat a schema field name as proof of its time epoch.",
+    "verification": "SQLite -readonly with copied DB/WAL/SHM checked locally. Isolated SQLCipher Community 4.18.0 read a known row from a toy encrypted DB; plain SQLite and wrong-key controls failed, and -readonly rejected an update. Competition-machine and other cipher settings unverified.",
     "references": [
       {
         "title": "SQLite CLI schema and read-only mode",
@@ -1074,6 +1090,10 @@
       {
         "title": "SQLite WAL and read-only conditions",
         "url": "https://www.sqlite.org/wal.html"
+      },
+      {
+        "title": "SQLCipher key and compatibility settings",
+        "url": "https://www.zetetic.net/sqlcipher/sqlcipher-api/"
       },
       {
         "title": "Hindsight browser artifact parser",

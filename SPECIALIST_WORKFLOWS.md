@@ -9,7 +9,7 @@ Use these notes with the [task routes](index.html#malware) when the core workflo
 
 Inspect the capture for the target network and PMKID or EAPOL exchange. Keep the BSSID/ESSID and message completeness with the source packet numbers. Choose a new, nonexistent output path before `hcxpcapngtool -o NEW_capture.22000 capture.pcapng`: hcxtools can append to existing files. Read converter warnings and confirm the new records match this capture, rather than trusting a nonempty file from an earlier run. Match the output format to mode 22000, then follow the [Hashcat guide](HASHCAT.md) with a local wordlist. Exhausted covers only the candidates tested. If conversion yields no record, revisit capture and converter evidence before drawing any password conclusion.
 
-**Check:** Relate a recovered candidate to the selected network and original capture. This workflow reads supplied files only; it does not require or justify active capture, deauthentication or uploading packets. [hcxtools](https://github.com/ZerBea/hcxtools) · [Hashcat mode 22000](https://hashcat.net/wiki/doku.php?id=example_hashes).
+**Check:** Relate a recovered candidate to the selected network and original capture. On a self-authored beacon plus complete M1/M2 capture, [hcxtools 7.1.2](https://github.com/ZerBea/hcxtools/releases/tag/7.1.2) emitted one mode-22000 record and [Hashcat 7.1.2](https://github.com/hashcat/hashcat/releases/tag/v7.1.2) recovered the toy password. Reusing the output path appended a second record; incomplete captures exited zero with no new record, and invalid capture input failed. These controls support a fresh output path and record check, not competition-machine behavior. This workflow reads supplied files only; it does not require or justify active capture, deauthentication or uploading packets. [Hashcat mode 22000](https://hashcat.net/wiki/doku.php?id=example_hashes).
 
 <a id="evtx-timeline"></a>
 ## Windows EVTX: keep a source-backed timeline
@@ -28,11 +28,29 @@ Identify the hive type and preserve its transaction logs with a working copy. On
 **Check:** Record the key/value, source hive, plugin, and exact timestamp basis. An isolated RegRipper 3.0 check listed 257 plugins; `applets` found a known key in a [public NTUSER hive](https://github.com/mkorman90/regipy/tree/c6de929abc37d8315d1c31aba5e937db636f3303/regipy_tests/data), while a SAM control exited zero with no matching key. Dirty and clean controls produced distinct `-d` messages. A key's last-write time does not identify the person who changed a particular value. [RegRipper README](https://github.com/keydet89/RegRipper3.0/blob/master/README.md) · [RegRipper CLI](https://github.com/keydet89/RegRipper3.0/blob/master/rip.pl).
 
 <a id="sqlite-artifact"></a>
-## SQLite artifact: preserve WAL rows and read a copy
+## SQLite or SQLCipher artifact: preserve WAL rows and read a copy
 
 Collect a consistent snapshot of the database with matching `-wal` and `-shm` sidecars when present; separately copying files while an app writes can produce an inconsistent set. In a writable analysis directory, `sqlite3 -readonly COPY.db '.tables'` and `sqlite3 -readonly COPY.db '.schema TABLE'` reveal the structure without opening the database for writes. Query only the rows relevant to the clue, order them explicitly, and establish each time field's epoch and time zone before converting it. Hindsight can enrich supported browser profiles, but direct SQLite rows remain the fallback when its parser does not match the version.
 
-**Check:** Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working `-shm` file beside the copy. [SQLite CLI](https://www.sqlite.org/cli.html) · [SQLite WAL](https://www.sqlite.org/wal.html).
+If the copied database is SQLCipher-encrypted and the clue supplies its passphrase, plain `sqlite3` cannot read its schema. In a local terminal, send the key through stdin so it does not appear in shell history or process arguments. SQLCipher derives the key only when it first reads data: set the key and any **evidenced** producer-specific cipher settings before the first schema query. This example checks the default SQLCipher 4 settings with the installed `sqlcipher` CLI:
+
+```sh
+python3 - COPY.db <<'PYCODE'
+from getpass import getpass
+import subprocess, sys
+key = getpass('SQLCipher passphrase: ')
+sql = "PRAGMA key = '" + key.replace("'", "''") + "';\n"
+# Add evidenced cipher compatibility settings here, before the first SELECT.
+sql += "SELECT count(*) FROM sqlite_master;\n"
+sql += "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name LIMIT 20;\n"
+subprocess.run(['sqlcipher', '-batch', '-bail', '-readonly', sys.argv[1]],
+               input=sql, text=True, encoding='utf-8', check=True)
+PYCODE
+```
+
+After a successful schema read, select only the evidenced row with an ordered, bounded query on the same private copy. A raw hex key needs SQLCipher's documented blob-literal form; the prompt above treats its input as a passphrase. A wrong key, incompatible cipher settings, malformed input or missing sidecar can all make the schema read fail; `PRAGMA key` by itself proves nothing. Do not put the key in `-cmd`, shell arguments, logs or shared notes. An isolated SQLCipher 4.18.0 test read one known row from a toy encrypted database; plain SQLite and a wrong key failed, and `-readonly` rejected an update.
+
+**Check:** Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working `-shm` file beside the copy. [SQLite CLI](https://www.sqlite.org/cli.html) · [SQLite WAL](https://www.sqlite.org/wal.html) · [SQLCipher key and compatibility settings](https://www.zetetic.net/sqlcipher/sqlcipher-api/).
 
 <a id="browser-profile-timeline"></a>
 ## Browser profile: trace a selected visit
@@ -174,6 +192,8 @@ Work on a copy of the supplied repository. `git -C REPO status --short` separate
 ## Unknown executable: separate format from behavior
 
 Start with [file_intel.py](scripts/templates/file_intel.py) or `file`, then use Detect It Easy to confirm format and architecture. For a supported native executable, `capa -v sample.bin` gives capability leads and the locations behind them. Open one relevant location in the matching disassembler; check the surrounding code or bytes before describing behavior. A decoded string, import or capability label alone does not prove that a path executes. Keep unknown programs in the intended isolated analysis environment rather than running them as a first look. [Practice the evidence distinction](PRACTICE_WORKSHEETS.md#block-6).
+
+If the executable is identified as Go, especially when its normal symbols are stripped, choose a new path in a private analysis directory and run `GoReSym -t -p sample.bin > PRIVATE_DIR/NEW_go.json` on a copy. Check `Version`, `Arch`, `OS`, `UserFunctions` names and start/end addresses, `Files`, and retained `Types`; align a selected function address with the disassembler. Keep the JSON private because embedded source paths may be sensitive. A locally built stripped Go 1.26.5 ELF yielded a known function, source path and retained struct; a stripped C ELF returned no valid Go `pclntab`. Optimization can remove types, and a parser failure does not prove a file is not Go. [GoReSym usage](https://github.com/mandiant/GoReSym/blob/722897e0a80da0a06c00c5e40591a253a551f04e/README.md).
 
 **Check:** Record the file type, one indicator with its offset/address, the code or bytes that support it, and one claim the evidence does *not* establish. If the packer or architecture is uncertain, resolve that before trusting a decompiler view. [capa usage](https://github.com/mandiant/capa/blob/master/doc/usage.md).
 
