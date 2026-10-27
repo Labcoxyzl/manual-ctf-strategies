@@ -322,6 +322,15 @@ deadline, reaps timed-out process groups, and works for direct Python callers.
 The stable core/CAN focused suite passed 135 tests with one optional skip;
 final combined release checks and publication remain pending.
 
+The first fresh rootless default-environment product trace with the full tool
+PATH then found REV03 rule version probes writing disposable scratch under
+`/tmp` even for unrelated CAN and OSINT inputs. A reviewed repair routes rule
+version and supplied-rule sample scratch under each active run, validates the
+chosen directory, and scopes child tool cache and temp variables. Its isolated
+24-test rule suite and CAN/supplied-rule reversing traces passed with zero
+outside ordinary-file or directory write attempts. The earlier failed trace
+remains evidence; final integrated rootless and release gates are pending.
+
 ## Independent end-to-end evidence
 
 - A local ret2win ELF/service has an independently replayed exploit oracle.
