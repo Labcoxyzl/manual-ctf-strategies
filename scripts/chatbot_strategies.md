@@ -51,7 +51,7 @@ survive resume. The client will not resend a POST whose outcome is uncertain.
 | `diagnostic_chat` | credentials in private `headers` or chat fields | Ask for diagnostic fields and status after the app authorizes the session. |
 | `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. |
 | `orchestrator_action` | `action_prompt`, `status_path`, `allow_state_change: true` | Send one explicit final action prompt, then read status once. |
-| `kb_injection` | an `injection` object | Write one exposed lower-trust KB item or multipart document and send its trigger prompt. A repeated marker stays unvalidated. |
+| `kb_injection` | an `injection` object with exact `success_status` | Write one exposed lower-trust KB item or multipart document, require its declared acceptance response, then send its trigger prompt. A repeated marker stays unvalidated. |
 | `custom_chat` | `prompts`: one to four strings | Run a target-specific prompt idea with the same session and evidence controls. |
 | `context_bloat` | none | Test context retention at bounded sizes. |
 | `scorer_batch` | `path`, `body_field`, `score_field`, `candidates`, `allow_state_change: true` | Score one to fifty explicit inputs serially; numerical scores are observations, not membership proof. |
@@ -157,7 +157,10 @@ Start from the [history](chatbot_recipes/history_idor.json),
 The [KB example](chatbot_recipes/kb_article.json) shows a JSON/form write.
 The [document upload example](chatbot_recipes/document_upload.json) uses a
 synthetic text file and a multipart form. Replace its route, file field, and
-file content after inspecting the challenge. The upload file is limited to
+file content after inspecting the challenge. Set the write's exact
+`success_status` and optional `success_field`/`success_value` from the frontend;
+an unconfirmed write is never followed by its trigger prompt or replayed on
+resume. The upload file is limited to
 64 KiB and hashed into the run identity; changing it invalidates resume.
 Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web

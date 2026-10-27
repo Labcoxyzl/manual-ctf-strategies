@@ -201,12 +201,18 @@ def _protocol(path):
             raise core.InvalidInput('verification success_field must be a nonempty path')
     injection = config.get('injection')
     if injection is not None:
-        if not isinstance(injection, dict) or set(injection) - {'path', 'encoding', 'field', 'payload', 'trigger_prompt', 'marker', 'file_path', 'file_field', 'filename', 'content_type', 'fields'} or not all(isinstance(injection.get(k), str) for k in ('path', 'trigger_prompt', 'marker')):
+        if not isinstance(injection, dict) or set(injection) - {'path', 'encoding', 'field', 'payload', 'trigger_prompt', 'marker', 'file_path', 'file_field', 'filename', 'content_type', 'fields', 'success_status', 'success_field', 'success_value'} or not all(isinstance(injection.get(k), str) for k in ('path', 'trigger_prompt', 'marker')):
             raise core.InvalidInput('invalid injection schema')
         _path(injection['path'])
         encoding = injection.get('encoding', 'json')
         if not injection['marker'] or encoding not in ('json', 'form', 'multipart'):
             raise core.InvalidInput('invalid injection encoding or marker')
+        if type(injection.get('success_status')) is not int or not 200 <= injection['success_status'] <= 299:
+            raise core.InvalidInput('injection write needs an exact 2xx success_status')
+        if ('success_field' in injection) != ('success_value' in injection) or ('success_field' in injection and (not isinstance(injection['success_field'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', injection['success_field']))):
+            raise core.InvalidInput('injection success_field and success_value must be paired')
+        if injection['success_status'] in (204, 205) and 'success_field' in injection:
+            raise core.InvalidInput('bodyless injection success cannot provide a response field')
         if encoding == 'multipart':
             if not all(isinstance(injection.get(k), str) for k in ('file_path', 'file_field', 'filename', 'content_type')) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', injection['file_field']) or not re.fullmatch(r'[A-Za-z0-9._-]{1,120}', injection['filename']) or not re.fullmatch(r'[A-Za-z0-9.+/-]{1,80}', injection['content_type']):
                 raise core.InvalidInput('invalid multipart file fields')
@@ -725,14 +731,16 @@ def _run(client):
             multipart = inj.get('encoding') == 'multipart'
             m['injection_summary'] = {'entry_path': inj['path'], 'entry_field': inj['file_field'] if multipart else inj['field'],
                                       'payload_sha256': m['injection_file_sha256'] if multipart else hashlib.sha256(inj['payload'].encode()).hexdigest(),
-                                      'attempted_redirection': 'stored lower-trust content instructs the assistant to change its reply'}
+                                      'attempted_redirection': 'stored lower-trust content instructs the assistant to change its reply',
+                                      'write_response_matched': False}
             payload = ({key: inj[key] for key in ('file_path', 'file_field', 'filename', 'content_type')}
                        | {'fields': inj.get('fields', {}), 'expected_sha256': m['injection_file_sha256']}) if multipart else {inj['field']: inj['payload']}
             write = client.request('POST', inj['path'], body=payload, encoding=inj.get('encoding', 'json'), probe='injection-write')
-            if write.get('signal') or write.get('status') not in (200, 201, 204):
-                m['completed'].append(probe)
+            if (write.get('signal') or write.get('redirect_hops') or write.get('status') != inj['success_status'] or
+                    ('success_field' in inj and not _same_json(_nested(write.get('response'), inj['success_field'], _MISSING), inj['success_value']))):
                 m['stop_reason'] = 'injection write unconfirmed'
                 break
+            m['injection_summary']['write_response_matched'] = True
             prompt = inj['trigger_prompt']
         else:
             prompt = spec['prompt'] if spec else PROBES[probe][1]
@@ -885,7 +893,7 @@ def _render(run, m):
     untested = [x for x in m['queue'] if x not in m['completed']]
     if m.get('injection_summary'):
         entry = m['injection_summary']
-        lines += ['', f"Injection entry point: {_display_path(entry['entry_path'])} field {entry['entry_field']}; attempted redirection: {entry['attempted_redirection']}; payload SHA-256 {entry['payload_sha256']}."]
+        lines += ['', f"Injection entry point: {_display_path(entry['entry_path'])} field {entry['entry_field']}; write response matched={entry.get('write_response_matched', False)}; attempted redirection: {entry['attempted_redirection']}; payload SHA-256 {entry['payload_sha256']}."]
     if m.get('strategy') == 'retrieved_page_injection':
         entry = next((step for step in m.get('strategy_meta', []) if step.get('entry_point')), None)
         if entry:
@@ -909,7 +917,7 @@ def _render(run, m):
             lines.append(f"Planned lower-trust write: POST {_display_path(entry['path'])}; body field: {entry['field']}; encoding: {entry['encoding']}.")
     uncertain = [x for x in untested if x in m['started']]
     if uncertain:
-        lines.append(f"Started before interruption; never replayed automatically: {', '.join(uncertain)}.")
+        lines.append(f"Started without a confirmed completed observation; never replayed automatically: {', '.join(uncertain)}.")
     lines += ['', f"Untested selected probes: {', '.join(untested) or 'none'}.",
               'Other lanes require challenge-specific evidence or an exposed injection surface.',
               f"Private evidence: transcript.jsonl; cookies.txt; manifest.json in `{run}`.",

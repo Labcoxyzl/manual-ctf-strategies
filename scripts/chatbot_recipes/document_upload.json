@@ -7,6 +7,7 @@
   },
   "injection": {
     "path": "/REPLACE_UPLOAD_PATH",
+    "success_status": 201,
     "encoding": "multipart",
     "file_path": "example_injection.txt",
     "file_field": "document",
