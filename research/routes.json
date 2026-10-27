@@ -996,5 +996,68 @@
         "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
       }
     ]
+  },
+  {
+    "id": "xor-keystream-reuse",
+    "category": "crypto",
+    "title": "XOR or reused stream → aligned bytes → checked plaintext",
+    "input": "Two byte strings with evidence of the same XOR stream, or one ciphertext with a known plaintext segment.",
+    "tool_ids": [
+      "windows-1",
+      "windows-7"
+    ],
+    "steps": [
+      "Decode the inputs to raw bytes and record their lengths and offsets. For two matching keystream positions, compute C1 XOR C2 = P1 XOR P2; this relation alone does not reveal either plaintext.",
+      "Use an independently known plaintext segment to derive only its aligned keystream bytes, then apply those bytes at the matching positions. Use the approved CyberChef XOR operation or the local known-key XOR helper only when the key and repetition pattern are established.",
+      "Reapply derived bytes as an arithmetic sanity check, then require independent known-plaintext, strong format, or checker evidence before accepting any proposed message; the XOR round trip alone proves nothing about keystream reuse."
+    ],
+    "expected": "A bounded plaintext segment supported by independent evidence and consistent byte equations, with unknown positions left unknown.",
+    "fallback": "If lengths, start offsets, or counter blocks differ, alignment may be wrong. A printable guess or shared cipher name is not evidence that the same keystream bytes were used.",
+    "caveat": "Do not repeat a short derived segment unless repeating-key XOR is evidenced. CTR requires unique counter blocks under a key; nonce reuse alone does not prove every position aligns.",
+    "verification": "Source-reviewed against NIST CTR requirements and Cryptopals fixed-nonce example; no competition-machine check.",
+    "references": [
+      {
+        "title": "NIST SP 800-38A CTR uniqueness",
+        "url": "https://csrc.nist.gov/pubs/sp/800/38/a/final"
+      },
+      {
+        "title": "Cryptopals fixed-nonce CTR exercise",
+        "url": "https://www.cryptopals.com/sets/3/challenges/20"
+      }
+    ]
+  },
+  {
+    "id": "aes-declared-parameters",
+    "category": "crypto",
+    "title": "Declared AES mode → required inputs → verified result",
+    "input": "A ciphertext plus declared AES mode, key, and the mode-specific IV/nonce, tag, AAD or padding details.",
+    "tool_ids": [
+      "windows-24",
+      "windows-7",
+      "windows-1"
+    ],
+    "steps": [
+      "Record whether the ciphertext/key fields are hex, Base64 or raw bytes. For GCM require nonce, tag and any AAD; for CBC require the IV and padding rule; for CTR require the full initial counter block and its layout.",
+      "Run a bounded local transform with the matching approved tool or the documented `symmetric_parameters` helper. Do not use `openssl enc` for GCM; it does not support authenticated modes.",
+      "Require GCM tag verification before accepting its plaintext. For CBC/CTR, treat output as a candidate until an independent MAC, strong source-format check, known plaintext, or the challenge's checker supports it; forward encryption with the same parameters is only an implementation consistency check."
+    ],
+    "expected": "Authenticated plaintext for a matching GCM record, or explicitly tentative CBC/CTR bytes with an independent check.",
+    "fallback": "A missing tag, AAD, IV, counter layout, or wrong representation leaves the transform unverified. Recheck the stated parameters before trying unrelated modes.",
+    "caveat": "Counter/IV reuse and mode confusion can invalidate assumptions. A CBC padding check is not proof that the supplied key or plaintext is correct.",
+    "verification": "Source-reviewed against NIST mode specifications and OpenSSL enc documentation; local symmetric helper has synthetic GCM/CBC/CTR tests, not event-machine validation.",
+    "references": [
+      {
+        "title": "NIST SP 800-38A confidentiality modes",
+        "url": "https://csrc.nist.gov/pubs/sp/800/38/a/final"
+      },
+      {
+        "title": "NIST SP 800-38D GCM authenticated decryption",
+        "url": "https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-38d.pdf"
+      },
+      {
+        "title": "OpenSSL enc limitations",
+        "url": "https://docs.openssl.org/3.5/man1/openssl-enc/"
+      }
+    ]
   }
 ]

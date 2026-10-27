@@ -2,7 +2,7 @@
 
 Use these notes with the [task routes](index.html#malware) when the core workflows do not cover the format or question. Keep the original artifact, work on a copy, and record the observation that justifies each next step. The procedures do not rely on AI Overview; external links are optional references. They cover the prepared routes, not every possible challenge.
 
-[Forensics](#wireless-auth) · [Malware](#malware-executable) · [Web](#web-targeted) · [Native and managed reversing](#native-exploit) · [OSINT](#osint-source) · [Crypto](#zip-known-plaintext)
+[Forensics](#wireless-auth) · [Malware](#malware-executable) · [Web](#web-targeted) · [Native and managed reversing](#native-exploit) · [OSINT](#osint-source) · [Crypto](#xor-keystream-reuse)
 
 <a id="wireless-auth"></a>
 ## Supplied Wi-Fi capture: check evidence before candidates
@@ -136,6 +136,20 @@ Search only public clues, such as a distinctive quoted phrase. Open the source p
 Use a domain explicitly supplied for public-source research. The [domain route](index.html#route-public-domain) writes Subfinder JSONL with `-oJ -cs`, retaining the providers reported for each hostname. Shortlist names relevant to the clue, then inspect the cited public source and its date. Passive results can be stale or empty because of provider coverage or missing keys. A discovered name is not an asset inventory or permission to scan it.
 
 **Check:** Report the candidate hostname, provider/source, observation date and independent corroboration. Zero results is a coverage limit, not proof that no hostname exists. [Subfinder usage](https://docs.projectdiscovery.io/opensource/subfinder/usage).
+
+<a id="xor-keystream-reuse"></a>
+## XOR or reused stream: align bytes before inferring text
+
+Convert each input to raw bytes and keep the original offsets. If two ciphertext positions used the same keystream byte, `C1 XOR C2 = P1 XOR P2`; this relation alone does not identify either plaintext. An independently known plaintext segment yields keystream bytes only at its aligned positions. Apply those bytes to the other ciphertext at matching positions. XORing a proposal back to the ciphertext checks arithmetic only; independent evidence must support the proposed text and shared-stream assumption. The local [known-key XOR helper](scripts/README.md#xor) is useful once a key and its repetition pattern are established; it does not recover unknown keys.
+
+**Check:** Record the byte representation, alignment, known-plaintext source, recovered positions, arithmetic check and separate format or checker evidence. Leave unobserved positions unknown. A short segment should not be repeated across the file unless repeating-key XOR is evidenced. CTR can reuse keystream only where its counter blocks actually match. [NIST CTR uniqueness](https://csrc.nist.gov/pubs/sp/800/38/a/final) · [Cryptopals fixed-nonce exercise](https://www.cryptopals.com/sets/3/challenges/20).
+
+<a id="aes-declared-parameters"></a>
+## Declared AES: distinguish authentication from plausible output
+
+Determine the exact bytes represented by the key and ciphertext and collect the mode's other inputs. GCM needs nonce, tag and any AAD; CBC needs its IV and padding rule; CTR needs the full initial counter block and layout. Use the matching approved tool or the bounded [declared-parameter helper](scripts/README.md#setup) with secrets in a private hints file. `openssl enc` does not support GCM. A GCM result is validated only after its tag verifies. CBC and CTR outputs remain candidates until an independent MAC, known plaintext, strong format check or the challenge's checker supports them. Re-encrypting with the same parameters checks implementation consistency only; readable text and valid CBC padding do not authenticate plaintext.
+
+**Check:** Preserve the mode, key size, representation, IV/nonce, tag/AAD or padding assumption and the independent result. Missing inputs mean the transform is unverified; do not silently try unrelated modes. [NIST confidentiality modes](https://csrc.nist.gov/pubs/sp/800/38/a/final) · [NIST GCM](https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-38d.pdf) · [OpenSSL enc limitations](https://docs.openssl.org/3.5/man1/openssl-enc/).
 
 <a id="zip-known-plaintext"></a>
 ## ZipCrypto: prove the known bytes match the stored stream

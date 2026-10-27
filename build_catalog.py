@@ -52,6 +52,10 @@ LOCAL_ROUTE_HELP = {
     "public-source": (("Public-source workflow", "SPECIALIST_WORKFLOWS.html#osint-source"),),
     "public-domain": (("Public-domain workflow", "SPECIALIST_WORKFLOWS.html#osint-domain"),),
     "decode-bytes": (("Decoding workflow", "CORE_WORKFLOWS.html#decode"),),
+    "xor-keystream-reuse": (("XOR/stream workflow", "SPECIALIST_WORKFLOWS.html#xor-keystream-reuse"),
+                            ("Known-key XOR helper", "TOOLKIT.html#xor")),
+    "aes-declared-parameters": (("AES mode workflow", "SPECIALIST_WORKFLOWS.html#aes-declared-parameters"),
+                                ("Declared-parameter helper", "TOOLKIT.html#setup")),
     "rsa-weakness": (("RSA workflow", "CORE_WORKFLOWS.html#crypto"),),
     "zip-known-plaintext": (("ZipCrypto workflow", "SPECIALIST_WORKFLOWS.html#zip-known-plaintext"),),
     "artifact-identification": (("File preview guide", "TEMPLATES.html#file-intel"),
@@ -99,7 +103,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 33
+    assert len(routes) == len({route["id"] for route in routes}) == 35
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]
