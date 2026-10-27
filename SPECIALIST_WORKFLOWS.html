@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="8638fcc084d0a3e5d0f935475f4f93841d72e06cd63b237d81b708873967e540">
+  <meta name="source-sha256" content="7406b161abe4e022bd1762842a1f567e48e4d37156df1be2d49c2d7a3e74ea31">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -254,6 +254,26 @@ PYCODE
 </code></pre>
 <p>If the endpoint needs POST, a cookie or another encoding, use the installed CLI's <code>-X</code>, <code>-H</code>, <code>-d</code> and <code>-e</code> options after checking its help; do not guess their values. The upstream default is 128 concurrent requests and a local cache file. A benign one-block local exercise took 2,350 requests, so estimate the request count for the selected blocks and respect the assigned service's limits before running recovery. Keep ciphertext, session values and output in private local files. Recovered bytes are candidates until independent known plaintext, a strong source format, a valid MAC or the challenge checker supports them. On a generic-response control, this CLI even exited successfully with false plaintext; its exit status is not proof. Re-encryption and valid padding alone only check consistency.</p>
 <p><strong>Check:</strong> Record repeated response classes for both the original and two-block shape, the exact error marker and injected byte location, the candidate bytes and the separate evidence supporting them. The approved tool's installed version and availability are not guaranteed. <a href="https://github.com/KishanBagaria/padding-oracle-attacker">Tool CLI</a> · <a href="https://csrc.nist.gov/pubs/sp/800/38/a/final">NIST CBC mode</a> · <a href="https://datatracker.ietf.org/doc/html/rfc5652#section-6.3">PKCS#7 padding rule</a>.</p>
+<p><a id="hash-length-extension"></a></p>
+<h2>Secret-prefix hash: extend only the bytes the verifier signs</h2>
+<p>Use this when source or equivalent evidence shows the service checks a full SHA-1, SHA-256 or SHA-512 digest of <code>secret || message</code>, you have the exact original message bytes and tag, and the verifier will accept message bytes after the original. HMAC, <code>hash(message || secret)</code>, truncated tags and unknown canonicalization do not meet these conditions. Confirm whether the service signs raw bytes, decoded query data or a parsed structure; padding includes <code>0x80</code> and zero bytes that a text-only path may discard. An arbitrary digest with a matching length is not evidence of a secret-prefix MAC.</p>
+<p>The approved Kali tool is a Python module, not a documented CLI. Check <code>python3 -c 'import hlextend; print(hlextend.__file__)'</code> on that machine, then adapt this offline example. Replace every uppercase placeholder; <code>known</code> and <code>append</code> are <strong>hex-encoded raw message bytes</strong>, not printed URL text. The sample key length is illustrative: use only lengths justified by source or format, at most 32 candidates. This snippet prints candidates but sends no requests.</p>
+<pre><code class="language-python">from urllib.parse import quote_from_bytes
+import hlextend
+
+known = bytes.fromhex(&quot;KNOWN_MESSAGE_HEX&quot;)
+append = bytes.fromhex(&quot;APPENDED_BYTES_HEX&quot;)
+old_tag = &quot;FULL_ORIGINAL_TAG_HEX&quot;
+key_lengths = (12,)  # example only; replace with evidenced lengths
+assert 1 &lt;= len(key_lengths) &lt;= 32 and all(n &gt; 0 for n in key_lengths)
+
+for key_length in key_lengths:
+    sha = hlextend.new(&quot;sha256&quot;)  # use only the observed sha1, sha256 or sha512
+    forged = sha.extend(append, known, key_length, old_tag)
+    print(key_length, quote_from_bytes(forged, safe=&quot;&quot;), sha.hexdigest())
+</code></pre>
+<p>The quoted value is one URL <strong>component</strong> containing the complete forged message, including padding; insert it into the correct field without a second encoding pass. If the endpoint uses a different transport, preserve those same bytes rather than assuming the URL form works. Keep the original tag and each resulting tag separate from the message. Try a single independently checked candidate first; stop on a parser error or byte transformation. A wrong-length candidate and an HMAC construction are useful negative controls. A locally computed digest or successful round trip proves arithmetic only; acceptance requires an independent verifier or a bounded authorized service check with an observable state change.</p>
+<p><strong>Check:</strong> Record the construction evidence, exact original bytes and tag, algorithm, justified key-length candidates, transmitted bytes, negative controls and independent acceptance result. Upstream <code>hlextend</code> supports SHA-1/256/512, but its competition-machine version and availability are unverified. <a href="https://github.com/stephenbradshaw/hlextend">hlextend API</a> · <a href="https://datatracker.ietf.org/doc/html/rfc2104">HMAC construction</a>.</p>
 <p><a id="zip-known-plaintext"></a></p>
 <h2>ZipCrypto: prove the known bytes match the stored stream</h2>
 <p>Run <code>7z l -slt archive.zip</code> and inspect the selected member's Encrypted and Method fields. The simple bkcrack case is ZipCrypto with a stored member and at least 11 supplied plaintext bytes, including eight contiguous; bkcrack adds one inferred ZIP header check byte for 12 total. Write the exact supplied bytes to a local file without an accidental newline. For a deflated member, the bytes to match are compressed data, so a familiar uncompressed file header may not apply. Use the <a href="https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md">bkcrack 1.8.1 tutorial</a> command form only after the preconditions hold. Decrypt the selected member with <code>-d</code> and validate its bytes; a deflated result still needs decompression. Use <code>-D</code> to make a passwordless archive, then <code>7z t</code>, only when all entries share the same keys. Internal keys are not necessarily the original password.</p>

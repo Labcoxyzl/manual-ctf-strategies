@@ -333,6 +333,33 @@ If the endpoint needs POST, a cookie or another encoding, use the installed CLI'
 
 **Check:** Record repeated response classes for both the original and two-block shape, the exact error marker and injected byte location, the candidate bytes and the separate evidence supporting them. The approved tool's installed version and availability are not guaranteed. [Tool CLI](https://github.com/KishanBagaria/padding-oracle-attacker) · [NIST CBC mode](https://csrc.nist.gov/pubs/sp/800/38/a/final) · [PKCS#7 padding rule](https://datatracker.ietf.org/doc/html/rfc5652#section-6.3).
 
+<a id="hash-length-extension"></a>
+## Secret-prefix hash: extend only the bytes the verifier signs
+
+Use this when source or equivalent evidence shows the service checks a full SHA-1, SHA-256 or SHA-512 digest of `secret || message`, you have the exact original message bytes and tag, and the verifier will accept message bytes after the original. HMAC, `hash(message || secret)`, truncated tags and unknown canonicalization do not meet these conditions. Confirm whether the service signs raw bytes, decoded query data or a parsed structure; padding includes `0x80` and zero bytes that a text-only path may discard. An arbitrary digest with a matching length is not evidence of a secret-prefix MAC.
+
+The approved Kali tool is a Python module, not a documented CLI. Check `python3 -c 'import hlextend; print(hlextend.__file__)'` on that machine, then adapt this offline example. Replace every uppercase placeholder; `known` and `append` are **hex-encoded raw message bytes**, not printed URL text. The sample key length is illustrative: use only lengths justified by source or format, at most 32 candidates. This snippet prints candidates but sends no requests.
+
+```python
+from urllib.parse import quote_from_bytes
+import hlextend
+
+known = bytes.fromhex("KNOWN_MESSAGE_HEX")
+append = bytes.fromhex("APPENDED_BYTES_HEX")
+old_tag = "FULL_ORIGINAL_TAG_HEX"
+key_lengths = (12,)  # example only; replace with evidenced lengths
+assert 1 <= len(key_lengths) <= 32 and all(n > 0 for n in key_lengths)
+
+for key_length in key_lengths:
+    sha = hlextend.new("sha256")  # use only the observed sha1, sha256 or sha512
+    forged = sha.extend(append, known, key_length, old_tag)
+    print(key_length, quote_from_bytes(forged, safe=""), sha.hexdigest())
+```
+
+The quoted value is one URL **component** containing the complete forged message, including padding; insert it into the correct field without a second encoding pass. If the endpoint uses a different transport, preserve those same bytes rather than assuming the URL form works. Keep the original tag and each resulting tag separate from the message. Try a single independently checked candidate first; stop on a parser error or byte transformation. A wrong-length candidate and an HMAC construction are useful negative controls. A locally computed digest or successful round trip proves arithmetic only; acceptance requires an independent verifier or a bounded authorized service check with an observable state change.
+
+**Check:** Record the construction evidence, exact original bytes and tag, algorithm, justified key-length candidates, transmitted bytes, negative controls and independent acceptance result. Upstream `hlextend` supports SHA-1/256/512, but its competition-machine version and availability are unverified. [hlextend API](https://github.com/stephenbradshaw/hlextend) · [HMAC construction](https://datatracker.ietf.org/doc/html/rfc2104).
+
 <a id="zip-known-plaintext"></a>
 ## ZipCrypto: prove the known bytes match the stored stream
 

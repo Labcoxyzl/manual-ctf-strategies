@@ -74,6 +74,7 @@ LOCAL_ROUTE_HELP = {
     "aes-declared-parameters": (("AES mode workflow", "SPECIALIST_WORKFLOWS.html#aes-declared-parameters"),
                                 ("Declared-parameter helper", "TOOLKIT.html#setup")),
     "cbc-padding-oracle": (("CBC oracle workflow", "SPECIALIST_WORKFLOWS.html#cbc-padding-oracle"),),
+    "hash-length-extension": (("Hash extension workflow", "SPECIALIST_WORKFLOWS.html#hash-length-extension"),),
     "rsa-weakness": (("RSA workflow", "CORE_WORKFLOWS.html#crypto"),),
     "zip-known-plaintext": (("ZipCrypto workflow", "SPECIALIST_WORKFLOWS.html#zip-known-plaintext"),),
     "artifact-identification": (("File preview guide", "TEMPLATES.html#file-intel"),
@@ -121,7 +122,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 45
+    assert len(routes) == len({route["id"] for route in routes}) == 46
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

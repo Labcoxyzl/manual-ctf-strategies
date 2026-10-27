@@ -1153,6 +1153,34 @@
     ]
   },
   {
+    "id": "hash-length-extension",
+    "category": "crypto",
+    "title": "Secret-prefix hash → bounded length extension → verified MAC",
+    "input": "An exact known message byte string and full SHA-1, SHA-256 or SHA-512 tag, with evidence the service computes hash(secret || message) and accepts appended bytes.",
+    "tool_ids": [
+      "kali-64"
+    ],
+    "steps": [
+      "Confirm the hash is a raw secret-prefix MAC over the exact unmodified message bytes, not HMAC, a truncated digest, a secret suffix, or a scheme that canonicalizes or rejects padding bytes. Record the supported algorithm, full tag and binary-safe transport.",
+      "On an offline copy, use the approved hlextend Python module with the original message, proposed appended bytes, original tag and only source-justified secret-length candidates (at most 32). Percent-encode the complete forged byte string once if it is carried in a URL parameter; retain the new tag separately.",
+      "Check one candidate against an independent verifier or a bounded authorized service check, and compare a wrong-length and HMAC control. A locally computed tag or hash round trip is only arithmetic consistency, not acceptance."
+    ],
+    "expected": "A forged message and tag accepted by an independent secret-prefix verifier for the correct key length, or a bounded inconclusive result.",
+    "fallback": "If the exact bytes, full tag, construction, or secret-length bound are unknown, inspect the source or format first. If the service changes encoded bytes or strips padding, do not treat a local calculation as a successful request.",
+    "caveat": "This attack does not apply to HMAC. SHA-1/256/512 support is from upstream hlextend; check the installed approved module on Kali before relying on it. Keep tags and payloads private; do not spray key lengths without a justified bound.",
+    "verification": "Upstream API source-reviewed. Local upstream-source synthetic checks covered SHA-1/256/512, bounded lengths, padding boundaries, byte-safe URL encoding and a rejecting HMAC control. Installed competition Kali module and live endpoints are unverified.",
+    "references": [
+      {
+        "title": "hlextend API and example",
+        "url": "https://github.com/stephenbradshaw/hlextend"
+      },
+      {
+        "title": "RFC 2104 HMAC construction",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2104"
+      }
+    ]
+  },
+  {
     "id": "git-history",
     "category": "forensics",
     "title": "Git history → deleted or changed artifact",
