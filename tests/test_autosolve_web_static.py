@@ -34,7 +34,7 @@ class WebStaticTests(unittest.TestCase):
         self.assertEqual(warnings, [])
         for kind, value, scope in (
             ('link', '/guide?lang=fr', 'same_origin'),
-            ('form', 'submit', 'relative'),
+            ('form', 'submit', 'same_origin'),
             ('literal_endpoint', '/api/search?q=é', 'same_origin'),
             ('link', 'https://other.test/out', 'cross_origin'),
         ):
@@ -100,11 +100,58 @@ class WebStaticTests(unittest.TestCase):
     def test_external_html_base_reclassifies_relative_links(self):
         path = self.root / 'base.html'
         path.write_text('<a href="/before">first</a><base href="https://other.test/assets/">'
-                        '<a href="after">second</a>')
+                        '<a href="after">second</a><form action="submit"></form>'
+                        '<form action="\\\\site.test/submit"></form>'
+                        '<form action="///site.test/submit"></form>')
         records, warnings = inspect_web_static(path, origin='https://site.test')
         self.assertEqual(warnings, [])
         self.assertEqual([row['scope'] for row in records if row['kind'] == 'link'],
                          ['cross_origin', 'cross_origin'])
+        self.assertEqual([row['scope'] for row in records if row['kind'] == 'form'],
+                         ['cross_origin', 'same_origin', 'same_origin'])
+
+    def test_relative_form_urls_resolve_to_supplied_origin_only(self):
+        path = self.root / 'forms.html'
+        path.write_text(''.join(f'<form action="{action}"></form>' for action in (
+            'submit', '../submit?q=é', '?next=1', '#section', '/submit',
+            '//other.test/submit', 'javascript:alert(1)')))
+        with patch('urllib.request.urlopen', side_effect=AssertionError('network request')):
+            records, warnings = inspect_web_static(path, origin='https://site.test')
+        self.assertEqual(warnings, [])
+        self.assertEqual([(row['value'], row['scope']) for row in records], [
+            ('submit', 'same_origin'), ('../submit?q=é', 'same_origin'),
+            ('?next=1', 'same_origin'), ('#section', 'same_origin'),
+            ('/submit', 'same_origin'), ('//other.test/submit', 'cross_origin'),
+            ('javascript:alert(1)', 'non_http')])
+        self.assertEqual([row['scope'] for row in inspect_web_static(path)[0][:5]],
+                         ['relative', 'relative', 'relative', 'relative', 'unknown_origin'])
+        for row in records:
+            self.assertEqual(path.read_bytes()[row['offset']:row['offset'] + len(row['value'].encode())],
+                             row['value'].encode())
+
+    def test_browser_backslash_network_paths_are_not_same_origin(self):
+        path = self.root / 'slashes.html'
+        actions = (r'\\other.test/submit', r'/\other.test/submit',
+                   r'\/other.test/submit', '///other.test/submit', r'\submit')
+        path.write_text(''.join(f'<form action="{action}"></form>' for action in actions))
+        records, warnings = inspect_web_static(path, origin='https://site.test')
+        self.assertEqual(warnings, [])
+        self.assertEqual([row['scope'] for row in records],
+                         ['cross_origin', 'cross_origin', 'cross_origin', 'cross_origin',
+                          'same_origin'])
+        self.assertEqual([row['scope'] for row in inspect_web_static(path)[0]],
+                         ['unknown_origin', 'unknown_origin', 'unknown_origin',
+                          'unknown_origin', 'relative'])
+
+    def test_absolute_port_zero_and_empty_network_paths_are_not_same_origin(self):
+        path = self.root / 'ports.html'
+        actions = ('https://site.test:0/submit', 'https://site.test:00/submit',
+                   'https://site.test:443/submit', '//', '///?x')
+        path.write_text(''.join(f'<form action="{action}"></form>' for action in actions))
+        records, warnings = inspect_web_static(path, origin='https://site.test')
+        self.assertEqual(warnings, [])
+        self.assertEqual([row['scope'] for row in records],
+                         ['cross_origin', 'cross_origin', 'same_origin', 'invalid', 'invalid'])
 
     def test_bad_scope_oversize_symlink_and_limits(self):
         path = self.root / 'a.html'

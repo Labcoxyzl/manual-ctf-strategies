@@ -34,25 +34,32 @@ def _origin(value):
     return parts.scheme, parts.hostname.lower(), port or (443 if parts.scheme == 'https' else 80)
 
 
+def _scope_parts(value):
+    # HTTP(S) URL parsing treats backslashes and extra leading slashes as authority separators.
+    return urlsplit(re.sub(r'^/{3,}', '//', value.replace('\\', '/')))
+
+
 def _scope(value, origin):
     try:
-        parts = urlsplit(value)
+        parts = _scope_parts(value)
         port = parts.port
     except ValueError:
         return 'invalid'
     if parts.scheme and parts.scheme not in ('http', 'https'):
         return 'non_http'
+    if not parts.scheme and re.match(r'^[\\/]{2}', value) and not parts.netloc:
+        return 'invalid'
     if parts.scheme or parts.netloc:
         if not parts.hostname or parts.username is not None or parts.password is not None:
             return 'invalid'
         if origin is None:
             return 'unknown_origin'
         scheme = parts.scheme or origin[0]
-        target = scheme, parts.hostname.lower(), port or (443 if scheme == 'https' else 80)
+        target = scheme, parts.hostname.lower(), port if port is not None else (443 if scheme == 'https' else 80)
         return 'same_origin' if target == origin else 'cross_origin'
     if value.startswith('/'):
         return 'same_origin' if origin is not None else 'unknown_origin'
-    return 'relative'
+    return 'same_origin' if origin is not None else 'relative'
 
 
 class _Inventory:
@@ -297,7 +304,7 @@ def inspect_web_static(path: Path, *, origin: str | None = None, source_name: st
                 if base_scope in ('cross_origin', 'non_http', 'invalid'):
                     for record in inventory.records:
                         if record.get('scope') in ('same_origin', 'relative'):
-                            value = urlsplit(record['value'])
+                            value = _scope_parts(record['value'])
                             if not value.scheme and not value.netloc:
                                 record['scope'] = base_scope
     except TimeoutError:
