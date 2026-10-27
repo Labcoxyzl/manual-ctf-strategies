@@ -168,8 +168,10 @@ published commits. NET01 then passed 8/8 on the published eighteenth hash,
 including reordered complete traffic and true gap, clipped and unsupported
 link negatives. That brought the count to thirteen named rows on pinned
 published commits. AV04, NET03, IMG04, NET02, ENC05, DOC05, AV06 and DF04
-later passed their named rows on that same published hash. Twenty-one named rows
-are now proved on pinned published commits; the other 36 remain unproved at
+later passed their named rows on that same published hash. DF01 and NET05 then
+passed their named rows on that published hash, including shifted filesystem,
+TLS 1.2 and 1.3, resumption, and negative controls. Twenty-three named rows
+are now proved on pinned published commits; the other 34 remain unproved at
 named-row depth. DF04's stationary exclusive-lock control recovered only its
 committed row but did not test concurrent writes; DOC05 proved static VBA
 source extraction, not desktop Office execution.
