@@ -248,11 +248,16 @@ This does not establish the other 45 named rows or platform acceptance.
 The eighteenth candidate repairs NET01's reordered-capture truncation:
 a gap-free reassembled stream can coexist with a transient TShark lost-segment
 warning. The repair clears that provisional warning only when both matching
-TCP directions are complete and gap-free; genuine gaps, conflicts and stale
-packet jobs remain truncated. An isolated focused suite passed 34 tests,
-independent review cleared two false-success cases, and frozen reordered,
-missing-frame, conflict and source-removal transfers passed. Combined release
-gates and publication remain pending.
+TCP directions are complete and gap-free. Independent review then found ACK
+evidence of uncaptured bytes and mixed clipped/clean directories could falsely
+mark NET01 `ran`; a follow-up retains ACK-loss warnings and aggregates status
+across current sources. Genuine gaps, conflicts and stale packet jobs remain
+truncated. Isolated focused and frozen reordered, missing-frame, conflict,
+ACK, mixed-source and source-removal transfers passed; full named NET01 row
+acceptance remains unproved. An initial integrated Python 3.12 suite failed
+one chatbot bootstrap test with a 50 ms inspection timeout; the exact focused
+test passed alone, and its missing failure diagnostics remain under review.
+The follow-up candidate's combined release gates and publication are pending.
 
 ## Independent end-to-end evidence
 
