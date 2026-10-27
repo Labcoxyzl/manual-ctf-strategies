@@ -174,6 +174,17 @@ challenge data over the network. ZIP and TAR extraction keep originals
 unchanged; files larger than 8 MiB are recorded but not passed to the
 encoding decoder. Runs remain partial while baseline families are unavailable.
 
+For Steghide-family JPEG, BMP, WAV or AU carriers, the same private
+`password_file` supplies up to eight candidates. Add `"stegseek_seed": true` to
+the hints JSON and use `--category images --budget 60` to request a structural
+probe after those candidates fail. StegSeek 0.6 gets at most 30 extra seconds
+only when at least 25 seconds remain after reserving time to recheck the source.
+Its possible-seed result is a clue, and
+its completed no-seed result excludes only the supported Steghide structure;
+neither establishes a challenge answer or rules out other hidden data. Any
+seed-mode output bytes are discarded. Timeout, unsupported version and short
+budget remain incomplete and can be retried with a longer-budget `resume`.
+
 Candidate patterns scan raw bytes in bounded 1 MiB chunks with 4,095 bytes of
 overlap. Matches are limited to 4,096 bytes and retain byte offsets. At most
 64 MiB is scanned per artifact; a report states if that or a work limit leaves

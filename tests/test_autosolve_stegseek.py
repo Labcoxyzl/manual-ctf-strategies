@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import random
 import shutil
 import subprocess
@@ -87,6 +88,182 @@ class StegseekTests(unittest.TestCase):
                 max_total_bytes=100, timeout=0.1)
         self.assertEqual(records, [])
         self.assertIn("timed out", warnings[0])
+
+    def test_seed_probe_classifies_only_supported_completed_searches(self):
+        stub = self.root / "stegseek-seed-stub"
+        stub.write_text("#!/usr/bin/env python3\n"
+                        "import pathlib, sys, time\n"
+                        "a = sys.argv[1:]\n"
+                        "if a == ['--version']:\n"
+                        "    print('StegSeek 0.5' if pathlib.Path(sys.argv[0]).with_suffix('.old').exists() else 'StegSeek 0.6')\n"
+                        "    sys.exit(0)\n"
+                        "if '--seed' not in a: sys.exit(1)\n"
+                        "source = pathlib.Path(a[-2]).name\n"
+                        "if source == 'slow.jpg': time.sleep(2)\n"
+                        "if source == 'encrypted.jpg':\n"
+                        "    pathlib.Path(a[-1]).write_bytes(b'UNVERIFIED-SEED-BYTES')\n"
+                        "    sys.exit(0)\n"
+                        "if source == 'unknown.jpg':\n"
+                        "    print('error: unsupported input', file=sys.stderr)\n"
+                        "    sys.exit(1)\n"
+                        "print('error: Could not find a valid seed.', file=sys.stderr)\n"
+                        "sys.exit(1)\n")
+        stub.chmod(0o700)
+        with mock.patch.object(stegseek, "STEGSEEK", str(stub)):
+            for name, expected in (("clean.jpg", "no_seed"),
+                                   ("benign.jpg", "no_seed"),
+                                   ("encrypted.jpg", "possible_seed"),
+                                   ("unknown.jpg", "inconclusive")):
+                source = self.root / name
+                source.write_bytes(b"\xff\xd8\xff" + b"x" * 20)
+                stage = self.root / name.replace('.jpg', '')
+                self.assertEqual(stegseek.probe_seed(source, stage, timeout=1), expected)
+                self.assertEqual(list(stage.iterdir()), [])
+            (self.root / "stegseek-seed-stub.old").touch()
+            self.assertEqual(stegseek.probe_seed(self.root / "clean.jpg", self.root / "old",
+                                                 timeout=1), "unsupported")
+            (self.root / "stegseek-seed-stub.old").unlink()
+            slow = self.root / "slow.jpg"
+            slow.write_bytes(b"\xff\xd8\xff" + b"x" * 20)
+            self.assertEqual(stegseek.probe_seed(slow, self.root / "slow", timeout=0.2),
+                             "timed_out")
+
+    def test_public_cli_seed_hint_distinguishes_clean_and_missing_password(self):
+        stub = self.root / "stegseek-seed-cli-stub"
+        stub.write_text("#!/usr/bin/env python3\n"
+                        "import os, pathlib, sys\n"
+                        "a = sys.argv[1:]\n"
+                        "if a == ['--version']: print('StegSeek 0.6'); sys.exit(0)\n"
+                        "if '--seed' in a:\n"
+                        "    pathlib.Path(os.environ['SEED_LOG']).write_text('ran')\n"
+                        "    if pathlib.Path(a[-2]).name == 'encrypted.jpg':\n"
+                        "        pathlib.Path(a[-1]).write_bytes(b'UNVERIFIED-SEED-BYTES')\n"
+                        "        sys.exit(0)\n"
+                        "    print('error: Could not find a valid seed.', file=sys.stderr)\n"
+                        "    sys.exit(1)\n"
+                        "sys.exit(1)\n")
+        stub.chmod(0o700)
+        password = self.root / "private-passwords.txt"
+        password.write_text("wrong-password\n")
+        hints = self.root / "hints.json"
+        hints.write_text(json.dumps({"password_file": str(password), "stegseek_seed": True}))
+        env = os.environ.copy()
+        env.update(AUTOSOLVE_STEGSEEK=str(stub), SEED_LOG=str(self.root / "seed.log"))
+
+        for name, expected in (("clean.jpg", "no_seed"),
+                               ("encrypted.jpg", "possible_seed")):
+            source = self.root / name
+            source.write_bytes(b"\xff\xd8\xff" + b"x" * 100)
+            result = subprocess.run(
+                [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
+                 "--category", "images", "--budget", "60", "--hints", str(hints),
+                 "--runs-root", str(self.root / "runs")], env=env,
+                capture_output=True, timeout=20)
+            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+            run = Path(json.loads(result.stdout)["run"])
+            manifest = json.loads((run / "manifest.json").read_text())
+            jobs = [job for job in manifest["jobs"] if job["adapter_id"] == "stegseek"]
+            self.assertEqual(len(jobs), 1)
+            self.assertEqual(jobs[0]["seed_outcome"], expected)
+            self.assertEqual(manifest["coverage"]["IMG03"]["status"], "no finding")
+            self.assertIn("no supported Steghide seed" if expected == "no_seed"
+                          else "possible Steghide seed metadata",
+                          manifest["coverage"]["IMG03"]["note"])
+            self.assertFalse(any(item["current"] and item["source_locator"].get("stego_engine")
+                                 == "stegseek" for item in manifest["artifacts"]))
+            self.assertFalse(any(item["current"] and item["state"] == "challenge_accepted"
+                                 for item in manifest["findings"]))
+            self.assertEqual(source.read_bytes(), b"\xff\xd8\xff" + b"x" * 100)
+            report = (run / "report.md").read_text()
+            self.assertNotIn("wrong-password", report)
+            self.assertNotIn("UNVERIFIED-SEED-BYTES", report)
+            self.assertTrue((self.root / "seed.log").is_file())
+            (self.root / "seed.log").unlink()
+
+        source = self.root / "budget.jpg"
+        source.write_bytes(b"\xff\xd8\xff" + b"x" * 100)
+        short = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
+             "--category", "images", "--budget", "8", "--hints", str(hints),
+             "--runs-root", str(self.root / "runs")], env=env,
+            capture_output=True, timeout=20)
+        self.assertEqual(short.returncode, 3, short.stderr + short.stdout)
+        run = Path(json.loads(short.stdout)["run"])
+        before = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in before["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0]["seed_outcome"], "not_run_budget")
+        self.assertEqual(jobs[0]["status"], "truncated")
+        self.assertEqual(before["coverage"]["IMG03"]["status"], "truncated")
+        self.assertFalse((self.root / "seed.log").exists())
+
+        resumed = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "resume", str(run),
+             "--budget", "60", "--hints", str(hints)], env=env,
+            capture_output=True, timeout=20)
+        self.assertEqual(resumed.returncode, 3, resumed.stderr + resumed.stdout)
+        after = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in after["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(jobs[-1]["seed_outcome"], "no_seed")
+        self.assertEqual(jobs[-1]["status"], "complete")
+        self.assertEqual(after["coverage"]["IMG03"]["status"], "no finding")
+        self.assertTrue((self.root / "seed.log").exists())
+        (self.root / "seed.log").unlink()
+
+        hints.write_text(json.dumps({"password_file": str(password)}))
+        default = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
+             "--category", "images", "--budget", "60", "--hints", str(hints),
+             "--runs-root", str(self.root / "runs")], env=env,
+            capture_output=True, timeout=20)
+        self.assertEqual(default.returncode, 3, default.stderr + default.stdout)
+        run = Path(json.loads(default.stdout)["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in manifest["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 1)
+        self.assertNotIn("seed_outcome", jobs[0])
+        self.assertEqual(manifest["coverage"]["IMG03"]["status"], "no finding")
+        self.assertFalse((self.root / "seed.log").exists())
+
+    def test_public_cli_password_timeout_is_retried_on_resume(self):
+        source = self.root / "source.jpg"
+        source.write_bytes(b"\xff\xd8\xff" + b"x" * 100)
+        stub = self.root / "slow-crack"
+        stub.write_text("#!/usr/bin/env python3\nimport os, time\n"
+                        "time.sleep(float(os.environ.get('STEGSEEK_DELAY', '0')))\n"
+                        "raise SystemExit(1)\n")
+        stub.chmod(0o700)
+        password = self.root / "passwords.txt"
+        password.write_text("wrong\n")
+        hints = self.root / "hints.json"
+        hints.write_text(json.dumps({"password_file": str(password)}))
+        env = os.environ.copy()
+        env["AUTOSOLVE_STEGSEEK"] = str(stub)
+        env["STEGSEEK_DELAY"] = "2"
+        first = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
+             "--category", "images", "--budget", "1", "--hints", str(hints),
+             "--runs-root", str(self.root / "runs")], env=env,
+            capture_output=True, timeout=10)
+        self.assertEqual(first.returncode, 3, first.stderr + first.stdout)
+        run = Path(json.loads(first.stdout)["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in manifest["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0]["status"], "truncated")
+
+        env["STEGSEEK_DELAY"] = "0"
+        resumed = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "resume", str(run),
+             "--budget", "4", "--hints", str(hints)], env=env,
+            capture_output=True, timeout=10)
+        self.assertEqual(resumed.returncode, 3, resumed.stderr + resumed.stdout)
+        manifest = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in manifest["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(jobs[-1]["status"], "complete")
+        self.assertEqual(manifest["coverage"]["IMG03"]["status"], "no finding")
 
 
 @unittest.skipUnless(shutil.which("stegseek") and shutil.which("steghide"),

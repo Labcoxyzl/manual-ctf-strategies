@@ -35,6 +35,7 @@ ALIASES = {'crypto': 'encoding', 'audio': 'audio_video', 'video': 'audio_video',
            'misc': 'can_misc', 'archives': 'documents', 'ai': 'ai_chatbot',
            'chatbot': 'ai_chatbot'}
 HINT_TYPES = {'flag_patterns': list, 'known_plaintext': str, 'password_file': str,
+              'stegseek_seed': bool,
               'key_files': list, 'rsa_parameters': (dict, list), 'tls_keylog': str,
               'symmetric_parameters': list, 'hash_parameters': list,
               'hash_wordlist_file': str, 'disk_target_paths': list,
@@ -3325,7 +3326,8 @@ def _zsteg_job(run, manifest, artifact, deadline):
     return children
 
 
-def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
+def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
+                  seed_requested=False):
     from .profiles import stegseek
 
     coverage = manifest['coverage']['IMG03']
@@ -3346,7 +3348,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
     path = Path(artifact['path'])
     module_hash = hashlib.sha256(Path(stegseek.__file__).read_bytes()).hexdigest()
     fingerprint = hashlib.sha256(f'{module_hash}:{_hash(Path(tool), deadline)}'.encode()).hexdigest()
-    key = hashlib.sha256(f"{artifact['sha256']}:stegseek.v1:{fingerprint}:{password_hash}".encode()).hexdigest()
+    key = hashlib.sha256(f"{artifact['sha256']}:stegseek.v1:{fingerprint}:{password_hash}:seed:{seed_requested}".encode()).hexdigest()
     old = next((job for job in manifest['jobs'] if job['key'] == key and job['status'] == 'complete'), None)
     reusable = _reusable_children(manifest, old, deadline) if old else None
     if old and reusable is None:
@@ -3363,7 +3365,8 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
                'tool_fingerprint': fingerprint,
                'data_fingerprints': {'password_file': password_hash}, 'cwd': str(run),
                'limits': {'passwords': 8, 'source_bytes': 16 * 1024 * 1024,
-                          'derived_bytes': 16 * 1024 * 1024, 'seconds': 20},
+                          'derived_bytes': 16 * 1024 * 1024, 'seconds': 20,
+                          'seed_seconds': 30 if seed_requested else 0},
                'status': 'running', 'child_ids': [], 'started': time.time()}
         manifest['jobs'].append(job)
         _write_json(run / 'manifest.json', manifest)
@@ -3377,6 +3380,22 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
                 min(20, max(.01, deadline - time.monotonic() - .1)))
             if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('Stegseek source changed before payload publication')
+            if (seed_requested and not records and warnings and
+                    warnings[0].startswith('no supplied passphrase validated')):
+                seed_remaining = deadline - time.monotonic() - 2
+                outcome = (stegseek.probe_seed(path, staging, timeout=min(30, seed_remaining))
+                           if seed_remaining >= 25 else 'not_run_budget')
+                job['seed_outcome'] = outcome
+                warnings = [{
+                    'no_seed': 'no supplied passphrase validated; completed StegSeek seed search found no supported Steghide seed',
+                    'possible_seed': 'no supplied passphrase validated; possible Steghide seed metadata; supplied passphrase attempts yielded no validated payload',
+                    'timed_out': 'StegSeek seed probe timed out; Steghide structure inconclusive',
+                    'unsupported': 'StegSeek seed probe requires version 0.6; Steghide structure inconclusive',
+                    'inconclusive': 'StegSeek seed probe failed; Steghide structure inconclusive',
+                    'not_run_budget': 'StegSeek seed probe not run; at least 25 seconds remaining required',
+                }[outcome]]
+                if not _require_identity(path, artifact['sha256'], deadline):
+                    raise RuntimeError('Stegseek source changed during seed probe')
             for record in records:
                 locator = {'password_index': record['password_index'],
                            'password_file_sha256': password_hash,
@@ -3398,7 +3417,9 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
                     warnings.append('Stegseek payload publication limit reached; inspection incomplete')
             job['warnings'] = warnings[:100]
             manifest['warnings'].extend(warnings[:100])
-            job['status'] = 'complete'
+            job['status'] = ('complete' if not warnings or
+                             len(warnings) == 1 and warnings[0].startswith(
+                                 'no supplied passphrase validated') else 'truncated')
         except Exception as error:
             job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
@@ -3410,12 +3431,16 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     previous = coverage['status']
+    seed_outcome = (old if reusable is not None else job).get('seed_outcome')
     coverage['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
                           'failed' if reusable is None and job['status'] == 'failed' else
+                          'truncated' if seed_outcome in ('timed_out', 'unsupported',
+                                                          'inconclusive', 'not_run_budget') else
                           'truncated' if any('timed out' in warning or 'byte limit' in warning
                                              for warning in warnings) or previous == 'truncated' else
                           'ran' if children or previous == 'ran' else 'no finding')
-    coverage['note'] = 'Stegseek with supplied passwords; outputs are candidates; absence is ambiguous'
+    coverage['note'] = (warnings[0] if seed_outcome and warnings else
+                        'Stegseek with supplied passwords; outputs are candidates; absence is ambiguous')
     return children
 
 
@@ -7092,7 +7117,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 and time.monotonic() < deadline):
             _jwt_job(run, manifest, artifact, jwt_keys, jwt_words, jwt_hint_hash, deadline)
         if images_selected and artifact['kind_evidence'] in ('jpeg', 'bmp', 'riff') and time.monotonic() < deadline:
-            for child in _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
+            for child in _stegseek_job(run, manifest, artifact, deadline, passwords,
+                                       password_hash, hints.get('stegseek_seed', False)):
                 queue.append((child, depth + 1))
         if artifact['kind_evidence'] == 'png' and (
                 (artifact.get('source_locator') or {}).get('media_preview') or

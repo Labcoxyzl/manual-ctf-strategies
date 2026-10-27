@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import re
 import resource
 import shutil
 import signal
@@ -14,6 +15,76 @@ from pathlib import Path
 STEGSEEK = (shutil.which(os.environ.get("AUTOSOLVE_STEGSEEK", "stegseek"))
             or os.environ.get("AUTOSOLVE_STEGSEEK") or "stegseek")
 _MAX_SOURCE = 16 * 1024 * 1024
+
+
+def _seed_limits() -> None:
+    _limit_output(_MAX_SOURCE)
+    for kind, limit in ((resource.RLIMIT_CPU, 250),
+                        (resource.RLIMIT_AS, 768 * 1024 * 1024)):
+        _, hard = resource.getrlimit(kind)
+        resource.setrlimit(kind, (min(limit, hard) if hard != resource.RLIM_INFINITY else limit,
+                                 hard))
+
+
+def probe_seed(path: Path, output_dir: Path, *, timeout: float) -> str:
+    """Return structural StegSeek 0.6 evidence; discard any extracted bytes."""
+    if timeout <= 0:
+        raise ValueError("Stegseek seed timeout must be positive")
+    if (path.is_symlink() or not path.is_file() or path.stat().st_size > _MAX_SOURCE
+            or not _carrier(path)):
+        return "inconclusive"
+    if output_dir.is_symlink() or output_dir.resolve() == path.resolve().parent:
+        raise ValueError("Stegseek output directory must be separate from the source and not a symlink")
+    if not shutil.which(STEGSEEK):
+        return "unsupported"
+
+    deadline = time.monotonic() + min(timeout, 30)
+    output_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with tempfile.TemporaryDirectory(prefix=".stegseek-seed-", dir=output_dir) as scratch:
+        version_path = Path(scratch) / "version"
+        try:
+            with version_path.open("wb") as stream:
+                version = subprocess.run(
+                    [STEGSEEK, "--version"], cwd=scratch, stdin=subprocess.DEVNULL,
+                    stdout=stream, stderr=subprocess.DEVNULL,
+                    timeout=min(2, max(.01, deadline - time.monotonic())),
+                    preexec_fn=lambda: _limit_output(4096))
+        except subprocess.TimeoutExpired:
+            return "timed_out"
+        except OSError:
+            return "unsupported"
+        # shortcut: only 0.6 exit semantics are verified; extend after checking newer releases.
+        if (version.returncode != 0 or
+                not re.match(rb"StegSeek 0\.6(?:\s|$)", version_path.read_bytes()[:128])):
+            return "unsupported"
+
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return "timed_out"
+        error_path = Path(scratch) / "stderr"
+        with error_path.open("wb") as errors:
+            try:
+                process = subprocess.Popen(
+                    [STEGSEEK, "--seed", "-q", "-n", "-t", "8", str(path.resolve()),
+                     str(Path(scratch) / "discarded-payload")],
+                    cwd=scratch, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                    stderr=errors, start_new_session=True, preexec_fn=_seed_limits)
+            except OSError:
+                return "inconclusive"
+            try:
+                status = process.wait(timeout=remaining)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait()
+                return "timed_out"
+        if status == 0:
+            return "possible_seed"
+        if status == 1 and error_path.read_bytes().strip().lower() == b"error: could not find a valid seed.":
+            return "no_seed"
+        return "timed_out" if status in (-signal.SIGXCPU, -signal.SIGKILL) else "inconclusive"
 
 
 def _carrier(path: Path) -> bool:
