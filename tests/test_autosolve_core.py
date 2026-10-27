@@ -27,7 +27,9 @@ from test_autosolve_documents import ENCRYPTED_ZIP
 from test_autosolve_pdf import handwritten_pdf
 from test_autosolve_checker import ANGR_IMPORT_READY
 from test_autosolve_images import sample_png
-from test_autosolve_packet_objects import pcap as object_pcap, transaction as http_transaction
+from test_autosolve_packet_objects import (pcap as object_pcap, transaction as http_transaction,
+                                           complete_transfer, frame as tcp_frame)
+from test_autosolve_packets import ipv4, udp
 from scripts.autosolve_lib import core
 
 MIXED_PASSWORD_ZIP = base64.b64decode(
@@ -1247,6 +1249,76 @@ int main(int argc, char **argv) {
             self.assertFalse(any(item['adapter_id'] == 'packet-objects' and item['child_ids']
                                  for item in incomplete['jobs']))
             self.assertTrue(any('conversation incomplete' in warning for warning in incomplete['warnings']))
+
+    def test_net01_reordered_gap_flag_requires_complete_stream_proof(self):
+        request = b'GET /object.bin HTTP/1.1\r\nHost: example.invalid\r\n\r\n'
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, options, expected in (
+                    ('reordered', {}, 'ran'),
+                    ('missing', {'missing': True}, 'truncated'),
+                    ('conflict', {'conflicting': True}, 'truncated')):
+                with self.subTest(name=name):
+                    source = root / f'{name}.pcap'
+                    frames = complete_transfer(bytes(range(100)), reordered=True, **options)
+                    frames.append(tcp_frame('198.51.100.10', '198.51.100.20',
+                                            41000, 19091, 1001 + len(request), 0, 17))
+                    source.write_bytes(object_pcap(frames))
+                    original = source.read_bytes()
+                    run = Path(self.run_cli('analyze', source, '--category', 'packets',
+                                            '--runs-root', root / 'runs', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    packet_job = next(job for job in manifest['jobs']
+                                      if job['adapter_id'] == 'packets')
+                    records = json.loads(Path(packet_job['records_path']).read_text())
+                    self.assertTrue(any('lost_segment' in row.get('tcp_analysis', [])
+                                        for row in records))
+                    self.assertTrue(any('conversation incomplete' in warning
+                                        for warning in packet_job['warnings']))
+                    self.assertEqual(manifest['coverage']['NET01']['status'], expected)
+                    self.assertEqual(manifest['coverage']['NET03']['status'], expected)
+                    self.assertEqual(any('conversation incomplete' in warning
+                                         for warning in manifest['warnings']), expected == 'truncated')
+                    self.assertEqual(source.read_bytes(), original)
+                    if name == 'reordered':
+                        stream_job = next(job for job in manifest['jobs']
+                                          if job['adapter_id'] == 'packet-streams')
+                        streams = json.loads(Path(stream_job['records_path']).read_text())
+                        self.assertEqual({stream['direction'] for stream in streams}, {0, 1})
+                        self.assertTrue(all(stream['complete'] and not stream['gaps']
+                                            and not stream['conflicts'] for stream in streams))
+                        self.run_cli('resume', run, code=3)
+                        resumed = json.loads((run / 'manifest.json').read_text())
+                        self.assertEqual(resumed['coverage']['NET01']['status'], 'ran')
+                        self.assertEqual(len(resumed['jobs']), len(manifest['jobs']))
+                        Path(packet_job['records_path']).write_text('invalidated packet cache')
+                        with patch.object(core, '_run_packets', side_effect=RuntimeError('fixture failure')):
+                            core.resume(run, budget=20)
+                        failed = json.loads((run / 'manifest.json').read_text())
+                        self.assertEqual(failed['coverage']['NET01']['status'], 'failed')
+                        self.assertEqual(next(job for job in reversed(failed['jobs'])
+                                              if job['adapter_id'] == 'packets')['status'], 'failed')
+
+            clipped = ipv4('198.51.100.10', '198.51.100.20', 17,
+                           udp(53000, 53001, b'test'))
+            source_dir = root / 'mixed'
+            source_dir.mkdir()
+            capture = bytearray(object_pcap([clipped]))
+            capture[24 + 12:24 + 16] = (len(clipped) + 10).to_bytes(4, 'little')
+            (source_dir / 'a-clipped.pcap').write_bytes(capture)
+            (source_dir / 'b-reordered.pcap').write_bytes((root / 'reordered.pcap').read_bytes())
+            run = Path(self.run_cli('analyze', source_dir, '--category', 'packets',
+                                    '--runs-root', root / 'mixed-runs', code=3)['run'])
+            mixed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(mixed['coverage']['NET01']['status'], 'truncated')
+            self.assertTrue(any('packet data truncated by capture' in warning
+                                for warning in mixed['warnings']))
+            (source_dir / 'a-clipped.pcap').unlink()
+            core.resume(run, budget=20)
+            current = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(current['coverage']['NET01']['status'], 'ran')
+            self.assertFalse(any('packet data truncated by capture' in warning
+                                 for warning in current['warnings']))
 
     def test_packet_cli_exports_archive_with_exact_locator_and_recurses(self):
         with tempfile.TemporaryDirectory() as directory:

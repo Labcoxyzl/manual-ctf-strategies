@@ -5232,6 +5232,7 @@ def _packet_streams_job(run, manifest, artifact, deadline):
         manifest['warnings'].extend(warnings)
         children = reusable
         status = old.get('coverage_status', 'no finding')
+        summaries = json.loads(output.read_text())
     else:
         job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'packet-streams',
                'input_ids': [artifact['id']], 'operation': 'bounded TCP direction reconstruction',
@@ -5325,6 +5326,48 @@ def _packet_streams_job(run, manifest, artifact, deadline):
             'failed' if status == 'failed' else 'truncated' if status == 'truncated' or previous == 'truncated'
             else 'ran' if status == 'ran' or previous == 'ran' else status)
         manifest['coverage']['NET03']['note'] = 'bounded SYN-to-FIN TCP directions with frame, sequence and gap evidence'
+    if (status == 'ran' and manifest['coverage']['NET03']['status'] == 'ran' and
+            manifest['coverage'].get('NET01', {}).get('status') == 'truncated'):
+        packet_job = next((item for item in reversed(manifest['jobs'])
+                           if item['adapter_id'] == 'packets' and
+                           item['input_ids'] == [artifact['id']]), None)
+        if (packet_job and packet_job['status'] == 'complete' and packet_job.get('packet_count')
+                and 0 < len(packet_job.get('warnings', [])) < 100):
+            resolved = []
+            for warning in packet_job['warnings']:
+                match = re.fullmatch(r'frame (\d+) TCP stream (\d+): '
+                                     r'uncaptured TCP segment; conversation incomplete', warning)
+                if not match:
+                    continue
+                frame, stream = map(int, match.groups())
+                directions = [item for item in summaries if item['stream'] == stream]
+                if ({item['direction'] for item in directions} == {0, 1} and
+                        all(item['complete'] and not item['gaps'] and not item['conflicts']
+                            for item in directions) and
+                        any(frame in item['frames'] for item in directions)):
+                    resolved.append(warning)
+            removed = []
+            for warning in resolved:
+                for index in range(len(manifest['warnings']) - 1, -1, -1):
+                    if manifest['warnings'][index] == warning:
+                        del manifest['warnings'][index]
+                        removed.append(warning)
+                        break
+            latest_packet_jobs = {}
+            current_ids = {item['id'] for item in manifest['artifacts'] if item.get('current', True)}
+            for item in manifest['jobs']:
+                if (item['adapter_id'] == 'packets' and item['input_ids'] and
+                        item['input_ids'][0] in current_ids):
+                    latest_packet_jobs[item['input_ids'][0]] = item
+            if (len(removed) == len(packet_job['warnings']) and
+                    all(item['status'] == 'complete' and
+                        not any(warning in manifest['warnings']
+                                for warning in item.get('warnings', []))
+                        for item in latest_packet_jobs.values())):
+                manifest['coverage']['NET01']['status'] = 'ran'
+                manifest['coverage']['NET01']['note'] = (
+                    'frame-linked TShark DNS/HTTP/endpoints; provisional TCP gap flags '
+                    'resolved by complete SYN-to-FIN directions; reordered HTTP fields may be absent')
     return children
 
 
