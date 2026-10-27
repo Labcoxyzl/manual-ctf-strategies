@@ -18,6 +18,25 @@ from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
+    def test_relative_file_override_keeps_original_lookup_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tool = Path(directory) / 'fake-file'
+            tool.write_text('#!/bin/sh\ncase "$1" in\n'
+                            '  --version) echo file-fixture;;\n'
+                            '  --help) echo --brief --mime-type;;\n'
+                            '  *) cat >/dev/null; echo image/png;;\n'
+                            'esac\n')
+            tool.chmod(0o700)
+            previous = Path.cwd()
+            try:
+                os.chdir(directory)
+                with mock.patch.dict(os.environ, {'AUTOSOLVE_FILE': './fake-file'}):
+                    result = capabilities._file(True)
+            finally:
+                os.chdir(previous)
+        self.assertEqual(result['status'], 'ready')
+        self.assertEqual(result['path'], './fake-file')
+
     def test_doctor_probe_scratch_is_private_and_local_without_tmpdir(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'export'
@@ -87,6 +106,7 @@ class SetupTests(unittest.TestCase):
             env = run.call_args.kwargs['env']
             self.assertEqual(env['TMPDIR'], env['XDG_CACHE_HOME'])
             self.assertEqual(env['HOME'], env['TMPDIR'])
+            self.assertIsNone(run.call_args.kwargs['cwd'])
             self.assertTrue(Path(env['TMPDIR']).is_relative_to(root / '.autosolve/tmp'))
             self.assertFalse(Path(env['TMPDIR']).exists())
 

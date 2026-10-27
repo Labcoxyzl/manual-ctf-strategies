@@ -1675,23 +1675,24 @@ def _run_binary(path, timeout):
         parent.close()
 
 
-def _rev_strings_worker(path, timeout, pipe):
+def _rev_strings_worker(path, timeout, scratch_dir, pipe):
     from .profiles.rev_strings import inspect_strings
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
     resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
     try:
-        pipe.send(('ok', *inspect_strings(path, timeout=timeout)))
+        pipe.send(('ok', *inspect_strings(path, timeout=timeout,
+                                          scratch_dir=scratch_dir)))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
         pipe.close()
 
 
-def _run_rev_strings(path, timeout):
+def _run_rev_strings(path, timeout, scratch_dir=None):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
     worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_rev_strings_worker, path, timeout, child))
+                                     args=(_rev_strings_worker, path, timeout, scratch_dir, child))
     worker.start()
     child.close()
     try:
@@ -4475,6 +4476,9 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
         for child in reused:
             _attach_reused_child(child, old, artifact)
             queue.append((child, depth + 1))
+        for item in manifest['intelligence']:
+            if item['artifact_id'] == artifact['id'] and item['tag'] == 'REV02 string candidate':
+                item['superseded'] = item.get('job_id') != old['id']
         coverage['status'] = old['coverage_status']
         coverage['note'] = old['coverage_note']
         manifest['warnings'].extend(old.get('warnings', []))
@@ -4492,7 +4496,13 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
     _write_json(run / 'manifest.json', manifest)
     warnings = []
     try:
-        records, warnings = _run_rev_strings(path, min(20, max(.01, deadline - time.monotonic() - 1)))
+        staging = run / 'staging'
+        if staging.is_symlink():
+            raise ValueError('REV02 staging directory cannot be a symlink')
+        staging.mkdir(mode=0o700, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='rev-strings-', dir=staging) as scratch:
+            records, warnings = _run_rev_strings(
+                path, min(20, max(.01, deadline - time.monotonic() - 1)), Path(scratch))
         if not _require_identity(path, artifact['sha256'], deadline):
             raise RuntimeError('binary source changed before REV02 publication')
         stored = [{**row, 'data_hex': row['data'].hex()} for row in records]
@@ -6668,7 +6678,8 @@ def _binary_fingerprint():
 
 def _rev_strings_fingerprint(deadline):
     from importlib import metadata
-    import subprocess
+    from .profiles.rev_strings import resolve_floss
+    from .setup_env import _FLOSS_BINARY_SHA256
     profiles = Path(__file__).parent / 'profiles'
     parts = [hashlib.sha256((profiles / name).read_bytes()).hexdigest()
              for name in ('rev_strings.py', 'xor.py')]
@@ -6677,15 +6688,11 @@ def _rev_strings_fingerprint(deadline):
             parts.append(metadata.version(package))
         except metadata.PackageNotFoundError:
             parts.append('unavailable')
-    executable = shutil.which('floss')
+    executable, source = resolve_floss()
+    parts.append(source)
     if executable:
-        parts.extend((executable, _hash(Path(executable), deadline) or 'unhashed'))
-        try:
-            version = subprocess.run([executable, '--version'], capture_output=True,
-                                     timeout=2, check=False)
-            parts.append(hashlib.sha256(version.stdout + version.stderr).hexdigest())
-        except (OSError, subprocess.TimeoutExpired):
-            parts.append('version-unavailable')
+        parts.extend((executable, _FLOSS_BINARY_SHA256 if source == 'floss_managed_verified'
+                      else _hash(Path(executable), deadline) or 'unhashed'))
     else:
         parts.append('floss-unavailable')
     return hashlib.sha256(':'.join(parts).encode()).hexdigest()
@@ -6788,7 +6795,7 @@ def _memory_symbol_identity(hints, hints_path, deadline):
     return directory, identity, None
 
 
-def _current_adapter_fingerprints(deadline, scratch_dir=None):
+def _current_adapter_fingerprints(deadline, scratch_dir=None, category='auto'):
     import sqlite3
     from .profiles import disk, disk_recovery, image_metadata, media, memory, ocr, packet_objects, packet_streams, packet_tls, packets, sstv, stegseek, tones, zsteg
     profiles = Path(__file__).parent / 'profiles'
@@ -6894,7 +6901,8 @@ def _current_adapter_fingerprints(deadline, scratch_dir=None):
             f'{packet_tls_hash}:{packet_object_hash}:{executable_hash(packet_tls.TSHARK)}'.encode()).hexdigest()],
         'elf': [_elf_fingerprint()],
         'binary-static': [_binary_fingerprint()],
-        'rev-strings': [_rev_strings_fingerprint(deadline)],
+        'rev-strings': ([_rev_strings_fingerprint(deadline)]
+                        if category in ('auto', 'malware_reversing') else []),
         'rev-powershell': [module_hash('powershell')],
         'rev-rules': [_rev_rules_fingerprint(deadline, scratch_dir=scratch_dir)],
         'rev-packers': [hashlib.sha256(
@@ -7161,7 +7169,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         else (None, None, 'memory symbol directory not supplied'))
     manifest['memory_symbols_sha256'] = memory_symbols_hash
     manifest['current_adapter_fingerprints'] = _current_adapter_fingerprints(
-        deadline, scratch_dir=run)
+        deadline, scratch_dir=run, category=manifest['category'])
     manifest['status'] = 'running'
     _write_json(run / 'manifest.json', manifest)
     active = []

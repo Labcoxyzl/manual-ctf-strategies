@@ -22,6 +22,7 @@ import sys
 import tarfile
 import tempfile
 import threading
+import time
 import wave
 from pathlib import Path
 import zipfile
@@ -71,14 +72,15 @@ def _probe_directory():
     return tempfile.TemporaryDirectory(dir=_task_temporary(Path(__file__).resolve().parents[2]))
 
 
-def _command(argv, data=None):
+def _command(argv, data=None, timeout=5, scratch_cwd=False):
     try:
         with _probe_directory() as directory:
             environment = {**os.environ, 'HOME': directory, 'TMPDIR': directory,
                            'TMP': directory, 'TEMP': directory,
                            'XDG_CACHE_HOME': directory}
-            return subprocess.run(argv, input=data, capture_output=True, timeout=5,
-                                  check=False, env=environment)
+            return subprocess.run(argv, input=data, capture_output=True, timeout=timeout,
+                                  check=False, env=environment,
+                                  cwd=directory if scratch_cwd else None)
     except (OSError, subprocess.TimeoutExpired):
         return None
 
@@ -1509,33 +1511,78 @@ def _binary_probe(self_test):
 
 
 def _rev_strings_probe(self_test):
+    from .profiles.rev_strings import _floss, _floss_records, resolve_floss
+
     static = (importlib.util.find_spec('elftools') is not None and
               importlib.util.find_spec('capstone') is not None)
-    executable = shutil.which('floss')
-    help_result = _command([executable, '--help']) if executable else None
+    executable, source = resolve_floss()
+    help_result = _command([executable, '--help'], timeout=15, scratch_cwd=True) if executable else None
     json_mode = bool(help_result and help_result.returncode == 0 and
                      (b'--json' in help_result.stdout or b'-j' in help_result.stdout))
-    probe = 'not_run'
+    static_probe = 'not_run'
     if self_test and static:
         try:
-            from .profiles.rev_strings import _floss_records
             records, warnings = _floss_records({'strings': {'stack_strings': [
                 {'string': 'probe', 'encoding': 'ASCII', 'function': 1,
                  'program_counter': 2, 'frame_offset': 3}]}}, 1)
-            probe = 'passed' if not warnings and records[0]['data'] == b'probe' else 'failed'
+            static_probe = 'passed' if not warnings and records[0]['data'] == b'probe' else 'failed'
         except Exception:
-            probe = 'failed'
+            static_probe = 'failed'
+    floss_probe = 'not_run'
+    probe_reason = None
+    if self_test and executable and json_mode:
+        marker = 'REV02_PROBE_42'
+        try:
+            with _probe_directory() as directory:
+                binary = Path(directory) / 'rev02-probe'
+                source_file = binary.with_suffix('.c')
+                assignments = ''.join(f's[{index}]={ord(letter)};' for index, letter in enumerate(marker))
+                source_file.write_text('#include <stdio.h>\nint main(void){char s[15];' +
+                                       assignments + 's[14]=0;puts(s);return 0;}\n')
+                compiled = _command(['gcc', '-O0', '-o', str(binary), str(source_file)])
+                if not compiled or compiled.returncode:
+                    probe_reason = 'floss_probe_compiler_unavailable'
+                else:
+                    source_bytes = binary.read_bytes()
+                    document, warning = _floss(binary, executable, time.monotonic() + 20,
+                                               Path(directory))
+                    rows, notices = _floss_records(document, 64) if document else ([], [])
+                    good = (not warning and marker.encode() not in source_bytes and
+                            source_bytes == binary.read_bytes() and any(
+                                row['kind'] == 'stack' and row['data'] == marker.encode() and
+                                row['encoding'] == 'ASCII' and
+                                all(isinstance(row['source_locator'].get(field), int)
+                                    for field in ('function', 'program_counter', 'frame_offset'))
+                                for row in rows))
+                    floss_probe = 'passed' if good else 'failed'
+                    if not good:
+                        probe_reason = 'floss_obfuscated_probe_failed'
+        except (OSError, ValueError, TimeoutError):
+            floss_probe = 'failed'
+            probe_reason = 'floss_obfuscated_probe_failed'
+    elif self_test and executable:
+        floss_probe = 'failed'
+        probe_reason = 'floss_json_mode_unavailable'
+    version_result = _command([executable, '--version'], timeout=15,
+                              scratch_cwd=True) if executable else None
+    version = (version_result.stdout.decode('utf-8', 'replace').splitlines()[0][:100]
+               if version_result and version_result.returncode == 0 and version_result.stdout else None)
+    ready = bool(source == 'floss_managed_verified' and floss_probe == 'passed')
     engine = {'found': bool(executable), 'path': executable, 'version': None,
               'options_compatible': json_mode if executable else False,
-              'required_data': 'embedded_signature_state_unverified' if executable else 'unavailable',
-              'functional_probe': 'not_run',
-              'status': 'partial' if executable and json_mode else 'unavailable',
-              'reason': None if executable and json_mode else 'floss_missing_or_incompatible'}
-    status = ('partial' if static or executable and json_mode else 'unavailable')
-    operation = {'implemented': True, 'functional_probe': probe, 'status': status,
-                 'reason': 'floss_missing; static_elf_fallback_available' if static and not executable
-                           else 'backend_not_functionally_probed' if executable else
-                           'static_and_floss_backends_missing'}
+              'required_data': 'bundled_probe_passed' if ready else
+                               'embedded_signature_state_unverified' if executable else 'unavailable',
+              'functional_probe': floss_probe,
+              'status': 'ready' if ready else 'partial' if executable else 'unavailable',
+              'reason': None if ready else probe_reason or source}
+    engine['version'] = version
+    status = 'ready' if ready else 'partial' if static or executable else 'unavailable'
+    operation = {'implemented': True,
+                 'functional_probe': floss_probe if executable else static_probe,
+                 'status': status,
+                 'reason': None if ready else probe_reason or (
+                     'floss_missing; static_elf_fallback_available' if static and source == 'floss_missing'
+                     else source)}
     return operation, engine
 
 

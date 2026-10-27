@@ -8,8 +8,10 @@ import shutil
 import signal
 import stat
 import subprocess
+import tempfile
 import time
 from collections import deque
+from contextlib import contextmanager
 from pathlib import Path
 
 from .xor import recover_single_byte
@@ -22,13 +24,67 @@ MAX_RECORDS = 64
 MAX_STRING_BYTES = 4096
 
 
-def _floss(path: Path, executable: str, deadline: float) -> tuple[dict | None, str | None]:
+def resolve_floss() -> tuple[str | None, str]:
+    """Prefer the verified toolkit binary; an invalid install blocks PATH fallback."""
+    from ..setup_env import _floss_binary_matches
+
+    root = Path(__file__).resolve().parents[3]
+    directories = (root / '.autosolve', root / '.autosolve/engines',
+                   root / '.autosolve/engines/floss')
+    executable = directories[-1] / 'floss'
+    try:
+        for directory in directories:
+            if directory.is_symlink():
+                return None, 'floss_managed_binary_mismatch'
+            if directory.exists():
+                state = directory.stat(follow_symlinks=False)
+                if (not stat.S_ISDIR(state.st_mode) or state.st_uid != os.geteuid() or
+                        stat.S_IMODE(state.st_mode) != 0o700):
+                    return None, 'floss_managed_binary_mismatch'
+        if executable.is_symlink() or executable.exists() or directories[-1].exists():
+            if (not executable.is_symlink() and _floss_binary_matches(executable) and
+                    os.access(executable, os.X_OK)):
+                return str(executable), 'floss_managed_verified'
+            return None, 'floss_managed_binary_mismatch'
+    except OSError:
+        return None, 'floss_managed_binary_mismatch'
+    fallback = shutil.which('floss')
+    return (str(Path(fallback).absolute()), 'floss_unpinned_path') if fallback else (None, 'floss_missing')
+
+
+@contextmanager
+def _floss_temporary(scratch_dir: Path | None = None):
+    from ..setup_env import _task_temporary
+
+    root = Path(scratch_dir) if scratch_dir is not None else _task_temporary(
+        Path(__file__).resolve().parents[3])
+    if root.is_symlink() or not root.is_dir():
+        raise OSError('FLOSS scratch directory is unavailable or symlinked')
+    with tempfile.TemporaryDirectory(prefix='floss-', dir=root) as directory:
+        yield Path(directory)
+
+
+def _floss_environment(scratch: Path) -> dict[str, str]:
     env = os.environ.copy()
-    env['FLOSS_SAVE_WORKSPACE'] = '0'
-    env['FLOSS_LOAD_VIV_WORKSPACE'] = '0'
+    env.update({key: str(scratch) for key in ('TMPDIR', 'TMP', 'TEMP', 'HOME',
+                                               'XDG_CACHE_HOME', 'FLOSS_CACHE_DIR')})
+    env.update(FLOSS_SAVE_WORKSPACE='0', FLOSS_LOAD_VIV_WORKSPACE='0',
+               FLOSS_CACHE_ENABLE='0', PYTHONDONTWRITEBYTECODE='1')
+    return env
+
+
+def _floss(path: Path, executable: str, deadline: float,
+           scratch_dir: Path | None = None) -> tuple[dict | None, str | None]:
+    with _floss_temporary(scratch_dir) as scratch:
+        return _floss_process(path, executable, deadline, _floss_environment(scratch))
+
+
+def _floss_process(path: Path, executable: str, deadline: float,
+                   env: dict[str, str]) -> tuple[dict | None, str | None]:
     try:
         process = subprocess.Popen([executable, '-j', str(path)], stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE, start_new_session=True, env=env)
+                                   stderr=subprocess.PIPE, start_new_session=True, env=env,
+                                   cwd=env['TMPDIR'])
     except OSError as error:
         return None, f'FLOSS backend unavailable: {error}'
     selector = selectors.DefaultSelector()
@@ -690,7 +746,8 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
 
 def inspect_strings(path: Path, *, max_source_bytes: int = MAX_SOURCE_BYTES,
                     max_records: int = MAX_RECORDS, timeout: float = 20,
-                    floss_path: str | None = None) -> tuple[list[dict], list[str]]:
+                    floss_path: str | None = None,
+                    scratch_dir: Path | None = None) -> tuple[list[dict], list[str]]:
     """Return exact decoded candidate bytes and source locators; never execute the input."""
     if not 0 < max_source_bytes <= MAX_SOURCE_BYTES or not 0 < max_records <= MAX_RECORDS or not 0 < timeout <= 120:
         raise ValueError('REV02 limits must be positive and bounded')
@@ -705,17 +762,20 @@ def inspect_strings(path: Path, *, max_source_bytes: int = MAX_SOURCE_BYTES,
         return [], ['unsupported executable format for REV02']
     deadline = time.monotonic() + timeout
     records, warnings = [], []
-    executable = floss_path or shutil.which('floss')
+    executable, source = ((str(Path(floss_path).absolute()), 'floss_explicit_unpinned')
+                          if floss_path else resolve_floss())
     if executable:
-        document, warning = _floss(path.resolve(), executable, deadline)
+        document, warning = _floss(path.resolve(), executable, deadline, scratch_dir)
         if warning:
             warnings.append(warning)
         elif document is not None:
             found, notices = _floss_records(document, max_records)
             records.extend(found)
             warnings.extend(notices)
+        if source == 'floss_unpinned_path':
+            warnings.append('FLOSS PATH backend is unpinned')
     else:
-        warnings.append('FLOSS backend unavailable; decoded and compiler-specific string coverage incomplete')
+        warnings.append(f'FLOSS backend unavailable ({source}); decoded and compiler-specific string coverage incomplete')
     if magic == b'\x7fELF' and time.monotonic() < deadline and len(records) < max_records:
         try:
             from elftools.common.exceptions import ELFError

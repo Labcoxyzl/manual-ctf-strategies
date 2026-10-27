@@ -355,6 +355,29 @@ class ReverseStringsTests(unittest.TestCase):
         self.assertTrue(any(row['data'] == 'secret'.encode('utf-16le') and
                             row['source_locator']['decoding_routine'] == 0x401080 for row in rows))
 
+    def test_floss_child_relative_writes_stay_in_private_scratch(self):
+        outside = self.root / 'outside'
+        scratch = self.root / 'scratch'
+        outside.mkdir()
+        scratch.mkdir()
+        script = self.root / 'relative-floss'
+        script.write_text('#!/usr/bin/env python3\nimport json, os\nfrom pathlib import Path\n'
+                          'Path("relative-write").write_text("probe")\n'
+                          'print(json.dumps({"cwd": os.getcwd(), "strings": {}}))\n')
+        script.chmod(0o700)
+        binary = self.build('relative_input', 'int main(void){return 0;}')
+        previous = Path.cwd()
+        try:
+            os.chdir(outside)
+            document, warning = rev_strings._floss(binary, str(script),
+                                                   time.monotonic() + 5, scratch)
+        finally:
+            os.chdir(previous)
+        self.assertIsNone(warning)
+        self.assertTrue(Path(document['cwd']).is_relative_to(scratch))
+        self.assertFalse((outside / 'relative-write').exists())
+        self.assertFalse(Path(document['cwd']).exists())
+
     def test_limits_bad_schema_and_unsupported_source(self):
         source = self.root / 'random'
         source.write_bytes(b'hello world')
@@ -453,6 +476,8 @@ class ReverseStringsTests(unittest.TestCase):
     def test_doctor_reports_missing_floss_and_static_fallback(self):
         original = autosolve_setup.shutil.which
         with mock.patch.object(autosolve_setup.shutil, 'which',
+                               side_effect=lambda name: None if name == 'floss' else original(name)), \
+             mock.patch.object(rev_strings.shutil, 'which',
                                side_effect=lambda name: None if name == 'floss' else original(name)):
             report = autosolve_setup.doctor(['reversing'], self_test=True)
         operation = report['operations']['malware_reversing.obfuscated_strings']
@@ -460,6 +485,122 @@ class ReverseStringsTests(unittest.TestCase):
         self.assertEqual(operation['status'], 'partial')
         self.assertEqual(report['engines']['floss']['found'], False)
         self.assertIn('floss_missing', operation['reason'])
+
+    def test_verified_managed_floss_precedes_path_and_tamper_blocks_fallback(self):
+        root = self.root / 'export'
+        installed = root / '.autosolve/engines/floss/floss'
+        installed.parent.mkdir(parents=True)
+        installed.write_bytes(b'fixture')
+        for directory in (root / '.autosolve', root / '.autosolve/engines', installed.parent):
+            directory.chmod(0o700)
+        installed.chmod(0o700)
+        with mock.patch.object(rev_strings, '__file__',
+                               str(root / 'scripts/autosolve_lib/profiles/rev_strings.py')), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value='/usr/bin/floss'), \
+             mock.patch('scripts.autosolve_lib.setup_env._floss_binary_matches', return_value=True):
+            self.assertEqual(rev_strings.resolve_floss()[0], str(installed))
+        with mock.patch.object(rev_strings, '__file__',
+                               str(root / 'scripts/autosolve_lib/profiles/rev_strings.py')), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value='/usr/bin/floss'), \
+             mock.patch('scripts.autosolve_lib.setup_env._floss_binary_matches', return_value=False):
+            self.assertEqual(rev_strings.resolve_floss(), (None, 'floss_managed_binary_mismatch'))
+        installed.unlink()
+        installed.parent.rmdir()
+        with mock.patch.object(rev_strings, '__file__',
+                               str(root / 'scripts/autosolve_lib/profiles/rev_strings.py')), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value='./floss'):
+            self.assertEqual(rev_strings.resolve_floss(),
+                             (str(Path('./floss').absolute()), 'floss_unpinned_path'))
+
+    def test_doctor_requires_obfuscated_marker_and_location(self):
+        binary = self.root / 'floss'
+        binary.write_bytes(b'fixture')
+        marker = {'string': 'REV02_PROBE_42', 'encoding': 'ASCII',
+                  'function': 0x401000, 'program_counter': 0x401020,
+                  'frame_offset': 16}
+        command = autosolve_setup._command
+
+        def backend_help(argv, data=None, timeout=5, scratch_cwd=False):
+            if argv[0] == str(binary):
+                self.assertEqual(timeout, 15)
+                self.assertTrue(scratch_cwd)
+                return subprocess.CompletedProcess(argv, 0, b'--json -j' if '--help' in argv
+                                                   else b'floss v3.2.0', b'')
+            return command(argv, data, timeout=timeout, scratch_cwd=scratch_cwd)
+
+        with mock.patch.object(rev_strings, 'resolve_floss',
+                               return_value=(str(binary), 'floss_managed_verified')), \
+             mock.patch.object(autosolve_setup, '_command', side_effect=backend_help), \
+             mock.patch.object(rev_strings, '_floss', return_value=(
+                 {'strings': {'stack_strings': [marker]}}, None)):
+            operation, engine = autosolve_setup._rev_strings_probe(True)
+        self.assertEqual((operation['status'], operation['functional_probe']), ('ready', 'passed'))
+        self.assertEqual((engine['status'], engine['functional_probe']), ('ready', 'passed'))
+        with mock.patch.object(rev_strings, 'resolve_floss',
+                               return_value=(str(binary), 'floss_managed_verified')), \
+             mock.patch.object(autosolve_setup, '_command', side_effect=backend_help), \
+             mock.patch.object(rev_strings, '_floss', return_value=(
+                 {'strings': {'stack_strings': [{**marker, 'program_counter': None}]}}, None)):
+            operation, engine = autosolve_setup._rev_strings_probe(True)
+        self.assertEqual((operation['status'], engine['status']), ('partial', 'partial'))
+        with mock.patch.object(rev_strings, 'resolve_floss',
+                               return_value=(str(binary), 'floss_unpinned_path')), \
+             mock.patch.object(autosolve_setup, '_command', side_effect=backend_help), \
+             mock.patch.object(rev_strings, '_floss', return_value=(
+                 {'strings': {'stack_strings': [marker]}}, None)):
+            operation, engine = autosolve_setup._rev_strings_probe(True)
+        self.assertEqual((operation['status'], engine['status']), ('partial', 'partial'))
+        self.assertEqual(engine['reason'], 'floss_unpinned_path')
+
+    def test_unrelated_category_skips_floss_fingerprint(self):
+        with mock.patch.object(core, '_rev_strings_fingerprint',
+                               side_effect=AssertionError('FLOSS should not run')):
+            fingerprints = core._current_adapter_fingerprints(
+                time.monotonic() + 20, category='encoding')
+        self.assertEqual(fingerprints['rev-strings'], [])
+
+    def test_tampered_managed_floss_changes_resume_fingerprint(self):
+        root = self.root / 'export'
+        binary = root / '.autosolve/engines/floss/floss'
+        binary.parent.mkdir(parents=True)
+        binary.write_bytes(b'fixture')
+        for directory in (root / '.autosolve', root / '.autosolve/engines', binary.parent):
+            directory.chmod(0o700)
+        binary.chmod(0o700)
+        with mock.patch.object(rev_strings, '__file__',
+                               str(root / 'scripts/autosolve_lib/profiles/rev_strings.py')), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value=None), \
+             mock.patch('scripts.autosolve_lib.setup_env._floss_binary_matches',
+                        side_effect=(True, False)):
+            before = core._rev_strings_fingerprint(time.monotonic() + 5)
+            after = core._rev_strings_fingerprint(time.monotonic() + 5)
+        self.assertNotEqual(before, after)
+
+    def test_restored_backend_reactivates_only_matching_rev02_candidates(self):
+        run = self.root / 'run'
+        (run / 'jobs').mkdir(parents=True)
+        source = self.build('restore', 'int main(void){return 0;}')
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        artifact = {'id': 'source', 'sha256': digest, 'path': str(source)}
+        fingerprint = 'restored-backend'
+        key = hashlib.sha256(f'source:{digest}:rev-strings.v1:{fingerprint}'.encode()).hexdigest()
+        output = run / 'jobs' / 'old.rev-strings.json'
+        output.write_text('[]')
+        old = {'id': 'old', 'key': key, 'status': 'complete', 'child_ids': [],
+               'records_path': str(output), 'records_sha256': hashlib.sha256(b'[]').hexdigest(),
+               'coverage_status': 'ran', 'coverage_note': 'reused', 'warnings': []}
+        previous = {'artifact_id': 'source', 'tag': 'REV02 string candidate',
+                    'job_id': 'old', 'superseded': True}
+        replacement = {'artifact_id': 'source', 'tag': 'REV02 string candidate',
+                       'job_id': 'replacement', 'superseded': False}
+        manifest = {'coverage': {'REV02': {'status': 'truncated', 'note': ''}},
+                    'current_adapter_fingerprints': {'rev-strings': [fingerprint]},
+                    'jobs': [old], 'intelligence': [previous, replacement],
+                    'artifacts': [artifact], 'warnings': []}
+        core._rev_strings_job(run, manifest, artifact, time.monotonic() + 5, deque(), 0)
+        self.assertFalse(previous['superseded'])
+        self.assertTrue(replacement['superseded'])
+        self.assertEqual(manifest['coverage']['REV02']['status'], 'ran')
 
     def test_source_change_during_worker_rejects_publication(self):
         binary = self.build('changing', 'int main(void){return 0;}')
