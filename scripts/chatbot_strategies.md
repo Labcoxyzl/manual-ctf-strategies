@@ -90,7 +90,9 @@ not send another prompt.
 When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, `resume` can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
-turns a status response into an accepted challenge result.
+turns a status response into an accepted challenge result. Bytes received
+before a non-stream response stalls remain in the private transcript
+as `raw_b64`; the timeout still leaves the POST unresolved.
 Malformed or excessively nested declared JSON keeps exact consumed bytes in
 the private transcript and stops as `malformed_json`; a body shorter than its
 declared length or a broken chunked stream stops as `partial_response`. Neither

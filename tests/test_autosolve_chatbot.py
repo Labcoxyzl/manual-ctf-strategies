@@ -486,6 +486,19 @@ class Toy:
                     except (BrokenPipeError, ConnectionResetError):
                         pass
                     return
+                if toy.mode == 'partial_json_timeout':
+                    data = b'{"reply":"completed later"}'
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data[:8]); self.wfile.flush()
+                    time.sleep(.18)
+                    try:
+                        self.wfile.write(data[8:])
+                    except (BrokenPipeError, ConnectionResetError):
+                        pass
+                    return
                 if toy.mode == 'same_post_redirect':
                     self.send(303, b'', {'Location': '/result', 'Set-Cookie': 'sid=rotated; Path=/'})
                     return
@@ -615,6 +628,7 @@ class ChatbotCLITests(unittest.TestCase):
         if dry:
             args.append('--dry-run')
         result, code = self.run_cli(root, *args)
+        self.assertIn('run', result, result)
         run = Path(result['run'])
         return json.loads((run / 'manifest.json').read_text()), run, code
 
@@ -1337,6 +1351,22 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'chat timed out; inspect history/status before any retry')
             self.assertIn('sid=rotated', (run / 'cookies.txt').read_text())
+
+    def test_json_timeout_keeps_received_prefix_without_replaying_chat(self):
+        with tempfile.TemporaryDirectory() as root, Toy('partial_json_timeout') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol, timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'chat timed out; inspect history/status before any retry')
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(record['status'], 200)
+            self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"reply"')
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1)
+            before = len(toy.calls)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(len(toy.calls), before)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
 
     def test_timed_out_chat_rechecks_only_read_only_status_after_incomplete_check(self):
         with tempfile.TemporaryDirectory() as root, Toy('timeout_check_partial') as toy:

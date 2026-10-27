@@ -615,11 +615,22 @@ class Client:
                                     break
                             raw = b''.join(partial_chunks)
                         else:
-                            try:
-                                raw = response.read(MAX_RESPONSE + 1)
-                            except http.client.IncompleteRead as error:
-                                raw = error.partial
-                                forced_partial = True
+                            size = 0
+                            while size <= MAX_RESPONSE:
+                                read_chunk = getattr(response, 'read1', response.read)
+                                try:
+                                    chunk = read_chunk(min(4096, MAX_RESPONSE + 1 - size))
+                                except http.client.IncompleteRead as error:
+                                    chunk = error.partial
+                                    forced_partial = True
+                                    if chunk:
+                                        partial_chunks.append(chunk)
+                                    break
+                                if not chunk:
+                                    break
+                                partial_chunks.append(chunk)
+                                size += len(chunk)
+                            raw = b''.join(partial_chunks)
                             declared_length = response_headers.get('Content-Length', '')
                             digits = declared_length.lstrip('0') or '0'
                             if declared_length.isascii() and declared_length.isdecimal() and (

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="9e8ff7c3632d3b31c093db9fa742214eca4061e4faa874287f519fec87e0ea71">
+  <meta name="source-sha256" content="3766f9cd6a79ca8aac7bfdf6804f6df51652b79fdb75516d74f13441b958ca09">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -118,7 +118,9 @@ not send another prompt.</p>
 <p>When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, <code>resume</code> can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
-turns a status response into an accepted challenge result.
+turns a status response into an accepted challenge result. Bytes received
+before a non-stream response stalls remain in the private transcript
+as <code>raw_b64</code>; the timeout still leaves the POST unresolved.
 Malformed or excessively nested declared JSON keeps exact consumed bytes in
 the private transcript and stops as <code>malformed_json</code>; a body shorter than its
 declared length or a broken chunked stream stops as <code>partial_response</code>. Neither
