@@ -912,18 +912,26 @@
       "kali-61"
     ],
     "steps": [
-      "Identify the relevant log channel and event ID from the clue. For PowerShell script-block event 4104, run `chainsaw search -t 'Event.System.EventID: =4104' ./logs` on a copied EVTX directory.",
-      "Inspect matching records in their source log; record file, Event ID, record ID, host, account, timestamp and time zone before correlating events.",
+      "Identify the relevant log channel and event ID from the clue. Search one copied EVTX file at a time, for example `chainsaw search -t 'Event.System.EventID: =4104' COPY/Selected.evtx --json -q` with the tested 2.16.5 syntax; retain the input path and hash separately because the JSON result has no source filename.",
+      "Check exit status and parseable JSON before interpreting matches or an empty array. Inspect matching source records and record file, XML EventRecordID, Event ID, host, account, timestamp and time zone. In bundled autosolve output, record_number/header_timestamp locate the EVTX header while event_record_id/timestamp describe XML Event.System; inspect timestamp_basis for fallback.",
       "If the question needs broader detection or ordering, use a prepared local Sigma rule/mapping with Chainsaw or the installed Hayabusa timeline command; confirm its version and rules before interpreting hits."
     ],
     "expected": "A traceable event or ordered event set tied to source files and record identifiers, with a bounded interpretation.",
-    "fallback": "No result: check whether the expected channel exists, whether parsing produced errors, and whether the selected time window or event ID is too narrow. Missing logs are not negative evidence.",
-    "caveat": "Rule hits are leads, not a malware verdict. Normalize time zones and distinguish event time from file timestamps. Hayabusa command names differ across versions.",
-    "verification": "Source-reviewed against Chainsaw and Hayabusa documentation; no EVTX fixture or competition-machine run.",
+    "fallback": "No result: check whether the expected channel exists, whether parsing produced errors, and whether the selected time window or event ID is too narrow. A malformed file may produce incomplete JSON before a nonzero exit; missing logs are not negative evidence.",
+    "caveat": "Rule hits are leads, not a malware verdict. Normalize time zones and distinguish XML event time from EVTX header and file timestamps; independent parsers differed by one microsecond on the local sample. Hayabusa command names differ across versions.",
+    "verification": "Chainsaw 2.16.5 on a public upstream Security EVTX sample returned one known 4625 record and no 4104 records; malformed input returned nonzero with incomplete JSON. Hayabusa and competition-machine behavior unverified.",
     "references": [
       {
         "title": "Chainsaw — search and hunt examples",
         "url": "https://github.com/WithSecureOpenSource/chainsaw"
+      },
+      {
+        "title": "Chainsaw 2.16.5 release",
+        "url": "https://github.com/WithSecureOpenSource/chainsaw/releases/tag/v2.16.5"
+      },
+      {
+        "title": "Upstream sample EVTX",
+        "url": "https://github.com/omerbenamram/evtx/blob/master/samples/Security_short_selected.evtx"
       },
       {
         "title": "Hayabusa — Windows event timelines",

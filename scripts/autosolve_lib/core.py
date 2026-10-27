@@ -4138,16 +4138,22 @@ def _os_artifact_job(run, manifest, artifact, deadline):
                 if record['kind'] == 'browser_visit':
                     detail = record.get('url') or 'URL row missing'
                 elif record['kind'] == 'evtx_event':
-                    detail = f"event {record.get('event_id')} provider {record.get('provider')}"
+                    event_record_id = record.get('event_record_id')
+                    detail = (f"event {record.get('event_id')} XML record ID "
+                              f"{event_record_id if event_record_id is not None else 'unavailable'} "
+                              f"provider {record.get('provider')}")
                 else:
                     detail = str(record.get('values', []))
+                source_locator = {'record': record['locator'],
+                                  'time': record.get('timestamp'),
+                                  'time_basis': record.get('timestamp_basis')}
+                if record['kind'] == 'evtx_event':
+                    source_locator['event_record_id'] = record.get('event_record_id')
                 manifest['intelligence'].append({
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
                     'tag': 'OS artifact', 'group': record['kind'],
                     'value': f"{record['locator']} @ {record.get('timestamp')}: {detail}"[:512],
-                    'source_locator': {'record': record['locator'],
-                                       'time': record.get('timestamp'),
-                                       'time_basis': record.get('timestamp_basis')},
+                    'source_locator': source_locator,
                     'next_action': 'Inspect the source-linked record before inferring an event sequence.'})
             status = ('skipped prerequisite' if any('unavailable' in note or 'unsupported' in note
                                                    for note in warnings) and not records else

@@ -5,12 +5,14 @@ import json
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 from scripts.autosolve_lib.profiles.os_artifacts import inspect_os_artifact
+from scripts.autosolve_lib import core
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/autosolve.py'
@@ -102,6 +104,27 @@ class OsArtifactTests(unittest.TestCase):
             def timestamp(self):
                 return datetime(2024, 2, 3, 4, 5, tzinfo=timezone.utc)
 
+        class DivergentRecord(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><Provider Name="Example"/><EventID>4625</EventID>'
+                        '<EventRecordID>77</EventRecordID>'
+                        '<TimeCreated SystemTime="2024-02-03T04:05:30.123Z"/>'
+                        '</System></Event>')
+
+        class InvalidTimeRecord(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><EventID>42</EventID><TimeCreated SystemTime="invalid"/>'
+                        '</System></Event>')
+
+        class OverflowTimeRecord(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><EventID>42</EventID>'
+                        '<TimeCreated SystemTime="0001-01-01T00:00:00+01:00"/>'
+                        '</System></Event>')
+
         class Log:
             def __init__(self, path):
                 self.path = path
@@ -114,6 +137,9 @@ class OsArtifactTests(unittest.TestCase):
 
             def records(self):
                 yield Record()
+                yield DivergentRecord()
+                yield InvalidTimeRecord()
+                yield OverflowTimeRecord()
 
         import sys
         from types import ModuleType
@@ -122,10 +148,23 @@ class OsArtifactTests(unittest.TestCase):
         module.Evtx = Log
         with patch.dict(sys.modules, {'Evtx': package, 'Evtx.Evtx': module}):
             records, warnings = inspect_os_artifact(self.path)
-        self.assertEqual(warnings, [])
+        self.assertEqual(warnings, ['record 9: invalid System TimeCreated'] * 2)
         self.assertEqual(records[0]['locator'], 'record 9 offset 8192')
         self.assertEqual(records[0]['timestamp'], '2024-02-03T04:05:00Z')
         self.assertEqual(records[0]['event_id'], '42')
+        self.assertEqual(records[0]['event_record_id'], None)
+        self.assertEqual(records[0]['timestamp_basis'], 'EVTX record FILETIME UTC')
+        self.assertEqual(records[1]['record_number'], 9)
+        self.assertEqual(records[1]['record_number_basis'], 'EVTX record header')
+        self.assertEqual(records[1]['event_record_id'], 77)
+        self.assertEqual(records[1]['timestamp'], '2024-02-03T04:05:30.123000Z')
+        self.assertEqual(records[1]['timestamp_basis'], 'Event.System.TimeCreated.SystemTime UTC')
+        self.assertEqual(records[1]['header_timestamp'], '2024-02-03T04:05:00Z')
+        self.assertEqual(records[1]['system_time_raw'], '2024-02-03T04:05:30.123Z')
+        self.assertEqual(records[2]['timestamp'], '2024-02-03T04:05:00Z')
+        self.assertEqual(records[2]['timestamp_basis'], 'EVTX record FILETIME UTC')
+        self.assertEqual(records[3]['timestamp'], '2024-02-03T04:05:00Z')
+        self.assertEqual(records[3]['timestamp_basis'], 'EVTX record FILETIME UTC')
 
     def test_registry_key_timestamp_and_binary_value_basis(self):
         self.path.write_bytes(b'regf' + b'\x00' * 4096)
@@ -171,6 +210,27 @@ class OsArtifactTests(unittest.TestCase):
         self.assertEqual(records[0]['values'][0]['value'], {
             'bytes': 2, 'sha256': hashlib.sha256(b'\x00\xff').hexdigest(),
             'prefix_base64': base64.b64encode(b'\x00\xff').decode(), 'truncated': False})
+
+    def test_evtx_intelligence_keeps_xml_record_id(self):
+        self.path.write_bytes(b'ElfFile\x00' + b'\x00' * 32)
+        run = self.root / 'run'
+        (run / 'jobs').mkdir(parents=True)
+        artifact = {'id': 'source', 'path': str(self.path), 'kind_evidence': 'evtx',
+                    'sha256': hashlib.sha256(self.path.read_bytes()).hexdigest()}
+        manifest = {'jobs': [], 'intelligence': [], 'warnings': [],
+                    'coverage': {'DF03': {'status': 'not scheduled'}}}
+        record = {'kind': 'evtx_event', 'source': str(self.path),
+                  'locator': 'record 4 offset 8264', 'record_number': 4,
+                  'event_record_id': 319457832, 'event_id': '4625', 'provider': 'Example',
+                  'timestamp': '2016-06-29T15:24:36.685999Z',
+                  'timestamp_basis': 'Event.System.TimeCreated.SystemTime UTC'}
+        with patch.object(core, '_run_os_artifact', return_value=([record], [])):
+            core._os_artifact_job(run, manifest, artifact, time.monotonic() + 30)
+        self.assertEqual(manifest['jobs'][0]['status'], 'complete')
+        lead = manifest['intelligence'][0]
+        self.assertIn('XML record ID 319457832', lead['value'])
+        self.assertEqual(lead['source_locator']['event_record_id'], 319457832)
+        self.assertEqual(lead['source_locator']['record'], 'record 4 offset 8264')
 
     def test_public_cli_source_linked_browser_job_and_resume(self):
         self.history()

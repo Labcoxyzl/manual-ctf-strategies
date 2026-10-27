@@ -123,13 +123,36 @@ def _evtx(path, max_records):
             system = root.find(namespace + 'System')
             event_id = system.findtext(namespace + 'EventID') if system is not None else None
             provider = system.find(namespace + 'Provider') if system is not None else None
+            raw_id = system.findtext(namespace + 'EventRecordID') if system is not None else None
+            event_record_id = (int(raw_id) if raw_id and len(raw_id) <= 20 and
+                               raw_id.isascii() and raw_id.isdecimal() else None)
+            raw_time = system.find(namespace + 'TimeCreated') if system is not None else None
+            raw_time = raw_time.get('SystemTime') if raw_time is not None else None
+            event_time = None
+            if raw_time:
+                try:
+                    if len(raw_time) > 80:
+                        raise ValueError('oversized SystemTime')
+                    parsed = datetime.fromisoformat(raw_time.replace('Z', '+00:00'))
+                    if parsed.tzinfo is not None:
+                        event_time = _utc(parsed)
+                except (ValueError, OverflowError):
+                    pass
+                if event_time is None:
+                    warnings.append(f"record {entry.record_num()}: invalid System TimeCreated")
+            header_time = _utc(entry.timestamp())
             records.append({"kind": "evtx_event", "source": str(path),
                             "locator": f"record {entry.record_num()} offset {entry.offset()}",
                             "record_number": entry.record_num(), "offset": entry.offset(),
+                            "record_number_basis": "EVTX record header",
+                            "event_record_id": event_record_id,
                             "event_id": event_id,
                             "provider": provider.get('Name') if provider is not None else None,
-                            "timestamp": _utc(entry.timestamp()),
-                            "timestamp_basis": "EVTX record FILETIME UTC"})
+                            "header_timestamp": header_time,
+                            "system_time_raw": raw_time[:80] if raw_time else None,
+                            "timestamp": event_time or header_time,
+                            "timestamp_basis": ("Event.System.TimeCreated.SystemTime UTC" if event_time else
+                                                "EVTX record FILETIME UTC")})
     return records, warnings
 
 

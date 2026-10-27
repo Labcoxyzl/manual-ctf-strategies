@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('package_toolkit', ROOT / 'scripts/package_toolkit.py')
@@ -34,6 +35,12 @@ class DistributionTests(unittest.TestCase):
                 self.assertNotIn(target, exporter.INTERNAL_EVIDENCE)
         self.assertIn(b'internal evidence; not distributed', self.files['RESOURCE_EVALUATION.html'])
         self.assertIn(b'RULES.html', self.files['index.html'])
+
+    def test_committed_zip_matches_export(self):
+        with ZipFile(ROOT / 'manual-ctf-strategies-offline-2026-10-27.zip') as archive:
+            self.assertEqual(archive.namelist(), sorted(self.files))
+            for name, content in self.files.items():
+                self.assertEqual(archive.read(name), content, name)
 
     def test_unknown_and_private_links_fail_before_destination(self):
         read = exporter.read_source
