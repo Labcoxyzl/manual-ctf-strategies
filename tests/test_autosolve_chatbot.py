@@ -35,6 +35,9 @@ class Toy:
         self.nonce = None
         self.nonce_used = False
         self.get_token = None
+        self.deep_value = 0
+        for _ in range(500):
+            self.deep_value = [self.deep_value]
         self.landing_nonce_header = None
         self.stage = 0
         self.stage_checked = True
@@ -146,6 +149,8 @@ class Toy:
                 elif self.path == '/api/verify':
                     if toy.mode == 'partial_completion':
                         self.send(200, b'{"complete": true}' + b' ' * 140_000)
+                    elif toy.mode == 'route_deep_checker':
+                        self.send(200, {'complete': toy.deep_value})
                     elif toy.mode == 'tool_metadata_201_route':
                         self.send(201, {'complete': True})
                     elif toy.mode == 'direct_redirect':
@@ -323,6 +328,9 @@ class Toy:
                         parts = [b'data: ' + json.dumps({'choices': [{'delta': {'tool_calls': [
                             {'index': 0, 'function': {'arguments': fragment}}]}}]}).encode() + b'\n\n'
                                  for fragment in ('{"path":"/api/', 'verify"}')]
+                    if toy.mode in ('stream_deep_json', 'stream_near_deep_json'):
+                        depth = 9_998 if toy.mode == 'stream_near_deep_json' else 10_000
+                        parts = [b'data: ' + b'[' * depth + b'0' + b']' * depth + b'\n\n']
                     if toy.mode == 'stream_malformed':
                         parts.append(b'data: {broken}\n\n')
                     if toy.mode != 'stream_incomplete':
@@ -390,6 +398,9 @@ class Toy:
                 if toy.mode == 'rate_body':
                     self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
                     return
+                if toy.mode == 'deep_rate_body':
+                    self.send(429, b'{"retry_after_sec":' + b'[' * 9_997 + b'0' + b']' * 9_997 + b'}')
+                    return
                 if toy.mode == 'rate_short':
                     self.send(429, {'error': 'cooldown', 'retry_after_sec': .8})
                     return
@@ -448,6 +459,9 @@ class Toy:
                         self.send(200, {'reply': toy.marker if toy.marker and len(prompt) < 4096 else 'forgot' if toy.marker else 'role: assistant'})
                 elif toy.mode == 'ambiguous':
                     self.send(200, {'reply': 'one', 'answer': 'two'})
+                elif toy.mode in ('deep_json_chat', 'near_deep_json_chat'):
+                    depth = 9_998 if toy.mode == 'near_deep_json_chat' else 10_000
+                    self.send(200, b'[' * depth + b'0' + b']' * depth)
                 elif toy.mode == 'html_login':
                     self.send(200, b'<html><body>login required</body></html>')
                 elif toy.mode == 'numeric_route':
@@ -458,7 +472,7 @@ class Toy:
                     self.send(200, {'reply': 'Redeem /redeem/ABCDEFGH to finish.'})
                 elif toy.mode == 'large':
                     self.send(200, {'reply': 'x' * 140_000})
-                elif toy.mode in ('route', 'direct_redirect'):
+                elif toy.mode in ('route', 'direct_redirect', 'route_deep_checker'):
                     self.send(200, {'reply': 'Use /api/verify for completion.', 'conversation_id': 'thread-A', 'tool_calls': [{'name': 'verify', 'arguments': {'path': '/api/verify'}}]})
                 elif toy.mode in ('tool_metadata_route', 'tool_metadata_arguments', 'tool_metadata_post_route', 'tool_metadata_unknown_route', 'tool_metadata_query_route', 'tool_metadata_mixed_route', 'tool_metadata_201_route', 'tool_metadata_no_text', 'tool_metadata_two_known_routes'):
                     path = ('/check' if toy.mode == 'tool_metadata_post_route' else
@@ -1954,6 +1968,74 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 2)
             self.assertIn('response_field', result['reason'])
             self.assertFalse(toy.calls)
+
+    def test_deep_json_chat_responses_stop_with_reversible_raw_evidence(self):
+        for mode, chat in (('deep_json_chat', {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'}),
+                           ('near_deep_json_chat', {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'}),
+                           ('stream_deep_json', {'path': '/stream/chat', 'message_field': 'query',
+                                                 'response_format': 'sse', 'response_field': 'delta.content'}),
+                           ('stream_near_deep_json', {'path': '/stream/chat', 'message_field': 'query',
+                                                      'response_format': 'sse', 'response_field': 'delta.content'})):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': chat, 'lanes': ['capability']})
+                m, run, code = self.start(root, toy, protocol)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
+                self.assertEqual(m['prompt_count'], 1)
+                records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+                raw = base64.b64decode(records[-1]['response']['raw_b64'])
+                depth = 9_998 if 'near_' in mode else 10_000
+                self.assertIn(b'[' * depth + b'0' + b']' * depth, raw)
+                before = len(toy.calls)
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(len(toy.calls), before)
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            protocol = Path(root) / 'protocol.json'
+            protocol.write_text('{"chat":' + '[' * 10_000 + '0' + ']' * 10_000 + '}')
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('invalid protocol JSON', result['reason'])
+            self.assertFalse(toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('deep_rate_body') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'}, 'lanes': []})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'rate_limit')
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertEqual(records[-1]['signal'], 'rate_limit')
+            self.assertIn(b'"retry_after_sec"', base64.b64decode(records[-1]['response']['raw_b64']))
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            value = 0
+            for _ in range(1_000):
+                value = [value]
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'static_fields': {'x': value}}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('nesting', result['reason'])
+            self.assertFalse(toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('route_deep_checker') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': [],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': toy.deep_value}})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(len(m['validated']), 1)
+        with tempfile.TemporaryDirectory() as root, Toy('route_deep_checker') as toy:
+            wrong = 1
+            for _ in range(500):
+                wrong = [wrong]
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': [],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': wrong}})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertFalse(m['validated'])
+            self.assertEqual(len(m['direct_checks']), 1)
 
     def test_api_plan_preserves_scope_and_separates_candidate_from_acceptance(self):
         with tempfile.TemporaryDirectory() as root, Toy('api_only') as toy:

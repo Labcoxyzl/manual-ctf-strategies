@@ -49,6 +49,7 @@ values are sent with each serial chat request but redacted in logged request
 bodies and reports; raw chatbot responses remain in the private transcript,
 including any value the target echoes. The private protocol is part of the
 resume identity. Bracketed form names such as `settings[mode]` are supported.
+Static JSON fields have an 8 KiB and 64-level nesting limit.
 
 For a `text/event-stream` chat route that emits JSON `data:` events and a
 `data: [DONE]` terminator, copy the [SSE recipe](chatbot_recipes/sse_chat.json).
@@ -65,6 +66,9 @@ When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, `resume` can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
 turns a status response into an accepted challenge result.
+Malformed or excessively nested JSON responses keep exact consumed bytes in
+the private transcript; chat stops before another prompt, while a 429 keeps
+its rate-limit signal.
 
 | Strategy | Required protocol fields | What the script does |
 | --- | --- | --- |

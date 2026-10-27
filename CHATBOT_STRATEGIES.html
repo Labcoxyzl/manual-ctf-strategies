@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="f670d325ccffd59e0e0273b9d03154cd7a8f9579c129c8c8dd8a7b2e0edc679f">
+  <meta name="source-sha256" content="773707f94adc2efee9f053a55d828ffe1fd7ba4fd72c53a2b7c06c29a2f1b153">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -83,7 +83,8 @@ ID, client ID, and captured bootstrap token remain dynamic fields. Static
 values are sent with each serial chat request but redacted in logged request
 bodies and reports; raw chatbot responses remain in the private transcript,
 including any value the target echoes. The private protocol is part of the
-resume identity. Bracketed form names such as <code>settings[mode]</code> are supported.</p>
+resume identity. Bracketed form names such as <code>settings[mode]</code> are supported.
+Static JSON fields have an 8 KiB and 64-level nesting limit.</p>
 <p>For a <code>text/event-stream</code> chat route that emits JSON <code>data:</code> events and a
 <code>data: [DONE]</code> terminator, copy the <a href="scripts/chatbot_recipes/sse_chat.json">SSE recipe</a>.
 Set <code>chat.response_format</code> to <code>sse</code> and <code>chat.response_field</code> to the event
@@ -97,7 +98,10 @@ framing or terminal markers need a target-specific adapter.</p>
 <p>When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, <code>resume</code> can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
-turns a status response into an accepted challenge result.</p>
+turns a status response into an accepted challenge result.
+Malformed or excessively nested JSON responses keep exact consumed bytes in
+the private transcript; chat stops before another prompt, while a 429 keeps
+its rate-limit signal.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>

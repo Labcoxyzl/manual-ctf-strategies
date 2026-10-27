@@ -187,6 +187,19 @@ def _injection_bytes(path):
     return data
 
 
+def _too_deep(value, limit):
+    stack = [(value, 0)]
+    while stack:
+        item, depth = stack.pop()
+        if depth > limit:
+            return True
+        if isinstance(item, dict):
+            stack.extend((child, depth + 1) for child in item.values())
+        elif isinstance(item, list):
+            stack.extend((child, depth + 1) for child in item)
+    return False
+
+
 def _protocol(path):
     if path is None:
         return {}, None
@@ -196,7 +209,7 @@ def _protocol(path):
     raw = p.read_bytes()
     try:
         config = json.loads(raw)
-    except (UnicodeError, ValueError) as error:
+    except (UnicodeError, ValueError, RecursionError) as error:
         raise core.InvalidInput('invalid protocol JSON') from error
     if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change', 'status_after_each_chat'}:
         raise core.InvalidInput('unknown protocol field')
@@ -222,6 +235,8 @@ def _protocol(path):
                 any(not isinstance(key, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.\[\]-]{0,79}', key) for key in static) or
                 chat.get('encoding') == 'form' and any(not isinstance(value, str) for value in static.values())):
             raise core.InvalidInput('chat static_fields must be at most 20 valid JSON or string-valued form fields')
+        if _too_deep(static, 64):
+            raise core.InvalidInput('chat static_fields nesting exceeds 64 levels')
         try:
             if len(json.dumps(static, allow_nan=False).encode()) > 8 * 1024:
                 raise core.InvalidInput('chat static_fields exceeds 8 KiB')
@@ -368,13 +383,22 @@ def _nested(value, field, missing=None):
 
 
 def _same_json(actual, expected):
-    if type(actual) is not type(expected):
-        return False
-    if isinstance(actual, dict):
-        return actual.keys() == expected.keys() and all(_same_json(actual[key], expected[key]) for key in actual)
-    if isinstance(actual, list):
-        return len(actual) == len(expected) and all(_same_json(left, right) for left, right in zip(actual, expected))
-    return actual == expected
+    stack = [(actual, expected)]
+    while stack:
+        left, right = stack.pop()
+        if type(left) is not type(right):
+            return False
+        if isinstance(left, dict):
+            if left.keys() != right.keys():
+                return False
+            stack.extend((left[key], right[key]) for key in left)
+        elif isinstance(left, list):
+            if len(left) != len(right):
+                return False
+            stack.extend(zip(left, right))
+        elif left != right:
+            return False
+    return True
 
 
 def _capture_scalar(value, limit=512):
@@ -600,13 +624,20 @@ class Client:
                 parsed = None
                 try:
                     parsed = json.loads(raw)
-                except (ValueError, UnicodeError):
+                except (ValueError, UnicodeError, RecursionError):
                     pass
-            if signal == 'rate_limit' and isinstance(parsed, dict) and any(word in json.dumps(parsed).lower() for word in ('already in progress', 'active_other_tab', 'comms_locked')):
-                signal = 'lock'
+            if signal == 'rate_limit' and isinstance(parsed, dict):
+                try:
+                    lock_text = json.dumps(parsed).lower()
+                except RecursionError:
+                    lock_text = ''
+                if any(word in lock_text for word in ('already in progress', 'active_other_tab', 'comms_locked')):
+                    signal = 'lock'
             retry_after = response_headers.get('Retry-After') if status in (409, 429) else None
             if retry_after is None and status in (409, 429) and isinstance(parsed, dict):
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
+            if type(retry_after) not in (str, int, float):
+                retry_after = None
             response_value = ({'raw_b64': base64.b64encode(raw).decode(), 'sse_events': parsed} if response_format == 'sse' and status in range(200, 300) else
                               parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()})
             tool_evidence = (_sse_tool_evidence(parsed) if response_format == 'sse' and isinstance(parsed, list) else
@@ -625,7 +656,12 @@ class Client:
             if delay is not None:
                 self.manifest['cooldown_until'] = time.time() + delay
                 _set_origin_cooldown(self.manifest['origin'], self.manifest['cooldown_until'])
-            self._log(record)
+            try:
+                self._log(record)
+            except RecursionError:
+                record['response'] = {'raw_b64': base64.b64encode(raw).decode()}
+                record['tool_call_evidence'] = None
+                self._log(record)
             self._save_cookies()
             if pending_marked and signal in ('rate_limit', 'lock'):
                 _write_origin_state(self.manifest['origin'], None)
@@ -701,7 +737,7 @@ def _sse_events(raw):
                 return None
             events.append(event)
         return None
-    except (UnicodeError, ValueError):
+    except (UnicodeError, ValueError, RecursionError):
         return None
 
 
