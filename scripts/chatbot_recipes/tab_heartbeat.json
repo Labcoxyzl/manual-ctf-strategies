@@ -1,0 +1,25 @@
+{
+  "allow_state_change": true,
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "bootstrap": {
+    "path": "/REPLACE_CLAIM_PATH",
+    "encoding": "json",
+    "body": {"force": false},
+    "token_field": "tab_token",
+    "chat_field": "tab_token",
+    "header": "X-Tab-Token"
+  },
+  "heartbeat": {
+    "path": "/REPLACE_HEARTBEAT_PATH",
+    "encoding": "json",
+    "body": {},
+    "token_field": "tab_token",
+    "success_status": 204,
+    "interval_seconds": 0
+  }
+}

@@ -41,6 +41,18 @@ def main(argv=None):
     web.add_argument('--request-file', required=True)
     web.add_argument('--scope-origin', required=True)
     web.add_argument('--budget', type=float, default=180)
+    web.add_argument('--wordlist', help='private file of at most 32 explicit discovery words')
+    web.add_argument('--kind', choices=('path', 'parameter', 'vhost'), default='path')
+    web.add_argument('--lead-kind', choices=('traversal', 'template'),
+                     help='run one selected WEB05 differential check')
+    web.add_argument('--parameter', help='existing query parameter selected for WEB05')
+    web.add_argument('--probe-value', help='one explicitly selected relative file path for traversal')
+    web.add_argument('--expected', help='response marker for WEB05; 323 for template')
+    web.add_argument('--syntax', choices=('braces', 'dollar'),
+                     help='arithmetic template syntax for WEB05')
+    web.add_argument('--max-requests', type=int, default=34)
+    web.add_argument('--rate', type=float, default=5, help='maximum requests per second, at most 20')
+    web.add_argument('--runs-root', help='directory for private run records')
     service = commands.add_parser('service', help='analyze an explicitly scoped service')
     service.add_argument('--host', required=True)
     endpoints = service.add_mutually_exclusive_group(required=True)
@@ -49,6 +61,7 @@ def main(argv=None):
     service.add_argument('--protocol')
     service.add_argument('--enumerate', action='store_true')
     service.add_argument('--budget', type=float, default=120)
+    service.add_argument('--runs-root', help='directory for private run records')
     chatbot = commands.add_parser('chatbot', help='inspect and probe an authorized chatbot origin')
     chatbot.add_argument('--origin', required=True)
     chatbot.add_argument('--protocol', help='private JSON request/response shape and optional auth')
@@ -76,6 +89,15 @@ def main(argv=None):
                                                      protocol_path=args.protocol,
                                                      max_requests=args.max_requests,
                                                      max_prompts=args.max_prompts)
+            elif manifest.get('run_type') == 'service':
+                from autosolve_lib import service as service_module
+                run, status = service_module.resume(args.run)
+            elif manifest.get('run_type') == 'service_inventory':
+                from autosolve_lib import service_inventory as inventory_module
+                run, status = inventory_module.resume(args.run)
+            elif manifest.get('run_type') in ('web_discovery', 'web_leads'):
+                from autosolve_lib import web as web_module
+                run, status = web_module.resume(args.run)
             else:
                 run, status = core.resume(args.run, budget=args.budget, hints_path=args.hints)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
@@ -85,6 +107,15 @@ def main(argv=None):
             if manifest.get('category') == 'ai_chatbot':
                 from autosolve_lib.profiles import chatbot as chatbot_module
                 path = chatbot_module.report(args.run)
+            elif manifest.get('run_type') == 'service':
+                from autosolve_lib import service as service_module
+                path = service_module.report(args.run)
+            elif manifest.get('run_type') == 'service_inventory':
+                from autosolve_lib import service_inventory as inventory_module
+                path = inventory_module.report(args.run)
+            elif manifest.get('run_type') in ('web_discovery', 'web_leads'):
+                from autosolve_lib import web as web_module
+                path = web_module.report(args.run)
             else:
                 path = core.report(args.run)
             result, code = {'status': 'complete', 'report': str(path)}, 0
@@ -106,10 +137,34 @@ def main(argv=None):
         elif args.command == 'chatbot-strategies':
             from autosolve_lib.profiles.chatbot_strategies import listing
             result, code = {'status': 'complete', 'strategies': listing()}, 0
+        elif args.command == 'web':
+            from autosolve_lib import web as web_module
+            run, status = web_module.start(args.request_file, args.scope_origin, args.budget,
+                                           args.wordlist, args.kind, args.max_requests,
+                                           args.rate, args.runs_root, lead_kind=args.lead_kind,
+                                           parameter=args.parameter, probe_value=args.probe_value,
+                                           expected=args.expected, syntax=args.syntax)
+            result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
+            code = 3
+        elif args.command == 'service':
+            if args.enumerate:
+                if args.ports is None:
+                    raise ValueError('service --enumerate requires --ports')
+                from autosolve_lib import service_inventory as inventory_module
+                run, status = inventory_module.start(args.host, args.ports,
+                                                     args.budget, args.runs_root,
+                                                     protocol_path=args.protocol)
+            else:
+                if args.port is None:
+                    raise ValueError('service framing requires --port and --protocol')
+                from autosolve_lib import service as service_module
+                run, status = service_module.start(args.host, args.port, args.protocol,
+                                                   args.budget, args.runs_root)
+            result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
+            code = 3
         else:
             result = {'status': 'unsupported', 'reason': f'{args.command} adapter is not implemented',
-                      'scope': {'origin': args.scope_origin} if args.command == 'web'
-                      else {'host': args.host, 'port': args.port, 'ports': args.ports}}
+                      'scope': {'host': args.host, 'port': args.port, 'ports': args.ports}}
             code = 3
     except (core.InvalidInput, core.RunBusy, ValueError) as error:
         result, code = {'status': 'invalid_input', 'reason': str(error)}, 2
@@ -119,7 +174,7 @@ def main(argv=None):
         result, code = {'status': 'failed', 'reason': f'{type(error).__name__}: {error.strerror}'}, 1
     if args.json:
         print(json.dumps(result, sort_keys=True))
-    elif args.command == 'report' and code == 0:
+    elif args.command == 'report' and code == 0 and manifest.get('category') != 'ai_chatbot':
         print(path.read_text(), end='')
     else:
         print(json.dumps(result, indent=2, sort_keys=True))

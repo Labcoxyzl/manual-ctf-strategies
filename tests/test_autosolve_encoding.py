@@ -68,6 +68,38 @@ class EncodingTests(unittest.TestCase):
         self.assertFalse(any(name == "decimal-bytes" for _, name in decode(b"72 105 33", 100)))
         self.assertFalse(any(name == "decimal-bytes" for _, name in decode(b"dec: 72 256 33", 100)))
 
+    def test_classical_candidates_preserve_case_punctuation_and_parameters(self):
+        for source, oracle, label in (
+            (b"Tlla ha uvvu, iypun aol thw.", b"Meet at noon, bring the map.", "caesar-shift:-7"),
+            (b"Svool, Dliow!", b"Hello, World!", "atbash"),
+            (b"Rclla, Oaplx!", b"Hello, World!", "affine-decrypt:a=5,b=8"),
+        ):
+            with self.subTest(label=label):
+                self.assertTrue(any(value == oracle and operation.startswith(label) and
+                                    "hypothesis" in operation for value, operation in decode(source, 100)))
+
+    def test_classical_flag_candidate_with_short_mixed_text(self):
+        source = b"JXGU{Ue_2-Yzqh!}"
+        self.assertTrue(any(value == b"FLAG{Go_2-Exit!}" and
+                            operation.startswith("affine-decrypt:a=11,b=6") for value, operation in
+                            decode(source, 100)))
+
+    def test_classical_ascii_alphabet_preserves_non_english_utf8_payload(self):
+        source = "SZH{Sihé_ñ}".encode()
+        self.assertTrue(any(value == "CTF{Café_ñ}".encode() and
+                            operation.startswith("affine-decrypt:a=5,b=8") for value, operation in
+                            decode(source, 100)))
+
+    def test_classical_candidates_are_bounded_and_avoid_unrelated_text(self):
+        for source in (b"The quick brown fox jumps over the lazy dog.",
+                       b"qzxjvknpmrtsbcyglqzxjvknpmrtsbcygl"):
+            classical = [label for _, label in decode(source, 100)
+                         if label.startswith(("caesar-shift:", "affine-decrypt:", "atbash"))]
+            self.assertEqual(classical, [], source)
+        self.assertLessEqual(len(decode(b"Tlla ha uvvu, iypun aol thw.", 100)), 6)
+        self.assertFalse(any(label.startswith("affine-decrypt:") for _, label in
+                             decode(b"JXGU{Ue_2-Yzqh!}", 4)))
+
     def test_multiline_bits_skip_header_and_preserve_line_evidence(self):
         source = b"Decoded data:\n01001000\n01101001\nEnd of record\n"
         self.assertIn((b"Hi", "bit-text lines:2-3 bits:16"), decode(source, 2))

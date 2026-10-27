@@ -21,7 +21,9 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result["status"], "partial")
         self.assertEqual(result["engines"]["file"]["found"], False)
         self.assertEqual(result["engines"]["file"]["functional_probe"], "not_run")
-        self.assertEqual(result["engines"]["capa"]["reason"], "adapter_not_implemented")
+        self.assertEqual(result["engines"]["capa"]["reason"], "tool_missing_or_incompatible")
+        self.assertEqual(result["operations"]["malware_reversing.rule_matching"]["status"],
+                         "unavailable")
         run.assert_not_called()
 
     def test_file_probe_checks_options_and_magic_data_without_writing(self):
@@ -40,7 +42,8 @@ class SetupTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as empty_dir:
             with mock.patch.dict(os.environ, {"AUTOSOLVE_FILE": "/fake/file"}), \
-                 mock.patch.object(capabilities.shutil, "which", return_value="/fake/file") as which, \
+                 mock.patch.object(capabilities.shutil, "which",
+                                   side_effect=lambda name: "/fake/file" if name == "/fake/file" else None) as which, \
                  mock.patch.object(capabilities.subprocess, "run", side_effect=run):
                 original_cwd = os.getcwd()
                 try:
@@ -52,7 +55,7 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result["engines"]["file"]["status"], "ready")
         self.assertEqual(result["engines"]["file"]["discovery_source"], "override")
         self.assertEqual(result["engines"]["file"]["required_data"], "present")
-        which.assert_called_once_with("/fake/file")
+        self.assertIn(mock.call("/fake/file"), which.call_args_list)
         self.assertEqual(len(commands), 3)
         self.assertTrue(all(command[0] == "/fake/file" for command in commands))
 
@@ -100,11 +103,14 @@ class SetupTests(unittest.TestCase):
     def test_packet_probe_runs_offline_capture(self):
         result = capabilities.doctor(['packets'], self_test=True)
         self.assertEqual(result['operations']['packets.metadata']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['packets.objects']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['tshark']['status'], 'ready')
 
     def test_sqlite_probe_checks_row_from_private_copy(self):
         result = capabilities.doctor(['memory'], self_test=True)
         self.assertEqual(result['operations']['disk_memory.sqlite']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['disk_memory.disk_image']['functional_probe'], 'passed')
+        self.assertEqual(result['engines']['tsk']['status'], 'ready')
 
 
 if __name__ == "__main__":
