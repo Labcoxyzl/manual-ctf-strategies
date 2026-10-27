@@ -80,6 +80,28 @@ output contains only status and file paths, including for `report`. `--max-reque
 also caps each response at 128 KiB, each request body at 128 KiB, and its
 transcript at 2 MiB.
 
+One live owner lock is held for each authorized origin across runs from the
+same local user account, even when run directories differ. A second live start
+or resume exits busy before sending requests; dry runs remain independent.
+The lock and its private state live under the account's `~/.local/state`
+directory, independent of the process `HOME` setting. A `Retry-After` cooldown
+also applies to fresh runs at that origin, including lock-labeled 429 replies.
+An uncertain POST leaves a private origin marker after the client exits. New
+live runs stay blocked, while resuming the recorded run can make a read-only
+history/status check. Once you have checked that the server-side attempt is no
+longer active, release that origin explicitly:
+
+```sh
+python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 10
+python3 scripts/autosolve.py chatbot-release-origin .autosolve/runs/RUN_ID
+```
+
+The release command makes no network request and never replays the POST. It
+does not validate challenge success or bypass an active Retry-After cooldown.
+The lock is conservative for separate
+identities at one exact origin; aliases, machines and user accounts still need
+a single human-assigned chat owner.
+
 If the frontend requires one login, claim, or token-exchange POST before chat,
 add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.json).
 It declares the exact path/body and, when needed, the response token field to

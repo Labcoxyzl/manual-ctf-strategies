@@ -7,6 +7,7 @@ import http.cookiejar
 import json
 import math
 import os
+import pwd
 import re
 import shlex
 import signal
@@ -60,6 +61,87 @@ def _origin(value):
     if ':' in host:
         host = f'[{host}]'
     return f'{parsed.scheme}://{host}' + (f':{port}' if port and (parsed.scheme, port) not in (('http', 80), ('https', 443)) else '')
+
+
+def _origin_lock_paths(origin):
+    locks = Path(pwd.getpwuid(os.getuid()).pw_dir) / '.local' / 'state' / 'sgco-autosolve' / 'chatbot-origin-locks'
+    locks.mkdir(parents=True, mode=0o700, exist_ok=True)
+    if locks.is_symlink() or locks.stat().st_uid != os.getuid():
+        raise core.InvalidInput('chatbot origin lock directory must be owned by the current user')
+    locks.chmod(0o700)
+    name = hashlib.sha256(origin.encode()).hexdigest()
+    return locks / f'{name}.lock', locks / f'{name}.json'
+
+
+def _origin_state(origin):
+    _, path = _origin_lock_paths(origin)
+    if path.is_symlink():
+        raise core.InvalidInput('chatbot origin lock state cannot be a symlink')
+    if not path.exists():
+        return None
+    if not path.is_file() or path.stat().st_size > 4096:
+        raise core.InvalidInput('chatbot origin lock state is not a small regular file')
+    try:
+        state = json.loads(path.read_bytes())
+    except (UnicodeError, ValueError) as error:
+        raise core.InvalidInput('chatbot origin lock state is unreadable') from error
+    if not isinstance(state, dict) or state.get('pending') is not True or not isinstance(state.get('run'), str):
+        raise core.InvalidInput('chatbot origin lock state is invalid')
+    return state
+
+
+def _write_origin_state(origin, state):
+    _, path = _origin_lock_paths(origin)
+    if state and len(json.dumps(state, sort_keys=True).encode()) > 4096:
+        raise core.InvalidInput('chatbot origin lock state exceeds limit')
+    if state:
+        core._write_json(path, state)
+    else:
+        path.unlink(missing_ok=True)
+
+
+def _origin_cooldown(origin):
+    lock, _ = _origin_lock_paths(origin)
+    path = lock.with_suffix('.cooldown.json')
+    if path.is_symlink():
+        raise core.InvalidInput('chatbot origin cooldown cannot be a symlink')
+    if not path.exists():
+        return 0
+    if not path.is_file() or path.stat().st_size > 256:
+        raise core.InvalidInput('chatbot origin cooldown is not a small regular file')
+    try:
+        value = json.loads(path.read_bytes())['until']
+    except (KeyError, TypeError, UnicodeError, ValueError) as error:
+        raise core.InvalidInput('chatbot origin cooldown is unreadable') from error
+    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+        raise core.InvalidInput('chatbot origin cooldown is invalid')
+    return value
+
+
+def _set_origin_cooldown(origin, until):
+    lock, _ = _origin_lock_paths(origin)
+    core._write_json(lock.with_suffix('.cooldown.json'), {'until': max(until, _origin_cooldown(origin))})
+
+
+def _claim_origin(origin, run=None, *, allow_pending=False, ignore_cooldown=False):
+    lock, _ = _origin_lock_paths(origin)
+    fd = os.open(lock,
+                 os.O_CREAT | os.O_RDWR | getattr(os, 'O_NOFOLLOW', 0), 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as error:
+        os.close(fd)
+        raise core.RunBusy('another live chatbot run owns this origin; wait for it to finish') from error
+    try:
+        state = _origin_state(origin)
+        if state and (not allow_pending or state['run'] != str(Path(run).absolute())):
+            raise core.RunBusy(f"origin has an unresolved POST from {state['run']}; inspect its status before releasing the origin")
+        if not ignore_cooldown and _origin_cooldown(origin) > time.time():
+            raise core.InvalidInput('Retry-After cooldown is still active for this origin; resume later')
+    except Exception:
+        os.close(fd)
+        raise
+    return fd
 
 
 def _path(value):
@@ -353,14 +435,20 @@ def _deadline(seconds):
 
 
 class Client:
-    def __init__(self, run, manifest, config, deadline):
+    def __init__(self, run, manifest, config, deadline, owner_fd):
+        if owner_fd is None:
+            raise core.InvalidInput('live chatbot requires an origin owner lock')
         self.run, self.manifest, self.config, self.deadline = run, manifest, config, deadline
+        self.origin_pending = bool(_origin_state(manifest['origin']))
+        self.pending_probe = None
         self.cookies = http.cookiejar.LWPCookieJar(str(run / 'cookies.txt'))
         if (run / 'cookies.txt').exists():
             self.cookies.load(ignore_discard=True, ignore_expires=True)
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies), _NoRedirect())
 
     def request(self, method, path, *, body=None, encoding='json', probe='inspect'):
+        if method != 'GET' and self.pending_probe is not None:
+            return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
         url = self.manifest['origin'] + path
         headers = dict(self.config.get('headers', {}))
@@ -390,11 +478,18 @@ class Client:
                     logged_body[key] = '[redacted]'
         logged_headers = {key: value if key.lower() == 'content-type' else '[redacted]' for key, value in headers.items()}
         redirects = 0
+        stateful = method != 'GET'
+        pending_marked = False
         while True:
             if self.manifest['request_count'] >= self.manifest['max_requests'] or time.monotonic() >= self.deadline:
                 return {'signal': 'budget', 'status': None}
             self.manifest['request_count'] += 1  # Charge before dispatch; a timeout can still mutate server state.
             core._write_json(self.run / 'manifest.json', self.manifest)
+            if stateful and not pending_marked:
+                _write_origin_state(self.manifest['origin'], {'pending': True, 'run': str(self.run.absolute()),
+                                                               'probe': probe, 'at': time.time()})
+                pending_marked = True
+                self.pending_probe = probe
             start = time.monotonic()
             request = urllib.request.Request(url, data=data, headers=headers, method=method)
             try:
@@ -451,15 +546,30 @@ class Client:
                 pass
             if signal == 'rate_limit' and isinstance(parsed, dict) and any(word in json.dumps(parsed).lower() for word in ('already in progress', 'active_other_tab', 'comms_locked')):
                 signal = 'lock'
-            retry_after = response_headers.get('Retry-After') if status == 429 else None
-            if retry_after is None and signal == 'rate_limit' and isinstance(parsed, dict):
+            retry_after = response_headers.get('Retry-After') if status in (409, 429) else None
+            if retry_after is None and status in (409, 429) and isinstance(parsed, dict):
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
             record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()}, 'tool_call_evidence': _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'), 'retry_after': retry_after}
-            if signal == 'rate_limit':
-                self.manifest['cooldown_until'] = time.time() + (_retry_seconds(retry_after) or 60)
+            delay = _retry_seconds(retry_after)
+            if delay is None and signal == 'rate_limit':
+                delay = 60
+            if delay is not None:
+                self.manifest['cooldown_until'] = time.time() + delay
+                _set_origin_cooldown(self.manifest['origin'], self.manifest['cooldown_until'])
             self._log(record)
             self._save_cookies()
+            if pending_marked and signal in ('rate_limit', 'lock'):
+                _write_origin_state(self.manifest['origin'], None)
+                self.pending_probe = None
             return record
+
+    def confirm_post(self):
+        state = _origin_state(self.manifest['origin'])
+        if (self.pending_probe is None or not state or state['run'] != str(self.run.absolute()) or
+                state.get('probe') != self.pending_probe):
+            raise core.InvalidInput('no matching chatbot POST to confirm')
+        _write_origin_state(self.manifest['origin'], None)
+        self.pending_probe = None
 
     def _save_cookies(self):
         self.cookies.save(ignore_discard=True, ignore_expires=True)
@@ -641,6 +751,7 @@ def _bootstrap(client):
             m['stop_reason'] = 'bootstrap token missing or invalid'
             return
         m['bootstrap_token'] = token
+    client.confirm_post()
     m['bootstrap_completed'] = True
     core._write_json(client.run / 'manifest.json', m)
 
@@ -669,6 +780,7 @@ def _heartbeat(client, due):
             ('success_field' in config and not _same_json(_nested(result.get('response'), config['success_field'], _MISSING), config['success_value']))):
         m['stop_reason'] = 'heartbeat unconfirmed'
         return False
+    client.confirm_post()
     m['heartbeat_pending'] = False
     m['heartbeat_last_at'] = time.time()
     core._write_json(client.run / 'manifest.json', m)
@@ -680,6 +792,19 @@ def _run(client):
     strategy_steps = ({step['id']: step for step in strategy_plan(m['strategy'], client.config.get('strategy_params', {}),
                        m.get('strategy_marker'), m['origin'], client.config.get('authorized_destinations', []),
                        client.config.get('allow_state_change', False))} if m.get('strategy') else {})
+    if client.origin_pending:
+        check = client.config.get('history_path') or client.config.get('status_path')
+        checked = ('bootstrap_checked' if m.get('bootstrap_started') and not m.get('bootstrap_completed') else
+                   'heartbeat_checked' if m.get('heartbeat_pending') else
+                   'chat_timeout_checked' if m.get('chat_timeout_pending') else 'origin_checked')
+        if check and not m.get(checked):
+            result = client.request('GET', check, probe='origin-unresolved-status-check')
+            m[checked] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
+        m['stop_reason'] = ('bootstrap outcome uncertain; inspect session state before a new run' if checked == 'bootstrap_checked' else
+                            'heartbeat outcome uncertain; inspect session state before a new run' if checked == 'heartbeat_checked' else
+                            'chat timed out; inspect history/status before any retry' if checked == 'chat_timeout_checked' else
+                            'origin POST unresolved; inspect history/status and release origin before new sends')
+        return
     if m.get('heartbeat_pending'):
         check = client.config.get('history_path') or client.config.get('status_path')
         if check and not m.get('heartbeat_checked'):
@@ -742,6 +867,10 @@ def _run(client):
                                     'score': score if valid_score else None,
                                     'redirect_hops': result.get('redirect_hops', 0),
                                     'evidence_line': m['transcript_lines']})
+            if (spec['method'] == 'POST' and result.get('status') in range(200, 300) and
+                    not result.get('signal') and not result.get('redirect_hops') and
+                    (spec['expect'] is None or matched) and (not spec.get('score_field') or valid_score)):
+                client.confirm_post()
             response_text = json.dumps(result.get('response'), ensure_ascii=False)[:MAX_RESPONSE]
             for hit in SECRET.finditer(response_text):
                 m['candidates'].append({'kind': 'secret-shaped API text', 'sha256': hashlib.sha256(hit.group().encode()).hexdigest(),
@@ -754,6 +883,8 @@ def _run(client):
                 m['stop_reason'] = f"API {result['signal']}"
             elif spec.get('score_field') and not valid_score:
                 m['stop_reason'] = 'model score unavailable'
+            elif spec['method'] == 'POST' and client.pending_probe is not None:
+                m['stop_reason'] = 'API POST outcome uncertain; inspect state before another action'
             elif not spec['continue_on_error'] and (result.get('status') not in range(200, 300) or
                                                     (spec['expect'] is not None and not matched)):
                 m['stop_reason'] = 'API expectation unmet'
@@ -773,6 +904,7 @@ def _run(client):
                     ('success_field' in inj and not _same_json(_nested(write.get('response'), inj['success_field'], _MISSING), inj['success_value']))):
                 m['stop_reason'] = 'injection write unconfirmed'
                 break
+            client.confirm_post()
             m['injection_summary']['write_response_matched'] = True
             prompt = inj['trigger_prompt']
         else:
@@ -802,6 +934,9 @@ def _run(client):
                 m['chat_timeout_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
             m['stop_reason'] = 'chat timed out; inspect history/status before any retry'
             break
+        if record.get('redirect_hops'):
+            m['stop_reason'] = 'chat redirected; inspect target state before continuing'
+            break
         m['completed'].append(probe)
         if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'budget', 'network_error', 'log_limit'):
             m['stop_reason'] = record['signal']
@@ -816,6 +951,7 @@ def _run(client):
             if text is None:
                 m['stop_reason'] = 'ambiguous response; supply response_field'
             else:
+                client.confirm_post()
                 hits = _candidate(record, text, m)
                 if not m.get('strategy') and 'lanes' not in client.config and probe in ('baseline', 'capability'):
                     for lane in _lane_clues(text) + m.get('lane_clues', []):
@@ -859,7 +995,11 @@ def _run(client):
                         method = verify.get('method', 'GET')
                         payload = {verify['candidate_field']: candidate} if method == 'POST' else None
                         check = client.request(method, verify['path'], body=payload, probe='verification')
-                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and not check.get('redirect_hops') and _same_json(_nested(check.get('response'), verify['success_field'], _MISSING), verify['success_value'])
+                        check_value = _nested(check.get('response'), verify['success_field'], _MISSING)
+                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and not check.get('redirect_hops') and _same_json(check_value, verify['success_value'])
+                        if (method == 'POST' and check.get('status') in range(200, 300) and not check.get('signal') and
+                                not check.get('redirect_hops') and check_value is not _MISSING):
+                            client.confirm_post()
                         m['verification_checks'].append({'path': _display_path(verify['path']), 'status': check.get('status'),
                                                          'redirect_hops': check.get('redirect_hops', 0),
                                                          'accepted': accepted, 'evidence_line': m['transcript_lines'] if check.get('signal') != 'budget' else None})
@@ -969,7 +1109,7 @@ def _render(run, m):
     (run / 'report.md').write_text('\n'.join(lines))
 
 
-def _execute(run, config, budget, held_lock=None):
+def _execute(run, config, budget, held_lock=None, origin_fd=None):
     owns_lock = held_lock is None
     lock_fd = os.open(run / '.lock', os.O_CREAT | os.O_RDWR, 0o600) if owns_lock else held_lock
     try:
@@ -980,7 +1120,7 @@ def _execute(run, config, budget, held_lock=None):
                 raise core.RunBusy(f'run is already active: {run}') from error
         m = json.loads((run / 'manifest.json').read_text())
         if not m['dry_run']:
-            client = Client(run, m, config, time.monotonic() + budget)
+            client = Client(run, m, config, time.monotonic() + budget, origin_fd)
             _run(client)
         m['status'] = 'complete' if m['dry_run'] or (len(m['completed']) == len(m['queue']) and not m.get('stop_reason')) or m.get('stop_reason') == 'checker accepted' else 'partial'
         core._write_json(run / 'manifest.json', m)
@@ -1008,39 +1148,44 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
              if strategy else [])
     injection_file_sha256 = (hashlib.sha256(_injection_bytes(config['injection']['file_path'])).hexdigest()
                              if config.get('injection', {}).get('encoding') == 'multipart' else None)
-    root = Path(runs_root) if runs_root else core.ROOT / '.autosolve' / 'runs'
-    run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
-    run.mkdir(parents=True, mode=0o700)
-    (run / 'transcript.jsonl').touch(mode=0o600)
-    chat = config.get('chat', {})
-    manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
-                'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
-                'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
-                'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
-                'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
-                                      'encoding': config['bootstrap'].get('encoding', 'json'),
-                                      'success_status': config['bootstrap']['success_status']} if config.get('bootstrap') else None,
-                'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_checked': False, 'bootstrap_token': None,
-                'heartbeat_summary': {'path': config['heartbeat']['path'],
-                                      'body_fields': sorted(set(config['heartbeat']['body']) | ({config['heartbeat']['token_field']} if config['heartbeat'].get('token_field') else set())),
-                                      'encoding': config['heartbeat'].get('encoding', 'json'),
-                                      'interval_seconds': config['heartbeat'].get('interval_seconds', 0)} if config.get('heartbeat') else None,
-                'heartbeat_pending': False, 'heartbeat_last_at': None,
-                'chat_timeout_pending': False, 'chat_timeout_checked': False,
-                'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
-                'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
-                'strategy': strategy, 'strategy_marker': marker,
-                'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection') if key in step}
-                                  | ({'body_fields': sorted(step['body']) if isinstance(step.get('body'), dict) else []} if step['kind'] == 'api' else {})
-                                  for step in steps],
-                'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
-                'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
-                'injection_file_sha256': injection_file_sha256,
-                'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],
-                'api_checks': [], 'behavior_observations': [],
-                'status': 'new', 'stop_reason': None}
-    core._write_json(run / 'manifest.json', manifest)
-    return _execute(run, config, budget)
+    owner_fd = _claim_origin(origin) if not dry_run else None
+    try:
+        root = Path(runs_root) if runs_root else core.ROOT / '.autosolve' / 'runs'
+        run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
+        run.mkdir(parents=True, mode=0o700)
+        (run / 'transcript.jsonl').touch(mode=0o600)
+        chat = config.get('chat', {})
+        manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
+                    'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
+                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
+                    'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
+                    'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
+                                          'encoding': config['bootstrap'].get('encoding', 'json'),
+                                          'success_status': config['bootstrap']['success_status']} if config.get('bootstrap') else None,
+                    'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_checked': False, 'bootstrap_token': None,
+                    'heartbeat_summary': {'path': config['heartbeat']['path'],
+                                          'body_fields': sorted(set(config['heartbeat']['body']) | ({config['heartbeat']['token_field']} if config['heartbeat'].get('token_field') else set())),
+                                          'encoding': config['heartbeat'].get('encoding', 'json'),
+                                          'interval_seconds': config['heartbeat'].get('interval_seconds', 0)} if config.get('heartbeat') else None,
+                    'heartbeat_pending': False, 'heartbeat_last_at': None,
+                    'chat_timeout_pending': False, 'chat_timeout_checked': False,
+                    'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
+                    'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
+                    'strategy': strategy, 'strategy_marker': marker,
+                    'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection') if key in step}
+                                      | ({'body_fields': sorted(step['body']) if isinstance(step.get('body'), dict) else []} if step['kind'] == 'api' else {})
+                                      for step in steps],
+                    'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
+                    'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
+                    'injection_file_sha256': injection_file_sha256,
+                    'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],
+                    'api_checks': [], 'behavior_observations': [],
+                    'status': 'new', 'stop_reason': None}
+        core._write_json(run / 'manifest.json', manifest)
+        return _execute(run, config, budget, origin_fd=owner_fd)
+    finally:
+        if owner_fd is not None:
+            os.close(owner_fd)
 
 
 def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_prompts=None):
@@ -1069,23 +1214,23 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
             raise core.InvalidInput('dry-run cannot be resumed live')
         if m.get('cooldown_until', 0) > time.time():
             raise core.InvalidInput('Retry-After cooldown is still active; resume later')
-        if (m.get('stop_reason') in ('bootstrap unconfirmed', 'heartbeat unconfirmed') or
-                m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
-                m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked') or
-                m.get('stop_reason') == 'chat timed out; inspect history/status before any retry' and not m.get('chat_timeout_checked')) and (config.get('history_path') or config.get('status_path')):
+        owner_fd = _claim_origin(m['origin'], run, allow_pending=True)
+        try:
+            pending = bool(_origin_state(m['origin']))
+            safe_check = (m.get('stop_reason') in ('bootstrap unconfirmed', 'heartbeat unconfirmed') or
+                          m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
+                          m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked') or
+                          m.get('stop_reason') == 'chat timed out; inspect history/status before any retry' and not m.get('chat_timeout_checked')) and (config.get('history_path') or config.get('status_path'))
+            if not pending and not safe_check and (m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'chat redirected; inspect target state before continuing', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'origin POST unresolved; inspect history/status and release origin before new sends', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check '))):
+                _render(run, m)
+                return run, m['status']
             m['max_requests'] = max_requests or m['max_requests']
             m['max_prompts'] = max_prompts or m['max_prompts']
             m['stop_reason'] = None
             core._write_json(run / 'manifest.json', m)
-            return _execute(run, config, budget, held_lock=lock_fd)
-        if m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check ')):
-            _render(run, m)
-            return run, m['status']
-        m['max_requests'] = max_requests or m['max_requests']
-        m['max_prompts'] = max_prompts or m['max_prompts']
-        m['stop_reason'] = None
-        core._write_json(run / 'manifest.json', m)
-        return _execute(run, config, budget, held_lock=lock_fd)
+            return _execute(run, config, budget, held_lock=lock_fd, origin_fd=owner_fd)
+        finally:
+            os.close(owner_fd)
     finally:
         os.close(lock_fd)
 
@@ -1097,3 +1242,29 @@ def report(run_path):
         raise core.InvalidInput('not a chatbot run')
     _render(run, m)
     return run / 'report.md'
+
+
+def release_origin(run_path):
+    run = Path(run_path).absolute()
+    lock_fd = os.open(run / '.lock', os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        try:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise core.RunBusy(f'run is already active: {run}') from error
+        m = json.loads((run / 'manifest.json').read_text())
+        if m.get('category') != 'ai_chatbot' or m.get('schema_version') != core.SCHEMA:
+            raise core.InvalidInput('not a compatible chatbot run')
+        owner_fd = _claim_origin(m['origin'], run, allow_pending=True, ignore_cooldown=True)
+        try:
+            if not _origin_state(m['origin']):
+                raise core.InvalidInput('this run has no unresolved origin POST')
+            _write_origin_state(m['origin'], None)
+            m['origin_released_at'] = time.time()
+            core._write_json(run / 'manifest.json', m)
+            _render(run, m)
+            return run
+        finally:
+            os.close(owner_fd)
+    finally:
+        os.close(lock_fd)

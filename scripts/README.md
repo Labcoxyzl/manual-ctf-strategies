@@ -92,6 +92,8 @@ python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
 The protocol can also set `headers` for auth, `csrf_cookie`/`csrf_header` inside
 `chat`, `client_id_field`, one explicit `bootstrap` login or tab-claim, and a
 declared serial `heartbeat` before chat when the frontend requires it.
+An uncertain POST blocks new live runs at the same origin until its recorded
+run is reviewed and `chatbot-release-origin RUN_ID` is called.
 Use `chat.static_fields` for any fixed JSON or form body fields shown by the
 frontend; their request values are redacted in the private transcript, while
 raw responses remain available as evidence.

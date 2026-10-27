@@ -2,6 +2,9 @@
 
 import json
 import fcntl
+import hashlib
+import os
+import pwd
 import re
 import subprocess
 import sys
@@ -26,6 +29,10 @@ class Toy:
         self.completed = False
         self.marker = ''
         self.heartbeat_count = 0
+        self.active_posts = 0
+        self.peak_posts = 0
+        self.active_lock = threading.Lock()
+        self.post_started = threading.Event()
         self.threads = []
         toy = self
 
@@ -78,7 +85,7 @@ class Toy:
                     self.send(200, {'sourcesContent': ['fetch("/api/utter", {method:"POST", body: JSON.stringify({query: value})})']})
                 elif self.path == '/history':
                     if toy.mode == 'heartbeat_history_partial' or toy.mode == 'timeout_check_partial' and any(
-                            method == 'POST' and path == '/api/utter' for method, path in toy.calls):
+                            method == 'POST' and path == '/api/utter' for method, path in toy.calls) or toy.mode == 'slow_owner' and toy.active_posts:
                         self.send(200, b'{"messages":[]}' + b' ' * 140_000)
                     else:
                         self.send(200, {'messages': toy.received, 'in_progress': toy.mode == 'timeout' and not toy.completed, 'complete': toy.completed})
@@ -183,6 +190,9 @@ class Toy:
                 if self.path == '/apply' and toy.mode == 'api_redirect':
                     self.send(302, b'', {'Location': '/check-result'})
                     return
+                if self.path == '/apply' and toy.mode == 'api_error_after_apply':
+                    self.send(500, {'complete': False})
+                    return
                 if self.path == '/api/v2/collections/example/get':
                     self.send(200, {'documents': ['toy document'], 'metadatas': [{'tier': 'public'}]})
                     return
@@ -226,11 +236,29 @@ class Toy:
                 if toy.mode == 'rate_body':
                     self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
                     return
+                if toy.mode == 'rate_short':
+                    self.send(429, {'error': 'cooldown', 'retry_after_sec': .8})
+                    return
                 if toy.mode == 'rate_huge':
                     self.send(429, {'error': 'cooldown'}, {'Retry-After': '9' * 500})
                     return
                 if toy.mode == 'rate_lock':
                     self.send(429, {'error': 'Another request is already in progress'})
+                    return
+                if toy.mode == 'rate_lock_with_retry':
+                    self.send(429, {'error': 'Another request is already in progress'}, {'Retry-After': '1'})
+                    return
+                if toy.mode == 'slow_owner':
+                    with toy.active_lock:
+                        toy.active_posts += 1
+                        toy.peak_posts = max(toy.peak_posts, toy.active_posts)
+                    toy.post_started.set()
+                    try:
+                        time.sleep(1.2)
+                        self.send(200, {'reply': 'role: assistant'})
+                    finally:
+                        with toy.active_lock:
+                            toy.active_posts -= 1
                     return
                 if toy.mode in ('timeout', 'timeout_check_partial'):
                     time.sleep(.18)
@@ -310,6 +338,7 @@ class Toy:
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
 
     def __enter__(self):
+        self.clear_origin_state()
         self.thread.start()
         return self
 
@@ -317,11 +346,19 @@ class Toy:
         self.server.shutdown()
         self.server.server_close()
         self.thread.join()
+        self.clear_origin_state()
+
+    def clear_origin_state(self):
+        locks = Path(pwd.getpwuid(os.getuid()).pw_dir) / '.local' / 'state' / 'sgco-autosolve' / 'chatbot-origin-locks'
+        name = hashlib.sha256(self.origin.encode()).hexdigest()
+        for suffix in ('.json', '.cooldown.json'):
+            (locks / f'{name}{suffix}').unlink(missing_ok=True)
 
 
 class ChatbotCLITests(unittest.TestCase):
-    def run_cli(self, root, *args, code=None):
-        result = subprocess.run([sys.executable, '-B', str(SCRIPT), '--json', *map(str, args)], capture_output=True, timeout=12)
+    def run_cli(self, root, *args, code=None, env=None):
+        result = subprocess.run([sys.executable, '-B', str(SCRIPT), '--json', *map(str, args)],
+                                capture_output=True, timeout=12, env=env)
         if code is not None:
             self.assertEqual(result.returncode, code, result.stderr + result.stdout)
         return json.loads(result.stdout), result.returncode
@@ -426,10 +463,11 @@ class ChatbotCLITests(unittest.TestCase):
 
     def test_form_discovery_fragmented_reply_and_resume_without_replay(self):
         with tempfile.TemporaryDirectory() as root, Toy('form') as toy:
-            discovered, _, code = self.start(root, toy, requests=2)
+            discovered, discovered_run, code = self.start(root, toy, requests=2)
             self.assertEqual(code, 3)
             self.assertEqual(discovered['discovered_chat']['path'], '/talk')
             self.assertEqual(discovered['stop_reason'], 'ambiguous response; supply response_field')
+            self.run_cli(root, 'chatbot-release-origin', discovered_run, code=0)
             protocol = self.protocol(root, {'chat': {'path': '/talk', 'encoding': 'form', 'message_field': 'question', 'response_field': 'payload.reply', 'conversation_field': 'thread', 'conversation_response_field': 'thread'}, 'lanes': ['capability', 'system']})
             m, run, code = self.start(root, toy, protocol, requests=2)
             self.assertEqual(code, 3)
@@ -489,8 +527,16 @@ class ChatbotCLITests(unittest.TestCase):
                 before = len(toy.calls)
                 self.run_cli(root, 'resume', run, '--budget', '5', code=3)
                 self.assertEqual(len(toy.calls), before)
+                second, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                            '--protocol', protocol, '--strategy', 'kb_injection',
+                                            '--budget', '5', '--max-requests', '15', '--max-prompts', '3',
+                                            '--runs-root', Path(root) / 'second-runs')
+                self.assertEqual(code, 2)
+                self.assertIn('unresolved POST', second['reason'])
+                self.assertEqual(sum(path == '/kb' for _, path in toy.calls), 1)
                 if mode == 'kb_redirect_write':
                     self.assertIn('"redirect_hops": 1', (run / 'transcript.jsonl').read_text())
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
         with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
             for bad, reason in (({key: value for key, value in config['injection'].items()
                                  if key != 'success_status'}, 'injection write needs an exact 2xx success_status'),
@@ -610,6 +656,30 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertIn('final HTTP 200, redirects=1', (run / 'report.md').read_text())
             self.assertIn(('GET', '/check-result'), toy.calls)
 
+    def test_redirected_or_server_error_post_keeps_origin_unresolved(self):
+        config = {'allow_state_change': True, 'strategy_params': {'steps': [
+            {'id': 'official', 'method': 'POST', 'path': '/apply', 'body': {'action': 'finish'},
+             'expect': {'field': 'complete', 'equals': True}, 'acceptance': True,
+             'continue_on_error': True},
+            {'id': 'again', 'method': 'POST', 'path': '/apply', 'body': {'action': 'again'},
+             'expect': {'field': 'complete', 'equals': True}, 'acceptance': True}]}}
+        for mode in ('api_redirect', 'api_error_after_apply'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, run, code = self.start(root, toy, protocol, strategy='api_plan')
+                self.assertEqual(code, 3)
+                self.assertFalse(m['validated'])
+                self.assertEqual(m['completed'], ['official'])
+                self.assertEqual(m['stop_reason'], 'API POST outcome uncertain; inspect state before another action')
+                second, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                            '--protocol', protocol, '--strategy', 'api_plan',
+                                            '--budget', '5', '--max-requests', '10', '--max-prompts', '1',
+                                            '--runs-root', Path(root) / 'second-runs')
+                self.assertEqual(code, 2)
+                self.assertIn('unresolved POST', second['reason'])
+                self.assertEqual(sum(path == '/apply' for _, path in toy.calls), 1)
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
+
     def test_missing_checker_field_is_not_equal_to_json_null(self):
         with tempfile.TemporaryDirectory() as root, Toy('missing_completion') as toy:
             protocol = self.protocol(root, {'strategy_params': {'steps': [
@@ -728,13 +798,16 @@ class ChatbotCLITests(unittest.TestCase):
             protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
                                                      'response_field': 'reply'}, 'lanes': []})
             m, run, code = self.start(root, toy, protocol)
-            self.assertEqual(code, 0)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'chat redirected; inspect target state before continuing')
+            self.assertEqual(m['completed'], [])
             records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
             self.assertEqual(len(records), m['request_count'])
             self.assertEqual([(row['request']['method'], row['status']) for row in records[-2:]],
                              [('POST', 303), ('GET', 200)])
             self.assertEqual(records[-2]['location'], '/result')
             self.assertIn('sid=rotated', (run / 'cookies.txt').read_text())
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
         with tempfile.TemporaryDirectory() as root, Toy('cookie_timeout') as toy:
             protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'}, 'lanes': []})
             m, run, code = self.start(root, toy, protocol, timeout=.05)
@@ -1105,6 +1178,176 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertIn('already active', result['reason'])
             self.assertEqual((run / 'manifest.json').read_bytes(), manifest)
             self.assertEqual(len(toy.calls), before)
+
+    def test_same_origin_live_runs_share_one_owner_across_run_directories(self):
+        with tempfile.TemporaryDirectory() as root, Toy('slow_owner') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': []})
+            partial, run, code = self.start(root, toy, protocol, requests=1, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(partial['prompt_count'], 0)
+            command = [sys.executable, '-B', str(SCRIPT), '--json', 'chatbot', '--origin', toy.origin,
+                       '--protocol', str(protocol), '--budget', '5', '--max-requests', '10',
+                       '--max-prompts', '1', '--runs-root', str(Path(root) / 'first-runs')]
+            (Path(root) / 'home-one').mkdir()
+            (Path(root) / 'home-two').mkdir()
+            first_env = {**os.environ, 'HOME': str(Path(root) / 'home-one')}
+            second_env = {**os.environ, 'HOME': str(Path(root) / 'home-two')}
+            first = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=first_env)
+            try:
+                self.assertTrue(toy.post_started.wait(4), 'first chat POST did not start')
+                second, second_code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                                    '--protocol', protocol, '--budget', '5',
+                                                    '--max-requests', '10', '--max-prompts', '1',
+                                                    '--runs-root', Path(root) / 'other-runs', env=second_env)
+                self.assertEqual(second_code, 2)
+                self.assertIn('owns this origin', second['reason'])
+                manifest_before = (run / 'manifest.json').read_bytes()
+                resumed, resumed_code = self.run_cli(root, 'resume', run, '--budget', '5',
+                                                     '--max-requests', '10', env=second_env)
+                self.assertEqual(resumed_code, 2)
+                self.assertIn('owns this origin', resumed['reason'])
+                self.assertEqual((run / 'manifest.json').read_bytes(), manifest_before)
+                before_dry = len(toy.calls)
+                dry, dry_code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                             '--protocol', protocol, '--budget', '5',
+                                             '--max-requests', '10', '--max-prompts', '1', '--dry-run',
+                                             '--runs-root', Path(root) / 'dry-runs')
+                self.assertEqual(dry_code, 0)
+                self.assertEqual(len(toy.calls), before_dry)
+                out, err = first.communicate(timeout=5)
+                self.assertEqual(first.returncode, 0, err + out)
+                self.assertEqual(toy.peak_posts, 1)
+                self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1)
+                toy.mode = 'normal'
+                self.run_cli(root, 'resume', run, '--budget', '5', '--max-requests', '10', code=0)
+                self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 2)
+            finally:
+                if first.poll() is None:
+                    first.kill()
+                    first.wait()
+
+    def test_timeout_keeps_origin_unresolved_until_explicit_release(self):
+        with tempfile.TemporaryDirectory() as root, Toy('slow_owner') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'history_path': '/history', 'lanes': []})
+            m, run, code = self.start(root, toy, protocol, timeout=.05, requests=12, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertTrue(m['chat_timeout_pending'])
+            self.assertFalse(m['chat_timeout_checked'])
+            self.assertEqual(toy.active_posts, 1)
+            second, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--budget', '5', '--max-requests', '12', '--max-prompts', '1',
+                                        '--runs-root', Path(root) / 'second-runs')
+            self.assertEqual(code, 2)
+            self.assertIn('unresolved POST', second['reason'])
+            before_post = sum(method == 'POST' for method, _ in toy.calls)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
+            deadline = time.monotonic() + 3
+            while toy.active_posts and time.monotonic() < deadline:
+                time.sleep(.02)
+            self.assertEqual(toy.active_posts, 0)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertTrue(json.loads((run / 'manifest.json').read_text())['chat_timeout_checked'])
+            still_blocked, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                               '--protocol', protocol, '--budget', '5',
+                                               '--max-requests', '12', '--max-prompts', '1',
+                                               '--runs-root', Path(root) / 'third-runs')
+            self.assertEqual(code, 2)
+            self.assertIn('unresolved POST', still_blocked['reason'])
+            released, code = self.run_cli(root, 'chatbot-release-origin', run)
+            self.assertEqual(code, 0)
+            self.assertTrue(released['origin_released'])
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
+            toy.mode = 'normal'
+            newer, _, code = self.start(root, toy, protocol, requests=12, prompts=1)
+            self.assertEqual(code, 0)
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post + 1)
+
+    def test_rate_limit_cooldown_applies_to_new_same_origin_runs(self):
+        with tempfile.TemporaryDirectory() as root, Toy('rate_short') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': []})
+            m, _, code = self.start(root, toy, protocol, requests=10, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'rate_limit')
+            before_post = sum(method == 'POST' for method, _ in toy.calls)
+            blocked, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                         '--budget', '5', '--max-requests', '10', '--max-prompts', '1',
+                                         '--runs-root', Path(root) / 'second-runs')
+            self.assertEqual(code, 2)
+            self.assertIn('cooldown', blocked['reason'])
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
+            time.sleep(.85)
+            again, _, code = self.start(root, toy, protocol, requests=10, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(again['stop_reason'], 'rate_limit')
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post + 1)
+
+    def test_definitive_409_and_429_lock_responses_do_not_leave_pending_marker(self):
+        for mode in ('lock', 'rate_lock'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                                'lanes': []})
+                m, _, code = self.start(root, toy, protocol, prompts=1)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], 'lock')
+                toy.mode = 'normal'
+                newer, _, code = self.start(root, toy, protocol, prompts=1)
+                self.assertEqual(code, 0)
+                self.assertEqual(newer['prompt_count'], 1)
+                self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 2)
+
+    def test_lock_labeled_429_still_honors_retry_after_across_runs(self):
+        with tempfile.TemporaryDirectory() as root, Toy('rate_lock_with_retry') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': []})
+            m, _, code = self.start(root, toy, protocol, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'lock')
+            blocked, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                         '--budget', '5', '--max-requests', '10', '--max-prompts', '1',
+                                         '--runs-root', Path(root) / 'second-runs')
+            self.assertEqual(code, 2)
+            self.assertIn('cooldown', blocked['reason'])
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1)
+            time.sleep(1.05)
+            toy.mode = 'normal'
+            newer, _, code = self.start(root, toy, protocol, prompts=1)
+            self.assertEqual(code, 0)
+            self.assertEqual(newer['prompt_count'], 1)
+
+    def test_interrupted_post_keeps_origin_unresolved(self):
+        with tempfile.TemporaryDirectory() as root, Toy('slow_owner') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': []})
+            runs = Path(root) / 'interrupted-runs'
+            command = [sys.executable, '-B', str(SCRIPT), '--json', 'chatbot', '--origin', toy.origin,
+                       '--protocol', str(protocol), '--budget', '5', '--max-requests', '10',
+                       '--max-prompts', '1', '--runs-root', str(runs)]
+            first = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
+                self.assertTrue(toy.post_started.wait(4))
+                first.kill()
+                first.communicate(timeout=3)
+                recorded = next(path for path in runs.iterdir() if path.is_dir())
+                second, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                            '--protocol', protocol, '--budget', '5',
+                                            '--max-requests', '10', '--max-prompts', '1',
+                                            '--runs-root', Path(root) / 'new-runs')
+                self.assertEqual(code, 2)
+                self.assertIn('unresolved POST', second['reason'])
+                self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1)
+                deadline = time.monotonic() + 3
+                while toy.active_posts and time.monotonic() < deadline:
+                    time.sleep(.02)
+                self.assertEqual(toy.active_posts, 0)
+                self.run_cli(root, 'chatbot-release-origin', recorded, code=0)
+            finally:
+                if first.poll() is None:
+                    first.kill()
+                    first.wait()
 
     def test_query_values_are_redacted_and_default_ports_normalize(self):
         scripts = str(Path(__file__).resolve().parents[1] / 'scripts')
