@@ -80,15 +80,25 @@ and stops reading at `[DONE]` even if the server keeps the connection open.
 It can carry a declared conversation ID from an event into the next serial
 request. A missing terminator, invalid event, or timeout leaves the POST
 unresolved; inspect history/status before releasing the origin. Other stream
-framing or terminal markers need a target-specific adapter.
+framing or terminal markers need a target-specific adapter. If a route emits
+`text/event-stream` without the declared SSE fields, the client stops after
+one POST and keeps the raw bytes for inspection.
+An `application/x-ndjson` or `application/json-seq` reply is held for a
+target-specific adapter; the client records a bounded initial chunk and does
+not send another prompt.
 
 When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, `resume` can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
 turns a status response into an accepted challenge result.
-Malformed or excessively nested JSON responses keep exact consumed bytes in
-the private transcript; chat stops before another prompt, while a 429 keeps
-its rate-limit signal.
+Malformed or excessively nested declared JSON keeps exact consumed bytes in
+the private transcript and stops as `malformed_json`; a body shorter than its
+declared length or a broken chunked stream stops as `partial_response`. Neither
+sends another prompt. A broken 409 or 429 body keeps its lock or rate-limit
+signal and records the incomplete body.
+A 429 keeps its rate-limit signal. This applies to JSON and `+json` content
+types even when the body resembles ordinary chat text. A valid JSON `null`
+also stops as ambiguous. Plain `text/plain` replies remain usable.
 
 | Strategy | Required protocol fields | What the script does |
 | --- | --- | --- |

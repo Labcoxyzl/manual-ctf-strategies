@@ -3,6 +3,7 @@
 import base64
 import fcntl
 import hashlib
+import http.client
 import http.cookiejar
 import json
 import math
@@ -567,6 +568,10 @@ class Client:
             start = time.monotonic()
             partial_chunks = []
             status = None
+            observed_stream = False
+            unsupported_stream = False
+            forced_partial = False
+            sse_done = False
             request = urllib.request.Request(url, data=data, headers=headers, method=method)
             try:
                 remaining = min(self.manifest['timeout'], max(.001, self.deadline - start))
@@ -577,11 +582,30 @@ class Client:
                         response = error
                     with response:
                         status = response.code
-                        if response_format == 'sse':
-                            size, sse_done = 0, False
+                        response_headers = response.headers
+                        media_type = response_headers.get('Content-Type', '').split(';', 1)[0].strip().lower()
+                        observed_stream = status in range(200, 300) and media_type == 'text/event-stream'
+                        unsupported_stream = status in range(200, 300) and media_type in ('application/x-ndjson', 'application/json-seq')
+                        if unsupported_stream:
+                            read_chunk = getattr(response, 'read1', response.read)
+                            try:
+                                raw = read_chunk(min(4096, MAX_RESPONSE + 1))
+                            except http.client.IncompleteRead as error:
+                                raw = error.partial
+                                forced_partial = True
+                            partial_chunks.append(raw)
+                        elif response_format == 'sse' or observed_stream:
+                            size = 0
                             while size <= MAX_RESPONSE:
                                 read_chunk = getattr(response, 'read1', response.read)
-                                chunk = read_chunk(min(4096, MAX_RESPONSE + 1 - size))
+                                try:
+                                    chunk = read_chunk(min(4096, MAX_RESPONSE + 1 - size))
+                                except http.client.IncompleteRead as error:
+                                    chunk = error.partial
+                                    forced_partial = True
+                                    if chunk:
+                                        partial_chunks.append(chunk)
+                                    break
                                 if not chunk:
                                     break
                                 partial_chunks.append(chunk)
@@ -591,20 +615,29 @@ class Client:
                                     break
                             raw = b''.join(partial_chunks)
                         else:
-                            raw = response.read(MAX_RESPONSE + 1)
-                        response_headers = response.headers
+                            try:
+                                raw = response.read(MAX_RESPONSE + 1)
+                            except http.client.IncompleteRead as error:
+                                raw = error.partial
+                                forced_partial = True
+                            declared_length = response_headers.get('Content-Length', '')
+                            digits = declared_length.lstrip('0') or '0'
+                            if declared_length.isascii() and declared_length.isdecimal() and (
+                                    len(digits) > 10 or len(raw) < int(digits)):
+                                forced_partial = True
             except (socket.timeout, TimeoutError, urllib.error.URLError) as error:
                 signal = 'timeout' if isinstance(error, (socket.timeout, TimeoutError)) or isinstance(getattr(error, 'reason', None), socket.timeout) else 'network_error'
                 record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal}
-                if response_format == 'sse':
-                    record['response_format'] = 'sse'
+                if response_format == 'sse' or partial_chunks:
+                    if response_format == 'sse':
+                        record['response_format'] = 'sse'
                     record['response'] = {'raw_b64': base64.b64encode(b''.join(partial_chunks)).decode()}
                 self._save_cookies()
                 self._log(record)
                 return record
             if status in (301, 302, 303, 307, 308) and response_headers.get('Location'):
                 target = urllib.parse.urljoin(url, response_headers['Location'])
-                if len(raw) > MAX_RESPONSE:
+                if forced_partial or len(raw) > MAX_RESPONSE:
                     signal = 'partial_response'
                 elif _origin_from_url(target) != self.manifest['origin']:
                     signal = 'cross_origin_redirect'
@@ -636,18 +669,27 @@ class Client:
                         logged_body = None
                     continue
             else:
-                signal = 'partial_response' if len(raw) > MAX_RESPONSE else 'lock' if status == 409 else 'rate_limit' if status == 429 else None
+                signal = 'lock' if status == 409 else 'rate_limit' if status == 429 else 'partial_response' if forced_partial or len(raw) > MAX_RESPONSE else None
+            if response_format != 'sse' and media_type == 'text/event-stream' and signal is None and status in range(200, 300):
+                signal = 'unconfigured_stream'
+            if unsupported_stream and signal is None:
+                signal = 'unsupported_stream'
             if response_format == 'sse' and not sse_done and signal is None:
                 signal = 'partial_response'
             raw = raw[:MAX_RESPONSE]
+            parsed_ok = False
             if response_format == 'sse' and status in range(200, 300):
                 parsed = _sse_events(raw) if sse_done and signal is None else None
             else:
                 parsed = None
                 try:
                     parsed = json.loads(raw)
+                    parsed_ok = True
                 except (ValueError, UnicodeError, RecursionError):
                     pass
+                if not parsed_ok and signal is None and status in range(200, 300) and (
+                        media_type in ('application/json', 'text/json') or media_type.endswith('+json')):
+                    signal = 'malformed_json'
             if signal == 'rate_limit' and isinstance(parsed, dict):
                 try:
                     lock_text = json.dumps(parsed).lower()
@@ -661,10 +703,10 @@ class Client:
             if type(retry_after) not in (str, int, float):
                 retry_after = None
             response_value = ({'raw_b64': base64.b64encode(raw).decode(), 'sse_events': parsed} if response_format == 'sse' and status in range(200, 300) else
-                              parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()})
+                              parsed if parsed_ok and signal != 'unsupported_stream' and not forced_partial else {'raw_b64': base64.b64encode(raw).decode()})
             tool_evidence = (_sse_tool_evidence(parsed) if response_format == 'sse' and isinstance(parsed, list) else
                              _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'))
-            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': response_value, 'tool_call_evidence': tool_evidence, 'retry_after': retry_after}
+            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': response_value, 'tool_call_evidence': tool_evidence, 'retry_after': retry_after, 'body_incomplete': forced_partial}
             if response_format == 'sse':
                 record['response_format'] = 'sse'
             if capture_header:
@@ -1208,8 +1250,10 @@ def _run(client):
             m['stop_reason'] = 'chat redirected; inspect target state before continuing'
             break
         m['completed'].append(probe)
-        if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'budget', 'network_error', 'log_limit'):
-            m['stop_reason'] = record['signal']
+        if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'malformed_json', 'unconfigured_stream', 'unsupported_stream', 'budget', 'network_error', 'log_limit'):
+            m['stop_reason'] = ('event stream needs declared response_format and response_field'
+                                if record['signal'] == 'unconfigured_stream' else
+                                'stream response needs a target-specific adapter' if record['signal'] == 'unsupported_stream' else record['signal'])
         elif record.get('status') != 200:
             m['stop_reason'] = f"chat HTTP {record.get('status')}"
         else:
@@ -1534,7 +1578,7 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
                           m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
                           m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked') or
                           m.get('stop_reason') == 'chat timed out; inspect history/status before any retry' and not m.get('chat_timeout_checked')) and (config.get('history_path') or config.get('status_path'))
-            if not pending and not safe_check and (m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'chat redirected; inspect target state before continuing', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'origin POST unresolved; inspect history/status and release origin before new sends', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check '))):
+            if not pending and not safe_check and (m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'chat redirected; inspect target state before continuing', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'origin POST unresolved; inspect history/status and release origin before new sends', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'event stream needs declared response_format and response_field', 'stream response needs a target-specific adapter', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'malformed_json', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check '))):
                 _render(run, m)
                 return run, m['status']
             m['max_requests'] = max_requests or m['max_requests']

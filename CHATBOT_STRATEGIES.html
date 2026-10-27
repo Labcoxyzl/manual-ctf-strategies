@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="c0b639a9afd1fd37a454ea3105ac4759d57200bc0425dc2e872b9224b31dd6b9">
+  <meta name="source-sha256" content="9e8ff7c3632d3b31c093db9fa742214eca4061e4faa874287f519fec87e0ea71">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -109,14 +109,24 @@ and stops reading at <code>[DONE]</code> even if the server keeps the connection
 It can carry a declared conversation ID from an event into the next serial
 request. A missing terminator, invalid event, or timeout leaves the POST
 unresolved; inspect history/status before releasing the origin. Other stream
-framing or terminal markers need a target-specific adapter.</p>
+framing or terminal markers need a target-specific adapter. If a route emits
+<code>text/event-stream</code> without the declared SSE fields, the client stops after
+one POST and keeps the raw bytes for inspection.
+An <code>application/x-ndjson</code> or <code>application/json-seq</code> reply is held for a
+target-specific adapter; the client records a bounded initial chunk and does
+not send another prompt.</p>
 <p>When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, <code>resume</code> can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
 turns a status response into an accepted challenge result.
-Malformed or excessively nested JSON responses keep exact consumed bytes in
-the private transcript; chat stops before another prompt, while a 429 keeps
-its rate-limit signal.</p>
+Malformed or excessively nested declared JSON keeps exact consumed bytes in
+the private transcript and stops as <code>malformed_json</code>; a body shorter than its
+declared length or a broken chunked stream stops as <code>partial_response</code>. Neither
+sends another prompt. A broken 409 or 429 body keeps its lock or rate-limit
+signal and records the incomplete body.
+A 429 keeps its rate-limit signal. This applies to JSON and <code>+json</code> content
+types even when the body resembles ordinary chat text. A valid JSON <code>null</code>
+also stops as ambiguous. Plain <code>text/plain</code> replies remain usable.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>

@@ -314,6 +314,18 @@ class Toy:
                         self.send(200, {'answer': {'text': reply}})
                     return
                 if self.path == '/stream/chat':
+                    if toy.mode in ('stream_chunked_short', 'stream_chunked_ndjson', 'stream_chunked_ndjson_empty', 'stream_chunked_rate_short'):
+                        code = 429 if toy.mode == 'stream_chunked_rate_short' else 200
+                        media = ('application/x-ndjson' if toy.mode.startswith('stream_chunked_ndjson') else
+                                 'application/json' if code == 429 else 'text/event-stream')
+                        self.send_response(code)
+                        self.send_header('Content-Type', media)
+                        self.send_header('Transfer-Encoding', 'chunked')
+                        self.end_headers()
+                        self.wfile.write(b'20\r\n' + (b'' if toy.mode == 'stream_chunked_ndjson_empty' else b'data: {"delta":"short"}\n\n'))
+                        self.wfile.flush()
+                        self.close_connection = True
+                        return
                     if toy.mode == 'stream_rate_body':
                         self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
                         return
@@ -418,6 +430,14 @@ class Toy:
                 if toy.mode == 'rate':
                     self.send(429, {'error': 'cooldown'}, {'Retry-After': '2'})
                     return
+                if toy.mode == 'rate_short_body':
+                    data = b'{"error":'
+                    self.send_response(429)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(data) + 10))
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
                 if toy.mode == 'rate_body':
                     self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
                     return
@@ -482,6 +502,26 @@ class Toy:
                         self.send(200, {'reply': toy.marker if toy.marker and len(prompt) < 4096 else 'forgot' if toy.marker else 'role: assistant'})
                 elif toy.mode == 'ambiguous':
                     self.send(200, {'reply': 'one', 'answer': 'two'})
+                elif toy.mode in ('truncated_json', 'truncated_vendor_json', 'plain_text_chat', 'json_null', 'short_content_length', 'padded_content_length'):
+                    data = (b'role: assistant' if toy.mode == 'plain_text_chat' else
+                            b'null' if toy.mode == 'json_null' else
+                            b'{"reply":"role: assistant"}' if toy.mode == 'padded_content_length' else
+                            b'{"reply":"role: assistant"')
+                    content_type = ('text/plain' if toy.mode == 'plain_text_chat' else
+                                    'application/problem+json' if toy.mode == 'truncated_vendor_json' else 'application/json')
+                    self.send_response(200)
+                    self.send_header('Content-Type', content_type)
+                    length = str(len(data) + (10 if toy.mode == 'short_content_length' else 0))
+                    self.send_header('Content-Length', '000000000' + length if toy.mode == 'padded_content_length' else length)
+                    self.end_headers()
+                    self.wfile.write(data)
+                elif toy.mode == 'ndjson_delayed_close':
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/x-ndjson')
+                    self.end_headers()
+                    self.wfile.write(b'{"delta":"role: assistant"}\n')
+                    self.wfile.flush()
+                    time.sleep(.18)
                 elif toy.mode in ('deep_json_chat', 'near_deep_json_chat'):
                     depth = 9_998 if toy.mode == 'near_deep_json_chat' else 10_000
                     self.send(200, b'[' * depth + b'0' + b']' * depth)
@@ -1079,6 +1119,122 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
             self.assertEqual(m['prompt_count'], 1)
+
+    def test_truncated_json_reply_never_becomes_plain_text_or_replayed(self):
+        for mode in ('truncated_json', 'truncated_vendor_json', 'short_content_length'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                                'lanes': ['capability']})
+                m, run, code = self.start(root, toy, protocol)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], 'partial_response' if mode == 'short_content_length' else 'malformed_json')
+                self.assertEqual(m['prompt_count'], 1)
+                self.assertEqual(sum(path == '/api/utter' for method, path in toy.calls if method == 'POST'), 1)
+                record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+                self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"reply":"role: assistant"')
+                before = len(toy.calls)
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(len(toy.calls), before)
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(len(toy.calls), before)
+        with tempfile.TemporaryDirectory() as root, Toy('plain_text_chat') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['completed'], ['baseline', 'capability'])
+        with tempfile.TemporaryDirectory() as root, Toy('padded_content_length') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['completed'], ['baseline', 'capability'])
+        with tempfile.TemporaryDirectory() as root, Toy('json_null') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
+            self.assertEqual(m['prompt_count'], 1)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('stream_delayed_close') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/stream/chat', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol, timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'event stream needs declared response_format and response_field')
+            self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertIn('raw_b64', record['response'])
+            before = len(toy.calls)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(len(toy.calls), before)
+        with tempfile.TemporaryDirectory() as root, Toy('ndjson_delayed_close') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol, timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'stream response needs a target-specific adapter')
+            self.assertEqual(m['prompt_count'], 1)
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"delta":"role: assistant"}\n')
+            before = len(toy.calls)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(len(toy.calls), before)
+        with tempfile.TemporaryDirectory() as root, Toy('ndjson_delayed_close') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                    'response_format': 'sse', 'response_field': 'delta'}})
+            m, run, code = self.start(root, toy, protocol, timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'stream response needs a target-specific adapter')
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"delta":"role: assistant"}\n')
+            self.assertEqual(sum(path == '/api/utter' for method, path in toy.calls if method == 'POST'), 1)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('rate_short_body') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'}})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'rate_limit')
+            self.assertGreater(m['cooldown_until'], time.time() + 50)
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(record['status'], 429)
+            self.assertTrue(record['body_incomplete'])
+            self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"error":')
+
+    def test_truncated_chunked_stream_keeps_bytes_and_status(self):
+        for mode, declared, reason, incomplete in (
+                ('stream_chunked_short', True, 'partial_response', True),
+                ('stream_chunked_short', False, 'partial_response', True),
+                ('stream_chunked_ndjson', False, 'stream response needs a target-specific adapter', False),
+                ('stream_chunked_ndjson_empty', False, 'partial_response', True),
+                ('stream_chunked_rate_short', True, 'rate_limit', True)):
+            with self.subTest(mode=mode, declared=declared), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                chat = {'path': '/stream/chat', 'message_field': 'query'}
+                if declared:
+                    chat.update(response_format='sse', response_field='delta.content')
+                protocol = self.protocol(root, {'chat': chat})
+                m, run, code = self.start(root, toy, protocol)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], reason)
+                self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+                record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+                self.assertEqual(record['body_incomplete'], incomplete)
+                raw = base64.b64decode(record['response']['raw_b64'])
+                if mode != 'stream_chunked_ndjson_empty':
+                    self.assertIn(b'data: {"delta":"short"}', raw)
+                else:
+                    self.assertEqual(raw, b'')
+                if reason == 'rate_limit':
+                    self.assertGreater(m['cooldown_until'], time.time() + 50)
+                else:
+                    before = len(toy.calls)
+                    self.run_cli(root, 'chatbot-release-origin', run, code=0)
+                    self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                    self.assertEqual(len(toy.calls), before)
 
     def test_js_source_map_discovery_and_same_origin_redirect(self):
         with tempfile.TemporaryDirectory() as root, Toy('js') as toy:
