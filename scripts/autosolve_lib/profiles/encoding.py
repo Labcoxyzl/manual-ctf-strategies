@@ -61,15 +61,15 @@ def declared_classical(data: bytes, max_output: int, parameters: list[dict]) -> 
             offsets = [sum(counts[:index]) for index in range(rails)]
             output = bytearray(len(data))
             rail, direction = 0, 1
-            for index in range(len(data)):
-                output[index] = data[offsets[rail]]
+            for position in range(len(data)):
+                output[position] = data[offsets[rail]]
                 offsets[rail] += 1
                 if rail == 0:
                     direction = 1
                 elif rail == rails - 1:
                     direction = -1
                 rail += direction
-            results.append((bytes(output), f"rail_fence:rails={rails}"))
+            results.append((bytes(output), f"rail_fence:parameter_index={index}"))
     return results
 
 

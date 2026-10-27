@@ -37,6 +37,18 @@ class EncodingTests(unittest.TestCase):
         self.assertEqual([label for _, label in results], [
             'vigenere:parameter_index=0', 'vigenere:parameter_index=1'])
 
+    def test_declared_rail_labels_do_not_expose_private_parameters(self):
+        results = declared_classical(b'Bgel p mi.rn h ivrcmasa ingtitseostdh', 100, [
+            {'family': 'vigenere', 'key': 'ORBIT'},
+            {'family': 'rail_fence', 'rails': 3},
+            {'family': 'rail_fence', 'rails': 4},
+        ])
+        self.assertEqual([label for _, label in results], [
+            'vigenere:parameter_index=0',
+            'rail_fence:parameter_index=1',
+            'rail_fence:parameter_index=2',
+        ])
+
     def test_strict_base_decoding_preserves_alternatives_and_binary_bytes(self):
         self.assertIn((b"AB", "base16"), decode(b"4142", 3))
         self.assertIn((base64.b64decode(b"4142"), "base64"), decode(b"4142", 3))
