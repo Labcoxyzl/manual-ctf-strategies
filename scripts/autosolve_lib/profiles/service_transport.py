@@ -1,6 +1,7 @@
 """Bounded, explicit service reads and writes with exact byte transcripts."""
 
 import os
+import re
 import select
 import signal
 import socket
@@ -190,7 +191,7 @@ def _connect(host, port, deadline):
 
 
 def run_service(protocol, *, timeout=10, max_bytes=1024 * 1024,
-                max_steps=32, max_frame_bytes=None, allow_local=False):
+                max_steps=32, max_frame_bytes=None, allow_local=False, local_env=None):
     """Run only declared steps. Return a JSON-safe report and warning list.
 
     A local argv requires the caller's explicit allow_local authorization; a
@@ -198,6 +199,14 @@ def run_service(protocol, *, timeout=10, max_bytes=1024 * 1024,
     """
     transport, steps, ca_data = _validate(protocol, timeout=timeout, max_bytes=max_bytes,
                                           max_steps=max_steps, allow_local=allow_local)
+    if local_env is not None:
+        if (not allow_local or "argv" not in transport or type(local_env) is not dict or
+                len(local_env) > 16 or any(
+                    type(key) is not str or
+                    re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]{0,127}", key) is None or
+                    type(value) is not str or len(value) > 4096 or "\x00" in value
+                    for key, value in local_env.items())):
+            raise ValueError("local_env requires bounded local process variables")
     max_frame_bytes = min(65536, max_bytes) if max_frame_bytes is None else max_frame_bytes
     _positive_int(max_frame_bytes, "max_frame_bytes", max_bytes)
     start = time.monotonic()
@@ -276,7 +285,8 @@ def run_service(protocol, *, timeout=10, max_bytes=1024 * 1024,
         if "argv" in transport:
             process = subprocess.Popen(transport["argv"], cwd=transport.get("cwd"),
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT, start_new_session=True)
+                                       stderr=subprocess.STDOUT, start_new_session=True,
+                                       env=local_env)
             os.set_blocking(process.stdout.fileno(), False)
             os.set_blocking(process.stdin.fileno(), False)
         else:

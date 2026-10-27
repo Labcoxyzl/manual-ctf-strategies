@@ -111,6 +111,8 @@ def main(argv=None):
     ret2win.add_argument('--runtime-base', help='PIE base from an observed process, candidate only')
     ret2win.add_argument('--base-evidence', help='description of the observation that supports PIE base')
     ret2win.add_argument('--library-path', help='explicit local shared-library directory for replay')
+    ret2win.add_argument('--resource-file', action='append',
+                         help='explicit bounded regular file staged into each private local replay directory')
     chain = commands.add_parser('pwn-call-chain', help='prepare three imported x86-64 PLT calls')
     chain.add_argument('--binary', required=True)
     chain.add_argument('--offset-run', required=True, help='private verified stdin PWN03 run')
@@ -120,6 +122,8 @@ def main(argv=None):
     chain.add_argument('--budget', type=float, default=10)
     chain.add_argument('--runs-root')
     chain.add_argument('--replay-local', action='store_true')
+    chain.add_argument('--resource-file', action='append',
+                       help='explicit bounded regular file staged into each private local replay directory')
     offset = commands.add_parser('pwn-offset', help='discover a local x86-64 return offset under GDB')
     offset.add_argument('--binary', required=True, help='explicit executable local ELF')
     offset.add_argument('--channel', choices=('stdin', 'argv'), required=True,
@@ -293,14 +297,16 @@ def main(argv=None):
                                                args.prompt_hex, args.success_hex, args.budget,
                                                args.runs_root, args.replay_local,
                                                args.runtime_base, args.base_evidence,
-                                               args.library_path, args.offset_run)
+                                               args.library_path, args.offset_run,
+                                               args.resource_file)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         elif args.command == 'pwn-call-chain':
             from autosolve_lib import pwn_call_chain as chain_module
             run, status = chain_module.start(args.binary, args.offset_run, args.calls_json,
                                              args.prompt_hex, args.success_hex, args.budget,
-                                             args.runs_root, args.replay_local)
+                                             args.runs_root, args.replay_local,
+                                             args.resource_file)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         elif args.command == 'pwn-offset':

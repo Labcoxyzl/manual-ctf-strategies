@@ -241,6 +241,74 @@ class Ret2winTests(unittest.TestCase):
         self.assertEqual(result["status"], "invalid_input")
         self.assertIn("payload", result["reason"])
 
+    def test_local_replay_uses_private_cwd_and_minimal_environment(self):
+        source = self.root / "relative.c"
+        source.write_text(
+            '#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n'
+            '__attribute__((noinline)) void win(void) { puts("LOCAL-PRIVATE-WIN"); '
+            'fflush(stdout); }\n'
+            '__attribute__((noinline)) void vuln(void) { char buf[32]; '
+            'puts("READY>"); fflush(stdout); read(0,buf,128); }\n'
+            'int main(void) { FILE *f=fopen("relative-write.txt","w"); '
+            'if(f) { fputs("probe",f); fclose(f); } '
+            'if(getenv("AUTOSOLVE_SYNTHETIC_CANARY")) puts("ENV-LEAK"); '
+            'vuln(); return 0; }\n')
+        binary = self.root / "relative"
+        subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
+                        "-no-pie", "-o", str(binary), str(source)],
+                       check=True, capture_output=True)
+        with mock.patch.dict(os.environ, {"AUTOSOLVE_SYNTHETIC_CANARY": "canary-123"}):
+            result = self.cli(*self.args(binary, marker="LOCAL-PRIVATE-WIN"),
+                              "--replay-local")
+        run = Path(result["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["validation"], "local marker observed with controls")
+        self.assertFalse((self.root / "relative-write.txt").exists())
+        self.assertTrue((run / "candidate" / "relative-write.txt").exists())
+        for name in ("short", "wrong-target", "candidate"):
+            self.assertTrue((run / name / "relative-write.txt").exists())
+        self.assertNotIn("ENV-LEAK", (run / "transcript.jsonl").read_text())
+
+    def test_adjacent_companion_requires_explicit_private_resource_copy(self):
+        source = self.root / "resource.c"
+        source.write_text(
+            '#include <stdio.h>\n#include <unistd.h>\n'
+            '__attribute__((noinline)) void win(void) { char text[32]; '
+            'FILE *f=fopen("flag.txt","r"); if(!f) return; '
+            'if(fgets(text,sizeof(text),f)) { puts("LOCAL-RESOURCE-WIN"); fflush(stdout); } '
+            'fclose(f); }\n'
+            '__attribute__((noinline)) void vuln(void) { char buf[32]; '
+            'puts("READY>"); fflush(stdout); read(0,buf,128); }\n'
+            'int main(void) { vuln(); return 0; }\n')
+        binary = self.root / "resource"
+        subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
+                        "-no-pie", "-o", str(binary), str(source)],
+                       check=True, capture_output=True)
+        companion = self.root / "flag.txt"
+        companion.write_text("practice-key\n")
+        args = self.args(binary, marker="LOCAL-RESOURCE-WIN")
+        absent = self.cli(*args, "--replay-local")
+        self.assertEqual(json.loads((Path(absent["run"]) / "manifest.json").read_text())
+                         ["validation"], "unverified")
+        present = self.cli(*args, "--replay-local", "--resource-file", companion)
+        run = Path(present["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["validation"], "local marker observed with controls")
+        self.assertEqual((run / "candidate" / "flag.txt").read_text(), "practice-key\n")
+        self.assertEqual(companion.read_text(), "practice-key\n")
+
+    def test_staging_budget_stop_keeps_partial_run(self):
+        with mock.patch.object(pwn_ret2win, "_staged_cwd",
+                               side_effect=ValueError("resource time budget")):
+            run, _ = pwn_ret2win.start(
+                self.binary, 40, "win", b"READY>\n".hex(),
+                b"LOCAL-RET2WIN-SUCCESS".hex(), 5,
+                runs_root=self.root / "runs", replay_local=True)
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["validation"], "unverified")
+        self.assertFalse(manifest["replay_attempted"])
+        self.assertTrue((run / "report.md").is_file())
+
     def test_function_typed_symbol_in_nonexecutable_data_is_not_a_target(self):
         source = self.root / "fake.S"
         source.write_text('.data\n.globl fake_win\n.type fake_win, @function\n'
@@ -449,25 +517,34 @@ class CallChainTests(unittest.TestCase):
         (self.fixture / "calls.c").write_text(
             '#include <stdio.h>\n'
             'static int step;\n'
-            'void one(unsigned long a,unsigned long b,unsigned long c) { '
+            'void one_body(unsigned long a,unsigned long b,unsigned long c) { '
             'if(a==0x123 && b==0x456 && c==0x789 && step==0) step=1; }\n'
+            '__attribute__((naked)) void one(unsigned long a,unsigned long b,unsigned long c) '
+            '{ __asm__("mov %rsp,%rax; and $15,%rax; cmp $8,%rax; jne 1f; '
+            'jmp one_body; 1: ret"); }\n'
             'void two(unsigned long a,unsigned long b,unsigned long c) { '
             'if(a==0x123 && b==0x456 && c==0x789 && step==1) step=2; }\n'
-            '__attribute__((force_align_arg_pointer)) '
-            'void three(unsigned long a,unsigned long b,unsigned long c) { '
+            'void three_body(unsigned long a,unsigned long b,unsigned long c) { '
             'if(a==0x123 && b==0x456 && c==0x789 && step==2) '
-            '{ puts("LOCAL-CALL-SUCCESS"); fflush(stdout); } }\n')
+            '{ puts("LOCAL-CALL-SUCCESS"); fflush(stdout); } }\n'
+            '__attribute__((naked)) void three(unsigned long a,unsigned long b,unsigned long c) '
+            '{ __asm__("mov %rsp,%rax; and $15,%rax; cmp $8,%rax; jne 1f; '
+            'jmp three_body; 1: ret"); }\n')
         subprocess.run(["gcc", "-shared", "-fPIC", "-o", str(self.fixture / "libcalls.so"),
                         str(self.fixture / "calls.c")], check=True, capture_output=True)
         (self.fixture / "main.c").write_text(
-            '#include <stdio.h>\n#include <unistd.h>\n'
+            '#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n'
             'void one(unsigned long,unsigned long,unsigned long);\n'
             'void two(unsigned long,unsigned long,unsigned long);\n'
             'void three(unsigned long,unsigned long,unsigned long);\n'
             '__asm__(".global arg_gadget\\narg_gadget: pop %rdi; pop %rsi; pop %rdx; ret");\n'
             '__attribute__((noinline)) void vuln(void) { char buf[32]; '
             'puts("READY>"); fflush(stdout); read(0, buf, 256); }\n'
-            'int main(int argc,char **argv) { if(argc==10) { one(0,0,0); two(0,0,0); '
+            'int main(int argc,char **argv) { '
+            'FILE *f=fopen("relative-write.txt","w"); '
+            'if(f) { fputs("probe",f); fclose(f); } '
+            'if(getenv("AUTOSOLVE_SYNTHETIC_CANARY")) puts("ENV-LEAK"); '
+            'if(argc==10) { one(0,0,0); two(0,0,0); '
             'three(0,0,0); } vuln(); return 0; }\n')
         self.binary = self.fixture / "main"
         subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
@@ -478,6 +555,8 @@ class CallChainTests(unittest.TestCase):
             {"symbol": name, "args": ["0x123", "0x456", "0x789"]}
             for name in ("one", "two", "three")]}))
         self.spec.chmod(0o600)
+        self.resource = self.root / "key.dat"
+        self.resource.write_bytes(b"practice-key")
 
     def cli(self, *args, code=3):
         result = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json",
@@ -495,19 +574,39 @@ class CallChainTests(unittest.TestCase):
         args = ("pwn-call-chain", "--binary", self.binary, "--offset-run", offset["run"],
                 "--calls-json", self.spec, "--prompt-hex", b"READY>\n".hex(),
                 "--success-hex", b"LOCAL-CALL-SUCCESS".hex(), "--budget", 10,
-                "--runs-root", self.root / "call-runs")
-        result = self.cli(*args, "--replay-local")
+                "--runs-root", self.root / "call-runs", "--resource-file", self.resource)
+        with mock.patch.dict(os.environ, {"AUTOSOLVE_SYNTHETIC_CANARY": "canary-123"}):
+            result = self.cli(*args, "--replay-local")
         run = Path(result["run"])
         manifest = json.loads((run / "manifest.json").read_text())
         self.assertEqual(manifest["validation"], "local marker observed with controls")
-        self.assertEqual(len((run / "payload.bin").read_bytes()), 160)
+        self.assertEqual(len((run / "payload.bin").read_bytes()), 184)
         self.assertEqual([row["status"] for row in manifest["controls"]],
                          ["marker absent"] * 4)
         self.assertFalse(manifest["challenge_accepted"])
+        self.assertFalse((self.fixture / "relative-write.txt").exists())
+        self.assertTrue((run / "candidate" / "relative-write.txt").exists())
+        self.assertNotIn("ENV-LEAK", (run / "transcript.jsonl").read_text())
         self.cli("resume", run)
         self.assertIn("Source and replay inputs verified current: yes",
                       (run / "report.md").read_text())
+        copy = run / "candidate" / "key.dat"
+        copy.write_bytes(b"tampered")
+        self.cli("resume", run)
+        self.assertIn("Source and replay inputs verified current: no",
+                      (run / "report.md").read_text())
+        copy.write_bytes(b"practice-key")
         from scripts.autosolve_lib import pwn_call_chain
+        with mock.patch.object(pwn_call_chain.pwn, "_staged_cwd",
+                               side_effect=ValueError("resource time budget")):
+            stopped_run, _ = pwn_call_chain.start(
+                self.binary, offset["run"], self.spec, b"READY>\n".hex(),
+                b"LOCAL-CALL-SUCCESS".hex(), 10, self.root / "call-runs", True,
+                [str(self.resource)])
+        stopped_manifest = json.loads((stopped_run / "manifest.json").read_text())
+        self.assertEqual(stopped_manifest["validation"], "unverified")
+        self.assertFalse(stopped_manifest["replay_attempted"])
+        self.assertTrue((stopped_run / "report.md").is_file())
         with mock.patch.object(pwn_call_chain.pwn, "_loader_current", return_value=False):
             pwn_call_chain.resume(run)
         self.assertIn("Source and replay inputs verified current: no",
@@ -549,12 +648,13 @@ class CallChainTests(unittest.TestCase):
         self.assertEqual(path, self.spec)
         self.assertEqual(len(calls), 3)
         self.assertEqual(len(digest), 64)
-        pwn_call_chain._candidate(self.binary, 40, calls, deadline)
+        _, _, entries, _, _, _ = pwn_call_chain._candidate(self.binary, 40, calls, deadline)
         with self.binary.open("rb") as source:
-            plt_offset = ELFFile(source).get_section_by_name(".plt")["sh_offset"]
+            plt = ELFFile(source).get_section_by_name(".plt")
+            target_offset = plt["sh_offset"] + entries["one"]["plt_address"] - plt["sh_addr"]
         changed = self.fixture / "changed-plt"
         raw = bytearray(self.binary.read_bytes())
-        raw[plt_offset + 16] ^= 1
+        raw[target_offset] ^= 1
         changed.write_bytes(raw)
         with self.assertRaisesRegex(ValueError, "PLT stub"):
             pwn_call_chain._candidate(changed, 40, calls, deadline)
@@ -565,6 +665,32 @@ class CallChainTests(unittest.TestCase):
         self.spec.write_text('{"schema_version":1,"schema_version":1,"calls":[]}')
         with self.assertRaisesRegex(ValueError, "duplicate keys"):
             pwn_call_chain._spec(self.spec, deadline)
+
+    def test_explicit_resources_are_bounded_private_copies(self):
+        from scripts.autosolve_lib import pwn_ret2win
+
+        deadline = 10 ** 10
+        resource = self.root / "key.dat"
+        resource.write_bytes(b"practice-key")
+        records = pwn_ret2win._resources([str(resource)], self.binary, deadline)
+        run = self.root / "resource-run"
+        run.mkdir(mode=0o700)
+        cwd = pwn_ret2win._staged_cwd(run, "short", records, deadline)
+        self.assertEqual((cwd / "key.dat").read_bytes(), b"practice-key")
+        self.assertEqual((cwd / "key.dat").stat().st_mode & 0o777, 0o600)
+        self.assertTrue(pwn_ret2win._copied_resources_current(cwd, records, deadline))
+        attempted = [{"name": "short", "status": "inconclusive", "attempted": True}]
+        self.assertTrue(pwn_ret2win._run_copies_current(run, records, attempted, False, deadline))
+        shutil.rmtree(cwd)
+        self.assertFalse(pwn_ret2win._run_copies_current(run, records, attempted, False, deadline))
+        resource.write_bytes(b"changed")
+        self.assertFalse(pwn_ret2win._resources_current(records, deadline))
+        alias = self.root / "alias.dat"
+        alias.symlink_to(resource)
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            pwn_ret2win._resources([str(alias)], self.binary, deadline)
+        with self.assertRaisesRegex(ValueError, "collides"):
+            pwn_ret2win._resources([str(resource), str(resource)], self.binary, deadline)
 
 
 if __name__ == "__main__":

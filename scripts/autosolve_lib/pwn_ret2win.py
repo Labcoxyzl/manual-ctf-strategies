@@ -157,6 +157,114 @@ def _loader_current(directory, env_path, env_hash, libraries, deadline):
         return False
 
 
+def _replay_cwd(run, name):
+    cwd = run / name
+    cwd.mkdir(mode=0o700)
+    return cwd
+
+
+def _replay_env(cwd):
+    return {"LC_ALL": "C", "PYTHONDONTWRITEBYTECODE": "1", "PATH": "/usr/bin:/bin",
+            "HOME": str(cwd), "TMPDIR": str(cwd), "TMP": str(cwd),
+            "TEMP": str(cwd), "XDG_CACHE_HOME": str(cwd)}
+
+
+def _resource_bytes(path, deadline):
+    path = Path(path).absolute()
+    if path.is_symlink():
+        raise ValueError("resource file must not be a symlink")
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError as error:
+        raise ValueError("resource file is unavailable") from error
+    with os.fdopen(descriptor, "rb") as source:
+        info = os.fstat(source.fileno())
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or
+                info.st_size > 1024 * 1024):
+            raise ValueError("resource file must be owner-held regular data under 1 MiB")
+        raw = source.read(1024 * 1024 + 1)
+    if len(raw) > 1024 * 1024 or time.monotonic() > deadline:
+        raise ValueError("resource file exceeds byte or time budget")
+    return raw, hashlib.sha256(raw).hexdigest()
+
+
+def _resources(paths, binary, deadline):
+    if paths is None:
+        return []
+    if type(paths) is not list or len(paths) > 8:
+        raise ValueError("at most eight explicit resource files are supported")
+    records = []
+    total = 0
+    for supplied in paths:
+        if type(supplied) is not str:
+            raise ValueError("resource path must be a file path")
+        path = Path(supplied).absolute()
+        name = path.name
+        if (path == binary or name in {"payload.bin", "manifest.json", "report.md",
+                                       "frames.json", "transcript.jsonl"} or
+                name.startswith("control-") or any(row["name"] == name for row in records)):
+            raise ValueError("resource basename collides with another run artifact")
+        raw, digest = _resource_bytes(path, deadline)
+        total += len(raw)
+        if total > 4 * 1024 * 1024:
+            raise ValueError("resource files exceed 4 MiB combined")
+        records.append({"source": str(path), "name": name, "sha256": digest,
+                        "size": len(raw)})
+    return records
+
+
+def _resources_current(records, deadline):
+    try:
+        return all(_resource_bytes(row["source"], deadline)[1] == row["sha256"]
+                   for row in records)
+    except (OSError, ValueError):
+        return False
+
+
+def _staged_cwd(run, name, resources, deadline):
+    cwd = _replay_cwd(run, name)
+    for row in resources:
+        raw, digest = _resource_bytes(row["source"], deadline)
+        if digest != row["sha256"] or len(raw) != row["size"]:
+            raise ValueError("resource changed before private replay staging")
+        descriptor = os.open(cwd / row["name"],
+                             os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(descriptor, "wb") as output:
+            output.write(raw)
+            output.flush()
+            os.fsync(output.fileno())
+    if not _copied_resources_current(cwd, resources, deadline):
+        raise ValueError("private resource copy differs from declared source")
+    return cwd
+
+
+def _copied_resources_current(cwd, resources, deadline):
+    try:
+        return all(_resource_bytes(cwd / row["name"], deadline)[1] == row["sha256"]
+                   for row in resources)
+    except (OSError, ValueError):
+        return False
+
+
+def _run_copies_current(run, resources, controls, replay_attempted, deadline):
+    if not resources:
+        return True
+    for row in controls:
+        cwd = run / row["name"]
+        if cwd.exists():
+            if cwd.is_symlink() or not cwd.is_dir() or not _copied_resources_current(
+                    cwd, resources, deadline):
+                return False
+        elif row.get("attempted") or row["status"] in ("marker absent", "marker observed"):
+            return False
+    if replay_attempted:
+        cwd = run / "candidate"
+        if cwd.is_symlink() or not cwd.is_dir() or not _copied_resources_current(
+                cwd, resources, deadline):
+            return False
+    return True
+
+
 def _evidence_bytes(path, limit):
     with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), "rb") as source:
         metadata = os.fstat(source.fileno())
@@ -239,7 +347,7 @@ def _offset_evidence(run_path, binary, digest, deadline):
         raise ValueError("offset run evidence is unavailable or malformed") from error
 
 
-def _render(run, manifest, current):
+def _render(run, manifest, current, resources_current=True):
     lines = ["# Autosolve local ret2win", "",
              "PWN04: " + manifest["validation"] + ". Challenge acceptance: unverified.",
              "Source identity current: " + ("yes" if current else "no") + ".",
@@ -248,6 +356,9 @@ def _render(run, manifest, current):
              "Local candidate replay: " + ("attempted once" if manifest["replay_attempted"] else "not attempted") + ".",
              "Benign controls: " + ", ".join(row["name"] + " " + row["status"]
                                                for row in manifest["controls"]) + "."]
+    if manifest.get("resources"):
+        lines.append("Declared resources current: " +
+                     ("yes" if resources_current else "no") + ".")
     if manifest.get("replay_error"):
         lines.append("Replay stopped: " + manifest["replay_error"] + ".")
     if manifest.get("warnings"):
@@ -260,7 +371,7 @@ def _render(run, manifest, current):
 
 def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
           runs_root=None, replay_local=False, runtime_base=None, base_evidence=None,
-          library_path=None, offset_run=None):
+          library_path=None, offset_run=None, resource_files=None):
     if not isinstance(budget, (int, float)) or isinstance(budget, bool) or not 0 < budget <= 120:
         raise ValueError("ret2win budget must be positive and at most 120 seconds")
     prompt = _bytes(prompt_hex, "prompt delimiter")
@@ -269,6 +380,9 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         raise ValueError("success marker and prompt delimiter overlap ambiguously")
     deadline = time.monotonic() + budget
     binary, digest = _source(binary_path, deadline)
+    if resource_files and not replay_local:
+        raise ValueError("resource files require explicit local replay")
+    resources = _resources(resource_files, binary, deadline)
     if offset_run is not None:
         if offset is not None:
             raise ValueError("use either an explicit offset or an offset run")
@@ -290,6 +404,8 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         _loader(library_path, deadline) if library_path is not None
         else (None, None, None, []))
     _require_source(binary, digest, deadline, "during candidate construction")
+    if not _resources_current(resources, deadline):
+        raise ValueError("resource identity changed during candidate construction")
     if offset_run is not None and _offset_evidence(offset_run, binary, digest, deadline) != (
             offset, library_path):
         raise ValueError("offset run evidence changed during candidate construction")
@@ -327,6 +443,10 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 warnings.append("offset run evidence changed before local control")
                 controls.append({"name": name, "status": "inconclusive", "error": "offset_identity"})
                 continue
+            if not _resources_current(resources, deadline):
+                warnings.append("resource identity changed before local control")
+                controls.append({"name": name, "status": "inconclusive", "error": "resource_identity"})
+                continue
             loader_identity = _loader_current(library, env_path, env_hash, libraries, deadline)
             if loader_identity is not True:
                 warnings.append("library identity " + ("incomplete" if loader_identity is None
@@ -337,13 +457,24 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
             if remaining <= 0:
                 controls.append({"name": name, "status": "inconclusive", "error": "budget"})
                 continue
+            try:
+                cwd = _staged_cwd(run, name, resources, deadline)
+            except ValueError:
+                controls.append({"name": name, "status": "inconclusive", "error": "staging"})
+                warnings.append("private resource staging incomplete before local control")
+                continue
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                controls.append({"name": name, "status": "inconclusive", "error": "budget"})
+                continue
             control, _ = run_service(
-                {"transport": {"argv": argv, "cwd": str(binary.parent)},
+                {"transport": {"argv": argv, "cwd": str(cwd)},
                  "steps": [{"read": {"delimiter_hex": prompt.hex()}},
                            {"write_hex": control_payload.hex()},
                            {"read": {"delimiter_hex": marker.hex()}}]},
                 timeout=min(2, remaining / 3), max_bytes=65536,
-                max_frame_bytes=16384, max_steps=3, allow_local=True)
+                max_frame_bytes=16384, max_steps=3, allow_local=True,
+                local_env=_replay_env(cwd))
             received = b"".join(bytes.fromhex(row["hex"]) for row in control["transcript"]
                                 if row["direction"] == "recv")
             if marker in received:
@@ -353,7 +484,7 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 control_status = "marker absent"
             else:
                 control_status = "inconclusive"
-            controls.append({"name": name, "status": control_status,
+            controls.append({"name": name, "status": control_status, "attempted": True,
                              "error": control["error"]})
             core._write_json(run / f"control-{name}-frames.json", control["frames"])
             core._write_text(run / f"control-{name}-transcript.jsonl", "".join(
@@ -366,6 +497,10 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
             if not offset_current():
                 warnings.append("offset run evidence changed after local control")
                 controls[-1]["status"] = "inconclusive"
+            if (not _resources_current(resources, deadline) or
+                    not _copied_resources_current(cwd, resources, deadline)):
+                warnings.append("resource identity changed after local control")
+                controls[-1]["status"] = "inconclusive"
         source_before = _source_current(binary, digest, deadline)
         if source_before is not True:
             warnings.append("source identity " + ("incomplete" if source_before is None
@@ -377,16 +512,29 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         offset_before = offset_current()
         if not offset_before:
             warnings.append("offset run evidence changed before local replay")
+        resources_before = _resources_current(resources, deadline)
+        if not resources_before:
+            warnings.append("resource identity changed before local replay")
         remaining = deadline - time.monotonic()
-        if remaining > 0 and source_before is True and loader_before is True and offset_before:
-            operation, transport_warnings = run_service(
-                {"transport": {"argv": argv, "cwd": str(binary.parent)},
-                 "steps": [{"read": {"delimiter_hex": prompt.hex()}},
-                           {"write_hex": payload.hex()},
-                           {"read": {"delimiter_hex": marker.hex()}}]},
-                timeout=remaining, max_bytes=65536, max_frame_bytes=16384,
-                max_steps=3, allow_local=True)
-            warnings.extend(transport_warnings)
+        if (remaining > 0 and source_before is True and loader_before is True and
+                offset_before and resources_before):
+            try:
+                cwd = _staged_cwd(run, "candidate", resources, deadline)
+            except ValueError:
+                warnings.append("private resource staging incomplete before local replay")
+            else:
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    operation, transport_warnings = run_service(
+                        {"transport": {"argv": argv, "cwd": str(cwd)},
+                         "steps": [{"read": {"delimiter_hex": prompt.hex()}},
+                                   {"write_hex": payload.hex()},
+                                   {"read": {"delimiter_hex": marker.hex()}}]},
+                        timeout=remaining, max_bytes=65536, max_frame_bytes=16384,
+                        max_steps=3, allow_local=True, local_env=_replay_env(cwd))
+                    warnings.extend(transport_warnings)
+                else:
+                    warnings.append("budget ended during private resource staging")
         elif remaining <= 0:
             warnings.append("budget ended before local replay")
     validation = "candidate" if not replay_local else "unverified"
@@ -416,9 +564,14 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         offset_after = offset_current()
         if not offset_after:
             warnings.append("offset run evidence changed after local replay")
+        resources_after = (_resources_current(resources, deadline) and
+                           _copied_resources_current(cwd, resources, deadline))
+        if not resources_after:
+            warnings.append("resource identity changed after local replay")
         if (operation["status"] == "complete" and operation["bytes_sent"] == len(payload)
                 and marker in post and marker not in pre and identity is True
                 and loader_before is True and loader_after is True and offset_after
+                and resources_after
                 and len(controls) == 2 and all(row["status"] == "marker absent"
                                                for row in controls)):
             validation = "local marker observed with controls"
@@ -439,11 +592,14 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 "controls": controls,
                 "library_path": str(library) if library is not None else None,
                 "env_tool_sha256": env_hash, "libraries": libraries,
+                "resources": resources,
                 "warnings": warnings,
                 "coverage": {"PWN04": {"status": "ran" if validation == "local marker observed with controls"
                                        else "partial", "note": "supplied-offset local ret2win only"}}}
     core._write_json(run / "manifest.json", manifest)
-    _render(run, manifest, True)
+    _render(run, manifest, _source_current(binary, digest, deadline) is True,
+            _resources_current(resources, deadline) and
+            _run_copies_current(run, resources, controls, operation is not None, deadline))
     return run, "partial"
 
 
@@ -463,7 +619,12 @@ def resume(run_path):
     manifest = _manifest(run)
     source = Path(manifest["source"])
     current = _source_current(source, manifest["source_sha256"], time.monotonic() + 10)
-    _render(run, manifest, current is True)
+    deadline = time.monotonic() + 10
+    resources = manifest.get("resources", [])
+    _render(run, manifest, current is True,
+            _resources_current(resources, deadline) and
+            _run_copies_current(run, resources, manifest["controls"],
+                                manifest["replay_attempted"], deadline))
     return run, "partial"
 
 

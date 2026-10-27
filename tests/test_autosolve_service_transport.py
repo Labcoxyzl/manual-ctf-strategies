@@ -202,6 +202,18 @@ class ServiceTransportTests(unittest.TestCase):
             self.assertEqual(report["status"], "complete")
             self.assertEqual(bytes.fromhex(report["frames"][1]["wire_hex"]), b"ACK:hello\n")
 
+    def test_explicit_local_env_drops_caller_variable(self):
+        script = ("import os,sys; "
+                  "sys.stdout.write(('LEAK' if os.getenv('AUTOSOLVE_SYNTHETIC_CANARY') "
+                  "else 'CLEAN') + '>'); sys.stdout.flush()")
+        with mock.patch.dict(os.environ, {"AUTOSOLVE_SYNTHETIC_CANARY": "canary-123"}):
+            report, _ = run_service(
+                {"transport": {"argv": [sys.executable, "-c", script]},
+                 "steps": [{"read": {"delimiter_hex": b">".hex()}}]},
+                allow_local=True, local_env={"LC_ALL": "C"})
+        self.assertEqual(report["status"], "complete")
+        self.assertEqual(bytes.fromhex(report["frames"][0]["wire_hex"]), b"CLEAN>")
+
     def test_local_process_timeout_preserves_partial_transcript(self):
         script = ("import sys,time; sys.stdout.buffer.write(b'partial'); "
                   "sys.stdout.buffer.flush(); time.sleep(30)")

