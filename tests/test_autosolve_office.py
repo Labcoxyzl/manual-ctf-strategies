@@ -3,6 +3,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import warnings
 import zipfile
@@ -10,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts.autosolve_lib.profiles.office import inspect_office
+from scripts.autosolve_lib import core
 
 
 OLE_MAGIC = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
@@ -168,6 +170,21 @@ class OfficeInspectionTests(unittest.TestCase):
                 retired = json.loads((run / 'manifest.json').read_text())
                 self.assertTrue(all(not item['current'] for item in retired['artifacts']
                                     if item['id'] in {child['id'] for child in children}))
+
+    def test_runner_reports_worker_failure_as_failed_coverage(self):
+        self.make_ooxml([("word/embeddings/object.bin", b"proof")])
+        raw = self.source.read_bytes()
+        source = {'id': 'source', 'path': str(self.source), 'sha256': hashlib.sha256(raw).hexdigest(),
+                  'kind_evidence': 'zip', 'depth': 0, 'parents': [], 'current': True,
+                  'complete': True, 'size': len(raw), 'source_locator': {}}
+        manifest = {'artifacts': [source], 'jobs': [], 'warnings': [], 'derived_bytes': 0,
+                    'coverage': {'DOC05': {'status': 'not scheduled', 'note': ''}}}
+        with patch.object(core, '_run_office', side_effect=RuntimeError('worker crashed')):
+            children = core._office_job(self.root / 'run', manifest, source,
+                                        time.monotonic() + 5)
+        self.assertEqual(children, [])
+        self.assertEqual(manifest['jobs'][0]['status'], 'failed')
+        self.assertEqual(manifest['coverage']['DOC05']['status'], 'failed')
 
 
 if __name__ == "__main__":

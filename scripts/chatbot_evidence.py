@@ -5,6 +5,7 @@ import argparse
 import base64
 import hashlib
 import json
+import math
 import re
 import uuid
 from pathlib import Path
@@ -70,6 +71,11 @@ def decode(text, mode):
         if not isinstance(values, list) or len(values) > 4096 or any(not isinstance(x, str) or len(x) != 1 for x in values):
             raise ValueError('characters require a JSON array of one-character strings')
         return ''.join(values)
+    if mode == 'embedding-bytes':
+        values = json.loads(text)
+        if not isinstance(values, list) or not 1 <= len(values) <= 4096 or any(type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 1 for x in values):
+            raise ValueError('embedding-bytes needs 1-4096 finite values between 0 and 1')
+        return bytes(round(value * 255) for value in values).rstrip(b'\x00').decode('utf-8')
     if mode == 'nato':
         words = re.findall(r'[A-Za-z]+', text.lower().replace('x-ray', 'xray'))
         if not words or len(words) > 4096 or any(word not in NATO for word in words):
@@ -120,7 +126,7 @@ def main(argv=None):
     modes = parser.add_subparsers(dest='mode', required=True)
     dec = modes.add_parser('decode')
     dec.add_argument('--input', required=True)
-    dec.add_argument('--mode', dest='encoding', required=True, choices=('codepoints', 'characters', 'nato', 'initials', 'reversed', 'groups', 'base64'))
+    dec.add_argument('--mode', dest='encoding', required=True, choices=('codepoints', 'characters', 'embedding-bytes', 'nato', 'initials', 'reversed', 'groups', 'base64'))
     check = modes.add_parser('audit')
     check.add_argument('--input', required=True)
     check.add_argument('--line', type=int, help='one-based transcript JSONL line')

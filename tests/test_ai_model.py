@@ -138,6 +138,23 @@ class AIModelTests(unittest.TestCase):
             result = self.command(root, 'sign-gates', plan)
             self.assertEqual(json.loads(Path(result['report']).read_text())['satisfiability'], 'unsat')
 
+    def test_suppression_inverse_is_candidate_with_float64_arithmetic(self):
+        try:
+            import numpy as np
+        except ImportError:
+            self.skipTest('numpy not installed')
+        with tempfile.TemporaryDirectory() as root:
+            base, changed = Path(root) / 'base.npz', Path(root) / 'changed.npz'
+            np.savez(base, weight=np.array([1, 2], dtype='float32'))
+            np.savez(changed, weight=np.array([.5, 3], dtype='float32'))
+            result = self.command(root, 'suppression', base, changed)
+            report = json.loads(Path(result['report']).read_text())
+            self.assertEqual(report['state'], 'candidate')
+            with np.load(report['candidate_file'], allow_pickle=False) as candidate:
+                self.assertEqual(candidate['weight'].tolist(), [1.5, 1.0])
+            np.savez(changed, weight=np.array([1, 3], dtype='int32'))
+            self.assertIn('floating arrays', self.command(root, 'suppression', base, changed, code=2)['reason'])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -133,6 +133,13 @@ def inspect(path, max_bytes):
     return record
 
 
+def _npz_preflight(source, max_bytes):
+    with zipfile.ZipFile(source) as archive:
+        members = archive.infolist()
+        if len(members) > MAX_ENTRIES or any(item.file_size > 16 * 1024 * 1024 for item in members) or sum(item.file_size for item in members) > max_bytes:
+            raise ValueError('NPZ expanded tensor size or member count exceeds comparison limit')
+
+
 def compare(left, right, max_bytes):
     first, second = _regular(left), _regular(right)
     if first.stat().st_size > max_bytes or second.stat().st_size > max_bytes:
@@ -149,10 +156,7 @@ def compare(left, right, max_bytes):
         a, b = load_file(str(first)), load_file(str(second))
     elif first.suffix == second.suffix == '.npz':
         for source in (first, second):
-            with zipfile.ZipFile(source) as archive:
-                members = archive.infolist()
-                if len(members) > MAX_ENTRIES or any(item.file_size > 16 * 1024 * 1024 for item in members) or sum(item.file_size for item in members) > max_bytes:
-                    raise ValueError('NPZ expanded tensor size or member count exceeds comparison limit')
+            _npz_preflight(source, max_bytes)
         a, b = np.load(first, allow_pickle=False), np.load(second, allow_pickle=False)
     else:
         raise ValueError('compare accepts two .npz or two .safetensors files')
@@ -175,6 +179,38 @@ def compare(left, right, max_bytes):
     if hasattr(b, 'close'):
         b.close()
     return result
+
+
+def suppress(base_path, challenge_path, max_bytes, run):
+    base, challenge = _regular(base_path), _regular(challenge_path)
+    if base.suffix != '.npz' or challenge.suffix != '.npz' or base.stat().st_size > max_bytes or challenge.stat().st_size > max_bytes:
+        raise ValueError('suppression hypothesis accepts two bounded NPZ files')
+    for source in (base, challenge):
+        _npz_preflight(source, max_bytes)
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise ValueError('suppression hypothesis needs installed numpy') from error
+    recovered = {}
+    elements = 0
+    with np.load(base, allow_pickle=False) as original, np.load(challenge, allow_pickle=False) as modified:
+        if set(original) != set(modified) or len(original) > MAX_ENTRIES:
+            raise ValueError('suppression tensors must have identical names')
+        for name in original:
+            left, right = original[name], modified[name]
+            if (left.shape != right.shape or left.size > 1_000_000 or
+                    not np.issubdtype(left.dtype, np.floating) or not np.issubdtype(right.dtype, np.floating) or
+                    not np.all(np.isfinite(left)) or not np.all(np.isfinite(right))):
+                raise ValueError('suppression tensors need finite matching floating arrays within size limits')
+            elements += left.size
+            if elements > 5_000_000:
+                raise ValueError('suppression candidate exceeds five million elements')
+            recovered[name] = 2 * left.astype('float64') - right.astype('float64')
+    candidate = run / 'suppression_candidate.npz'
+    np.savez(candidate, **recovered)
+    return {'state': 'candidate', 'candidate_file': str(candidate), 'tensors': len(recovered),
+            'base_sha256': _sha256(base, max_bytes), 'challenge_sha256': _sha256(challenge, max_bytes),
+            'limit': '2*base-challenge in float64 is one explicit hypothesis, not identified historical weights or accepted behavior'}
 
 
 def svm(path):
@@ -328,9 +364,13 @@ def main(argv=None):
     gates_mode = modes.add_parser('sign-gates')
     gates_mode.add_argument('description', help='JSON affine sign-gate network exported from the wrapper')
     gates_mode.add_argument('--timeout', type=float, default=10)
+    suppression = modes.add_parser('suppression')
+    suppression.add_argument('base')
+    suppression.add_argument('challenge')
+    suppression.add_argument('--max-bytes', type=int, default=256 * 1024 * 1024)
     args = parser.parse_args(argv)
     try:
-        if args.mode in ('inspect', 'compare') and not 0 < args.max_bytes <= 1024 * 1024 * 1024:
+        if args.mode in ('inspect', 'compare', 'suppression') and not 0 < args.max_bytes <= 1024 * 1024 * 1024:
             raise ValueError('max-bytes must be 1 to 1073741824')
         if args.mode == 'parity' and not args.execute_local:
             raise ValueError('parity executes supplied wrappers; pass --execute-local')
@@ -345,11 +385,14 @@ def main(argv=None):
             result = svm(args.parameters)
         elif args.mode == 'sign-gates':
             result = sign_gates(args.description, args.timeout)
+        elif args.mode == 'suppression':
+            result = suppress(args.base, args.challenge, args.max_bytes, run)
         else:
             result = parity(args.config, run)
         (run / 'result.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+        entries = result.get('entries', result.get('tensors', result.get('cases', [])))
         print(json.dumps({'status': 'complete' if not result.get('limits') else 'partial',
-                          'report': str(run / 'result.json'), 'entries': len(result.get('entries', result.get('tensors', result.get('cases', []))))}))
+                          'report': str(run / 'result.json'), 'entries': entries if isinstance(entries, int) else len(entries)}))
         return 0 if not result.get('limits') else 3
     except (OSError, ValueError, zipfile.BadZipFile, SyntaxError) as error:
         print(json.dumps({'status': 'invalid_input', 'reason': str(error)}))

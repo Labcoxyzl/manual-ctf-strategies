@@ -100,11 +100,14 @@ class SetupTests(unittest.TestCase):
     def test_packet_probe_runs_offline_capture(self):
         result = capabilities.doctor(['packets'], self_test=True)
         self.assertEqual(result['operations']['packets.metadata']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['packets.objects']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['tshark']['status'], 'ready')
 
     def test_sqlite_probe_checks_row_from_private_copy(self):
         result = capabilities.doctor(['memory'], self_test=True)
         self.assertEqual(result['operations']['disk_memory.sqlite']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['disk_memory.disk_image']['functional_probe'], 'passed')
+        self.assertEqual(result['engines']['tsk']['status'], 'ready')
 
 
 if __name__ == "__main__":

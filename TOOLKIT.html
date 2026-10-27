@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="aa79f30ee248e350ddb8d3046f1347bd3abda8171a9236e0a49ae8dec0d1e902">
+  <meta name="source-sha256" content="c4f1c31ecf72f801d0e9a22700ef836fce26b87525293bd40626a280d8c11243">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -48,41 +48,74 @@
 <p><a id="setup"></a></p>
 <h2>Start here</h2>
 <p>For an editable local/remote connection scaffold, see <a href="TEMPLATES.html">Python challenge templates</a>. That optional starter requires pwntools; the byte and inspection helpers below do not.</p>
-<p><code>autosolve.py</code> is the developing local artifact runner. It can follow bounded
-Base16/32/64, URL, ROT13, single-byte XOR candidates and compressed-byte layers, safely extract regular
-ZIP members, decode MIME leaf parts, extract bounded PDF text/attachments/streams, and detect a validated ZIP appended to a PNG. <code>doctor</code> and <code>setup</code> show which operations work on this machine;
-setup currently needs no packages. Reports are private under <code>.autosolve/runs/</code>
-and mark other planned families as not implemented. A candidate string does not
-mean the challenge accepted an answer.</p>
-<pre><code class="language-sh">python3 scripts/autosolve.py doctor --profiles encoding documents --self-test
-python3 scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
-python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
+<p><code>autosolve.py</code> is the developing local artifact runner. It handles bounded
+encoding/classical-cipher and XOR candidates, declared RSA/AES/hash checks,
+ZIP/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
+offline packet and CAN inspection, SQLite, and static ELF leads. <code>setup</code>
+uses uv to install the hash pinned Python core into <code>.autosolve/envs/core/</code>
+with CPython 3.12, without changing the active Python or <code>/opt/ctf-tools</code>.
+It needs internet on a fresh checkout and never installs native engines.
+<code>doctor</code> probes the interpreter used to run it; missing native engines remain
+partial. Reports are private under <code>.autosolve/runs/</code> and mark remaining
+families as partial or not implemented. A candidate string does not mean the
+challenge accepted an answer.</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py setup --profiles all
+.autosolve/envs/core/bin/python scripts/autosolve.py doctor --profiles all --self-test
+.autosolve/envs/core/bin/python scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
+.autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 </code></pre>
-<p>For an encrypted ZIP, put candidate passwords in a private file, one per line
-(at most eight), and pass a JSON hints file containing <code>{&quot;password_file&quot;: &quot;/path/to/private-passwords.txt&quot;}</code> with <code>--hints</code>. The local <code>analyze</code> command never sends
-challenge data over the network. Archive extraction is limited to ZIP and
-keeps the original unchanged; files larger than 8 MiB are recorded but not
-passed to the encoding decoder. Runs remain partial while baseline families
-are still unavailable.</p>
+<p>For an assigned service, <code>service --host HOST --port PORT --protocol private.json</code>
+runs only the protocol's explicit hex writes and delimiter, length, or exact
+byte reads. A protocol can contain <code>{&quot;steps&quot;:[{&quot;read&quot;:{&quot;delimiter_hex&quot;:&quot;0a&quot;}}, {&quot;write_hex&quot;:&quot;4869&quot;}]}</code> and optional TLS settings; the endpoint comes from
+the command. <code>service --host HOST --ports 80,443 --enumerate</code> checks only those
+TCP ports. An optional private protocol can declare per-port hex probes as
+<code>{&quot;probes&quot;:{&quot;80&quot;:&quot;48454144202f20485454502f312e300d0a0d0a&quot;}}</code>.
+Transcripts and inventory bytes stay in private run files. Resume renders the
+saved result without sending requests again; neither mode claims exploitation
+or challenge acceptance.</p>
+<p>For scoped WEB02 discovery, supply a raw HTTP GET request and a small private
+wordlist: <code>python3 scripts/autosolve.py web --request-file ./request.http --scope-origin https://assigned.example --wordlist ./small-words.txt --kind path --budget 30</code>. The origin is authoritative. Redirects are recorded without
+following them, and omitting the wordlist sends no requests.</p>
+<p>Setup uses only wheels and verifies hashes from
+<a href="scripts/autosolve_requirements/core.lock.txt"><code>core.lock.txt</code></a>. It stops with a
+partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
+It does not delete an unexpected pre-existing <code>.autosolve/envs/core</code> directory.</p>
+<p>For an encrypted ZIP, put candidate passwords in a private file, one exact
+byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing <code>{&quot;password_file&quot;: &quot;/path/to/private-passwords.txt&quot;}</code> with <code>--hints</code>. The local <code>analyze</code> command never sends
+challenge data over the network. ZIP and TAR extraction keep originals
+unchanged; files larger than 8 MiB are recorded but not passed to the
+encoding decoder. Runs remain partial while baseline families are unavailable.</p>
 <p>Candidate patterns scan raw bytes in bounded 1 MiB chunks with 4,095 bytes of
 overlap. Matches are limited to 4,096 bytes and retain byte offsets. At most
 64 MiB is scanned per artifact; a report states if that or a work limit leaves
 bytes unchecked. UTF-16 and other text encodings are not decoded by this scan.</p>
-<p>For exact textbook RSA integer checks, pass <code>--hints</code> with
+<p>For bounded textbook RSA checks, pass <code>--hints</code> with
 <code>{&quot;rsa_parameters&quot;:{&quot;records&quot;:[{&quot;n&quot;:&quot;0x...&quot;,&quot;e&quot;:3,&quot;c&quot;:&quot;0x...&quot;}]}}</code>.
-The limited methods verify a raw modular preimage; padding and the original
-byte width remain unknown. A reported preimage is not an accepted flag.</p>
+Records can also use <code>public_key_pem</code>, <code>public_key_der_hex</code>, or a
+<code>key_file_index</code> into private <code>key_files</code>, together with <code>c</code>. The selected
+methods verify a raw modular preimage; padding and the original byte width
+remain unknown. A reported preimage is not an accepted flag.</p>
 <p>Declared AES-GCM, CBC and CTR checks accept a <code>symmetric_parameters</code> list in
 the private hints JSON. Each record names <code>algorithm: &quot;AES&quot;</code>, <code>mode</code>, and hex
 <code>key</code>/<code>ciphertext</code>, plus the mode's required nonce or IV and GCM tag. GCM must
 authenticate before a transform is validated; CBC/CTR plaintext remains a
-candidate. Keys are excluded from ordinary run reports.</p>
+candidate. Verified GCM plaintext enters the artifact queue for further
+scanning. Keys are excluded from ordinary run reports.</p>
+<p>For bounded password hash checks, provide <code>hash_parameters</code> and a separate
+<code>hash_wordlist_file</code> in the private hints JSON. For example:
+<code>{&quot;hash_parameters&quot;:[{&quot;algorithm&quot;:&quot;sha256&quot;,&quot;digest&quot;:&quot;HEX_DIGEST&quot;,&quot;salt_hex&quot;:&quot;00ff&quot;,&quot;salt_position&quot;:&quot;prefix&quot;}],&quot;hash_wordlist_file&quot;:&quot;/path/to/words.txt&quot;}</code>.
+Supported declared algorithms are MD5, SHA-1, SHA-256 and SHA-512; <code>salt_hex</code>
+is optional and <code>salt_position</code> is <code>prefix</code> or <code>suffix</code> when supplied. A bare
+hex digest has only length-compatible format leads, never a format claim.
+The wordlist uses exact byte lines (LF separators), at most 4,096 entries of
+128 bytes. Spaces and CR bytes remain part of a password. Recovered bytes are
+hex in private findings; ordinary reports state only the verified index.</p>
 <p>Recorded candump and ASC CAN text logs produce bounded, line-linked frame
 records. Timing bases remain explicit; payload semantics require a supplied
 DBC or protocol schema and are not inferred from the raw bytes.</p>
 <p>Offline PCAP/PCAPNG inspection uses local TShark to report frame-linked DNS,
 HTTP, endpoints, and TCP stream IDs. Capture gaps and output limits remain
-visible. Object export and payload reconstruction are not implemented yet.</p>
+visible. Selected HTTP object bodies and TCP direction payloads can be exported with frame references; incomplete or encrypted captures remain partial without matching evidence or keys.</p>
 <p>SQLite inspection copies the supplied database and its WAL/SHM companions
 privately before read-only schema and row queries. Missing companions and
 changed snapshots are reported; source files are never opened for writing.</p>
@@ -113,14 +146,19 @@ python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 60 --max-req
 python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
 </code></pre>
 <p>The protocol can also set <code>headers</code> for auth, <code>csrf_cookie</code>/<code>csrf_header</code> inside
-<code>chat</code>, and <code>client_id_field</code>. Put secrets in the private protocol file, not
+<code>chat</code>, <code>client_id_field</code>, one explicit <code>bootstrap</code> login or tab-claim, and a
+declared serial <code>heartbeat</code> before chat when the frontend requires it.
+Put secrets in the private protocol file, not
 command arguments. <code>verification</code> requires an explicit same-origin path,
 <code>success_field</code>, and <code>success_value</code>; a POST checker also needs
-<code>candidate_field</code>. <code>injection</code> requires an exposed writable <code>path</code>, <code>field</code>,
-<code>payload</code>, <code>marker</code>, and <code>trigger_prompt</code>. It writes once and tests the later
-chat response; a repeated marker is only a candidate. The private run directory
+<code>candidate_field</code>. A JSON/form <code>injection</code> requires an exposed writable <code>path</code>,
+<code>field</code>, <code>payload</code>, <code>marker</code>, and <code>trigger_prompt</code>; multipart upload uses an
+explicit regular file, file field, filename, and content type instead. The
+client writes once, then tests the later chat response. A repeated marker is
+only a candidate. The private run directory
 contains raw responses and cookies. Stop reasons, transcript line numbers,
-untested probes, and exact request counts appear in <code>report.md</code>. A timeout,
+untested probes, and exact request counts appear in <code>report.md</code>. The <code>report</code>
+command prints its private file path for chatbot runs. A timeout,
 lock, rate limit, ambiguous reply, or unverified route leaves the run partial.</p>
 <p>For broader competition preparation, install the <a href="requirements.txt">no-AI Python requirements</a> in a fresh <strong>Linux/WSL or Kali</strong> CPython 3.11/3.12 virtual environment. For a new checkout, use a GitHub account with access to this private repository:</p>
 <pre><code class="language-sh">git clone https://github.com/Labcoxyzl/manual-ctf-strategies.git
@@ -250,7 +288,7 @@ python scripts/ctf.py --help
 </tr>
 </tbody>
 </table></div>
-<p>Limits and truncation are reported. No unbounded override is provided; use the approved manual route for larger inputs. The toolkit makes no network calls, uploads, automatic dependency installations or recursive decoding attempts. Keep the preparation pages offline; external technical links still require internet.</p>
+<p>Limits and truncation are reported. No unbounded override is provided; use the approved manual route for larger inputs. The <code>ctf.py</code> byte and file helpers make no network calls, uploads, automatic dependency installations or recursive decoding attempts. Keep the preparation pages offline; external technical links still require internet.</p>
 </main>
 </body>
 </html>

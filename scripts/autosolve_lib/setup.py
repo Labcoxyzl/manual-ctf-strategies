@@ -1,18 +1,25 @@
-"""Read-only capability discovery for the autosolve command."""
+"""Capability discovery and explicit rootless setup for autosolve."""
 
 import base64
 import hashlib
 import importlib
 import importlib.metadata
 import importlib.util
+import io
+import json
 from email.message import EmailMessage
+import math
 import os
 import shutil
+import socket
 import sqlite3
 import struct
 import subprocess
 import sys
+import tarfile
 import tempfile
+import threading
+import wave
 from pathlib import Path
 import zipfile
 import zlib
@@ -20,13 +27,13 @@ import zlib
 
 PROFILE_ENGINES = {
     "encoding": ("crypto-attacks", "cryptolib", "passwords", "refinery", "rsa", "stdlib", "xortool"),
-    "images": ("archive", "binwalk", "exif", "ghidra", "image", "stegseek", "zsteg"),
+    "images": ("archive", "binwalk", "exif", "ghidra", "image", "qr", "stegseek", "zsteg"),
     "documents": ("archive", "binwalk", "bkcrack", "office", "passwords", "pdf", "refinery", "stdlib"),
     "audio_video": ("ffmpeg", "image", "multimon", "sstv", "stegolsb"),
     "packets": ("archive", "hcxtools", "passwords", "scapy", "stdlib", "tshark", "zeek"),
     "disk_memory": ("binwalk", "dissect", "stdlib", "tsk", "volatility"),
-    "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "pwntools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
-    "pwn_services": ("ghidra", "nmap", "pwntools", "ropgadget"),
+    "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "pefile", "pwntools", "pyelftools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
+    "pwn_services": ("ghidra", "nmap", "pwntools", "pyelftools", "ropgadget"),
     "web": ("arjun", "ffuf", "http", "jwt", "sqlmap", "stdlib"),
     "osint": ("exif", "http", "image", "pywhat", "stdlib"),
     "can_misc": ("can", "image", "pwntools", "scapy", "stdlib"),
@@ -146,6 +153,52 @@ def _encoding_probe(self_test):
             "reason": None if probe == "passed" else "adapter_function_not_probed" if not self_test else "adapter_probe_failed"}
 
 
+def _osint_ids_probe(self_test):
+    from .profiles.osint_ids import extract_identifiers
+    probe = 'not_run'
+    if self_test:
+        try:
+            data = b'Visit https://example.org/map, then @guide_9'
+            records, warnings = extract_identifiers(data)
+            probe = ('passed' if not warnings and
+                     [(row['kind'], row['byte_offset']) for row in records] ==
+                     [('url', 6), ('handle', 36)] and
+                     all(data[row['byte_offset']:row['byte_offset'] + row['byte_length']]
+                         .decode() == row['value'] for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _osint_snapshot_probe(self_test):
+    from .profiles.osint_snapshots import build_snapshot_trail
+    from .profiles.web_static import inspect_web_static
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                page = root / 'index.html'
+                target = root / 'notice.txt'
+                page.write_text('<a href="notice.txt">Notice 2025-01-01</a>')
+                target.write_text('Issued 2025-01-02')
+                web_records, _ = inspect_web_static(page)
+                sources = [{'artifact_id': 'page', 'source_name': 'index.html', 'path': page,
+                            'sha256': hashlib.sha256(page.read_bytes()).hexdigest(),
+                            'web_records': web_records},
+                           {'artifact_id': 'target', 'source_name': 'notice.txt', 'path': target,
+                            'sha256': hashlib.sha256(target.read_bytes()).hexdigest()}]
+                records, warnings = build_snapshot_trail(sources)
+                probe = ('passed' if not warnings and any(row['kind'] == 'local_link' and
+                         row['target_artifact_id'] == 'target' for row in records) and
+                         any(row['kind'] == 'date_conflict' for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
 def _xor_probe(self_test):
     try:
         from .profiles.xor import recover_single_byte
@@ -205,6 +258,24 @@ def _symmetric_probe(self_test):
             "status": "ready" if probe == "passed" else "partial"}
 
 
+def _hash_probe(self_test):
+    try:
+        from .profiles.passwords import inspect_password_hashes
+    except ImportError:
+        return {"implemented": False, "functional_probe": "not_run", "status": "unavailable"}
+    probe = "not_run"
+    if self_test:
+        try:
+            rows = inspect_password_hashes([
+                {'algorithm': 'sha256', 'digest': hashlib.sha256(b'probe').hexdigest()}
+            ], [b'wrong', b'probe'])
+            probe = 'passed' if len(rows) == 1 and rows[0]['password'] == b'probe' else 'failed'
+        except Exception:
+            probe = 'failed'
+    return {"implemented": True, "functional_probe": probe,
+            "status": "ready" if probe == "passed" else "partial"}
+
+
 def _zip_probe(self_test):
     try:
         from .profiles.documents import extract_zip
@@ -220,6 +291,30 @@ def _zip_probe(self_test):
                 records, warnings = extract_zip(root / 'probe.zip', root / 'out',
                                                 max_members=2, max_total_bytes=64)
                 probe = 'passed' if not warnings and len(records) == 1 and records[0]['path'].read_bytes() == b'probe' else 'failed'
+        except Exception:
+            probe = 'failed'
+    return {"implemented": True, "functional_probe": probe,
+            "status": "ready" if probe == "passed" else "partial"}
+
+
+def _tar_probe(self_test):
+    try:
+        from .profiles.tar import extract_tar
+    except ImportError:
+        return {"implemented": False, "functional_probe": "not_run", "status": "unavailable"}
+    probe = "not_run"
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                with tarfile.open(root / 'probe.tar.gz', 'w:gz') as archive:
+                    info = tarfile.TarInfo('probe.txt')
+                    info.size = 5
+                    archive.addfile(info, io.BytesIO(b'probe'))
+                records, warnings = extract_tar(root / 'probe.tar.gz', root / 'out',
+                                                max_members=2, max_total_bytes=64)
+                probe = ('passed' if not warnings and len(records) == 1 and
+                         records[0]['path'].read_bytes() == b'probe' else 'failed')
         except Exception:
             probe = 'failed'
     return {"implemented": True, "functional_probe": probe,
@@ -384,6 +479,38 @@ def _can_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _can_dbc_probe(self_test):
+    spec = importlib.util.find_spec('cantools')
+    if spec is None:
+        return ({'implemented': True, 'functional_probe': 'not_run',
+                 'status': 'unavailable', 'reason': 'cantools_missing'}, None)
+    from .profiles.can_dbc import decode_can_frames
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'probe.dbc'
+                path.write_text('VERSION ""\nNS_ :\nBS_:\nBU_: Node\n'
+                                'BO_ 291 Demo: 2 Node\n'
+                                ' SG_ Value : 0|16@1- (0.5,1) [-100|100] "u" Node\n')
+                frames = [{'can_id': '123', 'extended': False, 'payload_hex': 'FCFF',
+                           'payload_length': 2, 'frame_type': 'data', 'source_line': 1}]
+                rows, warnings = decode_can_frames(frames, path, max_frames=2,
+                                                   max_db_bytes=512,
+                                                   max_output_bytes=4096, timeout=5)
+                probe = ('passed' if not warnings and len(rows) == 1 and
+                         rows[0]['signals'][0]['raw'] == -4 and
+                         rows[0]['signals'][0]['value'] == -1 else 'failed')
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial'
+    return ({'implemented': True, 'functional_probe': probe, 'status': status},
+            {'found': True, 'path': spec.origin,
+             'version': importlib.metadata.version('cantools'),
+             'options_compatible': True, 'required_data': 'supplied_dbc_or_arxml',
+             'functional_probe': probe, 'status': status})
+
+
 def _packet_probe(self_test):
     from .profiles.packets import TSHARK, inspect_pcap
     path = shutil.which(TSHARK)
@@ -405,6 +532,160 @@ def _packet_probe(self_test):
               if version and version.returncode == 0 else None,
               'options_compatible': bool(path), 'required_data': 'not_required',
               'functional_probe': probe, 'status': operation['status']}
+    return operation, engine
+
+
+def _packet_object_probe(self_test):
+    from .profiles.packet_objects import TSHARK, export_http_objects
+    path = shutil.which(TSHARK)
+    probe = 'not_run'
+    if self_test and path:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                sample = Path(__file__).resolve().parents[2] / 'examples/core/http.pcap'
+                rows, warnings = export_http_objects(sample, Path(directory) / 'objects', timeout=5)
+                probe = ('passed' if not warnings and len(rows) == 1 and
+                         rows[0]['path'].read_bytes() == b'Synthetic local tool exercise\nLayer order matters.\n'
+                         and rows[0]['packet'] == 8 and rows[0]['tcp_stream'] == 0 else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial' if path else 'unavailable'}
+
+
+def _packet_tls_probe(self_test):
+    from .profiles.packet_tls import TSHARK
+    path = shutil.which(TSHARK)
+    preferences = _command([path, '-G', 'currentprefs']) if self_test and path else None
+    compatible = bool(preferences and preferences.returncode == 0 and
+                      b'tls.keylog_file:' in preferences.stdout and
+                      b'http.decompress_body:' in preferences.stdout)
+    return {'implemented': True, 'functional_probe': 'not_run',
+            'options_compatible': compatible if self_test else None,
+            'required_data': 'supplied matching tls_keylog',
+            'status': 'partial' if path else 'unavailable',
+            'reason': 'matching TLS capture and key log required for functional probe'
+                      if path else 'tshark_missing'}
+
+
+def _packet_stream_probe(self_test):
+    from .profiles.packet_streams import TSHARK, reassemble_tcp
+    path = shutil.which(TSHARK)
+    probe = 'not_run'
+    if self_test and path:
+        try:
+            sample = Path(__file__).resolve().parents[2] / 'examples/core/http.pcap'
+            rows, warnings = reassemble_tcp(sample, timeout=5, max_output=1024 * 1024,
+                                            max_streams=4, max_bytes=1024 * 1024)
+            probe = ('passed' if not warnings and len(rows) == 2 and
+                     rows[0]['stream'] == 0 and rows[0]['sequence_start'] == 1001 and
+                     rows[0]['segments'][0]['frame'] == 4 and
+                     not rows[0]['complete'] and 'FIN not captured' in rows[0]['reasons']
+                     and 'data' not in rows[0] else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial' if path else 'unavailable'}
+
+
+def _media_probe(self_test):
+    from .profiles.media import FFMPEG, FFPROBE, inspect_media
+    ffmpeg = shutil.which(FFMPEG)
+    ffprobe = shutil.which(FFPROBE)
+    probe = 'not_run'
+    if self_test and ffmpeg and ffprobe:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'silent.wav'
+                with wave.open(str(source), 'wb') as writer:
+                    writer.setnchannels(1)
+                    writer.setsampwidth(2)
+                    writer.setframerate(8000)
+                    writer.writeframes(b'\x00\x00' * 800)
+                records, warnings = inspect_media(source, root / 'stage',
+                                                  timeout=5, max_bytes=512 * 1024)
+                probe = ('passed' if not warnings and any(
+                    row['kind'] == 'audio_view' and row['view'] == 'spectrogram'
+                    for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if ffmpeg and ffprobe else 'unavailable'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status}
+    version = _command([ffmpeg, '-version']) if ffmpeg else None
+    engine = {'found': bool(ffmpeg and ffprobe), 'path': ffmpeg, 'ffprobe_path': ffprobe,
+              'version': version.stdout.decode('utf-8', 'replace').splitlines()[0][:120]
+              if version and version.returncode == 0 else None,
+              'options_compatible': bool(ffmpeg and ffprobe), 'required_data': 'not_required',
+              'functional_probe': probe, 'status': status}
+    return operation, engine
+
+
+def _tone_probe(self_test):
+    from .profiles.tones import FFMPEG, MULTIMON, inspect_tones
+    multimon = shutil.which(MULTIMON)
+    ffmpeg = shutil.which(FFMPEG)
+    probe = 'not_run'
+    if self_test and multimon and ffmpeg:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'dtmf.wav'
+                rate = 22050
+                samples = bytearray(b'\0\0' * (rate // 10))
+                for low, high in ((697, 1209), (697, 1336)):
+                    for index in range(rate // 5):
+                        value = int(5000 * (math.sin(2 * math.pi * low * index / rate) +
+                                            math.sin(2 * math.pi * high * index / rate)))
+                        samples.extend(struct.pack('<h', value))
+                    samples.extend(b'\0\0' * (rate // 5))
+                with wave.open(str(source), 'wb') as writer:
+                    writer.setparams((1, 2, rate, 0, 'NONE', 'not compressed'))
+                    writer.writeframes(samples)
+                rows, _ = inspect_tones(source, timeout=5, max_output=4096,
+                                        modes=('DTMF',))
+                probe = ('passed' if ''.join(row['symbol'] for row in rows) == '12'
+                         else 'failed')
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if multimon and ffmpeg else 'unavailable'
+    dtmf = {'implemented': True, 'functional_probe': probe, 'status': status,
+            'reason': 'multimon-ng_or_ffmpeg_missing' if status == 'unavailable' else None}
+    narrow = {'implemented': True, 'functional_probe': 'not_run',
+              'status': 'partial' if multimon and ffmpeg else 'unavailable',
+              'reason': 'independent_morse_afsk_probe_pending' if multimon and ffmpeg
+                        else 'multimon-ng_or_ffmpeg_missing'}
+    engine = {'found': bool(multimon), 'path': multimon, 'version': None,
+              'options_compatible': bool(multimon and ffmpeg),
+              'required_data': 'ffmpeg', 'functional_probe': probe,
+              'status': status}
+    return dtmf, narrow, engine
+
+
+def _sstv_probe(self_test):
+    from .profiles.sstv import FFMPEG, SSTV, decode_sstv, decoder_available
+    tool = shutil.which(SSTV)
+    ffmpeg = shutil.which(FFMPEG)
+    compatible = bool(tool and ffmpeg and decoder_available(tool))
+    probe = 'not_run'
+    fixture = Path(__file__).resolve().parents[2] / 'tools/python/sstv-decoder/test/data/m1.ogg'
+    if self_test and compatible and fixture.is_file():
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                records, warnings = decode_sstv(fixture, Path(directory) / 'stage',
+                                                timeout=15, max_bytes=1024 * 1024)
+                probe = ('passed' if not warnings and len(records) == 1 and
+                         records[0]['mode'] == 'Martin 1' and
+                         (records[0]['width'], records[0]['height']) == (320, 256)
+                         else 'failed')
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if compatible else 'unavailable'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status,
+                 'reason': None if compatible else 'approved_sstv_decoder_or_ffmpeg_missing'}
+    engine = {'found': bool(tool), 'path': tool, 'version': None,
+              'options_compatible': compatible,
+              'required_data': 'Martin/Robot recording with supported VIS header',
+              'functional_probe': probe, 'status': status}
     return operation, engine
 
 
@@ -437,6 +718,86 @@ def _zsteg_probe(self_test):
     return operation, engine
 
 
+def _stegseek_probe(self_test):
+    from .profiles.stegseek import STEGSEEK, extract_steghide
+    path = shutil.which(STEGSEEK)
+    version = _command([path, '--help']) if path else None
+    probe = 'not_run'
+    if self_test and path and shutil.which('steghide'):
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                cover = root / 'cover.wav'
+                with wave.open(str(cover), 'wb') as output:
+                    output.setnchannels(1)
+                    output.setsampwidth(2)
+                    output.setframerate(8000)
+                    output.writeframes(hashlib.shake_256(b'stegseek-probe').digest(32000))
+                payload = root / 'payload'
+                payload.write_bytes(b'stegseek-probe-payload')
+                stego = root / 'stego.wav'
+                result = _command(['steghide', 'embed', '-cf', str(cover), '-ef', str(payload),
+                                   '-sf', str(stego), '-p', 'probe-password', '-f', '-q'])
+                if result and result.returncode == 0:
+                    records, warnings = extract_steghide(
+                        stego, root / 'out', passwords=[b'probe-password'],
+                        max_total_bytes=1024, timeout=5)
+                    probe = ('passed' if not warnings and len(records) == 1 and
+                             records[0]['path'].read_bytes() == b'stegseek-probe-payload'
+                             else 'failed')
+                else:
+                    probe = 'failed'
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if path else 'unavailable'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status}
+    engine = {'found': bool(path), 'path': path,
+              'version': version.stdout.decode('utf-8', 'replace').splitlines()[0][:120]
+              if version and version.returncode == 0 and version.stdout else None,
+              'options_compatible': bool(version and version.returncode == 0),
+              'required_data': 'private password_file; steghide only for self-test',
+              'functional_probe': probe, 'status': status}
+    return operation, engine
+
+
+def _qr_probe(self_test):
+    pillow = importlib.util.find_spec('PIL')
+    zxing = importlib.util.find_spec('zxingcpp')
+    pyzbar = importlib.util.find_spec('pyzbar')
+    backend = (zxing or pyzbar) if pillow else None
+    probe = 'not_run'
+    zxing_functional = False
+    if self_test and backend:
+        try:
+            from PIL import Image
+            from .core import _run_qr
+            # OpenCV encoded this fixed QR matrix; the tested reader does not generate it.
+            matrix = bytes.fromhex(
+                'ffffff80ffffff80c0410180df6b7d80d1674580d1634580d1754580df797d80'
+                'c0550180ffc1ff80c9657d80d9cc4980c11e2b80d8d22d80d206f380ffc83980'
+                'c065ad80df71f780d1491980d151c780d1662980df462380c0428380ffffff80ffffff80')
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'probe.png'
+                Image.frombytes('1', (25, 25), matrix).resize(
+                    (250, 250), Image.Resampling.NEAREST).save(source)
+                rows, _ = _run_qr(source, 100_000, 1024, 3)
+                probe = 'passed' if any(row['payload'] == b'QR-ORACLE-123' for row in rows) else 'failed'
+                zxing_functional = any(row['payload'] == b'QR-ORACLE-123' and
+                                       row['decoder'] == 'zxingcpp' for row in rows)
+        except Exception:
+            probe = 'failed'
+    status = ('ready' if zxing_functional else
+              'partial' if backend else 'unavailable')
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status,
+                 'note': 'QR and DataMatrix enabled' if zxing_functional else
+                         'DataMatrix requires functional zxing-cpp'}
+    engine = {'found': bool(backend), 'path': backend.origin if backend else None,
+              'version': importlib.metadata.version('zxing-cpp' if zxing else 'pyzbar') if backend else None,
+              'options_compatible': bool(backend), 'required_data': 'Pillow; zxing-cpp for DataMatrix',
+              'functional_probe': probe, 'status': status}
+    return operation, engine
+
+
 def _sqlite_probe(self_test):
     from .profiles.sqlite import inspect_sqlite
     probe = 'not_run'
@@ -459,12 +820,321 @@ def _sqlite_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _os_artifact_probe(self_test):
+    from .profiles.os_artifacts import inspect_os_artifact
+    parsers = {'browser_history': True,
+               'registry': importlib.util.find_spec('Registry') is not None,
+               'evtx': importlib.util.find_spec('Evtx') is not None}
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'renamed-history'
+                with sqlite3.connect(source) as db:
+                    db.execute('CREATE TABLE urls(id INTEGER PRIMARY KEY, url TEXT)')
+                    db.execute('CREATE TABLE visits(id INTEGER PRIMARY KEY, url INTEGER, visit_time INTEGER)')
+                    db.execute('INSERT INTO urls VALUES(1, ?)', ('https://example.test/probe',))
+                    db.execute('INSERT INTO visits VALUES(2, 1, 13253760000000000)')
+                records, warnings = inspect_os_artifact(source, max_records=2, max_bytes=65536)
+                probe = ('passed' if not warnings and len(records) == 1 and
+                         records[0]['timestamp'] == '2020-12-30T00:00:00Z' and
+                         records[0]['url'] == 'https://example.test/probe' else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe, 'status': 'partial',
+            'parsers': parsers,
+            'reason': 'registry and EVTX require compatible optional parsers and real artifact validation'}
+
+
+def _web_static_probe(self_test):
+    from .profiles.web_static import inspect_web_static
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'page.html'
+                source.write_text('<form action="/submit"></form><script>fetch("/api/probe")</script>')
+                records, warnings = inspect_web_static(source, origin='https://example.test')
+                probe = ('passed' if not warnings and any(
+                    row['kind'] == 'form' and row['value'] == '/submit' and row['offset'] == 14
+                    for row in records) and any(
+                    row['kind'] == 'literal_endpoint' and row['value'] == '/api/probe' and
+                    row['scope'] == 'same_origin' for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _web_discovery_probe(self_test):
+    from .profiles.web_discovery import discover_web
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                found = self.path == '/probe'
+                body = b'found' if found else b'missing'
+                self.send_response(200 if found else 404)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = None
+        thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            result, warnings = discover_web({'origin': origin, 'kind': 'path',
+                                             'request': {'method': 'GET', 'path': '/'},
+                                             'dictionary': ['probe']}, timeout=2,
+                                            max_requests=3, rate=20)
+            probe = ('passed' if not warnings and result['calibration'] == 'stable' and
+                     result['requests_used'] == 3 and
+                     result['results'][0]['classification'] == 'candidate' else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _memory_probe(self_test):
+    from .profiles import memory
+    path = memory.VOL
+    found = Path(path).is_file()
+    help_result = _command([path, '--help']) if found else None
+    help_text = help_result.stdout.decode('utf-8', 'replace') if help_result else ''
+    compatible = bool(help_result and help_result.returncode == 0 and
+                      all(value in help_text for value in
+                          ('--offline', '--cache-path', 'windows.info.Info',
+                           'windows.dumpfiles.DumpFiles')))
+    probe = 'not_run'
+    if self_test and compatible:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                image = root / 'invalid.raw'
+                image.write_bytes(b'not a Windows memory image')
+                records, warnings = memory.inspect_memory(
+                    image, root / 'output', timeout=4, max_output=65536,
+                    max_files=0, max_total_bytes=0)
+                probe = ('passed_negative' if records and
+                         records[0]['plugin'] == 'windows.info' and
+                         records[0]['status'] == 'skipped' and warnings else 'failed')
+        except Exception:
+            probe = 'failed'
+    try:
+        installed = importlib.metadata.version('volatility3') if found else None
+    except importlib.metadata.PackageNotFoundError:
+        installed = None
+    status = 'partial' if found else 'unavailable'
+    engine = {'found': found, 'path': path if found else None,
+              'version': installed, 'options_compatible': compatible,
+              'required_data': 'matching_windows_image_and_symbols',
+              'functional_probe': probe, 'status': status}
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status,
+                 'reason': 'positive_memory_fixture_not_supplied' if found else 'volatility_unavailable'}
+    return operation, engine
+
+
+def _disk_probe(self_test):
+    from .profiles.disk import ICAT, FLS, MMLS, inspect_disk
+    from .profiles.disk_recovery import BINWALK, recover_disk
+    tools = [shutil.which(path) for path in (MMLS, FLS, ICAT)]
+    binwalk = shutil.which(BINWALK)
+    probe = 'not_run'
+    recovery_probe = 'not_run'
+    if self_test and all(tools):
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                filesystem = bytearray(2880 * 512)
+                filesystem[:3] = b'\xeb\x3c\x90'
+                filesystem[3:11] = b'MSDOS5.0'
+                struct.pack_into('<HBHBHHBHHHII', filesystem, 11, 512, 1, 1, 2, 224,
+                                 2880, 0xf0, 9, 18, 2, 0, 0)
+                filesystem[510:512] = b'\x55\xaa'
+                for sector in (1, 10):
+                    filesystem[sector * 512:sector * 512 + 5] = b'\xf0\xff\xff\xff\x0f'
+                base = 19 * 512
+                filesystem[base:base + 11] = b'PROBE   TXT'
+                filesystem[base + 11] = 0x20
+                struct.pack_into('<HI', filesystem, base + 26, 2, 5)
+                filesystem[33 * 512:33 * 512 + 5] = b'probe'
+                header = bytearray(64 * 512)
+                struct.pack_into('<B3sB3sII', header, 446, 0, b'\0' * 3, 1,
+                                 b'\0' * 3, 64, 2880)
+                header[510:512] = b'\x55\xaa'
+                source = root / 'probe.img'
+                source.write_bytes(header + filesystem)
+                records, warnings = inspect_disk(source, root / 'out',
+                                                 target_paths=['PROBE.TXT'], timeout=5,
+                                                 max_output=65536, max_files=1,
+                                                 max_total_bytes=64)
+                probe = ('passed' if not warnings and any(
+                    row['kind'] == 'file' and row['offset_sectors'] == 64 and
+                    row['path'].read_bytes() == b'probe' for row in records) else 'failed')
+                if binwalk:
+                    data = bytearray(source.read_bytes())
+                    data[len(header) + base] = 0xe5
+                    archive = io.BytesIO()
+                    with zipfile.ZipFile(archive, 'w') as writer:
+                        writer.writestr('probe.txt', b'carved probe')
+                    source.write_bytes(data + archive.getvalue())
+                    recovered, recovery_warnings = recover_disk(
+                        source, root / 'recovery', timeout=5, max_output=65536,
+                        max_files=2, max_total_bytes=65536)
+                    recovery_probe = ('passed' if not recovery_warnings and
+                                      any(row['kind'] == 'deleted_file' and
+                                          row['path'].read_bytes() == b'probe' for row in recovered) and
+                                      any(row['kind'] == 'carved_file' and row['format'] == 'zip' and
+                                          row['path'].read_bytes() == archive.getvalue()
+                                          for row in recovered) else 'failed')
+        except Exception:
+            probe = 'failed'
+            recovery_probe = 'failed' if binwalk else 'not_run'
+    status = 'ready' if probe == 'passed' else 'partial' if all(tools) else 'unavailable'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status}
+    version = _command([MMLS, '-V']) if tools[0] else None
+    engine = {'found': all(tools), 'path': MMLS, 'fls_path': FLS, 'icat_path': ICAT,
+              'version': version.stdout.decode('utf-8', 'replace').strip()[:120]
+              if version and version.returncode == 0 else None,
+              'options_compatible': all(tools), 'required_data': 'not_required',
+              'functional_probe': probe, 'status': status}
+    recovery = {'implemented': True, 'functional_probe': recovery_probe,
+                'status': 'ready' if recovery_probe == 'passed' else
+                          'partial' if all(tools) else 'unavailable'}
+    binwalk_version = _command([BINWALK, '--version']) if binwalk else None
+    binwalk_engine = {'found': bool(binwalk), 'path': BINWALK if binwalk else None,
+                      'version': binwalk_version.stdout.decode('utf-8', 'replace').strip()[:120]
+                      if binwalk_version and binwalk_version.returncode == 0 else None,
+                      'options_compatible': bool(binwalk), 'required_data': 'not_required',
+                      'functional_probe': recovery_probe,
+                      'status': 'ready' if recovery_probe == 'passed' else
+                                'partial' if binwalk else 'unavailable'}
+    return operation, engine, recovery, binwalk_engine
+
+
+def _elf_probe(self_test):
+    if importlib.util.find_spec('elftools') is None:
+        return {'implemented': True, 'functional_probe': 'not_run', 'status': 'unavailable',
+                'reason': 'pyelftools_missing'}
+    from .profiles.elf import inspect_elf
+    probe = 'not_run'
+    if self_test:
+        report, _ = inspect_elf(Path(sys.executable).resolve())
+        probe = 'passed' if report and report['architecture'] in ('x86-32', 'x86-64') else 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _binary_probe(self_test):
+    if importlib.util.find_spec('elftools') is None or importlib.util.find_spec('pefile') is None:
+        return {'implemented': True, 'functional_probe': 'not_run', 'status': 'unavailable',
+                'reason': 'pyelftools_or_pefile_missing'}
+    probe = 'not_run'
+    if self_test:
+        from .profiles.binary_static import inspect_binary
+        sample = bytearray(512)
+        sample[:2] = b'MZ'
+        struct.pack_into('<I', sample, 0x3c, 0x80)
+        sample[0x80:0x84] = b'PE\0\0'
+        struct.pack_into('<HHIIIHH', sample, 0x84, 0x14c, 0, 0, 0, 0, 0xe0, 0x102)
+        optional = 0x98
+        for offset, format_, value in ((0, '<H', 0x10b), (28, '<I', 0x400000),
+                                       (32, '<I', 0x1000), (36, '<I', 0x200),
+                                       (56, '<I', 0x1000), (60, '<I', 0x200),
+                                       (68, '<H', 3), (70, '<H', 0x100),
+                                       (92, '<I', 16)):
+            struct.pack_into(format_, sample, optional + offset, value)
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                target = Path(directory) / 'probe.exe'
+                target.write_bytes(sample)
+                elf_report, _ = inspect_binary(Path(sys.executable).resolve())
+                pe_report, _ = inspect_binary(target)
+            probe = ('passed' if elf_report and pe_report and
+                     elf_report['format'] == 'ELF' and pe_report['format'] == 'PE'
+                     else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _service_probe(self_test):
+    from .profiles.service_transport import run_service
+    probe = 'not_run'
+    if self_test:
+        script = ("import sys; sys.stdout.buffer.write(b'ready>'); "
+                  "sys.stdout.buffer.flush(); "
+                  "reply=sys.stdin.buffer.readline(); "
+                  "sys.stdout.buffer.write(b'ACK:'+reply); sys.stdout.buffer.flush()")
+        try:
+            report, warnings = run_service({'transport': {'argv': [sys.executable, '-c', script]},
+                                            'steps': [{'read': {'delimiter_hex': '3e'}},
+                                                      {'write_hex': '676f0a'},
+                                                      {'read': {'delimiter_hex': '0a'}}]},
+                                           timeout=3, max_bytes=64, allow_local=True)
+            probe = 'passed' if not warnings and report['status'] == 'complete' and (
+                report['frames'][-1]['wire_hex'] == b'ACK:go\n'.hex()) else 'failed'
+        except (OSError, ValueError):
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _service_inventory_probe(self_test):
+    from .profiles.service_inventory import run_inventory
+    probe = 'not_run'
+    if self_test:
+        listener = socket.socket()
+        try:
+            listener.bind(('127.0.0.1', 0))
+            listener.listen(1)
+
+            def serve():
+                try:
+                    with listener:
+                        conn, _ = listener.accept()
+                        with conn:
+                            conn.sendall(b'inventory-probe\n')
+                except OSError:
+                    pass
+
+            thread = threading.Thread(target=serve, daemon=True)
+            thread.start()
+            report, warnings = run_inventory({'host': '127.0.0.1',
+                                              'ports': [listener.getsockname()[1]]}, timeout=2)
+            thread.join(2)
+            probe = 'passed' if not warnings and not thread.is_alive() and (
+                report['ports'][0]['response_hex'] == b'inventory-probe\n'.hex()) else 'failed'
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            listener.close()
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
 def doctor(profiles: list[str], self_test: bool = False) -> dict:
     """Inspect only integrated engines; planned engines remain explicitly unavailable."""
     selected = _profiles(profiles)
     planned = sorted({engine for profile in selected for engine in PROFILE_ENGINES[profile]})
     engines = {engine: _planned() for engine in planned
-               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "tshark", "zsteg")}
+               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "qr", "tshark", "tsk", "zsteg", "stegseek", "pyelftools", "pefile", "ffmpeg", "multimon", "can", "volatility")}
     if "stdlib" in planned or "encoding" in selected:
         engines["stdlib"] = _stdlib(self_test)
     if "file" in planned:
@@ -482,9 +1152,47 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         engines['exif'] = image_probes[2]
     if 'image' in planned:
         engines['image'] = image_probes[3]
+    qr_probes = _qr_probe(self_test) if 'qr' in planned else None
+    if 'qr' in planned:
+        engines['qr'] = qr_probes[1]
     packet_probes = _packet_probe(self_test) if 'tshark' in planned else None
     if 'tshark' in planned:
         engines['tshark'] = packet_probes[1]
+    disk_probes = _disk_probe(self_test) if 'tsk' in planned else None
+    if 'tsk' in planned:
+        engines['tsk'] = disk_probes[1]
+    memory_probes = _memory_probe(self_test) if 'volatility' in planned else None
+    if memory_probes:
+        engines['volatility'] = memory_probes[1]
+    if 'binwalk' in planned and disk_probes:
+        engines['binwalk'] = disk_probes[3]
+    media_probes = _media_probe(self_test) if 'ffmpeg' in planned else None
+    if 'ffmpeg' in planned:
+        engines['ffmpeg'] = media_probes[1]
+    tone_probes = _tone_probe(self_test) if 'multimon' in planned else None
+    if 'multimon' in planned:
+        engines['multimon'] = tone_probes[2]
+    sstv_probes = _sstv_probe(self_test) if 'sstv' in planned else None
+    if 'sstv' in planned:
+        engines['sstv'] = sstv_probes[1]
+    elf_probe = _elf_probe(self_test) if 'pyelftools' in planned else None
+    if 'pyelftools' in planned:
+        spec = importlib.util.find_spec('elftools')
+        engines['pyelftools'] = {
+            'found': spec is not None, 'path': spec.origin if spec else None,
+            'version': importlib.metadata.version('pyelftools') if spec else None,
+            'options_compatible': bool(spec), 'required_data': 'not_required',
+            'functional_probe': elf_probe['functional_probe'], 'status': elf_probe['status']}
+    binary_probe = _binary_probe(self_test) if 'malware_reversing' in selected else None
+    if 'pefile' in planned:
+        spec = importlib.util.find_spec('pefile')
+        engines['pefile'] = {
+            'found': spec is not None, 'path': spec.origin if spec else None,
+            'version': importlib.metadata.version('pefile') if spec else None,
+            'options_compatible': bool(spec), 'required_data': 'not_required',
+            'functional_probe': binary_probe['functional_probe'],
+            'status': 'ready' if spec and binary_probe['status'] == 'ready' else
+                      'partial' if spec else 'unavailable'}
     if 'office' in planned:
         spec = importlib.util.find_spec('oletools')
         operation = _office_probe(self_test)
@@ -498,14 +1206,19 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     zsteg_probes = _zsteg_probe(self_test) if 'zsteg' in planned else None
     if 'zsteg' in planned:
         engines['zsteg'] = zsteg_probes[1]
+    stegseek_probes = _stegseek_probe(self_test) if 'stegseek' in planned else None
+    if 'stegseek' in planned:
+        engines['stegseek'] = stegseek_probes[1]
     operations = {}
     if "encoding" in selected:
         operations["encoding.decode"] = _encoding_probe(self_test)
         operations["encoding.xor_one"] = _xor_probe(self_test)
         operations["encoding.rsa_literals"] = _rsa_probe(self_test)
         operations["encoding.aes_declared"] = _symmetric_probe(self_test)
+        operations["encoding.password_hashes"] = _hash_probe(self_test)
     if "documents" in selected:
         operations["documents.zip"] = _zip_probe(self_test)
+        operations["documents.tar"] = _tar_probe(self_test)
         operations["documents.mime"] = _mime_probe(self_test)
         operations["documents.pdf"] = _pdf_probe(self_test)
         operations["documents.office"] = _office_probe(self_test)
@@ -514,14 +1227,45 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations["images.metadata"] = image_probes[0]
         operations["images.views"] = image_probes[1]
         operations["images.zsteg"] = zsteg_probes[0]
+        operations["images.stegseek"] = stegseek_probes[0]
+        operations["images.qr"] = qr_probes[0]
     if "osint" in selected:
         operations["osint.metadata"] = image_probes[0]
+        operations["osint.identifiers"] = _osint_ids_probe(self_test)
+        operations["osint.snapshot_trail"] = _osint_snapshot_probe(self_test)
     if "can_misc" in selected:
         operations['can_misc.log'] = _can_probe(self_test)
+        operations['can_misc.dbc'], engine = _can_dbc_probe(self_test)
+        engines['can'] = engine or {
+            'found': False, 'path': None, 'version': None,
+            'options_compatible': False, 'required_data': 'supplied_dbc_or_arxml',
+            'functional_probe': 'not_run', 'status': 'unavailable',
+            'reason': 'cantools_missing'}
     if "packets" in selected:
         operations['packets.metadata'] = packet_probes[0]
+        operations['packets.objects'] = _packet_object_probe(self_test)
+        operations['packets.streams'] = _packet_stream_probe(self_test)
+        operations['packets.tls_keylog'] = _packet_tls_probe(self_test)
+    if "audio_video" in selected:
+        operations['audio_video.media'] = media_probes[0]
+        operations['audio_video.dtmf'] = tone_probes[0]
+        operations['audio_video.morse_afsk'] = tone_probes[1]
+        operations['audio_video.sstv'] = sstv_probes[0]
     if "disk_memory" in selected:
+        operations['disk_memory.disk_image'] = disk_probes[0]
+        operations['disk_memory.recovery'] = disk_probes[2]
         operations['disk_memory.sqlite'] = _sqlite_probe(self_test)
+        operations['disk_memory.os_artifacts'] = _os_artifact_probe(self_test)
+        operations['disk_memory.windows_memory'] = memory_probes[0]
+    if "pwn_services" in selected:
+        operations['pwn_services.elf_static'] = elf_probe
+        operations['pwn_services.service_transport'] = _service_probe(self_test)
+        operations['pwn_services.service_inventory'] = _service_inventory_probe(self_test)
+    if "malware_reversing" in selected:
+        operations['malware_reversing.binary_static'] = binary_probe
+    if "web" in selected:
+        operations['web.static_inventory'] = _web_static_probe(self_test)
+        operations['web.discovery'] = _web_discovery_probe(self_test)
     status = "partial" if any(value["status"] != "ready" for value in engines.values()) or any(
         value["status"] != "ready" for value in operations.values()
     ) else "ready"
@@ -529,8 +1273,22 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
 
 
 def setup(profiles: list[str]) -> dict:
-    """Explicit rootless setup; currently integrated operations need no packages."""
-    result = doctor(profiles, self_test=True)
-    result["installed"] = []
-    result["message"] = "No packages installed; unavailable operations remain partial."
-    return result
+    """Install the Python core locally and probe requested operations inside it."""
+    selected = _profiles(profiles)
+    from .setup_env import prepare
+    prepared = prepare()
+    if prepared['status'] != 'ready':
+        return {**prepared, 'profiles': selected}
+    command = [prepared['python'], str(Path(__file__).resolve().parents[1] / 'autosolve.py'),
+               '--json', 'doctor', '--profiles', *selected, '--self-test']
+    try:
+        run = subprocess.run(command, capture_output=True, timeout=180, check=False)
+        result = json.loads(run.stdout)
+    except (OSError, subprocess.TimeoutExpired, ValueError):
+        return {**prepared, 'status': 'partial', 'profiles': selected,
+                'reason': 'installed_environment_doctor_failed'}
+    if run.returncode not in (0, 3) or result.get('status') not in ('ready', 'partial'):
+        return {**prepared, 'status': 'partial', 'profiles': selected,
+                'reason': 'installed_environment_doctor_failed'}
+    return {**result, 'setup': prepared, 'installed': prepared['installed'],
+            'python': prepared['python']}

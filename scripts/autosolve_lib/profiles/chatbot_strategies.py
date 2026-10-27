@@ -98,6 +98,8 @@ def _text(params, key, *, limit=2048):
 
 
 def _authorized_fetch(url, origin, destinations):
+    if any(char.isspace() or ord(char) < 33 for char in url):
+        raise core.InvalidInput('fetch_url must be one URL token without control characters')
     parsed = urllib.parse.urlsplit(url)
     if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
         raise core.InvalidInput('fetch_url must be an absolute http(s) URL without credentials or fragment')

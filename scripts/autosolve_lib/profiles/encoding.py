@@ -14,6 +14,12 @@ _ROT13 = bytes.maketrans(
     b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
     b"NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm",
 )
+_ALPHABET = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+_ENGLISH_WORDS = frozenset(
+    b"hello world meet noon bring map secret message attack dawn flag code password "
+    b"open door find hidden quick brown fox jumps over lazy dog the this that and "
+    b"with from your have clue answer treasure cipher decode tomorrow today".split()
+)
 _NUMERIC = (
     (rb"(?:dec|decimal):\s*(?:\d{1,3})(?:[\s,]+\d{1,3})+", 10, "decimal-bytes", True),
     (rb"(?:hex):\s*(?:[0-9a-f]{2})(?:[\s,]+[0-9a-f]{2})+", 16, "hex-bytes", True),
@@ -82,6 +88,51 @@ def _decompress(data: bytes, max_output: int, kind: str) -> tuple[bytes, str] | 
     return bytes(output), label
 
 
+def _classical_score(data: bytes) -> int:
+    if re.search(rb"(?i)\b(?:flag|ctf)\{[^\r\n{}]{2,128}\}", data):
+        return 100
+    matched = [len(word) for word in re.findall(rb"[a-z]+", data.lower())
+               if word in _ENGLISH_WORDS]
+    return sum(matched) if len(matched) >= 2 and sum(matched) >= 10 else 0
+
+
+def _classical(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
+    # shortcut: classical hypotheses are for short printable text; longer texts need a streaming scorer.
+    if not 6 <= len(data) <= min(4096, max_output):
+        return []
+    if sum(65 <= byte <= 90 or 97 <= byte <= 122 for byte in data) < 6:
+        return []
+    try:
+        printable = all(char.isprintable() or char in "\t\n\r" for char in data.decode("utf-8"))
+    except UnicodeDecodeError:
+        return []
+    if not printable:
+        return []
+    original_score = _classical_score(data)
+    ranked = []
+    for a in (1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25):
+        inverse = pow(a, -1, 26)
+        for b in range(26):
+            if (a, b) in ((1, 0), (1, 13)):
+                continue
+            mapping = bytes((inverse * (index - b)) % 26 + offset
+                            for offset in (65, 97) for index in range(26))
+            value = data.translate(bytes.maketrans(_ALPHABET, mapping))
+            score = _classical_score(value)
+            if score <= original_score or score == 0:
+                continue
+            if a == 1:
+                label = f"caesar-shift:{-b}"
+            elif (a, b) == (25, 25):
+                label = "atbash"
+            else:
+                label = f"affine-decrypt:a={a},b={b}"
+            ranked.append((score, value, label))
+    ranked.sort(key=lambda row: (-row[0], row[2]))
+    return [(value, f"{label} (hypothesis; score={score})")
+            for score, value, label in ranked[:4]]
+
+
 def decode(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
     """Return exact one-step transformations; the caller owns recursion and trust decisions."""
     if max_output < 1:
@@ -137,6 +188,8 @@ def decode(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
     if len(data) <= max_output and any(65 <= byte <= 90 or 97 <= byte <= 122 for byte in data):
         if all(32 <= byte <= 126 or byte in (9, 10, 13) for byte in data):
             candidates.append((data.translate(_ROT13), "rot13"))
+
+    candidates.extend(_classical(data, max_output))
 
     for pattern, base, label, prefixed in _NUMERIC:
         if re.fullmatch(pattern, data.strip(), re.IGNORECASE):

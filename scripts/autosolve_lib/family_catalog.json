@@ -718,7 +718,7 @@
       "domain": "ai_chatbot",
       "delivery_stage": "baseline",
       "planned_coverage": "partial",
-      "automatic_scope": "Inspect same-origin page/JS/forms; run selected bounded chat, context, KB, scorer-batch, and declared API plans with cookies, resume, private evidence, and explicit checker validation",
+      "automatic_scope": "Inspect same-origin page/JS/forms; run selected bounded chat, context, JSON/form or multipart lower-trust injection, scorer-batch, one-step bootstrap, declared serial heartbeat, and API plans with cookies, resume, private evidence, and explicit checker validation",
       "limitations": "No general prompt-injection, web exploit, or RAG solve; target-specific request fields and verifier remain necessary; model text alone stays a candidate"
     },
     {
@@ -726,7 +726,7 @@
       "domain": "ai_chatbot",
       "delivery_stage": "baseline",
       "planned_coverage": "partial",
-      "automatic_scope": "Statically inspect model containers without unpickling, compare bounded NPZ/safetensors tensors, calculate binary SVM margins, solve exported affine sign gates, compare wrapper canaries, and run adapter-backed gradient or recurrent trace mechanics",
+      "automatic_scope": "Statically inspect model containers without unpickling, compare bounded NPZ/safetensors tensors, evaluate an explicit NPZ suppression inverse, calculate binary SVM margins, solve exported affine sign gates, compare wrapper canaries, and run adapter-backed gradient or recurrent trace mechanics",
       "limitations": "No universal gradient objective, recurrent policy adapter, sign-network constraint extraction, black-box extraction, or unknown-behavior solver; candidates require the challenge checker"
     }
   ]

@@ -3,6 +3,7 @@
 import base64
 import fcntl
 import gzip
+import io
 import json
 import multiprocessing
 import os
@@ -16,13 +17,18 @@ import tempfile
 import time
 import unittest
 import zipfile
+from unittest.mock import patch
 
 from test_autosolve_documents import ENCRYPTED_ZIP
 from test_autosolve_images import sample_png
+from test_autosolve_packet_objects import pcap as object_pcap, transaction as http_transaction
 from scripts.autosolve_lib import core
 
 MIXED_PASSWORD_ZIP = base64.b64decode(
     'UEsDBBQAAQAAAPUEW10/4namGAAAAAwAAAABAAAAYefZxcULHaildVlk5VAUjUP3ySS4U2j53FBLAwQUAAEAAAD1BFtduWa8sxkAAAANAAAAAQAAAGL04rAjADnRhfpNazlwQZq1SJKpTGV6CcG5UEsBAj8DFAABAAAA9QRbXT/idqYYAAAADAAAAAEAJAAAAAAAAAAggKSBAAAAAGEKACAAAAAAAAEAGACSVPj6cGXdAQAAAAAAAAAAAAAAAAAAAABQSwECPwMUAAEAAAD1BFtduWa8sxkAAAANAAAAAQAkAAAAAAAAACCApIE3AAAAYgoAIAAAAAAAAQAYAJJU+PpwZd0BAAAAAAAAAAAAAAAAAAAAAFBLBQYAAAAAAgACAKYAAABvAAAAAAA='
+)
+WHITESPACE_PASSWORD_ZIP = base64.b64decode(
+    'UEsDBBQAAQAAALU4W13c7i/pIQAAABUAAAALAAAAcGF5bG9hZC50eHRU2Q/v8fFaHauyBegPXZQMJmOLAZVk2pPNkYXdgomCA8pQSwECPwMUAAEAAAC1OFtd3O4v6SEAAAAVAAAACwAkAAAAAAAAACCApIEAAAAAcGF5bG9hZC50eHQKACAAAAAAAAEAGACo4nTnpmXdAQAAAAAAAAAAAAAAAAAAAABQSwUGAAAAAAEAAQBdAAAASgAAAAAA'
 )
 
 
@@ -49,6 +55,19 @@ class AutosolveCoreTests(unittest.TestCase):
         self.assertIn(b'analyze', result.stdout)
         self.assertIn(b'doctor', result.stdout)
 
+    def test_capabilities_reflect_integrated_baselines(self):
+        for category, family in (('images', 'IMG02'), ('documents', 'DOC05'),
+                                 ('encoding', 'ENC10'), ('audio_video', 'AV04'),
+                                 ('can_misc', 'CAN02'), ('packets', 'NET02'),
+                                 ('packets', 'NET05'), ('disk_memory', 'DF01'),
+                                 ('disk_memory', 'DF02'), ('disk_memory', 'DF03'),
+                                 ('disk_memory', 'DF05'), ('pwn_services', 'PWN01'),
+                                 ('pwn_services', 'PWN02'), ('pwn_services', 'PWN07'),
+                                 ('web', 'WEB01')):
+            with self.subTest(category=category):
+                rows = self.run_cli('capabilities', '--category', category)['families']
+                self.assertEqual(next(row['status'] for row in rows if row['id'] == family), 'partial')
+
     def test_worker_timeout_stops_only_its_process_group(self):
         with tempfile.TemporaryDirectory() as directory:
             marker = Path(directory) / 'child.pid'
@@ -69,7 +88,7 @@ class AutosolveCoreTests(unittest.TestCase):
                 self.assertIsNone(unrelated.poll())
                 try:
                     state = Path(f'/proc/{child_pid}/stat').read_text().split()[2]
-                except FileNotFoundError:
+                except (FileNotFoundError, ProcessLookupError):
                     state = 'gone'
                 self.assertIn(state, ('gone', 'Z'))
             finally:
@@ -149,6 +168,16 @@ class AutosolveCoreTests(unittest.TestCase):
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 self.assertEqual(self.run_cli('resume', run, code=2)['status'], 'invalid_input')
 
+    def test_resume_and_report_reject_nonobject_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            (run / 'manifest.json').write_text('[]')
+            for command in ('resume', 'report'):
+                with self.subTest(command=command):
+                    result = self.run_cli(command, run, code=2)
+                    self.assertEqual(result['status'], 'invalid_input')
+                    self.assertIn('JSON object', result['reason'])
+
     def test_layered_chain_through_public_cli(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -181,6 +210,19 @@ class AutosolveCoreTests(unittest.TestCase):
                                                         'line_end': 4, 'bit_count': 16})
             self.assertTrue(any('declared bit count 24 differs from decoded 16' in warning
                                 for warning in manifest['warnings']))
+
+    def test_classical_atbash_candidate_is_covered_through_cli(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'cipher.txt'
+            source.write_bytes(b'Svool, Dliow!')
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(a['depth'] > 0 and Path(a['path']).read_bytes() == b'Hello, World!'
+                                and a['source_locator']['transform'].startswith('atbash ')
+                                for a in manifest['artifacts']))
+            self.assertEqual(manifest['coverage']['ENC03']['status'], 'ran')
 
     def test_directory_privacy_and_shared_lineage_on_resume(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -224,15 +266,27 @@ class AutosolveCoreTests(unittest.TestCase):
                                     '--runs-root', root / 'runs', code=3)['run'])
             (bundle / 'encoded.txt').write_bytes(base64.b64encode(b'HELLO_TEST'))
             self.run_cli('resume', run, code=3)
+            (bundle / 'encoded2.txt').write_bytes(base64.b64encode(b'HELLO_TEST'))
+            self.run_cli('resume', run, code=3)
             manifest = json.loads((run / 'manifest.json').read_text())
             child = next(a for a in manifest['artifacts'] if a['depth'] > 0
                          and Path(a['path']).read_bytes() == b'HELLO_TEST')
             roots = {Path(a['path']).name: a['id'] for a in manifest['artifacts'] if a['depth'] == 0}
             self.assertEqual({edge['id'] for edge in child['parents']}, set(roots.values()))
             self.assertTrue(all(edge.get('job_key') for edge in child['parents']))
+            self.assertEqual([edge['operation'] for edge in child['parents']
+                              if edge['id'] == roots['encoded2.txt']], ['base64'])
 
             core._refresh_current(manifest, [roots['encoded.txt']])
             self.assertTrue(child['current'])
+            zip_job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'zip')
+            manifest['findings'].append({'state': 'candidate', 'artifact_id': child['id'],
+                                         'job_id': zip_job['id'], 'operation': 'ZIP-specific lead',
+                                         'current': True})
+            manifest['current_adapter_fingerprints']['zip'] = []
+            core._refresh_current(manifest, [roots['encoded.txt']])
+            self.assertTrue(child['current'])
+            self.assertFalse(manifest['findings'][-1]['current'])
             manifest['current_adapter_fingerprints']['encoding'] = []
             core._refresh_current(manifest, [roots['encoded.txt']])
             self.assertFalse(child['current'])
@@ -253,6 +307,43 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertEqual({Path(a['path']).name for a in manifest['artifacts'] if a['depth'] == 0},
                              {'challenge'})
             self.assertNotIn('private-example', (run / 'report.md').read_text())
+
+    def test_replaced_hints_do_not_ingest_old_private_file_on_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bundle = root / 'bundle'
+            bundle.mkdir()
+            (bundle / 'challenge').write_bytes(b'ordinary challenge bytes')
+            old_hints = bundle / 'old_hints.json'
+            old_hints.write_text(json.dumps({'known_plaintext': 'SECRET{old_private}'}))
+            run = Path(self.run_cli('analyze', bundle, '--category', 'auto', '--hints', old_hints,
+                                    '--runs-root', bundle / 'runs', code=3)['run'])
+            new_hints = root / 'fresh_hints.json'
+            new_hints.write_text(json.dumps({'flag_patterns': [r'SECRET\{[^}]+\}']}))
+            self.run_cli('resume', run, '--hints', new_hints, code=3)
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual({Path(a['path']).name for a in manifest['artifacts']
+                              if a['depth'] == 0 and a['current']}, {'challenge'})
+            self.assertNotIn('old_private', (run / 'report.md').read_text())
+            manifest.pop('private_hint_paths')
+            manifest.pop('private_hint_identities')
+            (run / 'manifest.json').write_text(json.dumps(manifest))
+            refused = self.run_cli('resume', run, '--hints', new_hints, code=2)
+            self.assertIn('lacks private hint exclusions', refused['reason'])
+
+    def test_private_hint_exclusion_is_checkpointed_before_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            hints = root / 'hints.json'
+            hints.write_text('{}')
+            run = root / 'run'
+            manifest = {'jobs': [], 'private_hint_paths': [], 'private_hint_identities': []}
+            with patch.object(core, '_execute', side_effect=RuntimeError('simulated crash')):
+                with self.assertRaisesRegex(RuntimeError, 'simulated crash'):
+                    core._locked_execute(run, manifest, 1, {}, 'digest', hints)
+            saved = json.loads((run / 'manifest.json').read_text())
+            self.assertIn(str(hints.absolute()), saved['private_hint_paths'])
+            self.assertTrue(saved['private_hint_identities'])
 
     def test_transform_cycle_does_not_reparent_original(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -445,7 +536,69 @@ class AutosolveCoreTests(unittest.TestCase):
                                     '--category', 'packets', '--runs-root', root / 'runs', code=3)['run'])
             incomplete = json.loads((run / 'manifest.json').read_text())
             self.assertEqual(incomplete['coverage']['NET01']['status'], 'truncated')
+            self.assertEqual(incomplete['coverage']['NET02']['status'], 'truncated')
+            self.assertFalse(any(item['adapter_id'] == 'packet-objects' and item['child_ids']
+                                 for item in incomplete['jobs']))
             self.assertTrue(any('conversation incomplete' in warning for warning in incomplete['warnings']))
+
+    def test_packet_cli_exports_archive_with_exact_locator_and_recurses(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('inside.txt', b'NETWORK-ARCHIVE-CONTENT')
+            source = root / 'capture.pcap'
+            source.write_bytes(object_pcap(http_transaction(41000, archive.getvalue())))
+            original = source.read_bytes()
+            run = Path(self.run_cli('analyze', source, '--category', 'packets',
+                                    '--budget', '10', '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['NET02']['status'], 'ran')
+            job = next(job for job in manifest['jobs'] if job['adapter_id'] == 'packet-objects')
+            self.assertEqual(len(job['child_ids']), 1)
+            child = next(item for item in manifest['artifacts'] if item['id'] == job['child_ids'][0])
+            self.assertEqual(Path(child['path']).read_bytes(), archive.getvalue())
+            self.assertEqual((child['source_locator']['packet'],
+                              child['source_locator']['tcp_stream']), (6, 0))
+            self.assertEqual(child['source_locator']['source_locators'][0]['request_packet'], 4)
+            self.assertTrue(child['source_locator']['wire_length_verified'])
+            self.assertTrue(any(item['depth'] == 2 and
+                                Path(item['path']).read_bytes() == b'NETWORK-ARCHIVE-CONTENT'
+                                for item in manifest['artifacts']))
+            self.assertEqual(source.read_bytes(), original)
+            self.run_cli('resume', run, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len([item for item in resumed['jobs']
+                                  if item['adapter_id'] == 'packet-objects']), 1)
+
+    def test_source_reversion_rebuilds_current_can_and_packet_intelligence(self):
+        examples = Path(__file__).resolve().parents[1] / 'examples/core'
+        for filename, category, tag, adapter in (
+            ('can-capture.txt', 'can', 'CAN frame', 'can-log'),
+            ('http.pcap', 'packets', 'PCAP frame', 'packets'),
+        ):
+            with self.subTest(filename=filename), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / filename
+                original = (examples / filename).read_bytes()
+                source.write_bytes(original)
+                run = Path(self.run_cli('analyze', source, '--category', category,
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                first = json.loads((run / 'manifest.json').read_text())
+                first_root = next(a['id'] for a in first['artifacts'] if a['depth'] == 0)
+                source.write_bytes(b'unrelated text')
+                self.run_cli('resume', run, code=3)
+                source.write_bytes(original)
+                self.run_cli('resume', run, code=3)
+                restored = json.loads((run / 'manifest.json').read_text())
+                new_root = next(a['id'] for a in restored['artifacts']
+                                if a['depth'] == 0 and a['current'])
+                self.assertNotEqual(new_root, first_root)
+                self.assertTrue(any(item['current'] and item['artifact_id'] == new_root
+                                    and item['tag'] == tag for item in restored['intelligence']))
+                self.assertFalse(any(item['current'] and item['artifact_id'] == first_root
+                                     and item['tag'] == tag for item in restored['intelligence']))
+                self.assertEqual(len([j for j in restored['jobs'] if j['adapter_id'] == adapter]), 2)
 
     def test_packet_tool_change_retires_old_intelligence_even_on_failed_resume(self):
         source = Path(__file__).resolve().parents[1] / 'examples/core/http.pcap'
@@ -521,6 +674,24 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertNotEqual(manifest['coverage']['DF04']['status'], 'not scheduled')
             self.assertNotEqual(manifest['coverage']['NET01']['status'], 'not scheduled')
 
+    def test_heavy_rsa_hints_do_not_starve_other_initial_domains(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bundle = root / 'bundle'
+            bundle.mkdir()
+            (bundle / 'encoded.txt').write_bytes(b'SEVMTE8=')
+            with zipfile.ZipFile(bundle / 'archive.zip', 'w') as archive:
+                archive.writestr('payload', b'ZIP_ONLY')
+            n = (1 << 4096) - 1
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'rsa_parameters': {'records': [
+                {'n': n, 'e': 17, 'c': (1 << 4095) - 1} for _ in range(32)]}}))
+            run = Path(self.run_cli('analyze', bundle, '--category', 'auto', '--hints', hints,
+                                    '--budget', '2', '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['ENC01']['status'], 'ran')
+            self.assertEqual(manifest['coverage']['DOC01']['status'], 'ran')
+
     def test_changed_tool_retires_packet_evidence_before_unscheduled_resume(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -579,6 +750,51 @@ class AutosolveCoreTests(unittest.TestCase):
                                 for a in after['artifacts']))
             self.assertEqual(after['coverage']['DOC02']['status'], 'ran')
             self.assertNotIn('correct horse', (run / 'report.md').read_text())
+
+    def test_shared_encoded_child_survives_zip_password_retirement(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bundle = root / 'bundle'
+            bundle.mkdir()
+            (bundle / 'encrypted.zip').write_bytes(ENCRYPTED_ZIP)
+            password = root / 'passwords.txt'
+            password.write_text('correct horse\n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': str(password)}))
+            run = Path(self.run_cli('analyze', bundle, '--category', 'auto', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            (bundle / 'encoded.txt').write_bytes(base64.b64encode(b'verified zip payload'))
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            before = json.loads((run / 'manifest.json').read_text())
+            child = next(a for a in before['artifacts'] if a['depth'] > 0
+                         and Path(a['path']).read_bytes() == b'verified zip payload')
+            self.assertEqual(len(child['parents']), 2)
+
+            hints.write_text('{}')
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            after = json.loads((run / 'manifest.json').read_text())
+            child = next(a for a in after['artifacts'] if a['id'] == child['id'])
+            self.assertTrue(child['current'])
+            self.assertEqual(after['coverage']['DOC02']['status'], 'skipped prerequisite')
+            self.assertTrue(any(edge['operation'] == 'base64' for edge in child['parents']))
+
+    def test_zip_password_file_preserves_surrounding_spaces(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'encrypted.zip'
+            source.write_bytes(WHITESPACE_PASSWORD_ZIP)
+            password = root / 'passwords.txt'
+            password.write_bytes(b'wrong\n space \n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': str(password)}))
+            self.assertEqual(core._passwords({'password_file': str(password)}, hints)[0],
+                             [b'wrong', b' space '])
+            run = Path(self.run_cli('analyze', source, '--category', 'documents',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(a['depth'] > 0 and Path(a['path']).read_bytes() ==
+                                b'whitespace-key oracle' for a in manifest['artifacts']))
+            self.assertEqual(manifest['coverage']['DOC02']['status'], 'ran')
 
     def test_user_pattern_cannot_block_run(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -931,6 +1147,7 @@ class AutosolveCoreTests(unittest.TestCase):
                                     '--runs-root', root / 'runs', code=3)['run'])
             manifest = json.loads((run / 'manifest.json').read_text())
             self.assertEqual(manifest['coverage']['IMG01']['status'], 'truncated')
+            self.assertEqual(manifest['coverage']['IMG02']['status'], 'truncated')
             self.assertTrue(any('trailing ZIP exceeds' in warning for warning in manifest['warnings']))
             self.assertFalse(any('image_offset' in a['source_locator']
                                  for a in manifest['artifacts']))

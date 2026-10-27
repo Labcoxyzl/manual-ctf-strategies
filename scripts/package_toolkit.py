@@ -43,6 +43,7 @@ COMPANIONS = (
     'research/learning/practice/http/clue.txt',
     'research/learning/video-coverage/practice/triage.bin',
     'research/learning/video-coverage/practice/stream-demo.pdf',
+    'research/learning/video-coverage/practice/embedded-note.rtf',
     'research/learning/video-coverage/practice/audio-tones.wav',
 )
 # Explicit authored fixture paths only; never discover files recursively.
@@ -51,19 +52,50 @@ FIXTURES = (
     'tests/fixtures/toolkit/development/wrapped-bits.txt',
 )
 CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init__.py',
-        'scripts/autosolve_lib/core.py', 'scripts/autosolve_lib/setup.py',
+        'scripts/autosolve_lib/core.py', 'scripts/autosolve_lib/service.py',
+        'scripts/autosolve_lib/service_inventory.py',
+        'scripts/autosolve_lib/web.py',
+        'scripts/autosolve_lib/setup.py',
+        'scripts/autosolve_lib/setup_env.py', 'tests/test_autosolve_setup_env.py',
+        'scripts/autosolve_requirements/core.in', 'scripts/autosolve_requirements/core.lock.txt',
         'scripts/autosolve_lib/candidates.py', 'tests/test_autosolve_candidates.py',
         'scripts/autosolve_lib/family_catalog.json', 'scripts/autosolve_lib/profiles/__init__.py',
         'scripts/autosolve_lib/profiles/encoding.py', 'scripts/autosolve_lib/profiles/documents.py',
+        'scripts/autosolve_lib/profiles/tar.py', 'tests/test_autosolve_tar.py',
         'scripts/autosolve_lib/profiles/xor.py', 'tests/test_autosolve_xor.py',
         'scripts/autosolve_lib/profiles/rsa.py', 'tests/test_autosolve_rsa.py',
         'scripts/autosolve_lib/profiles/symmetric.py', 'tests/test_autosolve_symmetric.py',
+        'scripts/autosolve_lib/profiles/passwords.py', 'tests/test_autosolve_passwords.py',
         'scripts/autosolve_lib/profiles/image_metadata.py', 'tests/test_autosolve_image_metadata.py',
         'scripts/autosolve_lib/profiles/canlog.py', 'tests/test_autosolve_canlog.py',
+        'scripts/autosolve_lib/profiles/can_dbc.py', 'tests/test_autosolve_can_dbc.py',
         'scripts/autosolve_lib/profiles/packets.py', 'tests/test_autosolve_packets.py',
+        'scripts/autosolve_lib/profiles/packet_objects.py', 'tests/test_autosolve_packet_objects.py',
+        'scripts/autosolve_lib/profiles/packet_streams.py', 'tests/test_autosolve_packet_streams.py',
+        'scripts/autosolve_lib/profiles/packet_tls.py', 'tests/test_autosolve_packet_tls.py',
         'scripts/autosolve_lib/profiles/sqlite.py', 'tests/test_autosolve_sqlite.py',
+        'scripts/autosolve_lib/profiles/disk.py', 'tests/test_autosolve_disk.py',
+        'scripts/autosolve_lib/profiles/disk_recovery.py', 'tests/test_autosolve_disk_recovery.py',
+        'scripts/autosolve_lib/profiles/os_artifacts.py', 'tests/test_autosolve_os_artifacts.py',
+        'scripts/autosolve_lib/profiles/memory.py', 'tests/test_autosolve_memory.py',
         'scripts/autosolve_lib/profiles/images.py', 'tests/test_autosolve_images.py',
         'scripts/autosolve_lib/profiles/zsteg.py', 'tests/test_autosolve_zsteg.py',
+        'scripts/autosolve_lib/profiles/stegseek.py', 'tests/test_autosolve_stegseek.py',
+        'scripts/autosolve_lib/profiles/qr.py', 'tests/test_autosolve_qr.py',
+        'scripts/autosolve_lib/profiles/media.py', 'tests/test_autosolve_media.py',
+        'scripts/autosolve_lib/profiles/tones.py', 'tests/test_autosolve_tones.py',
+        'scripts/autosolve_lib/profiles/sstv.py', 'tests/test_autosolve_sstv.py',
+        'scripts/autosolve_lib/profiles/elf.py', 'tests/test_autosolve_elf.py',
+        'scripts/autosolve_lib/profiles/binary_static.py', 'tests/test_autosolve_binary_static.py',
+        'scripts/autosolve_lib/profiles/service_transport.py', 'tests/test_autosolve_service_transport.py',
+        'tests/test_autosolve_service_cli.py',
+        'scripts/autosolve_lib/profiles/service_inventory.py', 'tests/test_autosolve_service_inventory.py',
+        'tests/test_autosolve_service_inventory_cli.py',
+        'scripts/autosolve_lib/profiles/web_static.py', 'tests/test_autosolve_web_static.py',
+        'scripts/autosolve_lib/profiles/web_discovery.py', 'tests/test_autosolve_web_discovery.py',
+        'scripts/autosolve_lib/profiles/jwt.py', 'tests/test_autosolve_jwt.py',
+        'scripts/autosolve_lib/profiles/osint_ids.py', 'tests/test_autosolve_osint_ids.py',
+        'scripts/autosolve_lib/profiles/osint_snapshots.py', 'tests/test_autosolve_osint_snapshots.py',
         'scripts/autosolve_lib/profiles/mime.py', 'tests/test_autosolve_mime.py',
         'scripts/autosolve_lib/profiles/pdf.py', 'tests/test_autosolve_pdf.py',
         'scripts/autosolve_lib/profiles/office.py', 'tests/test_autosolve_office.py',
@@ -77,12 +109,16 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_strategies.md',
         'scripts/chatbot_recipes/context_bloat.json',
         'scripts/chatbot_recipes/kb_article.json',
+        'scripts/chatbot_recipes/document_upload.json',
+        'scripts/chatbot_recipes/example_injection.txt',
         'scripts/chatbot_recipes/history_idor.json',
         'scripts/chatbot_recipes/vector_store.json',
         'scripts/chatbot_recipes/tool_audit.json',
         'scripts/chatbot_recipes/workflow_action.json',
         'scripts/chatbot_recipes/debug_verifier.json',
         'scripts/chatbot_recipes/scorer_batch.json',
+        'scripts/chatbot_recipes/tab_claim.json',
+        'scripts/chatbot_recipes/tab_heartbeat.json',
         'scripts/chatbot_recipes/sign_network.json',
         'scripts/chatbot_recipes/model_parity.json',
         'tests/test_autosolve_core.py', 'tests/test_autosolve_encoding.py',
@@ -122,13 +158,14 @@ python3 -m unittest discover -s tests -p 'test_toolkit*.py'
 python3 scripts/autosolve.py --help
 ```
 
-`autosolve.py` supports bounded local encoding, declared AES/RSA checks,
-ZIP/MIME/PDF extraction, PNG trailing containers, image metadata/views, and an
-explicit-origin chatbot profile with selected plans. `ai_model.py` inspects
-offline model metadata and checks explicit wrapper parity. Chatbot runs keep
-private reports and resume records; offline model reports are private.
-Its reports mark remaining planned families as not implemented; a candidate
-is not a validated challenge answer.
+`autosolve.py` supports bounded local encoding and declared crypto, selected
+archive/document/media and offline packet inspection, and static binary leads.
+Its explicit-origin chatbot, web and service commands may contact assigned
+endpoints. `setup` installs a hash-pinned core into an isolated environment when
+network access is available; `doctor` reports missing native tools. `ai_model.py`
+inspects offline model metadata and checks explicit wrapper parity. Reports
+remain private and mark unsupported families as partial or not implemented;
+a candidate is not a validated challenge answer.
 
 Use paths understood by that interpreter; quote paths containing spaces.
 Native Windows Python is unsupported. The byte workflows use only the standard

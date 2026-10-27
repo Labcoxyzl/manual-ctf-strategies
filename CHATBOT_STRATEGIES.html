@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="c4fbd79caa0e25db2368cb52c7356b330b7ba45e723c621b17eb482d853ca89c">
+  <meta name="source-sha256" content="d6d9946e4f1297bc13d29f91c1937ad06899e288f601321d52ad1d2e497cc05e">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -155,7 +155,7 @@ survive resume. The client will not resend a POST whose outcome is uncertain.</p
 <tr>
 <td><code>kb_injection</code></td>
 <td>an <code>injection</code> object</td>
-<td>Write one exposed lower-trust KB item and send its trigger prompt. A repeated marker stays unvalidated.</td>
+<td>Write one exposed lower-trust KB item or multipart document and send its trigger prompt. A repeated marker stays unvalidated.</td>
 </tr>
 <tr>
 <td><code>custom_chat</code></td>
@@ -178,10 +178,23 @@ survive resume. The client will not resend a POST whose outcome is uncertain.</p
 run every strategy or the whole CHY corpus. A response that reveals a route or
 secret stops broad prompting. The private run contains a JSONL transcript,
 candidate and checker evidence, cookies, and a report. The ordinary terminal
-output contains only status and file paths. <code>--max-requests</code> is at most 100,
+output contains only status and file paths, including for <code>report</code>. <code>--max-requests</code> is at most 100,
 <code>--max-prompts</code> at most 20, and <code>--budget</code> at most 600 seconds. The HTTP client
 also caps each response at 128 KiB, each request body at 128 KiB, and its
 transcript at 2 MiB.</p>
+<p>If the frontend requires one login, claim, or token-exchange POST before chat,
+add a <code>bootstrap</code> object like the <a href="scripts/chatbot_recipes/tab_claim.json">tab-claim example</a>.
+It declares the exact path/body and, when needed, the response token field to
+copy into a chat field or header. Set <code>allow_state_change: true</code>. The request
+runs once in the same cookie jar before prompts; a timeout leaves its outcome
+uncertain and resume will not replay it automatically. If the frontend also
+requires a heartbeat, use the <a href="scripts/chatbot_recipes/tab_heartbeat.json">tab-heartbeat example</a>
+to declare its path, body, exact success status, optional captured token field,
+optional success field/value, and interval. Due
+heartbeats run serially before chat and count against the same request budget.
+An uncertain heartbeat is not replayed; resume can inspect a configured status
+route once. Multi-step login and force-claim semantics still need target-
+specific work.</p>
 <p>For a tool-header capture, start the bounded callback receiver first. Its
 default bind is loopback, and it exits after one request or its duration. A
 remote challenge can reach it only if you deliberately provide a reachable
@@ -191,12 +204,13 @@ stay in a private JSONL file.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 </code></pre>
 <p>When a guardrail returns code points, character arrays, NATO words, initials,
-reversed text, groups, or Base64, save the exact response in a private text
+reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
 file and decode it as a candidate. The tool-call audit helper compares
 <code>args_raw</code>, <code>args_validated</code>, <code>args_normalized</code>, and <code>args_applied</code> from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
 never proof of applied backend state.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
+python3 scripts/chatbot_evidence.py decode --input ./private-embedding.json --mode embedding-bytes
 python3 scripts/chatbot_evidence.py audit --input .autosolve/runs/RUN_ID/transcript.jsonl \
   --line 5 --raw-field tool_calls.0.args_raw \
   --validated-field tool_calls.0.args_validated \
@@ -218,8 +232,12 @@ response is evidence, not a solve.</p>
 <a href="scripts/chatbot_recipes/tool_audit.json">tool-audit</a>, or
 <a href="scripts/chatbot_recipes/workflow_action.json">workflow</a> examples. Replace every
 <code>REPLACE_</code> field before live use; the CLI rejects live plans that retain one.
-The <a href="scripts/chatbot_recipes/kb_article.json">KB example</a> shows an explicit writable
-injection surface. Do not enumerate IDs, origins, or ports by changing a plan
+The <a href="scripts/chatbot_recipes/kb_article.json">KB example</a> shows a JSON/form write.
+The <a href="scripts/chatbot_recipes/document_upload.json">document upload example</a> uses a
+synthetic text file and a multipart form. Replace its route, file field, and
+file content after inspecting the challenge. The upload file is limited to
+64 KiB and hashed into the run identity; changing it invalidates resume.
+Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.</p>
 <pre><code class="language-sh">python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
@@ -235,6 +253,7 @@ package) is installed. Parity runs two explicit wrapper commands on up to 20
 JSON canaries and requires <code>--execute-local</code>.</p>
 <pre><code class="language-sh">python3 scripts/ai_model.py inspect ./model.safetensors
 python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
+python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
 python3 scripts/ai_model.py svm ./private-svm-parameters.json
 python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
 python3 scripts/ai_model.py parity ./private-parity.json --execute-local
@@ -267,6 +286,11 @@ bounds into the <a href="scripts/chatbot_recipes/sign_network.json">sign-gate JS
 and checks whether another input also satisfies the declared constraints.
 It does not infer gates from a model or treat a satisfying assignment as a
 validated flag. The supplied checker must accept the serialized candidate.</p>
+<p><code>ai_model.py suppression</code> calculates the explicit <code>2*base-challenge</code>
+hypothesis for small matching floating NPZ tensors and stores a float64
+candidate. It does not identify historical weights from an ambiguous
+transformation. Check the producer's arithmetic and run parity before using
+the candidate.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>
@@ -298,7 +322,7 @@ validated flag. The supplied checker must accept the serialized candidate.</p>
 </tr>
 <tr>
 <td>Adapter/delta and weight differences</td>
-<td><code>ai_model.py compare</code> for supported small tensors</td>
+<td><code>ai_model.py compare</code> and explicit NPZ <code>suppression</code> hypothesis</td>
 <td>Reproduce merge arithmetic, quantization, and full-model behavior.</td>
 </tr>
 <tr>
@@ -353,7 +377,7 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Trusted KB or document injection</td>
-<td><code>kb_injection</code> + <code>kb_article.json</code></td>
+<td><code>kb_injection</code> + JSON or multipart recipe</td>
 <td>Fill the exposed write route and verify state beyond an echo.</td>
 </tr>
 <tr>
@@ -383,8 +407,8 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Chat ownership locks and rate limits</td>
-<td>Shared chatbot transport</td>
-<td>Map claim/heartbeat fields from frontend when needed; honor cooldowns.</td>
+<td>Shared transport, one-step <code>bootstrap</code>, and declared <code>heartbeat</code></td>
+<td>Map claim/heartbeat fields from frontend; honor cooldowns.</td>
 </tr>
 <tr>
 <td>Tool-call audit lifecycle</td>
@@ -428,7 +452,7 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Adapter/delta weight recovery</td>
-<td><code>ai_model.py compare</code> and <code>parity</code></td>
+<td><code>ai_model.py compare</code>, <code>suppression</code>, and <code>parity</code></td>
 <td>Reproduce merge, casts, rounding and full-model behavior.</td>
 </tr>
 <tr>
