@@ -4,6 +4,8 @@ cryptography==50.0.2
 Pillow==10.4.0
 pypdf==6.11.0
 pyelftools==0.32
+pefile==2024.8.26
+capstone==5.0.6
 oletools==0.60.2
 cantools==40.2.3
 zxing-cpp==3.1.1
