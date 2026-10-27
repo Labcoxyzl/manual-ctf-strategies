@@ -28,6 +28,51 @@ _NUMERIC = (
 )
 
 
+def declared_classical(data: bytes, max_output: int, parameters: list[dict]) -> list[tuple[bytes, str]]:
+    """Apply only explicitly supplied classical keys; each output remains a candidate."""
+    if not data or len(data) > max_output:
+        return []
+    results = []
+    for index, record in enumerate(parameters):
+        family = record['family']
+        if family == 'vigenere' and 'key' in record:
+            key = record['key'].upper().encode('ascii')
+            output = bytearray()
+            cursor = 0
+            for value in data:
+                base = 65 if 65 <= value <= 90 else 97 if 97 <= value <= 122 else None
+                if base is None:
+                    output.append(value)
+                else:
+                    output.append(base + (value - base - (key[cursor % len(key)] - 65)) % 26)
+                    cursor += 1
+            results.append((bytes(output), f"vigenere:parameter_index={index}"))
+        elif family == 'rail_fence' and 'rails' in record and record['rails'] <= len(data):
+            rails = record['rails']
+            counts = [0] * rails
+            rail, direction = 0, 1
+            for _ in data:
+                counts[rail] += 1
+                if rail == 0:
+                    direction = 1
+                elif rail == rails - 1:
+                    direction = -1
+                rail += direction
+            offsets = [sum(counts[:index]) for index in range(rails)]
+            output = bytearray(len(data))
+            rail, direction = 0, 1
+            for index in range(len(data)):
+                output[index] = data[offsets[rail]]
+                offsets[rail] += 1
+                if rail == 0:
+                    direction = 1
+                elif rail == rails - 1:
+                    direction = -1
+                rail += direction
+            results.append((bytes(output), f"rail_fence:rails={rails}"))
+    return results
+
+
 def _bit_blocks(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
     candidates = []
     start = rows = bit_count = 0

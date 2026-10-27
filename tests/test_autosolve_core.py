@@ -55,6 +55,89 @@ def _delayed_worker_entry(*args):
 
 
 class AutosolveCoreTests(unittest.TestCase):
+    def test_declared_classical_cli_recovers_exact_candidates(self):
+        cases = (
+            (b'Avfb th kim hzu czbrxf iyhvs anbjfb.',
+             {'family': 'vigenere', 'key': 'ORBIT'}, b'Meet at the old bridge after sunset.'),
+            (b'Bgel p mi.rn h ivrcmasa ingtitseostdh',
+             {'family': 'rail_fence', 'rails': 3}, b'Bring the silver compass at midnight.'),
+        )
+        for wire, parameter, expected in cases:
+            with self.subTest(family=parameter['family']), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'cipher.txt'
+                source.write_bytes(wire)
+                hints = root / 'hints.json'
+                hints.write_text(json.dumps({'classical_parameters': [parameter]}))
+                run = Path(self.run_cli('analyze', source, '--category', 'encoding', '--hints', hints,
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                exact = [a for a in manifest['artifacts'] if a['depth'] > 0 and
+                         Path(a['path']).read_bytes() == expected and
+                         any(edge['operation'].startswith(parameter['family'] + ':')
+                             for edge in a['parents'])]
+                self.assertEqual(len(exact), 1)
+                self.assertEqual(manifest['coverage']['ENC04']['status'], 'ran')
+                self.assertFalse(any(f['state'] == 'challenge_accepted' for f in manifest['findings']))
+
+    def test_classical_missing_and_bad_parameters_keep_honest_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'cipher.txt'
+            source.write_bytes(b'IEMYMVXSZOKATAMKMWGJMRKFFHXTMP')
+            hints = root / 'hints.json'
+            for parameter in ({'family': 'vigenere'}, {'family': 'rail_fence'}):
+                hints.write_text(json.dumps({'classical_parameters': [parameter]}))
+                run = Path(self.run_cli('analyze', source, '--category', 'encoding', '--hints', hints,
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                self.assertEqual(manifest['coverage']['ENC04']['status'], 'skipped prerequisite')
+                self.assertFalse(any(f['state'] == 'challenge_accepted' for f in manifest['findings']))
+            for parameter in ({'family': 'vigenere', 'key': ''},
+                              {'family': 'vigenere', 'key': 'é'},
+                              {'family': 'rail_fence', 'rails': True},
+                              {'family': 'rail_fence', 'rails': 1},
+                              {'family': 'beaufort', 'key': 'CEDAR'}):
+                hints.write_text(json.dumps({'classical_parameters': [parameter]}))
+                self.assertEqual(self.run_cli('analyze', source, '--category', 'encoding',
+                                              '--hints', hints, '--runs-root', root / 'runs',
+                                              code=2)['status'], 'invalid_input')
+
+    def test_classical_changed_key_retires_old_plaintext_on_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'cipher.txt'
+            source.write_bytes(b'Avfb th kim hzu czbrxf iyhvs anbjfb.')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'classical_parameters': [
+                {'family': 'vigenere', 'key': 'ORBIT'}]}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            before = json.loads((run / 'manifest.json').read_text())
+            old = next(a for a in before['artifacts'] if a['depth'] > 0 and
+                       Path(a['path']).read_bytes() == b'Meet at the old bridge after sunset.')
+            hints.write_text(json.dumps({'classical_parameters': [
+                {'family': 'vigenere', 'key': 'COBRA'}]}))
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            after = json.loads((run / 'manifest.json').read_text())
+            self.assertFalse(next(a for a in after['artifacts'] if a['id'] == old['id'])['current'])
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                any(edge['operation'].startswith('vigenere:') for edge in a['parents'])
+                                for a in after['artifacts']))
+
+    def test_declared_key_without_transformable_letters_is_no_finding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'digits.txt'
+            source.write_bytes(b'12345')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'classical_parameters': [
+                {'family': 'vigenere', 'key': 'ORBIT'}]}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['ENC04']['status'], 'no finding')
+
     def run_cli(self, *args, code=0):
         result = subprocess.run([sys.executable, '-B', str(SCRIPT), '--json', *map(str, args)],
                                 capture_output=True, timeout=15)

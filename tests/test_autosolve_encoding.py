@@ -5,10 +5,38 @@ import lzma
 import unittest
 import zlib
 
-from scripts.autosolve_lib.profiles.encoding import decode
+from scripts.autosolve_lib.profiles.encoding import decode, declared_classical
 
 
 class EncodingTests(unittest.TestCase):
+    def test_declared_classical_keys_recover_independent_ciphertexts(self):
+        cases = (
+            (b'Avfb th kim hzu czbrxf iyhvs anbjfb.',
+             {'family': 'vigenere', 'key': 'ORBIT'}, b'Meet at the old bridge after sunset.'),
+            ('Do wdogw sdlá plbc pd dfwbew, xffhz sz qsfzd fzbc.'.encode(),
+             {'family': 'vigenere', 'key': 'SOL'},
+             'La llave está bajo el puente, junto al farol rojo.'.encode()),
+            (b'Bgel p mi.rn h ivrcmasa ingtitseostdh',
+             {'family': 'rail_fence', 'rails': 3}, b'Bring the silver compass at midnight.'),
+            (b'P wenitn octd wlefo  ar rd histtlc ae ieewo.esoltesecro,e pch kdbnbs hidalhtorneeeietn',
+             {'family': 'rail_fence', 'rails': 4},
+             b'Please follow the eastern corridor, then inspect the locked cabinet beside the window.'),
+        )
+        for wire, parameter, expected in cases:
+            with self.subTest(parameter=parameter):
+                results = declared_classical(wire, len(expected), [parameter])
+                self.assertTrue(any(data == expected and label.startswith(parameter['family'] + ':')
+                                    for data, label in results))
+                self.assertEqual(declared_classical(wire, 4, [parameter]), [])
+
+    def test_declared_vigenere_labels_do_not_expose_short_keys(self):
+        results = declared_classical(b'IFMMP', 5, [
+            {'family': 'vigenere', 'key': 'A'},
+            {'family': 'vigenere', 'key': 'B'},
+        ])
+        self.assertEqual([label for _, label in results], [
+            'vigenere:parameter_index=0', 'vigenere:parameter_index=1'])
+
     def test_strict_base_decoding_preserves_alternatives_and_binary_bytes(self):
         self.assertIn((b"AB", "base16"), decode(b"4142", 3))
         self.assertIn((base64.b64decode(b"4142"), "base64"), decode(b"4142", 3))

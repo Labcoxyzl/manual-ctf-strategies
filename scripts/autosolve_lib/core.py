@@ -39,6 +39,7 @@ ALIASES = {'crypto': 'encoding', 'audio': 'audio_video', 'video': 'audio_video',
            'misc': 'can_misc', 'archives': 'documents', 'ai': 'ai_chatbot',
            'chatbot': 'ai_chatbot'}
 HINT_TYPES = {'flag_patterns': list, 'known_plaintext': str, 'password_file': str,
+              'classical_parameters': list,
               'stegseek_seed': bool,
               'key_files': list, 'rsa_parameters': (dict, list), 'tls_keylog': str,
               'symmetric_parameters': list, 'hash_parameters': list,
@@ -170,6 +171,7 @@ def load_hints(path):
             any(ord(char) < 32 for char in item['name']) for item in memory_targets):
         raise InvalidInput('memory_dump_targets require at most 8 exact address, space and name records')
     _rsa_parameters(hints, path)
+    _classical_parameters(hints)
     _symmetric_parameters(hints)
     _hash_parameters(hints)
     _jwt_hints(hints, path)
@@ -186,6 +188,29 @@ def load_hints(path):
         except ValueError as error:
             raise InvalidInput(str(error)) from error
     return hints, hashlib.sha256(raw).hexdigest()
+
+
+def _classical_parameters(hints):
+    records = hints.get('classical_parameters', [])
+    if len(records) > 8:
+        raise InvalidInput('classical_parameters allows at most 8 records')
+    for index, record in enumerate(records):
+        if type(record) is not dict:
+            raise InvalidInput(f'invalid classical record {index}')
+        family = record.get('family')
+        if family == 'vigenere':
+            if set(record) - {'family', 'key'} or ('key' in record and
+                    (type(record['key']) is not str or
+                     re.fullmatch(r'[A-Za-z]{1,32}', record['key']) is None)):
+                raise InvalidInput(f'invalid Vigenere record {index}')
+        elif family == 'rail_fence':
+            if set(record) - {'family', 'rails'} or ('rails' in record and
+                    (type(record['rails']) is not int or not 2 <= record['rails'] <= 16)):
+                raise InvalidInput(f'invalid rail-fence record {index}')
+        else:
+            raise InvalidInput(f'unsupported classical family in record {index}')
+    digest = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest() if records else None
+    return records, digest
 
 
 def _jwt_hints(hints, hints_path):
@@ -669,6 +694,9 @@ def _refresh_current(manifest, source_ids):
     def valid_job(job):
         return (job['status'] == 'complete' and
                 job.get('tool_fingerprint') in fingerprints.get(job['adapter_id'], []) and
+                ('classical_parameters' not in job.get('data_fingerprints', {}) or
+                 job['data_fingerprints']['classical_parameters'] ==
+                 manifest.get('classical_parameters_sha256')) and
                 (job['adapter_id'] != 'packet-tls' or
                  job.get('data_fingerprints', {}).get('tls_keylog') == manifest.get('tls_keylog_sha256')) and
                 (job['adapter_id'] != 'can-dbc' or
@@ -2519,23 +2547,25 @@ def _run_ocr(path, timeout, max_bytes):
         parent.close()
 
 
-def _decode_worker(data, max_output, pipe):
-    from .profiles.encoding import decode
+def _decode_worker(data, max_output, classical_parameters, pipe):
+    from .profiles.encoding import decode, declared_classical
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
     resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
     try:
         diagnostics = []
-        pipe.send(('ok', (decode(data, max_output, diagnostics), diagnostics)))
+        pipe.send(('ok', (declared_classical(data, max_output, classical_parameters) +
+                          decode(data, max_output, diagnostics), diagnostics)))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
         pipe.close()
 
 
-def _run_decode(data, max_output, timeout):
+def _run_decode(data, max_output, timeout, classical_parameters=()):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
-    worker = multiprocessing.Process(target=_worker_entry, args=(_decode_worker, data, max_output, child))
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_decode_worker, data, max_output, classical_parameters, child))
     worker.start()
     child.close()
     try:
@@ -2681,17 +2711,21 @@ def _coverage(category):
 
 def _mark_encoding_coverage(manifest, operations, diagnostics=(), artifact_id=None):
     produced = {'ENC02' if label.startswith(('gzip', 'zlib', 'bzip2', 'xz'))
+                else 'ENC04' if label.startswith(('vigenere:', 'rail_fence:'))
                 else 'ENC03' if label == 'rot13' or label.startswith(
                     ('atbash ', 'caesar-shift:', 'affine-decrypt:')) else 'ENC01'
                 for label in operations}
-    for family in ('ENC01', 'ENC02', 'ENC03'):
+    for family in ('ENC01', 'ENC02', 'ENC03', 'ENC04'):
         if family in manifest['coverage']:
             if family in produced and manifest['coverage'][family]['status'] not in ('truncated', 'failed'):
                 manifest['coverage'][family]['status'] = 'ran'
-            elif manifest['coverage'][family]['status'] == 'not scheduled':
+            elif family != 'ENC04' and manifest['coverage'][family]['status'] == 'not scheduled':
                 manifest['coverage'][family]['status'] = 'no finding'
             if manifest['coverage'][family]['status'] not in ('truncated', 'failed'):
-                manifest['coverage'][family]['note'] = 'finite stdlib transforms only'
+                if family != 'ENC04' or family in produced:
+                    manifest['coverage'][family]['note'] = ('explicit classical parameters; candidate only'
+                                                           if family == 'ENC04' else
+                                                           'finite stdlib transforms only')
     for record in diagnostics:
         if record['status'] == 'complete':
             continue
@@ -7095,6 +7129,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
     hash_words, hash_wordlist_hash = _hash_wordlist(hints, hints_path)
     hash_records, hash_params_hash = _hash_parameters(hints)
     rsa_parameters, rsa_hash = _rsa_parameters(hints, hints_path)
+    classical_parameters, classical_hash = _classical_parameters(hints)
     symmetric_parameters, symmetric_hash = _symmetric_parameters(hints)
     jwt_keys, jwt_words, jwt_hint_hash = _jwt_hints(hints, hints_path)
     manifest.setdefault('history_warnings', []).extend(manifest['warnings'])
@@ -7122,6 +7157,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
     manifest['web_scope_origin'] = hints.get('scope_origin')
     manifest['jwt_hints_sha256'] = jwt_hint_hash
     manifest['rsa_parameters_sha256'] = rsa_hash
+    manifest['classical_parameters_sha256'] = classical_hash
     manifest['symmetric_parameters_sha256'] = symmetric_hash
     manifest['checker_hints_sha256'] = (hashlib.sha256(
         json.dumps(hints['checker'], sort_keys=True).encode()).hexdigest()
@@ -7884,7 +7920,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         if data is not None and decode_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
             fingerprint = hashlib.sha256(Path(decode.__code__.co_filename).read_bytes()).hexdigest()
             suppress_unranked = _has_classical_ancestor(manifest, artifact)
-            key = hashlib.sha256(f"{artifact['sha256']}:encoding.v1:{fingerprint}".encode()).hexdigest()
+            declared = classical_parameters if depth == 0 and encoding_selected else []
+            declared_hash = classical_hash if declared else None
+            key = hashlib.sha256(
+                f"{artifact['sha256']}:encoding.v1:{fingerprint}:{declared_hash or ''}".encode()).hexdigest()
             if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
                 seen.setdefault(key, artifact['id'])
                 old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
@@ -7912,8 +7951,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             operation.startswith('gzip') for operation in reused_operations) else 'truncated')
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'encoding',
-                           'input_ids': [artifact['id']], 'operation': 'stdlib finite decode',
-                           'tool_fingerprint': fingerprint, 'data_fingerprints': {},
+                           'input_ids': [artifact['id']], 'operation': 'bounded encoding decode',
+                           'tool_fingerprint': fingerprint,
+                           'data_fingerprints': ({'classical_parameters': declared_hash} if declared else {}),
                            'cwd': str(run), 'limits': {'output_bytes': MAX_CHILD},
                            'status': 'running', 'child_ids': [], 'started': time.time()}
                     manifest['jobs'].append(job)
@@ -7921,7 +7961,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     try:
                         results, diagnostics = _run_decode(
                             data, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
-                            min(30, max(.01, deadline - time.monotonic())))
+                            min(30, max(.01, deadline - time.monotonic())), declared)
                         job['diagnostics'] = diagnostics
                         produced = []
                         for decoded, operation in results:
@@ -7932,10 +7972,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             if bit_block:
                                 locator = {'transform': 'bit-text', 'line_start': int(bit_block[1]),
                                            'line_end': int(bit_block[2]), 'bit_count': int(bit_block[3])}
-                                declared = re.search(rb'(?im)^(?:bits found|bit count|declared bits)\s*:\s*(\d+)\s*$', data)
-                                if declared and int(declared[1]) != int(bit_block[3]):
+                                declared_bits = re.search(
+                                    rb'(?im)^(?:bits found|bit count|declared bits)\s*:\s*(\d+)\s*$', data)
+                                if declared_bits and int(declared_bits[1]) != int(bit_block[3]):
                                     manifest['warnings'].append(
-                                        f"{artifact['id']}: declared bit count {int(declared[1])} "
+                                        f"{artifact['id']}: declared bit count {int(declared_bits[1])} "
                                         f"differs from decoded {int(bit_block[3])}")
                             compressed = next((item for item in diagnostics
                                                if operation.startswith(item['kind']) and item['members']), None)
@@ -7962,7 +8003,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"encoding job failed: {type(error).__name__}")
-                        for family in ('ENC01', 'ENC02', 'ENC03'):
+                        for family in ('ENC01', 'ENC02', 'ENC03', *(('ENC04',) if declared else ())):
                             if family in manifest['coverage']:
                                 manifest['coverage'][family]['status'] = job['status']
                                 manifest['coverage'][family]['note'] = job['warning']
@@ -7971,6 +8012,14 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
+            if declared and manifest['coverage']['ENC04']['status'] == 'not scheduled':
+                missing = any(('key' if row['family'] == 'vigenere' else 'rails') not in row
+                              for row in declared)
+                manifest['coverage']['ENC04']['status'] = ('skipped prerequisite' if missing
+                                                         else 'no finding')
+                manifest['coverage']['ENC04']['note'] = ('declared classical family needs a key or rails'
+                                                       if missing else
+                                                       'declared parameters produced no new artifact')
         if (encoding_selected and (artifact['kind_evidence'] in ('text', 'binary') or
                                    manifest['category'] == 'encoding')
                 and 'xor_key_hex' not in artifact['source_locator']):
@@ -8194,7 +8243,7 @@ def report(run_path):
 
 def capabilities(category='auto'):
     category = category_name(category)
-    implemented = {'ENC01', 'ENC02', 'ENC03', 'ENC05', 'ENC06', 'ENC07', 'ENC08', 'ENC10',
+    implemented = {'ENC01', 'ENC02', 'ENC03', 'ENC04', 'ENC05', 'ENC06', 'ENC07', 'ENC08', 'ENC10',
                    'DOC01', 'DOC02', 'DOC04', 'DOC05', 'DOC06',
                    'IMG01', 'IMG02', 'IMG03', 'IMG04', 'IMG05',
                    'AV01', 'AV02', 'AV03', 'AV04', 'AV06',
