@@ -4,11 +4,25 @@ import hashlib
 import mmap
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 from scripts.autosolve_lib.profiles import checker, elf
+
+
+def _angr_import_ready():
+    try:
+        return subprocess.run(
+            [sys.executable, '-B', '-c',
+             'import angr; import claripy; from cle.backends.elf import ELF'],
+            capture_output=True, timeout=20).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+ANGR_IMPORT_READY = _angr_import_ready()
 
 
 @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
@@ -26,6 +40,22 @@ class CheckerTests(unittest.TestCase):
                         str(source_file)], check=True, capture_output=True)
         return binary
 
+    def test_no_execution_gate_needs_no_angr_import(self):
+        binary = self.build('no_execute', 'int main(void) { return 0; }')
+        skipped, _ = checker.inspect_checker(
+            binary, {'channel': 'argv', 'length': 1, 'find': {'stdout': 'WIN'}})
+        self.assertEqual(skipped['status'], 'skipped_execution')
+        self.assertFalse(skipped['replay']['attempted'])
+        self.assertNotIn('candidate_hex', skipped)
+
+    def test_invalid_hints_do_not_need_angr_import(self):
+        for bad in ({'channel': 'stdin', 'length': 0, 'find': {'stdout': 'WIN'}},
+                    {'channel': 'argv', 'length': 1, 'find': {'python': 'eval(1)'}},
+                    {'channel': 'argv', 'length': 1, 'find': {'address': '0x401000'}}):
+            with self.assertRaises(ValueError):
+                checker.inspect_checker(self.root / 'missing', bad, execute_local=True)
+
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_stdin_candidate_requires_execution_gate_and_replay(self):
         binary = self.build('stdin_check', '''#include <stdio.h>
 int main(void) { char s[8] = {0};
@@ -49,6 +79,7 @@ int main(void) { char s[8] = {0};
         self.assertEqual(verified['replay']['returncode'], 0)
         self.assertEqual(hashlib.sha256(binary.read_bytes()).hexdigest(), before)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_argv_heldout_input_and_success_text(self):
         binary = self.build('argv_check', '''#include <stdio.h>
 int main(int argc, char **argv) { if (argc != 2) return 2;
@@ -63,7 +94,8 @@ int main(int argc, char **argv) { if (argc != 2) return 2;
         self.assertEqual(result['status'], 'validated_input', (result, warnings))
         self.assertEqual(bytes.fromhex(result['candidate_hex']), b'9xR')
 
-    def test_exhausted_unsat_and_invalid_hints(self):
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
+    def test_exhausted_unsat(self):
         binary = self.build('unsat_check', '''#include <stdio.h>
 int main(int argc, char **argv) { if (argc != 2) return 2;
   if (argv[1][0]=='A' && argv[1][0]=='B') puts("WIN");
@@ -73,12 +105,8 @@ int main(int argc, char **argv) { if (argc != 2) return 2;
                  'avoid': {'stdout': 'LOSE'}}
         result, _ = checker.inspect_checker(binary, hints, execute_local=True)
         self.assertEqual(result['status'], 'unsat_under_model', result)
-        for bad in ({'channel': 'stdin', 'length': 0, 'find': {'stdout': 'WIN'}},
-                    {'channel': 'argv', 'length': 1, 'find': {'python': 'eval(1)'}},
-                    {'channel': 'argv', 'length': 1, 'find': {'address': '0x401000'}}):
-            with self.assertRaises(ValueError):
-                checker.inspect_checker(binary, bad, execute_local=True)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_tiny_step_budget_is_incomplete_not_unsat(self):
         binary = self.build('budget_check', '''#include <stdio.h>
 int main(int argc, char **argv) { if (argc < 2) return 2;
@@ -89,6 +117,7 @@ int main(int argc, char **argv) { if (argc < 2) return 2;
             execute_local=True, max_steps=1)
         self.assertEqual(result['status'], 'incomplete', result)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_unknown_native_syscall_is_incomplete(self):
         binary = self.build('syscall_check', '''#include <stdio.h>
 int main(void) { long result;
@@ -101,6 +130,7 @@ int main(void) { long result;
         self.assertEqual(result['status'], 'incomplete', result)
         self.assertIn('syscall', result['reason'])
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_avoid_condition_discards_path_before_later_win(self):
         binary = self.build('avoid_check', '''#include <stdio.h>
 int main(void) { puts("LOSE"); puts("WIN"); return 0; }
@@ -111,6 +141,7 @@ int main(void) { puts("LOSE"); puts("WIN"); return 0; }
             execute_local=True)
         self.assertEqual(result['status'], 'unsat_under_model', result)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_address_avoid_prunes_active_state(self):
         binary = self.build('address_avoid', '''#include <stdio.h>
 int main(void) { puts("WIN"); return 0; }
@@ -123,6 +154,7 @@ int main(void) { puts("WIN"); return 0; }
             execute_local=True)
         self.assertEqual(result['status'], 'unsat_under_model', result)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_address_find_replay_stays_candidate_without_observable_oracle(self):
         binary = self.build('address_find', '''#include <stdio.h>
 __attribute__((noinline)) void win(void) { puts("WIN"); }
@@ -137,6 +169,7 @@ int main(int argc, char **argv) { if (argc==2 && argv[1][0]=='Z') win(); return 
         self.assertEqual(bytes.fromhex(result['candidate_hex']), b'Z')
         self.assertTrue(result['replay']['attempted'])
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_replay_rejects_success_text_on_nonzero_exit(self):
         binary = self.build('false_success', '''#include <stdio.h>
 int main(int argc, char **argv) { puts("WIN"); return 1; }
@@ -146,6 +179,7 @@ int main(int argc, char **argv) { puts("WIN"); return 1; }
             execute_local=True, replay=True)
         self.assertEqual(result['status'], 'replay_failed', result)
 
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_large_untouched_parent_mapping_does_not_exhaust_worker_limit(self):
         binary = self.build('mapped_parent', '''#include <stdio.h>
 int main(int argc, char **argv) {

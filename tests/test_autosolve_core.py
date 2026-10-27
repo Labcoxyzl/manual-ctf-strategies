@@ -22,6 +22,7 @@ import zipfile
 from unittest.mock import patch
 
 from test_autosolve_documents import ENCRYPTED_ZIP
+from test_autosolve_checker import ANGR_IMPORT_READY
 from test_autosolve_images import sample_png
 from test_autosolve_packet_objects import pcap as object_pcap, transaction as http_transaction
 from scripts.autosolve_lib import core
@@ -49,6 +50,24 @@ class AutosolveCoreTests(unittest.TestCase):
                                 capture_output=True, timeout=15)
         self.assertEqual(result.returncode, code, result.stderr + result.stdout)
         return json.loads(result.stdout)
+
+    def checker_fixture(self, root):
+        source = root / 'checker.c'
+        binary = root / 'checker'
+        source.write_text('''#include <stdio.h>
+int main(int argc, char **argv) {
+  if (argc == 2 && argv[1][0] == 'R' && argv[1][1] == '7') {
+    puts("REV07_WIN"); return 0;
+  }
+  puts("REV07_LOSE"); return 1;
+}''')
+        subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
+                       check=True, capture_output=True)
+        hints = root / 'hints.json'
+        hints.write_text(json.dumps({'checker': {'channel': 'argv', 'length': 2,
+                                  'find': {'stdout': 'REV07_WIN'},
+                                  'avoid': {'stdout': 'REV07_LOSE'}}}))
+        return source, binary, hints
 
     def test_help_without_optional_packages(self):
         result = subprocess.run([sys.executable, '-I', '-S', str(SCRIPT), '--help'],
@@ -1599,24 +1618,10 @@ class AutosolveCoreTests(unittest.TestCase):
         self.assertEqual(source.read_bytes(), original)
 
     @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
-    def test_checker_cli_execution_gate_replay_and_resume(self):
+    def test_checker_cli_requires_explicit_execution_and_replay(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = root / 'checker.c'
-            binary = root / 'checker'
-            source.write_text('''#include <stdio.h>
-int main(int argc, char **argv) {
-  if (argc == 2 && argv[1][0] == 'R' && argv[1][1] == '7') {
-    puts("REV07_WIN"); return 0;
-  }
-  puts("REV07_LOSE"); return 1;
-}''')
-            subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
-                           check=True, capture_output=True)
-            hints = root / 'hints.json'
-            hints.write_text(json.dumps({'checker': {'channel': 'argv', 'length': 2,
-                                      'find': {'stdout': 'REV07_WIN'},
-                                      'avoid': {'stdout': 'REV07_LOSE'}}}))
+            _, binary, hints = self.checker_fixture(root)
             no_gate = self.run_cli('analyze', binary, '--category', 'reversing',
                                    '--hints', hints, '--runs-root', root / 'runs',
                                    '--budget', '45', code=3)
@@ -1627,6 +1632,13 @@ int main(int argc, char **argv) {
             self.assertEqual(self.run_cli('analyze', binary, '--category', 'reversing',
                                           '--hints', hints, '--replay-checker',
                                           '--runs-root', root / 'other', code=2)['status'], 'invalid_input')
+
+    @unittest.skipUnless(shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for REV07 solving')
+    def test_checker_cli_execution_gate_replay_and_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, binary, hints = self.checker_fixture(root)
 
             result = self.run_cli('analyze', binary, '--category', 'reversing',
                                   '--hints', hints, '--execute-local', '--runs-root',

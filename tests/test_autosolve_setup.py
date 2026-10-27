@@ -12,6 +12,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from autosolve_lib import setup as capabilities
+from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
@@ -135,9 +136,8 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result['operations']['disk_memory.disk_image']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['tsk']['status'], 'ready')
 
-    @unittest.skipUnless(capabilities.shutil.which('gcc') and
-                         capabilities.importlib.util.find_spec('angr'),
-                         'gcc and angr are needed for the REV07 functional probe')
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for the REV07 functional probe')
     def test_checker_probe_solves_and_replays_temporary_elf(self):
         result = capabilities.doctor(['reversing'], self_test=True)
         operation = result['operations']['malware_reversing.checker']
@@ -157,9 +157,8 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(operation['functional_probe'], 'failed')
         self.assertEqual(operation['probe_detail'], 'checker_timeout: symbolic worker timed out')
 
-    @unittest.skipUnless(capabilities.shutil.which('gcc') and
-                         capabilities.importlib.util.find_spec('angr'),
-                         'gcc and angr are needed for the REV07 parent mapping probe')
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for the REV07 parent mapping probe')
     def test_checker_probe_works_with_large_untouched_parent_mapping(self):
         try:
             mapping = mmap.mmap(-1, 3 * 1024**3,
@@ -170,6 +169,15 @@ class SetupTests(unittest.TestCase):
         with mapping:
             operation, _ = capabilities._checker_probe(True)
         self.assertEqual(operation['functional_probe'], 'passed', operation)
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and not ANGR_IMPORT_READY and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'requires an installed but unimportable angr runtime')
+    def test_checker_probe_reports_unusable_installed_angr(self):
+        operation, engine = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'failed', operation)
+        self.assertIn('checker_incomplete:', operation.get('probe_detail', ''))
+        self.assertEqual(engine['status'], 'partial')
 
 
 if __name__ == "__main__":
