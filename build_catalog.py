@@ -30,6 +30,7 @@ LOCAL_ROUTE_HELP = {
     "memory-process": (("Memory workflow", "CORE_WORKFLOWS.html#memory"),),
     "media-inspection": (("Image workflow", "CORE_WORKFLOWS.html#media"),
                          ("Audio practice", "research/learning/video-coverage/practice/AUDIO_PRACTICE.html"),
+                         ("WAV LSB template", "TEMPLATES.html#wav-lsb"),
                          ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
     "steghide-carrier": (("Steghide carrier workflow", "CORE_WORKFLOWS.html#steghide-carrier"),
                          ("Optional local toolkit", "TOOLKIT.html#setup")),

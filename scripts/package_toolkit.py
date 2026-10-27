@@ -53,6 +53,8 @@ FIXTURES = (
     'tests/fixtures/toolkit/audio/robot36.wav',
     'tests/fixtures/toolkit/audio/morse-sos.wav',
     'tests/fixtures/toolkit/audio/afsk-hello.wav',
+    'tests/fixtures/toolkit/audio/wav-lsb-embedded.wav',
+    'tests/fixtures/toolkit/audio/wav-lsb-n3.wav',
 )
 CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init__.py',
         'scripts/autosolve_lib/core.py', 'scripts/autosolve_lib/service.py',
@@ -135,6 +137,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'tests/test_toolkit_acceptance.py', 'scripts/templates/pwntools_starter.py',
         'scripts/templates/README.md', 'tests/test_templates.py',
         'scripts/templates/binary_parser.py', 'scripts/templates/http_probe.py',
+        'scripts/templates/wav_lsb.py', 'tests/test_wav_lsb.py',
         'scripts/templates/jwt_inspect.py',
         'scripts/templates/datastore_pref.py', 'tests/test_datastore_pref.py',
         'scripts/templates/file_intel.py', 'scripts/templates/cross_site_form.html',
@@ -154,7 +157,8 @@ Read [TOOLKIT.html](TOOLKIT.html) for commands, limits and approved manual alter
 [Core workflows](CORE_WORKFLOWS.md) prioritize the 32 Trend Micro proposals;
 [specialist workflows](SPECIALIST_WORKFLOWS.html) cover the other prepared task routes.
 [Practice inputs](CORE_PRACTICE.html) and the [Hashcat cheatsheet](HASHCAT.md) are available offline; [Challenge templates](TEMPLATES.html)
-include file preview, JWT inspection, binary parsing, HTTP and browser-form experiments, and optional pwntools clients.
+include file preview, WAV sample-LSB extraction, JWT inspection, binary parsing,
+HTTP and browser-form experiments, and optional pwntools clients.
 [Python requirements](requirements.txt) and [reviewed dependency pins](constraints.txt)
 list the optional, non-AI/ML packages for Linux/WSL CPython 3.11/3.12.
 

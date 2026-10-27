@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="fae179ed6e97a79a50d9cc7ef73f2e716951e8aa1892cef36ec4563b51b0f488">
+  <meta name="source-sha256" content="dbc9c88e12c09390b1653a24d4612ec739ebd3422aba4d3d72e78745e9034cff">
   <link rel="icon" href="data:,">
   <title>Challenge scripts and templates · Manual CTF Strategies</title>
   <style>
@@ -44,8 +44,8 @@
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
   <main id="main" class="wrap" tabindex="-1"><h1>Challenge scripts and templates</h1>
-<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#datastore-pref">Android DataStore</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a> · <a href="#cross-site-form">Cross-site form</a></p>
-<p>File preview, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.</p>
+<p><a href="#file-intel">File preview</a> · <a href="#wav-lsb">WAV LSB</a> · <a href="#jwt">JWT inspection</a> · <a href="#datastore-pref">Android DataStore</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a> · <a href="#cross-site-form">Cross-site form</a></p>
+<p>File preview, WAV LSB extraction, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, WAV LSB, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.</p>
 <p><a id="file-intel"></a></p>
 <h2>File intel: run before editing a parser</h2>
 <p>Run <a href="scripts/templates/file_intel.py">file_intel.py</a> on a challenge file without changing the
@@ -61,6 +61,14 @@ executes, extracts, or modifies them, and makes no flag or file-format claims.</
 <a href="TOOLKIT.html#inspect">inspect command</a>:</p>
 <pre><code class="language-bash">python3 scripts/ctf.py inspect --file challenge.bin
 </code></pre>
+<p><a id="wav-lsb"></a></p>
+<h2>WAV sample LSB: recover a known byte count</h2>
+<p>On Linux, Kali or WSL, when the clue indicates least significant bits in an <strong>uncompressed 8-bit PCM WAV</strong>, copy the file to a private work area, confirm its format, and establish the bit count and exact expected byte length from independent evidence. Run the <a href="scripts/templates/wav_lsb.py">wav_lsb.py</a> template with a fresh output path in an existing private directory:</p>
+<pre><code class="language-bash">private_run=$(mktemp -d /tmp/wav-lsb.XXXXXXXX)
+python3 scripts/templates/wav_lsb.py ./COPIED_CARRIER.wav &quot;$private_run/payload.bin&quot; --bits 1 --bytes 11
+</code></pre>
+<p>Replace <code>1</code> and <code>11</code> with the evidenced values. The script accepts 1–8 low bits per sample, reads samples in WAV frame/channel order, reads each selected bit group most significant bit first, and packs payload bytes most significant bit first. It writes only the requested bytes; there is no length header or automatic detection. It rejects symlink source files and nonregular inputs, files over 16 MiB, requests over 1 MiB or sample capacity, unsupported WAV encoding, and output directories accessible by other users. It creates the output mode 0600 without replacing an existing file and leaves the carrier unchanged. Source-path ancestor symlinks are not rejected. This script uses POSIX file flags and was not checked with native Windows Python.</p>
+<p>Inspect the output bytes and claimed format. Repeat with a benign clean carrier or a wrong bit count: both can produce bytes, so neither a nonempty output nor readable text proves a hidden message. This template does not handle 16-bit PCM, channel selection, offset search, encryption, steghide, or other packing orders. The held-out local fixture was authored with <code>stego-lsb</code> 1.7.3 and recovered exact bytes using this template; that third-party package is not a newly approved competition tool or required by the template. The <a href="https://github.com/ragibson/Steganography/blob/master/stego_lsb/bit_manipulation.py">upstream bit-packing source</a> documents the packing convention.</p>
 <p><a id="jwt"></a></p>
 <h2>JWT inspection: decode a local token</h2>
 <p>Save one token in a private text file, then run <a href="scripts/templates/jwt_inspect.py">jwt_inspect.py</a>:</p>

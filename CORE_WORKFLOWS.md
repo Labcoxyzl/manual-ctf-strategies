@@ -46,6 +46,8 @@ Keep metadata groups and explicit time zones. For decimal coordinates, `exiftool
 
 For PNG/BMP, copy the entire meaningful zsteg selector, for example `b1,r,lsb,xy`; do not copy a guessed file-type label. Inspect recovered length and bytes, then run the claimed format's validator. This installed zsteg strips trailing NULs; if a binary format needs that tail, check the plane length independently. If scanning fails because `file` is missing from the same runtime, `zsteg --no-file ./image.png` can still scan text but skips file classification. The prepared container now has the missing dependency; test the competition installation separately. For an authored QR fixture, ZBar required a sufficient quiet border and scale before it decoded the exact text; a failed scan on a tight crop does not prove no code is present.
 
+For a copied **uncompressed 8-bit PCM WAV** with an evidenced sample-LSB layout and exact payload length, use the [Linux/Kali/WSL WAV LSB template](scripts/templates/README.md#wav-lsb) to extract bytes. It reads samples in frame/channel order, then the selected low bits of each sample from most significant to least significant; payload bytes are also most significant bit first. This is a conditional byte-recovery step, not a scan for hidden data. A clean carrier can yield arbitrary bytes; inspect the recovered format and compare a clean or wrong-layout control. Steghide uses a different carrier scheme; use the route below when that is the clue.
+
 <a id="steghide-carrier"></a>
 ### JPEG/BMP/WAV/AU carrier — steghide or limited Stegseek
 

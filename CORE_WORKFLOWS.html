@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="2378582cc90c29bf22ffa390ffaf1bc748cc54ef7b802ee412644648818dfb08">
+  <meta name="source-sha256" content="0e75af914c841d8a7048df4d63350cf063a42f61539ff0b6bd5b494300b596af">
   <link rel="icon" href="data:,">
   <title>Core tool workflows · Manual CTF Strategies</title>
   <style>
@@ -72,6 +72,7 @@ zbarimg --raw ./code.png
 </code></pre>
 <p>Keep metadata groups and explicit time zones. For decimal coordinates, <code>exiftool -n -GPSLatitude -GPSLongitude -GPSLatitudeRef -GPSLongitudeRef ./image.jpg</code> avoids manually transcribing degree/minute/second displays; inspect sign and reference. Missing metadata does not rule out appended data or pixel steganography.</p>
 <p>For PNG/BMP, copy the entire meaningful zsteg selector, for example <code>b1,r,lsb,xy</code>; do not copy a guessed file-type label. Inspect recovered length and bytes, then run the claimed format's validator. This installed zsteg strips trailing NULs; if a binary format needs that tail, check the plane length independently. If scanning fails because <code>file</code> is missing from the same runtime, <code>zsteg --no-file ./image.png</code> can still scan text but skips file classification. The prepared container now has the missing dependency; test the competition installation separately. For an authored QR fixture, ZBar required a sufficient quiet border and scale before it decoded the exact text; a failed scan on a tight crop does not prove no code is present.</p>
+<p>For a copied <strong>uncompressed 8-bit PCM WAV</strong> with an evidenced sample-LSB layout and exact payload length, use the <a href="TEMPLATES.html#wav-lsb">Linux/Kali/WSL WAV LSB template</a> to extract bytes. It reads samples in frame/channel order, then the selected low bits of each sample from most significant to least significant; payload bytes are also most significant bit first. This is a conditional byte-recovery step, not a scan for hidden data. A clean carrier can yield arbitrary bytes; inspect the recovered format and compare a clean or wrong-layout control. Steghide uses a different carrier scheme; use the route below when that is the clue.</p>
 <p><a id="steghide-carrier"></a></p>
 <h3>JPEG/BMP/WAV/AU carrier — steghide or limited Stegseek</h3>
 <p>Preserve and hash the original before copying it to a private working directory. Confirm the copied file's actual JPEG, BMP, WAV or AU signature; an extension or a PNG does not make it a steghide carrier. Use a clue-derived passphrase first. <code>steghide info ./COPIED_CARRIER</code> inspects the carrier; <code>steghide extract -sf ./COPIED_CARRIER -xf ./NEW_payload.bin</code> prompts for the passphrase and writes to a fresh path. Keep a failed passphrase distinct from a clean carrier and from an unsupported format.</p>

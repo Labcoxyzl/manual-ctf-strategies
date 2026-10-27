@@ -1,8 +1,8 @@
 # Challenge scripts and templates
 
-[File preview](#file-intel) · [JWT inspection](#jwt) · [Android DataStore](#datastore-pref) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http) · [Cross-site form](#cross-site-form)
+[File preview](#file-intel) · [WAV LSB](#wav-lsb) · [JWT inspection](#jwt) · [Android DataStore](#datastore-pref) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http) · [Cross-site form](#cross-site-form)
 
-File preview, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.
+File preview, WAV LSB extraction, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, WAV LSB, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.
 
 <a id="file-intel"></a>
 ## File intel: run before editing a parser
@@ -26,6 +26,20 @@ For file type and supported archive/image metadata, use the existing
 ```bash
 python3 scripts/ctf.py inspect --file challenge.bin
 ```
+
+<a id="wav-lsb"></a>
+## WAV sample LSB: recover a known byte count
+
+On Linux, Kali or WSL, when the clue indicates least significant bits in an **uncompressed 8-bit PCM WAV**, copy the file to a private work area, confirm its format, and establish the bit count and exact expected byte length from independent evidence. Run the [wav_lsb.py](wav_lsb.py) template with a fresh output path in an existing private directory:
+
+```bash
+private_run=$(mktemp -d /tmp/wav-lsb.XXXXXXXX)
+python3 scripts/templates/wav_lsb.py ./COPIED_CARRIER.wav "$private_run/payload.bin" --bits 1 --bytes 11
+```
+
+Replace `1` and `11` with the evidenced values. The script accepts 1–8 low bits per sample, reads samples in WAV frame/channel order, reads each selected bit group most significant bit first, and packs payload bytes most significant bit first. It writes only the requested bytes; there is no length header or automatic detection. It rejects symlink source files and nonregular inputs, files over 16 MiB, requests over 1 MiB or sample capacity, unsupported WAV encoding, and output directories accessible by other users. It creates the output mode 0600 without replacing an existing file and leaves the carrier unchanged. Source-path ancestor symlinks are not rejected. This script uses POSIX file flags and was not checked with native Windows Python.
+
+Inspect the output bytes and claimed format. Repeat with a benign clean carrier or a wrong bit count: both can produce bytes, so neither a nonempty output nor readable text proves a hidden message. This template does not handle 16-bit PCM, channel selection, offset search, encryption, steghide, or other packing orders. The held-out local fixture was authored with `stego-lsb` 1.7.3 and recovered exact bytes using this template; that third-party package is not a newly approved competition tool or required by the template. The [upstream bit-packing source](https://github.com/ragibson/Steganography/blob/master/stego_lsb/bit_manipulation.py) documents the packing convention.
 
 <a id="jwt"></a>
 ## JWT inspection: decode a local token

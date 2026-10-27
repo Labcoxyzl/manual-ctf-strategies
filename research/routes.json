@@ -94,17 +94,18 @@
       "kali-108",
       "windows-12",
       "kali-10",
-      "windows-26"
+      "windows-26",
+      "kali-114"
     ],
     "steps": [
       "PNG/BMP: run `exiftool -a -u -g1 image.png`; for PNG run `pngcheck -v image.png`. If pixel data is the clue, run `zsteg image.png` and validate meaningful hits.",
-      "Audio: open in Audacity, open the track menu and select Spectrogram. Adjust Spectrogram Settings frequency range and window size; inspect channels separately.",
+      "Audio: open in Audacity, open the track menu and select Spectrogram. Adjust Spectrogram Settings frequency range and window size; inspect channels separately. For an evidenced 8-bit PCM WAV sample-LSB layout with a known byte count, use the bundled Linux/Kali/WSL standard-library `wav_lsb.py` template on a copied carrier; validate recovered bytes against the clue and controls.",
       "PDF: run `qpdf --list-attachments document.pdf` and `qpdf --show-pages document.pdf`; use a listed object number with `qpdf --show-object=OBJECT document.pdf`."
     ],
-    "expected": "Metadata/chunk findings, visible time-frequency patterns, or PDF attachment/object identifiers.",
-    "fallback": "No meaningful result: revisit the format clue. zsteg is for PNG/BMP, not every image; a blank spectrogram may need different display settings.",
-    "caveat": "Keep originals. ExifTool, zsteg and qpdf are WSL entries. pngcheck version is unknown; metadata and stego signatures need corroboration.",
-    "verification": "Source-reviewed; not executed on competition machines.",
+    "expected": "Metadata/chunk findings, visible time-frequency patterns, a bounded WAV byte candidate requiring format/control validation, or PDF attachment/object identifiers.",
+    "fallback": "No meaningful result: revisit the format clue. zsteg is for PNG/BMP, not every image; a blank spectrogram may need different display settings. A WAV LSB extraction requires the correct sample layout and exact length; a clean carrier can also yield arbitrary bytes.",
+    "caveat": "Keep originals. ExifTool, zsteg and qpdf are WSL entries. pngcheck version is unknown; metadata and stego signatures need corroboration. The local WAV template handles only uncompressed 8-bit PCM sample LSBs and does not add third-party stego-lsb to the approved inventory.",
+    "verification": "The WAV template recovered an exact payload from a held-out carrier authored with stego-lsb 1.7.3; clean and wrong-bit controls differed. Other branches were source-reviewed; not executed on competition machines.",
     "references": [
       {
         "title": "zsteg — documentation",
