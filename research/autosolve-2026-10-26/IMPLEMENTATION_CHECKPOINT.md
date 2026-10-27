@@ -424,6 +424,14 @@ unsupported/malformed negatives, exact mitigation and instruction/VA locators,
 and source retirement. This raises local full named-row proof to **34 of 57**;
 23 remain unproved. The x86-32 case used hand assembly because 32-bit C
 startup libraries were unavailable; compiler variation was exercised on x86-64.
+Published-twentieth DOC06 then passed five independently authored MIME cases
+with nine exact decoded part bytes/paths, malformed-boundary and misleading-name
+negatives, private derived paths and zero network. ENC08 passed 13 independent
+AES-CBC/GCM fixtures across all four clauses: exact binary/empty plaintext,
+held-out nonce/tag/length settings, wrong-input negatives and no plaintext on
+GCM authentication failure. CBC remained candidate-only. These two raise
+full named-row proof to **36 of 57**; 21 remain unproved. No platform result
+is inferred from either local oracle.
 
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
