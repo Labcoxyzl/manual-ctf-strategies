@@ -32,6 +32,42 @@ Collect a consistent snapshot of the database with matching `-wal` and `-shm` si
 
 **Check:** Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working `-shm` file beside the copy. [SQLite CLI](https://www.sqlite.org/cli.html) · [SQLite WAL](https://www.sqlite.org/wal.html).
 
+<a id="browser-profile-timeline"></a>
+## Browser profile: trace a selected visit
+
+Use a coherent copy of one supplied Chrome/Chromium or Firefox profile. Keep `History` or `places.sqlite` with any matching `-wal` and `-shm` files; note whether the browser was running when copied. Record the browser/profile version and source path. If the **installed** Hindsight help lists `--only`, run `hindsight.py -i PROFILE_DIR -o PRIVATE_OUT --only history` (`-b Firefox` only if detection needs it). Keep the output private and inspect the parse/skip/error report. Older Hindsight without the filter can also parse cookies and passwords, so use the SQLite fallback below rather than a default full-profile export.
+
+Check the copied schema first: `sqlite3 -readonly COPY/History '.schema urls' '.schema visits'` or `sqlite3 -readonly COPY/places.sqlite '.schema moz_places' '.schema moz_historyvisits'`. Then select a small, evidenced URL set, replacing `MARKER` locally:
+
+```sh
+sqlite3 -readonly COPY/History "SELECT v.id,u.url,v.visit_time,datetime((v.visit_time-11644473600000000)/1000000,'unixepoch') FROM visits v JOIN urls u ON u.id=v.url WHERE u.url LIKE '%MARKER%' ORDER BY v.visit_time,v.id LIMIT 20;"
+sqlite3 -readonly COPY/places.sqlite "SELECT h.id,p.url,h.visit_date,datetime(h.visit_date/1000000,'unixepoch') FROM moz_historyvisits h JOIN moz_places p ON p.id=h.place_id WHERE p.url LIKE '%MARKER%' ORDER BY h.visit_date,h.id LIMIT 20;"
+```
+
+Use only the query matching the source browser and confirmed schema. Keep raw times alongside UTC conversions; check the time basis before relying on a displayed date. SQLite may create a working `-shm` beside the copy. Compare a decisive row with a separate known log or download record and preserve the exact profile/database path. A stored visit may come from sync, import or another browser action; it does not identify a human viewer. A missing row can also mean a different profile, absent WAL, filtered output, unsupported schema or parser error. [Hindsight CLI](https://github.com/RyanDFIR/hindsight/blob/main/README.md) · [Chromium visits](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/history/core/browser/visit_database.cc) · [Chromium time](https://chromium.googlesource.com/chromium/src/+/bf34def0e76d2c8581f107759b0ec607a89fe2a6/base/time/time.h) · [Firefox Places](https://firefox-source-docs.mozilla.org/browser/places/architecture-overview.html) · [Firefox visit source](https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/places/History.cpp).
+
+<a id="ios-plist"></a>
+## iOS plist: inspect one named field
+
+Work on a copy of a supplied XML or binary plist. Record its original path, application/container context and hash. The approved Python standard library reads both formats without an added dependency. Inspect a **named** key path, rather than dumping a whole potentially private file. Pass each nested dictionary key or list index as a separate argument:
+
+```sh
+python3 - COPY.plist APP KEY <<'PYCODE'
+import datetime, plistlib, sys
+with open(sys.argv[1], 'rb') as source:
+    data = plistlib.load(source)
+if len(sys.argv) < 3:
+    raise SystemExit('supply at least one key')
+value = data
+for part in sys.argv[2:]:
+    value = value[int(part)] if isinstance(value, list) else value[part]
+scalar = isinstance(value, (str, int, float, bool, datetime.datetime))
+print('/'.join(sys.argv[2:]), type(value).__name__, str(value)[:160] if scalar else '[structured or binary value]')
+PYCODE
+```
+
+A missing key or out-of-range index raises an error; inspect the actual structure and field definition before choosing another path. If a complete extracted filesystem is supplied and approved iLEAPP is available, check its local help, create a private output directory, then run `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT`. The output directory must already exist. Tie a selected report field back to its original plist and independent app or case context. Numeric times need their field-specific epoch and units before conversion. Encrypted/incomplete backups, unsupported keyed archives, malformed plists and parser errors leave absence inconclusive. Do not paste private report values into shared notes. [Python plistlib](https://docs.python.org/3/library/plistlib.html) · [iLEAPP CLI](https://github.com/abrignoni/iLEAPP/blob/main/README.md).
+
 <a id="git-history"></a>
 ## Git history: recover the exact source revision
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="edbd091b125722458e1c22e08eb0a412698dcb1a438bde2464adb81568310774">
+  <meta name="source-sha256" content="f8cc27973d3d4c455a7d3e407b6624c84646b51c1df91dee2ff3cf441b30e679">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -62,6 +62,31 @@
 <h2>SQLite artifact: preserve WAL rows and read a copy</h2>
 <p>Collect a consistent snapshot of the database with matching <code>-wal</code> and <code>-shm</code> sidecars when present; separately copying files while an app writes can produce an inconsistent set. In a writable analysis directory, <code>sqlite3 -readonly COPY.db '.tables'</code> and <code>sqlite3 -readonly COPY.db '.schema TABLE'</code> reveal the structure without opening the database for writes. Query only the rows relevant to the clue, order them explicitly, and establish each time field's epoch and time zone before converting it. Hindsight can enrich supported browser profiles, but direct SQLite rows remain the fallback when its parser does not match the version.</p>
 <p><strong>Check:</strong> Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working <code>-shm</code> file beside the copy. <a href="https://www.sqlite.org/cli.html">SQLite CLI</a> · <a href="https://www.sqlite.org/wal.html">SQLite WAL</a>.</p>
+<p><a id="browser-profile-timeline"></a></p>
+<h2>Browser profile: trace a selected visit</h2>
+<p>Use a coherent copy of one supplied Chrome/Chromium or Firefox profile. Keep <code>History</code> or <code>places.sqlite</code> with any matching <code>-wal</code> and <code>-shm</code> files; note whether the browser was running when copied. Record the browser/profile version and source path. If the <strong>installed</strong> Hindsight help lists <code>--only</code>, run <code>hindsight.py -i PROFILE_DIR -o PRIVATE_OUT --only history</code> (<code>-b Firefox</code> only if detection needs it). Keep the output private and inspect the parse/skip/error report. Older Hindsight without the filter can also parse cookies and passwords, so use the SQLite fallback below rather than a default full-profile export.</p>
+<p>Check the copied schema first: <code>sqlite3 -readonly COPY/History '.schema urls' '.schema visits'</code> or <code>sqlite3 -readonly COPY/places.sqlite '.schema moz_places' '.schema moz_historyvisits'</code>. Then select a small, evidenced URL set, replacing <code>MARKER</code> locally:</p>
+<pre><code class="language-sh">sqlite3 -readonly COPY/History &quot;SELECT v.id,u.url,v.visit_time,datetime((v.visit_time-11644473600000000)/1000000,'unixepoch') FROM visits v JOIN urls u ON u.id=v.url WHERE u.url LIKE '%MARKER%' ORDER BY v.visit_time,v.id LIMIT 20;&quot;
+sqlite3 -readonly COPY/places.sqlite &quot;SELECT h.id,p.url,h.visit_date,datetime(h.visit_date/1000000,'unixepoch') FROM moz_historyvisits h JOIN moz_places p ON p.id=h.place_id WHERE p.url LIKE '%MARKER%' ORDER BY h.visit_date,h.id LIMIT 20;&quot;
+</code></pre>
+<p>Use only the query matching the source browser and confirmed schema. Keep raw times alongside UTC conversions; check the time basis before relying on a displayed date. SQLite may create a working <code>-shm</code> beside the copy. Compare a decisive row with a separate known log or download record and preserve the exact profile/database path. A stored visit may come from sync, import or another browser action; it does not identify a human viewer. A missing row can also mean a different profile, absent WAL, filtered output, unsupported schema or parser error. <a href="https://github.com/RyanDFIR/hindsight/blob/main/README.md">Hindsight CLI</a> · <a href="https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/history/core/browser/visit_database.cc">Chromium visits</a> · <a href="https://chromium.googlesource.com/chromium/src/+/bf34def0e76d2c8581f107759b0ec607a89fe2a6/base/time/time.h">Chromium time</a> · <a href="https://firefox-source-docs.mozilla.org/browser/places/architecture-overview.html">Firefox Places</a> · <a href="https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/places/History.cpp">Firefox visit source</a>.</p>
+<p><a id="ios-plist"></a></p>
+<h2>iOS plist: inspect one named field</h2>
+<p>Work on a copy of a supplied XML or binary plist. Record its original path, application/container context and hash. The approved Python standard library reads both formats without an added dependency. Inspect a <strong>named</strong> key path, rather than dumping a whole potentially private file. Pass each nested dictionary key or list index as a separate argument:</p>
+<pre><code class="language-sh">python3 - COPY.plist APP KEY &lt;&lt;'PYCODE'
+import datetime, plistlib, sys
+with open(sys.argv[1], 'rb') as source:
+    data = plistlib.load(source)
+if len(sys.argv) &lt; 3:
+    raise SystemExit('supply at least one key')
+value = data
+for part in sys.argv[2:]:
+    value = value[int(part)] if isinstance(value, list) else value[part]
+scalar = isinstance(value, (str, int, float, bool, datetime.datetime))
+print('/'.join(sys.argv[2:]), type(value).__name__, str(value)[:160] if scalar else '[structured or binary value]')
+PYCODE
+</code></pre>
+<p>A missing key or out-of-range index raises an error; inspect the actual structure and field definition before choosing another path. If a complete extracted filesystem is supplied and approved iLEAPP is available, check its local help, create a private output directory, then run <code>ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT</code>. The output directory must already exist. Tie a selected report field back to its original plist and independent app or case context. Numeric times need their field-specific epoch and units before conversion. Encrypted/incomplete backups, unsupported keyed archives, malformed plists and parser errors leave absence inconclusive. Do not paste private report values into shared notes. <a href="https://docs.python.org/3/library/plistlib.html">Python plistlib</a> · <a href="https://github.com/abrignoni/iLEAPP/blob/main/README.md">iLEAPP CLI</a>.</p>
 <p><a id="git-history"></a></p>
 <h2>Git history: recover the exact source revision</h2>
 <p>Work on a copy of the supplied repository. <code>git -C REPO status --short</code> separates working-tree files from committed history; <code>git -C REPO log --all --oneline --decorate</code> shows the refs actually present without fetching anything. For a known path, <code>git -C REPO log --all --follow --oneline -- PATH</code> can trace simple renames. Choose a commit that contains the file and inspect its exact blob with <code>git -C REPO show COMMIT:PATH</code>. If the clue points to a deletion commit, select the parent in which the path still existed; do not assume the current branch has the only relevant history.</p>

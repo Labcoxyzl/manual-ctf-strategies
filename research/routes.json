@@ -1092,5 +1092,71 @@
         "url": "https://github.com/gitleaks/gitleaks"
       }
     ]
+  },
+  {
+    "id": "browser-profile-timeline",
+    "category": "forensics",
+    "title": "Browser profile → selected visit timeline",
+    "input": "A coherent local copy of a Chrome/Chromium or Firefox profile, including History or places.sqlite and matching WAL/SHM sidecars when present.",
+    "tool_ids": [
+      "kali-63",
+      "kali-131"
+    ],
+    "steps": [
+      "Record browser/profile path and version; work on a copy. If installed Hindsight help lists `--only`, run `hindsight.py -i PROFILE_DIR -o PRIVATE_OUT --only history` and use `-b Firefox` only when profile detection needs the override.",
+      "Inspect the parser status, skipped artifacts, selected visit row and time zone. If selective parsing is unavailable, inspect the copied History or places.sqlite schema with `sqlite3 -readonly` and use the browser-specific read-only query in the bundled workflow.",
+      "Cross-check a decisive visit against its exact source database row and independent context such as a known local server log. Keep the raw timestamp, UTC interpretation, source file and parser version together."
+    ],
+    "expected": "A selected visit record with source-profile and time provenance, or a documented parser/schema limit.",
+    "fallback": "A missing row may reflect absent WAL sidecars, a different profile, unsupported parser/schema, a filtered artifact, or a wrong time basis. An empty report alone cannot prove the visit never happened.",
+    "caveat": "Hindsight can parse cookies and saved passwords by default; require a supported selective filter or use SQLite instead, and keep private output local. A stored visit does not identify the human actor. Download analysis needs its own source-specific check.",
+    "verification": "Hindsight CLI and browser schemas source-reviewed; local synthetic SQLite query exercised; Hindsight and competition-profile execution unverified.",
+    "references": [
+      {
+        "title": "Hindsight CLI and artifact filtering",
+        "url": "https://github.com/RyanDFIR/hindsight/blob/main/README.md"
+      },
+      {
+        "title": "Chromium visit database schema",
+        "url": "https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/history/core/browser/visit_database.cc"
+      },
+      {
+        "title": "Mozilla Places architecture",
+        "url": "https://firefox-source-docs.mozilla.org/browser/places/architecture-overview.html"
+      },
+      {
+        "title": "SQLite WAL and read-only conditions",
+        "url": "https://www.sqlite.org/wal.html"
+      }
+    ]
+  },
+  {
+    "id": "ios-plist",
+    "category": "forensics",
+    "title": "iOS plist → named field path and context",
+    "input": "A supplied accessible XML or binary plist with its source path and app/container context; a full extracted filesystem is optional.",
+    "tool_ids": [
+      "windows-7",
+      "kali-66"
+    ],
+    "steps": [
+      "Preserve a copy and record its path and hash. Use approved Python `plistlib.load` on a named plist and inspect a specific key path and value type; the bundled workflow gives a bounded local snippet for both XML and binary formats.",
+      "If a complete extracted filesystem is supplied and iLEAPP is available, check its local help, create a private output directory, then run `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT`; keep parser/module version and any errors.",
+      "Tie the chosen key, value type and timestamp basis to the source plist and independent app or case context. Treat a parser report as a lead, not as proof of a different file or time epoch."
+    ],
+    "expected": "A named key path/value with original plist path, format, type, and justified meaning; or a documented unsupported/absent state.",
+    "fallback": "Encrypted or incomplete backups, unsupported keyed archives, malformed plists and unavailable iLEAPP leave the question open. Inspect the raw copied file and choose another supported view without assuming missing data.",
+    "caveat": "Do not infer a universal timestamp epoch from a numeric plist field; confirm the field definition before conversion. Keep potentially private report content out of shared notes.",
+    "verification": "Python plistlib XML/binary and malformed controls checked locally on synthetic files; iLEAPP command source-reviewed only, not installed in this WSL environment.",
+    "references": [
+      {
+        "title": "Python plistlib formats and load",
+        "url": "https://docs.python.org/3/library/plistlib.html"
+      },
+      {
+        "title": "iLEAPP CLI input types",
+        "url": "https://github.com/abrignoni/iLEAPP/blob/main/README.md"
+      }
+    ]
   }
 ]
