@@ -5,11 +5,14 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import zlib
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('package_toolkit', ROOT / 'scripts/package_toolkit.py')
@@ -21,6 +24,50 @@ class DistributionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.files = exporter.collect(ROOT)
+
+    def test_tracked_offline_zip_matches_public_export(self):
+        archive_path = ROOT / 'manual-ctf-strategies-offline-2026-10-27.zip'
+        with ZipFile(archive_path) as archive:
+            infos = archive.infolist()
+            names = [info.filename for info in infos]
+            self.assertEqual(names, sorted(self.files))
+            self.assertEqual(len(names), len(set(names)))
+            self.assertFalse(any(name.startswith(('/', 'research/validation/', '.autosolve/'))
+                                 or '..' in Path(name).parts or '/.autosolve/' in name
+                                 or set(Path(name).parts) & {'.git', 'private', '__pycache__'}
+                                 for name in names))
+            self.assertIsNone(archive.testzip())
+            for info in infos:
+                self.assertEqual(stat.S_IFMT(info.external_attr >> 16), stat.S_IFREG, info.filename)
+                self.assertEqual(info.date_time, (1980, 1, 1, 0, 0, 0), info.filename)
+                content = archive.read(info)
+                self.assertEqual(info.CRC, zlib.crc32(content), info.filename)
+                self.assertEqual(hashlib.sha256(content).digest(),
+                                 hashlib.sha256(self.files[info.filename]).digest(), info.filename)
+                self.assertEqual(content, self.files[info.filename], info.filename)
+        with tempfile.TemporaryDirectory(prefix='toolkit zip parity ') as temp:
+            rebuilt = Path(temp) / archive_path.name
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/build_offline_zip.py'),
+                                     '--out', str(rebuilt)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(rebuilt.read_bytes(), archive_path.read_bytes())
+            extracted = Path(temp) / 'extracted'
+            extracted.mkdir()
+            with ZipFile(archive_path) as archive:
+                archive.extractall(extracted)
+            directory_export = Path(temp) / 'directory export'
+            exporter.package(directory_export)
+            extracted_files = {path.relative_to(extracted).as_posix()
+                               for path in extracted.rglob('*') if path.is_file()}
+            self.assertEqual(extracted_files, set(names))
+            for name in names:
+                self.assertEqual((extracted / name).read_bytes(),
+                                 (directory_export / name).read_bytes(), name)
+            self.run_smoke(extracted, Path(temp))
+            doctor = subprocess.run([sys.executable, '-I', str(extracted / 'scripts/ctf.py'),
+                                     'doctor', '--workflow', 'bytes', '--json'],
+                                    cwd=temp, capture_output=True, text=True)
+            self.assertEqual(doctor.returncode, 0, doctor.stderr + doctor.stdout)
 
     def test_exact_allowlist_and_public_graph(self):
         expected = set(exporter.PUBLIC_PAGES + exporter.CODE + exporter.COMPANIONS + exporter.FIXTURES) | {'README.md'}
