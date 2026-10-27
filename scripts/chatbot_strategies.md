@@ -369,7 +369,13 @@ python3 scripts/chatbot_evidence.py score-controls \
 The private report gives control medians, whether the observed ranges strictly
 separate, and candidate rankings in the declared score direction. Calculations
 use decimal representations of the recorded scores and include the source
-manifest hash.
+manifest hash. Median and gap arithmetic is capped at 512 digits; the report
+sets `medians_rounded` when that cap loses precision. Strict separation and
+candidate ordering compare the exact recorded values. For `scorer_batch`,
+JSON fractional score tokens are retained
+as exact decimal strings in the private manifest; finite scalar scores over
+512 characters or outside ±1e150 stop the batch. Ordinary `api_plan` response
+parsing keeps its configured schema behavior.
 It never labels a candidate as a member. Use repeated controls to assess stochasticity
 and the challenge's independent verifier to establish any membership claim.
 

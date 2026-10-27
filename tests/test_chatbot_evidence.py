@@ -110,6 +110,21 @@ class EvidenceTests(unittest.TestCase):
             exact_report = json.loads(Path(exact['report']).read_text())
             self.assertTrue(exact_report['observed_strict_separation'])
             self.assertEqual(exact_report['median_gap'], '6')
+            self.assertFalse(exact_report['medians_rounded'])
+            for bad_score in ('NaN', '1e9999999', '1e99999999999999999999', '9' * 513):
+                rows[4]['score'] = bad_score
+                source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                              'api_checks': rows}))
+                self.assertIn('score_5', self.command(root, *args, code=2)['reason'])
+            for row, value in zip(rows, ('1e150', '1e-400', '0', '0', '1e-400', '0')):
+                row['score'] = value
+            source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                          'api_checks': rows}))
+            rounded = self.command(root, *args)
+            rounded_report = json.loads(Path(rounded['report']).read_text())
+            self.assertTrue(rounded_report['medians_rounded'])
+            self.assertEqual(rounded_report['median_precision_digits'], 512)
+            self.assertTrue(rounded_report['observed_strict_separation'])
 
 
 if __name__ == '__main__':

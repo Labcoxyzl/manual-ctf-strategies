@@ -385,6 +385,28 @@ class Toy:
                     self.send(200, {'documents': ['toy document'], 'metadatas': [{'tier': 'public'}]})
                     return
                 if self.path == '/score':
+                    if toy.mode == 'score_nonstandard':
+                        data = b'{"score":NaN}'
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.send_header('Content-Length', str(len(data)))
+                        self.end_headers()
+                        self.wfile.write(data)
+                        return
+                    if toy.mode == 'score_exponent':
+                        self.send(200, b'{"score":1e9999999}')
+                        return
+                    if toy.mode == 'score_decimal_precision':
+                        score = {'p1': '9.0000000000000003', 'p2': '9.0000000000000002',
+                                 'n1': '0.0', 'n2': '0.1', 'low': '9.0',
+                                 'high': '9.0000000000000001'}[body['candidate']]
+                        data = ('{"score":' + score + '}').encode()
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.send_header('Content-Length', str(len(data)))
+                        self.end_headers()
+                        self.wfile.write(data)
+                        return
                     self.send(200, {'score': len(body.get('candidate', ''))})
                     return
                 if self.path.startswith('/api/utter?'):
@@ -2564,6 +2586,49 @@ class ChatbotCLITests(unittest.TestCase):
             failed, _, code = self.start(root, toy, missing, strategy='scorer_batch')
             self.assertEqual(code, 3)
             self.assertEqual(failed['stop_reason'], 'model score unavailable')
+
+    def test_scorer_batch_preserves_decimal_json_score_order_for_controls(self):
+        with tempfile.TemporaryDirectory() as root, Toy('score_decimal_precision') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score',
+                'candidates': ['p1', 'p2', 'n1', 'n2', 'low', 'high']}})
+            m, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=10)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['prompt_count'], 0)
+            self.assertEqual([row['score'] for row in m['api_checks'][-2:]],
+                             ['9.0', '9.0000000000000001'])
+            self.assertEqual(sum(path == '/score' and method == 'POST' for method, path in toy.calls), 6)
+            command = [sys.executable, '-B', str(SCRIPT.parents[0] / 'chatbot_evidence.py'),
+                       '--runs-root', str(Path(root) / 'evidence'), 'score-controls',
+                       '--input', str(run / 'manifest.json'), '--positive', '1,2',
+                       '--negative', '3,4', '--candidates', '5,6', '--direction', 'higher']
+            result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            report = json.loads(Path(json.loads(result.stdout)['report']).read_text())
+            self.assertEqual([item['probe_id'] for item in report['ranked_candidates']],
+                             ['score_6', 'score_5'])
+            self.assertFalse(report['membership_validated'])
+        with tempfile.TemporaryDirectory() as root, Toy('score_exponent') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score',
+                'candidates': ['too-large', 'not-sent']}})
+            m, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'model score unavailable')
+            self.assertEqual(m['api_checks'][0]['score'], None)
+            self.assertEqual(sum(path == '/score' and method == 'POST' for method, path in toy.calls), 1)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('score_nonstandard') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score',
+                'candidates': ['nan', 'not-sent']}})
+            m, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'API malformed_json')
+            record = json.loads((run / 'transcript.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(base64.b64decode(record['response']['raw_b64']), b'{"score":NaN}')
+            self.assertEqual(sum(path == '/score' and method == 'POST' for method, path in toy.calls), 1)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
 
 
 if __name__ == '__main__':

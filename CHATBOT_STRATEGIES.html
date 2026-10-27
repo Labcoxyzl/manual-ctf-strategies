@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="7f01f9331b243ca9b675daa3378525808cb793cb88967803e384728bd991b3c1">
+  <meta name="source-sha256" content="83a54bd2b14f96615c98a0e0996613f2fd637c3643929306819c67e6c5bba339">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -450,7 +450,13 @@ positions, then compare their scalar scores offline:</p>
 <p>The private report gives control medians, whether the observed ranges strictly
 separate, and candidate rankings in the declared score direction. Calculations
 use decimal representations of the recorded scores and include the source
-manifest hash.
+manifest hash. Median and gap arithmetic is capped at 512 digits; the report
+sets <code>medians_rounded</code> when that cap loses precision. Strict separation and
+candidate ordering compare the exact recorded values. For <code>scorer_batch</code>,
+JSON fractional score tokens are retained
+as exact decimal strings in the private manifest; finite scalar scores over
+512 characters or outside ±1e150 stop the batch. Ordinary <code>api_plan</code> response
+parsing keeps its configured schema behavior.
 It never labels a candidate as a member. Use repeated controls to assess stochasticity
 and the challenge's independent verifier to establish any membership claim.</p>
 <p>For local unknown-behavior search, copy the <a href="scripts/chatbot_recipes/calibrated_search.json">calibrated-search recipe</a>

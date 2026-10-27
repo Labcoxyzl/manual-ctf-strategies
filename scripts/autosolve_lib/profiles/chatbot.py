@@ -1,6 +1,7 @@
 """Bounded, single-writer chatbot reconnaissance and selected CTF probes."""
 
 import base64
+from decimal import Decimal, InvalidOperation
 import fcntl
 import hashlib
 import http.client
@@ -31,6 +32,12 @@ from .chatbot_strategies import plan as strategy_plan
 MAX_RESPONSE = 128 * 1024
 MAX_LOG = 2 * 1024 * 1024
 _MISSING = object()
+
+
+def _reject_json_constant(value):
+    raise ValueError(f'non-JSON numeric constant: {value}')
+
+
 SECRET = re.compile(r'(?:flag\{[^}\s]{1,200}\}|(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{3,})', re.I)
 PATH = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}')
 ROUTE = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}(?:\?[^\s"\'<>]{1,200})?')
@@ -694,7 +701,9 @@ class Client:
             else:
                 parsed = None
                 try:
-                    parsed = json.loads(raw)
+                    parsed = (json.loads(raw, parse_float=str, parse_constant=_reject_json_constant)
+                              if self.manifest.get('strategy') == 'scorer_batch' and probe.startswith('api:score_') and status in range(200, 300)
+                              else json.loads(raw, parse_constant=_reject_json_constant))
                     parsed_ok = True
                 except (ValueError, UnicodeError, RecursionError):
                     pass
@@ -1163,9 +1172,13 @@ def _run(client):
                        spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field'], _MISSING), spec['expect']['equals']))
             score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') and not result.get('redirect_hops') else None
             try:
-                valid_score = (type(score) in (int, float) and math.isfinite(score)) or (isinstance(score, list) and
-                               1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
-            except OverflowError:
+                if m.get('strategy') == 'scorer_batch':
+                    numeric = Decimal(str(score)) if type(score) in (int, float, str) and len(str(score)) <= 512 else None
+                    valid_score = numeric is not None and numeric.is_finite() and -Decimal('1e150') <= numeric <= Decimal('1e150')
+                else:
+                    valid_score = (type(score) in (int, float) and math.isfinite(score)) or (isinstance(score, list) and
+                                   1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
+            except (OverflowError, ValueError, InvalidOperation):
                 valid_score = False
             capture_needed = spec.get('capture_field') or spec.get('capture_header')
             captured_value = (_nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else
