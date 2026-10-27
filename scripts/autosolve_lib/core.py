@@ -50,6 +50,7 @@ MAX_CHILD = 16 * 1024 * 1024
 MAX_DERIVED = 512 * 1024 * 1024
 MAX_ARTIFACTS = 256
 MAX_DEPTH = 6
+_CAN_NON_FRAME_NOTICE = re.compile(r'BLF skipped [1-9]\d* non-CAN objects\Z')
 
 
 class InvalidInput(ValueError):
@@ -3851,17 +3852,21 @@ def _tar_job(run, manifest, artifact, deadline):
     return children
 
 
-def _can_job(run, manifest, artifact, deadline):
+def _can_fingerprint():
     from importlib import metadata
     from .profiles.canlog import parse_can_log
-    path = Path(artifact['path'])
     try:
         parser_version = metadata.version('python-can')
     except metadata.PackageNotFoundError:
         parser_version = 'unavailable'
-    fingerprint = hashlib.sha256(
+    return hashlib.sha256(
         Path(parse_can_log.__code__.co_filename).read_bytes()
         + f'python-can={parser_version}'.encode()).hexdigest()
+
+
+def _can_job(run, manifest, artifact, deadline):
+    path = Path(artifact['path'])
+    fingerprint = _can_fingerprint()
     key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:can-log.v1:{fingerprint}".encode()).hexdigest()
     old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
     if old:
@@ -3930,9 +3935,15 @@ def _can_job(run, manifest, artifact, deadline):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'CAN01' in manifest['coverage']:
-        manifest['coverage']['CAN01']['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
-                          'failed' if not old and job['status'] == 'failed' else
-                                                   'truncated' if warnings else 'ran' if count else 'no finding')
+        status = ('truncated' if old is None and job['status'] == 'truncated' else
+                  'failed' if not old and job['status'] == 'failed' else
+                  'truncated' if any(not _CAN_NON_FRAME_NOTICE.fullmatch(note)
+                                     for note in warnings) else
+                  'ran' if count else 'no finding')
+        priority = {'not scheduled': 0, 'no finding': 1, 'ran': 2, 'truncated': 3, 'failed': 4}
+        entry = manifest['coverage']['CAN01']
+        if priority[status] > priority.get(entry['status'], 0):
+            entry['status'] = status
         manifest['coverage']['CAN01']['note'] = 'bounded candump/ASC/BLF frames; no signal semantics'
     return frames
 
@@ -6775,7 +6786,7 @@ def _current_adapter_fingerprints(deadline):
         'ocr': [hashlib.sha256(f'{ocr_hash}:{ocr_tool_hash}:{ocr_data_hash}'.encode()).hexdigest()]
         if ocr_tool_hash and ocr_data_hash else [],
         'qr': [_qr_fingerprint()],
-        'can-log': [module_hash('canlog')],
+        'can-log': [_can_fingerprint()],
         'can-dbc': [_can_dbc_fingerprint()],
         'sqlite': [hashlib.sha256(f'{sqlite_hash}:{sqlite3.sqlite_version}'.encode()).hexdigest()],
         'os-artifact': [_os_artifact_fingerprint()],
@@ -6946,7 +6957,8 @@ def _render_report(run, manifest):
                          (f"; interpretation: {json.dumps(item['interpretation'][:256], ensure_ascii=True)}"
                           if isinstance(item.get('interpretation'), str) else ''))
     for warning in manifest['warnings']:
-        lines.append(f'- Limit or prerequisite: {warning}')
+        label = 'Notice' if _CAN_NON_FRAME_NOTICE.fullmatch(warning) else 'Limit or prerequisite'
+        lines.append(f'- {label}: {warning}')
     historical = sum(not f.get('current', True) for f in manifest['findings'])
     if historical:
         lines.append(f'- {historical} earlier candidate(s) belong to changed inputs; retained in findings.json.')
@@ -7955,7 +7967,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         manifest['answers'], answer_warnings = collect_answers(
             manifest['artifacts'], hints['answer_schema'], overall_deadline)
         manifest['warnings'].extend(answer_warnings)
-    incomplete = any(a['sha256'] is None for a in active) or bool(manifest['warnings'])
+    incomplete = (any(a['sha256'] is None for a in active) or
+                  any(not _CAN_NON_FRAME_NOTICE.fullmatch(note)
+                      for note in manifest['warnings']))
     pending = any(x['status'] not in ('ran', 'no finding') and x['delivery_stage'] == 'baseline'
                   for x in manifest['coverage'].values())
     manifest['status'] = 'partial' if incomplete or pending else 'complete'

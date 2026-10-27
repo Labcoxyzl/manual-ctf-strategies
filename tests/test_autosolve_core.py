@@ -1224,6 +1224,72 @@ int main(int argc, char **argv) {
             rows = json.loads(Path(job['frames_path']).read_text())
             self.assertTrue(all(row['timestamp'] is None for row in rows))
 
+    def test_blf_non_can_notice_does_not_truncate_can01_or_hide_real_skip(self):
+        try:
+            import can
+        except ImportError:
+            self.skipTest('python-can is optional outside core setup')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for malformed in (False, True):
+                source = root / ('a_mixed.blf' if malformed else 'z_marker.blf')
+                with can.BLFWriter(source, compression_level=0) as writer:
+                    writer.on_message_received(can.Message(
+                        timestamp=1700000000.0, channel=0, arbitration_id=0x123,
+                        is_extended_id=False, data=b'\x01', dlc=1))
+                    writer.log_event('xx', timestamp=1700000000.01)
+                    if malformed:
+                        writer.on_message_received(can.Message(
+                            timestamp=1700000000.015, channel=0, arbitration_id=0x321,
+                            is_extended_id=False, data=b'\x02', dlc=9))
+                    writer.on_message_received(can.Message(
+                        timestamp=1700000000.02, channel=0, arbitration_id=0x456,
+                        is_extended_id=False, data=b'\x03', dlc=1))
+                before = source.read_bytes()
+                run = Path(self.run_cli('analyze', source, '--category', 'can',
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'can-log')
+                rows = json.loads(Path(job['frames_path']).read_text())
+                self.assertEqual([row['can_id'] for row in rows], ['123', '456'])
+                self.assertEqual([row['source_object'] for row in rows],
+                                 [1, 4] if malformed else [1, 3])
+                self.assertEqual(manifest['coverage']['CAN01']['status'],
+                                 'truncated' if malformed else 'ran')
+                self.assertTrue(any('skipped 1 non-CAN objects' in note
+                                    for note in job['warnings']))
+                self.assertEqual(any('invalid CAN frame skipped' in note
+                                     for note in job['warnings']), malformed)
+                self.assertIn('Notice: BLF skipped 1 non-CAN objects',
+                              (run / 'report.md').read_text())
+                self.assertEqual(source.read_bytes(), before)
+                if not malformed:
+                    old_key = job['key']
+                    old_hash = job['frames_sha256']
+                    self.run_cli('resume', run, code=3)
+                    resumed = json.loads((run / 'manifest.json').read_text())
+                    can_jobs = [j for j in resumed['jobs'] if j['adapter_id'] == 'can-log']
+                    self.assertEqual(len(can_jobs), 1)
+                    self.assertEqual((can_jobs[0]['key'], can_jobs[0]['frames_sha256']),
+                                     (old_key, old_hash))
+                    self.assertEqual(resumed['coverage']['CAN01']['status'], 'ran')
+                    self.assertTrue(any('skipped 1 non-CAN objects' in note
+                                        for note in resumed['warnings']))
+                    self.assertEqual(source.read_bytes(), before)
+            combined_run = Path(self.run_cli('analyze', root, '--category', 'can',
+                                             '--runs-root', root / 'runs', code=3)['run'])
+            combined = json.loads((combined_run / 'manifest.json').read_text())
+            self.assertEqual(combined['coverage']['CAN01']['status'], 'truncated')
+            self.assertEqual(len([j for j in combined['jobs']
+                                  if j['adapter_id'] == 'can-log']), 2)
+            self.assertTrue(any('invalid CAN frame skipped' in note
+                                for note in combined['warnings']))
+            self.assertTrue(any('skipped 1 non-CAN objects' in note
+                                for note in combined['warnings']))
+            self.run_cli('resume', combined_run, code=3)
+            after_resume = json.loads((combined_run / 'manifest.json').read_text())
+            self.assertEqual(after_resume['coverage']['CAN01']['status'], 'truncated')
+
     def test_packet_cli_preserves_http_frame_and_incomplete_capture(self):
         examples = Path(__file__).resolve().parents[1] / 'examples/core'
         with tempfile.TemporaryDirectory() as directory:
@@ -1424,6 +1490,8 @@ int main(int argc, char **argv) {
                                         '--runs-root', root / 'runs', code=3)['run'])
                 first = json.loads((run / 'manifest.json').read_text())
                 first_root = next(a['id'] for a in first['artifacts'] if a['depth'] == 0)
+                self.assertTrue(any(item['current'] and item['artifact_id'] == first_root
+                                    and item['tag'] == tag for item in first['intelligence']))
                 source.write_bytes(b'unrelated text')
                 self.run_cli('resume', run, code=3)
                 source.write_bytes(original)
