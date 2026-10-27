@@ -130,7 +130,11 @@ library path for local replay. Add `--replay-local` to run the ELF. Without it,
 the command only writes a candidate. An `argv` offset run, stale or changed
 evidence, or a conflicting `--library-path` is refused. `--offset` and
 `--offset-run` are mutually exclusive. A local marker remains candidate
-evidence, not challenge acceptance.
+evidence, not challenge acceptance. Local replay uses a minimal environment
+and a fresh private working directory for each attempt. If the practice ELF
+needs adjacent companion data, pass each exact regular file with a repeated
+`--resource-file /absolute/path` alongside `--replay-local`; undeclared
+relative files remain unavailable, and replay may stay partial.
 
 For a selected non-PIE x86-64 practice ELF needing exactly three imported
 calls, use `pwn-call-chain` with a verified stdin `--offset-run` and a private
@@ -139,10 +143,15 @@ three ordered records of `{"symbol":"stage_one","args":["0x1","0x2","0x3"]}`
 form, using the ELF's actual imported function names and three hex u64
 arguments per call. Pass `--binary`, `--prompt-hex`, and `--success-hex` as for
 `pwn-ret2win`; add `--replay-local` only to run the selected ELF and four local
-negative controls. The command verifies the PLT relocations, one three-pop
-gadget, source, offset and library identities. PIE, other calling conventions
-and general ROP chains are unsupported. A local marker does not establish
-challenge acceptance.
+negative controls. Declare needed companion data with repeated
+`--resource-file /absolute/path` entries. The command verifies the PLT
+relocations, one three-pop gadget, x64 call alignment, source, offset and
+library identities. Each replay gets fresh private copies of the declared
+files and a minimal environment. This confines ordinary relative writes; it
+is not a filesystem sandbox against `../` or absolute paths. Run only a
+selected practice ELF in a disposable environment. PIE, other calling
+conventions and general ROP chains are unsupported. A local marker does not
+establish challenge acceptance.
 
 Default setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
