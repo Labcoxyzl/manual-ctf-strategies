@@ -589,8 +589,11 @@ int main(int argc, char **argv) {
             root = Path(directory)
             hints = root / 'hints.json'
             hints.write_text('{}')
+            source = root / 'challenge'
+            source.write_bytes(b'challenge')
             run = root / 'run'
-            manifest = {'jobs': [], 'private_hint_paths': [], 'private_hint_identities': []}
+            manifest = {'input_path': str(source), 'jobs': [],
+                        'private_hint_paths': [], 'private_hint_identities': []}
             with patch.object(core, '_execute', side_effect=RuntimeError('simulated crash')):
                 with self.assertRaisesRegex(RuntimeError, 'simulated crash'):
                     core._locked_execute(run, manifest, 1, {}, 'digest', hints)
