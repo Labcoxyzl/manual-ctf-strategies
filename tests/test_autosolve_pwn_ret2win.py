@@ -438,5 +438,134 @@ class Ret2winTests(unittest.TestCase):
         self.assertIn("source identity changed", " ".join(manifest["warnings"]))
 
 
+@unittest.skipUnless(shutil.which("gcc") and shutil.which("gdb"), "GCC/GDB unavailable")
+class CallChainTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.fixture = self.root / "fixture"
+        self.fixture.mkdir()
+        (self.fixture / "calls.c").write_text(
+            '#include <stdio.h>\n'
+            'static int step;\n'
+            'void one(unsigned long a,unsigned long b,unsigned long c) { '
+            'if(a==0x123 && b==0x456 && c==0x789 && step==0) step=1; }\n'
+            'void two(unsigned long a,unsigned long b,unsigned long c) { '
+            'if(a==0x123 && b==0x456 && c==0x789 && step==1) step=2; }\n'
+            '__attribute__((force_align_arg_pointer)) '
+            'void three(unsigned long a,unsigned long b,unsigned long c) { '
+            'if(a==0x123 && b==0x456 && c==0x789 && step==2) '
+            '{ puts("LOCAL-CALL-SUCCESS"); fflush(stdout); } }\n')
+        subprocess.run(["gcc", "-shared", "-fPIC", "-o", str(self.fixture / "libcalls.so"),
+                        str(self.fixture / "calls.c")], check=True, capture_output=True)
+        (self.fixture / "main.c").write_text(
+            '#include <stdio.h>\n#include <unistd.h>\n'
+            'void one(unsigned long,unsigned long,unsigned long);\n'
+            'void two(unsigned long,unsigned long,unsigned long);\n'
+            'void three(unsigned long,unsigned long,unsigned long);\n'
+            '__asm__(".global arg_gadget\\narg_gadget: pop %rdi; pop %rsi; pop %rdx; ret");\n'
+            '__attribute__((noinline)) void vuln(void) { char buf[32]; '
+            'puts("READY>"); fflush(stdout); read(0, buf, 256); }\n'
+            'int main(int argc,char **argv) { if(argc==10) { one(0,0,0); two(0,0,0); '
+            'three(0,0,0); } vuln(); return 0; }\n')
+        self.binary = self.fixture / "main"
+        subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
+                        "-no-pie", "-Wl,-z,now", "-L", str(self.fixture), "-o", str(self.binary),
+                        str(self.fixture / "main.c"), "-lcalls"], check=True, capture_output=True)
+        self.spec = self.root / "calls.json"
+        self.spec.write_text(json.dumps({"schema_version": 1, "calls": [
+            {"symbol": name, "args": ["0x123", "0x456", "0x789"]}
+            for name in ("one", "two", "three")]}))
+        self.spec.chmod(0o600)
+
+    def cli(self, *args, code=3):
+        result = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json",
+                                 *map(str, args)], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+        return json.loads(result.stdout)
+
+    def test_verified_three_call_cli_and_tamper_controls(self):
+        offset = self.cli("pwn-offset", "--binary", self.binary, "--channel", "stdin",
+                          "--length", 160, "--budget", 15,
+                          "--library-path", self.fixture, "--runs-root", self.root / "offset-runs")
+        offset_manifest = json.loads((Path(offset["run"]) / "manifest.json").read_text())
+        self.assertEqual(offset_manifest["coverage"]["PWN03"]["status"], "ran",
+                         offset_manifest)
+        args = ("pwn-call-chain", "--binary", self.binary, "--offset-run", offset["run"],
+                "--calls-json", self.spec, "--prompt-hex", b"READY>\n".hex(),
+                "--success-hex", b"LOCAL-CALL-SUCCESS".hex(), "--budget", 10,
+                "--runs-root", self.root / "call-runs")
+        result = self.cli(*args, "--replay-local")
+        run = Path(result["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["validation"], "local marker observed with controls")
+        self.assertEqual(len((run / "payload.bin").read_bytes()), 160)
+        self.assertEqual([row["status"] for row in manifest["controls"]],
+                         ["marker absent"] * 4)
+        self.assertFalse(manifest["challenge_accepted"])
+        self.cli("resume", run)
+        self.assertIn("Source and replay inputs verified current: yes",
+                      (run / "report.md").read_text())
+        from scripts.autosolve_lib import pwn_call_chain
+        with mock.patch.object(pwn_call_chain.pwn, "_loader_current", return_value=False):
+            pwn_call_chain.resume(run)
+        self.assertIn("Source and replay inputs verified current: no",
+                      (run / "report.md").read_text())
+        original = pwn_call_chain.run_service
+        calls = 0
+
+        def change_non_library_entry(*arguments, **options):
+            nonlocal calls
+            result = original(*arguments, **options)
+            calls += 1
+            if calls == 1:
+                source = self.fixture / "main.c"
+                source.write_bytes(source.read_bytes() + b"changed")
+            return result
+
+        with mock.patch.object(pwn_call_chain, "run_service",
+                               side_effect=change_non_library_entry):
+            stale_run, _ = pwn_call_chain.start(self.binary, offset["run"], self.spec,
+                                                 b"READY>\n".hex(),
+                                                 b"LOCAL-CALL-SUCCESS".hex(), 10,
+                                                 self.root / "call-runs", True)
+        stale_manifest = json.loads((stale_run / "manifest.json").read_text())
+        self.assertEqual(calls, 1)
+        self.assertEqual(stale_manifest["validation"], "unverified")
+        self.assertFalse(stale_manifest["replay_attempted"])
+        self.assertIn("Source and replay inputs verified current: no",
+                      (stale_run / "report.md").read_text())
+        (self.fixture / "libcalls.so").write_bytes((self.fixture / "libcalls.so").read_bytes() + b"x")
+        stale = self.cli(*args, code=2)
+        self.assertEqual(stale["status"], "invalid_input")
+
+    def test_private_spec_and_plt_stub_controls(self):
+        from scripts.autosolve_lib import pwn_call_chain
+        from elftools.elf.elffile import ELFFile
+
+        deadline = 10 ** 10
+        path, digest, calls = pwn_call_chain._spec(self.spec, deadline)
+        self.assertEqual(path, self.spec)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(digest), 64)
+        pwn_call_chain._candidate(self.binary, 40, calls, deadline)
+        with self.binary.open("rb") as source:
+            plt_offset = ELFFile(source).get_section_by_name(".plt")["sh_offset"]
+        changed = self.fixture / "changed-plt"
+        raw = bytearray(self.binary.read_bytes())
+        raw[plt_offset + 16] ^= 1
+        changed.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, "PLT stub"):
+            pwn_call_chain._candidate(changed, 40, calls, deadline)
+        alias = self.root / "alias.json"
+        alias.symlink_to(self.spec)
+        with self.assertRaises(ValueError):
+            pwn_call_chain._spec(alias, deadline)
+        self.spec.write_text('{"schema_version":1,"schema_version":1,"calls":[]}')
+        with self.assertRaisesRegex(ValueError, "duplicate keys"):
+            pwn_call_chain._spec(self.spec, deadline)
+
+
 if __name__ == "__main__":
     unittest.main()
