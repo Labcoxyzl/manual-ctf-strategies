@@ -20,6 +20,7 @@ LOCAL_ROUTE_HELP = {
     "evtx-timeline": (("EVTX workflow", "SPECIALIST_WORKFLOWS.html#evtx-timeline"),),
     "registry-hive": (("Registry workflow", "SPECIALIST_WORKFLOWS.html#registry-hive"),),
     "sqlite-artifact": (("SQLite workflow", "SPECIALIST_WORKFLOWS.html#sqlite-artifact"),),
+    "git-history": (("Git history workflow", "SPECIALIST_WORKFLOWS.html#git-history"),),
     "disk-file": (("Disk workflow", "CORE_WORKFLOWS.html#disk"),),
     "memory-process": (("Memory workflow", "CORE_WORKFLOWS.html#memory"),),
     "media-inspection": (("Image workflow", "CORE_WORKFLOWS.html#media"),
@@ -103,7 +104,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 35
+    assert len(routes) == len({route["id"] for route in routes}) == 36
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

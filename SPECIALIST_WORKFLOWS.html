@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="f27e850a47060bac7610d61671fb5c55ce280f3e410cad5a0e511c1a7ac60240">
+  <meta name="source-sha256" content="edbd091b125722458e1c22e08eb0a412698dcb1a438bde2464adb81568310774">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -62,6 +62,10 @@
 <h2>SQLite artifact: preserve WAL rows and read a copy</h2>
 <p>Collect a consistent snapshot of the database with matching <code>-wal</code> and <code>-shm</code> sidecars when present; separately copying files while an app writes can produce an inconsistent set. In a writable analysis directory, <code>sqlite3 -readonly COPY.db '.tables'</code> and <code>sqlite3 -readonly COPY.db '.schema TABLE'</code> reveal the structure without opening the database for writes. Query only the rows relevant to the clue, order them explicitly, and establish each time field's epoch and time zone before converting it. Hindsight can enrich supported browser profiles, but direct SQLite rows remain the fallback when its parser does not match the version.</p>
 <p><strong>Check:</strong> Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working <code>-shm</code> file beside the copy. <a href="https://www.sqlite.org/cli.html">SQLite CLI</a> · <a href="https://www.sqlite.org/wal.html">SQLite WAL</a>.</p>
+<p><a id="git-history"></a></p>
+<h2>Git history: recover the exact source revision</h2>
+<p>Work on a copy of the supplied repository. <code>git -C REPO status --short</code> separates working-tree files from committed history; <code>git -C REPO log --all --oneline --decorate</code> shows the refs actually present without fetching anything. For a known path, <code>git -C REPO log --all --follow --oneline -- PATH</code> can trace simple renames. Choose a commit that contains the file and inspect its exact blob with <code>git -C REPO show COMMIT:PATH</code>. If the clue points to a deletion commit, select the parent in which the path still existed; do not assume the current branch has the only relevant history.</p>
+<p><strong>Check:</strong> Keep the commit ID, path, blob bytes and source ref together. A Gitleaks match can guide a focused inspection but is not proof that a historical credential is valid. Avoid broad terminal dumps and do not copy recovered secrets into shared notes. Missing objects in a shallow or incomplete repository leave the question open. <a href="https://git-scm.com/docs/git-log">Git log</a> · <a href="https://git-scm.com/docs/git-show">Git show</a> · <a href="https://github.com/gitleaks/gitleaks">Gitleaks</a>.</p>
 <p><a id="malware-executable"></a></p>
 <h2>Unknown executable: separate format from behavior</h2>
 <p>Start with <a href="scripts/templates/file_intel.py">file_intel.py</a> or <code>file</code>, then use Detect It Easy to confirm format and architecture. For a supported native executable, <code>capa -v sample.bin</code> gives capability leads and the locations behind them. Open one relevant location in the matching disassembler; check the surrounding code or bytes before describing behavior. A decoded string, import or capability label alone does not prove that a path executes. Keep unknown programs in the intended isolated analysis environment rather than running them as a first look. <a href="PRACTICE_WORKSHEETS.html#block-6">Practice the evidence distinction</a>.</p>

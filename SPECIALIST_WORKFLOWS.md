@@ -32,6 +32,13 @@ Collect a consistent snapshot of the database with matching `-wal` and `-shm` si
 
 **Check:** Tie a selected row to its table, database copy, sidecar state and source application. Read-only WAL access has conditions; a missing WAL or failed open is not proof that a recent row never existed. The CLI may create a working `-shm` file beside the copy. [SQLite CLI](https://www.sqlite.org/cli.html) · [SQLite WAL](https://www.sqlite.org/wal.html).
 
+<a id="git-history"></a>
+## Git history: recover the exact source revision
+
+Work on a copy of the supplied repository. `git -C REPO status --short` separates working-tree files from committed history; `git -C REPO log --all --oneline --decorate` shows the refs actually present without fetching anything. For a known path, `git -C REPO log --all --follow --oneline -- PATH` can trace simple renames. Choose a commit that contains the file and inspect its exact blob with `git -C REPO show COMMIT:PATH`. If the clue points to a deletion commit, select the parent in which the path still existed; do not assume the current branch has the only relevant history.
+
+**Check:** Keep the commit ID, path, blob bytes and source ref together. A Gitleaks match can guide a focused inspection but is not proof that a historical credential is valid. Avoid broad terminal dumps and do not copy recovered secrets into shared notes. Missing objects in a shallow or incomplete repository leave the question open. [Git log](https://git-scm.com/docs/git-log) · [Git show](https://git-scm.com/docs/git-show) · [Gitleaks](https://github.com/gitleaks/gitleaks).
+
 <a id="malware-executable"></a>
 ## Unknown executable: separate format from behavior
 

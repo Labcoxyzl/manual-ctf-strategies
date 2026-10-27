@@ -1059,5 +1059,38 @@
         "url": "https://docs.openssl.org/3.5/man1/openssl-enc/"
       }
     ]
+  },
+  {
+    "id": "git-history",
+    "category": "forensics",
+    "title": "Git history → deleted or changed artifact",
+    "input": "A supplied local Git repository or its copied directory; no remote fetch is needed.",
+    "tool_ids": [
+      "kali-49",
+      "kali-50"
+    ],
+    "steps": [
+      "Preserve the repository, then run `git -C REPO status --short` and `git -C REPO log --all --oneline --decorate` to record available refs and distinguish tracked history from untracked working files.",
+      "For an evidenced path, run `git -C REPO log --all --follow --oneline -- PATH`; choose a commit where the file exists and inspect only that blob with `git -C REPO show COMMIT:PATH`. For a deletion, identify the relevant parent commit explicitly.",
+      "Relate the exact commit, path and blob bytes to the challenge clue. If the approved Gitleaks tool reports a possible secret, treat it as a lead and verify only the relevant history without sharing the value."
+    ],
+    "expected": "A specific source commit and path containing the relevant bytes or a documented missing-history limit.",
+    "fallback": "An empty result may reflect a shallow/incomplete repository, a renamed path, an untracked file, or a missing ref. Recheck supplied objects and paths before concluding the data never existed.",
+    "caveat": "Do not fetch remotes or print entire histories by default. `--follow` is a single-path aid and may not explain complex merges; a historical credential or scanner hit is not proof that it is still valid.",
+    "verification": "Source-reviewed against Git log/show and Gitleaks documentation; locally checked on a synthetic repository with a deleted file.",
+    "references": [
+      {
+        "title": "Git log path and history options",
+        "url": "https://git-scm.com/docs/git-log"
+      },
+      {
+        "title": "Git show blob syntax",
+        "url": "https://git-scm.com/docs/git-show"
+      },
+      {
+        "title": "Gitleaks project",
+        "url": "https://github.com/gitleaks/gitleaks"
+      }
+    ]
   }
 ]
