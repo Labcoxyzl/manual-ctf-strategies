@@ -33,6 +33,7 @@ class Toy:
         self.nonce_count = 0
         self.nonce = None
         self.nonce_used = False
+        self.get_token = None
         self.landing_nonce_header = None
         self.stage = 0
         self.stage_checked = True
@@ -102,6 +103,15 @@ class Toy:
                     toy.nonce = f'toy-nonce-{toy.nonce_count}'
                     payload = {} if toy.mode == 'nonce_missing' else {'nonce': toy.nonce}
                     self.send(200, payload, {'Set-Cookie': 'sid=nonce; Path=/'})
+                elif self.path == '/bootstrap-get':
+                    toy.get_token = ('Bearer ' + 'x' * 600 if toy.mode == 'get_bootstrap_header' else
+                                     'bad\nvalue' if toy.mode == 'get_bootstrap_body_bad' else 'Bearer toy-get-token')
+                    headers = [('Set-Cookie', 'sid=get; Path=/')]
+                    if toy.mode == 'get_bootstrap_header':
+                        headers.append(('X-Session-Token', toy.get_token))
+                    if toy.mode == 'get_bootstrap_header_duplicate':
+                        headers.extend([('X-Session-Token', toy.get_token), ('X-Session-Token', 'other')])
+                    self.send(200, {'token': toy.get_token}, headers) if toy.mode in ('get_bootstrap_body', 'get_bootstrap_body_bad') else self.send(204, b'', headers)
                 elif self.path == '/nonce-header':
                     toy.nonce_count += 1
                     toy.nonce = f'toy-nonce-{toy.nonce_count}'
@@ -166,6 +176,10 @@ class Toy:
                     return
                 body = json.loads(raw) if self.headers.get('Content-Type') == 'application/json' else dict(urllib.parse.parse_qsl(raw.decode()))
                 toy.received.append(body)
+                if toy.mode.startswith('get_bootstrap_') and self.path == '/api/utter' and (
+                        self.headers.get('Cookie') != 'sid=get' or self.headers.get('Authorization') != toy.get_token):
+                    self.send(403, {'error': 'bootstrap token required'})
+                    return
                 if self.path == '/kb':
                     if toy.mode == 'kb_false_write':
                         self.send(201, {'stored': False})
@@ -1064,6 +1078,7 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(m['prompt_count'], 0)
             self.run_cli(root, 'resume', run, '--budget', '5', '--max-requests', '6', code=0)
             self.assertEqual(sum(path == '/claim' for _, path in toy.calls), 1)
+
             self.assertEqual(toy.received[-1]['tab_token'], 'toy-claim')
             self.assertIn('sid=claimed', (run / 'cookies.txt').read_text())
             records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
@@ -1079,6 +1094,72 @@ class ChatbotCLITests(unittest.TestCase):
             before = len(toy.calls)
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
             self.assertEqual(len(toy.calls), before)
+
+    def test_declared_get_bootstrap_captures_body_or_response_header_token(self):
+        chat = {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'}
+        for mode, source, success in (('get_bootstrap_body', 'token_field', 200),
+                                      ('get_bootstrap_header', 'token_header', 204)):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                config = {'allow_state_change': True, 'chat': chat, 'lanes': [],
+                          'bootstrap': {'method': 'GET', 'path': '/bootstrap-get', 'success_status': success,
+                                        source: 'token' if source == 'token_field' else 'X-Session-Token',
+                                        'header': 'Authorization'}}
+                protocol = self.protocol(root, config)
+                dry, dry_run, dry_code = self.start(root, toy, protocol, dry=True, prompts=1)
+                self.assertEqual(dry_code, 0)
+                self.assertIn('Bootstrap: GET /bootstrap-get', (dry_run / 'report.md').read_text())
+                self.assertFalse(toy.calls)
+                m, run, code = self.start(root, toy, protocol, prompts=1)
+                self.assertEqual(code, 0)
+                self.assertTrue(m['bootstrap_completed'])
+                self.assertEqual(m['bootstrap_token'], toy.get_token)
+                self.assertEqual(m['prompt_count'], 1)
+                self.assertEqual(sum(path == '/bootstrap-get' for method, path in toy.calls if method == 'GET'), 1)
+                self.assertNotIn(toy.get_token, (run / 'report.md').read_text())
+                records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+                self.assertEqual(records[-1]['request']['headers']['Authorization'], '[redacted]')
+        for mode in ('get_bootstrap_header_missing', 'get_bootstrap_header_duplicate'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'allow_state_change': True, 'chat': chat, 'lanes': [],
+                                                'bootstrap': {'method': 'GET', 'path': '/bootstrap-get',
+                                                              'success_status': 204, 'token_header': 'X-Session-Token',
+                                                              'header': 'Authorization'}})
+                m, _, code = self.start(root, toy, protocol, prompts=1)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], 'bootstrap token missing or invalid')
+                self.assertEqual(sum(path == '/api/utter' for method, path in toy.calls if method == 'POST'), 0)
+        with tempfile.TemporaryDirectory() as root, Toy('get_bootstrap_body_bad') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'chat': chat, 'lanes': [],
+                                            'bootstrap': {'method': 'GET', 'path': '/bootstrap-get',
+                                                          'success_status': 200, 'token_field': 'token',
+                                                          'header': 'Authorization'}})
+            m, _, code = self.start(root, toy, protocol, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'bootstrap token missing or invalid')
+            self.assertEqual(sum(path == '/api/utter' for method, path in toy.calls if method == 'POST'), 0)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'chat': chat,
+                                            'bootstrap': {'method': 'GET', 'path': '/bootstrap-get',
+                                                          'success_status': 200, 'token_field': 'token',
+                                                          'token_header': 'X-Session-Token'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('token', result['reason'])
+            self.assertFalse(toy.calls)
+            for extra in ({'headers': {'authorization': 'fixed'}},
+                          {'chat': {**chat, 'csrf_header': 'Authorization'}},
+                          {'bootstrap': {'method': 'GET', 'path': '/bootstrap-get', 'success_status': 204,
+                                         'token_header': 'X-Session-Token', 'header': 'Cookie'}}):
+                valid = {'allow_state_change': True, 'chat': chat,
+                         'bootstrap': {'method': 'GET', 'path': '/bootstrap-get', 'success_status': 204,
+                                       'token_header': 'X-Session-Token', 'header': 'Authorization'}}
+                protocol = self.protocol(root, valid | extra)
+                result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                            '--dry-run', '--budget', '5', '--max-requests', '8')
+                self.assertEqual(code, 2)
+                self.assertIn('bootstrap header conflicts', result['reason'])
+                self.assertFalse(toy.calls)
 
     def test_bootstrap_acceptance_and_incomplete_status_check(self):
         config = {'chat': {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'},
@@ -1964,6 +2045,7 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('header_nonce_verifier.json', 'api_plan'),
                                    ('sse_chat.json', 'route_discovery'),
                                    ('messages_array.json', 'route_discovery'),
+                                   ('get_token_bootstrap.json', 'route_discovery'),
                                    ('scorer_batch.json', 'scorer_batch'),
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),

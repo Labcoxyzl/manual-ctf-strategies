@@ -120,15 +120,18 @@ The lock is conservative for separate
 identities at one exact origin; aliases, machines and user accounts still need
 a single human-assigned chat owner.
 
-If the frontend requires one login, claim, or token-exchange POST before chat,
-add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.json).
-It declares the exact path/body and, when needed, the response token field to
-copy into a chat field or header. Set `allow_state_change: true`, the exact
-`success_status`, and optional `success_field`/`success_value` from the frontend.
-The request runs once in the same cookie jar before prompts; a redirect,
-timeout, or mismatched success field leaves its outcome uncertain. Resume can
-retry a read-only status check after an incomplete response, but never replays
-the claim POST. If the frontend also
+If the frontend requires one login, claim, or token exchange before chat,
+declare a `bootstrap` request using the [POST tab-claim example](chatbot_recipes/tab_claim.json)
+or [GET token example](chatbot_recipes/get_token_bootstrap.json). GET has no
+body; POST declares its exact JSON or form body. Set `allow_state_change: true`
+and the exact 2xx `success_status`. A token can come from `token_field` in the
+response JSON or one unique `token_header` in the response headers, then be
+copied into the declared chat `header` or `chat_field`. Header tokens are
+bounded to 4,096 printable characters. Optional `success_field`/
+`success_value` checks the response body. The request runs once with the same
+cookie jar before prompts; a redirect, timeout, missing token, or mismatched
+success field leaves its outcome uncertain. Resume can inspect a configured
+status route but never repeats the bootstrap automatically. If the frontend also
 requires a heartbeat, use the [tab-heartbeat example](chatbot_recipes/tab_heartbeat.json)
 to declare its path, body, exact success status, optional captured token field,
 optional success field/value, and interval. Due

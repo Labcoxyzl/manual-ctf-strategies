@@ -91,6 +91,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_recipes/header_nonce_verifier.json',
         'scripts/chatbot_recipes/sse_chat.json',
         'scripts/chatbot_recipes/messages_array.json',
+        'scripts/chatbot_recipes/get_token_bootstrap.json',
         'scripts/chatbot_recipes/scorer_batch.json',
         'scripts/chatbot_recipes/tab_claim.json',
         'scripts/chatbot_recipes/tab_heartbeat.json',

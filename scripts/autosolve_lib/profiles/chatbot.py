@@ -249,21 +249,34 @@ def _protocol(path):
         raise core.InvalidInput('status_after_each_chat needs a declared status_path and boolean value')
     bootstrap = config.get('bootstrap')
     if bootstrap is not None:
-        if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'encoding', 'body', 'token_field', 'chat_field', 'header', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
+        if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'method', 'encoding', 'body', 'token_field', 'token_header', 'chat_field', 'header', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
             raise core.InvalidInput('bootstrap needs allow_state_change=true and a declared request')
         _path(bootstrap.get('path'))
-        if bootstrap.get('encoding', 'json') not in ('json', 'form') or not isinstance(bootstrap.get('body'), dict):
-            raise core.InvalidInput('bootstrap body must be a JSON or form object')
-        if bootstrap.get('encoding') == 'form' and any(not isinstance(v, str) for v in bootstrap['body'].values()):
-            raise core.InvalidInput('bootstrap form values must be strings')
-        if any(not isinstance(k, str) for k in bootstrap['body']):
-            raise core.InvalidInput('bootstrap body keys must be strings')
-        for key in ('token_field', 'chat_field', 'header'):
+        method = bootstrap.get('method', 'POST')
+        if method not in ('GET', 'POST') or (method == 'GET' and ('body' in bootstrap or 'encoding' in bootstrap)):
+            raise core.InvalidInput('bootstrap GET has no body or encoding; POST needs a declared body')
+        if method == 'POST':
+            if bootstrap.get('encoding', 'json') not in ('json', 'form') or not isinstance(bootstrap.get('body'), dict):
+                raise core.InvalidInput('bootstrap body must be a JSON or form object')
+            if bootstrap.get('encoding') == 'form' and any(not isinstance(v, str) for v in bootstrap['body'].values()):
+                raise core.InvalidInput('bootstrap form values must be strings')
+            if any(not isinstance(k, str) for k in bootstrap['body']):
+                raise core.InvalidInput('bootstrap body keys must be strings')
+            if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
+                raise core.InvalidInput('bootstrap body exceeds 64 KiB')
+        for key in ('token_field', 'token_header', 'chat_field', 'header'):
             pattern = r'[\w.\[\]-]{1,80}' if key == 'chat_field' else r'[A-Za-z0-9_.-]{1,80}'
             if key in bootstrap and (not isinstance(bootstrap[key], str) or not re.fullmatch(pattern, bootstrap[key])):
                 raise core.InvalidInput(f'invalid bootstrap {key}')
-        if ('header' in bootstrap or 'chat_field' in bootstrap) and 'token_field' not in bootstrap:
-            raise core.InvalidInput('bootstrap header/chat_field needs token_field')
+        if ('token_field' in bootstrap and 'token_header' in bootstrap) or (
+                ('header' in bootstrap or 'chat_field' in bootstrap) and not ('token_field' in bootstrap or 'token_header' in bootstrap)):
+            raise core.InvalidInput('bootstrap needs one token_field or token_header for header/chat_field')
+        bound_header = bootstrap.get('header', '').lower()
+        if bound_header and (bound_header in {key.lower() for key in headers} or
+                             bound_header == chat.get('csrf_header', '').lower() or
+                             bound_header in ('host', 'connection', 'content-length', 'transfer-encoding', 'content-type', 'cookie') or
+                             bound_header.startswith('proxy-')):
+            raise core.InvalidInput('bootstrap header conflicts with another request or transport header')
         if bootstrap.get('chat_field') and not chat:
             raise core.InvalidInput('bootstrap chat_field requires an explicit chat request shape')
         if type(bootstrap.get('success_status')) is not int or not 200 <= bootstrap['success_status'] <= 299:
@@ -272,8 +285,6 @@ def _protocol(path):
             raise core.InvalidInput('bootstrap success_field and success_value must be paired')
         if bootstrap['success_status'] in (204, 205) and ('token_field' in bootstrap or 'success_field' in bootstrap):
             raise core.InvalidInput('bodyless bootstrap success cannot provide a response token or field')
-        if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
-            raise core.InvalidInput('bootstrap body exceeds 64 KiB')
     if chat:
         dynamic_fields = [value for value in (chat.get('history_field') or chat.get('message_field', 'message'), chat.get('conversation_field'),
                                               chat.get('client_id_field'), bootstrap.get('chat_field') if bootstrap else None) if value]
@@ -366,8 +377,8 @@ def _same_json(actual, expected):
     return actual == expected
 
 
-def _capture_scalar(value):
-    return ((isinstance(value, str) and 1 <= len(value) <= 512 and
+def _capture_scalar(value, limit=512):
+    return ((isinstance(value, str) and 1 <= len(value) <= limit and
              all(32 <= ord(char) <= 126 for char in value)) or
             (type(value) is int and 0 <= value <= 2 ** 63 - 1))
 
@@ -460,7 +471,7 @@ class Client:
             self.cookies.load(ignore_discard=True, ignore_expires=True)
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies), _NoRedirect())
 
-    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None, capture_header=None, response_format='json'):
+    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None, capture_header=None, capture_header_limit=512, response_format='json'):
         if method != 'GET' and self.pending_probe is not None:
             return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
@@ -615,7 +626,7 @@ class Client:
             if capture_header:
                 values = response_headers.get_all(capture_header, [])
                 record['captured_response_header'] = ({'name': capture_header, 'value': values[0]}
-                                                      if len(values) == 1 and _capture_scalar(values[0]) else
+                                                      if len(values) == 1 and _capture_scalar(values[0], capture_header_limit) else
                                                       {'name': capture_header, 'count': len(values)})
             delay = _retry_seconds(retry_after)
             if delay is None and signal == 'rate_limit':
@@ -839,19 +850,23 @@ def _bootstrap(client):
         return
     m['bootstrap_started'] = True
     core._write_json(client.run / 'manifest.json', m)
-    result = client.request('POST', config['path'], body=config['body'],
-                            encoding=config.get('encoding', 'json'), probe='bootstrap')
+    method = config.get('method', 'POST')
+    result = client.request(method, config['path'], body=config.get('body'),
+                            encoding=config.get('encoding', 'json'), probe='bootstrap',
+                            capture_header=config.get('token_header'), capture_header_limit=4096)
     if (result.get('signal') or result.get('redirect_hops') or result.get('status') != config['success_status'] or
             ('success_field' in config and not _same_json(_nested(result.get('response'), config['success_field'], _MISSING), config['success_value']))):
         m['stop_reason'] = 'bootstrap unconfirmed'
         return
-    if config.get('token_field'):
-        token = _nested(result.get('response'), config['token_field'], _MISSING)
-        if not isinstance(token, str) or not 1 <= len(token) <= 4096:
+    if config.get('token_field') or config.get('token_header'):
+        token = (_nested(result.get('response'), config['token_field'], _MISSING) if config.get('token_field') else
+                 _nested(result.get('captured_response_header'), 'value', _MISSING))
+        if not isinstance(token, str) or not 1 <= len(token) <= 4096 or (config.get('header') and not _capture_scalar(token, 4096)):
             m['stop_reason'] = 'bootstrap token missing or invalid'
             return
         m['bootstrap_token'] = token
-    client.confirm_post()
+    if method == 'POST':
+        client.confirm_post()
     m['bootstrap_completed'] = True
     core._write_json(client.run / 'manifest.json', m)
 
@@ -1208,7 +1223,7 @@ def _render(run, m):
              f"Stop reason: {m.get('stop_reason') or 'queue complete'}", '', '## Probes', '']
     if m.get('bootstrap_summary'):
         entry = m['bootstrap_summary']
-        lines.insert(10, f"Bootstrap: POST {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
+        lines.insert(10, f"Bootstrap: {entry['method']} {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
     if m.get('heartbeat_summary'):
         entry = m['heartbeat_summary']
         lines.insert(11 if m.get('bootstrap_summary') else 10,
@@ -1251,7 +1266,7 @@ def _render(run, m):
     if m['dry_run']:
         if m.get('bootstrap_summary'):
             entry = m['bootstrap_summary']
-            lines += ['', f"Planned bootstrap: POST {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
+            lines += ['', f"Planned bootstrap: {entry['method']} {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
         if m.get('heartbeat_summary'):
             entry = m['heartbeat_summary']
             lines += ['', f"Planned serial heartbeat: POST {_display_path(entry['path'])}; interval: {entry['interval_seconds']}s; body fields: {', '.join(entry['body_fields']) or 'none'}."]
@@ -1335,8 +1350,9 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                     'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
                     'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
                     'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
-                    'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
-                                          'encoding': config['bootstrap'].get('encoding', 'json'),
+                    'bootstrap_summary': {'path': config['bootstrap']['path'], 'method': config['bootstrap'].get('method', 'POST'),
+                                          'body_fields': sorted(config['bootstrap'].get('body', {})),
+                                          'encoding': config['bootstrap'].get('encoding', 'json') if config['bootstrap'].get('method', 'POST') == 'POST' else 'none',
                                           'success_status': config['bootstrap']['success_status']} if config.get('bootstrap') else None,
                     'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_checked': False, 'bootstrap_token': None,
                     'heartbeat_summary': {'path': config['heartbeat']['path'],
