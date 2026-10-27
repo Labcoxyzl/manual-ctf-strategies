@@ -2316,9 +2316,12 @@ def _zsteg_worker(path, staging, max_pixels, max_bytes, timeout, pipe):
     resource.setrlimit(resource.RLIMIT_AS, (768 * 1024 * 1024, 768 * 1024 * 1024))
     resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
     try:
+        if staging.parent.is_symlink() or staging.is_symlink():
+            raise ValueError('zsteg staging directory cannot be a symlink')
+        staging.mkdir(parents=True, mode=0o700)
         records, warnings = inspect_lsb(path, staging, max_pixels=max_pixels,
                                          max_total_bytes=max_bytes, timeout=timeout,
-                                         supervised=True)
+                                         supervised=True, scratch_dir=staging)
         pipe.send(('ok', records, warnings))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
@@ -3316,7 +3319,8 @@ def _zsteg_job(run, manifest, artifact, deadline):
             warnings = [job['warning']]
             manifest['warnings'].append(f"zsteg job failed: {job['warning']}")
         finally:
-            shutil.rmtree(staging, ignore_errors=True)
+            if not staging.parent.is_symlink() and not staging.is_symlink():
+                shutil.rmtree(staging, ignore_errors=True)
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
@@ -4206,10 +4210,15 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
            'replay_requested': replay, 'status': 'running', 'started': time.time()}
     manifest['jobs'].append(job)
     _write_json(run / 'manifest.json', manifest)
+    staging = run / 'staging' / job['id']
     try:
+        if staging.parent.is_symlink() or staging.is_symlink():
+            raise ValueError('checker staging directory cannot be a symlink')
+        staging.mkdir(parents=True, mode=0o700)
         report, warnings = inspect_checker(
             Path(artifact['path']), hints, execute_local=True, replay=replay,
-            timeout=min(20, max(.01, deadline - time.monotonic() - 1)))
+            timeout=min(20, max(.01, deadline - time.monotonic() - 1)),
+            scratch_dir=staging)
         if report['source_sha256'] != artifact['sha256']:
             raise RuntimeError('checker source changed before report publication')
         output = run / 'jobs' / f"{job['id']}.checker.json"
@@ -4251,6 +4260,9 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
         coverage['status'] = _error_status(error)
         coverage['note'] = 'REV07 checker inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV07 job failed: {job['warning']}")
+    finally:
+        if not staging.parent.is_symlink() and not staging.is_symlink():
+            shutil.rmtree(staging, ignore_errors=True)
     job['ended'] = time.time()
     _write_json(run / 'jobs' / f"{job['id']}.json", job)
     _write_json(run / 'manifest.json', manifest)
