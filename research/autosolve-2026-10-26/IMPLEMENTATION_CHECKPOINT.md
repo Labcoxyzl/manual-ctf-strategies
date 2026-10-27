@@ -489,6 +489,23 @@ POSIX semaphore IPC objects, so a literal zero outside-root mutation claim is
 not made. A-REV02 remains at 7/8 positive local cases and is not counted among
 the 38 proved named rows. Local replay is not platform acceptance.
 
+The twenty-second candidate adds bounded, explicitly keyed Vigenere and
+rail-fence decoding through private `classical_parameters` hints. It preserves
+candidate-only results, records honest missing-key prerequisites, and retires
+old plaintext when a key changes on resume. Its frozen nine-case local ENC04
+replay passed five exact keyed outputs with source/job lineage, two no-key
+cases, and two negative controls with zero validated solutions. Separate
+Vigenere and rail key-change resumes retired old candidate artifacts. Review
+found that a rail-count operation label exposed the supplied parameter; a
+focused red-to-green fix now uses only a parameter index in public reports.
+The final candidate replay and 253-file ZIP parity passed, but full release
+gates, remote publication and published-hash named-row replay remain pending.
+An official ROP Emporium `callme` x86-64 handout separately confirmed the
+published PWN02/PWN03 offset-40 path and an independent three-call local
+marker, while PWN04 correctly refused the imported target before replay.
+Verified imported-PLT multi-call support is a separate next breadth slice;
+the full A-PWN04 row remains unproved.
+
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
 report/resume behavior. This raises full named-row proof to **29 of 57**;
