@@ -114,13 +114,34 @@ On that exact candidate, the frozen two-family all-domain gate passed 22/22,
 the X01–X08/F01–F12 gate passed 20/20, and clean copied rootless setup and
 seven adverse controls passed. These are narrow gates, not 57-row acceptance.
 
-The next local checkpoint integrates AIC01 partial-stream reporting, AIC02
+The eleventh checkpoint integrates AIC01 partial-stream reporting, AIC02
 model parity, recurrent traces, calibrated search and exact live scorer
-numbers, an opt-in supplied-offset local PWN04 ret2win path, and bounded
-PyInstaller 5 encrypted PYZ recovery. Focused checks and independent reviews
-have passed in their isolated lanes; combined full-suite and release replay
-remain pending. PWN03 autonomous offset discovery and unsupported REV02
-compiler layouts remain outside the proven paths.
+numbers, an opt-in supplied-offset local PWN04 ret2win path, bounded
+PyInstaller 5 encrypted PYZ recovery, the locked AIC02/REV05 Python backends,
+and AV04 routing that avoids probing OCR bytes as SSTV audio. Independent
+review cleared the changes. Its Python 3.12 autosolve suite passed 795 tests
+(22 optional skipped) on a quiet full rerun after one cooldown timing error;
+the repository pre-push gate passed 872 tests (41 optional skipped,
+498 subtests). Commit `60feabc` is published and its remote hash was verified.
+On that exact candidate, the frozen all-domain gate passed 22/22 with AV04
+`ran`, X01–X08/F01–F12 passed 20/20, and clean copied rootless setup passed
+with 28 locked packages, 126 changed-path tests (four optional Torch skips),
+seven adverse controls and zero outside-task writes. Local AIC01/AIC02,
+encrypted PyInstaller and two public ret2win transfers matched independent
+oracles without claiming platform acceptance. PWN03 autonomous offset
+discovery, broader PWN04 ROP, foreign PyInstaller bytecode and unsupported
+REV02 compiler layouts remain partial.
+
+Four published-tenth row batches replayed 82 frozen cases; 80 passed narrow
+slot checks and the two exclusions were ENC01 Base85 and ENC05 no-crib H2.
+Seventeen rows now have narrow P/H1/H2/N examples on one candidate, but none
+has every named contract variation proven. The next local checkpoint bundles
+a functional authored SSTV doctor recording, rootless pefile/Capstone parsers,
+and a refreshed deterministic README-linked Offline kit with 237 validated
+members. Its focused checks and independent reviews passed; combined release
+gates and remote publication remain pending. A proposed DF04 WAL status repair
+is held separately after corrupt-WAL review showed the simple exemption could
+hide missing committed rows.
 
 ## Independent end-to-end evidence
 
