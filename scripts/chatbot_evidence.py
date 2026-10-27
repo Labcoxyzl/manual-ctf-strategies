@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decode chatbot output representations and compare exposed tool arguments."""
+"""Decode chatbot evidence, compare tool arguments, and inspect bounded scorer controls."""
 
 import argparse
 import base64
@@ -7,7 +7,9 @@ import hashlib
 import json
 import math
 import re
+import statistics
 import uuid
+from decimal import Decimal, localcontext
 from pathlib import Path
 
 
@@ -120,6 +122,69 @@ def audit(text, line, fields):
             'limit': 'argument differences are leads; applied state needs a direct authorized check'}
 
 
+def score_controls(text, positive, negative, candidates, direction):
+    if direction not in ('higher', 'lower'):
+        raise ValueError('score direction must be higher or lower')
+    def indices(raw, minimum):
+        parts = [part.strip() for part in raw.split(',')]
+        if not minimum <= len(parts) <= 50 or any(not re.fullmatch(r'[1-9][0-9]?', part) or int(part) > 50 for part in parts):
+            raise ValueError('score groups need comma-separated one-based indices from 1 to 50')
+        values = [int(part) for part in parts]
+        if len(set(values)) != len(values):
+            raise ValueError('score group indices must be unique')
+        return values
+
+    groups = {'positive': indices(positive, 2), 'negative': indices(negative, 2),
+              'candidates': indices(candidates, 1)}
+    all_indices = [index for group in groups.values() for index in group]
+    if len(set(all_indices)) != len(all_indices):
+        raise ValueError('score groups must not overlap')
+    manifest = json.loads(text)
+    if not isinstance(manifest, dict) or manifest.get('category') != 'ai_chatbot' or manifest.get('strategy') != 'scorer_batch':
+        raise ValueError('input must be a scorer_batch chatbot manifest')
+    rows = manifest.get('api_checks')
+    if not isinstance(rows, list) or len(rows) > 50 or any(not isinstance(row, dict) or not isinstance(row.get('id'), str) for row in rows):
+        raise ValueError('scorer_batch api_checks are missing or invalid')
+    by_id = {row['id']: row for row in rows}
+    if len(by_id) != len(rows):
+        raise ValueError('duplicate scorer_batch probe IDs')
+    sign = 1 if direction == 'higher' else -1
+
+    def score(index):
+        row = by_id.get(f'score_{index}')
+        value = row.get('score') if row else None
+        try:
+            valid_value = type(value) in (int, float) and math.isfinite(value) and abs(value) <= 1e150
+        except OverflowError:
+            valid_value = False
+        if (not row or type(row.get('status')) is not int or not 200 <= row['status'] <= 299 or
+                type(row.get('redirect_hops')) is not int or row['redirect_hops'] != 0 or not valid_value):
+            raise ValueError(f'score_{index} has no complete bounded nonredirected scalar observation')
+        number = Decimal(str(value))
+        return number if sign == 1 else number.copy_negate()
+
+    positive_scores = [score(index) for index in groups['positive']]
+    negative_scores = [score(index) for index in groups['negative']]
+    ranked = sorted(((f'score_{index}', score(index)) for index in groups['candidates']),
+                    key=lambda row: row[1], reverse=True)
+    with localcontext() as context:
+        context.prec = 512
+        positive_median = statistics.median(positive_scores)
+        negative_median = statistics.median(negative_scores)
+        median_gap = positive_median - negative_median
+    return {'kind': 'exploratory_score_controls', 'direction': direction,
+            'source_sha256': hashlib.sha256(text.encode()).hexdigest(),
+            'control_probe_ids': {'positive': [f'score_{index}' for index in groups['positive']],
+                                  'negative': [f'score_{index}' for index in groups['negative']]},
+            'positive_count': len(positive_scores), 'negative_count': len(negative_scores),
+            'positive_median': str(positive_median), 'negative_median': str(negative_median),
+            'median_gap': str(median_gap),
+            'observed_strict_separation': min(positive_scores) > max(negative_scores),
+            'ranked_candidates': [{'probe_id': name, 'oriented_score': str(value)} for name, value in ranked],
+            'membership_validated': False,
+            'limit': 'controls are user-declared; scores and separation do not prove membership or challenge acceptance'}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--runs-root')
@@ -132,6 +197,12 @@ def main(argv=None):
     check.add_argument('--line', type=int, help='one-based transcript JSONL line')
     for name in ('raw', 'validated', 'normalized', 'applied'):
         check.add_argument(f'--{name}-field', default=f'args_{name}')
+    scores = modes.add_parser('score-controls')
+    scores.add_argument('--input', required=True, help='private scorer_batch manifest.json')
+    scores.add_argument('--positive', required=True, help='comma-separated one-based known-member probe indices')
+    scores.add_argument('--negative', required=True, help='comma-separated one-based known-nonmember probe indices')
+    scores.add_argument('--candidates', required=True, help='comma-separated one-based candidate probe indices')
+    scores.add_argument('--direction', choices=('higher', 'lower'), required=True)
     args = parser.parse_args(argv)
     try:
         text = _input(args.input)
@@ -143,8 +214,10 @@ def main(argv=None):
             target.chmod(0o600)
             result = {'state': 'candidate', 'mode': args.encoding, 'length': len(candidate),
                       'sha256': hashlib.sha256(candidate.encode()).hexdigest(), 'candidate_file': str(target)}
-        else:
+        elif args.mode == 'audit':
             result = audit(text, args.line, {name: getattr(args, f'{name}_field') for name in ('raw', 'validated', 'normalized', 'applied')})
+        else:
+            result = score_controls(text, args.positive, args.negative, args.candidates, args.direction)
         report = run / 'result.json'
         report.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
         print(json.dumps({'status': 'complete', 'report': str(report),

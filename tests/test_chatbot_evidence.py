@@ -61,6 +61,48 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual(report['comparisons'][0]['changed_paths'], ['mode'])
             self.assertNotIn('override', Path(result['report']).read_text())
 
+    def test_score_controls_rank_observations_without_membership_claim(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'manifest.json'
+            rows = [{'id': f'score_{index}', 'status': 200, 'redirect_hops': 0, 'score': value}
+                    for index, value in enumerate((.9, .8, .1, .2, .7, .3), 1)]
+            source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                          'api_checks': rows}))
+            args = ('score-controls', '--input', source, '--positive', '1,2', '--negative', '3,4',
+                    '--candidates', '5,6', '--direction', 'higher')
+            result = self.command(root, *args)
+            report = json.loads(Path(result['report']).read_text())
+            self.assertTrue(report['observed_strict_separation'])
+            self.assertFalse(report['membership_validated'])
+            self.assertEqual(report['control_probe_ids']['positive'], ['score_1', 'score_2'])
+            self.assertEqual([row['probe_id'] for row in report['ranked_candidates']], ['score_5', 'score_6'])
+            self.assertNotIn('candidate input', Path(result['report']).read_text())
+            lower = self.command(root, *args[:-1], 'lower')
+            lower_report = json.loads(Path(lower['report']).read_text())
+            self.assertEqual([row['probe_id'] for row in lower_report['ranked_candidates']], ['score_6', 'score_5'])
+            self.assertFalse(lower_report['observed_strict_separation'])
+            self.assertEqual(self.command(root, 'score-controls', '--input', source, '--positive', '1,2',
+                                          '--negative', '2,3', '--candidates', '5', '--direction', 'higher',
+                                          code=2)['status'], 'invalid_input')
+            rows[4]['redirect_hops'] = 1
+            source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                          'api_checks': rows}))
+            self.assertIn('score_5', self.command(root, *args, code=2)['reason'])
+            rows[4].pop('redirect_hops')
+            source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                          'api_checks': rows}))
+            self.assertIn('score_5', self.command(root, *args, code=2)['reason'])
+            large = 10 ** 100
+            for row, value in zip(rows, (large + 2, large + 4, large - 4, large - 2, large + 1, large - 1)):
+                row['score'] = value
+                row['redirect_hops'] = 0
+            source.write_text(json.dumps({'category': 'ai_chatbot', 'strategy': 'scorer_batch',
+                                          'api_checks': rows}))
+            exact = self.command(root, *args)
+            exact_report = json.loads(Path(exact['report']).read_text())
+            self.assertTrue(exact_report['observed_strict_separation'])
+            self.assertEqual(exact_report['median_gap'], '6')
+
 
 if __name__ == '__main__':
     unittest.main()

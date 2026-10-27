@@ -244,6 +244,24 @@ candidate. It does not identify historical weights from an ambiguous
 transformation. Check the producer's arithmetic and run parity before using
 the candidate.
 
+For a black-box scoring endpoint, `scorer_batch` can collect up to 50 explicit
+inputs serially. Put known member and nonmember controls at declared one-based
+positions, then compare their scalar scores offline:
+
+```sh
+python3 scripts/chatbot_evidence.py score-controls \
+  --input .autosolve/runs/RUN_ID/manifest.json \
+  --positive 1,2 --negative 3,4 --candidates 5,6 --direction higher
+```
+
+The private report gives control medians, whether the observed ranges strictly
+separate, and candidate rankings in the declared score direction. Calculations
+use decimal representations of the recorded scores and include the source
+manifest hash.
+It never
+labels a candidate as a member. Use repeated controls to assess stochasticity
+and the challenge's independent verifier to establish any membership claim.
+
 | CHY offline route | Ready script step | Target-specific work that remains |
 | --- | --- | --- |
 | Sparse model or classical binary SVM | `ai_model.py inspect`; `svm` computes primal weight, margins and slack from exported JSON parameters | Recover exact preprocessing and verify decoded text through the checker. |
@@ -251,7 +269,7 @@ the candidate.
 | Differentiable evasion or inversion | `ai_model_attack.py gradient` and parity canaries | Supply the challenge adapter, input bounds, loss direction, serializer, and checker. |
 | Recurrent policy and world-model state | `ai_model_attack.py recurrent` and parity canaries | Supply environment, policy step, action list, and exact hidden-state contract. |
 | Adapter/delta and weight differences | `ai_model.py compare` and explicit NPZ `suppression` hypothesis | Reproduce merge arithmetic, quantization, and full-model behavior. |
-| Black-box extraction or membership | `scorer_batch` for bounded, explicit scorer inputs | Design controls, statistics, and independent membership oracle. |
+| Black-box extraction or membership | `scorer_batch` plus `chatbot_evidence.py score-controls` | Supply known controls, repeated queries when needed, and an independent membership oracle. |
 | Token-identity parity and calibrated behavior search | `ai_model.py parity` on representative canaries | Supply tokenizer/model wrappers and calibrated controls. |
 
 These scripts cover repeatable mechanics, not arbitrary model semantics. A
@@ -289,6 +307,6 @@ mean the attack will succeed against an arbitrary challenge.
 | Differentiable evasion and inversion | `ai_model_attack.py gradient` | Supply exact preprocessing, bounds, loss, and checker serialization. |
 | Recurrent policy/world-model alignment | `ai_model_attack.py recurrent` | Supply environment and policy step wrappers with the correct hidden-state timing. |
 | Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
-| Black-box extraction/membership | `scorer_batch` numeric observations | Supply representative inputs, statistics and an independent membership oracle. |
+| Black-box extraction/membership | `scorer_batch` numeric observations plus `score-controls` comparison | Supply representative controls and an independent membership oracle. |
 | Token-identity and inference parity | `ai_model.py parity` | Supply tokenizer/model wrappers and exact prompt boundaries. |
 | Calibrated unknown-behavior search | `ai_model.py parity` | Supply positive/negative controls and a target-specific bounded search objective. |
