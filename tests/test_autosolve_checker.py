@@ -1,6 +1,7 @@
 """REV07 explicit execution and bounded checker evidence."""
 
 import hashlib
+import json
 import mmap
 import shutil
 import subprocess
@@ -178,6 +179,34 @@ int main(int argc, char **argv) { puts("WIN"); return 1; }
             binary, {'channel': 'argv', 'length': 1, 'find': {'stdout': 'WIN'}},
             execute_local=True, replay=True)
         self.assertEqual(result['status'], 'replay_failed', result)
+
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
+    def test_failed_replay_is_completed_without_a_validated_finding(self):
+        binary = self.build('false_success_cli', '''#include <stdio.h>
+int main(int argc, char **argv) { puts("FAKE_WIN"); return 1; }
+''')
+        hints = self.root / 'hints.json'
+        hints.write_text(json.dumps({'checker': {'channel': 'argv', 'length': 1,
+                                                  'find': {'stdout': 'FAKE_WIN'}}}))
+        cli = Path(__file__).resolve().parents[1] / 'scripts' / 'autosolve.py'
+        result = subprocess.run(
+            [sys.executable, '-B', str(cli), '--json', 'analyze', str(binary),
+             '--category', 'reversing', '--hints', str(hints), '--execute-local',
+             '--replay-checker', '--runs-root', str(self.root / 'runs'), '--budget', '45'],
+            capture_output=True, timeout=60)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'checker')
+        report = json.loads(Path(job['report_path']).read_text())
+        self.assertEqual(job['status'], 'complete')
+        self.assertEqual(report['status'], 'replay_failed')
+        self.assertEqual(report['replay']['returncode'], 1)
+        self.assertIn('candidate_hex', report)
+        self.assertEqual(manifest['coverage']['REV07']['status'], 'no finding')
+        self.assertIn('replay_failed', manifest['coverage']['REV07']['note'])
+        self.assertFalse(any(finding['state'] == 'validated_input' and finding['current']
+                             for finding in manifest['findings']))
 
     @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_large_untouched_parent_mapping_does_not_exhaust_worker_limit(self):

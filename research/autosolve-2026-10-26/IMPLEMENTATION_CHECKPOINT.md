@@ -63,7 +63,14 @@ YARA source offsets. Its focused Python 3.12 integration run passed 187 tests
 (three optional skips), the copied-export gate passed nine tests, and the full
 Python 3.12 autosolve suite passed 695 tests (20 optional skips). A further
 22 OS artifact/snapshot tests passed after the long-browser-URL comparison
-guard. The repository pre-push gate remains the publication condition.
+guard. The repository pre-push gate passed 755 tests (37 optional skips,
+359 subtests); commit `3334179` is published and its remote hash was verified.
+
+The seventh isolated snapshot adds Firefox visit provenance, 32-frame bounded
+AV06 inspection with old-run invalidation, and truthful REV07 failed-replay
+coverage. Its focused checks passed 112 core/OS/media tests and then 50
+checker/media/OS tests after the replay repair; nine copied-export tests also
+passed. Its full autosolve and repository pre-push gates remain pending.
 
 ## Independent end-to-end evidence
 
@@ -128,8 +135,8 @@ partial: 40 of 53 operations ready. Evidence stays in the corresponding
 Later fresh transfers recovered a second OS01/OS03 conflict case with bounded
 readable provenance and a raw-ext4 deleted file byte-for-byte after routing
 repair. NET05 TLS-keylog cases, DF01 targeted files and DF04 WAL rows also
-matched independent oracles. DF03 Firefox records remain unsupported in the
-sixth published branch; the
+matched independent oracles. Firefox visits are covered in the seventh
+snapshot; real EVTX/registry CLI validation remains pending. The
 X04/X05/X07/X08 and F01–F12 frozen ledgers are recorded. AIC02 selected
 offline cases passed. Current shared-code AIC01 checker repairs passed local
 GET/POST verifier transfers, but are reserved for a later publication batch.
@@ -145,16 +152,26 @@ separate publication gate. These counts do not establish family-wide or release
 acceptance. Fresh X04 and X08 transfers recovered exact sourced outputs; X05
 joined a recovered browser visit to a supplied snapshot by exact URL/time,
 with mismatched and stale sources withheld and zero network requests.
+Independent CAN02 bit-level oracles matched multiplexed, signed, endian and
+CAN FD cases. Four pinned public REV07 checkers validated only after explicit
+native replay; unsat, unsupported syscall, timeout and failed-replay controls
+stayed distinct. AV06's first-use 20-frame QR miss became a development
+regression; a fresh 27-frame transfer recovered its exact QR and subtitle
+under the new 32-frame bound. DF05 post-repair public memory cases and the
+REV05 encrypted bundle recovered their frozen facts/resources, but retained
+explicit command/file and archive/decryption limits. The AIC02 model transfer
+passed artifact, gradient and recurrent checks; published scorer controls
+remain unavailable. A refreshed row/held-out audit is pending for these cases.
 
 ## Remaining order
 
-1. Publish the sixth isolated checkpoint through the repository gate, then
-   integrate the reviewed AIC01 checker and REV02 XOR-string repairs. Preserve
-   all frozen failures as regressions and use fresh transfers after fixes.
+1. Publish the seventh isolated checkpoint through the repository gate, then
+   integrate the AIC01 checker/CSRF and AIC02 score-controls work. Keep REV02
+   separate until its code-linked XOR proof clears adversarial review.
 2. Freeze and execute each baseline row's positive, two independent held-out
-   variations and negative controls. AV06, DF03, DF05, REV05, REV07, REV11,
-   CAN02 and AIC02 still lack complete narrow case-slot evidence; local tests
-   alone do not satisfy their gates.
+   variations and negative controls. DF03 real EVTX/registry, DF05 partial
+   process coverage, REV05 complete archive/decryption evidence, REV11 and
+   AIC02 scorer controls remain open; local tests alone do not satisfy them.
 3. Complete the cross-category and failure cases, approved-engine discovery
    in a clean copied export, and the three-publisher diversity requirement.
    Keep release status partial until all required evidence passes.
@@ -165,5 +182,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; five tested commits are published and the sixth repair set is under
+pushes; six tested commits are published and the seventh repair set is under
 its isolated publication gate.

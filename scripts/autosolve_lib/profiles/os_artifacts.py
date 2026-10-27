@@ -12,6 +12,7 @@ from pathlib import Path
 
 
 _CHROME_EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
+_FIREFOX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 def _utc(value):
@@ -29,16 +30,26 @@ def _browser(path, descriptor, max_records):
         db.execute("PRAGMA query_only=ON")
         db.execute("PRAGMA trusted_schema=OFF")
         names = {name for (name,) in db.execute("SELECT name FROM sqlite_schema WHERE type='table'")}
-        if not {'urls', 'visits'} <= names:
+        if {'urls', 'visits'} <= names:
+            browser, places, visits, link, time_column = ('Chromium', 'urls', 'visits',
+                                                          'url', 'visit_time')
+            epoch = _CHROME_EPOCH
+        elif {'moz_places', 'moz_historyvisits'} <= names:
+            browser, places, visits, link, time_column = ('Firefox', 'moz_places',
+                                                          'moz_historyvisits', 'place_id', 'visit_date')
+            epoch = _FIREFOX_EPOCH
+        elif names & {'moz_places', 'moz_historyvisits'}:
+            return [], ["unsupported Firefox History schema: moz_places/moz_historyvisits table absent"]
+        else:
             return [], ["unsupported SQLite OS artifact: Chromium urls/visits tables absent"]
         columns = {name: {row[1] for row in db.execute(f"PRAGMA table_info({name})")}
-                   for name in ('urls', 'visits')}
-        if not {'id', 'url'} <= columns['urls'] or not {'id', 'url', 'visit_time'} <= columns['visits']:
-            return [], ["unsupported Chromium History schema: required columns absent"]
-        title = 'u.title' if 'title' in columns['urls'] else 'NULL'
+                   for name in (places, visits)}
+        if not {'id', 'url'} <= columns[places] or not {'id', link, time_column} <= columns[visits]:
+            return [], [f"unsupported {browser} History schema: required columns absent"]
+        title = 'u.title' if 'title' in columns[places] else 'NULL'
         cursor = db.execute(
-            f"SELECT v.id, v.url, v.visit_time, u.url, {title} "
-            "FROM visits v LEFT JOIN urls u ON v.url=u.id ORDER BY v.id LIMIT ?",
+            f"SELECT v.id, v.{link}, v.{time_column}, u.url, {title} "
+            f"FROM {visits} v LEFT JOIN {places} u ON v.{link}=u.id ORDER BY v.id LIMIT ?",
             (max_records + 1,))
         for row in cursor:
             if len(records) == max_records:
@@ -48,21 +59,25 @@ def _browser(path, descriptor, max_records):
             when = None
             if isinstance(raw_time, int):
                 try:
-                    when = _utc(_CHROME_EPOCH + timedelta(microseconds=raw_time))
+                    when = _utc(epoch + timedelta(microseconds=raw_time))
                 except (OverflowError, ValueError):
                     pass
             if when is None:
-                warnings.append(f"visits id {visit_id}: unsupported visit_time")
+                warnings.append(f"{visits} id {visit_id}: unsupported {time_column}")
             url_truncated = isinstance(url, str) and len(url) > 2048
             if url_truncated:
-                warnings.append(f"visits id {visit_id}: browser URL truncated at 2048 characters")
+                warnings.append(f"{visits} id {visit_id}: browser URL truncated at 2048 characters")
+            title_truncated = isinstance(page_title, str) and len(page_title) > 512
+            if title_truncated:
+                warnings.append(f"{visits} id {visit_id}: browser title truncated at 512 characters")
             records.append({"kind": "browser_visit", "source": str(path),
-                            "locator": f"visits id {visit_id}", "visit_id": visit_id,
+                            "locator": f"{visits} id {visit_id}", "visit_id": visit_id,
                             "url_id": url_id, "url": url[:2048] if isinstance(url, str) else None,
                             "url_truncated": url_truncated,
                             "title": page_title[:512] if isinstance(page_title, str) else None,
+                            "title_truncated": title_truncated,
                             "timestamp": when,
-                            "timestamp_basis": "Chromium microseconds since 1601 UTC"})
+                            "timestamp_basis": f"{browser} microseconds since {epoch.year} UTC"})
     if path.with_name(path.name + '-wal').exists():
         warnings.append("browser WAL not read; recent visits may be missing")
     return records, warnings

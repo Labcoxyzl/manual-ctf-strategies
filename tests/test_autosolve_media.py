@@ -13,6 +13,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from scripts.autosolve_lib.core import _refresh_current
 from scripts.autosolve_lib.profiles import qr as qr_profile
 from scripts.autosolve_lib.profiles.media import inspect_media
 
@@ -200,10 +201,67 @@ class MediaProfileTests(unittest.TestCase):
                                            "--runs-root", self.root / f"short-runs-{frame_count}")
                 artifacts = [row for row in manifest["artifacts"]
                              if row["source_locator"].get("media_kind") == "video_frame"]
-                self.assertEqual(len(artifacts), 16)
+                self.assertEqual(len(artifacts), frame_count)
                 self.assertEqual(artifacts[-1]["source_locator"]["sampled_seconds"], last_pts)
                 self.assertFalse(any("decoded frame timestamp unavailable" in row
                                      for row in manifest["warnings"]))
+
+    def test_cli_short_video_recovers_single_qr_frame_within_hard_bound(self):
+        if qr_profile._decoder()[0] is None:
+            self.skipTest("QR decoder required for video payload assertions")
+        try:
+            import cv2
+        except ImportError:
+            self.skipTest("independent OpenCV QR fixture generator unavailable")
+        qr = cv2.QRCodeEncoder_create().encode("AV06_SINGLE_FRAME")
+        symbol = Image.fromarray(qr).resize((256, 256), Image.Resampling.NEAREST)
+        for index in range(20):
+            (symbol if index == 6 else Image.new("RGB", (256, 256), "white")).save(
+                self.root / f"single{index:02d}.png")
+        source = self.root / "single.mkv"
+        subprocess.run(["ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                        "-framerate", "5", "-i", str(self.root / "single%02d.png"),
+                        "-c:v", "ffv1", str(source)],
+                       check=True, capture_output=True, timeout=15)
+        before = hashlib.sha256(source.read_bytes()).hexdigest()
+        run, manifest = self.run_cli("analyze", source, "--category", "audio_video",
+                                     "--budget", 30, "--runs-root", self.root / "single-runs")
+        frames = [row for row in manifest["artifacts"]
+                  if row["source_locator"].get("media_kind") == "video_frame"]
+        self.assertEqual(len(frames), 20)
+        self.assertEqual({row["source_locator"]["sampling_mode"] for row in frames},
+                         {"full-frame"})
+        self.assertTrue(any(Path(row["path"]).read_bytes() == b"AV06_SINGLE_FRAME" and
+                            row["source_locator"].get("media_frame", {}).get("sampled_seconds") == 1.2
+                            for row in manifest["artifacts"] if row["depth"] >= 2))
+        _, resumed = self.run_cli("resume", run, "--budget", 30)
+        self.assertEqual(len(resumed["jobs"]), len(manifest["jobs"]))
+        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), before)
+
+    def test_replaced_16_frame_job_retires_old_views(self):
+        root = {"id": "source", "depth": 0, "parents": [], "complete": True}
+        jobs = []
+        frames = []
+        for limit, fingerprint in ((16, "old"), (32, "current")):
+            key = f"media-{limit}"
+            ids = []
+            for index in range(limit if limit == 16 else 20):
+                frame_id = f"{key}-{index}"
+                ids.append(frame_id)
+                frames.append({"id": frame_id, "depth": 1, "complete": True,
+                               "source_locator": {"media_kind": "video_frame", "frame_sample": index},
+                               "parents": [{"id": "source", "operation": "video frame",
+                                            "job_key": key}]})
+            jobs.append({"id": key, "key": key, "adapter_id": "media", "status": "complete",
+                         "tool_fingerprint": fingerprint, "input_ids": ["source"],
+                         "child_ids": ids, "limits": {"frames": limit}})
+        manifest = {"artifacts": [root, *frames], "jobs": jobs,
+                    "current_adapter_fingerprints": {"media": ["current"]},
+                    "findings": [], "intelligence": []}
+        _refresh_current(manifest, {"source"})
+        self.assertEqual(len([frame for frame in frames if frame["current"]]), 20)
+        self.assertTrue(all(not frame["current"] for frame in frames[:16]))
+        self.assertEqual([job["limits"]["frames"] for job in jobs], [16, 32])
 
     def test_corrupt_and_silent_negative_controls(self):
         invalid = self.root / "bad.mkv"

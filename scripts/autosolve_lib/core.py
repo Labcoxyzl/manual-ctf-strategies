@@ -2138,7 +2138,7 @@ def _media_worker(path, staging, timeout, max_bytes, pipe):
     resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
     try:
         records, warnings = inspect_media(path, staging, timeout=timeout,
-                                          max_bytes=max_bytes, max_frames=16,
+                                          max_bytes=max_bytes, max_frames=32,
                                           full_frames=True, supervised=True)
         pipe.send(('ok', records, warnings))
     except Exception as error:
@@ -2767,7 +2767,7 @@ def _media_job(run, manifest, artifact, deadline):
     path = Path(artifact['path'])
     module_hash = hashlib.sha256(Path(media.__file__).read_bytes()).hexdigest()
     fingerprint = hashlib.sha256(
-        f"{module_hash}:{_hash(Path(ffprobe), deadline)}:{_hash(Path(ffmpeg), deadline)}".encode()
+        f"32:{module_hash}:{_hash(Path(ffprobe), deadline)}:{_hash(Path(ffmpeg), deadline)}".encode()
     ).hexdigest()
     key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:media.v1:{fingerprint}".encode()).hexdigest()
     old = next((job for job in manifest['jobs']
@@ -2787,7 +2787,7 @@ def _media_job(run, manifest, artifact, deadline):
         job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'media',
                'input_ids': [artifact['id']], 'operation': 'bounded offline media inspection',
                'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
-               'limits': {'derived_bytes': 16 * 1024 * 1024, 'frames': 16,
+               'limits': {'derived_bytes': 16 * 1024 * 1024, 'frames': 32,
                           'audio_seconds': 20, 'seconds': 30},
                'status': 'running', 'child_ids': [], 'started': time.time()}
         manifest['jobs'].append(job)
@@ -2856,7 +2856,7 @@ def _media_job(run, manifest, artifact, deadline):
                                                                         'full-frame', 'ffmpeg ', 'ffprobe '))]
         entry['status'] = ('failed' if failed else 'truncated' if video_warnings else
                            'ran' if set(stream_types) & {'video', 'subtitle'} else 'no finding')
-        entry['note'] = 'first video stream, at most 16 frames and 4 text subtitle streams; sampling may miss brief frames'
+        entry['note'] = 'first video stream, at most 32 frames and 4 text subtitle streams; sampling may miss brief frames'
     return [child for child in children if child['kind_evidence'] != 'riff']
 
 
@@ -4077,12 +4077,15 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
             raise RuntimeError('checker report identity incomplete before work budget ended')
         outcome = report['status']
         coverage_status = ('ran' if outcome in ('candidate', 'validated_input') else
-                           'no finding' if outcome == 'unsat_under_model' else
+                           'no finding' if outcome in ('unsat_under_model', 'replay_failed') else
                            'skipped prerequisite' if outcome == 'skipped_prerequisite' or
                            outcome == 'incomplete' and report.get('reason', '').startswith('ModuleNotFoundError:')
                            else 'truncated')
         job['coverage_status'] = coverage_status
-        job['coverage_note'] = f"{outcome}: {report.get('reason', 'bounded checker model')}"
+        reason = (f"concrete replay did not satisfy the declared success condition "
+                  f"(returncode {report['replay']['returncode']})" if outcome == 'replay_failed'
+                  else report.get('reason', 'bounded checker model'))
+        job['coverage_note'] = f'{outcome}: {reason}'
         coverage['status'] = coverage_status
         coverage['note'] = job['coverage_note']
         if outcome in ('candidate', 'validated_input'):
@@ -5384,7 +5387,7 @@ def _os_artifact_job(run, manifest, artifact, deadline):
             'failed' if status == 'failed' else 'truncated' if status == 'truncated' or previous == 'truncated'
             else 'ran' if status == 'ran' or previous == 'ran' else status)
         manifest['coverage']['DF03']['note'] = (
-            'bounded Chromium visits, registry keys and optional EVTX metadata; original time basis retained')
+            'bounded Chromium and Firefox visits, registry keys and optional EVTX metadata; original time basis retained')
 
 
 def _web_source_name(artifact):
@@ -6507,7 +6510,7 @@ def _current_adapter_fingerprints(deadline):
         'image-tail': [module_hash('images')],
         'zsteg': [hashlib.sha256(f'{zsteg_hash}:{zsteg_tool_hash}'.encode()).hexdigest()],
         'stegseek': [hashlib.sha256(f'{stegseek_hash}:{stegseek_tool_hash}'.encode()).hexdigest()],
-        'media': [hashlib.sha256(f'{media_hash}:{ffprobe_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
+        'media': [hashlib.sha256(f'32:{media_hash}:{ffprobe_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
         'tones': [hashlib.sha256(f'{tones_hash}:{multimon_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
         'sstv': [hashlib.sha256(f'{sstv_hash}:{sstv_tool_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
         'ocr': [hashlib.sha256(f'{ocr_hash}:{ocr_tool_hash}:{ocr_data_hash}'.encode()).hexdigest()]

@@ -33,6 +33,93 @@ class OsArtifactTests(unittest.TestCase):
             db.execute("INSERT INTO visits VALUES (11, 7, 13253760000000000)")
             db.execute("INSERT INTO visits VALUES (12, 404, 13253763600000000)")
 
+    def firefox_history(self):
+        with sqlite3.connect(self.path) as db:
+            db.execute("CREATE TABLE moz_places (id INTEGER PRIMARY KEY, url TEXT, title TEXT)")
+            db.execute("CREATE TABLE moz_historyvisits (id INTEGER PRIMARY KEY, place_id INTEGER, visit_date INTEGER)")
+            db.execute("INSERT INTO moz_places VALUES (9, 'https://firefox.example/visit', 'Fox')")
+            db.execute("INSERT INTO moz_historyvisits VALUES (17, 9, 1793102400123456)")
+            db.execute("INSERT INTO moz_historyvisits VALUES (18, 404, 1793102401123456)")
+
+    def test_firefox_visit_source_time_and_missing_place(self):
+        self.firefox_history()
+        original = self.path.read_bytes()
+        records, warnings = inspect_os_artifact(self.path)
+        self.assertEqual(warnings, [])
+        self.assertEqual([item['locator'] for item in records],
+                         ['moz_historyvisits id 17', 'moz_historyvisits id 18'])
+        self.assertEqual(records[0]['source'], str(self.path))
+        self.assertEqual(records[0]['url'], 'https://firefox.example/visit')
+        self.assertEqual(records[0]['title'], 'Fox')
+        self.assertEqual(records[0]['timestamp'], '2026-10-27T12:00:00.123456Z')
+        self.assertEqual(records[0]['timestamp_basis'], 'Firefox microseconds since 1970 UTC')
+        self.assertEqual(records[0]['url_id'], 9)
+        self.assertIsNone(records[1]['url'])
+        self.assertEqual(self.path.read_bytes(), original)
+
+    def test_firefox_partial_schema_and_invalid_time_withhold_claim(self):
+        self.firefox_history()
+        with sqlite3.connect(self.path) as db:
+            db.execute("INSERT INTO moz_historyvisits VALUES (19, 9, 'not-a-time')")
+        records, warnings = inspect_os_artifact(self.path)
+        self.assertIsNone(records[2]['timestamp'])
+        self.assertTrue(any('unsupported visit_date' in note for note in warnings))
+        with sqlite3.connect(self.path) as db:
+            db.execute('DROP TABLE moz_places')
+        records, warnings = inspect_os_artifact(self.path)
+        self.assertEqual(records, [])
+        self.assertTrue(any('Firefox' in note and 'absent' in note for note in warnings))
+
+    def test_long_browser_urls_are_incomplete_for_both_schemas(self):
+        from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
+
+        prefix = 'https://history.example/'
+        url = prefix + 'a' * (2048 - len(prefix)) + 'different-tail'
+        for browser, table, key, captured in (
+                ('Chromium', 'urls', 7, '2020-12-30T00:01:00Z'),
+                ('Firefox', 'moz_places', 9, '2026-10-27T12:01:00Z')):
+            with self.subTest(browser=browser):
+                if self.path.exists():
+                    self.path.unlink()
+                self.history() if browser == 'Chromium' else self.firefox_history()
+                with sqlite3.connect(self.path) as db:
+                    db.execute(f'UPDATE {table} SET url=? WHERE id=?', (url, key))
+                records, warnings = inspect_os_artifact(self.path)
+                visit = records[0]
+                self.assertEqual(visit['url'], url[:2048])
+                self.assertTrue(visit['url_truncated'])
+                self.assertTrue(any('URL truncated' in note for note in warnings))
+                page = self.root / 'snapshot.html'
+                data = (f'<meta name="source-url" content="{url[:2048]}">'
+                        f'<article data-captured="{captured}">Note</article>').encode()
+                page.write_bytes(data)
+                source = {'artifact_id': 'snapshot', 'source_name': 'snapshot.html',
+                          'path': page, 'sha256': hashlib.sha256(data).hexdigest()}
+                rows, _ = build_snapshot_trail([source], browser_visits=[visit])
+                self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
+
+    def test_long_browser_titles_are_explicit_for_both_schemas(self):
+        for browser, table, key in (('Chromium', 'urls', 7), ('Firefox', 'moz_places', 9)):
+            with self.subTest(browser=browser):
+                if self.path.exists():
+                    self.path.unlink()
+                self.history() if browser == 'Chromium' else self.firefox_history()
+                with sqlite3.connect(self.path) as db:
+                    db.execute(f'UPDATE {table} SET title=? WHERE id=?', ('T' * 520, key))
+                original = self.path.read_bytes()
+                records, warnings = inspect_os_artifact(self.path)
+                self.assertEqual(records[0]['title'], 'T' * 512)
+                self.assertTrue(records[0]['title_truncated'])
+                self.assertFalse(records[0]['url_truncated'])
+                self.assertEqual(sum('title truncated' in note for note in warnings), 1)
+                self.assertEqual(self.path.read_bytes(), original)
+                with sqlite3.connect(self.path) as db:
+                    db.execute(f'UPDATE {table} SET title=? WHERE id=?', ('T' * 512, key))
+                records, warnings = inspect_os_artifact(self.path)
+                self.assertEqual(records[0]['title'], 'T' * 512)
+                self.assertFalse(records[0]['title_truncated'])
+                self.assertFalse(any('title truncated' in note for note in warnings))
+
     def test_browser_visit_source_time_and_missing_url(self):
         self.history()
         original = self.path.read_bytes()
@@ -46,27 +133,6 @@ class OsArtifactTests(unittest.TestCase):
         self.assertIsNone(records[1]['url'])
         self.assertEqual(self.path.read_bytes(), original)
         self.assertEqual(set(self.root.iterdir()), {self.path})
-
-    def test_truncated_browser_url_cannot_match_snapshot_prefix(self):
-        from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
-
-        self.history()
-        prefix = 'https://history.example/'
-        url = prefix + 'a' * (2048 - len(prefix)) + 'different-tail'
-        with sqlite3.connect(self.path) as db:
-            db.execute('UPDATE urls SET url=? WHERE id=7', (url,))
-        records, warnings = inspect_os_artifact(self.path)
-        self.assertEqual(records[0]['url'], url[:2048])
-        self.assertTrue(records[0]['url_truncated'])
-        self.assertTrue(any('URL truncated' in note for note in warnings))
-        page = self.root / 'snapshot.html'
-        data = (f'<meta name="source-url" content="{url[:2048]}">'
-                '<article data-captured="2020-12-30T00:01:00Z">Note</article>').encode()
-        page.write_bytes(data)
-        source = {'artifact_id': 'snapshot', 'source_name': page.name,
-                  'path': page, 'sha256': hashlib.sha256(data).hexdigest()}
-        rows, _ = build_snapshot_trail([source], browser_visits=[records[0]])
-        self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
 
     def test_held_out_schema_and_invalid_time_are_explicit(self):
         self.history(title=False)
@@ -234,6 +300,41 @@ class OsArtifactTests(unittest.TestCase):
                              if item['tag'] == 'OS artifact' and item['job_id'] == os_jobs[0]['id']))
         self.assertTrue(any(item['current'] for item in refreshed['intelligence']
                             if item['tag'] == 'OS artifact' and item['job_id'] == os_jobs[1]['id']))
+
+    def test_public_cli_firefox_visit_and_source_change(self):
+        self.firefox_history()
+        runs_root = self.root / 'runs'
+        command = [sys.executable, '-B', str(SCRIPT), '--json', 'analyze', str(self.path),
+                   '--category', 'disk_memory', '--runs-root', str(runs_root), '--budget', '30']
+        result = subprocess.run(command, capture_output=True, text=True, timeout=45)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        jobs = [item for item in manifest['jobs'] if item['adapter_id'] == 'os-artifact']
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0]['coverage_status'], 'ran')
+        records = json.loads(Path(jobs[0]['records_path']).read_text())
+        self.assertEqual(records[0]['locator'], 'moz_historyvisits id 17')
+        self.assertEqual(records[0]['url'], 'https://firefox.example/visit')
+        self.assertTrue(any(item['current'] and item['job_id'] == jobs[0]['id'] and
+                            item['source_locator']['record'] == records[0]['locator']
+                            for item in manifest['intelligence'] if item['tag'] == 'OS artifact'))
+        resume = [sys.executable, '-B', str(SCRIPT), '--json', 'resume', str(run), '--budget', '30']
+        unchanged = subprocess.run(resume, capture_output=True, text=True, timeout=45)
+        self.assertEqual(unchanged.returncode, 3, unchanged.stderr + unchanged.stdout)
+        same = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(len([item for item in same['jobs'] if item['adapter_id'] == 'os-artifact']), 1)
+        with sqlite3.connect(self.path) as db:
+            db.execute("INSERT INTO moz_historyvisits VALUES (19, 9, 1793102402123456)")
+        changed = subprocess.run(resume, capture_output=True, text=True, timeout=45)
+        self.assertEqual(changed.returncode, 3, changed.stderr + changed.stdout)
+        refreshed = json.loads((run / 'manifest.json').read_text())
+        jobs = [item for item in refreshed['jobs'] if item['adapter_id'] == 'os-artifact']
+        self.assertEqual(len(jobs), 2)
+        self.assertTrue(any(item['current'] and item['job_id'] == jobs[1]['id']
+                            for item in refreshed['intelligence'] if item['tag'] == 'OS artifact'))
+        self.assertFalse(any(item['current'] and item['job_id'] == jobs[0]['id']
+                             for item in refreshed['intelligence'] if item['tag'] == 'OS artifact'))
 
     def test_extracted_sqlite_has_companion_identity_before_browser_records(self):
         from scripts.autosolve_lib.core import _os_artifact_job
