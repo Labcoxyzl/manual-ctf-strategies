@@ -349,6 +349,31 @@ content revalidation before toolkit output publication. Focused Python 3.12
 and 3.13 OCR/toolkit/hidden-workspace checks passed; final combined release
 gates and remote publication remain pending.
 
+The final nineteenth commit `6e873aa` is published on the remote progress
+branch and its hash was verified. Its deterministic Offline kit has 252
+byte-verified members. The Python 3.12 autosolve suite passed 895 tests (35
+optional skips); the repository pre-push gate passed 962 tests (56 skips, 532
+subtests). On that exact hash, frozen X/F passed 20/20, all-domain passed
+22/22 with every selected family `ran`, changed-path CAN/OS passed 11/11 plus
+4/4 separate mixed/default-environment controls, and 15 representative
+measurements passed with zero timeouts and zero validated false solutions in
+two classified negatives. Fresh copied directory and ZIP setup installed the
+30 pinned core packages; doctor reported 46 ready, nine partial and one
+unavailable operation. Python 3.13 copied OCR fallback and toolkit integrity
+controls passed. Default-environment setup/doctor/CAN/OSINT/zsteg/checker
+traces made zero outside ordinary-file or directory write attempts on
+production-byte-identical source; the changed OCR path was separately traced
+on the exact final source. The earlier F10 host-pause timing failure and a
+toolkit source-write race between final validation and publication remain
+documented limits.
+
+Published-hash full named-row replay then passed CAN01 10/10, OS01's six-image
+scope 196/196 plus 54 extended checks, PWN03 4/4, ENC07 six independent cases,
+and OS03 4/4. These five raise the full named-row count from 23 to **28 of
+57**; 29 remain unproved at named-row depth. Local replay and independent
+oracles do not establish challenge-platform acceptance. PDF metadata remains
+outside OS01 routing and is a separate breadth gap.
+
 ## Independent end-to-end evidence
 
 - A local ret2win ELF/service has an independently replayed exploit oracle.
