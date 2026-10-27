@@ -1420,5 +1420,34 @@
         "url": "https://github.com/abrignoni/ALEAPP/blob/main/README.md"
       }
     ]
+  },
+  {
+    "id": "can-log-evidence",
+    "category": "misc",
+    "title": "Supplied CAN log → frame evidence → optional signals",
+    "input": "A supplied candump or ASC text log; a matching DBC is optional. No live CAN interface is needed.",
+    "tool_ids": [
+      "windows-16",
+      "windows-7"
+    ],
+    "steps": [
+      "Preserve the original log and note whether its timestamps are Unix epoch, relative, or local date plus offset. Run `python3 scripts/autosolve.py analyze ./capture.log --category can --runs-root ./PRIVATE_CAN_RUNS`, replacing `capture.log` with the supplied ASC filename when needed. The CLI prints `run`; open its `manifest.json`, find the job with `adapter_id` `can-log`, then open its `frames_path` JSON. Inspect `source_line`, `raw_line`, `bus`, `can_id`, `extended`, `frame_type`, `dlc`, `payload_hex`, `timestamp_basis` and the job's `warnings`.",
+      "For a compact candump copy, `log2long < ./capture.log > ./NEW_readable.txt`; for an ASC copy, `asc2log -I ./capture.asc -O ./NEW_compact.log`. Check installed can-utils help first. Compare record counts and the original ID format, DLC, bytes and timestamps; a malformed row may be dropped even when a converter leaves output.",
+      "Only if a compatible DBC is supplied, record its provenance and add `--hints ./can-hints.json` to the Python command, with `can-hints.json` containing `{\"dbc\":\"signals.dbc\"}`. In the new run's `manifest.json`, open the `can-dbc` job's `records_path` JSON. Compare candidate signals with raw frames and independent schema/context; keep unknown IDs, length mismatches and unavailable cantools visible."
+    ],
+    "expected": "Line-linked raw frames with explicit time basis and parse limits; optional schema-backed candidate signals tied to those frames.",
+    "fallback": "If a row is malformed or missing after conversion, return to the original log and warnings rather than trusting a partial output. If the DBC is wrong or cantools unavailable, retain raw frames without assigning signal meanings.",
+    "caveat": "A changing byte is not a physical measurement without a matching protocol definition. CAN FD DLC differs from payload length, remote frames carry no data, and a date header without a zone does not prove UTC. Installed can-utils, cantools and Python behavior on competition machines are unverified.",
+    "verification": "Authored candump and malformed ASC fixtures checked locally through the bounded parser; wrong-DBC and optional-dependency controls checked locally. No competition CAN interface or challenge log tested.",
+    "references": [
+      {
+        "title": "Linux-CAN can-utils source and converter inventory",
+        "url": "https://github.com/linux-can/can-utils"
+      },
+      {
+        "title": "cantools CAN database and decode documentation",
+        "url": "https://cantools.readthedocs.io/en/latest/"
+      }
+    ]
   }
 ]

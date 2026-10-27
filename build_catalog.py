@@ -84,6 +84,7 @@ LOCAL_ROUTE_HELP = {
     "service-interaction": (("Plain TCP client guide", "TEMPLATES.html#transport"),
                             ("Plain TCP starter", "scripts/templates/pwntools_starter.py"),
                             ("Timed arithmetic guide", "TEMPLATES.html#timed-math")),
+    "can-log-evidence": (("CAN log workflow", "CORE_WORKFLOWS.html#can"),),
 }
 TOOL_ORIGINS = json.loads((ROOT / "research/tool-origins.json").read_text())["tools"]
 esc = html.escape
@@ -122,7 +123,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 46
+    assert len(routes) == len({route["id"] for route in routes}) == 47
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

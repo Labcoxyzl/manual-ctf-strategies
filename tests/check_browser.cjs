@@ -106,8 +106,8 @@ async function unobscured(page, locator, label) {
       assert.equal(await page.locator('#no-results').isVisible(), false);
       // Every route's authored instructions remain usable with all networking disabled.
       const routes = page.locator('details.task-route');
-      assert.equal(await routes.count(), 46);
-      for (let i = 0; i < 46; i++) {
+      assert.equal(await routes.count(), 47);
+      for (let i = 0; i < 47; i++) {
         const route = routes.nth(i);
         await route.locator(':scope > summary').focus();
         await page.keyboard.press('Space');
@@ -141,7 +141,7 @@ async function unobscured(page, locator, label) {
       await page.locator('nav a[href="#forensics"]').click();
       if ([390, 1440].includes(width)) await page.screenshot({ path: path.join(root, `research/${prefix}-${width}.png`) });
       assert.deepEqual(errors, []);
-      report.cases.push({ width, height, offline_routes: 46, initial_search_visible: 'pass', tools_navigation_visible: 'pass', rules_keyboard_expansion: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
+      report.cases.push({ width, height, offline_routes: 47, initial_search_visible: 'pass', tools_navigation_visible: 'pass', rules_keyboard_expansion: 'pass', tool_fragments: 'pass', overflow: 'pass', navigation: 'pass', page_errors: errors });
       await page.close();
     }
     const notes = await browser.newPage({ viewport: { width: 320, height: 900 } });
@@ -231,7 +231,7 @@ async function unobscured(page, locator, label) {
       for (let i = 0; i < await groups.count(); i++) await groups.nth(i).locator(':scope > summary').click();
     }
     assert.equal(await visibleTools(fallback).count(), 200);
-    assert.equal(await fallback.locator('ol.steps:visible').count(), 46);
+    assert.equal(await fallback.locator('ol.steps:visible').count(), 47);
     report.no_javascript_browsing = 'pass';
     await fallback.emulateMedia({ media: 'print' });
     assert.equal(await fallback.locator('nav').isVisible(), false);
