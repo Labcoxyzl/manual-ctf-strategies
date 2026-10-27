@@ -334,6 +334,20 @@ The first integrated full Python 3.12 run after that repair passed 893 tests
 with 35 optional skips but failed one chatbot test whose fixed sleep could end
 before the recorded Retry-After deadline. An independently reviewed test-only
 repair now waits for that deadline; the final full-suite rerun is pending.
+The repaired Python 3.12 autosolve suite then passed 894 tests (35 optional
+skips), with X/F 20/20, all-domain 22/22, changed-path CAN/OS 11/11 and a
+separate 4/4 mixed/default-environment supplement. Fifteen measured cases
+passed with zero timeouts and zero validated false solutions in two classified
+negatives. Fresh copied directory/ZIP setup and doctor passed core 30/30;
+default-environment setup, doctor and four product traces on byte-identical
+production source made zero outside ordinary-file or directory write attempts.
+The repository pre-push hook then failed 11 Python 3.13 cases: ten OCR cases
+because this Python build omits `os.memfd_create`, and one hidden-workspace
+toolkit case exposed same-size source edits that preserved metadata. Reviewed
+repairs use libc anonymous memfd when Python omits its binding and bounded
+content revalidation before toolkit output publication. Focused Python 3.12
+and 3.13 OCR/toolkit/hidden-workspace checks passed; final combined release
+gates and remote publication remain pending.
 
 ## Independent end-to-end evidence
 

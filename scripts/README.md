@@ -387,11 +387,12 @@ Every command supports `--json` for the same facts in one structured stdout resu
 
 When both missing capabilities and operational limits occur, exit 1 takes precedence. `doctor --workflow inspect` requires both `file` and ExifTool probes for full readiness even if your next input is not an image; 7-Zip is a manual alternative, not a hidden dependency.
 
-Without `--out`, transforms show a bounded preview and byte count, never raw binary terminal output. Any estimated or unvalidated scope must be labeled; a complete bits result validates all selected text. With `--out`, the destination must be new: existing files, same-file aliases, symlinks and nonregular destinations are rejected. There is no force-overwrite option. Output is staged privately beside its destination and published only after validation and an input identity/size/mtime recheck; failures remove task-owned staging output.
+Without `--out`, transforms show a bounded preview and byte count, never raw binary terminal output. Any estimated or unvalidated scope must be labeled; a complete bits result validates all selected text. With `--out`, the destination must be new: existing files, same-file aliases, symlinks and nonregular destinations are rejected. There is no force-overwrite option. Output is staged privately beside its destination and published only after validation and bounded input-content recheck; failures remove task-owned staging output. A concurrent write between the final check and publication can still race.
 
 | Work limit | First-release boundary |
 | --- | --- |
-| Source bytes per command | 256 MiB, including skipped lines and optional hashing |
+| Source analysis reads per command | 256 MiB, including skipped lines and optional hashing |
+| Integrity verification reread | At most one input-size pass (up to 256 MiB) for transforms or full SHA-256; shallow inspect rechecks its prefix |
 | Overall command deadline | 30 seconds, including probes and hashing |
 | Classification prefix / transform chunks | 64 KiB |
 | Rendered preview | 64 bytes |
