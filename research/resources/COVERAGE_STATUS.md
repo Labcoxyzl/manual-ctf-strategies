@@ -8,6 +8,8 @@ The Android preferences route selected supported typed XML values, distinguished
 
 The CBC padding-oracle route requires repeated, padding-specific response classes before attempting recovery. A benign one-block AES-CBC fixture returned 200 for the unchanged ciphertext, 400 after a last-IV-byte flip that forced invalid padding, 200 after a first-IV-byte control flip, and 422 for a malformed length, each repeated three times. In a separate loopback test, an isolated `padding-oracle-attacker` 0.2.4 recovered the exact independently known 16 padded bytes in 2,350 requests with `-c 1 --disable-cache`. A generic-response control gave false plaintext while exiting successfully after 17 requests. This demonstrates why error calibration and independent byte checks are required. The tool is not installed system-wide here; its competition-machine version, availability and real-endpoint behavior remain unverified.
 
+The optional model-gradient script now has an export-and-clone smoke check: where NumPy and PyTorch are installed, a two-step toy adapter must produce the bounded expected candidate; an isolated interpreter without those packages must return a clear dependency error. The packages are not in the core offline requirements, and a passing smoke check does not establish compatibility with an unseen challenge model or competition machine.
+
 Next useful coverage questions, chosen from approved tools and routes:
 
 1. Forensics: test the approved Hindsight/iLEAPP/ALEAPP builds on benign profiles and extractions when available; map other mobile artifacts only with concrete source schemas and independent context. Missing parsers, sidecars, and time-zone ambiguity remain explicit.

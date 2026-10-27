@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="4552c975d480bfa62682fa26f8967de1d5cf103384b15b780cbea60a8a6066f9">
+  <meta name="source-sha256" content="5730fe8fe0a9a7ec6492ef130c0077e87e0310f5204c8b39b23bbd0da2b4d68d">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -295,7 +295,17 @@ needs <code>reset(seed)</code>, <code>policy_step(observation, previous_action, 
 <code>env_step(action)</code>. It records pre/post auxiliary vectors with one policy call
 per observed state, avoiding a duplicate hidden-state advance. Both modes
 execute the adapter only with <code>--execute-local</code>. That opt-in is not a sandbox.
-NumPy and PyTorch are optional local requirements for gradient mode.</p>
+Gradient mode needs NumPy and PyTorch in the <strong>same Python environment</strong> that
+runs the script. They are not bundled in the offline kit or its core
+requirements. Before going offline, prepare compatible packages for your
+platform using the <a href="https://numpy.org/install/">NumPy install guide</a> and
+<a href="https://pytorch.org/get-started/locally/">PyTorch's platform selector</a>, then
+check the exported script with:</p>
+<pre><code class="language-sh">python3 -c 'import numpy, torch; print(numpy.__version__, torch.__version__)'
+python3 -B -m unittest discover -s tests -p test_ai_model_attack.py
+</code></pre>
+<p>Without either package, gradient mode reports <code>invalid_input</code> with a dependency
+reason; recurrent mode only needs packages imported by your own adapter.</p>
 <p>For a deterministic sign network, export the actual affine gates and input
 bounds into the <a href="scripts/chatbot_recipes/sign_network.json">sign-gate JSON example</a>.
 <code>ai_model.py sign-gates</code> uses Z3 when installed, returns one satisfying input,

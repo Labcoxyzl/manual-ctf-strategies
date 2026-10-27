@@ -198,7 +198,20 @@ needs `reset(seed)`, `policy_step(observation, previous_action, hidden)`, and
 `env_step(action)`. It records pre/post auxiliary vectors with one policy call
 per observed state, avoiding a duplicate hidden-state advance. Both modes
 execute the adapter only with `--execute-local`. That opt-in is not a sandbox.
-NumPy and PyTorch are optional local requirements for gradient mode.
+Gradient mode needs NumPy and PyTorch in the **same Python environment** that
+runs the script. They are not bundled in the offline kit or its core
+requirements. Before going offline, prepare compatible packages for your
+platform using the [NumPy install guide](https://numpy.org/install/) and
+[PyTorch's platform selector](https://pytorch.org/get-started/locally/), then
+check the exported script with:
+
+```sh
+python3 -c 'import numpy, torch; print(numpy.__version__, torch.__version__)'
+python3 -B -m unittest discover -s tests -p test_ai_model_attack.py
+```
+
+Without either package, gradient mode reports `invalid_input` with a dependency
+reason; recurrent mode only needs packages imported by your own adapter.
 
 For a deterministic sign network, export the actual affine gates and input
 bounds into the [sign-gate JSON example](chatbot_recipes/sign_network.json).

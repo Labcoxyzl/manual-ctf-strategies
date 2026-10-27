@@ -163,6 +163,41 @@ class DistributionTests(unittest.TestCase):
             self.assertTrue(any(item['depth'] > 0 and Path(item['path']).read_bytes() == b'HELLO'
                                 for item in manifest['artifacts']))
             self.assertEqual(source.read_bytes(), b'SEVMTE8=')
+            adapter = Path(temp) / 'model_adapter.py'
+            adapter.write_text('def load_model(path):\n import torch\n return torch.nn.Identity()\n'
+                               'def load_input(path):\n import numpy as np\n import torch\n'
+                               ' return torch.from_numpy(np.load(path)).float()\n'
+                               'def loss(model, tensor, target): return model(tensor).sum()\n')
+            model = Path(temp) / 'model.bin'
+            model.write_bytes(b'toy')
+            model_input = Path(temp) / 'input.npy'
+            model_input.write_bytes(b'placeholder')
+            attack = [str(destination / 'scripts/ai_model_attack.py'), '--runs-root',
+                      str(Path(temp) / 'model-runs'), '--adapter', str(adapter),
+                      '--execute-local', '--budget', '10', 'gradient', '--model', str(model),
+                      '--input', str(model_input), '--target', 'up', '--epsilon', '.2',
+                      '--step-size', '.1', '--steps', '2']
+            missing = subprocess.run([sys.executable, '-I', '-S', *attack], cwd=cwd,
+                                     capture_output=True, text=True, timeout=15)
+            self.assertEqual(missing.returncode, 2, missing.stderr + missing.stdout)
+            self.assertEqual(json.loads(missing.stdout)['reason'],
+                             'gradient mode needs installed numpy and torch')
+            probe = subprocess.run([sys.executable, '-I', '-c', 'import numpy, torch'],
+                                   cwd=cwd, capture_output=True, text=True, timeout=20)
+            if probe.returncode:
+                self.assertRegex(probe.stderr, r"ModuleNotFoundError: No module named '(numpy|torch)'")
+                return
+            import numpy as np
+            np.save(model_input, np.array([.2, .3], dtype='float32'))
+            result = subprocess.run([sys.executable, '-I', *attack], cwd=cwd,
+                                    capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            exported = json.loads(result.stdout)
+            report = json.loads(Path(exported['report']).read_text())
+            self.assertEqual(report['state'], 'candidate')
+            self.assertGreater(report['candidate_objective'], report['clean_objective'])
+            self.assertLessEqual(report['max_abs_change'], .200001)
+            self.assertTrue(np.allclose(np.load(exported['candidate_file']), [.4, .5]))
 
     @unittest.skipUnless(shutil.which('unshare'), 'Linux namespace isolation unavailable')
     def test_offline_with_development_workspace_hidden(self):
