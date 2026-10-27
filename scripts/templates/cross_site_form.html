@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Controlled cross-site form</title>
+<body>
+  <h1>One controlled cross-site request</h1>
+  <p>Use only a permitted, reversible action with your own test account.</p>
+  <form method="post" enctype="application/x-www-form-urlencoded" action="https://challenge.example/CHANGE_ME">
+    <input type="hidden" name="change_me" value="synthetic-marker">
+    <button type="submit">Send one request</button>
+  </form>
+</body>
+</html>

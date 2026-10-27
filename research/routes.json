@@ -1196,5 +1196,39 @@
         "url": "https://portswigger.net/burp/documentation/desktop/tools/message-editor"
       }
     ]
+  },
+  {
+    "id": "web-cross-site-state",
+    "category": "web",
+    "title": "Browser session → cross-site state change",
+    "input": "A permitted reversible, form-compatible GET/POST action in an assigned app, your own authenticated browser session, and an independent state readout.",
+    "tool_ids": [
+      "windows-5",
+      "windows-20",
+      "windows-7"
+    ],
+    "steps": [
+      "Record the state before testing. Perform one legitimate same-site action in Chrome and capture its method, Content-Type, fields, cookie attributes, CSRF token and response in Burp; use a unique reversible marker so the resulting state is identifiable.",
+      "Adapt the bundled one-click cross-site form on a different local site. In the same disposable browser session, match the form-supported method and encoding, then send it once with only fields available to that outside site; capture the actual Cookie, Origin and Sec-Fetch-Site headers, and run a nearby unauthenticated or invalid-token control after restoring state or choosing a fresh marker.",
+      "Read the application state again through a fresh independent request. Tie any state delta to the exact browser request and compare it with the baseline and negative control before calling the result a candidate."
+    ],
+    "expected": "An independently observed state delta with request/session provenance, or a documented blocked or inconclusive result.",
+    "fallback": "No state change can reflect SameSite cookie rules, a CSRF token, Origin/Fetch Metadata validation, expired session, wrong request shape, or an unobservable state. Recheck the browser request and readout; status or reflection alone cannot decide.",
+    "caveat": "Only use your own permitted account and a reversible action. A plain form supports GET/POST and form encodings, not PUT/PATCH/DELETE or JSON/custom headers; cross-origin and cross-site are different boundaries, and a CORS read failure does not prove the form was blocked.",
+    "verification": "Source-reviewed against OWASP/MDN; six benign two-origin HTTPS browser cases locally checked in Chrome 148, including Lax/None cookie and CSRF-token controls. No live challenge or competition-machine test.",
+    "references": [
+      {
+        "title": "OWASP CSRF testing",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery/"
+      },
+      {
+        "title": "MDN CSRF and state-changing requests",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF"
+      },
+      {
+        "title": "MDN SameSite cookie behavior",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie"
+      }
+    ]
   }
 ]

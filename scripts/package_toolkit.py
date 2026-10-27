@@ -131,7 +131,8 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/templates/README.md', 'tests/test_templates.py',
         'scripts/templates/binary_parser.py', 'scripts/templates/http_probe.py',
         'scripts/templates/jwt_inspect.py',
-        'scripts/templates/file_intel.py', 'scripts/templates/math_client.py',
+        'scripts/templates/file_intel.py', 'scripts/templates/cross_site_form.html',
+        'scripts/templates/math_client.py',
         'scripts/templates/math_demo.py', 'tests/test_math_client.py')
 INTERNAL_EVIDENCE = {
     'research/learning-resources.json', 'research/learning/check-results.json',
@@ -146,8 +147,8 @@ Read [TOOLKIT.html](TOOLKIT.html) for commands, limits and approved manual alter
 [RULES.html](RULES.html) summarizes competition restrictions.
 [Core workflows](CORE_WORKFLOWS.md) prioritize the 32 Trend Micro proposals;
 [specialist workflows](SPECIALIST_WORKFLOWS.html) cover the other prepared task routes.
-[Practice inputs](CORE_PRACTICE.html) and the [Hashcat cheatsheet](HASHCAT.md) are available offline; [Python templates](TEMPLATES.html)
-include file preview, JWT inspection, binary parsing, HTTP experiments and optional pwntools clients.
+[Practice inputs](CORE_PRACTICE.html) and the [Hashcat cheatsheet](HASHCAT.md) are available offline; [Challenge templates](TEMPLATES.html)
+include file preview, JWT inspection, binary parsing, HTTP and browser-form experiments, and optional pwntools clients.
 [Python requirements](requirements.txt) and [reviewed dependency pins](constraints.txt)
 list the optional, non-AI packages for Linux/WSL CPython 3.11/3.12.
 
@@ -341,7 +342,7 @@ def validate_export(files, originals):
     index = pages['index.html']
     canonical = {f'windows-{number}' for number in range(1, 40)} | {f'kali-{number}' for number in range(1, 162)}
     if (len(index.tools) != 200 or len(set(index.tools)) != 200
-            or index.routes != 39 or index.categories != 7):
+            or index.routes != 40 or index.categories != 7):
         raise ValueError('Public guide lost approved tools, categories or routes')
     if set(index.tools) != canonical:
         raise ValueError('Public guide changed canonical inventory identities')

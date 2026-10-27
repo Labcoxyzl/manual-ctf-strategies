@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="37e6e1e6cdc0497bcc5a371356f394cf3c18b65c0880ce16bca6e47fa917b34b">
+  <meta name="source-sha256" content="e929bd35248528f22f72b22608e48fd526e5a610b7bd5013640563abd345c512">
   <link rel="icon" href="data:,">
-  <title>Python challenge scripts · Manual CTF Strategies</title>
+  <title>Challenge scripts and templates · Manual CTF Strategies</title>
   <style>
     :root { color-scheme:light; --ink:#18252b; --muted:#52636a; --line:#cbd7d3; --paper:#f7f8f4; --green:#086b58; }
     * { box-sizing:border-box; }
@@ -43,8 +43,8 @@
 <body>
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
-  <main id="main" class="wrap" tabindex="-1"><h1>Python challenge scripts</h1>
-<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a></p>
+  <main id="main" class="wrap" tabindex="-1"><h1>Challenge scripts and templates</h1>
+<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a> · <a href="#cross-site-form">Cross-site form</a></p>
 <p>File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.</p>
 <p><a id="file-intel"></a></p>
 <h2>File intel: run before editing a parser</h2>
@@ -157,6 +157,26 @@ authentication helper, or scanner. Keep challenge credentials out of committed
 copies and command-line arguments.</p>
 <p>Standard-library references: <a href="https://docs.python.org/3/library/struct.html">struct</a>
 and <a href="https://docs.python.org/3/library/urllib.request.html">urllib.request</a>.</p>
+<p><a id="cross-site-form"></a></p>
+<h2>Controlled cross-site form</h2>
+<p>Copy <a href="scripts/templates/cross_site_form.html">cross_site_form.html</a> and replace the placeholder
+HTTPS action, field name, and value with one <strong>permitted, reversible</strong> action
+from your assigned application. Match the captured <code>method</code> (<code>get</code> or <code>post</code>)
+and, for POST, the form-compatible <code>enctype</code>; the template starts with
+<code>application/x-www-form-urlencoded</code>. It cannot reproduce PUT/PATCH/DELETE,
+JSON bodies, custom headers, or a target-only CSRF token. It never submits
+automatically; click its button once in the same disposable Chrome session.
+Serve this file from a different site, for example with approved Python on a
+loopback address:</p>
+<pre><code class="language-sh">python3 -m http.server 8000 --bind 127.0.0.1 --directory scripts/templates
+</code></pre>
+<p>Open <code>http://127.0.0.1:8000/cross_site_form.html</code>. Confirm in Burp or Chrome
+Network that the browser sent the intended method, fields, <code>Origin</code> and
+<code>Sec-Fetch-Site</code>, and whether its session cookie was attached. Check the
+application's state through a separate fresh read after the click. A 200,
+redirect, blocked CORS read, or echoed value alone does not establish a state
+change. Use the <a href="SPECIALIST_WORKFLOWS.html#web-cross-site-state">cross-site state workflow</a>
+for baseline and negative controls. <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form">MDN form methods and encodings</a> explains the request shapes this template can send.</p>
 <h2>Common pwntools blocks</h2>
 <p>Use these inside your copied starter; <code>receive_until</code> is the bounded helper
 already defined there. Choose one transport per run:</p>

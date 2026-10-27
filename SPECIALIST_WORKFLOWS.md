@@ -140,6 +140,15 @@ Use two permitted principals with objects whose ownership is already known. Capt
 
 **Check:** Name the intended access rule, both object owners, the session used for each request, and the data or action the server actually allowed. Without a second principal or reliable ownership evidence, report the authorization question as untested. [PortSwigger IDOR](https://portswigger.net/web-security/access-control/idor).
 
+<a id="web-cross-site-state"></a>
+## Cross-site request: establish a state change
+
+Use only a permitted test account and a reversible action with a fresh state readout. In Chrome, perform one legitimate same-site action and capture its method, `Content-Type`, body, session cookie attributes, CSRF token, `Origin`, and `Sec-Fetch-Site` in Burp. Record the state before and after with a unique marker. A response status or echoed value is transport evidence, not the state result.
+
+Copy the [one-click form template](scripts/templates/cross_site_form.html), match its GET/POST method and form encoding, replace its placeholder action and fields, and serve it from a **different site** on loopback with approved Python. A different port alone changes the origin but may leave the site the same. In the same disposable browser session, click once and inspect the browser request. Record whether the session cookie was attached and whether the server received the intended fields. Compare against an unauthenticated or invalid-token control; use a new marker or restore the state between attempts. A plain form cannot reproduce other HTTP methods, JSON/custom headers, or obtain a fresh target-only CSRF token.
+
+**Check:** Read the application state independently after each attempt and tie any change to the cross-site request, its cookie/session and a control that did not change state. A blocked CORS read, 200, redirect or `SameSite` label alone is inconclusive. If the browser omitted the cookie or the action had no observable state, report that limit rather than inferring a universal CSRF defense. [OWASP CSRF testing](https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery/) · [MDN CSRF](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF) · [MDN SameSite](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie).
+
 <a id="web-jwt"></a>
 ## JWT: decoded claims are not trusted claims
 

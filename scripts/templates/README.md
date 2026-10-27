@@ -1,6 +1,6 @@
-# Python challenge scripts
+# Challenge scripts and templates
 
-[File preview](#file-intel) · [JWT inspection](#jwt) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http)
+[File preview](#file-intel) · [JWT inspection](#jwt) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http) · [Cross-site form](#cross-site-form)
 
 File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.
 
@@ -170,6 +170,31 @@ copies and command-line arguments.
 
 Standard-library references: [struct](https://docs.python.org/3/library/struct.html)
 and [urllib.request](https://docs.python.org/3/library/urllib.request.html).
+
+<a id="cross-site-form"></a>
+## Controlled cross-site form
+
+Copy [cross_site_form.html](cross_site_form.html) and replace the placeholder
+HTTPS action, field name, and value with one **permitted, reversible** action
+from your assigned application. Match the captured `method` (`get` or `post`)
+and, for POST, the form-compatible `enctype`; the template starts with
+`application/x-www-form-urlencoded`. It cannot reproduce PUT/PATCH/DELETE,
+JSON bodies, custom headers, or a target-only CSRF token. It never submits
+automatically; click its button once in the same disposable Chrome session.
+Serve this file from a different site, for example with approved Python on a
+loopback address:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory scripts/templates
+```
+
+Open `http://127.0.0.1:8000/cross_site_form.html`. Confirm in Burp or Chrome
+Network that the browser sent the intended method, fields, `Origin` and
+`Sec-Fetch-Site`, and whether its session cookie was attached. Check the
+application's state through a separate fresh read after the click. A 200,
+redirect, blocked CORS read, or echoed value alone does not establish a state
+change. Use the [cross-site state workflow](../../SPECIALIST_WORKFLOWS.html#web-cross-site-state)
+for baseline and negative controls. [MDN form methods and encodings](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form) explains the request shapes this template can send.
 
 ## Common pwntools blocks
 

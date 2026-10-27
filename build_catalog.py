@@ -47,6 +47,8 @@ LOCAL_ROUTE_HELP = {
     "server-fetch": (("Server fetch workflow", "SPECIALIST_WORKFLOWS.html#server-fetch"),),
     "object-authorization": (("Authorization workflow", "SPECIALIST_WORKFLOWS.html#object-authorization"),
                               ("Two-role workflow helper", "TOOLKIT.html#web-workflows")),
+    "web-cross-site-state": (("Cross-site state workflow", "SPECIALIST_WORKFLOWS.html#web-cross-site-state"),
+                             ("One-click form template", "scripts/templates/cross_site_form.html")),
     "jwt-verification": (("JWT workflow", "SPECIALIST_WORKFLOWS.html#web-jwt"),
                          ("JWT inspection script", "scripts/templates/jwt_inspect.py")),
     "native-checker": (("Native checker workflow", "CORE_WORKFLOWS.html#native"),),
@@ -111,7 +113,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 39
+    assert len(routes) == len({route["id"] for route in routes}) == 40
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]
@@ -128,7 +130,7 @@ def load_data():
     assert set(LOCAL_ROUTE_HELP) <= {route["id"] for route in routes}
     from build_notes import NOTE_OUTPUTS
     notes = set(NOTE_OUTPUTS.values())
-    bundled = notes | {str(path.relative_to(ROOT)) for path in (ROOT / "scripts/templates").glob("*.py")}
+    bundled = notes | {str(path.relative_to(ROOT)) for path in (ROOT / "scripts/templates").glob("*.py")} | {"scripts/templates/cross_site_form.html"}
     for links in LOCAL_ROUTE_HELP.values():
         assert all(urlsplit(url).path in bundled and title.strip() for title, url in links)
     assert all(any(urlsplit(url).path in notes for _, url in LOCAL_ROUTE_HELP.get(route["id"], ())) or

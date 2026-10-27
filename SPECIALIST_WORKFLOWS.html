@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="70fc840f0b99e0aead2b3ad1281a1bf174401a2fc4bc0c8a5858b3b897a92f50">
+  <meta name="source-sha256" content="32a8bd9de3ea0efac3c404d02b1d9f79074626f3c12964c9490cc2be3c98824a">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -128,6 +128,11 @@ PYCODE
 <h2>Object reference: compare two known owners</h2>
 <p>Use two permitted principals with objects whose ownership is already known. Capture A's normal object request and B's own-object request in separate sessions. Under B's authenticated session, change only the reference to A's object; compare the full content or state with B's own object and a nonexistent-object control. A generic 200 page or public/shared record is not a cross-owner read. Keep tokens private and avoid random ID enumeration as a substitute for ownership evidence.</p>
 <p><strong>Check:</strong> Name the intended access rule, both object owners, the session used for each request, and the data or action the server actually allowed. Without a second principal or reliable ownership evidence, report the authorization question as untested. <a href="https://portswigger.net/web-security/access-control/idor">PortSwigger IDOR</a>.</p>
+<p><a id="web-cross-site-state"></a></p>
+<h2>Cross-site request: establish a state change</h2>
+<p>Use only a permitted test account and a reversible action with a fresh state readout. In Chrome, perform one legitimate same-site action and capture its method, <code>Content-Type</code>, body, session cookie attributes, CSRF token, <code>Origin</code>, and <code>Sec-Fetch-Site</code> in Burp. Record the state before and after with a unique marker. A response status or echoed value is transport evidence, not the state result.</p>
+<p>Copy the <a href="scripts/templates/cross_site_form.html">one-click form template</a>, match its GET/POST method and form encoding, replace its placeholder action and fields, and serve it from a <strong>different site</strong> on loopback with approved Python. A different port alone changes the origin but may leave the site the same. In the same disposable browser session, click once and inspect the browser request. Record whether the session cookie was attached and whether the server received the intended fields. Compare against an unauthenticated or invalid-token control; use a new marker or restore the state between attempts. A plain form cannot reproduce other HTTP methods, JSON/custom headers, or obtain a fresh target-only CSRF token.</p>
+<p><strong>Check:</strong> Read the application state independently after each attempt and tie any change to the cross-site request, its cookie/session and a control that did not change state. A blocked CORS read, 200, redirect or <code>SameSite</code> label alone is inconclusive. If the browser omitted the cookie or the action had no observable state, report that limit rather than inferring a universal CSRF defense. <a href="https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/06-Session_Management_Testing/05-Testing_for_Cross_Site_Request_Forgery/">OWASP CSRF testing</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF">MDN CSRF</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie">MDN SameSite</a>.</p>
 <p><a id="web-jwt"></a></p>
 <h2>JWT: decoded claims are not trusted claims</h2>
 <p>Save one token from a working request in a private local file. Run the read-only <a href="scripts/templates/jwt_inspect.py">jwt_inspect.py</a> to display its header and payload without sending it anywhere. This parses a three-part JSON Web Signature token; it does not verify its signature, expiry, audience or server acceptance. Keep the original request, then use the approved JWT and Repeater tools to compare server responses to one relevant changed token and a negative control. An edited role claim visible in a decoder is only edited text until the server accepts it in the intended action.</p>
