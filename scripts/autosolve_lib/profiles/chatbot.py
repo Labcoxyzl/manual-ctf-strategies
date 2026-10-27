@@ -119,15 +119,26 @@ def _protocol(path):
     if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
-    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'}:
+    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
         raise core.InvalidInput('invalid chat protocol')
     if chat:
         _path(chat.get('path'))
         if chat.get('method', 'POST') != 'POST' or chat.get('encoding', 'json') not in ('json', 'form'):
             raise core.InvalidInput('chat supports POST JSON or form only')
         for key in ('message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'):
-            if key in chat and (not isinstance(chat[key], str) or not re.fullmatch(r'[\w.-]{1,80}', chat[key])):
+            pattern = r'[\w.\[\]-]{1,80}' if key in ('message_field', 'conversation_field', 'client_id_field') else r'[\w.-]{1,80}'
+            if key in chat and (not isinstance(chat[key], str) or not re.fullmatch(pattern, chat[key])):
                 raise core.InvalidInput(f'invalid {key}')
+        static = chat.get('static_fields', {})
+        if (not isinstance(static, dict) or len(static) > 20 or
+                any(not isinstance(key, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.\[\]-]{0,79}', key) for key in static) or
+                chat.get('encoding') == 'form' and any(not isinstance(value, str) for value in static.values())):
+            raise core.InvalidInput('chat static_fields must be at most 20 valid JSON or string-valued form fields')
+        try:
+            if len(json.dumps(static, allow_nan=False).encode()) > 8 * 1024:
+                raise core.InvalidInput('chat static_fields exceeds 8 KiB')
+        except (TypeError, ValueError, OverflowError) as error:
+            raise core.InvalidInput('chat static_fields must contain JSON values') from error
     headers = config.get('headers', {})
     if not isinstance(headers, dict) or any(not isinstance(k, str) or not re.fullmatch(r'[A-Za-z0-9-]{1,60}', k) or not isinstance(v, str) or '\n' in v or '\r' in v for k, v in headers.items()):
         raise core.InvalidInput('headers must be a JSON string map')
@@ -158,10 +169,13 @@ def _protocol(path):
         if any(not isinstance(k, str) for k in bootstrap['body']):
             raise core.InvalidInput('bootstrap body keys must be strings')
         for key in ('token_field', 'chat_field', 'header'):
-            if key in bootstrap and (not isinstance(bootstrap[key], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,80}', bootstrap[key])):
+            pattern = r'[\w.\[\]-]{1,80}' if key == 'chat_field' else r'[A-Za-z0-9_.-]{1,80}'
+            if key in bootstrap and (not isinstance(bootstrap[key], str) or not re.fullmatch(pattern, bootstrap[key])):
                 raise core.InvalidInput(f'invalid bootstrap {key}')
         if ('header' in bootstrap or 'chat_field' in bootstrap) and 'token_field' not in bootstrap:
             raise core.InvalidInput('bootstrap header/chat_field needs token_field')
+        if bootstrap.get('chat_field') and not chat:
+            raise core.InvalidInput('bootstrap chat_field requires an explicit chat request shape')
         if type(bootstrap.get('success_status')) is not int or not 200 <= bootstrap['success_status'] <= 299:
             raise core.InvalidInput('bootstrap needs an exact 2xx success_status')
         if ('success_field' in bootstrap) != ('success_value' in bootstrap) or ('success_field' in bootstrap and (not isinstance(bootstrap['success_field'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', bootstrap['success_field']))):
@@ -170,6 +184,13 @@ def _protocol(path):
             raise core.InvalidInput('bodyless bootstrap success cannot provide a response token or field')
         if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
             raise core.InvalidInput('bootstrap body exceeds 64 KiB')
+    if chat:
+        dynamic_fields = [value for value in (chat.get('message_field', 'message'), chat.get('conversation_field'),
+                                              chat.get('client_id_field'), bootstrap.get('chat_field') if bootstrap else None) if value]
+        if len(set(dynamic_fields)) != len(dynamic_fields):
+            raise core.InvalidInput('chat dynamic fields must be distinct')
+        if set(chat.get('static_fields', {})) & set(dynamic_fields):
+            raise core.InvalidInput('chat static_fields conflicts with a dynamic field')
     heartbeat = config.get('heartbeat')
     if heartbeat is not None:
         if not isinstance(heartbeat, dict) or set(heartbeat) - {'path', 'encoding', 'body', 'token_field', 'interval_seconds', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
@@ -363,6 +384,10 @@ class Client:
         logged_body = multipart_log if body is not None and encoding == 'multipart' else {key: '[redacted]' for key in body} if isinstance(body, dict) and (probe in ('bootstrap', 'heartbeat', 'injection-write', 'verification') or probe.startswith('api:')) else _redact(body)
         if isinstance(logged_body, dict) and bootstrap.get('chat_field') in logged_body:
             logged_body[bootstrap['chat_field']] = '[redacted]'
+        if isinstance(logged_body, dict):
+            for key in chat.get('static_fields', {}):
+                if key in logged_body:
+                    logged_body[key] = '[redacted]'
         logged_headers = {key: value if key.lower() == 'content-type' else '[redacted]' for key, value in headers.items()}
         redirects = 0
         while True:
@@ -747,7 +772,8 @@ def _run(client):
             prompt = spec['prompt'] if spec else PROBES[probe][1]
         if not _heartbeat(client, heartbeat_due):
             break
-        body = {chat.get('message_field', 'message'): prompt}
+        body = dict(chat.get('static_fields', {}))
+        body[chat.get('message_field', 'message')] = prompt
         bootstrap = client.config.get('bootstrap', {})
         if bootstrap.get('chat_field') and m.get('bootstrap_token'):
             body[bootstrap['chat_field']] = m['bootstrap_token']
@@ -861,7 +887,7 @@ def _render(run, m):
              f"Strategy: {m.get('strategy') or 'selected default lanes'}",
              f"HTTP requests: {m['request_count']} / {m['max_requests']}; prompts: {m['prompt_count']} / {m['max_prompts']}",
              f"Transport: {transport}",
-             f"Response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}",
+            f"Response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
              f"Stop reason: {m.get('stop_reason') or 'queue complete'}", '', '## Probes', '']
@@ -911,7 +937,7 @@ def _render(run, m):
             entry = m['heartbeat_summary']
             lines += ['', f"Planned serial heartbeat: POST {_display_path(entry['path'])}; interval: {entry['interval_seconds']}s; body fields: {', '.join(entry['body_fields']) or 'none'}."]
         if m.get('strategy') not in ('api_plan', 'scorer_batch'):
-            lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field')) if x)}."]
+            lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field'), *chat.get('static_field_names', [])) if x)}."]
         for step in m.get('strategy_meta', []):
             if step['kind'] == 'api':
                 lines.append(f"Planned API request: {step['method']} {_display_path(step['path'])}; body fields: {', '.join(step['body_fields']) or 'none'}; encoding: {step['encoding']}.")
@@ -976,7 +1002,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
     chat = config.get('chat', {})
     manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
                 'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
-                'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')},
+                'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
                 'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
                 'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
                                       'encoding': config['bootstrap'].get('encoding', 'json'),

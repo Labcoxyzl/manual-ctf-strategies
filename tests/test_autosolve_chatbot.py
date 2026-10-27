@@ -194,12 +194,26 @@ class Toy:
                 if self.path not in ('/api/utter', '/talk', '/gate/ask'):
                     self.send(404, {'error': 'missing'})
                     return
+                if toy.mode == 'static_json' and (body.get('workspace') != 'toy' or
+                                                   body.get('options') != {'mode': 'bounded'} or
+                                                   body.get('access') != 'private-static-json'):
+                    self.send(403, {'error': 'missing static fields'})
+                    return
+                if toy.mode == 'static_form' and (body.get('module') != 'support' or
+                                                   body.get('nonce') != 'private-static-form' or
+                                                   body.get('settings[mode]') != 'safe'):
+                    self.send(403, {'error': 'missing static fields'})
+                    return
                 if toy.mode == 'csrf' and (self.headers.get('Cookie') != 'sid=toy' or self.headers.get('X-CSRF') != 'toy'):
                     self.send(403, {'error': 'session'})
                     return
                 if toy.mode in ('claimed', 'claimed_with_heartbeat') and (self.headers.get('Cookie') != 'sid=claimed' or
                                               self.headers.get('X-Tab-Token') != 'toy-claim' or body.get('tab_token') != 'toy-claim' or
                                               toy.mode == 'claimed_with_heartbeat' and toy.heartbeat_count < sum(path == '/api/utter' for _, path in toy.calls)):
+                    self.send(403, {'error': 'claim required'})
+                    return
+                if toy.mode == 'claimed_form_bracket' and (self.headers.get('Cookie') != 'sid=claimed' or
+                                                            body.get('tab[token]') != 'toy-claim'):
                     self.send(403, {'error': 'claim required'})
                     return
                 if toy.mode == 'lock':
@@ -241,7 +255,7 @@ class Toy:
                 if toy.mode == 'redirect':
                     self.send(302, b'', {'Location': 'http://127.0.0.1:1/leave'})
                     return
-                prompt = body.get('query') or body.get('question') or body.get('message', '')
+                prompt = body.get('query') or body.get('question') or body.get('question[text]') or body.get('message', '')
                 if toy.mode == 'context_memory':
                     marker = re.search(r'CB-[0-9a-f]{12}', prompt)
                     if marker:
@@ -265,6 +279,8 @@ class Toy:
                     self.send(200, {'reply': 'Use /api/verify for completion.', 'conversation_id': 'thread-A', 'tool_calls': [{'name': 'verify', 'arguments': {'path': '/api/verify'}}]})
                 elif toy.mode == 'form':
                     self.send(200, {'payload': {'reply': 'role: assistant'}, 'thread': 'thread-A'}, fragmented=True)
+                elif toy.mode == 'static_echo':
+                    self.send(200, {'reply': body.get('access', '')})
                 elif toy.mode in ('retrieved_page', 'retrieved_page_echo') and 'Fetch http' in prompt:
                     match = re.search(r'Fetch (https?://[^\s]+) once', prompt)
                     page_url = match.group(1)
@@ -340,6 +356,72 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertIn('[redacted]', trace)
             self.assertNotIn('private-test', trace)
             self.assertEqual((run / 'cookies.txt').stat().st_mode & 0o777, 0o600)
+
+    def test_declared_static_chat_fields_work_for_json_and_form_without_log_values(self):
+        for mode, chat, private in (
+            ('static_json', {'path': '/api/utter', 'message_field': 'query',
+                             'static_fields': {'workspace': 'toy', 'options': {'mode': 'bounded'},
+                                               'access': 'private-static-json'}}, 'private-static-json'),
+            ('static_form', {'path': '/talk', 'encoding': 'form', 'message_field': 'question[text]',
+                             'static_fields': {'module': 'support', 'nonce': 'private-static-form',
+                                               'settings[mode]': 'safe'}},
+             'private-static-form')):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': chat, 'lanes': []})
+                m, run, code = self.start(root, toy, protocol, prompts=1)
+                self.assertEqual(code, 0)
+                self.assertEqual(m['prompt_count'], 1)
+                self.assertEqual(toy.received[-1][next(iter(chat['static_fields']))],
+                                 next(iter(chat['static_fields'].values())))
+                report = (run / 'report.md').read_text()
+                trace = (run / 'transcript.jsonl').read_text()
+                self.assertIn('static fields:', report)
+                self.assertNotIn(private, report + trace)
+                self.assertIn('"[redacted]"', trace)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'static_fields': {'query': 'override'}}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '5')
+            self.assertEqual(code, 2)
+            self.assertIn('conflicts with a dynamic field', result['reason'])
+            self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                           'allow_state_change': True,
+                                           'bootstrap': {'path': '/claim', 'body': {}, 'success_status': 200,
+                                                         'token_field': 'tab_token', 'chat_field': 'query'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '5')
+            self.assertEqual(code, 2)
+            self.assertIn('dynamic fields must be distinct', result['reason'])
+            self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {'allow_state_change': True,
+                                           'bootstrap': {'path': '/claim', 'body': {}, 'success_status': 200,
+                                                         'token_field': 'tab_token', 'chat_field': 'question'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '5')
+            self.assertEqual(code, 2)
+            self.assertIn('requires an explicit chat request shape', result['reason'])
+            self.assertFalse(toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('static_echo') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'static_fields': {'access': 'private-static-echo'}}, 'lanes': []})
+            m, run, code = self.start(root, toy, protocol, prompts=1)
+            self.assertEqual(code, 0)
+            self.assertIn('private-static-echo', (run / 'transcript.jsonl').read_text())
+            self.assertNotIn('private-static-echo', (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('claimed_form_bracket') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/talk', 'encoding': 'form',
+                                                     'message_field': 'question[text]'},
+                                           'allow_state_change': True, 'lanes': [],
+                                           'bootstrap': {'path': '/claim', 'body': {}, 'success_status': 200,
+                                                         'token_field': 'tab_token', 'chat_field': 'tab[token]'}})
+            m, run, code = self.start(root, toy, protocol, prompts=1)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['prompt_count'], 1)
+            self.assertIn('Hello.', toy.received[-1]['question[text]'])
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertEqual(records[-1]['request']['body']['tab[token]'], '[redacted]')
 
     def test_form_discovery_fragmented_reply_and_resume_without_replay(self):
         with tempfile.TemporaryDirectory() as root, Toy('form') as toy:
@@ -1148,7 +1230,8 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('scorer_batch.json', 'scorer_batch'),
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),
-                                   ('retrieved_page.json', 'retrieved_page_injection')):
+                                   ('retrieved_page.json', 'retrieved_page_injection'),
+                                   ('chat_static_fields.json', 'route_discovery')):
             with self.subTest(filename=filename), tempfile.TemporaryDirectory() as temp, Toy('normal') as toy:
                 recipe = root / filename
                 m, _, code = self.start(temp, toy, recipe, strategy=strategy, dry=True)

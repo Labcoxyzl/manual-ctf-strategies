@@ -1,0 +1,13 @@
+{
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "encoding": "json",
+    "message_field": "query",
+    "response_field": "reply",
+    "static_fields": {
+      "module": "REPLACE_MODULE",
+      "mode": "read_only"
+    }
+  },
+  "lanes": ["capability"]
+}

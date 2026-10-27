@@ -33,6 +33,16 @@ to one to four increasing sizes, each 128–65,536 characters; `filler`,
 observation, never a validated challenge solve. The generated marker and queue
 survive resume. The client will not resend a POST whose outcome is uncertain.
 
+If the frontend sends fixed body fields with each chat message, declare them
+under `chat.static_fields` as in the
+[static-fields recipe](chatbot_recipes/chat_static_fields.json). JSON fields
+may contain JSON values; form fields must be strings. The message, conversation
+ID, client ID, and captured bootstrap token remain dynamic fields. Static
+values are sent with each serial chat request but redacted in logged request
+bodies and reports; raw chatbot responses remain in the private transcript,
+including any value the target echoes. The private protocol is part of the
+resume identity. Bracketed form names such as `settings[mode]` are supported.
+
 | Strategy | Required protocol fields | What the script does |
 | --- | --- | --- |
 | `instruction_leak` | none | Ask for a hidden instruction quote and a short prefix. |
