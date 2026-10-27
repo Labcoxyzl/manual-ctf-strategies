@@ -131,6 +131,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/templates/README.md', 'tests/test_templates.py',
         'scripts/templates/binary_parser.py', 'scripts/templates/http_probe.py',
         'scripts/templates/jwt_inspect.py',
+        'scripts/templates/datastore_pref.py', 'tests/test_datastore_pref.py',
         'scripts/templates/file_intel.py', 'scripts/templates/cross_site_form.html',
         'scripts/templates/math_client.py',
         'scripts/templates/math_demo.py', 'tests/test_math_client.py')
@@ -342,7 +343,7 @@ def validate_export(files, originals):
     index = pages['index.html']
     canonical = {f'windows-{number}' for number in range(1, 40)} | {f'kali-{number}' for number in range(1, 162)}
     if (len(index.tools) != 200 or len(set(index.tools)) != 200
-            or index.routes != 43 or index.categories != 7):
+            or index.routes != 44 or index.categories != 7):
         raise ValueError('Public guide lost approved tools, categories or routes')
     if set(index.tools) != canonical:
         raise ValueError('Public guide changed canonical inventory identities')

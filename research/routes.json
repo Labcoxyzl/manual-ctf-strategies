@@ -1331,5 +1331,38 @@
         "url": "https://docs.python.org/3.12/library/xml.html"
       }
     ]
+  },
+  {
+    "id": "android-datastore-preferences",
+    "category": "forensics",
+    "title": "Android Preferences DataStore → one typed key",
+    "input": "A supplied accessible app-data extraction containing a copied files/datastore/*.preferences_pb file, exact key, app package/user context and original path; an APK alone is insufficient.",
+    "tool_ids": [
+      "windows-7",
+      "kali-4"
+    ],
+    "steps": [
+      "Preserve the original extraction; record Android user, app package, source path and hash before working on a copy. Confirm this is Preferences DataStore rather than an app-defined Proto DataStore file.",
+      "Use the bundled bounded Python reader to select one exact key from the copied .preferences_pb file. It supports boolean, int32, int64 and string values, validates the full map, and reports unsupported selected types or malformed input instead of silently guessing.",
+      "Keep the selected value private and relate its stored type and meaning to independent app code, configuration, log or case evidence. Treat an ALEAPP report as a lead until its source file and parser version are confirmed."
+    ],
+    "expected": "One named stored scalar type/value tied to its package, Android user, exact file and independent context, or a documented format/parser limit.",
+    "fallback": "A missing key in one copy does not prove the app never held it: check extraction completeness, app/user/version, alternate files, and whether the app instead uses SharedPreferences XML or Proto DataStore.",
+    "caveat": "The standard-library reader accepts only a regular .preferences_pb copy up to 1 MiB and rejects duplicate/malformed records. Selected float, double, string-set and byte-array values need another parser; app-defined Proto DataStore needs that app's schema. Numeric units and time epochs are app-specific.",
+    "verification": "AndroidX schema and Android documentation source-reviewed; benign official-proto values matched the local bounded reader, with mixed-type, missing-key, duplicate, truncation, unsupported-type, size, symlink and FIFO controls. ALEAPP, Android runtime and competition machines untested.",
+    "references": [
+      {
+        "title": "Android DataStore overview",
+        "url": "https://developer.android.com/topic/libraries/architecture/datastore"
+      },
+      {
+        "title": "AndroidX Preferences schema",
+        "url": "https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/datastore/datastore-preferences-proto/src/main/proto/preferences.proto"
+      },
+      {
+        "title": "ALEAPP usage",
+        "url": "https://github.com/abrignoni/ALEAPP/blob/main/README.md"
+      }
+    ]
   }
 ]

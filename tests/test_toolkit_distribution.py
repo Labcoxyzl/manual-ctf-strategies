@@ -163,6 +163,20 @@ class DistributionTests(unittest.TestCase):
             self.assertTrue(any(item['depth'] > 0 and Path(item['path']).read_bytes() == b'HELLO'
                                 for item in manifest['artifacts']))
             self.assertEqual(source.read_bytes(), b'SEVMTE8=')
+            prefs = Path(temp) / 'settings.preferences_pb'
+            prefs.write_bytes(bytes.fromhex(
+                '0a0d0a07656e61626c656412020801'
+                '0a1a0a086578706563746564120e2a0c6b6e6f776e2d6d61726b6572'))
+            reader = [sys.executable, '-I', '-S',
+                      str(destination / 'scripts/templates/datastore_pref.py'), str(prefs)]
+            selected = subprocess.run([*reader, 'expected'], cwd=cwd,
+                                      capture_output=True, text=True, timeout=10)
+            self.assertEqual(selected.returncode, 0, selected.stderr)
+            self.assertEqual(selected.stdout, 'type: string\nvalue: "known-marker"\n')
+            absent = subprocess.run([*reader, 'missing'], cwd=cwd,
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(absent.returncode, 1, absent.stderr)
+            self.assertIn('app-state absence is not established', absent.stderr)
             adapter = Path(temp) / 'model_adapter.py'
             adapter.write_text('def load_model(path):\n import torch\n return torch.nn.Identity()\n'
                                'def load_input(path):\n import numpy as np\n import torch\n'

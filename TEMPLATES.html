@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="e929bd35248528f22f72b22608e48fd526e5a610b7bd5013640563abd345c512">
+  <meta name="source-sha256" content="fae179ed6e97a79a50d9cc7ef73f2e716951e8aa1892cef36ec4563b51b0f488">
   <link rel="icon" href="data:,">
   <title>Challenge scripts and templates · Manual CTF Strategies</title>
   <style>
@@ -44,8 +44,8 @@
   <a class="skip" href="#main">Skip to notes</a>
   <header><div class="wrap"><a href="index.html">← Field guide</a></div></header>
   <main id="main" class="wrap" tabindex="-1"><h1>Challenge scripts and templates</h1>
-<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a> · <a href="#cross-site-form">Cross-site form</a></p>
-<p>File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.</p>
+<p><a href="#file-intel">File preview</a> · <a href="#jwt">JWT inspection</a> · <a href="#datastore-pref">Android DataStore</a> · <a href="#timed-math">Timed arithmetic</a> · <a href="#transport">Pwntools blocks</a> · <a href="#binary">Binary parsing</a> · <a href="#http">HTTP</a> · <a href="#cross-site-form">Cross-site form</a></p>
+<p>File preview, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the <a href="requirements.txt">competition requirements</a>; file preview, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.</p>
 <p><a id="file-intel"></a></p>
 <h2>File intel: run before editing a parser</h2>
 <p>Run <a href="scripts/templates/file_intel.py">file_intel.py</a> on a challenge file without changing the
@@ -67,6 +67,12 @@ executes, extracts, or modifies them, and makes no flag or file-format claims.</
 <pre><code class="language-bash">python3 scripts/templates/jwt_inspect.py private-token.txt
 </code></pre>
 <p>The script prints the JSON header and payload of a three-part JWT. It accepts up to 16 KiB from a regular local file, makes no network request, and leaves the file unchanged. It rejects invalid base64url/JSON parts and encrypted five-part tokens. <strong>Decoded claims are unverified:</strong> this script does not check the signature, expiry, audience or whether the server accepts the token. Keep the private file out of the repository and use the <a href="SPECIALIST_WORKFLOWS.html#web-jwt">JWT workflow</a> to compare actual server behavior.</p>
+<p><a id="datastore-pref"></a></p>
+<h2>Android Preferences DataStore: one exact key</h2>
+<p>From an accessible app-data extraction, copy one <code>files/datastore/*.preferences_pb</code> file and record its package, Android user, source path and hash. Then select a named key without dumping every preference:</p>
+<pre><code class="language-bash">python3 scripts/templates/datastore_pref.py COPY.preferences_pb KEY
+</code></pre>
+<p>The reader uses the Python standard library, makes no network request and leaves the file unchanged. It accepts a regular file up to 1 MiB, rejects a symlink or FIFO, validates the complete map and reports boolean, int32, int64 or string values. Unsupported selected types and malformed or ambiguous records fail explicitly. A missing key is only missing from this copy; it does not establish the app's full state. Keep any selected private value out of shared notes. See the <a href="SPECIALIST_WORKFLOWS.html#android-datastore-preferences">DataStore workflow</a>; app-defined Proto DataStore uses a different schema.</p>
 <p><a id="timed-math"></a></p>
 <h2>Timed arithmetic: 100 questions</h2>
 <p><a href="scripts/templates/math_client.py">math_client.py</a> receives a question, calculates its answer and sends it over the same connection. It uses a bounded arithmetic parser, not <code>eval</code>. First try the harmless <a href="scripts/templates/math_demo.py">math_demo.py</a>:</p>

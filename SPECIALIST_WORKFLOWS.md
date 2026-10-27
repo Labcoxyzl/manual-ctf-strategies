@@ -103,6 +103,21 @@ PYCODE
 
 **Check:** Tie the selected key, stored type and value to the copied XML and an independent app/configuration clue, database row, log or known case observation. For an app database, follow the [SQLite/WAL workflow](#sqlite-artifact) with its matching sidecars. A numeric preference has no universal time epoch. Missing keys, conflicting XML/`.bak`, non-UTF-8 or unsupported value types, malformed XML, a different Android user, unavailable/unsupported ALEAPP modules or an incomplete extraction leave absence inconclusive. Keep private values out of shared notes. [Android SharedPreferences](https://developer.android.com/training/data-storage/shared-preferences) · [AOSP XML implementation](https://android.googlesource.com/platform/frameworks/base/+/main/core/java/android/app/SharedPreferencesImpl.java) · [ALEAPP CLI](https://github.com/abrignoni/ALEAPP/blob/main/README.md) · [Python XML security](https://docs.python.org/3.12/library/xml.html).
 
+<a id="android-datastore-preferences"></a>
+## Android Preferences DataStore: select one key from a copy
+
+An accessible app-data extraction may contain `files/datastore/*.preferences_pb` instead of SharedPreferences XML. An APK alone does not contain the user's stored preferences. Record the Android user, app package, original path and hash; work on a stable copy. Check that the file is **Preferences DataStore**. App-defined Proto DataStore files need their own schema and are outside this reader's scope.
+
+For one exact key, run the bundled standard-library reader from the offline kit in a private session:
+
+```sh
+python3 scripts/templates/datastore_pref.py COPY.preferences_pb KEY
+```
+
+It accepts one regular file up to 1 MiB and reports the selected key's stored boolean, int32, int64 or string value. It validates every map entry, rejects duplicates and truncated or ambiguous wire data, and does not print other keys. Valid float, double, string-set and byte-array values on *other* keys do not block selection; a requested key of those types needs another parser. A missing key means only that it was absent from this copy. Keep selected values out of shared notes.
+
+**Check:** Match the reported key, type and source path to independent app code, configuration, log or case evidence. A numeric value has no universal timestamp unit. If ALEAPP is installed, use its source-file reference and parser version as a lead, then confirm the decisive value against the copied file. Another Android user, app version, file, incomplete extraction or an unsupported selected type remains possible. [Android DataStore](https://developer.android.com/topic/libraries/architecture/datastore) · [AndroidX Preferences schema](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/datastore/datastore-preferences-proto/src/main/proto/preferences.proto).
+
 <a id="ios-plist"></a>
 ## iOS plist: inspect one named field
 

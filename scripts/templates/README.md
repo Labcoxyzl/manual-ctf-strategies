@@ -1,8 +1,8 @@
 # Challenge scripts and templates
 
-[File preview](#file-intel) · [JWT inspection](#jwt) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http) · [Cross-site form](#cross-site-form)
+[File preview](#file-intel) · [JWT inspection](#jwt) · [Android DataStore](#datastore-pref) · [Timed arithmetic](#timed-math) · [Pwntools blocks](#transport) · [Binary parsing](#binary) · [HTTP](#http) · [Cross-site form](#cross-site-form)
 
-File preview and JWT inspection run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, JWT inspection, binary parsing and HTTP use only the Python standard library.
+File preview, JWT inspection and the Android DataStore reader run unchanged. Adapt the other scripts to the challenge format. Transport and arithmetic clients require pwntools from the [competition requirements](../../requirements.txt); file preview, JWT inspection, DataStore, binary parsing and HTTP use only the Python standard library.
 
 <a id="file-intel"></a>
 ## File intel: run before editing a parser
@@ -37,6 +37,17 @@ python3 scripts/templates/jwt_inspect.py private-token.txt
 ```
 
 The script prints the JSON header and payload of a three-part JWT. It accepts up to 16 KiB from a regular local file, makes no network request, and leaves the file unchanged. It rejects invalid base64url/JSON parts and encrypted five-part tokens. **Decoded claims are unverified:** this script does not check the signature, expiry, audience or whether the server accepts the token. Keep the private file out of the repository and use the [JWT workflow](../../SPECIALIST_WORKFLOWS.html#web-jwt) to compare actual server behavior.
+
+<a id="datastore-pref"></a>
+## Android Preferences DataStore: one exact key
+
+From an accessible app-data extraction, copy one `files/datastore/*.preferences_pb` file and record its package, Android user, source path and hash. Then select a named key without dumping every preference:
+
+```bash
+python3 scripts/templates/datastore_pref.py COPY.preferences_pb KEY
+```
+
+The reader uses the Python standard library, makes no network request and leaves the file unchanged. It accepts a regular file up to 1 MiB, rejects a symlink or FIFO, validates the complete map and reports boolean, int32, int64 or string values. Unsupported selected types and malformed or ambiguous records fail explicitly. A missing key is only missing from this copy; it does not establish the app's full state. Keep any selected private value out of shared notes. See the [DataStore workflow](../../SPECIALIST_WORKFLOWS.html#android-datastore-preferences); app-defined Proto DataStore uses a different schema.
 
 <a id="timed-math"></a>
 ## Timed arithmetic: 100 questions
