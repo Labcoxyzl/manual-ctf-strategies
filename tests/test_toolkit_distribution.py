@@ -25,6 +25,33 @@ class DistributionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.files = exporter.collect(ROOT)
 
+    @unittest.skipUnless(shutil.which('multimon-ng') and shutil.which('ffmpeg'),
+                         'approved multimon-ng and ffmpeg required for the copied AV03 doctor')
+    def test_copied_audio_doctor_runs_morse_and_afsk_fixtures(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'export'
+            exporter.package(destination)
+            result = subprocess.run([sys.executable, '-I', str(destination / 'scripts/autosolve.py'),
+                                     '--json', 'doctor', '--profiles', 'audio_video', '--self-test'],
+                                    cwd=temporary, capture_output=True, text=True, timeout=60)
+            self.assertIn(result.returncode, (0, 3), result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report['operations']['audio_video.morse_afsk']['status'], 'ready',
+                             report['operations']['audio_video.morse_afsk'])
+            self.assertEqual(report['engines']['multimon']['status'], 'ready',
+                             report['engines']['multimon'])
+
+            (destination / 'tests/fixtures/toolkit/audio/afsk-hello.wav').write_bytes(b'broken')
+            result = subprocess.run([sys.executable, '-I', str(destination / 'scripts/autosolve.py'),
+                                     '--json', 'doctor', '--profiles', 'audio_video', '--self-test'],
+                                    cwd=temporary, capture_output=True, text=True, timeout=60)
+        self.assertIn(result.returncode, (0, 3), result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report['operations']['audio_video.morse_afsk']['status'], 'partial')
+        self.assertEqual(report['operations']['audio_video.morse_afsk']['reason'],
+                         'fixture_missing_or_changed')
+        self.assertEqual(report['engines']['multimon']['status'], 'partial')
+
     def test_tracked_offline_zip_matches_public_export(self):
         archive_path = ROOT / 'manual-ctf-strategies-offline-2026-10-27.zip'
         with ZipFile(archive_path) as archive:

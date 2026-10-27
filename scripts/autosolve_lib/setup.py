@@ -710,23 +710,59 @@ def _tone_probe(self_test):
                 with wave.open(str(source), 'wb') as writer:
                     writer.setparams((1, 2, rate, 0, 'NONE', 'not compressed'))
                     writer.writeframes(samples)
-                rows, _ = inspect_tones(source, timeout=5, max_output=4096,
-                                        modes=('DTMF',))
-                probe = ('passed' if ''.join(row['symbol'] for row in rows) == '12'
-                         else 'failed')
+                rows, warnings = inspect_tones(source, timeout=5, max_output=4096,
+                                               modes=('DTMF',))
+                probe = ('passed' if not warnings and
+                         ''.join(row['symbol'] for row in rows) == '12' else 'failed')
         except Exception:
             probe = 'failed'
+    narrow_probe = 'not_run'
+    narrow_reason = 'self_test_required'
+    if self_test and multimon and ffmpeg:
+        fixtures = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio'
+        morse = fixtures / 'morse-sos.wav'
+        afsk = fixtures / 'afsk-hello.wav'
+        expected = ((morse, 92648, '04f836645344e118a7f16fbda5baebdc350de889e286dd47fc229ed85112a64a'),
+                    (afsk, 57088, 'e27fa45d5b51830bcc13cd0207ee8d0a6992e3652f689fe1e36c8ea1f23b3e21'))
+        try:
+            if any(path.stat().st_size != size or
+                   hashlib.sha256(path.read_bytes()).hexdigest() != digest
+                   for path, size, digest in expected):
+                narrow_probe, narrow_reason = 'failed', 'fixture_missing_or_changed'
+            else:
+                morse_rows, morse_warnings = inspect_tones(morse, timeout=5, max_output=4096,
+                                                          modes=('MORSE_CW',))
+                afsk_rows, afsk_warnings = inspect_tones(afsk, timeout=5, max_output=4096,
+                                                       modes=('AFSK1200',))
+                morse_ok = (not morse_warnings and len(morse_rows) == 1 and
+                            morse_rows[0]['mode'] == 'MORSE_CW' and
+                            morse_rows[0]['raw_output'].strip() == 'SOS')
+                afsk_ok = (not afsk_warnings and len(afsk_rows) == 1 and
+                           afsk_rows[0]['mode'] == 'AFSK1200' and
+                           afsk_rows[0]['raw_output'].splitlines() == [
+                               'AFSK1200: fm AE4WA-0 to HB9JNX-0 UI  pid=F0',
+                               'AFSK_PROBE_20261027'])
+                narrow_probe = 'passed' if morse_ok and afsk_ok else 'failed'
+                narrow_reason = None if narrow_probe == 'passed' else 'morse_or_afsk_output_mismatch'
+        except (OSError, ValueError):
+            narrow_probe, narrow_reason = 'failed', 'fixture_missing_or_changed'
     status = 'ready' if probe == 'passed' else 'partial' if multimon and ffmpeg else 'unavailable'
     dtmf = {'implemented': True, 'functional_probe': probe, 'status': status,
             'reason': 'multimon-ng_or_ffmpeg_missing' if status == 'unavailable' else None}
-    narrow = {'implemented': True, 'functional_probe': 'not_run',
-              'status': 'partial' if multimon and ffmpeg else 'unavailable',
-              'reason': 'independent_morse_afsk_probe_pending' if multimon and ffmpeg
-                        else 'multimon-ng_or_ffmpeg_missing'}
+    narrow_status = ('ready' if narrow_probe == 'passed' else 'partial' if multimon and ffmpeg
+                     else 'unavailable')
+    narrow = {'implemented': True, 'functional_probe': narrow_probe,
+              'status': narrow_status,
+              'reason': 'multimon-ng_or_ffmpeg_missing' if narrow_status == 'unavailable'
+              else narrow_reason}
+    engine_status = ('ready' if status == narrow_status == 'ready' else
+                     'partial' if multimon and ffmpeg else 'unavailable')
     engine = {'found': bool(multimon), 'path': multimon, 'version': None,
               'options_compatible': bool(multimon and ffmpeg),
-              'required_data': 'ffmpeg', 'functional_probe': probe,
-              'status': status}
+              'required_data': 'ffmpeg',
+              'functional_probe': 'passed' if engine_status == 'ready' else
+                                  'failed' if self_test and multimon and ffmpeg else 'not_run',
+              'status': engine_status}
     return dtmf, narrow, engine
 
 

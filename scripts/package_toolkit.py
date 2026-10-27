@@ -49,6 +49,9 @@ COMPANIONS = (
 FIXTURES = (
     'tests/fixtures/toolkit/development/framed-bits.txt',
     'tests/fixtures/toolkit/development/wrapped-bits.txt',
+    'tests/fixtures/toolkit/audio/PROVENANCE.md',
+    'tests/fixtures/toolkit/audio/morse-sos.wav',
+    'tests/fixtures/toolkit/audio/afsk-hello.wav',
     'tests/fixtures/toolkit/audio/robot36.ogg',
 )
 CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init__.py',

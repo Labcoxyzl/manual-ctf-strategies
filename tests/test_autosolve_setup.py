@@ -12,10 +12,46 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from autosolve_lib import setup as capabilities
+from autosolve_lib.profiles import tones
 from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
+    @unittest.skipUnless(capabilities.shutil.which('multimon-ng') and
+                         capabilities.shutil.which('ffmpeg'),
+                         'approved multimon-ng and ffmpeg required for the AV03 functional probe')
+    def test_tone_doctor_decodes_exact_morse_and_afsk_fixtures(self):
+        dtmf, av03, engine = capabilities._tone_probe(True)
+        self.assertEqual(dtmf['functional_probe'], 'passed', dtmf)
+        self.assertEqual(av03['functional_probe'], 'passed', av03)
+        self.assertEqual(av03['status'], 'ready', av03)
+        self.assertEqual(engine['status'], 'ready', engine)
+
+    @unittest.skipUnless(capabilities.shutil.which('ffmpeg'), 'ffmpeg required')
+    def test_tone_doctor_rejects_mode_list_and_one_mode_only_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / 'multimon-ng'
+            fake.write_text('#!/usr/bin/env python3\n'
+                            'import sys\n'
+                            'mode = sys.argv[sys.argv.index("-a") + 1]\n'
+                            'if mode == "DTMF": print("DTMF: 1\\nDTMF: 2")\n'
+                            'elif mode == "MORSE_CW": print("SOS")\n'
+                            'else: print("AFSK1200: fm AE4WA-0 to HB9JNX-0 UI  pid=F0\\nWRONG")\n')
+            fake.chmod(0o700)
+            with mock.patch.object(tones, 'MULTIMON', str(fake)):
+                _, av03, engine = capabilities._tone_probe(True)
+            self.assertEqual(av03['status'], 'partial', av03)
+            self.assertEqual(av03['functional_probe'], 'failed', av03)
+            self.assertEqual(engine['status'], 'partial', engine)
+
+            fake.write_text('#!/usr/bin/env python3\n'
+                            'print("Enabled demodulators: DTMF MORSE_CW AFSK1200")\n')
+            fake.chmod(0o700)
+            with mock.patch.object(tones, 'MULTIMON', str(fake)):
+                _, av03, _ = capabilities._tone_probe(True)
+            self.assertEqual(av03['status'], 'partial', av03)
+            self.assertEqual(av03['functional_probe'], 'failed', av03)
+
     def test_missing_file_tool_is_partial_and_does_not_run_a_command(self):
         with mock.patch.object(capabilities.shutil, "which", return_value=None), \
              mock.patch.object(capabilities.subprocess, "run") as run:
