@@ -506,6 +506,24 @@ marker, while PWN04 correctly refused the imported target before replay.
 Verified imported-PLT multi-call support is a separate next breadth slice;
 the full A-PWN04 row remains unproved.
 
+The final twenty-second commit `42e8196aa2cc8039d3cd1fd42ea07c498cf52574`
+was pushed to the remote progress branch and its SHA verified. Its 253-file
+Offline kit matched the authored source byte for byte. The Python 3.12
+autosolve suite passed 931 tests (35 optional skips); the pre-push Python 3.13
+gate passed 998 tests (56 skips, 560 subtests). Strict frozen X/F passed
+20/20, all-domain breadth passed 22/22 with each selected family `ran`, and
+15 representative measurements passed with zero timeouts and zero validated
+false solutions in two classified negatives. Fresh copied directory/ZIP core
+setup and doctor passed; four default-environment ENC04 traces had zero network
+connects or outside ordinary-file write attempts. The pinned FLOSS binary was
+reused after hash verification, and fresh doctor and compiled-ELF analysis on
+the changed core passed with two exact candidate strings. FLOSS's transient
+`/dev/shm/sem.*` IPC exception remains disclosed. A fresh copy of the published
+hash then passed A-ENC04's nine-case named row, both key-change resumes,
+mixed-hint notices, report privacy and ZIP parity. Local full-row proof is now
+**39 of 57**; 18 remain unproved. Neither local marker nor candidate string is
+platform acceptance.
+
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
 report/resume behavior. This raises full named-row proof to **29 of 57**;
