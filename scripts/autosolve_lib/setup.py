@@ -1220,6 +1220,61 @@ def _binary_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _checker_probe(self_test):
+    from .profiles.checker import inspect_checker
+    spec = importlib.util.find_spec('angr')
+    compiler = shutil.which('gcc') if self_test and spec else None
+    probe = 'not_run'
+    detail = None
+    if self_test and spec and compiler:
+        probe = 'failed'
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'checker.c'
+                binary = root / 'checker'
+                source.write_text('''#include <stdio.h>
+int main(int argc, char **argv) {
+  if (argc == 2 && argv[1][0] == 'Q' && argv[1][1] == '\\0') {
+    puts("REV07_PROBE"); return 0;
+  }
+  puts("REV07_FAIL"); return 1;
+}''')
+                built = _command([compiler, '-O0', '-fno-pie', '-no-pie',
+                                  '-o', str(binary), str(source)])
+                if built and built.returncode == 0:
+                    report, warnings = inspect_checker(
+                        binary, {'channel': 'argv', 'length': 1,
+                                 'find': {'stdout': 'REV07_PROBE'},
+                                 'avoid': {'stdout': 'REV07_FAIL'}},
+                        execute_local=True, replay=True, timeout=30, max_steps=2500)
+                    if (not warnings and report['status'] == 'validated_input' and
+                            bytes.fromhex(report['candidate_hex']) == b'Q' and
+                            report['replay']['returncode'] == 0):
+                        probe = 'passed'
+                    else:
+                        detail = f"checker_{report['status']}: {report.get('reason') or report['replay'].get('problem') or 'unexpected_candidate'}"[:160]
+                else:
+                    detail = 'compiler_failed_or_timed_out'
+        except Exception as error:
+            detail = f'{type(error).__name__}_during_probe'
+    operation = {'implemented': True, 'functional_probe': probe,
+                 'status': 'ready' if probe == 'passed' else 'partial' if spec else 'unavailable',
+                 'reason': ('angr_missing' if not spec else
+                            'compiler_missing_for_probe' if self_test and not compiler else
+                            'functional_probe_failed' if probe == 'failed' else
+                            'bounded_x86_elf_checker_only')}
+    if detail:
+        operation['probe_detail'] = detail
+    engine = {'found': bool(spec), 'path': spec.origin if spec else None,
+              'version': importlib.metadata.version('angr') if spec else None,
+              'options_compatible': bool(spec),
+              'required_data': 'selected_executable_linux_x86_elf_and_checker_hints',
+              'functional_probe': probe,
+              'status': 'ready' if probe == 'passed' else 'partial' if spec else 'unavailable'}
+    return operation, engine
+
+
 def _service_probe(self_test):
     from .profiles.service_transport import run_service
     probe = 'not_run'
@@ -1330,6 +1385,9 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
             'options_compatible': bool(spec), 'required_data': 'not_required',
             'functional_probe': elf_probe['functional_probe'], 'status': elf_probe['status']}
     binary_probe = _binary_probe(self_test) if 'malware_reversing' in selected else None
+    checker_probe = _checker_probe(self_test) if 'malware_reversing' in selected else None
+    if checker_probe:
+        engines['angr'] = checker_probe[1]
     if 'pefile' in planned:
         spec = importlib.util.find_spec('pefile')
         engines['pefile'] = {
@@ -1409,6 +1467,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations['pwn_services.service_inventory'] = _service_inventory_probe(self_test)
     if "malware_reversing" in selected:
         operations['malware_reversing.binary_static'] = binary_probe
+        operations['malware_reversing.checker'] = checker_probe[0]
     if "web" in selected:
         operations['web.static_inventory'] = _web_static_probe(self_test)
         operations['web.discovery'] = _web_discovery_probe(self_test)

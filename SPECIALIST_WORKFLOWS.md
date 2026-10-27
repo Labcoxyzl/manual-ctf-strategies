@@ -242,6 +242,29 @@ Confirm the executable format and architecture, then run the installed `checksec
 
 **Check:** State which input bytes controlled which runtime value, and which mitigation or unknown still blocks the next step. A protection listing or gadget address alone establishes neither exploitability nor success. [checksec 2.6.0](https://raw.githubusercontent.com/slimm609/checksec/2.6.0/checksec) · [pwntools cyclic](https://docs.pwntools.com/en/stable/util/cyclic.html) · [ROPgadget](https://github.com/JonathanSalwan/ROPgadget).
 
+<a id="symbolic-elf-checker"></a>
+## Linux ELF checker: bound the symbolic input
+
+First identify one supplied Linux x86/x86-64 ELF and the path by which it reads the proposed answer. Use the [manual checker route](index.html#route-native-checker) to establish a concrete argv or stdin length and a success string, failure string or verified branch address. Make a private hints file with only those observations. For a five-byte argv checker that prints `accepted` or `rejected`, an example model is:
+
+```json
+{"checker":{"channel":"argv","length":5,"find":{"stdout":"accepted"},"avoid":{"stdout":"rejected"}}}
+```
+
+Replace these values for the actual checker. On an isolated analysis machine with angr installed, check `python3 scripts/autosolve.py doctor --profiles reversing --self-test` and inspect the **checker** operation and angr engine; the overall doctor result can be partial because of other tools. Then run:
+
+```sh
+python3 scripts/autosolve.py analyze ./checker --category reversing --hints ./checker.json --execute-local
+```
+
+This opts in to bounded symbolic search of one selected ELF; it does not run the binary concretely or establish an accepted challenge answer. The [toolkit command guide](scripts/README.md#checker) lists limits and output meanings. If local execution is permitted, request a separate concrete replay only in an isolated environment:
+
+```sh
+python3 scripts/autosolve.py resume RUN_DIR --hints ./checker.json --replay-checker
+```
+
+The run must have started with `--execute-local`. Replay uses a private snapshot, a reduced environment and resource limits, but it is **not a filesystem or network sandbox**. For `validated_input`, the checker must exit zero and print one complete line exactly equal to the declared success marker; a substring such as `accepted` inside `not accepted` fails this check. A reached address remains a candidate. Compare one nearby rejected input using the original checker, and keep the executable, hints and reports private. If search is incomplete, times out or returns `unsat_under_model`, inspect the input model and branch evidence rather than claiming impossibility. [angr symbolic execution](https://docs.angr.io/en/latest/core-concepts/symbolic.html) · [Simulation managers](https://docs.angr.io/en/latest/core-concepts/pathgroups.html).
+
 <a id="reverse-android"></a>
 ## APK or DEX: trace the validation path
 

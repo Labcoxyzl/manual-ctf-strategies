@@ -350,6 +350,34 @@
     ]
   },
   {
+    "id": "symbolic-elf-checker",
+    "category": "reversing",
+    "title": "Linux ELF checker → bounded symbolic candidate",
+    "input": "One supplied Linux x86/x86-64 ELF checker plus an evidenced argv/stdin length and success/avoid marker or code address.",
+    "tool_ids": [
+      "kali-6"
+    ],
+    "steps": [
+      "Inspect the selected ELF and its input path first; derive a bounded argv or stdin length and a find condition from observed output or a verified code address. Keep the executable and private checker hints outside shared notes.",
+      "On an isolated analysis machine with approved angr available, run the bundled REV07 checker with --execute-local and a private hints file. Its limited symbolic search returns a candidate only; incomplete or unsat_under_model means the bounded model did not validate an input.",
+      "If execution is permitted, opt in separately to --replay-checker inside an isolated environment. Require zero exit and one complete output line equal to the declared success marker, plus a nearby rejected input; address-only reachability and challenge acceptance remain unverified."
+    ],
+    "expected": "A candidate input tied to a bounded symbolic model, optionally upgraded to validated_input after explicit local checker replay with a success marker.",
+    "fallback": "If angr is absent, architecture/input assumptions are wrong, stdout is symbolic beyond the limit, or search times out, inspect the relevant branch manually in Ghidra/GDB and refine the hints. Do not treat unsat_under_model as proof that no accepted input exists.",
+    "caveat": "Only one selected Linux x86 ELF up to 8 MiB and 1–64 modeled input bytes are supported. Local replay executes the supplied binary with resource limits but no filesystem or network sandbox; use an isolated analysis environment. A modeled or replayed result does not establish challenge acceptance.",
+    "verification": "Official angr documentation source-reviewed; benign local ELF fixtures recovered a known accepted argv input, rejected a near miss, handled symbolic stdout and source replacement, and kept concrete replay opt-in. Competition Kali/unknown checkers unverified.",
+    "references": [
+      {
+        "title": "angr symbolic execution",
+        "url": "https://docs.angr.io/en/latest/core-concepts/symbolic.html"
+      },
+      {
+        "title": "angr simulation managers",
+        "url": "https://docs.angr.io/en/latest/core-concepts/pathgroups.html"
+      }
+    ]
+  },
+  {
     "id": "android-validation",
     "category": "reversing",
     "title": "APK/DEX → validation method",

@@ -23,6 +23,8 @@ from test_autosolve_documents import ENCRYPTED_ZIP
 from test_autosolve_images import sample_png
 from test_autosolve_packet_objects import pcap as object_pcap, transaction as http_transaction
 from scripts.autosolve_lib import core
+from scripts.autosolve_lib.profiles import checker
+from test_autosolve_checker import ANGR_IMPORT_READY
 
 MIXED_PASSWORD_ZIP = base64.b64decode(
     'UEsDBBQAAQAAAPUEW10/4namGAAAAAwAAAABAAAAYefZxcULHaildVlk5VAUjUP3ySS4U2j53FBLAwQUAAEAAAD1BFtduWa8sxkAAAANAAAAAQAAAGL04rAjADnRhfpNazlwQZq1SJKpTGV6CcG5UEsBAj8DFAABAAAA9QRbXT/idqYYAAAADAAAAAEAJAAAAAAAAAAggKSBAAAAAGEKACAAAAAAAAEAGACSVPj6cGXdAQAAAAAAAAAAAAAAAAAAAABQSwECPwMUAAEAAAD1BFtduWa8sxkAAAANAAAAAQAkAAAAAAAAACCApIE3AAAAYgoAIAAAAAAAAQAYAJJU+PpwZd0BAAAAAAAAAAAAAAAAAAAAAFBLBQYAAAAAAgACAKYAAABvAAAAAAA='
@@ -47,6 +49,24 @@ class AutosolveCoreTests(unittest.TestCase):
                                 capture_output=True, timeout=15)
         self.assertEqual(result.returncode, code, result.stderr + result.stdout)
         return json.loads(result.stdout)
+
+    def checker_fixture(self, root):
+        source = root / 'checker.c'
+        binary = root / 'checker'
+        source.write_text('''#include <stdio.h>
+int main(int argc, char **argv) {
+  if (argc == 2 && argv[1][0] == 'R' && argv[1][1] == '7') {
+    puts("REV07_WIN"); return 0;
+  }
+  puts("REV07_LOSE"); return 1;
+}''')
+        subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
+                       check=True, capture_output=True)
+        hints = root / 'hints.json'
+        hints.write_text(json.dumps({'checker': {'channel': 'argv', 'length': 2,
+                                  'find': {'stdout': 'REV07_WIN'},
+                                  'avoid': {'stdout': 'REV07_LOSE'}}}))
+        return source, binary, hints
 
     def test_help_without_optional_packages(self):
         result = subprocess.run([sys.executable, '-I', '-S', str(SCRIPT), '--help'],
@@ -177,6 +197,22 @@ class AutosolveCoreTests(unittest.TestCase):
                     result = self.run_cli(command, run, code=2)
                     self.assertEqual(result['status'], 'invalid_input')
                     self.assertIn('JSON object', result['reason'])
+
+    def test_replay_checker_rejects_nonartifact_resume_dispatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, manifest in (
+                    ('chatbot', {'category': 'ai_chatbot'}),
+                    ('service', {'run_type': 'service', 'category': 'auto'}),
+                    ('inventory', {'run_type': 'service_inventory', 'category': 'auto'}),
+                    ('web', {'run_type': 'web_discovery', 'category': 'auto'})):
+                with self.subTest(name=name):
+                    run = root / name
+                    run.mkdir()
+                    (run / 'manifest.json').write_text(json.dumps(manifest))
+                    result = self.run_cli('resume', run, '--replay-checker', code=2)
+                    self.assertEqual(result['status'], 'invalid_input')
+                    self.assertIn('local auto/reversing artifact run', result['reason'])
 
     def test_layered_chain_through_public_cli(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1118,6 +1154,119 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertEqual(osint['coverage']['OS01']['status'], 'ran')
             self.assertFalse(any(a['source_locator'].get('preview') for a in osint['artifacts']))
         self.assertEqual(source.read_bytes(), original)
+
+    @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
+    def test_checker_cli_requires_explicit_execution_and_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _, binary, hints = self.checker_fixture(root)
+            no_gate = self.run_cli('analyze', binary, '--category', 'reversing',
+                                   '--hints', hints, '--runs-root', root / 'runs',
+                                   '--budget', '45', code=3)
+            manifest = json.loads((Path(no_gate['run']) / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['REV07']['status'], 'skipped prerequisite')
+            self.assertFalse(any(job['adapter_id'] == 'checker' for job in manifest['jobs']))
+            self.assertFalse(any(f['state'] == 'validated_input' for f in manifest['findings']))
+            self.assertEqual(self.run_cli('analyze', binary, '--category', 'reversing',
+                                          '--hints', hints, '--replay-checker',
+                                          '--runs-root', root / 'other', code=2)['status'], 'invalid_input')
+            wrong_category = self.run_cli('analyze', binary, '--category', 'encoding',
+                                          '--hints', hints, '--execute-local', '--replay-checker',
+                                          '--runs-root', root / 'wrong-category', code=2)
+            self.assertIn('selected auto/reversing ELF', wrong_category['reason'])
+            text_source = root / 'plain.txt'
+            text_source.write_text('not an ELF')
+            wrong_source = self.run_cli('analyze', text_source, '--category', 'auto',
+                                        '--hints', hints, '--execute-local', '--replay-checker',
+                                        '--runs-root', root / 'wrong-source', code=2)
+            self.assertIn('selected auto/reversing ELF', wrong_source['reason'])
+            with self.assertRaisesRegex(core.InvalidInput, 'selected auto/reversing ELF'):
+                core.analyze(binary, category='encoding', hints_path=hints, execute_local=True,
+                             replay_checker=True, runs_root=root / 'direct-wrong')
+
+            run, _ = core.analyze(text_source, category='encoding', hints_path=hints,
+                                  execute_local=True, runs_root=root / 'direct-run', budget=5)
+            with self.assertRaisesRegex(core.InvalidInput, 'selected auto/reversing ELF'):
+                core.resume(run, hints_path=hints, replay_checker=True)
+
+    @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
+    def test_checker_rejects_source_changed_after_artifact_record_before_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, binary, hints = self.checker_fixture(root)
+            source.write_text(source.read_text().replace("== 'R'", "== 'X'"))
+            replacement = root / 'replacement'
+            subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(replacement),
+                            str(source)], check=True, capture_output=True)
+            original_job = core._checker_job
+
+            def replace_before_job(*args):
+                replacement.replace(binary)
+                return original_job(*args)
+
+            with patch.object(core, '_checker_job', side_effect=replace_before_job), \
+                 patch.object(checker, '_inspect_snapshot') as execute:
+                run, _ = core.analyze(binary, category='reversing', hints_path=hints,
+                                      runs_root=root / 'runs', execute_local=True,
+                                      replay_checker=True, budget=30)
+            execute.assert_not_called()
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'checker')
+            self.assertEqual(job['status'], 'failed')
+            self.assertIn('checker source changed', job['warning'])
+
+    @unittest.skipUnless(shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for REV07 solving')
+    def test_checker_cli_execution_gate_replay_and_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, binary, hints = self.checker_fixture(root)
+
+            result = self.run_cli('analyze', binary, '--category', 'reversing',
+                                  '--hints', hints, '--execute-local', '--runs-root',
+                                  root / 'runs', '--budget', '45', code=3)
+            run = Path(result['run'])
+            candidate = json.loads((run / 'manifest.json').read_text())
+            jobs = [job for job in candidate['jobs'] if job['adapter_id'] == 'checker']
+            self.assertEqual(len(jobs), 1)
+            report = json.loads(Path(jobs[0]['report_path']).read_text())
+            self.assertEqual(report['status'], 'candidate', report)
+            self.assertEqual(bytes.fromhex(report['candidate_hex']), b'R7')
+            self.assertFalse(report['replay']['attempted'])
+            self.assertTrue(any(f['state'] == 'candidate' and f['job_id'] == jobs[0]['id']
+                                for f in candidate['findings']))
+            self.assertFalse(any(f['state'] == 'validated_input' for f in candidate['findings']))
+
+            self.run_cli('resume', run, '--hints', hints, '--replay-checker',
+                         '--budget', '45', code=3)
+            replayed = json.loads((run / 'manifest.json').read_text())
+            replay_jobs = [job for job in replayed['jobs'] if job['adapter_id'] == 'checker'
+                           and job.get('replay_requested')]
+            self.assertEqual(len(replay_jobs), 1)
+            replay_report = json.loads(Path(replay_jobs[0]['report_path']).read_text())
+            self.assertEqual(replay_report['status'], 'validated_input', replay_report)
+            self.assertEqual(replay_report['replay']['returncode'], 0)
+            self.assertTrue(any(f['state'] == 'validated_input' and f['current']
+                                for f in replayed['findings']))
+            self.assertFalse(any(f['state'] == 'challenge_accepted'
+                                 for f in replayed['findings']))
+            before = len(replayed['jobs'])
+            self.run_cli('resume', run, '--hints', hints, '--budget', '45', code=3)
+            after = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len(after['jobs']), before)
+            self.assertTrue(any(f['state'] == 'validated_input' and f['current']
+                                for f in after['findings']))
+
+            source.write_text(source.read_text().replace("== 'R'", "== 'X'"))
+            subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
+                           check=True, capture_output=True)
+            self.run_cli('resume', run, '--hints', hints, '--budget', '45', code=3)
+            changed = json.loads((run / 'manifest.json').read_text())
+            self.assertFalse(any(f['state'] == 'validated_input' and f['current']
+                                 for f in changed['findings']))
+            self.assertTrue(any(f['state'] == 'candidate' and f['current'] and
+                                f['evidence'].endswith(b'X7'.hex())
+                                for f in changed['findings']))
 
     def test_missing_exiftool_does_not_truncate_completed_channel_views(self):
         with tempfile.TemporaryDirectory() as directory:

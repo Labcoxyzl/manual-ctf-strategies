@@ -1,4 +1,5 @@
 import json
+import mmap
 import os
 import subprocess
 import sys
@@ -11,6 +12,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from autosolve_lib import setup as capabilities
+from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
@@ -41,7 +43,9 @@ class SetupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as empty_dir:
             with mock.patch.dict(os.environ, {"AUTOSOLVE_FILE": "/fake/file"}), \
                  mock.patch.object(capabilities.shutil, "which", return_value="/fake/file") as which, \
-                 mock.patch.object(capabilities.subprocess, "run", side_effect=run):
+                 mock.patch.object(capabilities.subprocess, "run", side_effect=run), \
+                 mock.patch.object(capabilities, "_checker_probe", return_value=(
+                     {"status": "partial"}, {"status": "partial"})):
                 original_cwd = os.getcwd()
                 try:
                     os.chdir(empty_dir)
@@ -108,6 +112,50 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result['operations']['disk_memory.sqlite']['functional_probe'], 'passed')
         self.assertEqual(result['operations']['disk_memory.disk_image']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['tsk']['status'], 'ready')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for the REV07 functional probe')
+    def test_checker_probe_solves_and_replays_temporary_elf(self):
+        result = capabilities.doctor(['reversing'], self_test=True)
+        operation = result['operations']['malware_reversing.checker']
+        self.assertTrue(operation['implemented'])
+        self.assertEqual(operation['functional_probe'], 'passed', operation)
+        self.assertEqual(operation['status'], 'ready', operation)
+        self.assertEqual(result['engines']['angr']['functional_probe'], 'passed')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'gcc and angr are needed for the REV07 diagnostic probe')
+    def test_checker_probe_reports_bounded_failure_cause(self):
+        from autosolve_lib.profiles import checker
+        timeout = {'status': 'timeout', 'reason': 'symbolic worker timed out',
+                   'replay': {'attempted': False}}
+        with mock.patch.object(checker, 'inspect_checker', return_value=(timeout, [])):
+            operation, _ = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'failed')
+        self.assertEqual(operation['probe_detail'], 'checker_timeout: symbolic worker timed out')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and ANGR_IMPORT_READY,
+                         'gcc and an importable angr are needed for the REV07 parent mapping probe')
+    def test_checker_probe_works_with_large_untouched_parent_mapping(self):
+        try:
+            mapping = mmap.mmap(-1, 3 * 1024**3,
+                                flags=mmap.MAP_PRIVATE | mmap.MAP_ANONYMOUS,
+                                prot=mmap.PROT_READ | mmap.PROT_WRITE)
+        except (OSError, ValueError) as error:
+            self.skipTest(f'untouched virtual mapping unavailable: {type(error).__name__}')
+        with mapping:
+            operation, _ = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'passed', operation)
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and not ANGR_IMPORT_READY and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'requires an installed but unimportable angr runtime')
+    def test_checker_probe_reports_unusable_installed_angr(self):
+        operation, engine = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'failed', operation)
+        self.assertIn('checker_incomplete:', operation.get('probe_detail', ''))
+        self.assertEqual(engine['status'], 'partial')
 
 
 if __name__ == "__main__":

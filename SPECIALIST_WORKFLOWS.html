@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="2344f431bca60dd0cd1ca8faa28aeb366eb4483453762703d6c6c01470e49167">
+  <meta name="source-sha256" content="1b95bc242bc2e1b77c1557ce4bb193aedaebfb402e09a8e9f03e51ff16e0d5bf">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -204,6 +204,18 @@ PYCODE
 <h2>Native crash: establish control before a payload</h2>
 <p>Confirm the executable format and architecture, then run the installed <code>checksec --file=./challenge</code> form for an ELF. Reproduce the supplied input path under GDB and compare one crashing input with a nearby noncrashing control. A cyclic pattern helps measure an offset only after the crash shows your bytes in a relevant control value; <code>cyclic_find</code> must use the same subsequence size and byte order as the generated pattern. Record the measured offset and the actual overwrite or leak. Search with ROPgadget only for a gadget required by that established primitive, and recheck its address against PIE/ASLR and the loaded build. The <a href="TEMPLATES.html#transport">plain TCP starter</a> is a transport scaffold, not proof of an exploit.</p>
 <p><strong>Check:</strong> State which input bytes controlled which runtime value, and which mitigation or unknown still blocks the next step. A protection listing or gadget address alone establishes neither exploitability nor success. <a href="https://raw.githubusercontent.com/slimm609/checksec/2.6.0/checksec">checksec 2.6.0</a> · <a href="https://docs.pwntools.com/en/stable/util/cyclic.html">pwntools cyclic</a> · <a href="https://github.com/JonathanSalwan/ROPgadget">ROPgadget</a>.</p>
+<p><a id="symbolic-elf-checker"></a></p>
+<h2>Linux ELF checker: bound the symbolic input</h2>
+<p>First identify one supplied Linux x86/x86-64 ELF and the path by which it reads the proposed answer. Use the <a href="index.html#route-native-checker">manual checker route</a> to establish a concrete argv or stdin length and a success string, failure string or verified branch address. Make a private hints file with only those observations. For a five-byte argv checker that prints <code>accepted</code> or <code>rejected</code>, an example model is:</p>
+<pre><code class="language-json">{&quot;checker&quot;:{&quot;channel&quot;:&quot;argv&quot;,&quot;length&quot;:5,&quot;find&quot;:{&quot;stdout&quot;:&quot;accepted&quot;},&quot;avoid&quot;:{&quot;stdout&quot;:&quot;rejected&quot;}}}
+</code></pre>
+<p>Replace these values for the actual checker. On an isolated analysis machine with angr installed, check <code>python3 scripts/autosolve.py doctor --profiles reversing --self-test</code> and inspect the <strong>checker</strong> operation and angr engine; the overall doctor result can be partial because of other tools. Then run:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py analyze ./checker --category reversing --hints ./checker.json --execute-local
+</code></pre>
+<p>This opts in to bounded symbolic search of one selected ELF; it does not run the binary concretely or establish an accepted challenge answer. The <a href="TOOLKIT.html#checker">toolkit command guide</a> lists limits and output meanings. If local execution is permitted, request a separate concrete replay only in an isolated environment:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py resume RUN_DIR --hints ./checker.json --replay-checker
+</code></pre>
+<p>The run must have started with <code>--execute-local</code>. Replay uses a private snapshot, a reduced environment and resource limits, but it is <strong>not a filesystem or network sandbox</strong>. For <code>validated_input</code>, the checker must exit zero and print one complete line exactly equal to the declared success marker; a substring such as <code>accepted</code> inside <code>not accepted</code> fails this check. A reached address remains a candidate. Compare one nearby rejected input using the original checker, and keep the executable, hints and reports private. If search is incomplete, times out or returns <code>unsat_under_model</code>, inspect the input model and branch evidence rather than claiming impossibility. <a href="https://docs.angr.io/en/latest/core-concepts/symbolic.html">angr symbolic execution</a> · <a href="https://docs.angr.io/en/latest/core-concepts/pathgroups.html">Simulation managers</a>.</p>
 <p><a id="reverse-android"></a></p>
 <h2>APK or DEX: trace the validation path</h2>
 <p>For an APK, use its manifest and resources in JADX to identify the screen or entry point. For a raw DEX, start from the class tree and strings because there is no APK manifest. Search for a prompt or success string and follow usages into the input check. Write the actual value flow: input source, transforms, comparisons and success branch. JADX can leave incomplete or incorrect Java output; inspect the related bytecode/smali or another view when a branch or type does not make sense. Avoid installing an unknown APK merely to learn its format.</p>

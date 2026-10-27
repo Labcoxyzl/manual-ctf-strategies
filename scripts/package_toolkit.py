@@ -87,6 +87,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/autosolve_lib/profiles/sstv.py', 'tests/test_autosolve_sstv.py',
         'scripts/autosolve_lib/profiles/elf.py', 'tests/test_autosolve_elf.py',
         'scripts/autosolve_lib/profiles/binary_static.py', 'tests/test_autosolve_binary_static.py',
+        'scripts/autosolve_lib/profiles/checker.py', 'tests/test_autosolve_checker.py',
         'scripts/autosolve_lib/profiles/service_transport.py', 'tests/test_autosolve_service_transport.py',
         'tests/test_autosolve_service_cli.py',
         'scripts/autosolve_lib/profiles/service_inventory.py', 'tests/test_autosolve_service_inventory.py',
@@ -164,7 +165,9 @@ python3 scripts/autosolve.py --help
 ```
 
 `autosolve.py` supports bounded local encoding and declared crypto, selected
-archive/document/media and offline packet inspection, and static binary leads.
+archive/document/media and offline packet inspection, static binary leads,
+and an opt-in bounded checker search. Run executable checkers only inside an
+isolated analysis environment; the runner's resource limits are not a sandbox.
 Its explicit-origin chatbot, web and service commands may contact assigned
 endpoints. `setup` installs a hash-pinned core into an isolated environment when
 network access is available; `doctor` reports missing native tools. `ai_model.py`
@@ -343,7 +346,7 @@ def validate_export(files, originals):
     index = pages['index.html']
     canonical = {f'windows-{number}' for number in range(1, 40)} | {f'kali-{number}' for number in range(1, 162)}
     if (len(index.tools) != 200 or len(set(index.tools)) != 200
-            or index.routes != 44 or index.categories != 7):
+            or index.routes != 45 or index.categories != 7):
         raise ValueError('Public guide lost approved tools, categories or routes')
     if set(index.tools) != canonical:
         raise ValueError('Public guide changed canonical inventory identities')

@@ -21,10 +21,14 @@ def main(argv=None):
     analyze.add_argument('--hints')
     analyze.add_argument('--runs-root', help='directory for private run records')
     analyze.add_argument('--execute-local', action='store_true', help='permit supported local execution adapters')
+    analyze.add_argument('--replay-checker', action='store_true',
+                         help='also run a concrete checker replay after symbolic search')
     resume = commands.add_parser('resume', help='resume a recorded run')
     resume.add_argument('run')
     resume.add_argument('--budget', type=float, default=300)
     resume.add_argument('--hints')
+    resume.add_argument('--replay-checker', action='store_true',
+                        help='explicitly run checker replay on this resume')
     resume.add_argument('--protocol', help='chatbot protocol file, if its original path moved')
     resume.add_argument('--max-requests', type=int, help='raise chatbot request ceiling on resume')
     resume.add_argument('--max-prompts', type=int, help='raise chatbot prompt ceiling on resume')
@@ -93,10 +97,14 @@ def main(argv=None):
         if args.command == 'analyze':
             run, status = core.analyze(args.path, category=args.category, budget=args.budget,
                                        hints_path=args.hints, runs_root=args.runs_root,
-                                       execute_local=args.execute_local)
+                                       execute_local=args.execute_local,
+                                       replay_checker=args.replay_checker)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3 if status == 'partial' else 0
         elif args.command == 'resume':
+            if args.replay_checker and (manifest.get('run_type') is not None or
+                                        manifest.get('category') not in ('auto', 'malware_reversing')):
+                raise core.InvalidInput('--replay-checker requires a local auto/reversing artifact run')
             if manifest.get('category') == 'ai_chatbot':
                 from autosolve_lib.profiles import chatbot as chatbot_module
                 run, status = chatbot_module.resume(args.run, budget=args.budget,
@@ -114,7 +122,8 @@ def main(argv=None):
                 from autosolve_lib import web as web_module
                 run, status = web_module.resume(args.run)
             else:
-                run, status = core.resume(args.run, budget=args.budget, hints_path=args.hints)
+                run, status = core.resume(args.run, budget=args.budget, hints_path=args.hints,
+                                          replay_checker=args.replay_checker)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3 if status == 'partial' else 0
         elif args.command == 'report':

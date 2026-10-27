@@ -26,6 +26,28 @@ python3 scripts/autosolve.py setup --profiles all
 .autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 ```
 
+<a id="checker"></a>
+### Bounded Linux ELF checker search
+
+For one selected Linux x86 ELF checker, put its input model in a private hints
+file, for example `{"checker":{"channel":"argv","length":5,"find":{"stdout":"accepted"},"avoid":{"stdout":"rejected"}}}`.
+Use an interpreter where angr is installed and replace these values with
+evidence from the actual checker:
+
+```sh
+python3 scripts/autosolve.py analyze ./checker --category reversing --hints ./checker.json --execute-local
+```
+
+The bounded symbolic search reports a candidate; it does not run the binary
+concretely. Add `--replay-checker` to that command or run `python3 scripts/autosolve.py resume RUN_DIR --hints ./checker.json --replay-checker`
+for a separate concrete replay. Replay requires a run started with
+`--execute-local` and is never implicit on resume. Use an isolated analysis
+environment for untrusted executables: memory, CPU and output limits are
+resource bounds, not a security sandbox. Only a zero exit code plus one output
+line exactly equal to the declared stdout marker produces `validated_input`;
+address-only conditions remain candidates. Neither result establishes challenge acceptance. See the
+[checker workflow](../SPECIALIST_WORKFLOWS.html#symbolic-elf-checker).
+
 For an assigned service, `service --host HOST --port PORT --protocol private.json`
 runs only the protocol's explicit hex writes and delimiter, length, or exact
 byte reads. A protocol can contain `{"steps":[{"read":{"delimiter_hex":"0a"}},

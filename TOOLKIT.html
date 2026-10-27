@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="d7316f632d5959106b7d88d91ef48596c885f48206bd174461f37c41f5ea8c96">
+  <meta name="source-sha256" content="f81719cc8a4da17e90e895967a1b1c237e924f68058ac4482f4ceadd1cc74f48">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -64,6 +64,23 @@ challenge accepted an answer.</p>
 .autosolve/envs/core/bin/python scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
 .autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 </code></pre>
+<p><a id="checker"></a></p>
+<h3>Bounded Linux ELF checker search</h3>
+<p>For one selected Linux x86 ELF checker, put its input model in a private hints
+file, for example <code>{&quot;checker&quot;:{&quot;channel&quot;:&quot;argv&quot;,&quot;length&quot;:5,&quot;find&quot;:{&quot;stdout&quot;:&quot;accepted&quot;},&quot;avoid&quot;:{&quot;stdout&quot;:&quot;rejected&quot;}}}</code>.
+Use an interpreter where angr is installed and replace these values with
+evidence from the actual checker:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py analyze ./checker --category reversing --hints ./checker.json --execute-local
+</code></pre>
+<p>The bounded symbolic search reports a candidate; it does not run the binary
+concretely. Add <code>--replay-checker</code> to that command or run <code>python3 scripts/autosolve.py resume RUN_DIR --hints ./checker.json --replay-checker</code>
+for a separate concrete replay. Replay requires a run started with
+<code>--execute-local</code> and is never implicit on resume. Use an isolated analysis
+environment for untrusted executables: memory, CPU and output limits are
+resource bounds, not a security sandbox. Only a zero exit code plus one output
+line exactly equal to the declared stdout marker produces <code>validated_input</code>;
+address-only conditions remain candidates. Neither result establishes challenge acceptance. See the
+<a href="SPECIALIST_WORKFLOWS.html#symbolic-elf-checker">checker workflow</a>.</p>
 <p>For an assigned service, <code>service --host HOST --port PORT --protocol private.json</code>
 runs only the protocol's explicit hex writes and delimiter, length, or exact
 byte reads. A protocol can contain <code>{&quot;steps&quot;:[{&quot;read&quot;:{&quot;delimiter_hex&quot;:&quot;0a&quot;}}, {&quot;write_hex&quot;:&quot;4869&quot;}]}</code> and optional TLS settings; the endpoint comes from

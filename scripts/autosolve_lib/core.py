@@ -148,6 +148,12 @@ def load_hints(path):
     _rsa_parameters(hints, path)
     _symmetric_parameters(hints)
     _hash_parameters(hints)
+    if 'checker' in hints:
+        from .profiles.checker import _hints as checker_hints
+        try:
+            checker_hints(hints['checker'])
+        except ValueError as error:
+            raise InvalidInput(str(error)) from error
     return hints, hashlib.sha256(raw).hexdigest()
 
 
@@ -529,6 +535,9 @@ def _refresh_current(manifest, source_ids):
                 (job['adapter_id'] != 'web-static' or
                  job.get('data_fingerprints', {}).get('scope_origin') ==
                  manifest.get('web_scope_origin')) and
+                (job['adapter_id'] != 'checker' or
+                 job.get('data_fingerprints', {}).get('checker_hints') ==
+                 manifest.get('checker_hints_sha256')) and
                 (job['adapter_id'] != 'osint-snapshots' or
                  (all(source_id in current for source_id in job['input_ids']) and
                   job.get('data_fingerprints', {}).get('scope_origin') ==
@@ -3385,6 +3394,95 @@ def _elf_job(run, manifest, artifact, deadline):
     coverage['note'] = 'static x86 ELF protections, defined symbols and short gadget leads; runtime base unknown'
 
 
+def _checker_job(run, manifest, artifact, hints, replay, deadline):
+    coverage = manifest['coverage']['REV07']
+    if not manifest['execute_local']:
+        coverage['status'] = 'skipped prerequisite'
+        coverage['note'] = 'symbolic checker execution requires --execute-local'
+        return
+    if time.monotonic() >= deadline:
+        coverage['status'] = 'truncated'
+        coverage['note'] = 'REV07 was not scheduled before the work budget ended'
+        return
+    from .profiles.checker import inspect_checker
+    fingerprint = manifest['current_adapter_fingerprints']['checker'][0]
+    hint_hash = manifest['checker_hints_sha256']
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:checker.v1:"
+                          f'{fingerprint}:{hint_hash}:replay={replay}'.encode()).hexdigest()
+    old = next((job for job in manifest['jobs'] if job['key'] == key and
+                job['status'] == 'complete'), None)
+    if old:
+        output = Path(old.get('report_path', ''))
+        try:
+            valid = (output.is_file() and not output.is_symlink() and
+                     _hash(output, deadline) == old.get('report_sha256'))
+        except OSError:
+            valid = False
+        if not valid:
+            old['status'] = 'invalidated'
+            old = None
+    if old:
+        coverage['status'] = old['coverage_status']
+        coverage['note'] = old['coverage_note']
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'checker',
+           'input_ids': [artifact['id']],
+           'operation': 'bounded symbolic checker search and optional concrete replay',
+           'tool_fingerprint': fingerprint,
+           'data_fingerprints': {'checker_hints': hint_hash}, 'cwd': str(run),
+           'limits': {'source_bytes': 8 * 1024 * 1024, 'input_bytes': 64,
+                      'time_seconds': 20, 'steps': 5000},
+           'replay_requested': replay, 'status': 'running', 'started': time.time()}
+    manifest['jobs'].append(job)
+    _write_json(run / 'manifest.json', manifest)
+    try:
+        report, warnings = inspect_checker(
+            Path(artifact['path']), hints, execute_local=True, replay=replay,
+            timeout=min(20, max(.01, deadline - time.monotonic() - 1)),
+            expected_sha256=artifact['sha256'])
+        if report['source_sha256'] != artifact['sha256']:
+            raise RuntimeError('checker source changed before report publication')
+        output = run / 'jobs' / f"{job['id']}.checker.json"
+        _write_json(output, report)
+        job['report_path'] = str(output)
+        job['report_sha256'] = _hash(output, deadline)
+        if job['report_sha256'] is None:
+            raise RuntimeError('checker report identity incomplete before work budget ended')
+        outcome = report['status']
+        coverage_status = ('ran' if outcome in ('candidate', 'validated_input') else
+                           'no finding' if outcome == 'unsat_under_model' else
+                           'skipped prerequisite' if outcome == 'skipped_prerequisite' or
+                           outcome == 'incomplete' and report.get('reason', '').startswith('ModuleNotFoundError:')
+                           else 'truncated')
+        job['coverage_status'] = coverage_status
+        job['coverage_note'] = f"{outcome}: {report.get('reason', 'bounded checker model')}"
+        coverage['status'] = coverage_status
+        coverage['note'] = job['coverage_note']
+        if outcome in ('candidate', 'validated_input'):
+            manifest['findings'].append({
+                'state': 'validated_input' if outcome == 'validated_input' else 'candidate',
+                'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
+                'source_locator': {'checker_input_channel': report['checker']['channel'],
+                                   'found_address': report.get('found_address')},
+                'evidence': f"REV07 checker input hex {report['candidate_hex']}",
+                'operation': 'bounded symbolic checker search' +
+                             (' and successful concrete replay' if outcome == 'validated_input' else ''),
+                'next_action': ('Challenge acceptance remains unverified.' if outcome == 'validated_input'
+                                else 'Replay explicitly against the checker to validate the modeled input.')})
+        job['warnings'] = warnings[:100]
+        manifest['warnings'].extend(warnings[:100])
+        job['status'] = 'complete'
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'[:300]
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV07 checker inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV07 job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
 def _binary_job(run, manifest, artifact, deadline):
     coverage = manifest['coverage']['REV01']
     kind = artifact['kind_evidence']
@@ -4937,6 +5035,11 @@ def _current_adapter_fingerprints(deadline):
     multimon_hash = executable_hash(shutil.which(tones.MULTIMON) or tones.MULTIMON)
     sstv_hash = module_hash('sstv')
     sstv_tool_hash = executable_hash(shutil.which(sstv.SSTV) or sstv.SSTV)
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+        angr_version = version('angr')
+    except PackageNotFoundError:
+        angr_version = None
     return {
         'encoding': [module_hash('encoding')],
         'xor-one': [module_hash('xor')],
@@ -4976,6 +5079,8 @@ def _current_adapter_fingerprints(deadline):
             f'{packet_tls_hash}:{packet_object_hash}:{executable_hash(packet_tls.TSHARK)}'.encode()).hexdigest()],
         'elf': [_elf_fingerprint()],
         'binary-static': [_binary_fingerprint()],
+        'checker': [hashlib.sha256(
+            f"{module_hash('checker')}:{angr_version}".encode()).hexdigest()],
         'osint-ids': [module_hash('osint_ids')],
         'image-metadata': [hashlib.sha256(f'{image_hash}:{exif_hash}:views={mode}'.encode()).hexdigest()
                            for mode in (False, True)],
@@ -5047,7 +5152,7 @@ def _render_report(run, manifest):
     _write_text(run / 'report.md', '\n'.join(lines) + '\n')
 
 
-def _execute(run, manifest, budget, hints, hint_hash, hints_path):
+def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker=False):
     from .profiles.encoding import decode
     from .profiles.xor import recover_repeating_key, recover_single_byte
     from .profiles.documents import extract_zip
@@ -5065,7 +5170,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     manifest['warnings'] = []
     _upgrade_lineage(manifest)
     manifest['coverage'] = _coverage(manifest['category'])
-    if manifest['execute_local']:
+    if manifest['execute_local'] and 'checker' not in hints:
         manifest['warnings'].append('local execution requested but no execution adapter is implemented')
     manifest['budget_seconds'] = budget
     manifest['hint_sha256'] = hint_hash
@@ -5077,6 +5182,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     manifest['web_scope_origin'] = hints.get('scope_origin')
     manifest['rsa_parameters_sha256'] = rsa_hash
     manifest['symmetric_parameters_sha256'] = symmetric_hash
+    manifest['checker_hints_sha256'] = (hashlib.sha256(
+        json.dumps(hints['checker'], sort_keys=True).encode()).hexdigest()
+        if 'checker' in hints else None)
     tls_keylog = None
     tls_keylog_hash = None
     if 'tls_keylog' in hints:
@@ -5542,6 +5650,13 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
         if artifact['kind_evidence'] in ('elf', 'pe') and (pwn_selected or reversing_selected):
             if artifact['kind_evidence'] == 'elf' and pwn_selected:
                 _elf_job(run, manifest, artifact, deadline)
+            if (reversing_selected and artifact['kind_evidence'] == 'elf' and depth == 0
+                    and Path(manifest['input_path']).is_file()):
+                if 'checker' in hints:
+                    _checker_job(run, manifest, artifact, hints['checker'], replay_checker, deadline)
+                else:
+                    manifest['coverage']['REV07']['status'] = 'skipped prerequisite'
+                    manifest['coverage']['REV07']['note'] = 'selected checker hints are required'
             if reversing_selected and time.monotonic() < deadline:
                 _binary_job(run, manifest, artifact, deadline)
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
@@ -5781,7 +5896,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     return manifest['status']
 
 
-def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path):
+def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker=False):
     if run.is_symlink():
         raise InvalidInput('run directory must not be a symlink')
     run.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -5796,19 +5911,36 @@ def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path):
                 job['status'] = 'interrupted'
         _remember_private_hints(manifest, hints_path, hints)
         _write_json(run / 'manifest.json', manifest)
-        return _execute(run, manifest, budget, hints, hint_hash, hints_path)
+        return _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     finally:
         os.close(lock)
 
 
-def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=None, execute_local=False):
+def _check_replay_target(category, path):
+    if category not in ('auto', 'malware_reversing') or not isinstance(path, str):
+        raise InvalidInput('--replay-checker requires one selected auto/reversing ELF file')
+    try:
+        if not Path(path).is_file() or _kind(path) != 'elf':
+            raise InvalidInput('--replay-checker requires one selected auto/reversing ELF file')
+    except OSError as error:
+        raise InvalidInput('--replay-checker requires one selected auto/reversing ELF file') from error
+
+
+def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=None,
+            execute_local=False, replay_checker=False):
     category = category_name(category)
     if not 0 < budget <= 3600:
         raise InvalidInput('budget must be between 0 and 3600 seconds')
+    if replay_checker and not execute_local:
+        raise InvalidInput('--replay-checker requires --execute-local')
+    if replay_checker:
+        _check_replay_target(category, str(path))
     root = Path(runs_root) if runs_root else ROOT / '.autosolve' / 'runs'
     if Path(path).absolute().is_dir() and Path(path).absolute() == root.absolute():
         raise InvalidInput('runs root must differ from the analyzed directory')
     hints, hint_hash = load_hints(hints_path)
+    if replay_checker and 'checker' not in hints:
+        raise InvalidInput('--replay-checker requires checker hints')
     _passwords(hints, hints_path)
     _hash_wordlist(hints, hints_path)
     _sources(path, exclude=root, excluded_files=_private_paths(hints_path, hints))
@@ -5819,11 +5951,11 @@ def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=Non
                 'created': time.time(), 'status': 'new', 'artifacts': [], 'jobs': [],
                 'findings': [], 'intelligence': [], 'coverage': _coverage(category), 'derived_bytes': 0,
                 'warnings': []}
-    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path)
+    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     return run, status
 
 
-def resume(run_path, *, budget=300, hints_path=None):
+def resume(run_path, *, budget=300, hints_path=None, replay_checker=False):
     run = Path(run_path).absolute()
     if run.is_symlink():
         raise InvalidInput('run directory must not be a symlink')
@@ -5837,12 +5969,18 @@ def resume(run_path, *, budget=300, hints_path=None):
         raise InvalidInput('older run lacks private hint exclusions; start a new analysis run')
     if not 0 < budget <= 3600:
         raise InvalidInput('budget must be between 0 and 3600 seconds')
+    if replay_checker and not manifest.get('execute_local'):
+        raise InvalidInput('--replay-checker requires a run started with --execute-local')
+    if replay_checker:
+        _check_replay_target(manifest.get('category'), manifest.get('input_path'))
     hints, hint_hash = load_hints(hints_path)
+    if replay_checker and 'checker' not in hints:
+        raise InvalidInput('--replay-checker requires checker hints')
     _passwords(hints, hints_path)
     _hash_wordlist(hints, hints_path)
     if hint_hash is None and manifest.get('hint_sha256') is not None:
         raise InvalidInput('resume requires the prior hints file or a replacement')
-    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path)
+    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     return run, status
 
 
@@ -5868,7 +6006,7 @@ def capabilities(category='auto'):
                    'AV01', 'AV02', 'AV03', 'AV04', 'AV06',
                    'OS01', 'OS02', 'OS03', 'CAN01', 'CAN02', 'NET01', 'NET02', 'NET03', 'NET05',
                    'DF01', 'DF02', 'DF03', 'DF04', 'DF05',
-                   'PWN01', 'PWN02', 'PWN07', 'WEB01', 'WEB02', 'WEB03', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
+                   'PWN01', 'PWN02', 'PWN07', 'REV07', 'WEB01', 'WEB02', 'WEB03', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
     return [{'id': row['id'], 'domain': row['domain'], 'stage': row['delivery_stage'],
              'status': 'partial' if row['id'] in implemented
              else 'not implemented'} for row in CATALOG
