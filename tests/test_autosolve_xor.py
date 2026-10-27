@@ -1,7 +1,8 @@
 import random
 import unittest
 
-from scripts.autosolve_lib.profiles.xor import recover_repeating_key, recover_single_byte
+from scripts.autosolve_lib.profiles.xor import (recover_repeating_crib,
+                                               recover_repeating_key, recover_single_byte)
 
 
 class XorTests(unittest.TestCase):
@@ -27,6 +28,40 @@ class XorTests(unittest.TestCase):
         rotated_key = key[start:] + key[:start]
         self.assertTrue(any(row["data"] == plaintext[start:] and
                             row["key_hex"] == rotated_key.hex() for row in candidates))
+
+    def test_repeating_key_retains_frequency_candidate_with_binary_edges(self):
+        key = b"BLUE-CABLE!"
+        phase = 7
+        plaintext = (bytes(range(32)) +
+                     b"The message is in the file and the key is in the data. " * 12 +
+                     bytes(range(255, 223, -1)))
+        ciphertext = bytes(byte ^ key[(index + phase) % len(key)]
+                           for index, byte in enumerate(plaintext))
+        candidates = recover_repeating_key(ciphertext)
+        self.assertTrue(any(row["data"] == plaintext and
+                            row["key_hex"] == (key[phase:] + key[:phase]).hex()
+                            for row in candidates))
+
+    def test_literal_crib_recovers_binary_plaintext_without_validation_claim(self):
+        key = b'BLUE-CABLE!'
+        phase = 7
+        crib = b'KNOWN-CONTAINER!'
+        plaintext = bytearray(bytes(range(256)) * 4)
+        plaintext[37:37 + len(crib)] = crib
+        ciphertext = bytes(byte ^ key[(index + phase) % len(key)]
+                           for index, byte in enumerate(plaintext))
+        self.assertEqual(recover_repeating_key(ciphertext), [])
+        candidates = recover_repeating_crib(ciphertext, crib)
+        exact = [row for row in candidates if row['data'] == bytes(plaintext)]
+        self.assertEqual(len(exact), 1)
+        self.assertEqual(exact[0]['key_hex'], (key[phase:] + key[:phase]).hex())
+        self.assertEqual(exact[0]['crib_offset'], 37)
+        self.assertEqual(exact[0]['crib_key_phase'], 37 % len(key))
+        self.assertEqual(exact[0]['state'], 'candidate')
+        self.assertEqual(recover_repeating_crib(ciphertext, b'WRONG-CONTAINER!'), [])
+        rng = random.Random(2027)
+        otp = bytes(byte ^ rng.randrange(256) for byte in plaintext)
+        self.assertEqual(recover_repeating_crib(otp, crib), [])
 
     def test_repeating_key_random_stream_has_no_english_claim(self):
         rng = random.Random(2026)

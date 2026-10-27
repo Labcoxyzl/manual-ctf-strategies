@@ -70,28 +70,92 @@ def recover_repeating_key(data: bytes, *, max_key_bytes: int = 16,
     candidates = []
     seen = set()
     for length in range(2, min(16, max_key_bytes, len(sample) // 12) + 1):
-        key = bytes(max(range(256), key=lambda guess: sum(_BYTE_SCORE[byte ^ guess]
-                           for byte in sample[offset::length])) for offset in range(length))
-        if any(key == key[:period] * (length // period)
-               for period in range(1, length) if length % period == 0):
-            continue
-        if key in seen:
-            continue
-        seen.add(key)
-        recovered = bytes(byte ^ key[index % length] for index, byte in enumerate(data))
-        printable = sum(byte in (9, 10, 13) or 32 <= byte <= 126 for byte in recovered)
-        words = [match.group().lower() for match in _WORDS.finditer(recovered)]
-        common = sum(word in _COMMON_WORDS for word in words)
-        if printable / len(data) < 0.85 or common < max(3, len(data) // 48):
-            continue
-        candidates.append({
-            "data": recovered,
-            "key_hex": key.hex(),
-            "key_length": length,
-            "score": round(common * 10 + printable / len(data), 4),
-            "rationale": f"{printable}/{len(data)} printable bytes; {common} common English words; "
-                         f"{length}-byte repeating key inferred by character frequency",
-            "state": "candidate",
-        })
+        ranked = [sorted(range(256), key=lambda guess: sum(_BYTE_SCORE[byte ^ guess]
+                          for byte in sample[offset::length]), reverse=True)[:3]
+                  for offset in range(length)]
+        initial = bytes(options[0] for options in ranked)
+
+        def word_score(key):
+            decoded = bytes(byte ^ key[index % length] for index, byte in enumerate(sample))
+            common = sum(match.group().lower() in _COMMON_WORDS
+                         for match in _WORDS.finditer(decoded))
+            printable = sum(32 <= byte <= 126 for byte in decoded)
+            return common, printable, sum(_BYTE_SCORE[byte] for byte in decoded)
+
+        refined = initial
+        for _ in range(2):
+            for offset, options in enumerate(ranked):
+                refined = max((refined[:offset] + bytes((guess,)) + refined[offset + 1:]
+                               for guess in options), key=word_score)
+        for key in (initial, refined):
+            if any(key == key[:period] * (length // period)
+                   for period in range(1, length) if length % period == 0):
+                continue
+            if key in seen:
+                continue
+            seen.add(key)
+            recovered = bytes(byte ^ key[index % length] for index, byte in enumerate(data))
+            printable = sum(byte in (9, 10, 13) or 32 <= byte <= 126 for byte in recovered)
+            words = [match.group().lower() for match in _WORDS.finditer(recovered)]
+            common = sum(word in _COMMON_WORDS for word in words)
+            if printable / len(data) < 0.85 or common < max(3, len(data) // 48):
+                continue
+            candidates.append({
+                "data": recovered,
+                "key_hex": key.hex(),
+                "key_length": length,
+                "score": round(common * 10 + printable / len(data), 4),
+                "rationale": f"{printable}/{len(data)} printable bytes; {common} common English words; "
+                             f"{length}-byte repeating key inferred by character frequency "
+                             "and English word coherence",
+                "state": "candidate",
+            })
     candidates.sort(key=lambda candidate: (-candidate["score"], candidate["key_hex"]))
     return candidates[:min(max_candidates, 256)]
+
+
+def recover_repeating_crib(data: bytes, crib: bytes, *, max_key_bytes: int = 16,
+                           max_candidates: int = 8) -> list[dict]:
+    """Derive candidate keys from a literal crib with five repeated-key checks."""
+    if not isinstance(data, bytes) or not isinstance(crib, bytes):
+        raise TypeError("data and crib must be bytes")
+    if len(data) > _MAX_INPUT or len(crib) > 256:
+        raise ValueError("XOR crib search exceeds its input limit")
+    if len(crib) < 6 or len(data) < len(crib) or max_key_bytes < 1 or max_candidates <= 0:
+        return []
+
+    candidates = []
+    seen = set()
+    for length in range(1, min(16, max_key_bytes, len(crib) - 5) + 1):
+        differences = tuple(crib[index] ^ crib[index + length] for index in range(5))
+        for offset in range(len(data) - len(crib) + 1):
+            if data[offset] ^ data[offset + length] != differences[0]:
+                continue
+            if any(data[offset + index] ^ data[offset + index + length] != differences[index]
+                   for index in range(1, 5)):
+                continue
+            stream = bytes(data[offset + index] ^ crib[index] for index in range(length))
+            if any(data[offset + index] ^ crib[index] != stream[index % length]
+                   for index in range(length, len(crib))):
+                continue
+            key = bytes(stream[(index - offset) % length] for index in range(length))
+            if key in seen:
+                continue
+            seen.add(key)
+            recovered = bytes(byte ^ key[index % length] for index, byte in enumerate(data))
+            candidates.append({
+                "data": recovered,
+                "key_hex": key.hex(),
+                "key_length": length,
+                "crib_offset": offset,
+                "crib_key_phase": offset % length,
+                "score": len(crib) - length,
+                "rationale": f"literal {len(crib)}-byte crib matched at offset {offset}; "
+                             f"key index {offset % length} at crib offset; "
+                             f"{len(crib) - length} repeating-key bytes checked; "
+                             "full plaintext remains unverified",
+                "state": "candidate",
+            })
+            if len(candidates) >= max_candidates:
+                return candidates
+    return candidates

@@ -111,6 +111,13 @@ def load_hints(path):
     for key, value in hints.items():
         if key not in HINT_TYPES or not isinstance(value, HINT_TYPES[key]):
             raise InvalidInput(f'unknown or invalid hint: {key}')
+    if 'known_plaintext' in hints:
+        try:
+            crib_bytes = hints['known_plaintext'].encode('utf-8')
+        except UnicodeEncodeError as error:
+            raise InvalidInput('known_plaintext must be UTF-8 text') from error
+        if len(crib_bytes) > 256:
+            raise InvalidInput('known_plaintext exceeds 256 UTF-8 bytes')
     if 'scope_origin' in hints:
         from .profiles.web_static import _origin
         try:
@@ -155,6 +162,12 @@ def load_hints(path):
     _symmetric_parameters(hints)
     _hash_parameters(hints)
     _jwt_hints(hints, path)
+    if 'checker' in hints:
+        from .profiles.checker import _hints as checker_hints
+        try:
+            checker_hints(hints['checker'])
+        except ValueError as error:
+            raise InvalidInput(str(error)) from error
     return hints, hashlib.sha256(raw).hexdigest()
 
 
@@ -432,6 +445,8 @@ def _kind(path):
         pe_offset = int.from_bytes(head[0x3c:0x40], 'little')
         if pe_offset <= len(head) - 4 and head[pe_offset:pe_offset + 4] == b'PE\0\0':
             return 'pe'
+    if re.fullmatch(rb'dex\n0(?:3[5-9]|4[01])\x00', head[:8]):
+        return 'dex'
     signatures = ((b'PK\x03\x04', 'zip'), (b'\x1f\x8b', 'gzip'),
                   (b'\x89PNG\r\n\x1a\n', 'png'), (b'BM', 'bmp'), (b'%PDF-', 'pdf'),
                   (b'SQLite format 3\x00', 'sqlite'),
@@ -610,9 +625,15 @@ def _refresh_current(manifest, source_ids):
                 (job['adapter_id'] != 'jwt' or
                  job.get('data_fingerprints', {}).get('jwt_hints') ==
                  manifest.get('jwt_hints_sha256')) and
+                (job['adapter_id'] != 'xor-search' or
+                 job.get('data_fingerprints', {}).get('known_plaintext') ==
+                 manifest.get('xor_crib_sha256')) and
                 (job['adapter_id'] != 'rev-rules' or
                  job.get('data_fingerprints', {}).get('rule_hints') ==
                  manifest.get('rev_rules_identity')) and
+                (job['adapter_id'] != 'checker' or
+                 job.get('data_fingerprints', {}).get('checker_hints') ==
+                 manifest.get('checker_hints_sha256')) and
                 (job['adapter_id'] != 'osint-snapshots' or
                  (all(source_id in current for source_id in job['input_ids']) and
                   job.get('data_fingerprints', {}).get('scope_origin') ==
@@ -1471,6 +1492,37 @@ def _run_rev_strings(path, timeout):
         parent.close()
 
 
+def _rev_powershell_worker(path, timeout, pipe):
+    from .profiles.powershell import inspect_powershell
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+    try:
+        pipe.send(('ok', *inspect_powershell(path, timeout=timeout)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_rev_powershell(path, timeout):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_rev_powershell_worker, path, timeout, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + 1):
+            raise TimeoutError('REV11 static PowerShell inspection exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
 def _rev_rules_worker(path, paths, timeout, pipe):
     from .profiles.rev_rules import inspect_rules
     resource.setrlimit(resource.RLIMIT_CPU, (61, 61))
@@ -1493,6 +1545,114 @@ def _run_rev_rules(path, paths, timeout):
     try:
         if not parent.poll(2 * timeout + 5):
             raise TimeoutError('REV03 rule matching exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
+def _rev_packers_worker(path, staging, timeout, max_bytes, upx, binwalk, pipe):
+    from .profiles.rev_packers import inspect_packers
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
+    try:
+        pipe.send(('ok', *inspect_packers(path, staging, timeout=timeout,
+                                          max_derived_bytes=max_bytes,
+                                          upx_path=upx, binwalk_path=binwalk,
+                                          supervised=True)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_rev_packers(path, staging, timeout, max_bytes, upx, binwalk):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_rev_packers_worker, path, staging, timeout,
+                                           max_bytes, upx, binwalk, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + 1):
+            raise TimeoutError('REV04 packer inspection exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
+def _pyinstaller_worker(path, staging, max_members, max_bytes, pipe):
+    from .profiles.pyinstaller import inspect_pyinstaller
+    resource.setrlimit(resource.RLIMIT_CPU, (21, 21))
+    resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
+    try:
+        pipe.send(('ok', *inspect_pyinstaller(path, staging,
+                                             max_members=max_members,
+                                             max_total_bytes=max_bytes)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_pyinstaller(path, staging, max_members, max_bytes, timeout):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_pyinstaller_worker, path, staging,
+                                           max_members, max_bytes, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout):
+            raise TimeoutError('PyInstaller extraction exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
+def _java_android_worker(path, staging, timeout, max_parts, max_bytes, pipe):
+    from .profiles.java_android import inspect_java_android
+    resource.setrlimit(resource.RLIMIT_CPU, (21, 21))
+    resource.setrlimit(resource.RLIMIT_AS, (4 * 1024 * 1024 * 1024,
+                                           4 * 1024 * 1024 * 1024))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
+    try:
+        pipe.send(('ok', *inspect_java_android(path, staging, timeout=timeout,
+                                               max_parts=max_parts,
+                                               max_total_bytes=max_bytes,
+                                               supervised=True)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_java_android(path, staging, timeout, max_parts, max_bytes):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_java_android_worker, path, staging,
+                                           timeout, max_parts, max_bytes, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + 1):
+            raise TimeoutError('REV06 Java/Android inspection exceeded its time limit')
         result = parent.recv()
         if result[0] != 'ok':
             raise RuntimeError(result[1])
@@ -1817,11 +1977,11 @@ def _run_disk_recovery(path, staging, max_output, max_files, max_bytes, timeout)
 
 
 def _image_worker(path, max_output, pipe):
-    from .profiles.images import OutputLimit, extract_png_tail
+    from .profiles.images import OutputLimit, extract_image_tail
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
-    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+    resource.setrlimit(resource.RLIMIT_AS, (2 * 1024 * 1024 * 1024, 2 * 1024 * 1024 * 1024))
     try:
-        pipe.send(('ok', extract_png_tail(path, max_output)))
+        pipe.send(('ok', extract_image_tail(path, max_output)))
     except OutputLimit as error:
         pipe.send(('limit', str(error)))
     except Exception as error:
@@ -1838,7 +1998,7 @@ def _run_image(path, max_output, timeout):
     child.close()
     try:
         if not parent.poll(timeout):
-            raise TimeoutError('PNG inspection exceeded its time limit')
+            raise TimeoutError('image tail inspection exceeded its time limit')
         state, value = parent.recv()
         if state == 'limit':
             raise WorkLimit(value)
@@ -2112,7 +2272,8 @@ def _decode_worker(data, max_output, pipe):
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
     resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
     try:
-        pipe.send(('ok', decode(data, max_output)))
+        diagnostics = []
+        pipe.send(('ok', (decode(data, max_output, diagnostics), diagnostics)))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
@@ -2137,22 +2298,23 @@ def _run_decode(data, max_output, timeout):
         parent.close()
 
 
-def _xor_worker(data, pipe):
-    from .profiles.xor import recover_repeating_key, recover_single_byte
+def _xor_worker(data, crib, pipe):
+    from .profiles.xor import recover_repeating_crib, recover_repeating_key, recover_single_byte
     resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
     resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
     try:
-        pipe.send(('ok', recover_single_byte(data) + recover_repeating_key(data)))
+        pipe.send(('ok', recover_single_byte(data) + recover_repeating_key(data) +
+                   (recover_repeating_crib(data, crib) if crib else [])))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
         pipe.close()
 
 
-def _run_xor(data, timeout):
+def _run_xor(data, crib, timeout):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
-    worker = multiprocessing.Process(target=_worker_entry, args=(_xor_worker, data, child))
+    worker = multiprocessing.Process(target=_worker_entry, args=(_xor_worker, data, crib, child))
     worker.start()
     child.close()
     try:
@@ -2265,18 +2427,32 @@ def _coverage(category):
             for row in CATALOG if category == 'auto' or row['domain'] == category}
 
 
-def _mark_encoding_coverage(manifest, operations):
+def _mark_encoding_coverage(manifest, operations, diagnostics=(), artifact_id=None):
     produced = {'ENC02' if label.startswith(('gzip', 'zlib', 'bzip2', 'xz'))
                 else 'ENC03' if label == 'rot13' or label.startswith(
                     ('atbash ', 'caesar-shift:', 'affine-decrypt:')) else 'ENC01'
                 for label in operations}
     for family in ('ENC01', 'ENC02', 'ENC03'):
         if family in manifest['coverage']:
-            if family in produced:
+            if family in produced and manifest['coverage'][family]['status'] != 'truncated':
                 manifest['coverage'][family]['status'] = 'ran'
             elif manifest['coverage'][family]['status'] == 'not scheduled':
                 manifest['coverage'][family]['status'] = 'no finding'
-            manifest['coverage'][family]['note'] = 'finite stdlib transforms only'
+            if manifest['coverage'][family]['status'] != 'truncated':
+                manifest['coverage'][family]['note'] = 'finite stdlib transforms only'
+    for record in diagnostics:
+        if record['status'] == 'complete':
+            continue
+        kind, status = record['kind'], record['status']
+        members = len(record['members'])
+        detail = (f"{record['trailing_bytes']} trailing bytes after {members} complete member(s)"
+                  if status == 'trailing' else
+                  f"{status} stream after {members} complete member(s)"
+                  if status != 'limit' else f"limit: {record['limit_reason']}")
+        manifest['warnings'].append(f'{artifact_id}: {kind} {detail}')
+        if 'ENC02' in manifest['coverage']:
+            manifest['coverage']['ENC02']['status'] = 'truncated'
+            manifest['coverage']['ENC02']['note'] = f'{kind} {detail}'
 
 
 def _rsa_job(run, manifest, parameters, params_hash, deadline):
@@ -2857,7 +3033,7 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
         if previous != 'truncated':
             manifest['coverage']['IMG01']['status'] = ('ran' if tags_found or previous == 'ran' else
                                                         'truncated' if metadata_warnings else 'no finding')
-        manifest['coverage']['IMG01']['note'] = 'ExifTool tags and validated PNG tail only'
+        manifest['coverage']['IMG01']['note'] = 'ExifTool tags, image tails, and clear ZIP member CRCs'
     if 'IMG04' in manifest['coverage'] and make_views:
         manifest['coverage']['IMG04']['status'] = ('truncated' if view_warnings else
                                                    'ran' if views_found else 'no finding')
@@ -3229,12 +3405,22 @@ def _doc01_coverage(manifest, status):
     entry = manifest['coverage']['DOC01']
     if priority[status] > priority.get(entry['status'], 0):
         entry['status'] = status
-    entry['note'] = 'bounded safe ZIP and TAR regular members'
+    entry['note'] = 'bounded safe ZIP/TAR members and gzip containers'
 
 
 def _tar_job(run, manifest, artifact, deadline):
     from .profiles.tar import extract_tar
     path = Path(artifact['path'])
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor, 'rb') as source:
+            magic = source.read(6)
+    except OSError:
+        magic = b''
+    compression = ('gzip' if magic.startswith(b'\x1f\x8b') else
+                   'bzip2' if magic.startswith(b'BZh') else
+                   'xz' if magic.startswith(b'\xfd7zXZ\x00') else None)
+    compression_note = f' ({compression} container)' if compression else ''
     fingerprint = hashlib.sha256(Path(extract_tar.__code__.co_filename).read_bytes()).hexdigest()
     key = hashlib.sha256(f"{artifact['sha256']}:tar.v1:{fingerprint}".encode()).hexdigest()
     old = next((job for job in manifest['jobs']
@@ -3244,12 +3430,7 @@ def _tar_job(run, manifest, artifact, deadline):
         old['status'] = 'invalidated'
     if reusable is not None:
         for child in reusable:
-            operation = next((edge['operation'] for edge in child['parents']
-                              if edge.get('job_key') == key), f"tar member {child['source_locator']['member_index']}")
-            edge = {'id': artifact['id'], 'operation': operation, 'job_key': key}
-            if edge not in child['parents']:
-                child['parents'].append(edge)
-            child['current'] = True
+            _attach_reused_child(child, old, artifact)
         manifest['warnings'].extend(old.get('warnings', []))
         status = old.get('coverage_status', 'no finding')
         children = reusable
@@ -3275,7 +3456,7 @@ def _tar_job(run, manifest, artifact, deadline):
                 child = _store_staged(
                     run, manifest, artifact, record, deadline,
                     locator={'archive_member': record['member'], 'member_index': record['index']},
-                    operation=f"tar member {record['index']}", producer_key=key)
+                    operation=f"tar member {record['index']}{compression_note}", producer_key=key)
                 if child:
                     job['child_ids'].append(child['id'])
                     children.append(child)
@@ -3585,6 +3766,94 @@ def _elf_job(run, manifest, artifact, deadline):
     coverage['note'] = 'static x86 ELF protections, defined symbols and short gadget leads; runtime base unknown'
 
 
+def _checker_job(run, manifest, artifact, hints, replay, deadline):
+    coverage = manifest['coverage']['REV07']
+    if not manifest['execute_local']:
+        coverage['status'] = 'skipped prerequisite'
+        coverage['note'] = 'symbolic checker execution requires --execute-local'
+        return
+    if time.monotonic() >= deadline:
+        coverage['status'] = 'truncated'
+        coverage['note'] = 'REV07 was not scheduled before the work budget ended'
+        return
+    from .profiles.checker import inspect_checker
+    fingerprint = manifest['current_adapter_fingerprints']['checker'][0]
+    hint_hash = manifest['checker_hints_sha256']
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:checker.v1:"
+                          f'{fingerprint}:{hint_hash}:replay={replay}'.encode()).hexdigest()
+    old = next((job for job in manifest['jobs'] if job['key'] == key and
+                job['status'] == 'complete'), None)
+    if old:
+        output = Path(old.get('report_path', ''))
+        try:
+            valid = (output.is_file() and not output.is_symlink() and
+                     _hash(output, deadline) == old.get('report_sha256'))
+        except OSError:
+            valid = False
+        if not valid:
+            old['status'] = 'invalidated'
+            old = None
+    if old:
+        coverage['status'] = old['coverage_status']
+        coverage['note'] = old['coverage_note']
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'checker',
+           'input_ids': [artifact['id']],
+           'operation': 'bounded symbolic checker search and optional concrete replay',
+           'tool_fingerprint': fingerprint,
+           'data_fingerprints': {'checker_hints': hint_hash}, 'cwd': str(run),
+           'limits': {'source_bytes': 8 * 1024 * 1024, 'input_bytes': 64,
+                      'time_seconds': 20, 'steps': 5000},
+           'replay_requested': replay, 'status': 'running', 'started': time.time()}
+    manifest['jobs'].append(job)
+    _write_json(run / 'manifest.json', manifest)
+    try:
+        report, warnings = inspect_checker(
+            Path(artifact['path']), hints, execute_local=True, replay=replay,
+            timeout=min(20, max(.01, deadline - time.monotonic() - 1)))
+        if report['source_sha256'] != artifact['sha256']:
+            raise RuntimeError('checker source changed before report publication')
+        output = run / 'jobs' / f"{job['id']}.checker.json"
+        _write_json(output, report)
+        job['report_path'] = str(output)
+        job['report_sha256'] = _hash(output, deadline)
+        if job['report_sha256'] is None:
+            raise RuntimeError('checker report identity incomplete before work budget ended')
+        outcome = report['status']
+        coverage_status = ('ran' if outcome in ('candidate', 'validated_input') else
+                           'no finding' if outcome == 'unsat_under_model' else
+                           'skipped prerequisite' if outcome == 'skipped_prerequisite' or
+                           outcome == 'incomplete' and report.get('reason', '').startswith('ModuleNotFoundError:')
+                           else 'truncated')
+        job['coverage_status'] = coverage_status
+        job['coverage_note'] = f"{outcome}: {report.get('reason', 'bounded checker model')}"
+        coverage['status'] = coverage_status
+        coverage['note'] = job['coverage_note']
+        if outcome in ('candidate', 'validated_input'):
+            manifest['findings'].append({
+                'state': 'validated_input' if outcome == 'validated_input' else 'candidate',
+                'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
+                'source_locator': {'checker_input_channel': report['checker']['channel'],
+                                   'found_address': report.get('found_address')},
+                'evidence': f"REV07 checker input hex {report['candidate_hex']}",
+                'operation': 'bounded symbolic checker search' +
+                             (' and successful concrete replay' if outcome == 'validated_input' else ''),
+                'next_action': ('Challenge acceptance remains unverified.' if outcome == 'validated_input'
+                                else 'Replay explicitly against the checker to validate the modeled input.')})
+        job['warnings'] = warnings[:100]
+        manifest['warnings'].extend(warnings[:100])
+        job['status'] = 'complete'
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'[:300]
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV07 checker inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV07 job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
 def _binary_job(run, manifest, artifact, deadline):
     coverage = manifest['coverage']['REV01']
     kind = artifact['kind_evidence']
@@ -3788,6 +4057,106 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
     _write_json(run / 'manifest.json', manifest)
 
 
+def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
+    coverage = manifest['coverage']['REV11']
+    fingerprint = manifest['current_adapter_fingerprints']['rev-powershell'][0]
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:rev-powershell.v1:"
+                         f"{fingerprint}".encode()).hexdigest()
+    old = next((item for item in manifest['jobs'] if item['key'] == key and
+                item['status'] == 'complete'), None)
+    if old:
+        output = Path(old.get('records_path', ''))
+        try:
+            valid = (output.is_file() and not output.is_symlink() and
+                     _hash(output, deadline) == old.get('records_sha256'))
+        except OSError:
+            valid = False
+        reused = _reusable_children(manifest, old, deadline) if valid else None
+        if reused is None:
+            old['status'] = 'invalidated'
+            old = None
+    if old:
+        for child in reused:
+            _attach_reused_child(child, old, artifact)
+            queue.append((child, depth + 1))
+        if coverage['status'] in ('not scheduled', 'no finding') or old['coverage_status'] == 'truncated':
+            coverage['status'] = old['coverage_status']
+            coverage['note'] = old['coverage_note']
+        manifest['warnings'].extend(old.get('warnings', []))
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'rev-powershell',
+           'input_ids': [artifact['id']], 'operation': 'finite static PowerShell constants',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': 256 * 1024, 'output_bytes': 64 * 1024,
+                      'records': 64, 'depth': 2, 'time_seconds': 5},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    for item in manifest['intelligence']:
+        if item['artifact_id'] == artifact['id'] and item['tag'] == 'REV11 PowerShell candidate':
+            item['superseded'] = True
+    _write_json(run / 'manifest.json', manifest)
+    warnings = []
+    try:
+        records, warnings = _run_rev_powershell(
+            Path(artifact['path']), min(5, max(.01, deadline - time.monotonic() - 1)))
+        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            raise RuntimeError('PowerShell source changed before REV11 publication')
+        stored = [{**row, 'data_hex': row['data'].hex()} for row in records]
+        for row in stored:
+            del row['data']
+        output = run / 'jobs' / f"{job['id']}.rev-powershell.json"
+        _write_json(output, stored)
+        job['records_path'] = str(output)
+        job['records_sha256'] = _hash(output, deadline)
+        if job['records_sha256'] is None:
+            raise RuntimeError('REV11 record identity incomplete before work budget ended')
+        for record in records:
+            data = record['data']
+            locator = {**record['source_locator'],
+                       'transform_chain': record['transform_chain'],
+                       'candidate_state': 'candidate'}
+            child = _store_child(run, manifest, artifact, data,
+                                 f"REV11 {record['kind']} candidate", deadline,
+                                 source_locator=locator, producer_key=key)
+            if child:
+                if child['id'] not in job['child_ids']:
+                    job['child_ids'].append(child['id'])
+                    queue.append((child, depth + 1))
+            else:
+                warnings.append(f"REV11 {record['kind']} candidate artifact could not be stored")
+            try:
+                preview = data[:128].decode('utf-8')
+            except UnicodeDecodeError:
+                preview = data[:64].hex()
+            manifest['intelligence'].append({
+                'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
+                'tag': 'REV11 PowerShell candidate', 'group': record['kind'],
+                'value': preview,
+                'source_locator': {**locator, 'decoded_sha256': hashlib.sha256(data).hexdigest(),
+                                   'decoded_size': len(data),
+                                   'child_artifact_id': child['id'] if child else None},
+                'next_action': 'Verify this static candidate against the challenge oracle.'})
+        status = 'truncated' if warnings else 'ran' if records else 'no finding'
+        job['record_count'] = len(records)
+        job['coverage_status'] = status
+        job['coverage_note'] = 'literal PowerShell constants only; dynamic evaluation unsupported'
+        job['warnings'] = warnings[:100]
+        job['status'] = 'complete'
+        if coverage['status'] in ('not scheduled', 'no finding') or status == 'truncated':
+            coverage['status'] = status
+            coverage['note'] = job['coverage_note']
+        manifest['warnings'].extend(warnings[:100])
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV11 static inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV11 job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
 def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
     coverage = manifest['coverage']['REV03']
     fingerprint = manifest['current_adapter_fingerprints']['rev-rules'][0]
@@ -3874,6 +4243,294 @@ def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
         coverage['status'] = 'failed'
         coverage['note'] = 'REV03 rule matching failed; sample bytes remain available'
         manifest['warnings'].append(f"REV03 job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
+def _pyinstaller_job(run, manifest, artifact, deadline, queue, depth):
+    coverage = manifest['coverage']['REV05']
+    fingerprint = manifest['current_adapter_fingerprints']['pyinstaller'][0]
+    key = hashlib.sha256(
+        f"{artifact['id']}:{artifact['sha256']}:pyinstaller.v1:{fingerprint}".encode()).hexdigest()
+    old = next((item for item in manifest['jobs'] if item['key'] == key and
+                item['status'] == 'complete'), None)
+    reusable = _reusable_children(manifest, old, deadline) if old else None
+    if old and reusable is None:
+        old['status'] = 'invalidated'
+        old = None
+    if old:
+        for child in reusable:
+            _attach_reused_child(child, old, artifact)
+            queue.append((child, depth + 1))
+        if old['coverage_status'] != 'no finding' or coverage['status'] == 'not scheduled':
+            coverage['status'] = old['coverage_status']
+        coverage['note'] = old['coverage_note']
+        manifest['warnings'].extend(old.get('warnings', []))
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'pyinstaller',
+           'input_ids': [artifact['id']], 'operation': 'bounded PyInstaller archive extraction',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': 128 * 1024 * 1024, 'members': 64,
+                      'derived_bytes': 16 * 1024 * 1024, 'time_seconds': 15},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    _write_json(run / 'manifest.json', manifest)
+    staging = run / 'staging' / job['id']
+    try:
+        records, warnings = _run_pyinstaller(
+            Path(artifact['path']), staging,
+            min(64, MAX_ARTIFACTS - len(manifest['artifacts'])),
+            min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
+            min(15, max(.01, deadline - time.monotonic() - 1)))
+        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            raise RuntimeError('PyInstaller source changed before output publication')
+        for record in records:
+            locator = {'pyinstaller_kind': record['kind'],
+                       'member': record['member'][:256], 'index': record['index'],
+                       'offset': record['offset'],
+                       'compressed_size': record['compressed_size'],
+                       'python_version': record['python_version']}
+            for field in ('typecode', 'bytecode_magic', 'bytecode_inspection', 'carchive_index'):
+                if field in record:
+                    locator[field] = record[field]
+            child = _store_staged(run, manifest, artifact, record, deadline,
+                                  locator=locator,
+                                  operation=f"REV05 {record['kind']} {record['locator'][:256]}",
+                                  producer_key=key)
+            if child:
+                job['child_ids'].append(child['id'])
+                queue.append((child, depth + 1))
+            else:
+                warnings.append(f"REV05 member {record['index']} could not be stored")
+        status = ('truncated' if warnings else 'ran' if job['child_ids'] else 'no finding')
+        job['coverage_status'] = status
+        job['coverage_note'] = 'bounded CArchive/PYZ bytes and version; no execution or decompilation'
+        job['warnings'] = warnings[:100]
+        job['status'] = 'complete'
+        if status != 'no finding' or coverage['status'] == 'not scheduled':
+            coverage['status'] = status
+        coverage['note'] = job['coverage_note']
+        manifest['warnings'].extend(warnings[:100])
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV05 archive inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV05 job failed: {job['warning']}")
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
+def _java_android_job(run, manifest, artifact, deadline, queue, depth):
+    coverage = manifest['coverage']['REV06']
+    fingerprint = manifest['current_adapter_fingerprints']['java-android'][0]
+    key = hashlib.sha256(
+        f"{artifact['id']}:{artifact['sha256']}:java-android.v1:{fingerprint}".encode()).hexdigest()
+    old = next((item for item in manifest['jobs'] if item['key'] == key and
+                item['status'] == 'complete'), None)
+    reusable = _reusable_children(manifest, old, deadline) if old else None
+    if old and reusable is None:
+        old['status'] = 'invalidated'
+        old = None
+    if old:
+        for child in reusable:
+            _attach_reused_child(child, old, artifact)
+            locator = child.get('source_locator') or {}
+            member = locator.get('member') or ''
+            if locator.get('java_kind') not in ('class', 'dex') and not (
+                    member.startswith('lib/') and member.endswith('.so')):
+                queue.append((child, depth + 1))
+        if old['coverage_status'] != 'no finding' or coverage['status'] == 'not scheduled':
+            coverage['status'] = old['coverage_status']
+        coverage['note'] = old['coverage_note']
+        manifest['warnings'].extend(old.get('warnings', []))
+        return
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'java-android',
+           'input_ids': [artifact['id']],
+           'operation': 'bounded static Java/Android archive and bytecode triage',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': 64 * 1024 * 1024, 'parts': 64,
+                      'derived_bytes': 32 * 1024 * 1024, 'time_seconds': 20},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    for item in manifest['intelligence']:
+        if item['artifact_id'] == artifact['id'] and item['tag'] == 'REV06 DEX string lead':
+            item['superseded'] = True
+    _write_json(run / 'manifest.json', manifest)
+    staging = run / 'staging' / job['id']
+    try:
+        parts = min(64, MAX_ARTIFACTS - len(manifest['artifacts']))
+        remaining = min(32 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes'])
+        if parts <= 0 or remaining <= 0:
+            raise WorkLimit('REV06 artifact or derived byte limit reached')
+        records, warnings = _run_java_android(
+            Path(artifact['path']), staging,
+            min(20, max(.01, deadline - time.monotonic() - 1)), parts, remaining)
+        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            raise RuntimeError('REV06 source changed before output publication')
+        for record in records:
+            if record['source_sha256'] != artifact['sha256']:
+                raise RuntimeError('REV06 source hash mismatch')
+            locator = {'java_kind': record['kind'], **record['source_locator']}
+            if record['kind'] == 'dex_string':
+                child = _store_child(run, manifest, artifact, record['data'],
+                                     'REV06 DEX literal string lead', deadline,
+                                     source_locator=locator, producer_key=key)
+                if child:
+                    job['child_ids'].append(child['id'])
+                    queue.append((child, depth + 1))
+                manifest['intelligence'].append({
+                    'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
+                    'tag': 'REV06 DEX string lead', 'group': record.get('member') or 'standalone DEX',
+                    'value': record['data'].decode('ascii'),
+                    'source_locator': {**locator, 'child_artifact_id': child['id'] if child else None,
+                                       'validated': False},
+                    'next_action': 'Confirm the literal is used by the checker; no DEX source was decompiled.'})
+                continue
+            child = _store_staged(run, manifest, artifact, record, deadline,
+                                  locator=locator,
+                                  operation=f"REV06 {record['kind']} {record['member']}",
+                                  producer_key=key)
+            if child:
+                job['child_ids'].append(child['id'])
+                if record['kind'] not in ('class', 'dex') and not (
+                        record['member'].startswith('lib/') and record['member'].endswith('.so')):
+                    queue.append((child, depth + 1))
+            else:
+                warnings.append(f"REV06 member {record['index']} could not be stored")
+        warnings = [note[:300] for note in warnings[:100]]
+        status = 'truncated' if warnings else 'ran' if job['child_ids'] else 'no finding'
+        job['coverage_status'] = status
+        job['coverage_note'] = ('exact Java/Android resources, javap class listings and located '
+                                'DEX string leads; no challenge execution or claimed DEX source')
+        job['warnings'] = warnings
+        job['status'] = 'complete'
+        if status != 'no finding' or coverage['status'] == 'not scheduled':
+            coverage['status'] = status
+        coverage['note'] = job['coverage_note']
+        manifest['warnings'].extend(warnings)
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV06 static Java/Android inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV06 job failed: {job['warning']}")
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+
+
+def _rev_packers_job(run, manifest, artifact, deadline, queue, depth):
+    coverage = manifest['coverage']['REV04']
+    fingerprint = manifest['current_adapter_fingerprints']['rev-packers'][0]
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:rev-packers.v1:{fingerprint}".encode()).hexdigest()
+    old = next((item for item in manifest['jobs'] if item['key'] == key and
+                item['status'] == 'complete'), None)
+    if old:
+        output = Path(old.get('records_path', ''))
+        try:
+            valid = (output.is_file() and not output.is_symlink() and
+                     _hash(output, deadline) == old.get('records_sha256'))
+        except OSError:
+            valid = False
+        reused = _reusable_children(manifest, old, deadline) if valid else None
+        if reused is None:
+            old['status'] = 'invalidated'
+            old = None
+    if old:
+        for child in reused:
+            _attach_reused_child(child, old, artifact)
+            queue.append((child, depth + 1))
+        coverage['status'] = old['coverage_status']
+        coverage['note'] = old['coverage_note']
+        manifest['warnings'].extend(old.get('warnings', []))
+        return
+    upx, binwalk = shutil.which('upx'), shutil.which('binwalk')
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'rev-packers',
+           'input_ids': [artifact['id']], 'operation': 'bounded UPX and binwalk inspection',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': 16 * 1024 * 1024, 'derived_bytes': 64 * 1024 * 1024,
+                      'signature_leads': 32, 'time_seconds': 20},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    _write_json(run / 'manifest.json', manifest)
+    staging = run / 'staging' / job['id']
+    warnings = []
+    try:
+        remaining = MAX_DERIVED - manifest['derived_bytes']
+        if remaining <= 0:
+            raise WorkLimit('REV04 derived artifact byte limit reached')
+        records, warnings = _run_rev_packers(
+            Path(artifact['path']), staging,
+            min(20, max(.01, deadline - time.monotonic() - 1)),
+            min(64 * 1024 * 1024, remaining), upx, binwalk)
+        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            raise RuntimeError('binary source changed before REV04 publication')
+        by_sha = {artifact['sha256']: artifact}
+        stored = []
+        for record in records:
+            if record['kind'] == 'upx-unpacked':
+                if record['source_sha256'] != artifact['sha256']:
+                    raise RuntimeError('UPX record source hash mismatch')
+                child = _store_staged(run, manifest, artifact, record, deadline,
+                                      locator={'packer': 'UPX', 'source_sha256': artifact['sha256'],
+                                               'validation': 'upx -t on private copy'},
+                                      operation='REV04 UPX unpacked', producer_key=key)
+                if child:
+                    job['child_ids'].append(child['id'])
+                    queue.append((child, depth + 1))
+                    by_sha[child['sha256']] = child
+                else:
+                    warnings.append('REV04 validated UPX output could not be stored')
+                stored.append({**record, 'path': str(child['path']) if child else None,
+                               'child_artifact_id': child['id'] if child else None})
+                continue
+            source = by_sha.get(record['source_sha256'])
+            if source is None:
+                warnings.append('REV04 signature lead has no stored source artifact')
+                continue
+            manifest['intelligence'].append({
+                'artifact_id': source['id'], 'job_id': job['id'], 'current': True,
+                'tag': 'REV04 signature lead', 'group': 'binwalk',
+                'value': record['description'][:256],
+                'source_locator': {**record['source_locator'],
+                                   'source_sha256': record['source_sha256'],
+                                   'validated': False},
+                'next_action': 'Validate the format and byte extent before extracting any embedded file.'})
+            stored.append(record)
+        output = run / 'jobs' / f"{job['id']}.rev-packers.json"
+        _write_json(output, stored)
+        job['records_path'] = str(output)
+        job['records_sha256'] = _hash(output, deadline)
+        if job['records_sha256'] is None:
+            raise RuntimeError('REV04 record identity incomplete before work budget ended')
+        status = ('skipped prerequisite' if upx is None else
+                  'truncated' if any(any(word in note for word in
+                                      ('limit', 'timed out', 'incomplete', 'changed'))
+                                     for note in warnings) else
+                  'ran' if job['child_ids'] or any(row['kind'] == 'signature-lead'
+                                                  for row in stored) else 'no finding')
+        job['coverage_status'] = status
+        job['coverage_note'] = 'UPX-validated private unpacking; binwalk offsets are unvalidated leads'
+        job['warnings'] = warnings[:100]
+        job['status'] = 'complete'
+        coverage['status'] = status
+        coverage['note'] = job['coverage_note']
+        manifest['warnings'].extend(warnings[:100])
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        coverage['status'] = 'failed'
+        coverage['note'] = 'REV04 inspection failed; source bytes remain available'
+        manifest['warnings'].append(f"REV04 job failed: {job['warning']}")
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
     job['ended'] = time.time()
     _write_json(run / 'jobs' / f"{job['id']}.json", job)
     _write_json(run / 'manifest.json', manifest)
@@ -4929,6 +5586,19 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
             job['inventory_sha256'] = _hash(inventory, deadline)
             if job['inventory_sha256'] is None:
                 raise RuntimeError('memory inventory identity incomplete before budget ended')
+            plugin_rows = {}
+            for record in records:
+                if record['kind'] == 'row':
+                    plugin_rows.setdefault(record['plugin'], deque()).append(record)
+            report_rows = set()
+            while plugin_rows and len(report_rows) < 100:
+                for plugin in tuple(plugin_rows):
+                    record = plugin_rows[plugin].popleft()
+                    report_rows.add(id(record))
+                    if not plugin_rows[plugin]:
+                        del plugin_rows[plugin]
+                    if len(report_rows) == 100:
+                        break
             rows = 0
             for record in records:
                 if record['kind'] == 'file':
@@ -4947,7 +5617,7 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
                         warnings.append('memory dump publication limit reached')
                 elif record['kind'] == 'row':
                     rows += 1
-                    if rows <= 100:
+                    if id(record) in report_rows:
                         manifest['intelligence'].append({
                             'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
                             'tag': 'memory row', 'group': record['plugin'],
@@ -4980,7 +5650,8 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
         _write_json(run / 'manifest.json', manifest)
     manifest['coverage']['DF05']['status'] = status
     manifest['coverage']['DF05']['note'] = (
-        'offline Volatility 3 raw outputs and source-linked rows; exact filescan-gated dumps')
+        'offline Volatility 3 raw outputs and source-linked rows; exact filescan-gated dumps; '
+        'network triage not attempted')
 
 
 def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
@@ -5468,6 +6139,22 @@ def _current_adapter_fingerprints(deadline):
     multimon_hash = executable_hash(shutil.which(tones.MULTIMON) or tones.MULTIMON)
     sstv_hash = module_hash('sstv')
     sstv_tool_hash = executable_hash(shutil.which(sstv.SSTV) or sstv.SSTV)
+    packers_hash = module_hash('rev_packers')
+    upx = shutil.which('upx')
+    packers_binwalk = shutil.which('binwalk')
+    upx_hash = executable_hash(Path(upx).resolve() if upx else None)
+    packers_binwalk_hash = executable_hash(Path(packers_binwalk).resolve()
+                                           if packers_binwalk else None)
+    java_hash = module_hash('java_android')
+    javap = shutil.which('javap')
+    java = shutil.which('java')
+    javap_hash = executable_hash(Path(javap).resolve() if javap else None)
+    java_runtime_hash = executable_hash(Path(java).resolve() if java else None)
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+        angr_version = version('angr')
+    except (ImportError, PackageNotFoundError):
+        angr_version = None
     return {
         'encoding': [module_hash('encoding')],
         'xor-one': [module_hash('xor')],
@@ -5481,6 +6168,7 @@ def _current_adapter_fingerprints(deadline):
         'pdf': [module_hash('pdf')],
         'office': [_office_fingerprint()],
         'png-tail': [module_hash('images')],
+        'image-tail': [module_hash('images')],
         'zsteg': [hashlib.sha256(f'{zsteg_hash}:{zsteg_tool_hash}'.encode()).hexdigest()],
         'stegseek': [hashlib.sha256(f'{stegseek_hash}:{stegseek_tool_hash}'.encode()).hexdigest()],
         'media': [hashlib.sha256(f'{media_hash}:{ffprobe_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
@@ -5509,14 +6197,22 @@ def _current_adapter_fingerprints(deadline):
         'elf': [_elf_fingerprint()],
         'binary-static': [_binary_fingerprint()],
         'rev-strings': [_rev_strings_fingerprint(deadline)],
+        'rev-powershell': [module_hash('powershell')],
         'rev-rules': [_rev_rules_fingerprint(deadline)],
+        'rev-packers': [hashlib.sha256(
+            f'{packers_hash}:{upx_hash}:{packers_binwalk_hash}'.encode()).hexdigest()],
+        'pyinstaller': [module_hash('pyinstaller')],
+        'java-android': [hashlib.sha256(
+            f'{java_hash}:{javap_hash}:{java_runtime_hash}'.encode()).hexdigest()],
+        'checker': [hashlib.sha256(
+            f"{module_hash('checker')}:{angr_version}".encode()).hexdigest()],
         'osint-ids': [module_hash('osint_ids')],
         'image-metadata': [hashlib.sha256(f'{image_hash}:{exif_hash}:views={mode}'.encode()).hexdigest()
                            for mode in (False, True)],
     }
 
 
-def _scan_artifact(manifest, artifact, deadline, patterns, data=None):
+def _scan_artifact(manifest, artifact, deadline, patterns, data=None, *, private_crib=b''):
     if time.monotonic() >= deadline:
         manifest['warnings'].append(f"{artifact['id']}: candidate scan not scheduled before budget ended")
         return
@@ -5528,7 +6224,8 @@ def _scan_artifact(manifest, artifact, deadline, patterns, data=None):
                 manifest['warnings'].append(f"{artifact['id']}: bytes changed before candidate scan")
                 return
         findings, warnings = scan_candidates(data if data is not None else path,
-                                             artifact['id'], patterns, deadline)
+                                             artifact['id'], patterns, deadline,
+                                             private_crib=private_crib)
         if data is None and _hash(path, deadline) != artifact['sha256']:
             manifest['warnings'].append(f"{artifact['id']}: bytes changed during candidate scan")
             return
@@ -5583,11 +6280,30 @@ def _render_report(run, manifest):
     _write_text(run / 'report.md', '\n'.join(lines) + '\n')
 
 
-def _execute(run, manifest, budget, hints, hint_hash, hints_path):
+def _powershell_source(artifact):
+    if artifact['kind_evidence'] not in ('text', 'binary'):
+        return False
+    path = Path(artifact['path'])
+    if path.suffix.lower() in ('.ps1', '.psm1', '.psd1'):
+        return True
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        with os.fdopen(descriptor, 'rb') as stream:
+            head = stream.read(4096)
+        if head.startswith(b'\xff\xfe'):
+            text = head[2:].decode('utf-16le', 'ignore').lower()
+        else:
+            text = head.decode('utf-8', 'ignore').lower()
+    except OSError:
+        return False
+    return '-encodedcommand' in text or 'frombase64string' in text
+
+
+def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker=False):
     from .profiles.encoding import decode
     from .profiles.xor import recover_repeating_key, recover_single_byte
     from .profiles.documents import extract_zip
-    from .profiles.images import extract_png_tail
+    from .profiles.images import extract_image_tail
     from .profiles.mime import parse_mime
     from .profiles.pdf import extract_pdf
     deadline = time.monotonic() + budget
@@ -5602,7 +6318,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     manifest['warnings'] = []
     _upgrade_lineage(manifest)
     manifest['coverage'] = _coverage(manifest['category'])
-    if manifest['execute_local']:
+    if manifest['execute_local'] and 'checker' not in hints:
         manifest['warnings'].append('local execution requested but no execution adapter is implemented')
     manifest['budget_seconds'] = budget
     manifest['hint_sha256'] = hint_hash
@@ -5611,10 +6327,20 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     manifest['hash_parameters_sha256'] = hash_params_hash
     manifest['candidate_pattern_sha256'] = hashlib.sha256(
         json.dumps(hints.get('flag_patterns', []), ensure_ascii=False).encode()).hexdigest()
+    crib = hints.get('known_plaintext', '').encode('utf-8')
+    manifest['xor_crib_sha256'] = hashlib.sha256(crib).hexdigest() if crib else None
+    xor_no_candidate_note = (
+        f'no candidate matched supplied literal crib ({len(crib)} bytes; '
+        f'key length up to {min(16, max(0, len(crib) - 5))} bytes) '
+        'or printable English-frequency thresholds'
+        if crib else 'no candidate met printable English-frequency thresholds')
     manifest['web_scope_origin'] = hints.get('scope_origin')
     manifest['jwt_hints_sha256'] = jwt_hint_hash
     manifest['rsa_parameters_sha256'] = rsa_hash
     manifest['symmetric_parameters_sha256'] = symmetric_hash
+    manifest['checker_hints_sha256'] = (hashlib.sha256(
+        json.dumps(hints['checker'], sort_keys=True).encode()).hexdigest()
+        if 'checker' in hints else None)
     rule_paths, rule_identity = (_rev_rule_inputs(hints, hints_path)
                                  if manifest['category'] in ('auto', 'malware_reversing')
                                  else ({}, None))
@@ -5704,6 +6430,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
             return 'disk_memory'
         if _web_source_name(item):
             return 'web'
+        if _powershell_source(item):
+            return 'malware_reversing'
         return {'sqlite': 'disk_memory', 'disk_image': 'disk_memory',
                 'registry': 'disk_memory', 'evtx': 'disk_memory',
                 'can_log': 'can_misc', 'elf': 'pwn_services', 'pe': 'malware_reversing',
@@ -5711,7 +6439,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                 'riff': 'audio_video', 'flac': 'audio_video', 'ogg': 'audio_video',
                 'mp4': 'audio_video', 'matroska': 'audio_video', 'mp3': 'audio_video',
                 'png': 'images', 'bmp': 'images', 'jpeg': 'images', 'gif': 'images', 'tiff': 'images',
-                'zip': 'documents', 'tar': 'documents', 'mime': 'documents', 'pdf': 'documents',
+                'zip': 'documents', 'dex': 'malware_reversing',
+                'tar': 'documents', 'mime': 'documents', 'pdf': 'documents',
                 'office': 'documents'}.get(
                     item['kind_evidence'], 'encoding')
 
@@ -5780,11 +6509,12 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                 queue.append((child, depth + 1))
             if (metadata_selected or (artifact.get('source_locator') or {}).get('sstv_preview')) and time.monotonic() < deadline:
                 _image_metadata_job(run, manifest, artifact, deadline, make_views=False)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
-        if images_selected and artifact['kind_evidence'] == 'png':
-            fingerprint = hashlib.sha256(Path(extract_png_tail.__code__.co_filename).read_bytes()).hexdigest()
-            key = hashlib.sha256(f"{artifact['sha256']}:png-tail.v1:{fingerprint}".encode()).hexdigest()
+        if images_selected and artifact['kind_evidence'] in ('png', 'jpeg'):
+            image_kind = artifact['kind_evidence']
+            fingerprint = hashlib.sha256(Path(extract_image_tail.__code__.co_filename).read_bytes()).hexdigest()
+            key = hashlib.sha256(f"{artifact['sha256']}:{image_kind}-tail.v2:{fingerprint}".encode()).hexdigest()
             if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
                 seen.setdefault(key, artifact['id'])
                 old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
@@ -5797,10 +6527,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                         queue.append((child, depth + 1))
                     if 'IMG01' in manifest['coverage']:
                         manifest['coverage']['IMG01']['status'] = 'ran' if reusable else 'no finding'
-                        manifest['coverage']['IMG01']['note'] = 'validated trailing ZIP in PNG only'
+                        manifest['coverage']['IMG01']['note'] = 'ZIP structure and clear-member CRC checked in PNG/JPEG'
                 else:
-                    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'png-tail',
-                           'input_ids': [artifact['id']], 'operation': 'validated PNG trailing ZIP',
+                    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'image-tail',
+                           'input_ids': [artifact['id']], 'operation': f'checked {image_kind.upper()} trailing ZIP',
                            'tool_fingerprint': fingerprint, 'data_fingerprints': {},
                            'cwd': str(run), 'limits': {'output_bytes': MAX_CHILD},
                            'status': 'running', 'child_ids': [], 'started': time.time()}
@@ -5810,13 +6540,19 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                         result = _run_image(path, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
                                             min(30, max(.01, deadline - time.monotonic())))
                         if _hash(path, deadline) != artifact['sha256']:
-                            raise RuntimeError('PNG changed before tail publication')
+                            raise RuntimeError('image changed before tail publication')
                         if result:
                             data, evidence = result
                             child = _store_child(run, manifest, artifact, data,
-                                                 f"PNG tail at byte {evidence['offset']}", deadline,
+                                                 f"{image_kind.upper()} tail at byte {evidence['offset']}", deadline,
                                                  source_locator={'image_offset': evidence['offset'],
-                                                                 'iend_offset': evidence['iend_offset']},
+                                                                 **({'iend_offset': evidence['iend_offset'],
+                                                                     'gap_bytes': evidence['gap_bytes'],
+                                                                     'padding_bytes': evidence['padding_bytes']}
+                                                                    if image_kind == 'png' else
+                                                                    {'eoi_offset': evidence['eoi_offset'],
+                                                                     'padding_bytes': evidence['padding_bytes'],
+                                                                     'gap_bytes': evidence['gap_bytes']})},
                                                  force_record=True, producer_key=key)
                             if child:
                                 job['child_ids'].append(child['id'])
@@ -5824,30 +6560,30 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                         job['status'] = 'complete'
                         if 'IMG01' in manifest['coverage']:
                             manifest['coverage']['IMG01']['status'] = 'ran' if job['child_ids'] else 'no finding'
-                            manifest['coverage']['IMG01']['note'] = 'validated trailing ZIP in PNG only'
+                            manifest['coverage']['IMG01']['note'] = 'ZIP structure and clear-member CRC checked in PNG/JPEG'
                     except WorkLimit as error:
                         job['status'] = 'truncated'
                         job['warning'] = str(error)
                         manifest['warnings'].append(str(error))
                         if 'IMG01' in manifest['coverage']:
                             manifest['coverage']['IMG01']['status'] = 'truncated'
-                            manifest['coverage']['IMG01']['note'] = 'PNG trailing ZIP exceeds output bound'
+                            manifest['coverage']['IMG01']['note'] = f'{image_kind.upper()} trailing ZIP exceeds output bound'
                     except Exception as error:
                         job['status'] = 'failed'
                         job['warning'] = f'{type(error).__name__}: {error}'
-                        manifest['warnings'].append(f"PNG job failed: {type(error).__name__}")
+                        manifest['warnings'].append(f"image tail job failed: {type(error).__name__}")
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
             if images_selected and time.monotonic() < deadline:
                 for child in _qr_job(run, manifest, artifact, deadline):
                     queue.append((child, depth + 1))
-            if images_selected and time.monotonic() < deadline:
+            if image_kind == 'png' and images_selected and time.monotonic() < deadline:
                 for child in _zsteg_job(run, manifest, artifact, deadline):
                     queue.append((child, depth + 1))
             if metadata_selected and time.monotonic() < deadline:
                 _image_metadata_job(run, manifest, artifact, deadline, make_views=True)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if images_selected and artifact['kind_evidence'] == 'bmp':
             if time.monotonic() < deadline:
@@ -5857,7 +6593,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                 queue.append((child, depth + 1))
             if time.monotonic() < deadline:
                 _image_metadata_job(run, manifest, artifact, deadline, make_views=True)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if metadata_selected and artifact['kind_evidence'] in ('png', 'jpeg', 'gif', 'tiff'):
             if images_selected and time.monotonic() < deadline:
@@ -5868,13 +6604,22 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     queue.append((child, depth + 1))
             _image_metadata_job(run, manifest, artifact, deadline,
                                 make_views=manifest['category'] != 'osint')
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'tar':
             for child in _tar_job(run, manifest, artifact, deadline):
                 queue.append((child, depth + 1))
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
+        if reversing_selected and artifact['kind_evidence'] == 'dex':
+            _java_android_job(run, manifest, artifact, deadline, queue, depth)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
+            continue
+        if reversing_selected and artifact['kind_evidence'] == 'zip':
+            _java_android_job(run, manifest, artifact, deadline, queue, depth)
+            if not documents_selected:
+                _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
+                continue
         if documents_selected and artifact['kind_evidence'] == 'zip':
             if time.monotonic() < deadline:
                 for child in _office_job(run, manifest, artifact, deadline):
@@ -5951,12 +6696,12 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'office':
             for child in _office_job(run, manifest, artifact, deadline):
                 queue.append((child, depth + 1))
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'mime':
             fingerprint = hashlib.sha256(Path(parse_mime.__code__.co_filename).read_bytes()).hexdigest()
@@ -6019,7 +6764,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'pdf':
             fingerprint = hashlib.sha256(Path(extract_pdf.__code__.co_filename).read_bytes()).hexdigest()
@@ -6082,22 +6827,51 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if artifact['kind_evidence'] in ('elf', 'pe') and (pwn_selected or reversing_selected):
             if artifact['kind_evidence'] == 'elf' and pwn_selected:
                 _elf_job(run, manifest, artifact, deadline)
+            if (reversing_selected and artifact['kind_evidence'] == 'elf' and depth == 0
+                    and Path(manifest['input_path']).is_file()):
+                if 'checker' in hints:
+                    _checker_job(run, manifest, artifact, hints['checker'], replay_checker, deadline)
+                else:
+                    manifest['coverage']['REV07']['status'] = 'skipped prerequisite'
+                    manifest['coverage']['REV07']['note'] = 'selected checker hints are required'
             if reversing_selected and time.monotonic() < deadline:
                 _binary_job(run, manifest, artifact, deadline)
+            if reversing_selected and time.monotonic() < deadline:
+                _pyinstaller_job(run, manifest, artifact, deadline, queue, depth)
             if reversing_selected and time.monotonic() < deadline:
                 _rev_strings_job(run, manifest, artifact, deadline, queue, depth)
             if reversing_selected and time.monotonic() < deadline:
                 _rev_rules_job(run, manifest, artifact, deadline, rule_paths)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            if reversing_selected and time.monotonic() < deadline:
+                _rev_packers_job(run, manifest, artifact, deadline, queue, depth)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
+            continue
+        if (reversing_selected and artifact['kind_evidence'] in ('text', 'binary')
+                and (manifest['category'] == 'malware_reversing' and depth == 0 and
+                     artifact['kind_evidence'] == 'text' or _powershell_source(artifact))):
+            if manifest['category'] == 'malware_reversing' and depth == 0:
+                _binary_job(run, manifest, artifact, deadline)
+            _rev_powershell_job(run, manifest, artifact, deadline, queue, depth)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
+            continue
+        if (artifact['kind_evidence'] == 'binary' and reversing_selected and
+                (manifest['category'] == 'malware_reversing' or domain == 'encoding')):
+            if manifest['category'] == 'malware_reversing' and depth == 0:
+                _binary_job(run, manifest, artifact, deadline)
+            if depth == 0 and time.monotonic() < deadline:
+                _pyinstaller_job(run, manifest, artifact, deadline, queue, depth)
+            if time.monotonic() < deadline:
+                _rev_packers_job(run, manifest, artifact, deadline, queue, depth)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if manifest['category'] == 'malware_reversing' and depth == 0:
             _binary_job(run, manifest, artifact, deadline)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if media_selected and (artifact['kind_evidence'] in
                                ('riff', 'flac', 'ogg', 'mp4', 'matroska', 'mp3') or
@@ -6109,7 +6883,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                 queue.append((child, depth + 1))
             for child in _media_job(run, manifest, artifact, deadline):
                 queue.append((child, depth + 1))
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if can_selected and artifact['kind_evidence'] == 'can_log':
             frames = _can_job(run, manifest, artifact, deadline)
@@ -6122,7 +6896,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                 else:
                     manifest['coverage']['CAN02']['status'] = 'no finding'
                     manifest['coverage']['CAN02']['note'] = 'no normalized data frames to decode'
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if packets_selected and artifact['kind_evidence'] in ('pcap', 'pcapng'):
             _packets_job(run, manifest, artifact, deadline)
@@ -6140,34 +6914,34 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     for child in _packet_tls_job(run, manifest, artifact, tls_keylog,
                                                  tls_keylog_hash, deadline):
                         queue.append((child, depth + 1))
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if disk_selected and artifact['kind_evidence'] == 'sqlite':
             _os_artifact_job(run, manifest, artifact, deadline)
             if time.monotonic() < deadline:
                 _sqlite_job(run, manifest, artifact, deadline, queue, depth)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if disk_selected and artifact['kind_evidence'] in ('registry', 'evtx'):
             _os_artifact_job(run, manifest, artifact, deadline)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if disk_selected and memory_source(artifact):
             _memory_job(run, manifest, artifact, memory_symbols_dir, memory_symbols_error,
                         hints.get('memory_dump_targets', []), deadline, queue, depth)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if disk_selected and artifact['kind_evidence'] == 'disk_image':
             _disk_job(run, manifest, artifact, hints.get('disk_target_paths', []), deadline, queue, depth)
             if time.monotonic() < deadline:
                 _disk_recovery_job(run, manifest, artifact, deadline, queue, depth)
-            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if web_selected and (manifest['category'] == 'web' or domain == 'web' or
                              manifest['category'] == 'osint' and _web_source_name(artifact)):
             _web_static_job(run, manifest, artifact, hints.get('scope_origin'), deadline)
             if manifest['category'] != 'osint':
-                _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
+                _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
                 continue
         if (manifest['category'] == 'disk_memory' and depth == 0 and
                 artifact['kind_evidence'] not in ('disk_image', 'sqlite', 'registry', 'evtx') and
@@ -6188,17 +6962,21 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
         if not path.is_file():
             manifest['warnings'].append(f"{artifact['id']}: artifact file is unavailable")
             continue
+        doc01_gzip = manifest['category'] in ('auto', 'documents') and artifact['kind_evidence'] == 'gzip'
+        decode_selected = encoding_selected or doc01_gzip
         data = None
         if path.stat().st_size <= MAX_READ:
             data = path.read_bytes()
             if hashlib.sha256(data).hexdigest() != artifact['sha256']:
                 manifest['warnings'].append(f"{artifact['id']}: bytes changed before processing")
                 continue
-        elif encoding_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
+        elif decode_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
             manifest['warnings'].append(f"{artifact['id']}: decode input limit is 8 MiB")
+            if doc01_gzip:
+                _doc01_coverage(manifest, 'truncated')
         if osint_selected and artifact['kind_evidence'] in ('text', 'binary') and time.monotonic() < deadline:
             _osint_ids_job(run, manifest, artifact, deadline)
-        if data is not None and encoding_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
+        if data is not None and decode_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
             fingerprint = hashlib.sha256(Path(decode.__code__.co_filename).read_bytes()).hexdigest()
             key = hashlib.sha256(f"{artifact['sha256']}:encoding.v1:{fingerprint}".encode()).hexdigest()
             if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
@@ -6212,7 +6990,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     for child in reusable:
                         reused_operations.extend(_attach_reused_child(child, old, artifact))
                         queue.append((child, depth + 1))
-                    _mark_encoding_coverage(manifest, reused_operations)
+                    _mark_encoding_coverage(manifest, reused_operations,
+                                            old.get('diagnostics', []), artifact['id'])
+                    if doc01_gzip:
+                        _doc01_coverage(manifest, 'ran' if any(
+                            operation.startswith('gzip') for operation in reused_operations) else 'truncated')
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'encoding',
                            'input_ids': [artifact['id']], 'operation': 'stdlib finite decode',
@@ -6222,8 +7004,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                     manifest['jobs'].append(job)
                     _write_json(run / 'manifest.json', manifest)
                     try:
-                        results = _run_decode(data, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
-                                              min(30, max(.01, deadline - time.monotonic())))
+                        results, diagnostics = _run_decode(
+                            data, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
+                            min(30, max(.01, deadline - time.monotonic())))
+                        job['diagnostics'] = diagnostics
                         produced = []
                         for decoded, operation in results:
                             bit_block = re.fullmatch(r'bit-text lines:(\d+)-(\d+) bits:(\d+)', operation)
@@ -6236,6 +7020,15 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                                     manifest['warnings'].append(
                                         f"{artifact['id']}: declared bit count {int(declared[1])} "
                                         f"differs from decoded {int(bit_block[3])}")
+                            compressed = next((item for item in diagnostics
+                                               if operation.startswith(item['kind']) and item['members']), None)
+                            if compressed:
+                                locator = {'transform': compressed['kind'],
+                                           'status': compressed['status'],
+                                           'members': compressed['members'],
+                                           'trailing_bytes': compressed['trailing_bytes']}
+                                if 'padding_bytes' in compressed:
+                                    locator['padding_bytes'] = compressed['padding_bytes']
                             child = _store_child(run, manifest, artifact, decoded, operation, deadline,
                                                  source_locator=locator, producer_key=key)
                             if child:
@@ -6243,24 +7036,31 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                                 queue.append((child, depth + 1))
                                 produced.append(operation)
                         job['status'] = 'complete'
-                        _mark_encoding_coverage(manifest, produced)
+                        _mark_encoding_coverage(manifest, produced, diagnostics, artifact['id'])
+                        if doc01_gzip:
+                            _doc01_coverage(manifest, 'ran' if any(
+                                operation.startswith('gzip') for operation in produced) else 'truncated')
                     except Exception as error:
                         job['status'] = 'failed'
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"encoding job failed: {type(error).__name__}")
+                        if doc01_gzip:
+                            _doc01_coverage(manifest, 'failed')
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
-        if (encoding_selected and artifact['kind_evidence'] in ('text', 'binary')
+        if (encoding_selected and (artifact['kind_evidence'] in ('text', 'binary') or
+                                   manifest['category'] == 'encoding')
                 and 'xor_key_hex' not in artifact['source_locator']):
             if data is None or len(data) > 1024 * 1024:
                 manifest['warnings'].append(f"{artifact['id']}: XOR input limit is 1 MiB")
                 if 'ENC05' in manifest['coverage'] and manifest['coverage']['ENC05']['status'] != 'ran':
                     manifest['coverage']['ENC05']['status'] = 'truncated'
                     manifest['coverage']['ENC05']['note'] = 'XOR input limit'
-            elif len(data) >= 16:
+            elif len(data) >= 16 or (len(crib) >= 6 and len(data) >= len(crib)):
                 fingerprint = hashlib.sha256(Path(recover_single_byte.__code__.co_filename).read_bytes()).hexdigest()
-                key = hashlib.sha256(f"{artifact['sha256']}:xor-search.v1:{fingerprint}:8".encode()).hexdigest()
+                key = hashlib.sha256(f"{artifact['sha256']}:xor-search.v1:{fingerprint}:8:"
+                                     f"{manifest['xor_crib_sha256']}".encode()).hexdigest()
                 if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
                     seen.setdefault(key, artifact['id'])
                     old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
@@ -6272,18 +7072,22 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                             _attach_reused_child(child, old, artifact)
                             queue.append((child, depth + 1))
                         if 'ENC05' in manifest['coverage']:
-                            manifest['coverage']['ENC05']['status'] = 'ran' if reusable else 'no finding'
-                            manifest['coverage']['ENC05']['note'] = 'single-byte and repeating-key candidates'
+                            entry = manifest['coverage']['ENC05']
+                            if reusable or entry['status'] != 'ran':
+                                entry['status'] = 'ran' if reusable else 'no finding'
+                                entry['note'] = 'XOR candidates retained' if reusable else xor_no_candidate_note
                     else:
                         job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'xor-search',
                                'input_ids': [artifact['id']], 'operation': 'bounded XOR key search',
-                               'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+                               'tool_fingerprint': fingerprint,
+                               'data_fingerprints': {'known_plaintext': manifest['xor_crib_sha256']},
+                               'cwd': str(run),
                                'limits': {'input_bytes': 1024 * 1024, 'candidates_per_method': 8},
                                'status': 'running', 'child_ids': [], 'started': time.time()}
                         manifest['jobs'].append(job)
                         _write_json(run / 'manifest.json', manifest)
                         try:
-                            candidates = _run_xor(data, min(30, max(.01, deadline - time.monotonic())))
+                            candidates = _run_xor(data, crib, min(30, max(.01, deadline - time.monotonic())))
                             for candidate in candidates:
                                 if candidate['data'] == data:
                                     continue
@@ -6291,6 +7095,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                                 repeated = candidate.get('key_length', 1) > 1
                                 operation = f"{'repeating-key' if repeated else 'single-byte'} XOR key 0x{key_hex}"
                                 locator = {'xor_key_hex': key_hex, 'xor_key_length': len(bytes.fromhex(key_hex))}
+                                if 'crib_offset' in candidate:
+                                    locator['xor_crib_offset'] = candidate['crib_offset']
+                                    locator['xor_crib_key_phase'] = candidate['crib_key_phase']
                                 child = _store_child(run, manifest, artifact, candidate['data'], operation,
                                                      deadline, source_locator=locator,
                                                      force_record=True, producer_key=key)
@@ -6301,11 +7108,14 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                                         'state': 'candidate', 'artifact_id': child['id'], 'current': True,
                                         'source_locator': {'offset': 0, **locator},
                                         'evidence': candidate['rationale'], 'operation': operation,
-                                        'next_action': 'Verify the assumed key and recovered text against the challenge.'})
+                                        'next_action': 'Verify the assumed key and recovered bytes against the challenge.'})
                             job['status'] = 'complete'
                             if 'ENC05' in manifest['coverage']:
-                                manifest['coverage']['ENC05']['status'] = 'ran' if job['child_ids'] else 'no finding'
-                                manifest['coverage']['ENC05']['note'] = 'single-byte and repeating-key candidates'
+                                entry = manifest['coverage']['ENC05']
+                                if job['child_ids'] or entry['status'] != 'ran':
+                                    entry['status'] = 'ran' if job['child_ids'] else 'no finding'
+                                    entry['note'] = ('XOR candidates retained' if job['child_ids'] else
+                                                     xor_no_candidate_note)
                         except Exception as error:
                             job['status'] = 'failed'
                             job['warning'] = f'{type(error).__name__}: {error}'
@@ -6313,7 +7123,13 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
                         job['ended'] = time.time()
                         _write_json(run / 'jobs' / f"{job['id']}.json", job)
                         _write_json(run / 'manifest.json', manifest)
-        _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), data)
+            elif ('ENC05' in manifest['coverage'] and
+                  manifest['coverage']['ENC05']['status'] == 'not scheduled'):
+                manifest['coverage']['ENC05']['status'] = 'skipped prerequisite'
+                manifest['coverage']['ENC05']['note'] = (
+                    'fewer than 16 bytes; need text-frequency evidence or a six-byte literal crib')
+        _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []),
+                       data, private_crib=crib)
     if queue or time.monotonic() >= overall_deadline:
         manifest['warnings'].append('overall work budget ended before all artifacts were processed')
     _refresh_current(manifest, {artifact['id'] for artifact in active})
@@ -6331,7 +7147,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path):
     return manifest['status']
 
 
-def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path):
+def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker=False):
     if run.is_symlink():
         raise InvalidInput('run directory must not be a symlink')
     run.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -6346,19 +7162,24 @@ def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path):
                 job['status'] = 'interrupted'
         _remember_private_hints(manifest, hints_path, hints)
         _write_json(run / 'manifest.json', manifest)
-        return _execute(run, manifest, budget, hints, hint_hash, hints_path)
+        return _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     finally:
         os.close(lock)
 
 
-def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=None, execute_local=False):
+def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=None,
+            execute_local=False, replay_checker=False):
     category = category_name(category)
     if not 0 < budget <= 3600:
         raise InvalidInput('budget must be between 0 and 3600 seconds')
+    if replay_checker and not execute_local:
+        raise InvalidInput('--replay-checker requires --execute-local')
     root = Path(runs_root) if runs_root else ROOT / '.autosolve' / 'runs'
     if Path(path).absolute().is_dir() and Path(path).absolute() == root.absolute():
         raise InvalidInput('runs root must differ from the analyzed directory')
     hints, hint_hash = load_hints(hints_path)
+    if replay_checker and 'checker' not in hints:
+        raise InvalidInput('--replay-checker requires checker hints')
     _passwords(hints, hints_path)
     _hash_wordlist(hints, hints_path)
     _sources(path, exclude=root, excluded_files=_private_paths(hints_path, hints))
@@ -6369,11 +7190,11 @@ def analyze(path, *, category='auto', budget=300, hints_path=None, runs_root=Non
                 'created': time.time(), 'status': 'new', 'artifacts': [], 'jobs': [],
                 'findings': [], 'intelligence': [], 'coverage': _coverage(category), 'derived_bytes': 0,
                 'warnings': []}
-    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path)
+    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     return run, status
 
 
-def resume(run_path, *, budget=300, hints_path=None):
+def resume(run_path, *, budget=300, hints_path=None, replay_checker=False):
     run = Path(run_path).absolute()
     if run.is_symlink():
         raise InvalidInput('run directory must not be a symlink')
@@ -6387,12 +7208,16 @@ def resume(run_path, *, budget=300, hints_path=None):
         raise InvalidInput('older run lacks private hint exclusions; start a new analysis run')
     if not 0 < budget <= 3600:
         raise InvalidInput('budget must be between 0 and 3600 seconds')
+    if replay_checker and not manifest.get('execute_local'):
+        raise InvalidInput('--replay-checker requires a run started with --execute-local')
     hints, hint_hash = load_hints(hints_path)
+    if replay_checker and 'checker' not in hints:
+        raise InvalidInput('--replay-checker requires checker hints')
     _passwords(hints, hints_path)
     _hash_wordlist(hints, hints_path)
     if hint_hash is None and manifest.get('hint_sha256') is not None:
         raise InvalidInput('resume requires the prior hints file or a replacement')
-    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path)
+    status = _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     return run, status
 
 
@@ -6416,10 +7241,12 @@ def capabilities(category='auto'):
                    'DOC01', 'DOC02', 'DOC04', 'DOC05', 'DOC06',
                    'IMG01', 'IMG02', 'IMG03', 'IMG04', 'IMG05',
                    'AV01', 'AV02', 'AV03', 'AV04', 'AV06',
-                   'OS01', 'OS02', 'OS03', 'CAN01', 'CAN02', 'NET01', 'NET02', 'NET03', 'NET05',
+                   'OS01', 'OS02', 'OS03', 'CAN01', 'CAN02', 'MISC01',
+                   'NET01', 'NET02', 'NET03', 'NET05',
                    'DF01', 'DF02', 'DF03', 'DF04', 'DF05',
-                   'REV01', 'REV02', 'REV03', 'PWN01', 'PWN02', 'PWN07',
-                   'WEB01', 'WEB02', 'WEB04', 'WEB05', 'AIC01', 'AIC02'}
+                   'REV01', 'REV02', 'REV03', 'REV04', 'REV05', 'REV06', 'REV07', 'REV11',
+                   'PWN01', 'PWN02', 'PWN07',
+                   'WEB01', 'WEB02', 'WEB03', 'WEB04', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
     return [{'id': row['id'], 'domain': row['domain'], 'stage': row['delivery_stage'],
              'status': 'partial' if row['id'] in implemented
              else 'not implemented'} for row in CATALOG

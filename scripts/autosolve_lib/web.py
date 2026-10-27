@@ -1,4 +1,4 @@
-"""Private bounded WEB02 discovery and WEB05 selected lead runs."""
+"""Private bounded selected web checks."""
 
 import hashlib
 import json
@@ -133,17 +133,104 @@ def _run(scope, timeout, max_requests, rate, lead=False):
         parent.close()
 
 
+def _sql_worker(raw, origin, parameter, options, pipe):
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+    try:
+        from .profiles.web_sql import assess_sql
+        pipe.send(assess_sql(raw, origin, parameter, authorized=True,
+                             test_mode=True, **options))
+    except Exception as exc:
+        pipe.send((None, [f"WEB03 profile failed: {type(exc).__name__}"]))
+    finally:
+        pipe.close()
+
+
+def _run_sql(raw, origin, parameter, options):
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=core._worker_entry,
+                                     args=(_sql_worker, raw, origin, parameter, options, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(options['timeout'] + .1):
+            return None, ["WEB03 hard deadline reached; request count may be incomplete"]
+        return parent.recv()
+    except EOFError:
+        return None, ["WEB03 worker exited without a result"]
+    finally:
+        core._stop_worker(worker)
+        parent.close()
+
+
+def _workflow_worker(fixtures, origin, timeout, max_requests, rate, pipe):
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+    try:
+        from .profiles.web_workflows import replay_workflows
+        pipe.send(replay_workflows(fixtures, origin=origin, timeout=timeout,
+                                   max_requests=max_requests, rate=rate))
+    except Exception as exc:
+        pipe.send((None, [f"WEB08 profile failed: {type(exc).__name__}"]))
+    finally:
+        pipe.close()
+
+
+def _run_workflow(fixtures, origin, timeout, max_requests, rate):
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=core._worker_entry,
+                                     args=(_workflow_worker, fixtures, origin, timeout,
+                                           max_requests, rate, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + .1):
+            return None, ["WEB08 hard deadline reached; request count may be incomplete"]
+        return parent.recv()
+    except EOFError:
+        return None, ["WEB08 worker exited without a result"]
+    finally:
+        core._stop_worker(worker)
+        parent.close()
+
+
 def _manifest(run):
     if run.is_symlink():
         raise ValueError("web run directory must not be a symlink")
     manifest = json.loads((run / "manifest.json").read_text())
     if (manifest.get("schema_version") != core.SCHEMA or manifest.get("category") != "web"
-            or manifest.get("run_type") not in ("web_discovery", "web_leads")):
+            or manifest.get("run_type") not in ("web_discovery", "web_sql", "web_leads",
+                                                "web_workflow")):
         raise ValueError("not a compatible web run")
     return manifest
 
 
 def _render(run, manifest):
+    if manifest['run_type'] == 'web_workflow':
+        lines = ['# Autosolve web workflow comparison', '',
+                 'Status: partial. Challenge acceptance: unverified.',
+                 f"WEB08: {manifest['profile_status']}; "
+                 f"{manifest['requests_used']} requests recorded.",
+                 f"Assessment: {manifest['assessment']}.",
+                 'The assessment is an observed workflow clue, not proof of an authorization flaw.',
+                 'The supplied sessions, response bodies and state evidence are private in this run.',
+                 'Resume and report only render stored evidence; neither sends another request.']
+        if manifest['warnings']:
+            lines += ['', 'Warnings: ' + '; '.join(manifest['warnings'])]
+        core._write_text(run / 'report.md', '\n'.join(lines) + '\n')
+        return
+    if manifest['run_type'] == 'web_sql':
+        lines = ['# Autosolve web SQL assessment', '',
+                 'Status: partial. Challenge acceptance: unverified.',
+                 f"WEB03: {manifest['profile_status']}; {manifest['requests_used']} requests recorded.",
+                 f"Assessment: {manifest['classification']}.",
+                 'The differential is a lead; server acceptance is unverified.',
+                 'The raw request, response bodies and selected comparison are private in this run.',
+                 'Resume and report only render stored evidence; neither sends another request.']
+        if manifest['warnings']:
+            lines += ['', 'Warnings: ' + '; '.join(manifest['warnings'])]
+        core._write_text(run / 'report.md', '\n'.join(lines) + '\n')
+        return
     lead = manifest["run_type"] == "web_leads"
     family = "WEB05" if lead else "WEB02"
     lines = ["# Autosolve web leads" if lead else "# Autosolve web discovery", "",
@@ -162,13 +249,76 @@ def _render(run, manifest):
 
 def start(request_path, scope_origin, budget, wordlist_path=None, kind="path",
           max_requests=34, rate=5, runs_root=None, *, lead_kind=None, parameter=None,
-          probe_value=None, expected=None, syntax=None):
+          probe_value=None, expected=None, syntax=None, sql_parameter=None,
+          sql_test=False, sql_location='query', sql_context='text', sql_table=None,
+          sql_column=None, sql_candidates=None, workflow_path=None, workflow_test=False):
     if not isinstance(budget, (int, float)) or isinstance(budget, bool) or not 0 < budget <= 180:
         raise ValueError("web budget must be positive and at most 180 seconds")
     _origin(scope_origin)
+    if workflow_path is not None or workflow_test:
+        if not workflow_path or not workflow_test:
+            raise ValueError('WEB08 requires --workflow-file and --workflow-test')
+        if (request_path is not None or wordlist_path is not None or kind != 'path' or
+                lead_kind is not None or sql_parameter is not None or sql_test or
+                any(value is not None for value in (parameter, probe_value, expected,
+                                                   syntax, sql_table, sql_column,
+                                                   sql_candidates)) or
+                sql_location != 'query' or sql_context != 'text'):
+            raise ValueError('WEB08 cannot be combined with WEB02/03/05 options')
+        if (type(max_requests) is not int or max_requests < 2 or
+                type(rate) not in (int, float) or not 0 < rate <= 5):
+            raise ValueError('WEB08 supports two to eight requests at at most five per second')
+        raw_fixture = _regular_bytes(workflow_path, 256 * 1024, 'workflow fixture')
+        try:
+            fixtures = json.loads(raw_fixture)
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise ValueError('workflow fixture must be JSON') from exc
+        from .profiles.web_workflows import _validated
+        active_requests = min(max_requests, 8)
+        _validated(fixtures, scope_origin, active_requests)
+        timeout = min(budget, 30)
+        root = Path(runs_root) if runs_root else core.ROOT / '.autosolve' / 'runs'
+        run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
+        run.mkdir(parents=True, mode=0o700)
+        descriptor = os.open(run / 'fixture.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, 'wb') as stream:
+            stream.write(raw_fixture)
+        profile, warnings = _run_workflow(fixtures, scope_origin, timeout, active_requests, rate)
+        if budget > 30:
+            warnings.insert(0, 'WEB08 profile caps active replay at 30 seconds')
+        if profile is None:
+            profile = {'assessment': 'inconclusive: incomplete workflow', 'responses': [],
+                       'invariant_holds': None, 'baselines': []}
+            requests_used = None
+        else:
+            requests_used = len(profile['responses'])
+        complete = (requests_used == sum(len(flow['steps']) for flow in fixtures['workflows'])
+                    and not warnings)
+        manifest = {'schema_version': core.SCHEMA, 'category': 'web',
+                    'run_type': 'web_workflow', 'status': 'partial',
+                    'profile_status': 'complete' if complete else 'partial',
+                    'scope_origin': scope_origin,
+                    'fixture_sha256': hashlib.sha256(raw_fixture).hexdigest(),
+                    'requests_used': requests_used, 'assessment': profile['assessment'],
+                    'warnings': warnings, 'challenge_accepted': False,
+                    'coverage': {'WEB08': {'status': 'ran' if complete else 'partial',
+                                           'note': 'explicit bounded workflow comparison only'}}}
+        core._write_json(run / 'manifest.json', manifest)
+        core._write_json(run / 'transcript.json', profile)
+        _render(run, manifest)
+        return run, 'partial'
+    if request_path is None:
+        raise ValueError('web --request-file is required unless WEB08 is selected')
     raw = _regular_bytes(request_path, 64 * 1024, "request file")
     request, body = _request(raw, scope_origin)
     lead = lead_kind is not None
+    sql = sql_parameter is not None
+    if sql and (lead or wordlist_path is not None or kind != 'path' or
+                any(value is not None for value in (parameter, probe_value, expected, syntax))):
+        raise ValueError('WEB03 cannot be combined with WEB02/WEB05 options')
+    if not sql and (sql_test or sql_location != 'query' or sql_context != 'text' or
+                    any(value is not None for value in (sql_table, sql_column, sql_candidates))):
+        raise ValueError('WEB03 options require --sql-parameter')
     if lead and wordlist_path is not None:
         raise ValueError("WEB05 selected leads cannot be combined with a discovery wordlist")
     if lead and kind != "path":
@@ -180,7 +330,17 @@ def start(request_path, scope_origin, budget, wordlist_path=None, kind="path",
         raise ValueError("web kind must be path, parameter or vhost")
     timeout = min(budget, 30)
     supported = request["method"] == "GET" and not body
-    if lead:
+    if sql:
+        from .profiles.web_sql import _validate as _validate_sql
+        active_requests = min(max_requests, 14)
+        sql_options = {'location': sql_location, 'context': sql_context,
+                       'table': sql_table, 'column': sql_column,
+                       'candidates': sql_candidates, 'timeout': timeout,
+                       'max_requests': active_requests, 'rate': rate}
+        _validate_sql(raw, scope_origin, sql_parameter, sql_location, sql_context,
+                      True, sql_test, sql_table, sql_column, sql_candidates,
+                      timeout, active_requests, rate)
+    elif lead:
         if not supported:
             raise ValueError("WEB05 requires a bodyless GET request")
         if type(max_requests) is not int or not 1 <= max_requests <= 64:
@@ -209,6 +369,34 @@ def start(request_path, scope_origin, budget, wordlist_path=None, kind="path",
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(raw)
     warnings = []
+    if sql:
+        if budget > 30:
+            warnings.append('WEB03 profile caps active probing at 30 seconds')
+        profile, operation_warnings = _run_sql(raw, scope_origin, sql_parameter, sql_options)
+        warnings.extend(operation_warnings)
+        if profile is None:
+            profile = {'status': 'partial', 'classification': 'inconclusive',
+                       'origin': scope_origin, 'parameter': sql_parameter,
+                       'requests_used': None, 'probes': [], 'selected_value': None,
+                       'budget': {'timeout': timeout, 'max_requests': active_requests,
+                                  'rate': rate}}
+        classification = profile['classification']
+        manifest = {'schema_version': core.SCHEMA, 'category': 'web',
+                    'run_type': 'web_sql', 'status': 'partial',
+                    'profile_status': profile['status'], 'scope_origin': scope_origin,
+                    'request_sha256': hashlib.sha256(raw).hexdigest(),
+                    'requests_used': profile['requests_used'],
+                    'classification': classification,
+                    'candidate_count': int(classification == 'differential_candidate'),
+                    'ambiguous_count': int(classification == 'inconclusive'),
+                    'warnings': warnings, 'challenge_accepted': False,
+                    'coverage': {'WEB03': {'status': 'ran' if profile['status'] == 'complete'
+                                          else 'partial',
+                                          'note': 'explicit bounded selected SQL comparison'}}}
+        core._write_json(run / 'manifest.json', manifest)
+        core._write_json(run / 'transcript.json', profile)
+        _render(run, manifest)
+        return run, 'partial'
     if not lead and not words:
         warnings.append("no wordlist supplied; no discovery requests sent")
     elif not lead and not supported:

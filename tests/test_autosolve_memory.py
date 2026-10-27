@@ -39,20 +39,49 @@ if plugin == 'windows.info':
     rows += [('NTBuildLab', '26000.test'), ('Major/Minor', '10.0')]
     result = [{'Variable': key, 'Value': value, '__children': []} for key, value in rows]
 elif plugin == 'windows.pslist':
-    result = [{'PID': 4, 'PPID': 0, 'ImageFileName': 'System',
-               'Offset(V)': '0x3000', '__children': []}]
+    result = [] if mode in ('pslist_empty', 'metadata_only') else [
+        {'PID': 4, 'PPID': 0, 'ImageFileName': 'System',
+         'Offset(V)': '0x3000', '__children': []}]
+    if mode == 'many_rows':
+        result = [{'PID': index, 'PPID': 0, 'ImageFileName': f'process-{index}',
+                   'Offset(V)': 0x3000 + index, '__children': []}
+                  for index in range(120)]
+elif plugin == 'windows.psscan':
+    result = [] if mode == 'metadata_only' else [
+        {'PID': 1640, 'PPID': 1484, 'ImageFileName': 'reader_sl.exe',
+         'Offset(V)': 34061728, '__children': []}]
 elif plugin == 'windows.cmdline':
-    result = [{'PID': 4, 'Process': 'System', 'Args': 'System', '__children': []}]
+    result = [] if mode in ('pslist_empty', 'metadata_only', 'cmdline_empty') else [
+        {'PID': 4, 'Process': 'System', 'Args': 'System', '__children': []}]
+    if mode == 'many_rows':
+        result = [{'PID': index, 'Process': f'process-{index}',
+                   'Args': f'command-{index}', '__children': []}
+                  for index in range(120)]
 elif plugin == 'windows.filescan':
-    result = [{'Offset': '0x4000', 'Name': r'\\Windows\\System32\\file.txt',
-               '__children': []}]
+    result = [] if mode in ('pslist_empty', 'metadata_only') else [
+        {'Offset': '0x4000', 'Name': r'\\Windows\\System32\\file.txt',
+         '__children': []}]
+    if mode == 'many_rows':
+        result = [{'Offset': 0x5000 + index, 'Name': f'file-{index}',
+                   '__children': []} for index in range(120)]
 elif plugin == 'windows.dumpfiles':
     out = pathlib.Path(args[args.index('-o') + 1])
     (out / 'file.dat').write_bytes(b'X' * 1000 if mode == 'oversize'
                                    else b'fixture memory content')
-    result = [{'Cache': 'DataSectionObject', 'FileObject': '0x4000',
-               'FileName': r'\\Windows\\System32\\file.txt',
-               'Result': 'file.dat', '__children': []}]
+    file_object = (0x4000 if mode == 'integer_file_object' else
+                   '16384' if mode == 'decimal_file_object' else
+                   0x4001 if mode == 'mismatched_file_object' else
+                   '0x4000garbage' if mode == 'unsafe_file_object' else '0x4000')
+    file_name = ('file.txt' if mode == 'basename_dump_name' else
+                 r'\\Other\\file.txt' if mode == 'mismatched_dump_path' else
+                 r'\\Windows\\System32\\wrong.txt' if mode == 'mismatched_dump_name'
+                 else r'\\Windows\\System32\\file.txt')
+    result = [{'Cache': 'DataSectionObject', 'FileObject': file_object,
+               'FileName': file_name,
+               'Result': '../file.dat' if mode == 'unsafe_result' else 'file.dat',
+               '__children': []}]
+    if mode == 'duplicate_result':
+        result.append({**result[0], 'FileName': r'\\Windows\\System32\\wrong.txt'})
     if mode == 'multiple':
         (out / 'file.img').write_bytes(b'other cached view')
         result.append({'Cache': 'ImageSectionObject', 'FileObject': '0x4000',
@@ -119,6 +148,72 @@ class MemoryProfileTest(unittest.TestCase):
         self.assertEqual(len(files), 2)
         self.assertEqual({row['dump_row']['Cache'] for row in files},
                          {'DataSectionObject', 'ImageSectionObject'})
+
+    def test_dumpfile_address_forms_and_wrong_object(self):
+        target = {'address': 0x4000, 'space': 'physical',
+                  'name': r'\Windows\System32\file.txt'}
+        for mode in ('integer_file_object', 'decimal_file_object',
+                     'mismatched_file_object', 'unsafe_file_object', 'unsafe_result'):
+            with self.subTest(mode=mode):
+                self.log.unlink(missing_ok=True)
+                if self.output.exists():
+                    import shutil
+                    shutil.rmtree(self.output)
+                with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': mode}):
+                    records, warnings = self.inspect(targets=[target])
+                files = [row for row in records if row['kind'] == 'file']
+                if mode in ('mismatched_file_object', 'unsafe_file_object', 'unsafe_result'):
+                    self.assertEqual(files, [])
+                    self.assertFalse((self.output / 'dump-000').exists())
+                    self.assertTrue(any('unverified dump output' in x for x in warnings))
+                else:
+                    self.assertEqual(len(files), 1)
+                    self.assertEqual(files[0]['dump_row']['FileObject'],
+                                     0x4000 if mode == 'integer_file_object' else '16384')
+
+    def test_dumpfile_name_must_match_target_or_its_basename(self):
+        target = {'address': 0x4000, 'space': 'physical',
+                  'name': r'\Windows\System32\file.txt'}
+        for mode in ('basename_dump_name', 'mismatched_dump_name',
+                     'mismatched_dump_path', 'duplicate_result'):
+            with self.subTest(mode=mode):
+                self.log.unlink(missing_ok=True)
+                if self.output.exists():
+                    import shutil
+                    shutil.rmtree(self.output)
+                with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': mode}):
+                    records, warnings = self.inspect(targets=[target])
+                files = [row for row in records if row['kind'] == 'file']
+                if mode == 'basename_dump_name':
+                    self.assertEqual(len(files), 1)
+                else:
+                    self.assertEqual(files, [])
+                    self.assertFalse((self.output / 'dump-000').exists())
+                    self.assertTrue(any('unverified dump output' in x for x in warnings))
+
+    def test_psscan_recovers_process_when_pslist_is_empty(self):
+        with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': 'pslist_empty'}):
+            records, warnings = self.inspect()
+        self.assertTrue(any('command-line triage returned no rows'
+                            in warning for warning in warnings))
+        self.assertEqual(self.log.read_text().splitlines(),
+                         ['windows.info', 'windows.pslist', 'windows.psscan',
+                          'windows.cmdline', 'windows.filescan'])
+        process = next(row for row in records if row['kind'] == 'row' and
+                       row['plugin'] == 'windows.psscan')
+        self.assertEqual(process['row']['ImageFileName'], 'reader_sl.exe')
+        self.assertEqual((process['locator']['pid'], process['locator']['offset']),
+                         (1640, 34061728))
+        self.assertEqual(next(row['row_count'] for row in records if
+                             row['kind'] == 'plugin_output' and
+                             row['plugin'] == 'windows.pslist'), 0)
+
+    def test_metadata_only_is_incomplete_triage(self):
+        with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': 'metadata_only'}):
+            records, warnings = self.inspect()
+        self.assertTrue(any('process, command or file' in warning for warning in warnings))
+        self.assertFalse(any(row['kind'] == 'row' and
+                             row['plugin'] != 'windows.info' for row in records))
 
     def test_missing_symbols_skip_all_dependent_plugins(self):
         with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': 'no_symbols'}):
@@ -260,6 +355,81 @@ class MemoryCLITest(unittest.TestCase):
         self.assertEqual(updated['coverage']['DF05']['status'], 'truncated')
         self.assertNotIn('windows.dumpfiles', self.log.read_text())
         self.assertFalse(any(row['depth'] > 0 for row in updated['artifacts']))
+
+    def test_metadata_only_does_not_mark_df05_ran(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'metadata_only'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertTrue(any('process, command or file' in warning
+                            for warning in manifest['warnings']))
+
+    def test_psscan_process_only_keeps_evidence_with_partial_coverage(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'pslist_empty'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertIn('network triage not attempted', manifest['coverage']['DF05']['note'])
+        self.assertTrue(any(row['current'] and row['group'] == 'windows.psscan' and
+                            'reader_sl.exe' in row['value'] for row in manifest['intelligence']))
+
+    def test_empty_cmdline_keeps_process_and_file_evidence_but_not_full_coverage(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'cmdline_empty'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertTrue(any('command-line triage returned no rows' in warning
+                            for warning in manifest['warnings']))
+        groups = {row['group'] for row in manifest['intelligence'] if
+                  row['tag'] == 'memory row' and row['current']}
+        self.assertIn('windows.pslist', groups)
+        self.assertIn('windows.filescan', groups)
+        self.assertNotIn('windows.cmdline', groups)
+
+    def test_mismatched_dump_name_never_publishes_child(self):
+        self.hints.write_text(json.dumps({
+            'memory_image': True, 'memory_symbol_dir': str(self.symbols),
+            'memory_dump_targets': [{'address': 0x4000, 'space': 'physical',
+                                     'name': r'\Windows\System32\file.txt'}]}))
+        self.environment['MEM_FAKE_MODE'] = 'mismatched_dump_name'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertFalse(any(row['depth'] == 1 for row in manifest['artifacts']))
+        self.assertTrue(any('unverified dump output' in warning
+                            for warning in manifest['warnings']))
+
+    def test_memory_report_cap_retains_each_plugin_type(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'many_rows'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        rows = [row for row in manifest['intelligence'] if row['tag'] == 'memory row'
+                and row['current']]
+        self.assertLessEqual(len(rows), 100)
+        self.assertEqual({row['group'] for row in rows},
+                         {'windows.info', 'windows.pslist', 'windows.cmdline',
+                          'windows.filescan'})
+        inventory = json.loads(Path(next(row['inventory_path'] for row in manifest['jobs']
+                                         if row['adapter_id'] == 'memory')).read_text())
+        self.assertEqual(len([row for row in inventory if row['kind'] == 'row']), 365)
 
     def test_symbol_hardlink_inside_bundle_is_not_analyzed(self):
         bundle = self.root / 'bundle'

@@ -8,9 +8,10 @@ Use these prewritten helpers for repeatable byte conversion and bounded file ins
 For an editable local/remote connection scaffold, see [Python challenge templates](templates/README.md). That optional starter requires pwntools; the byte and inspection helpers below do not.
 
 `autosolve.py` is the developing local artifact runner. It handles bounded
-encoding/classical-cipher and XOR candidates, declared RSA/AES/hash checks,
-ZIP/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
-offline packet and CAN inspection, SQLite, and static ELF leads. `setup`
+encoding and crypto checks, safe document and image extraction, media and
+packet inspection, disk and memory triage, static reversing, and selected
+web and service workflows. These operations have different prerequisites and
+do not imply an automatic challenge solve. `setup`
 uses uv to install the hash pinned Python core into `.autosolve/envs/core/`
 with CPython 3.12, without changing the active Python or `/opt/ctf-tools`.
 It needs internet on a fresh checkout and never installs native engines.
@@ -25,6 +26,24 @@ python3 scripts/autosolve.py setup --profiles all
 .autosolve/envs/core/bin/python scripts/autosolve.py analyze ./challenge.zip --category auto --budget 300
 .autosolve/envs/core/bin/python scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 300
 ```
+
+For repeating XOR over binary data, a private hints file may supply
+`{"known_plaintext": "literal known bytes"}`. The value is UTF-8, at most 256
+bytes, and must exceed the unknown key length by at least five bytes to check
+repetition. Matches report the byte offset and key phase as unverified
+candidates. When this hint is present, candidate previews are withheld from
+reports; offsets and hashes still point to exact bytes in private artifacts.
+
+For a selected Linux x86 ELF checker, put its bounded input model in a private
+hints file: `{"checker":{"channel":"argv","length":4,"find":{"stdout":"WIN"},"avoid":{"stdout":"LOSE"}}}`.
+Run `analyze ./checker --category reversing --hints ./checker.json
+--execute-local` to search symbolically. The result is a candidate only. Add
+`--replay-checker` to that command, or to `resume RUN_ID --hints ./checker.json`,
+to run the checker concretely and validate an observable success string with a
+zero exit code. Replay is never implicit on resume. Address-only conditions
+remain candidates after replay because they lack an observable success oracle.
+The source must be one selected ELF file; neither symbolic search nor replay
+claims challenge acceptance.
 
 For an assigned service, `service --host HOST --port PORT --protocol private.json`
 runs only the protocol's explicit hex writes and delimiter, length, or exact
@@ -42,6 +61,28 @@ wordlist: `python3 scripts/autosolve.py web --request-file ./request.http
 --scope-origin https://assigned.example --wordlist ./small-words.txt --kind path
 --budget 30`. The origin is authoritative. Redirects are recorded without
 following them, and omitting the wordlist sends no requests.
+
+WEB03 checks need a deliberate `--sql-test --sql-parameter NAME` on the same
+scoped request. Optional selected values use repeated `--sql-candidate VALUE`;
+the result is a differential lead, never proof of server acceptance.
+`web --lead-kind traversal|template` requires an explicit query parameter and
+expected response marker. These checks stay within finite request budgets and
+do not replay on resume.
+
+WEB08 compares two explicitly supplied workflows and an expected response
+invariant. Put the roles, ordered steps, and invariant in a private JSON
+fixture; mark each step `safe_to_replay: true` only when sending it is intended.
+Run `web --scope-origin https://assigned.example --workflow-file ./private.json
+--workflow-test --budget 30`. The transcript stays private, and `resume`
+does not send the requests again. A difference is an observed lead, not proof
+of an authorization flaw.
+
+For a declared arithmetic service, use `service --host HOST --port PORT
+--arithmetic-protocol ./private.json --max-rounds 100 --budget 120`. The JSON
+declares framing, question grammar, completion condition, and response bytes.
+The parser handles bounded integer arithmetic only; unsupported questions
+stop before an answer is sent. Resume uses the saved transcript without
+reconnecting.
 
 Setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
@@ -132,6 +173,9 @@ python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
 The protocol can also set `headers` for auth, `csrf_cookie`/`csrf_header` inside
 `chat`, `client_id_field`, one explicit `bootstrap` login or tab-claim, and a
 declared serial `heartbeat` before chat when the frontend requires it.
+Use `chat.static_fields` for any fixed JSON or form body fields shown by the
+frontend; their request values are redacted in the private transcript, while
+raw responses remain available as evidence.
 Put secrets in the private protocol file, not
 command arguments. `verification` requires an explicit same-origin path,
 `success_field`, and `success_value`; a POST checker also needs

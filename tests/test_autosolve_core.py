@@ -3,8 +3,10 @@
 import base64
 import fcntl
 import gzip
+import hashlib
 import io
 import json
+import lzma
 import multiprocessing
 import os
 import sqlite3
@@ -64,7 +66,9 @@ class AutosolveCoreTests(unittest.TestCase):
                                  ('disk_memory', 'DF05'), ('pwn_services', 'PWN01'),
                                  ('pwn_services', 'PWN02'), ('pwn_services', 'PWN07'),
                                  ('malware_reversing', 'REV03'),
-                                 ('web', 'WEB01'), ('web', 'WEB02'), ('web', 'WEB05')):
+                                 ('malware_reversing', 'REV07'),
+                                 ('web', 'WEB01'), ('web', 'WEB02'), ('web', 'WEB03'),
+                                 ('web', 'WEB05')):
             with self.subTest(category=category):
                 rows = self.run_cli('capabilities', '--category', category)['families']
                 self.assertEqual(next(row['status'] for row in rows if row['id'] == family), 'partial')
@@ -186,6 +190,81 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertEqual(manifest['coverage']['ENC01']['status'], 'ran')
             self.assertEqual(manifest['coverage']['ENC02']['status'], 'ran')
             self.assertEqual(source.read_bytes(), encoded)
+
+    def test_encoded_concatenated_compression_reports_trailing_and_member_boundaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = gzip.compress(b'ENC{member_one}', mtime=0)
+            second = gzip.compress(b'\x00\xff-member-two', mtime=0)
+            source = root / 'input.txt'
+            source.write_bytes(base64.b64encode(first + second + b'TAIL'))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            final = next(item for item in manifest['artifacts']
+                         if item['depth'] == 2 and
+                         Path(item['path']).read_bytes() == b'ENC{member_one}\x00\xff-member-two')
+            locator = final['source_locator']
+            self.assertEqual(locator['transform'], 'gzip')
+            self.assertEqual(locator['trailing_bytes'], 4)
+            self.assertEqual(locator['members'], [
+                {'input_start': 0, 'input_end': len(first), 'output_start': 0, 'output_end': 15},
+                {'input_start': len(first), 'input_end': len(first) + len(second),
+                 'output_start': 15, 'output_end': 28},
+            ])
+            self.assertEqual(manifest['coverage']['ENC02']['status'], 'truncated')
+            self.assertTrue(any('4 trailing bytes' in warning for warning in manifest['warnings']))
+            resumed = self.run_cli('resume', run, code=3)
+            self.assertEqual(resumed['status'], 'partial')
+            continued = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(continued['coverage']['ENC02']['status'], 'truncated')
+            self.assertEqual(sum('4 trailing bytes' in warning
+                                 for warning in continued['warnings']), 1)
+
+    def test_encoded_truncated_stream_and_expansion_limit_have_explicit_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, compressed in (
+                ('truncated', gzip.compress(b'ENC{complete}', mtime=0)[:-2]),
+                ('limit', gzip.compress(b'A' * (core.MAX_CHILD + 1), mtime=0)),
+            ):
+                with self.subTest(name=name):
+                    source = root / f'{name}.txt'
+                    source.write_bytes(base64.b64encode(compressed))
+                    run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                            '--runs-root', root / f'{name}-runs', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    self.assertEqual(manifest['coverage']['ENC02']['status'], 'truncated')
+                    self.assertTrue(any(f'gzip {name}' in warning
+                                        for warning in manifest['warnings']))
+                    self.assertFalse(any(edge['operation'].startswith('gzip')
+                                         for item in manifest['artifacts']
+                                         for edge in item['parents']))
+
+    def test_encoded_xz_padding_joins_valid_streams_but_rejects_misaligned_padding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first, second = lzma.compress(b'ENC{xz-first}'), lzma.compress(b'\x00xz-second')
+            for pad, valid in ((b'\x00' * 4, True), (b'\x00' * 3, False)):
+                with self.subTest(valid=valid):
+                    source = root / f'{len(pad)}.txt'
+                    source.write_bytes(base64.b64encode(first + pad + second + b'TAIL'))
+                    run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                            '--runs-root', root / f'runs-{len(pad)}', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    recovered = [item for item in manifest['artifacts'] if item['depth'] == 2
+                                 and Path(item['path']).read_bytes() == b'ENC{xz-first}\x00xz-second']
+                    if valid:
+                        self.assertEqual(len(recovered), 1)
+                        locator = recovered[0]['source_locator']
+                        self.assertEqual(locator['padding_bytes'], 4)
+                        self.assertEqual(locator['trailing_bytes'], 4)
+                        self.assertEqual(locator['members'][1]['input_start'], len(first) + 4)
+                    else:
+                        self.assertEqual(recovered, [])
+                        self.assertTrue(any('xz invalid' in warning
+                                            for warning in manifest['warnings']))
+                    self.assertEqual(manifest['coverage']['ENC02']['status'], 'truncated')
 
     def test_binary_rows_keep_line_locator_and_declared_count_mismatch(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -860,6 +939,180 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertEqual(child['source_locator']['xor_key_length'], len(key))
             self.assertEqual(manifest['coverage']['ENC05']['status'], 'ran')
 
+    def test_explicit_encoding_searches_xor_when_ciphertext_looks_like_bmp(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            key = b'BLUE-CABLE!'
+            phase = 7
+            plaintext = (bytes(range(32)) +
+                         b'The message is in the file and the key is in the data. ' * 12 +
+                         bytes(range(255, 223, -1)))
+            source = root / 'cipher.bin'
+            source.write_bytes(bytes(byte ^ key[(index + phase) % len(key)]
+                                     for index, byte in enumerate(plaintext)))
+            self.assertEqual(source.read_bytes()[:2], b'BM')
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            rotated = (key[phase:] + key[:phase]).hex()
+            child = next(a for a in manifest['artifacts']
+                         if a['source_locator'].get('xor_key_hex') == rotated)
+            self.assertEqual(Path(child['path']).read_bytes(), plaintext)
+            self.assertEqual(manifest['coverage']['ENC05']['status'], 'ran')
+
+    def test_xor_missing_frequency_evidence_is_reported(self):
+        for name, data, expected in (
+            ('short', b'\x00\x01\x02', 'skipped prerequisite'),
+            ('binary', bytes(range(256)), 'no finding'),
+        ):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / name
+                source.write_bytes(data)
+                run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                coverage = manifest['coverage']['ENC05']
+                self.assertEqual(coverage['status'], expected)
+                self.assertIn('frequency', coverage['note'])
+
+    def test_literal_xor_crib_candidate_and_changed_hint_retirement(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            key = b'BLUE-CABLE!'
+            phase = 7
+            crib = b'KNOWN-CONTAINER!'
+            plaintext = bytearray(bytes(range(256)) * 4)
+            plaintext[37:37 + len(crib)] = crib
+            source = root / 'cipher.bin'
+            source.write_bytes(bytes(byte ^ key[(index + phase) % len(key)]
+                                     for index, byte in enumerate(plaintext)))
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'known_plaintext': crib.decode()}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            child = next(a for a in manifest['artifacts']
+                         if a['source_locator'].get('xor_crib_offset') == 37 and
+                         Path(a['path']).read_bytes() == bytes(plaintext))
+            self.assertEqual(child['source_locator']['xor_key_hex'],
+                             (key[phase:] + key[:phase]).hex())
+            self.assertEqual(child['source_locator']['xor_crib_key_phase'], 37 % len(key))
+            self.assertNotIn(crib.decode(), (run / 'report.md').read_text())
+            self.assertTrue(any(f['artifact_id'] == child['id'] and f['state'] == 'candidate'
+                                for f in manifest['findings']))
+            self.assertFalse(any(f['artifact_id'] == child['id'] and
+                                 f['state'] in ('validated_transform', 'challenge_accepted')
+                                 for f in manifest['findings']))
+            self.assertEqual(manifest['coverage']['ENC05']['status'], 'ran')
+
+            hints.write_text(json.dumps({'known_plaintext': 'WRONG-CONTAINER!'}))
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            updated = json.loads((run / 'manifest.json').read_text())
+            retired = next(a for a in updated['artifacts'] if a['id'] == child['id'])
+            self.assertFalse(retired['current'])
+            self.assertFalse(any(f['artifact_id'] == child['id'] and f['current']
+                                 for f in updated['findings']))
+            self.assertEqual(updated['coverage']['ENC05']['status'], 'no finding')
+            self.assertIn('supplied literal crib', updated['coverage']['ENC05']['note'])
+
+            hints.write_text(json.dumps({'known_plaintext': 'A' * 257}))
+            self.assertEqual(self.run_cli('resume', run, '--hints', hints, code=2)['status'],
+                             'invalid_input')
+
+    def test_crib_inside_user_pattern_keeps_exact_match_private(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            key = b'BLUE-CABLE!'
+            phase = 7
+            value = b'flag{KNOWN_PREFIX_MORE}'
+            crib = b'KNOWN_PREFIX_MORE'
+            plaintext = bytearray(bytes(range(256)) * 4)
+            plaintext[37:37 + len(value)] = value
+            source = root / 'cipher.bin'
+            source.write_bytes(bytes(byte ^ key[(index + phase) % len(key)]
+                                     for index, byte in enumerate(plaintext)))
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'known_plaintext': crib.decode(),
+                                         'flag_patterns': [r'flag\{KNOWN_PREFIX_MORE\}']}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            child = next(a for a in manifest['artifacts']
+                         if a['source_locator'].get('xor_crib_offset') == 42 and
+                         Path(a['path']).read_bytes() == bytes(plaintext))
+            matches = [f for f in manifest['findings']
+                       if f['artifact_id'] == child['id'] and f['operation'] == 'user pattern']
+            self.assertEqual(len(matches), 1)
+            self.assertEqual(matches[0]['source_locator'], {'offset': 37})
+            self.assertEqual(matches[0]['match_bytes'], len(value))
+            self.assertEqual(matches[0]['match_sha256'], hashlib.sha256(value).hexdigest())
+            self.assertEqual(matches[0]['state'], 'candidate')
+            self.assertNotIn(crib.decode(), (run / 'report.md').read_text())
+            self.assertNotIn(crib.decode(), (run / 'findings.json').read_text())
+
+    def test_large_file_pattern_keeps_exact_match_private(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            value = b'flag{KNOWN_PREFIX_MORE}'
+            crib = b'KNOWN_PREFIX_MORE'
+            offset = core.MAX_READ + 8
+            source = root / 'large.bin'
+            source.write_bytes(b'\x00' * offset + value)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'known_plaintext': crib.decode(),
+                                         'flag_patterns': [r'flag\{KNOWN_PREFIX_MORE\}']}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            matches = [f for f in manifest['findings'] if f['operation'] == 'user pattern']
+            self.assertEqual(len(matches), 1)
+            self.assertEqual(matches[0]['source_locator'], {'offset': offset})
+            self.assertEqual(matches[0]['match_bytes'], len(value))
+            self.assertEqual(matches[0]['match_sha256'], hashlib.sha256(value).hexdigest())
+            self.assertNotIn(crib.decode(), (run / 'report.md').read_text())
+            self.assertNotIn(crib.decode(), (run / 'findings.json').read_text())
+
+    def test_large_file_partial_crib_match_keeps_preview_private(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            crib = b'PRIVATE-CRIB-TOKEN!'
+            offset = core.MAX_READ + 8
+            source = root / 'large.bin'
+            source.write_bytes(b'\x00' * offset + crib)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'known_plaintext': crib.decode(),
+                                         'flag_patterns': ['PRIVATE-CRIB']}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            matches = [f for f in manifest['findings'] if f['operation'] == 'user pattern']
+            self.assertEqual(len(matches), 1)
+            self.assertEqual(matches[0]['source_locator'], {'offset': offset})
+            self.assertEqual(matches[0]['match_bytes'], len(b'PRIVATE-CRIB'))
+            self.assertEqual(matches[0]['match_sha256'], hashlib.sha256(b'PRIVATE-CRIB').hexdigest())
+            self.assertEqual(matches[0]['evidence'], '[preview withheld for private known plaintext]')
+            self.assertNotIn('PRIVATE-CRIB', (run / 'report.md').read_text())
+            self.assertNotIn('PRIVATE-CRIB', (run / 'findings.json').read_text())
+
+    def test_default_printable_preview_keeps_long_crib_private(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            crib = 'A' * 256
+            source = root / 'plain.bin'
+            source.write_bytes(crib.encode())
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'known_plaintext': crib}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--hints', hints, '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            previews = [f for f in manifest['findings'] if f['operation'] == 'printable text']
+            self.assertTrue(previews)
+            self.assertTrue(all(f['evidence'] == '[preview withheld for private known plaintext]'
+                                for f in previews))
+            self.assertNotIn('A' * 64, (run / 'report.md').read_text())
+            self.assertNotIn('A' * 64, (run / 'findings.json').read_text())
+
     def test_rsa_hint_relations_are_verified_and_resume_is_scoped(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -1089,6 +1342,217 @@ class AutosolveCoreTests(unittest.TestCase):
             for family in ('IMG01', 'DOC01', 'ENC01', 'ENC02'):
                 self.assertEqual(manifest['coverage'][family]['status'], 'ran')
 
+    def test_png_binary_gap_zip_child_is_current_after_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('oracle.bin', b'PNG_GAP_ORACLE\x00')
+            png = sample_png()
+            gap = b'CFG\xff\x00\x11'
+            source = root / 'image.dat'
+            original = png + gap + archive.getvalue()
+            source.write_bytes(original)
+            run = Path(self.run_cli('analyze', source, '--category', 'auto',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(a['current'] and a['source_locator'].get('image_offset') == len(png) + len(gap)
+                                and a['source_locator'].get('iend_offset') == len(png) - 12
+                                and a['source_locator'].get('gap_bytes') == len(gap)
+                                and a['source_locator'].get('padding_bytes') == 0
+                                for a in manifest['artifacts']))
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'PNG_GAP_ORACLE\x00'
+                                for a in manifest['artifacts']))
+            before = [j['id'] for j in manifest['jobs'] if j['adapter_id'] == 'image-tail']
+            self.run_cli('resume', run, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual([j['id'] for j in resumed['jobs'] if j['adapter_id'] == 'image-tail'], before)
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'PNG_GAP_ORACLE\x00'
+                                for a in resumed['artifacts']))
+            self.assertEqual(source.read_bytes(), original)
+
+    def test_png_gap_truncated_and_oversized_decoy_have_no_zip_child(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('oracle.bin', b'PNG_GAP_ORACLE')
+            source = root / 'image.png'
+            for index, tail in enumerate((b'CFG\xff' + archive.getvalue()[:-5],
+                                          b'\x01PK\x03\x04' + b'J' * (core.MAX_CHILD + 1))):
+                with self.subTest(index=index):
+                    original = sample_png() + tail
+                    source.write_bytes(original)
+                    run = Path(self.run_cli('analyze', source, '--category', 'images',
+                                            '--runs-root', root / f'runs-{index}', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    jobs = [j for j in manifest['jobs'] if j['adapter_id'] == 'image-tail']
+                    self.assertEqual(len(jobs), 1)
+                    self.assertEqual(jobs[0]['status'], 'complete')
+                    self.assertEqual(jobs[0]['child_ids'], [])
+                    self.assertFalse(any('trailing ZIP exceeds' in note for note in manifest['warnings']))
+                    self.assertEqual(source.read_bytes(), original)
+
+    def test_jpeg_padded_zip_tail_reaches_archive_member_without_changing_source(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is needed to author the JPEG fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            buffer = io.BytesIO()
+            Image.new('RGB', (2, 2), (20, 80, 140)).save(buffer, format='JPEG')
+            jpeg = buffer.getvalue()
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('oracle.bin', b'JPEG_TAIL_ORACLE\x00\xff')
+            padding = b'\x00\x00\n'
+            source = root / 'image.dat'
+            original = jpeg + padding + archive.getvalue()
+            source.write_bytes(original)
+            run = Path(self.run_cli('analyze', source, '--category', 'auto',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(a['depth'] > 0 and a['current']
+                                and Path(a['path']).read_bytes() == b'JPEG_TAIL_ORACLE\x00\xff'
+                                for a in manifest['artifacts']))
+            self.assertTrue(any(a['current'] and a['source_locator'].get('image_offset') == len(jpeg) + len(padding)
+                                and a['source_locator'].get('eoi_offset') == len(jpeg) - 2
+                                for a in manifest['artifacts']))
+            self.assertEqual(manifest['coverage']['IMG01']['status'], 'ran')
+            self.assertEqual(manifest['coverage']['DOC01']['status'], 'ran')
+            self.assertEqual(source.read_bytes(), original)
+            before = [job['id'] for job in manifest['jobs'] if job['adapter_id'] == 'image-tail']
+            self.run_cli('resume', run, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual([job['id'] for job in resumed['jobs'] if job['adapter_id'] == 'image-tail'], before)
+            self.assertTrue(any(a['depth'] > 0 and a['current']
+                                and Path(a['path']).read_bytes() == b'JPEG_TAIL_ORACLE\x00\xff'
+                                for a in resumed['artifacts']))
+            self.assertEqual(source.read_bytes(), original)
+
+    def test_jpeg_truncated_or_corrupt_appended_zip_produces_no_archive_child(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is needed to author the JPEG fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            buffer = io.BytesIO()
+            Image.new('RGB', (2, 2), (20, 80, 140)).save(buffer, format='JPEG')
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_STORED) as writer:
+                writer.writestr('oracle.bin', b'JPEG_TAIL_ORACLE')
+            source = root / 'image.dat'
+            corrupt = bytearray(archive.getvalue())
+            corrupt[corrupt.index(b'JPEG_TAIL_ORACLE')] ^= 1
+            fake_jpeg = bytes.fromhex('ffd8 ffc0 0008 080001000101 ffda 0006 01010000 ffd9')
+            for index, data in enumerate((buffer.getvalue() + b'\x00' + archive.getvalue()[:-5],
+                                          buffer.getvalue() + b'\x01PK\x03\x04decoy' + archive.getvalue()[:-5],
+                                          buffer.getvalue() + b'\x01PK\x03\x04random',
+                                          buffer.getvalue() + b'\x00' + bytes(corrupt),
+                                          fake_jpeg + archive.getvalue())):
+                with self.subTest(index=index):
+                    source.write_bytes(data)
+                    run = Path(self.run_cli('analyze', source, '--category', 'auto',
+                                            '--runs-root', root / f'runs-{index}', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    self.assertFalse(any(a['source_locator'].get('image_offset') is not None
+                                         for a in manifest['artifacts']))
+
+    def test_jpeg_binary_gap_zip_child_is_current_after_resume(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is needed to author the JPEG fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            jpeg = io.BytesIO()
+            Image.new('RGB', (2, 2), (20, 80, 140)).save(jpeg, format='JPEG')
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('oracle.bin', b'BINARY_GAP_ORACLE\x00')
+            gap = b'CFG\xff\x00\x11'
+            source = root / 'image.dat'
+            original = jpeg.getvalue() + gap + archive.getvalue()
+            source.write_bytes(original)
+            run = Path(self.run_cli('analyze', source, '--category', 'auto',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(a['current'] and a['source_locator'].get('image_offset') == len(jpeg.getvalue()) + len(gap)
+                                and a['source_locator'].get('eoi_offset') == len(jpeg.getvalue()) - 2
+                                and a['source_locator'].get('gap_bytes') == len(gap)
+                                and a['source_locator'].get('padding_bytes') == 0
+                                for a in manifest['artifacts']))
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'BINARY_GAP_ORACLE\x00'
+                                for a in manifest['artifacts']))
+            before = [j['id'] for j in manifest['jobs'] if j['adapter_id'] == 'image-tail']
+            self.run_cli('resume', run, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual([j['id'] for j in resumed['jobs'] if j['adapter_id'] == 'image-tail'], before)
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'BINARY_GAP_ORACLE\x00'
+                                for a in resumed['artifacts']))
+            self.assertEqual(source.read_bytes(), original)
+
+    def test_jpeg_oversized_decoy_is_no_finding_and_real_zip_is_truncated(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is needed to author the JPEG fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            jpeg = io.BytesIO()
+            Image.new('RGB', (2, 2), (20, 80, 140)).save(jpeg, format='JPEG')
+            source = root / 'image.jpg'
+            original = jpeg.getvalue() + b'\x01PK\x03\x04' + b'J' * (core.MAX_CHILD + 1)
+            source.write_bytes(original)
+            run = Path(self.run_cli('analyze', source, '--category', 'images',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            jobs = [j for j in manifest['jobs'] if j['adapter_id'] == 'image-tail']
+            self.assertEqual(len(jobs), 1)
+            self.assertEqual(jobs[0]['status'], 'complete')
+            self.assertEqual(jobs[0]['child_ids'], [])
+            self.assertFalse(any('trailing ZIP exceeds' in note for note in manifest['warnings']))
+            self.assertEqual(source.read_bytes(), original)
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_STORED) as writer:
+                writer.writestr('large.bin', b'A' * (core.MAX_CHILD + 1))
+            real = jpeg.getvalue() + b'\x01' + archive.getvalue()
+            source.write_bytes(real)
+            run = Path(self.run_cli('analyze', source, '--category', 'images',
+                                    '--runs-root', root / 'real-runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['IMG01']['status'], 'truncated')
+            self.assertTrue(any('JPEG trailing ZIP exceeds' in note for note in manifest['warnings']))
+            self.assertEqual(source.read_bytes(), real)
+
+    def test_jpeg_expanded_zip_limit_is_truncated(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is needed to author the JPEG fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            jpeg = io.BytesIO()
+            Image.new('RGB', (2, 2), (20, 80, 140)).save(jpeg, format='JPEG')
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as writer:
+                writer.writestr('large.bin', b'A' * (core.MAX_CHILD + 1))
+            source = root / 'image.jpg'
+            source.write_bytes(jpeg.getvalue() + archive.getvalue())
+            run = Path(self.run_cli('analyze', source, '--category', 'images',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['IMG01']['status'], 'truncated')
+            self.assertTrue(any('ZIP member bytes exceed' in note for note in manifest['warnings']))
+            self.assertFalse(any(a['source_locator'].get('image_offset') is not None
+                                 for a in manifest['artifacts']))
+
     def test_image_zip_mime_compressed_encoding_chain(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -1102,7 +1566,7 @@ class AutosolveCoreTests(unittest.TestCase):
             with zipfile.ZipFile(archive_path, 'w') as archive:
                 archive.writestr('letter.eml', message.as_bytes())
             source = root / 'image.dat'
-            source.write_bytes(sample_png() + archive_path.read_bytes())
+            source.write_bytes(sample_png() + b'\x01CFG' + archive_path.read_bytes())
             run = Path(self.run_cli('analyze', source, '--category', 'auto',
                                     '--runs-root', root / 'runs', code=3)['run'])
             manifest = json.loads((run / 'manifest.json').read_text())
@@ -1133,6 +1597,82 @@ class AutosolveCoreTests(unittest.TestCase):
             self.assertEqual(osint['coverage']['OS01']['status'], 'ran')
             self.assertFalse(any(a['source_locator'].get('preview') for a in osint['artifacts']))
         self.assertEqual(source.read_bytes(), original)
+
+    @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
+    def test_checker_cli_execution_gate_replay_and_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'checker.c'
+            binary = root / 'checker'
+            source.write_text('''#include <stdio.h>
+int main(int argc, char **argv) {
+  if (argc == 2 && argv[1][0] == 'R' && argv[1][1] == '7') {
+    puts("REV07_WIN"); return 0;
+  }
+  puts("REV07_LOSE"); return 1;
+}''')
+            subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
+                           check=True, capture_output=True)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'checker': {'channel': 'argv', 'length': 2,
+                                      'find': {'stdout': 'REV07_WIN'},
+                                      'avoid': {'stdout': 'REV07_LOSE'}}}))
+            no_gate = self.run_cli('analyze', binary, '--category', 'reversing',
+                                   '--hints', hints, '--runs-root', root / 'runs',
+                                   '--budget', '45', code=3)
+            manifest = json.loads((Path(no_gate['run']) / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['REV07']['status'], 'skipped prerequisite')
+            self.assertFalse(any(job['adapter_id'] == 'checker' for job in manifest['jobs']))
+            self.assertFalse(any(f['state'] == 'validated_input' for f in manifest['findings']))
+            self.assertEqual(self.run_cli('analyze', binary, '--category', 'reversing',
+                                          '--hints', hints, '--replay-checker',
+                                          '--runs-root', root / 'other', code=2)['status'], 'invalid_input')
+
+            result = self.run_cli('analyze', binary, '--category', 'reversing',
+                                  '--hints', hints, '--execute-local', '--runs-root',
+                                  root / 'runs', '--budget', '45', code=3)
+            run = Path(result['run'])
+            candidate = json.loads((run / 'manifest.json').read_text())
+            jobs = [job for job in candidate['jobs'] if job['adapter_id'] == 'checker']
+            self.assertEqual(len(jobs), 1)
+            report = json.loads(Path(jobs[0]['report_path']).read_text())
+            self.assertEqual(report['status'], 'candidate', report)
+            self.assertEqual(bytes.fromhex(report['candidate_hex']), b'R7')
+            self.assertFalse(report['replay']['attempted'])
+            self.assertTrue(any(f['state'] == 'candidate' and f['job_id'] == jobs[0]['id']
+                                for f in candidate['findings']))
+            self.assertFalse(any(f['state'] == 'validated_input' for f in candidate['findings']))
+
+            self.run_cli('resume', run, '--hints', hints, '--replay-checker',
+                         '--budget', '45', code=3)
+            replayed = json.loads((run / 'manifest.json').read_text())
+            replay_jobs = [job for job in replayed['jobs'] if job['adapter_id'] == 'checker'
+                           and job.get('replay_requested')]
+            self.assertEqual(len(replay_jobs), 1)
+            replay_report = json.loads(Path(replay_jobs[0]['report_path']).read_text())
+            self.assertEqual(replay_report['status'], 'validated_input', replay_report)
+            self.assertEqual(replay_report['replay']['returncode'], 0)
+            self.assertTrue(any(f['state'] == 'validated_input' and f['current']
+                                for f in replayed['findings']))
+            self.assertFalse(any(f['state'] == 'challenge_accepted'
+                                 for f in replayed['findings']))
+            before = len(replayed['jobs'])
+            self.run_cli('resume', run, '--hints', hints, '--budget', '45', code=3)
+            after = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len(after['jobs']), before)
+            self.assertTrue(any(f['state'] == 'validated_input' and f['current']
+                                for f in after['findings']))
+
+            source.write_text(source.read_text().replace("== 'R'", "== 'X'"))
+            subprocess.run(['gcc', '-O0', '-fno-pie', '-no-pie', '-o', str(binary), str(source)],
+                           check=True, capture_output=True)
+            self.run_cli('resume', run, '--hints', hints, '--budget', '45', code=3)
+            changed = json.loads((run / 'manifest.json').read_text())
+            self.assertFalse(any(f['state'] == 'validated_input' and f['current']
+                                 for f in changed['findings']))
+            self.assertTrue(any(f['state'] == 'candidate' and f['current'] and
+                                f['evidence'].endswith(b'X7'.hex())
+                                for f in changed['findings']))
 
     def test_missing_exiftool_does_not_truncate_completed_channel_views(self):
         with tempfile.TemporaryDirectory() as directory:

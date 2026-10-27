@@ -1,13 +1,22 @@
 """WEB03 bounded checks against a disposable SQLite web app."""
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
+from pathlib import Path
 import sqlite3
+import subprocess
+import sys
+import tempfile
 import threading
 import time
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
 from scripts.autosolve_lib.profiles.web_sql import assess_sql
+from scripts.autosolve_lib import setup as capabilities
+
+
+SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/autosolve.py'
 
 
 class WebSqlTests(unittest.TestCase):
@@ -73,6 +82,16 @@ class WebSqlTests(unittest.TestCase):
         self.addCleanup(self.server.server_close)
         self.addCleanup(self.server.shutdown)
         self.origin = f'http://127.0.0.1:{self.server.server_port}'
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def cli(self, *args, code):
+        completed = subprocess.run([sys.executable, '-B', str(SCRIPT), '--json',
+                                    *map(str, args)], capture_output=True, text=True,
+                                   timeout=15)
+        self.assertEqual(completed.returncode, code, completed.stderr + completed.stdout)
+        return json.loads(completed.stdout)
 
     def raw_get(self, path):
         return f'GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{self.server.server_port}\r\nCookie: session=local\r\n\r\n'.encode()
@@ -153,6 +172,68 @@ class WebSqlTests(unittest.TestCase):
         self.assertEqual(report['classification'], 'inconclusive')
         self.assertLessEqual(report['requests_used'], 6)
         self.assertTrue(warnings)
+
+    def test_public_cli_private_run_selected_recovery_and_no_replay(self):
+        request = self.root / 'request.http'
+        raw = self.raw_get('/vulnerable?id=1&keep=a%2Bb')
+        request.write_bytes(raw)
+        result = self.cli('web', '--request-file', request, '--scope-origin', self.origin,
+                          '--sql-parameter', 'id', '--sql-test', '--sql-table', 'secrets',
+                          '--sql-column', 'value', '--sql-candidate', 'wrong',
+                          '--sql-candidate', 'key_42', '--budget', '3', '--rate', '20',
+                          '--runs-root', self.root / 'runs', code=3)
+        run = Path(result['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        transcript = json.loads((run / 'transcript.json').read_text())
+        self.assertEqual(manifest['run_type'], 'web_sql')
+        self.assertEqual(manifest['coverage']['WEB03']['status'], 'ran')
+        self.assertFalse(manifest['challenge_accepted'])
+        self.assertEqual(transcript['classification'], 'differential_candidate')
+        self.assertEqual(transcript['selected_value'], 'key_42')
+        self.assertEqual((run / 'request.http').read_bytes(), raw)
+        self.assertEqual(len(self.seen), 10)
+        self.assertEqual(run.stat().st_mode & 0o777, 0o700)
+        self.assertEqual((run / 'transcript.json').stat().st_mode & 0o777, 0o600)
+        self.assertNotIn('key_42', (run / 'report.md').read_text())
+        self.assertNotIn('session=local', (run / 'report.md').read_text())
+        self.cli('resume', run, code=3)
+        self.cli('report', run, code=0)
+        self.assertEqual(len(self.seen), 10)
+
+    def test_public_cli_requires_opt_in_and_selected_scope(self):
+        request = self.root / 'request.http'
+        request.write_bytes(self.raw_get('/vulnerable?id=1'))
+        base = ('web', '--request-file', request, '--scope-origin', self.origin,
+                '--sql-parameter', 'id', '--runs-root', self.root / 'runs')
+        self.assertEqual(self.cli(*base, code=2)['status'], 'invalid_input')
+        self.assertEqual(self.cli(*base, '--sql-test', '--wordlist', request,
+                                  code=2)['status'], 'invalid_input')
+        request.write_bytes(self.raw_get('/vulnerable?id=1').replace(
+            str(self.server.server_port).encode(), b'1'))
+        self.assertEqual(self.cli(*base, '--sql-test', code=2)['status'], 'invalid_input')
+        self.assertEqual(self.seen, [])
+
+    def test_public_cli_form_post(self):
+        body = b'id=1&keep=original'
+        request = self.root / 'form.http'
+        request.write_bytes((
+            f'POST /form HTTP/1.1\r\nHost: 127.0.0.1:{self.server.server_port}\r\n'
+            f'Content-Type: application/x-www-form-urlencoded\r\n'
+            f'Content-Length: {len(body)}\r\n\r\n').encode() + body)
+        result = self.cli('web', '--request-file', request, '--scope-origin', self.origin,
+                          '--sql-parameter', 'id', '--sql-test', '--sql-location', 'form',
+                          '--budget', '3', '--rate', '20', '--runs-root', self.root / 'runs',
+                          code=3)
+        transcript = json.loads((Path(result['run']) / 'transcript.json').read_text())
+        self.assertEqual(transcript['classification'], 'differential_candidate')
+        self.assertEqual(transcript['requests_used'], 6)
+        self.assertTrue(all(method == 'POST' and path == '/form' and
+                            b'keep=original' in sent for method, path, sent, _ in self.seen))
+
+    def test_doctor_checks_web03_locally(self):
+        result = capabilities.doctor(['web'], self_test=True)
+        self.assertEqual(result['operations']['web.sql_assessment'],
+                         {'implemented': True, 'functional_probe': 'passed', 'status': 'ready'})
 
 
 if __name__ == '__main__':

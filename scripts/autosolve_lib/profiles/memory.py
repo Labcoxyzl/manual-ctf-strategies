@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import re
 import resource
 import selectors
 import shutil
@@ -112,6 +113,22 @@ def _symbol_gate(rows):
             'build': facts.get('NTBuildLab'), 'version': facts.get('Major/Minor')}
 
 
+def _address(value):
+    if type(value) is int:
+        return value if value >= 0 else None
+    if type(value) is str and len(value) <= 34 and re.fullmatch(
+            r'(?:0[xX][0-9a-fA-F]+|[0-9]+)', value):
+        return int(value, 16 if value.lower().startswith('0x') else 10)
+    return None
+
+
+def _dump_name_matches(value, target):
+    if type(value) is not str or not value:
+        return False
+    actual, expected = value.replace('/', '\\').casefold(), target.replace('/', '\\').casefold()
+    return actual == (expected if '\\' in actual else expected.rsplit('\\', 1)[-1])
+
+
 def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = None,
                    targets: list[dict] | None = None, timeout: float, max_output: int,
                    max_files: int, max_total_bytes: int) -> tuple[list[dict], list[str]]:
@@ -164,8 +181,9 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
     records, warnings = [], []
     file_rows = []
     completed_plugins = []
+    plugins = list(PLUGINS)
     symbol_identity = None
-    for plugin in PLUGINS:
+    for plugin in plugins:
         raw, err, problem = _run(base + [plugin], deadline, max_output)
         record = {'kind': 'plugin_output', 'plugin': plugin, 'status': 'complete',
                   'raw_stdout': raw.decode('utf-8', 'replace'),
@@ -189,6 +207,9 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
             break
         record['row_count'] = len(rows)
         records.append(record)
+        if plugin == 'windows.pslist' and not rows:
+            # shortcut: scan only when the linked list is empty; expand for hidden-process hunting.
+            plugins.insert(plugins.index(plugin) + 1, 'windows.psscan')
         if plugin == 'windows.info':
             symbol_identity = _symbol_gate(rows)
             if symbol_identity is None:
@@ -210,19 +231,28 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
                             **identity})
         if plugin == 'windows.filescan':
             file_rows = rows
-    if symbol_identity is None or completed_plugins != list(PLUGINS):
+    if symbol_identity is None or completed_plugins != plugins:
         if targets:
             warnings.append('targeted memory dumps skipped: memory triage prerequisite incomplete')
         return records, warnings
+
+    triage_plugins = {record['plugin'] for record in records if record['kind'] == 'row'}
+    if triage_plugins <= {'windows.info'}:
+        warnings.append('memory process, command or file triage returned no rows')
+    elif not triage_plugins.intersection(('windows.pslist', 'windows.psscan')):
+        warnings.append('memory process triage returned no rows')
+    elif 'windows.cmdline' not in triage_plugins:
+        warnings.append('memory command-line triage returned no rows')
 
     available = set()
     for row in file_rows:
         if not isinstance(row.get('Name'), str):
             continue
-        try:
-            available.add((int(str(row['Offset']), 0), row['Name']))
-        except (KeyError, TypeError, ValueError):
+        offset = _address(row.get('Offset'))
+        if offset is None:
             warnings.append('filescan row with invalid offset omitted from dump selection')
+            continue
+        available.add((offset, row['Name']))
     total, dumped = 0, 0
     for target_index, target in enumerate(targets):
         locator = {'plugin': 'windows.filescan', 'offset': hex(target['address']),
@@ -257,11 +287,15 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
             shutil.rmtree(dump_dir, ignore_errors=True)
             continue
         files = sorted(dump_dir.iterdir())
-        results = {row.get('Result'): row for row in dump_rows
-                   if isinstance(row.get('Result'), str) and
-                   str(row.get('FileObject', '')).lower() == hex(target['address'])}
+        results = {}
+        for row in dump_rows:
+            result = row.get('Result')
+            if isinstance(result, str):
+                results[result] = (row if result not in results and
+                                   _address(row.get('FileObject')) == target['address'] and
+                                   _dump_name_matches(row.get('FileName'), target['name']) else None)
         if (not files or dumped + len(files) > max_files or
-                any(not item.is_file() or item.is_symlink() or item.name not in results
+                any(not item.is_file() or item.is_symlink() or not results.get(item.name)
                     for item in files)):
             warnings.append(f'{locator}: unverified dump output or file limit reached; dump discarded')
             shutil.rmtree(dump_dir, ignore_errors=True)

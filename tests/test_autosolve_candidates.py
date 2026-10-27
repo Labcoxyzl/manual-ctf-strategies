@@ -1,5 +1,6 @@
 """Independent raw-byte candidate positions and bounded streaming checks."""
 
+import hashlib
 import tempfile
 import time
 import unittest
@@ -55,6 +56,21 @@ class CandidateScanTests(unittest.TestCase):
                 findings, warnings = self.scan(b'ABC', [pattern])
                 self.assertEqual(findings, [])
                 self.assertIn('zero-width pattern matches were skipped', warnings)
+
+    def test_private_crib_redacts_preview_without_changing_match_evidence(self):
+        value = b'flag{KNOWN_PREFIX_MORE}'
+        findings, warnings = self.scan(value, [r'flag\{KNOWN_PREFIX_MORE\}'],
+                                       private_crib=b'KNOWN_PREFIX_MORE')
+        self.assertEqual(warnings, [])
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]['source_locator'], {'offset': 0})
+        self.assertEqual(findings[0]['match_bytes'], len(value))
+        self.assertEqual(findings[0]['match_sha256'], hashlib.sha256(value).hexdigest())
+        self.assertEqual(findings[0]['evidence'], '[preview withheld for private known plaintext]')
+        partial, warnings = self.scan(b'PRIVATE-CRIB-TOKEN!', ['PRIVATE-CRIB'],
+                                      private_crib=b'PRIVATE-CRIB-TOKEN!')
+        self.assertEqual(warnings, [])
+        self.assertEqual(partial[0]['evidence'], '[preview withheld for private known plaintext]')
 
 
 if __name__ == '__main__':

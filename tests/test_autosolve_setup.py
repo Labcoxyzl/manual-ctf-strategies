@@ -1,4 +1,5 @@
 import json
+import mmap
 import os
 import subprocess
 import sys
@@ -91,10 +92,32 @@ class SetupTests(unittest.TestCase):
     def test_image_tail_probe_checks_real_png_and_zip(self):
         result = capabilities.doctor(['images'], self_test=True)
         self.assertEqual(result['operations']['images.png_tail']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['images.jpeg_tail']['functional_probe'], 'passed')
         self.assertEqual(result['operations']['images.metadata']['functional_probe'], 'passed')
         self.assertEqual(result['operations']['images.views']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['exif']['status'], 'ready')
         self.assertEqual(result['engines']['image']['status'], 'ready')
+
+    def test_jpeg_tail_probe_reports_missing_pillow(self):
+        with mock.patch.object(capabilities.importlib.util, 'find_spec', return_value=None):
+            result = capabilities._jpeg_probe(False)
+        self.assertEqual(result['status'], 'unavailable')
+        self.assertEqual(result['reason'], 'pillow_missing')
+
+    def test_jpeg_tail_probe_handles_broken_pillow_import(self):
+        import builtins
+        original_import = builtins.__import__
+
+        def broken_pillow(name, *args, **kwargs):
+            if name == 'PIL':
+                raise ImportError('broken native wheel')
+            return original_import(name, *args, **kwargs)
+
+        with mock.patch.object(capabilities.importlib.util, 'find_spec', return_value=object()), \
+             mock.patch('builtins.__import__', side_effect=broken_pillow):
+            result = capabilities._jpeg_probe(False)
+        self.assertEqual(result['status'], 'unavailable')
+        self.assertEqual(result['reason'], 'pillow_unusable')
 
     def test_can_log_probe_checks_actual_frame(self):
         result = capabilities.doctor(['can_misc'], self_test=True)
@@ -111,6 +134,42 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result['operations']['disk_memory.sqlite']['functional_probe'], 'passed')
         self.assertEqual(result['operations']['disk_memory.disk_image']['functional_probe'], 'passed')
         self.assertEqual(result['engines']['tsk']['status'], 'ready')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'gcc and angr are needed for the REV07 functional probe')
+    def test_checker_probe_solves_and_replays_temporary_elf(self):
+        result = capabilities.doctor(['reversing'], self_test=True)
+        operation = result['operations']['malware_reversing.checker']
+        self.assertTrue(operation['implemented'])
+        self.assertEqual(operation['functional_probe'], 'passed', operation)
+        self.assertEqual(result['engines']['angr']['functional_probe'], 'passed')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'gcc and angr are needed for the REV07 diagnostic probe')
+    def test_checker_probe_reports_bounded_failure_cause(self):
+        from autosolve_lib.profiles import checker
+        timeout = {'status': 'timeout', 'reason': 'symbolic worker timed out',
+                   'replay': {'attempted': False}}
+        with mock.patch.object(checker, 'inspect_checker', return_value=(timeout, [])):
+            operation, _ = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'failed')
+        self.assertEqual(operation['probe_detail'], 'checker_timeout: symbolic worker timed out')
+
+    @unittest.skipUnless(capabilities.shutil.which('gcc') and
+                         capabilities.importlib.util.find_spec('angr'),
+                         'gcc and angr are needed for the REV07 parent mapping probe')
+    def test_checker_probe_works_with_large_untouched_parent_mapping(self):
+        try:
+            mapping = mmap.mmap(-1, 3 * 1024**3,
+                                flags=mmap.MAP_PRIVATE | mmap.MAP_ANONYMOUS,
+                                prot=mmap.PROT_READ | mmap.PROT_WRITE)
+        except (OSError, ValueError) as error:
+            self.skipTest(f'untouched virtual mapping unavailable: {type(error).__name__}')
+        with mapping:
+            operation, _ = capabilities._checker_probe(True)
+        self.assertEqual(operation['functional_probe'], 'passed', operation)
 
 
 if __name__ == "__main__":

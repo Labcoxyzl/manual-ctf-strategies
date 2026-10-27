@@ -169,8 +169,105 @@ class TarExtractionTests(unittest.TestCase):
         self.assertEqual(gzip_child["source_locator"],
                          {"archive_member": "inner.gz", "member_index": 0})
         self.assertEqual(gzip_child["parents"][0]["id"], tar_child["id"])
+        self.assertEqual(gzip_child["parents"][0]["operation"], "tar member 0")
         self.assertEqual(jobs[gzip_child["parents"][0]["job_key"]]["adapter_id"], "tar")
         self.assertEqual(self.source.read_bytes(), original)
+
+    def test_public_documents_zip_tar_gzip_chain_with_no_unrelated_decoding(self):
+        oracle = b"DOC{explicit_documents_gzip}\x00\xff"
+        tar_bytes = io.BytesIO()
+        with tarfile.open(fileobj=tar_bytes, mode="w") as archive:
+            self.add(archive, "nested/inner.gz", gzip.compress(oracle, mtime=0))
+            self.add(archive, "nested/encoded.txt", b"SEVMTE8=")
+        self.source = self.root / "outer-documents.zip"
+        with zipfile.ZipFile(self.source, "w") as archive:
+            archive.writestr("nested/package.tar", tar_bytes.getvalue())
+        original = self.source.read_bytes()
+        run = self.run_cli("analyze", self.source, "--category", "documents",
+                           "--runs-root", self.root / "runs")
+        manifest = json.loads((run / "manifest.json").read_text())
+        jobs = {job["key"]: job for job in manifest["jobs"]}
+        final = next(item for item in manifest["artifacts"]
+                     if item["current"] and Path(item["path"]).read_bytes() == oracle)
+        gzip_child = next(item for item in manifest["artifacts"]
+                          if item["id"] == final["parents"][0]["id"])
+        tar_child = next(item for item in manifest["artifacts"]
+                         if item["id"] == gzip_child["parents"][0]["id"])
+        self.assertEqual((final["depth"], gzip_child["depth"], tar_child["depth"]),
+                         (3, 2, 1))
+        self.assertEqual([jobs[item["parents"][0]["job_key"]]["adapter_id"]
+                          for item in (final, gzip_child, tar_child)],
+                         ["encoding", "tar", "zip"])
+        self.assertEqual(final["parents"][0]["operation"], "gzip")
+        self.assertFalse(any(item["depth"] > 2 and Path(item["path"]).read_bytes() == b"HELLO"
+                             for item in manifest["artifacts"]))
+        self.assertEqual(manifest["coverage"]["DOC01"]["status"], "ran")
+        self.assertEqual(self.source.read_bytes(), original)
+
+    def test_public_documents_plain_gzip_updates_doc01_coverage(self):
+        oracle = b"DOC{direct_gzip}\x00\xff"
+        self.source = self.root / "plain.gz"
+        self.source.write_bytes(gzip.compress(oracle, mtime=0))
+        run = self.run_cli("analyze", self.source, "--category", "documents",
+                           "--runs-root", self.root / "runs")
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertTrue(any(item["current"] and item["depth"] == 1
+                            and Path(item["path"]).read_bytes() == oracle
+                            for item in manifest["artifacts"]))
+        self.assertEqual(manifest["coverage"]["DOC01"]["status"], "ran")
+        self.assertIn("gzip", manifest["coverage"]["DOC01"]["note"])
+        self.run_cli("resume", run)
+        repeated = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(repeated["coverage"]["DOC01"]["status"], "ran")
+
+    def test_public_documents_gzip_limits_mark_doc01_truncated(self):
+        self.source = self.root / "output-bomb.gz"
+        self.source.write_bytes(gzip.compress(b'A' * (core.MAX_CHILD + 1), mtime=0))
+        run = self.run_cli("analyze", self.source, "--category", "documents",
+                           "--runs-root", self.root / "runs")
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["coverage"]["DOC01"]["status"], "truncated")
+        self.assertFalse(any(item["depth"] > 0 for item in manifest["artifacts"]))
+
+        self.source = self.root / "oversized.gz"
+        with self.source.open("wb") as output:
+            output.write(gzip.compress(b"small", mtime=0))
+            output.seek(core.MAX_READ)
+            output.write(b"\0")
+        run = self.run_cli("analyze", self.source, "--category", "documents",
+                           "--runs-root", self.root / "runs")
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["coverage"]["DOC01"]["status"], "truncated")
+        self.assertFalse(any(item["depth"] > 0 for item in manifest["artifacts"]))
+
+    def test_public_identical_tar_sources_keep_member_locator_after_retirement(self):
+        bundle = self.root / "sources"
+        bundle.mkdir()
+        first = bundle / "a.tar.gz"
+        second = bundle / "b.tar.gz"
+        oracle = b"DOC{duplicate_tar_source}\x00\xff"
+        with tarfile.open(first, "w:gz") as archive:
+            self.add(archive, "nested/évidence.bin", oracle)
+        second.write_bytes(first.read_bytes())
+        run = self.run_cli("analyze", bundle, "--category", "documents",
+                           "--runs-root", self.root / "runs")
+        manifest = json.loads((run / "manifest.json").read_text())
+        child = next(item for item in manifest["artifacts"]
+                     if item["depth"] == 1 and Path(item["path"]).read_bytes() == oracle)
+        roots = {Path(item["path"]).name: item["id"] for item in manifest["artifacts"]
+                 if item["depth"] == 0}
+        self.assertEqual({edge["id"] for edge in child["parents"]}, set(roots.values()))
+        locator = {"archive_member": "nested/évidence.bin", "member_index": 0}
+        self.assertEqual({edge["id"]: edge.get("source_locator")
+                          for edge in child["parents"]},
+                         {roots["a.tar.gz"]: locator, roots["b.tar.gz"]: locator})
+        first.unlink()
+        self.run_cli("resume", run)
+        repeated = json.loads((run / "manifest.json").read_text())
+        child = next(item for item in repeated["artifacts"] if item["id"] == child["id"])
+        self.assertEqual(child["current_source_locators"], [{
+            "parent_id": roots["b.tar.gz"], "operation": "tar member 0 (gzip container)",
+            "locator": locator}])
 
     def test_public_compressed_tar_resume_and_source_retirement(self):
         self.source = self.root / "evidence.tar.xz"
@@ -186,6 +283,7 @@ class TarExtractionTests(unittest.TestCase):
         child = next(item for item in first["artifacts"] if item["depth"] == 1)
         self.assertEqual(child["source_locator"],
                          {"archive_member": "d/évidence", "member_index": 0})
+        self.assertEqual(child["parents"][0]["operation"], "tar member 0 (xz container)")
         self.assertEqual(Path(child["path"]).read_bytes(), b"TEST{tar_resume}")
         self.run_cli("resume", run)
         repeated = json.loads((run / "manifest.json").read_text())
@@ -203,6 +301,8 @@ class TarExtractionTests(unittest.TestCase):
                            "--runs-root", self.root / "runs")
         manifest = json.loads((run / "manifest.json").read_text())
         self.assertFalse(any(job["adapter_id"] == "tar" for job in manifest["jobs"]))
+        self.assertEqual(manifest["coverage"]["ENC02"]["status"], "ran")
+        self.assertEqual(manifest["coverage"]["DOC01"]["status"], "ran")
         self.assertTrue(any(item["current"] and item["depth"] > 0
                             and Path(item["path"]).read_bytes() == b"TEST{plain_gzip}"
                             for item in manifest["artifacts"]))
@@ -229,6 +329,8 @@ class TarExtractionTests(unittest.TestCase):
         self.assertTrue(any("invalid TAR archive" in note for note in manifest["warnings"]))
         self.assertTrue(any(item["depth"] == 1 and Path(item["path"]).read_bytes() ==
                             b"TEST{recovered_exactly}" for item in manifest["artifacts"]))
+        child = next(item for item in manifest["artifacts"] if item["depth"] == 1)
+        self.assertEqual(child["parents"][0]["operation"], "tar member 0 (gzip container)")
 
 
 if __name__ == "__main__":

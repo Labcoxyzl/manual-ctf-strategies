@@ -39,10 +39,85 @@ class EncodingTests(unittest.TestCase):
             with self.subTest(label=label):
                 self.assertIn((payload, label), decode(compressed, len(payload)))
                 self.assertFalse(any(name.startswith(label) for _, name in decode(compressed[:-1], len(payload))))
-                self.assertFalse(any(name.startswith(label) for _, name in decode(compressed + b"trailing", len(payload))))
+                self.assertIn((payload, f"{label} trailing:8"),
+                              decode(compressed + b"trailing", len(payload)))
 
         double = gzip.compress(b"one") + gzip.compress(b"two")
         self.assertIn((b"onetwo", "gzip members:3,3"), decode(double, 6))
+
+    def test_concatenated_members_and_trailing_bytes_have_exact_boundaries(self):
+        for kind, compress in (("gzip", gzip.compress), ("zlib", zlib.compress),
+                               ("bzip2", bz2.compress), ("xz", lzma.compress)):
+            with self.subTest(kind=kind):
+                first, second = compress(b"left\x00"), compress(b"\xffright")
+                diagnostics = []
+                decoded = decode(first + second + b"TAIL", 11, diagnostics)
+                self.assertIn((b"left\x00\xffright", f"{kind} members:5,6 trailing:4"), decoded)
+                self.assertEqual(diagnostics, [{
+                    'kind': kind, 'status': 'trailing', 'trailing_bytes': 4,
+                    'members': [
+                        {'input_start': 0, 'input_end': len(first),
+                         'output_start': 0, 'output_end': 5},
+                        {'input_start': len(first), 'input_end': len(first) + len(second),
+                         'output_start': 5, 'output_end': 11},
+                    ],
+                }])
+
+    def test_xz_aligned_stream_padding_keeps_members_and_offsets(self):
+        first, second = lzma.compress(b'left'), lzma.compress(b'right')
+        diagnostics = []
+        decoded = decode(first + b'\x00' * 4 + second + b'\x00' * 8, 9, diagnostics)
+        self.assertIn((b'leftright', 'xz members:4,5'), decoded)
+        self.assertEqual(diagnostics, [{
+            'kind': 'xz', 'status': 'complete', 'trailing_bytes': 0,
+            'padding_bytes': 12,
+            'members': [
+                {'input_start': 0, 'input_end': len(first),
+                 'output_start': 0, 'output_end': 4},
+                {'input_start': len(first) + 4, 'input_end': len(first) + 4 + len(second),
+                 'output_start': 4, 'output_end': 9},
+            ],
+        }])
+
+    def test_xz_misaligned_padding_cannot_validate_joined_streams(self):
+        first, second = lzma.compress(b'left'), lzma.compress(b'right')
+        for wire in (first + b'\x00' * 3 + second, first + b'\x00' * 5):
+            with self.subTest(length=len(wire)):
+                diagnostics = []
+                self.assertFalse(any(label.startswith('xz') for _, label in
+                                     decode(wire, 100, diagnostics)))
+                self.assertEqual(diagnostics[0]['status'], 'invalid')
+                self.assertEqual(len(diagnostics[0]['members']), 1)
+
+    def test_incomplete_following_member_and_expansion_limit_never_publish_prefix(self):
+        first, second = gzip.compress(b"first"), gzip.compress(b"second")
+        diagnostics = []
+        self.assertFalse(any(name.startswith("gzip") for _, name in
+                             decode(first + second[:-2], 100, diagnostics)))
+        self.assertEqual(diagnostics[0]['status'], 'truncated')
+        self.assertEqual(len(diagnostics[0]['members']), 1)
+        diagnostics.clear()
+        self.assertFalse(any(name.startswith("gzip") for _, name in
+                             decode(first + second, 10, diagnostics)))
+        self.assertEqual(diagnostics[0]['status'], 'limit')
+
+    def test_empty_member_chain_has_finite_member_limit(self):
+        diagnostics = []
+        self.assertFalse(any(label.startswith('gzip') for _, label in
+                             decode(gzip.compress(b'') * 257, 1, diagnostics)))
+        self.assertEqual(diagnostics[0]['status'], 'limit')
+        self.assertEqual(len(diagnostics[0]['members']), 256)
+
+    def test_zero_output_budget_reports_compression_limit(self):
+        diagnostics = []
+        self.assertEqual(decode(gzip.compress(b'payload'), 0, diagnostics), [])
+        self.assertEqual(diagnostics[0]['status'], 'limit')
+
+    def test_compression_then_base64_order_reaches_exact_bytes(self):
+        oracle = b'ENC{reverse_order}\x00\xff'
+        compressed = gzip.compress(base64.b64encode(oracle), mtime=0)
+        text = next(value for value, label in decode(compressed, 1024) if label == 'gzip')
+        self.assertIn((oracle, 'base64'), decode(text, 1024))
 
     def test_three_layer_chain_reaches_independent_oracle(self):
         oracle = b"\x00\xff\xc3\xa9 challenge bytes"

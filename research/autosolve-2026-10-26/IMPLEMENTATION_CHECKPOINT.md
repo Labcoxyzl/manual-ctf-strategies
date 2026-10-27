@@ -26,12 +26,18 @@ findings, old private hint ingestion after a replacement hints file, wrong
 ZIP-password retirement of a child with a valid Base64 parent, unfair initial
 scheduling under heavy RSA hints, transformed passwords with surrounding
 spaces, source-reversion intelligence, and false operation labels on reused
-shared artifacts, a POST-only upload mislabeled as a response object, and
-stale source locators on shared artifacts. The frozen publication worktree
-passed 501 autosolve tests
-(17 optional skips), nine copied-export tests, Python compilation and
-`git diff --check`. The runner is still a partial implementation under the
-proposal's broader acceptance gate.
+shared artifacts. The first isolated publication checkpoint passed nine
+copied-export tests and the repository's full pre-push gate (575 passed, 22
+optional skipped); commit `b8aca2c` is on the remote
+`autosolve-progress-2026-10-27` branch. Subsequent group-three work adds
+PyInstaller, Java/Android, PowerShell, a bounded angr checker with explicit
+local-execution and replay gates, selected WEB03/WEB08 checks, and a declared
+arithmetic service. All 57 baseline IDs have source-visible code paths, but
+the row-specific transfer gate is still incomplete.
+
+The second isolated snapshot passed 630 CPython 3.12 autosolve tests (17
+optional skipped) and nine copied-export distribution tests. Its repository
+pre-push gate is the remaining publication check at this checkpoint.
 
 ## Independent end-to-end evidence
 
@@ -49,19 +55,47 @@ proposal's broader acceptance gate.
   `/tmp/autosolve-crypto-e2e-mbrbrjvn/`.
 - A real RFID bitstream and Matryoshka ZIP were exercised earlier. The
   runner recovered exact expected bytes but did not claim accepted flags.
+- The official ROP Emporium ret2win handout produced the correct static ELF
+  mitigations, target and gadget. A separate synthetic-marker replay proved a
+  manual exploit, while autosolve made no exploit or acceptance claim.
+  Evidence: `/tmp/autosolve-e2e-pwn-public-20261027/EVIDENCE.md`.
+- Two official Wireshark captures yielded HTTP objects byte-for-byte equal to
+  independent TCP/HTTP reconstruction. Damaging a response withheld the
+  incomplete object; resume reused the exact artifacts. Evidence:
+  `/tmp/autosolve-e2e-group2-20261027/EVIDENCE.md`.
+- Independent loopback WEB03, WEB08 and MISC01 controls exercised positive and
+  negative behavior and made no requests on resume. Real rootless engine
+  probes covered DTMF, Morse, AFSK, SSTV, CAN/DBC, capa, YARA and UPX.
+  Evidence: `/tmp/autosolve-e2e-web-service-20261027/EVIDENCE.md` and
+  `/tmp/autosolve-engine-probe-20261027/EVIDENCE.md`.
+- Frozen encoding, document, image and reversing cases found routing,
+  provenance and privacy defects, then checked fixes against new unseen
+  inputs. A public Cridex memory image exposed empty process triage; a bounded
+  `psscan` fallback now recovers its independently documented process but
+  leaves command/file coverage partial. Evidence is under
+  `/tmp/autosolve-heldout-{encoding,documents,reversing}-20261027/` and
+  `/tmp/autosolve-memory-e2e-20261027/`.
+
+The later frozen case ledgers report 12/12 scoped PWN01/02/07 checks,
+12/12 WEB03/WEB08/MISC01 checks, 17/17 ENC06/07/08/10 checks, and exact
+first-use transfers for ENC01/02/05, DOC01, IMG01 and a second Windows-memory
+dump. A separate WEB01 oracle expected `same_origin` for unresolved relative
+URLs; the original strict result remains 3/4 and a newly frozen correctly
+scoped case passed. NET01/02/03 and CAN01/02 meet 19 of 20 row/case slots:
+NET02 still marks one exact chunked/gzip object `truncated` because wire
+completeness is unverified. These are local/public-corpus observations, not
+the complete 57-row acceptance gate or a competition solve-rate measurement.
 
 ## Remaining order
 
-1. Complete group-two acceptance on real held-out CAN, memory, audio and packet
-   cases. The new rootless Python core environment works in a clean source
-   copy; native multimon-ng and several approved engines remain missing or
-   unprobed. A compatible Windows memory image/symbol set is still needed.
-2. Continue group-three reversing, web and OSINT baselines. Local static and
-   scoped transport paths exist; deeper rule, packer, checker, web workflow
-   and source-attribution cases remain.
-3. Run every baseline acceptance row, cross-category chains, packaged fresh
-   setup, report/resume and preservation gates. Keep release status partial
-   until these pass.
+1. Finish current ENC05 privacy/transfer and Windows-memory transfer checks,
+   then rerun the shared and copied-export suites on a frozen code snapshot.
+2. Freeze and execute each baseline row's positive, two independent held-out
+   variations and negative controls. The source audit found no complete
+   57-row transfer ledger; local tests alone do not satisfy this gate.
+3. Complete the cross-category and failure cases, approved-engine discovery
+   in a clean copied export, and the three-publisher diversity requirement.
+   Keep release status partial until all required evidence passes.
 
 The repository has concurrent unrelated guide edits. At this checkpoint,
 `package_toolkit.py` expects 36 public task routes while `index.html` contains
@@ -69,5 +103,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; the verified checkpoint is prepared on the isolated
-`autosolve-progress-2026-10-27` branch for publication after review.
+pushes; the first tested commit is published and newer work is being verified
+for the next checkpoint.

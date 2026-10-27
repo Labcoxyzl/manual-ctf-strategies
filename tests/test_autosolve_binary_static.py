@@ -88,9 +88,15 @@ class BinaryStaticTests(unittest.TestCase):
         self.assertEqual((report["format"], report["architecture"], report["bits"]),
                          ("PE", "x86-32", 32))
         self.assertEqual(report["abi"], "Windows PE")
+        raw = binary.read_bytes()
+        header = struct.unpack_from("<I", raw, 0x3c)[0]
+        section_table = header + 24 + struct.unpack_from("<H", raw, header + 20)[0]
+        for index, section in enumerate(report["sections"]):
+            entry = section_table + 40 * index
+            self.assertEqual(section["file_offset"], struct.unpack_from("<I", raw, entry + 20)[0])
+            self.assertEqual(section["raw_size"], struct.unpack_from("<I", raw, entry + 16)[0])
         self.assertTrue(any(row["library"] == "KERNEL32.DLL" and
                             row["name"] == "LoadLibraryA" for row in report["imports"]))
-        raw = binary.read_bytes()
         oracle = next(row for row in report["strings"] if row["value"] == "LoadLibraryA")
         self.assertEqual(raw[oracle["file_offset"]:oracle["file_offset"] + len(oracle["value"])],
                          oracle["value"].encode())
@@ -146,6 +152,10 @@ class BinaryStaticTests(unittest.TestCase):
         self.assertEqual(warnings, [])
         self.assertEqual((report["architecture"], report["bits"]), ("x86-64", 64))
         self.assertEqual(report["entry_file_offset"], 512)
+        self.assertEqual(report["sections"][0]["file_offset"], 0x200)
+        self.assertEqual(report["sections"][0]["raw_size"], 0x200)
+        self.assertEqual(raw[report["sections"][0]["file_offset"] + 8:
+                             report["sections"][0]["file_offset"] + 19], b"PE64_ORACLE")
         oracle = next(row for row in report["strings"] if row["value"] == "PE64_ORACLE")
         self.assertEqual((oracle["file_offset"], oracle["static_vaddr"]),
                          (520, 0x140001008))
@@ -203,6 +213,18 @@ class BinaryStaticTests(unittest.TestCase):
         self.assertFalse(any(row["current"] and row["job_id"] == jobs[0]["id"]
                              for row in changed["intelligence"]))
         self.assertEqual(changed["coverage"]["REV01"]["status"], "skipped prerequisite")
+
+    def test_explicit_reversing_script_reports_rev01_boundary_and_runs_script_profile(self):
+        source = self.root / "sample.ps1"
+        source.write_text("Write-Output 'HEL' + 'LO'\n")
+        first = self.run_cli("analyze", source, "--category", "reversing",
+                             "--budget", "20", "--runs-root", self.root / "runs")
+        manifest = json.loads((Path(first["run"]) / "manifest.json").read_text())
+        self.assertEqual(manifest["coverage"]["REV01"]["status"], "skipped prerequisite")
+        self.assertTrue(any(job["adapter_id"] == "binary-static" and
+                            job["status"] == "complete" for job in manifest["jobs"]))
+        self.assertTrue(any(job["adapter_id"] == "rev-powershell" and
+                            job["status"] == "complete" for job in manifest["jobs"]))
 
     @unittest.skipUnless(PE_FIXTURE.is_file() and Path("/bin/true").is_file(),
                          "ELF or PE fixture unavailable")

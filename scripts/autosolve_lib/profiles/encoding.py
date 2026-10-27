@@ -62,12 +62,42 @@ def _bit_blocks(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
     return candidates
 
 
-def _decompress(data: bytes, max_output: int, kind: str) -> tuple[bytes, str] | None:
+def _decompress(data: bytes, max_output: int, kind: str) -> tuple[tuple[bytes, str] | None, dict]:
     output = bytearray()
-    member_sizes = []
+    members = []
     remaining = data
-    try:
-        while remaining:
+    record = {'kind': kind, 'status': 'complete', 'trailing_bytes': 0, 'members': members}
+    signature = {'gzip': b'\x1f\x8b', 'bzip2': b'BZh', 'xz': b'\xfd7zXZ\x00'}.get(kind)
+    while remaining:
+        if members:
+            if kind == 'xz' and remaining.startswith(b'\x00'):
+                padding = len(remaining) - len(remaining.lstrip(b'\x00'))
+                if padding % 4:
+                    record['status'] = 'invalid'
+                    record['trailing_bytes'] = len(remaining)
+                    return None, record
+                record['padding_bytes'] = record.get('padding_bytes', 0) + padding
+                remaining = remaining[padding:]
+                if not remaining:
+                    break
+            if kind == 'zlib':
+                matches = (len(remaining) >= 2 and remaining[0] & 15 == 8 and
+                           (remaining[0] << 8 | remaining[1]) % 31 == 0)
+                partial = len(remaining) == 1 and remaining[0] & 15 == 8
+            else:
+                matches = remaining.startswith(signature)
+                partial = signature.startswith(remaining)
+            if not matches:
+                record['status'] = 'truncated' if partial else 'trailing'
+                record['trailing_bytes'] = len(remaining)
+                if partial:
+                    return None, record
+                break
+        if len(members) >= 256:
+            record['status'] = 'limit'
+            record['limit_reason'] = 'compressed member count exceeds 256'
+            return None, record
+        try:
             if kind == "gzip":
                 decoder = zlib.decompressobj(31)
             elif kind == "zlib":
@@ -77,15 +107,26 @@ def _decompress(data: bytes, max_output: int, kind: str) -> tuple[bytes, str] | 
             else:
                 decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ, memlimit=64 * 1024 * 1024)
             part = decoder.decompress(remaining, max_output - len(output) + 1)
-            if len(output) + len(part) > max_output or not decoder.eof:
-                return None
-            output.extend(part)
-            member_sizes.append(len(part))
-            remaining = decoder.unused_data
-    except (EOFError, OSError, ValueError, zlib.error, lzma.LZMAError):
-        return None
-    label = kind if len(member_sizes) == 1 else f"{kind} members:{','.join(map(str, member_sizes))}"
-    return bytes(output), label
+        except (EOFError, OSError, ValueError, zlib.error, lzma.LZMAError):
+            record['status'] = 'invalid'
+            return None, record
+        if len(output) + len(part) > max_output:
+            record['status'] = 'limit'
+            record['limit_reason'] = 'decoded output exceeds per-artifact byte limit'
+            return None, record
+        if not decoder.eof:
+            record['status'] = 'truncated'
+            return None, record
+        start = len(data) - len(remaining)
+        members.append({'input_start': start, 'input_end': len(data) - len(decoder.unused_data),
+                        'output_start': len(output), 'output_end': len(output) + len(part)})
+        output.extend(part)
+        remaining = decoder.unused_data
+    sizes = ','.join(str(member['output_end'] - member['output_start']) for member in members)
+    label = kind if len(members) == 1 else f'{kind} members:{sizes}'
+    if record['trailing_bytes']:
+        label += f" trailing:{record['trailing_bytes']}"
+    return (bytes(output), label), record
 
 
 def _classical_score(data: bytes) -> int:
@@ -133,9 +174,21 @@ def _classical(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
             for score, value, label in ranked[:4]]
 
 
-def decode(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
+def decode(data: bytes, max_output: int, diagnostics: list[dict] | None = None) -> list[tuple[bytes, str]]:
     """Return exact one-step transformations; the caller owns recursion and trust decisions."""
+    kind = None
+    if data.startswith(b"\x1f\x8b"):
+        kind = "gzip"
+    elif len(data) >= 2 and data[0] & 15 == 8 and (data[0] << 8 | data[1]) % 31 == 0:
+        kind = "zlib"
+    elif data.startswith(b"BZh"):
+        kind = "bzip2"
+    elif data.startswith(b"\xfd7zXZ\x00"):
+        kind = "xz"
     if max_output < 1:
+        if kind and diagnostics is not None:
+            diagnostics.append({'kind': kind, 'status': 'limit', 'trailing_bytes': 0,
+                                'members': [], 'limit_reason': 'decoded output budget exhausted'})
         return []
     candidates: list[tuple[bytes, str]] = []
     wrapped = data.replace(b"\r", b"").replace(b"\n", b"")
@@ -171,17 +224,10 @@ def decode(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
         if value != data and len(value) <= max_output:
             candidates.append((value, "url"))
 
-    kind = None
-    if data.startswith(b"\x1f\x8b"):
-        kind = "gzip"
-    elif len(data) >= 2 and data[0] & 15 == 8 and (data[0] << 8 | data[1]) % 31 == 0:
-        kind = "zlib"
-    elif data.startswith(b"BZh"):
-        kind = "bzip2"
-    elif data.startswith(b"\xfd7zXZ\x00"):
-        kind = "xz"
     if kind:
-        result = _decompress(data, max_output, kind)
+        result, diagnostic = _decompress(data, max_output, kind)
+        if diagnostics is not None:
+            diagnostics.append(diagnostic)
         if result is not None and result[0] != data:
             candidates.append(result)
 

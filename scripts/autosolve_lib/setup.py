@@ -1,6 +1,7 @@
 """Capability discovery and explicit rootless setup for autosolve."""
 
 import base64
+import gzip
 import hashlib
 import hmac
 import importlib
@@ -33,7 +34,7 @@ PROFILE_ENGINES = {
     "audio_video": ("ffmpeg", "image", "multimon", "sstv", "stegolsb"),
     "packets": ("archive", "hcxtools", "passwords", "scapy", "stdlib", "tshark", "zeek"),
     "disk_memory": ("binwalk", "dissect", "stdlib", "tsk", "volatility"),
-    "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "pefile", "pwntools", "pyelftools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
+    "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "java", "javap", "pefile", "pwntools", "pyelftools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
     "pwn_services": ("ghidra", "nmap", "pwntools", "pyelftools", "ropgadget"),
     "web": ("arjun", "ffuf", "http", "jwt", "sqlmap", "stdlib"),
     "osint": ("exif", "http", "image", "pywhat", "stdlib"),
@@ -420,6 +421,37 @@ def _png_probe(self_test):
             probe = 'failed'
     return {"implemented": True, "functional_probe": probe,
             "status": "ready" if probe == "passed" else "partial"}
+
+
+def _jpeg_probe(self_test):
+    if importlib.util.find_spec('PIL') is None:
+        return {'implemented': True, 'functional_probe': 'not_run',
+                'status': 'unavailable', 'reason': 'pillow_missing'}
+    try:
+        from PIL import Image
+        from .profiles.images import extract_jpeg_tail
+    except (ImportError, OSError):
+        return {'implemented': True, 'functional_probe': 'not_run',
+                'status': 'unavailable', 'reason': 'pillow_unusable'}
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                image = io.BytesIO()
+                Image.new('RGB', (2, 2), (20, 80, 140)).save(image, format='JPEG')
+                archive = io.BytesIO()
+                with zipfile.ZipFile(archive, 'w') as writer:
+                    writer.writestr('probe', b'probe')
+                tail = archive.getvalue()
+                (root / 'image.jpg').write_bytes(image.getvalue() + b'\x00' + tail)
+                result = extract_jpeg_tail(root / 'image.jpg', len(tail))
+                probe = ('passed' if result and result[0] == tail and
+                         result[1]['offset'] == len(image.getvalue()) + 1 else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
 
 
 def _image_metadata_probe(self_test):
@@ -975,6 +1007,107 @@ def _web_leads_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _web_sql_probe(self_test):
+    from .profiles.web_sql import assess_sql
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        from urllib.parse import parse_qs, urlsplit
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                value = parse_qs(urlsplit(self.path).query).get('id', [''])[0]
+                database = sqlite3.connect(':memory:')
+                database.execute('CREATE TABLE users (id TEXT)')
+                database.execute("INSERT INTO users VALUES ('1')")
+                try:
+                    found = database.execute(
+                        "SELECT id FROM users WHERE id = '" + value + "'").fetchone()
+                    body = b'found' if found else b'missing'
+                    status = 200
+                except sqlite3.Error:
+                    body, status = b'error', 500
+                finally:
+                    database.close()
+                self.send_response(status)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            raw = (f'GET /?id=1 HTTP/1.1\r\nHost: 127.0.0.1:{server.server_port}\r\n\r\n').encode()
+            result, warnings = assess_sql(raw, origin, 'id', authorized=True,
+                                          test_mode=True, timeout=2, max_requests=6,
+                                          rate=20)
+            probe = ('passed' if not warnings and result['requests_used'] == 6 and
+                     result['classification'] == 'differential_candidate' else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _web_workflow_probe(self_test):
+    from .profiles.web_workflows import replay_workflows
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                status = 200 if self.headers.get('X-Role') == 'owner' else 403
+                self.send_response(status)
+                self.end_headers()
+                self.wfile.write(b'allowed' if status == 200 else b'denied')
+
+            def log_message(self, *args):
+                pass
+
+        server = thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            fixture = {'expected_invariant': {
+                'left': {'role': 'owner', 'step': 'read'},
+                'right': {'role': 'guest', 'step': 'read'},
+                'relation': 'different_status'},
+                'workflows': [
+                    {'role': role, 'steps': [{'id': 'read', 'method': 'GET', 'path': '/',
+                                               'headers': {'X-Role': role},
+                                               'safe_to_replay': True}]}
+                    for role in ('owner', 'guest')]}
+            result, warnings = replay_workflows(fixture, origin=origin, timeout=2)
+            probe = ('passed' if not warnings and result['assessment'] == 'invariant held'
+                     and [row['status'] for row in result['responses']] == [200, 403]
+                     else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
 def _memory_probe(self_test):
     from .profiles import memory
     path = memory.VOL
@@ -1170,6 +1303,24 @@ def _rev_strings_probe(self_test):
     return operation, engine
 
 
+def _rev_powershell_probe(self_test):
+    probe = 'not_run'
+    if self_test:
+        try:
+            from .profiles.powershell import inspect_powershell
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'probe.ps1'
+                source.write_text("'REV' + '11_PROBE'")
+                records, warnings = inspect_powershell(source)
+            probe = ('passed' if not warnings and any(
+                row['data'] == b'REV11_PROBE' and row['state'] == 'candidate'
+                for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe, 'status': 'partial',
+            'reason': 'finite_literal_forms_only; dynamic_PowerShell_not_evaluated'}
+
+
 def _rev_rules_probe(self_test):
     engines = {}
     for name, required, options, version_arg in (
@@ -1197,6 +1348,192 @@ def _rev_rules_probe(self_test):
     return operation, engines
 
 
+def _rev_packers_probe(self_test):
+    upx, binwalk = shutil.which('upx'), shutil.which('binwalk')
+    upx_help = _command([upx, '--help']) if upx else None
+    options = ((upx_help.stdout + upx_help.stderr) if upx_help else b'')
+    upx_compatible = bool(upx_help and upx_help.returncode == 0 and
+                          all(flag in options for flag in (b'-t', b'-d', b'-o')))
+    upx_version = _command([upx, '--version']) if upx else None
+    upx_lines = ((upx_version.stdout + upx_version.stderr).decode('utf-8', 'replace').splitlines()
+                 if upx_version and upx_version.returncode == 0 else [])
+    probe = 'not_run'
+    if self_test and binwalk:
+        try:
+            from .profiles.rev_packers import inspect_packers
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'nested.bin'
+                source.write_bytes(b'HEADER' + gzip.compress(b'REV04_PROBE', mtime=0))
+                records, _ = inspect_packers(source, Path(directory) / 'stage', timeout=5,
+                                              binwalk_path=binwalk)
+            probe = ('passed' if any(row['kind'] == 'signature-lead' and
+                                    row['source_locator']['file_offset'] == 6 and
+                                    not row['validated'] for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    operation = {'implemented': True, 'functional_probe': probe,
+                 'status': 'partial' if upx or binwalk else 'unavailable',
+                 'reason': 'upx_missing; signature_leads_only' if not upx else
+                           'real_upx_roundtrip_not_probed; signature_leads_only'}
+    upx_engine = {'found': bool(upx), 'path': upx,
+                  'version': upx_lines[0][:128] if upx_lines else None,
+                  'options_compatible': upx_compatible,
+                  'required_data': 'supported_packed_executable',
+                  'functional_probe': 'not_run',
+                  'status': 'partial' if upx_compatible else 'unavailable'}
+    binwalk_engine = {'found': bool(binwalk), 'path': binwalk,
+                      'version': None, 'options_compatible': bool(binwalk),
+                      'required_data': 'not_required', 'functional_probe': probe,
+                      'status': 'partial' if binwalk else 'unavailable',
+                      'reason': 'signature_leads_only' if binwalk else 'binwalk_missing'}
+    return operation, upx_engine, binwalk_engine
+
+
+def _pyinstaller_probe(self_test):
+    from .profiles.pyinstaller import COOKIE, ENTRY, MAGIC, inspect_pyinstaller
+    probe = 'not_run'
+    if self_test:
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'probe.exe'
+                payload = b'REV05_PROBE'
+                name = b'probe.txt\0'
+                entry_size = ENTRY.size + len(name)
+                entry_size += -entry_size % 16
+                toc = (ENTRY.pack(entry_size, 0, len(payload), len(payload), 0, b'x') +
+                       name.ljust(entry_size - ENTRY.size, b'\0'))
+                body = payload + toc
+                source.write_bytes(b'MZ' + body + COOKIE.pack(
+                    MAGIC, len(body) + COOKIE.size, len(payload), len(toc), 312,
+                    b'libpython3.12.so'))
+                records, warnings = inspect_pyinstaller(
+                    source, Path(directory) / 'stage', max_members=2,
+                    max_total_bytes=1024)
+                probe = ('passed' if not warnings and len(records) == 1 and
+                         records[0]['path'].read_bytes() == payload and
+                         records[0]['offset'] == 2 else 'failed')
+        except Exception:
+            probe = 'failed'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': 'partial',
+                 'reason': 'older_encrypted_pyz_and_foreign_bytecode_inspection_unsupported'}
+    engine = {'found': True, 'path': inspect_pyinstaller.__code__.co_filename,
+              'version': 'CArchive/PYZ static', 'options_compatible': True,
+              'required_data': 'not_required', 'functional_probe': probe,
+              'status': 'partial'}
+    return operation, engine
+
+
+def _java_android_probe(self_test):
+    from .profiles.java_android import inspect_java_android
+    java, javap, javac, jadx = (shutil.which(name) for name in
+                                 ('java', 'javap', 'javac', 'jadx'))
+    version = _command([java, '-version']) if java else None
+    javap_version = _command([javap, '-version']) if javap else None
+    java_ok = bool(version and version.returncode == 0)
+    javap_ok = bool(javap_version and javap_version.returncode == 0)
+    probe = 'not_run'
+    if self_test:
+        probe = 'failed'
+        if java_ok and javap_ok and javac:
+            try:
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    source = root / 'Probe.java'
+                    source.write_text('public class Probe { static String clue() '
+                                      '{ return "REV06_PROBE"; } }')
+                    compiled = _command([javac, '--release', '17', str(source)])
+                    if compiled and compiled.returncode == 0:
+                        archive = root / 'probe.jar'
+                        with zipfile.ZipFile(archive, 'w') as jar:
+                            jar.write(root / 'Probe.class', 'Probe.class')
+                            jar.writestr('assets/probe.txt', b'REV06_RESOURCE')
+                        rows, _ = inspect_java_android(archive, root / 'stage', timeout=5)
+                        if (any(row['kind'] == 'resource' and
+                                row['path'].read_bytes() == b'REV06_RESOURCE' for row in rows)
+                                and any(row['kind'] == 'bytecode_listing' and
+                                        b'REV06_PROBE' in row['path'].read_bytes() for row in rows)):
+                            probe = 'passed'
+            except Exception:
+                pass
+    java_lines = ((version.stdout + version.stderr).decode('utf-8', 'replace').splitlines()
+                  if java_ok else [])
+    javap_lines = ((javap_version.stdout + javap_version.stderr).decode('utf-8', 'replace').splitlines()
+                   if javap_ok else [])
+    operation = {'implemented': True, 'functional_probe': probe,
+                 'status': 'partial',
+                 'reason': ('dex_source_decompilation_unavailable' if java_ok and javap_ok else
+                            'java_runtime_or_javap_unavailable; resources_only')}
+    runtime = {'found': bool(java), 'path': java,
+               'version': java_lines[0][:100] if java_lines else None,
+               'options_compatible': java_ok, 'required_data': 'not_required',
+               'functional_probe': probe, 'status': 'ready' if probe == 'passed' else 'partial'}
+    disassembler = {'found': bool(javap), 'path': javap,
+                    'version': javap_lines[0][:100] if javap_lines else None,
+                    'options_compatible': javap_ok, 'required_data': 'supported_class_file',
+                    'functional_probe': probe,
+                    'status': 'ready' if probe == 'passed' else 'partial'}
+    decompiler = {'found': bool(jadx), 'path': jadx, 'version': None,
+                  'options_compatible': None, 'required_data': 'supported_dex',
+                  'functional_probe': 'not_run', 'status': 'partial' if jadx else 'unavailable',
+                  'reason': 'source_decompilation_not_configured' if jadx else 'tool_missing'}
+    return operation, runtime, disassembler, decompiler
+
+
+def _checker_probe(self_test):
+    from .profiles.checker import inspect_checker
+    spec = importlib.util.find_spec('angr')
+    compiler = shutil.which('gcc')
+    probe = 'not_run'
+    detail = None
+    if self_test and spec and compiler:
+        probe = 'failed'
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'checker.c'
+                binary = root / 'checker'
+                source.write_text('''#include <stdio.h>
+int main(int argc, char **argv) {
+  if (argc == 2 && argv[1][0] == 'Q' && argv[1][1] == '\\0') {
+    puts("REV07_PROBE"); return 0;
+  }
+  puts("REV07_FAIL"); return 1;
+}''')
+                built = _command([compiler, '-O0', '-fno-pie', '-no-pie',
+                                  '-o', str(binary), str(source)])
+                if built and built.returncode == 0:
+                    report, warnings = inspect_checker(
+                        binary, {'channel': 'argv', 'length': 1,
+                                 'find': {'stdout': 'REV07_PROBE'},
+                                 'avoid': {'stdout': 'REV07_FAIL'}},
+                        execute_local=True, replay=True, timeout=30, max_steps=2500)
+                    if (not warnings and report['status'] == 'validated_input' and
+                            bytes.fromhex(report['candidate_hex']) == b'Q' and
+                            report['replay']['returncode'] == 0):
+                        probe = 'passed'
+                    else:
+                        detail = f"checker_{report['status']}: {report.get('reason') or report['replay'].get('problem') or 'unexpected_candidate'}"[:160]
+                else:
+                    detail = 'compiler_failed_or_timed_out'
+        except Exception as error:
+            detail = f'{type(error).__name__}_during_probe'
+    operation = {'implemented': True, 'functional_probe': probe,
+                 'status': 'partial' if spec else 'unavailable',
+                 'reason': ('angr_missing' if not spec else
+                            'compiler_missing_for_probe' if self_test and not compiler else
+                            'functional_probe_failed' if probe == 'failed' else
+                            'bounded_x86_elf_checker_only')}
+    if detail:
+        operation['probe_detail'] = detail
+    engine = {'found': bool(spec), 'path': spec.origin if spec else None,
+              'version': importlib.metadata.version('angr') if spec else None,
+              'options_compatible': bool(spec),
+              'required_data': 'selected_executable_linux_x86_elf_and_checker_hints',
+              'functional_probe': probe,
+              'status': 'ready' if probe == 'passed' else 'partial' if spec else 'unavailable'}
+    return operation, engine
+
+
 def _service_probe(self_test):
     from .profiles.service_transport import run_service
     probe = 'not_run'
@@ -1215,6 +1552,58 @@ def _service_probe(self_test):
                 report['frames'][-1]['wire_hex'] == b'ACK:go\n'.hex()) else 'failed'
         except (OSError, ValueError):
             probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _arithmetic_probe(self_test):
+    from .profiles.arithmetic_protocol import run_arithmetic
+    probe = 'not_run'
+    if self_test:
+        listener = socket.socket()
+        observed = []
+        try:
+            listener.bind(('127.0.0.1', 0))
+            listener.listen(1)
+            listener.settimeout(2)
+
+            def serve():
+                try:
+                    with listener:
+                        conn, _ = listener.accept()
+                        with conn:
+                            conn.settimeout(2)
+                            conn.sendall(b'Q 1: (2 + 3) * 4\n')
+                            reply = bytearray()
+                            while len(reply) < 3:
+                                chunk = conn.recv(3 - len(reply))
+                                if not chunk:
+                                    break
+                                reply.extend(chunk)
+                            observed.append(bytes(reply))
+                            if observed[-1] == b'20\n':
+                                conn.sendall(b'DONE probe\n')
+                except OSError:
+                    pass
+
+            thread = threading.Thread(target=serve, daemon=True)
+            thread.start()
+            protocol = {'transport': {'host': '127.0.0.1', 'port': listener.getsockname()[1]},
+                        'framing': {'delimiter_hex': '0a'},
+                        'question': {'prefix_ascii': 'Q ', 'separator_ascii': ': ',
+                                     'suffix_ascii': '', 'first_id': 1, 'id_step': 1},
+                        'completion': {'prefix_ascii': 'DONE ', 'min_suffix_bytes': 1},
+                        'response': {'encoding': 'ascii_decimal', 'prefix_hex': '',
+                                     'suffix_hex': '0a'}}
+            report, warnings = run_arithmetic(protocol, timeout=2, max_rounds=1,
+                                              max_bytes=128, max_frame_bytes=128)
+            thread.join(2)
+            probe = ('passed' if not warnings and not thread.is_alive() and
+                     report['status'] == 'complete' and observed == [b'20\n'] else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            listener.close()
     return {'implemented': True, 'functional_probe': probe,
             'status': 'ready' if probe == 'passed' else 'partial'}
 
@@ -1308,11 +1697,28 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
             'functional_probe': elf_probe['functional_probe'], 'status': elf_probe['status']}
     binary_probe = _binary_probe(self_test) if 'malware_reversing' in selected else None
     rev_strings_probe = _rev_strings_probe(self_test) if 'malware_reversing' in selected else None
+    rev_powershell_probe = _rev_powershell_probe(self_test) if 'malware_reversing' in selected else None
     rev_rules_probe = _rev_rules_probe(self_test) if 'malware_reversing' in selected else None
+    rev_packers_probe = _rev_packers_probe(self_test) if 'malware_reversing' in selected else None
+    pyinstaller_probe = _pyinstaller_probe(self_test) if 'malware_reversing' in selected else None
+    java_android_probe = _java_android_probe(self_test) if 'malware_reversing' in selected else None
+    checker_probe = _checker_probe(self_test) if 'malware_reversing' in selected else None
     if 'floss' in planned:
         engines['floss'] = rev_strings_probe[1]
     if rev_rules_probe:
         engines.update(rev_rules_probe[1])
+    if rev_packers_probe:
+        engines['upx'] = rev_packers_probe[1]
+        if not disk_probes:
+            engines['binwalk'] = rev_packers_probe[2]
+    if pyinstaller_probe:
+        engines['pyinstaller'] = pyinstaller_probe[1]
+    if java_android_probe:
+        engines['java'] = java_android_probe[1]
+        engines['javap'] = java_android_probe[2]
+        engines['jadx'] = java_android_probe[3]
+    if checker_probe:
+        engines['angr'] = checker_probe[1]
     if 'pefile' in planned:
         spec = importlib.util.find_spec('pefile')
         engines['pefile'] = {
@@ -1353,6 +1759,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations["documents.office"] = _office_probe(self_test)
     if "images" in selected:
         operations["images.png_tail"] = _png_probe(self_test)
+        operations["images.jpeg_tail"] = _jpeg_probe(self_test)
         operations["images.metadata"] = image_probes[0]
         operations["images.views"] = image_probes[1]
         operations["images.zsteg"] = zsteg_probes[0]
@@ -1365,6 +1772,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     if "can_misc" in selected:
         operations['can_misc.log'] = _can_probe(self_test)
         operations['can_misc.dbc'], engine = _can_dbc_probe(self_test)
+        operations['can_misc.arithmetic_protocol'] = _arithmetic_probe(self_test)
         engines['can'] = engine or {
             'found': False, 'path': None, 'version': None,
             'options_compatible': False, 'required_data': 'supplied_dbc_or_arxml',
@@ -1393,12 +1801,19 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     if "malware_reversing" in selected:
         operations['malware_reversing.binary_static'] = binary_probe
         operations['malware_reversing.obfuscated_strings'] = rev_strings_probe[0]
+        operations['malware_reversing.powershell_constants'] = rev_powershell_probe
         operations['malware_reversing.rule_matching'] = rev_rules_probe[0]
+        operations['malware_reversing.packers'] = rev_packers_probe[0]
+        operations['malware_reversing.pyinstaller'] = pyinstaller_probe[0]
+        operations['malware_reversing.java_android'] = java_android_probe[0]
+        operations['malware_reversing.checker'] = checker_probe[0]
     if "web" in selected:
         operations['web.static_inventory'] = _web_static_probe(self_test)
         operations['web.jwt_local'] = _web_jwt_probe(self_test)
         operations['web.discovery'] = _web_discovery_probe(self_test)
+        operations['web.sql_assessment'] = _web_sql_probe(self_test)
         operations['web.selected_leads'] = _web_leads_probe(self_test)
+        operations['web.workflow_comparison'] = _web_workflow_probe(self_test)
     status = "partial" if any(value["status"] != "ready" for value in engines.values()) or any(
         value["status"] != "ready" for value in operations.values()
     ) else "ready"

@@ -78,7 +78,8 @@ def _scan_block(data, patterns, timeout):
 
 
 def scan_candidates(source: bytes | Path, artifact_id: str, patterns: list[str],
-                    deadline: float, max_scan: int = MAX_SCAN) -> tuple[list[dict], list[str]]:
+                    deadline: float, max_scan: int = MAX_SCAN,
+                    private_crib: bytes = b'') -> tuple[list[dict], list[str]]:
     """Scan raw bytes; every finding keeps exact offsets and a source artifact id."""
     if isinstance(source, bytes):
         stream = io.BytesIO(source)
@@ -127,7 +128,10 @@ def scan_candidates(source: bytes | Path, artifact_id: str, patterns: list[str],
                         'source_locator': {'offset': absolute}, 'locations': [absolute],
                         'encoding': 'raw bytes', 'match_bytes': len(value),
                         'match_sha256': hashlib.sha256(value).hexdigest(),
-                        'evidence': repr(value[:128]), 'operation': label,
+                        # A partial regex match can expose a crib fragment, so hide every preview.
+                        'evidence': ('[preview withheld for private known plaintext]' if private_crib
+                                     else repr(value[:128])),
+                        'operation': label,
                         'next_action': 'Verify against the challenge oracle.'}
                 elif len(findings[key]['locations']) < MAX_LOCATIONS:
                     findings[key]['locations'].append(absolute)
