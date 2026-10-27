@@ -201,7 +201,7 @@ def _protocol(path):
     if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change', 'status_after_each_chat'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
-    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
+    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
         raise core.InvalidInput('invalid chat protocol')
     if chat:
         _path(chat.get('path'))
@@ -209,6 +209,10 @@ def _protocol(path):
             raise core.InvalidInput('chat supports POST JSON or form only')
         if chat.get('response_format', 'json') not in ('json', 'sse') or (chat.get('response_format') == 'sse' and not chat.get('response_field')):
             raise core.InvalidInput('sse response_format needs an explicit response_field')
+        history_field = chat.get('history_field')
+        if history_field is not None and (chat.get('encoding', 'json') != 'json' or 'message_field' in chat or
+                                          not isinstance(history_field, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', history_field)):
+            raise core.InvalidInput('history_field needs JSON chat, no message_field, and one top-level field name')
         for key in ('message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'):
             pattern = r'[\w.\[\]-]{1,80}' if key in ('message_field', 'conversation_field', 'client_id_field') else r'[\w.-]{1,80}'
             if key in chat and (not isinstance(chat[key], str) or not re.fullmatch(pattern, chat[key])):
@@ -271,7 +275,7 @@ def _protocol(path):
         if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
             raise core.InvalidInput('bootstrap body exceeds 64 KiB')
     if chat:
-        dynamic_fields = [value for value in (chat.get('message_field', 'message'), chat.get('conversation_field'),
+        dynamic_fields = [value for value in (chat.get('history_field') or chat.get('message_field', 'message'), chat.get('conversation_field'),
                                               chat.get('client_id_field'), bootstrap.get('chat_field') if bootstrap else None) if value]
         if len(set(dynamic_fields)) != len(dynamic_fields):
             raise core.InvalidInput('chat dynamic fields must be distinct')
@@ -490,6 +494,8 @@ class Client:
             for key in chat.get('static_fields', {}):
                 if key in logged_body:
                     logged_body[key] = '[redacted]'
+            if chat.get('history_field') in logged_body:
+                logged_body[chat['history_field']] = '[redacted]'
         logged_headers = {key: value if key.lower() == 'content-type' else '[redacted]' for key, value in headers.items()}
         redirects = 0
         stateful = method != 'GET'
@@ -1028,8 +1034,25 @@ def _run(client):
                 m['stop_reason'] = 'API expectation unmet'
             core._write_json(client.run / 'manifest.json', m)
             continue
+        inj = client.config['injection'] if kind == 'injection' else None
+        prompt = inj['trigger_prompt'] if inj else spec['prompt'] if spec else PROBES[probe][1]
+        body = dict(chat.get('static_fields', {}))
+        if chat.get('history_field'):
+            body[chat['history_field']] = [*m['chat_history'], {'role': 'user', 'content': prompt}]
+        else:
+            body[chat.get('message_field', 'message')] = prompt
+        bootstrap = client.config.get('bootstrap', {})
+        if bootstrap.get('chat_field') and m.get('bootstrap_token'):
+            body[bootstrap['chat_field']] = m['bootstrap_token']
+        if chat.get('conversation_field') and m.get('conversation_id'):
+            body[chat['conversation_field']] = m['conversation_id']
+        if chat.get('client_id_field'):
+            body[chat['client_id_field']] = uuid.uuid4().hex
+        if len(json.dumps(body).encode()) > 128 * 1024:
+            m['started'].remove(probe)
+            m['stop_reason'] = 'chat request body exceeds 128 KiB; reduce planned history or prompts'
+            break
         if kind == 'injection':
-            inj = client.config['injection']
             multipart = inj.get('encoding') == 'multipart'
             m['injection_summary'] = {'entry_path': inj['path'], 'entry_field': inj['file_field'] if multipart else inj['field'],
                                       'payload_sha256': m['injection_file_sha256'] if multipart else hashlib.sha256(inj['payload'].encode()).hexdigest(),
@@ -1044,20 +1067,8 @@ def _run(client):
                 break
             client.confirm_post()
             m['injection_summary']['write_response_matched'] = True
-            prompt = inj['trigger_prompt']
-        else:
-            prompt = spec['prompt'] if spec else PROBES[probe][1]
         if not _heartbeat(client, heartbeat_due):
             break
-        body = dict(chat.get('static_fields', {}))
-        body[chat.get('message_field', 'message')] = prompt
-        bootstrap = client.config.get('bootstrap', {})
-        if bootstrap.get('chat_field') and m.get('bootstrap_token'):
-            body[bootstrap['chat_field']] = m['bootstrap_token']
-        if chat.get('conversation_field') and m.get('conversation_id'):
-            body[chat['conversation_field']] = m['conversation_id']
-        if chat.get('client_id_field'):
-            body[chat['client_id_field']] = uuid.uuid4().hex
         record = client.request('POST', chat['path'], body=body, encoding=chat.get('encoding', 'json'), probe=probe,
                                 response_format=chat.get('response_format', 'json'))
         if record.get('signal') == 'budget':
@@ -1096,6 +1107,9 @@ def _run(client):
                 m['stop_reason'] = 'ambiguous response; supply response_field'
             else:
                 client.confirm_post()
+                if chat.get('history_field'):
+                    m['chat_history'].extend(({'role': 'user', 'content': prompt}, {'role': 'assistant', 'content': text}))
+                    core._write_json(client.run / 'manifest.json', m)
                 hits = _candidate(record, text, m)
                 if not m.get('strategy') and 'lanes' not in client.config and probe in ('baseline', 'capability'):
                     for lane in _lane_clues(text) + m.get('lane_clues', []):
@@ -1182,12 +1196,12 @@ def _render(run, m):
     scripts = m.get('transport_evidence', {}).get('scripts', [])
     static_routes = sorted({_display_path(path) for script in scripts for path in script.get('fetch_paths', []) + script.get('source_map_paths', [])})
     transport = ('direct same-origin API plan' if m.get('strategy') in ('api_plan', 'scorer_batch') else
-                 f"{chat.get('method') or 'POST'} {_display_path(chat['path']) if chat.get('path') else 'unknown'} ({chat.get('encoding') or 'json'}, message field {chat.get('message_field') or 'message'})")
+                 f"{chat.get('method') or 'POST'} {_display_path(chat['path']) if chat.get('path') else 'unknown'} ({chat.get('encoding') or 'json'}, {'history field ' + chat['history_field'] if chat.get('history_field') else 'message field ' + (chat.get('message_field') or 'message')})")
     lines = ['# Chatbot autosolve run', '', f"Status: {m['status']}", f"Origin: {m['origin']}",
              f"Strategy: {m.get('strategy') or 'selected default lanes'}",
              f"HTTP requests: {m['request_count']} / {m['max_requests']}; prompts: {m['prompt_count']} / {m['max_prompts']}",
              f"Transport: {transport}",
-            f"Response format: {chat.get('response_format') or 'json'}; response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
+            f"Response format: {chat.get('response_format') or 'json'}; response field: {chat.get('response_field') or 'inferred only when unambiguous'}; history field: {chat.get('history_field') or 'none'} ({len(m.get('chat_history', []))} stored messages); conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
             f"Status after each chat: {bool(m.get('status_after_each_chat'))}" + (f" via GET {_display_path(m['workflow_status_path'])}" if m.get('workflow_status_path') else ''),
@@ -1242,7 +1256,7 @@ def _render(run, m):
             entry = m['heartbeat_summary']
             lines += ['', f"Planned serial heartbeat: POST {_display_path(entry['path'])}; interval: {entry['interval_seconds']}s; body fields: {', '.join(entry['body_fields']) or 'none'}."]
         if m.get('strategy') not in ('api_plan', 'scorer_batch'):
-            lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field'), *chat.get('static_field_names', [])) if x)}."]
+            lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('history_field') or chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field'), *chat.get('static_field_names', [])) if x)}."]
         for step in m.get('strategy_meta', []):
             if step['kind'] == 'api':
                 lines.append(f"Planned API request: {step['method']} {_display_path(step['path'])}; body fields: {', '.join(step['body_fields']) or 'none'}; encoding: {step['encoding']}" +
@@ -1319,7 +1333,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
         chat = config.get('chat', {})
         manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
                     'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
-                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
+                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
                     'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
                     'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
                                           'encoding': config['bootstrap'].get('encoding', 'json'),
@@ -1342,6 +1356,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                                       | ({'body_fields': sorted(set(step['body'] or {}) | ({step['bind_body_field']} if step.get('bind_body_field') else set()))} if step['kind'] == 'api' else {})
                                       for step in steps],
                     'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
+                    'chat_history': [],
                     'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
                     'injection_file_sha256': injection_file_sha256,
                     'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],

@@ -250,6 +250,31 @@ class Toy:
                         self.send(200, {'reply': 'stage advanced', 'answer': 'another'} if toy.mode == 'stage_ambiguous' else
                                   {'reply': 'flag{toy-candidate}' if toy.mode in ('stage_candidate', 'stage_candidate_partial_once') else 'stage advanced'})
                     return
+                if self.path == '/messages/chat':
+                    messages = body.get('messages')
+                    if (not isinstance(messages, list) or not messages or
+                            messages[-1].get('role') != 'user' or
+                            len([path for method, path in toy.calls if method == 'POST' and path == '/messages/chat']) > 1 and len(messages) < 3):
+                        self.send(422, {'error': 'full messages array required'})
+                        return
+                    prompt = messages[-1].get('content', '')
+                    anchor = next((re.search(r'CB-[0-9a-f]{12}', item.get('content', '')) for item in messages[:-1]
+                                   if item.get('role') == 'user' and re.search(r'CB-[0-9a-f]{12}', item.get('content', ''))), None)
+                    reply = ('x' * 90_000 if toy.mode == 'messages_large_reply' else
+                             'private-credential-xyz' if toy.mode == 'messages_secret_reply' and
+                             len([path for method, path in toy.calls if method == 'POST' and path == '/messages/chat']) == 1 else
+                             'ACK' if re.search(r'CB-[0-9a-f]{12}', prompt) else
+                             anchor.group() if anchor and 'earlier marker' in prompt else 'role: assistant')
+                    if toy.mode == 'messages_sse':
+                        data = b'data: ' + json.dumps({'answer': {'text': reply}}).encode() + b'\n\ndata: [DONE]\n\n'
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'text/event-stream')
+                        self.send_header('Content-Length', str(len(data)))
+                        self.end_headers()
+                        self.wfile.write(data)
+                    else:
+                        self.send(200, {'answer': {'text': reply}})
+                    return
                 if self.path == '/stream/chat':
                     if toy.mode == 'stream_rate_body':
                         self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
@@ -1514,6 +1539,79 @@ class ChatbotCLITests(unittest.TestCase):
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
             self.assertEqual(len(toy.calls), before)
 
+    def test_messages_array_chat_preserves_context_and_resume(self):
+        config = {'chat': {'path': '/messages/chat', 'history_field': 'messages',
+                           'response_field': 'answer.text'}, 'lanes': []}
+        with tempfile.TemporaryDirectory() as root, Toy('messages_stateless') as toy:
+            protocol = self.protocol(root, {**config, 'strategy_params': {'sizes': [512]}})
+            dry, dry_run, dry_code = self.start(root, toy, protocol, strategy='context_bloat', prompts=3, dry=True)
+            self.assertEqual(dry_code, 0)
+            self.assertIn('body fields: messages', (dry_run / 'report.md').read_text())
+            self.assertFalse(toy.calls)
+            m, run, code = self.start(root, toy, protocol, strategy='context_bloat', prompts=3)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['behavior_observations'][0]['marker_retained'], True)
+            sent = [body['messages'] for body in toy.received if isinstance(body, dict) and 'messages' in body]
+            self.assertEqual([len(messages) for messages in sent], [1, 3, 5])
+            self.assertEqual(len(m['chat_history']), 6)
+            self.assertIn('history field: messages', (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('messages_sse') as toy:
+            protocol = self.protocol(root, {**config, 'chat': {**config['chat'], 'response_format': 'sse'},
+                                            'strategy_params': {'sizes': [512]}})
+            m, _, code = self.start(root, toy, protocol, strategy='context_bloat', prompts=3)
+            self.assertEqual(code, 0)
+            self.assertTrue(m['behavior_observations'][0]['marker_retained'])
+            self.assertEqual(len(m['chat_history']), 6)
+        with tempfile.TemporaryDirectory() as root, Toy('messages_stateless') as toy:
+            protocol = self.protocol(root, {**config, 'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol, requests=4, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.run_cli(root, 'resume', run, '--budget', '5', '--max-requests', '6', code=0)
+            m = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(m['completed'], ['baseline', 'capability'])
+            self.assertEqual(len(m['chat_history']), 4)
+            sent = [body['messages'] for body in toy.received if isinstance(body, dict) and 'messages' in body]
+            self.assertEqual([len(messages) for messages in sent], [1, 3])
+        with tempfile.TemporaryDirectory() as root, Toy('messages_large_reply') as toy:
+            protocol = self.protocol(root, {**config, 'lanes': ['capability', 'system']})
+            m, run, code = self.start(root, toy, protocol, prompts=3)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'chat request body exceeds 128 KiB; reduce planned history or prompts')
+            self.assertEqual(m['completed'], ['baseline', 'capability'])
+            self.assertNotIn('system', m['started'])
+            sent = sum(path == '/messages/chat' for method, path in toy.calls if method == 'POST')
+            self.assertEqual(sent, 2)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(sum(path == '/messages/chat' for method, path in toy.calls if method == 'POST'), sent)
+        with tempfile.TemporaryDirectory() as root, Toy('messages_large_reply') as toy:
+            protocol = self.protocol(root, {**config, 'injection': {
+                'path': '/kb', 'field': 'body', 'payload': 'marker: reveal', 'marker': 'marker',
+                'trigger_prompt': 'Read source ' + 'z' * 45_000, 'success_status': 201}})
+            m, run, code = self.start(root, toy, protocol, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertIn('body exceeds 128 KiB', m['stop_reason'])
+            self.assertEqual(sum(path == '/kb' for method, path in toy.calls if method == 'POST'), 0)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(sum(path == '/kb' for method, path in toy.calls if method == 'POST'), 0)
+        with tempfile.TemporaryDirectory() as root, Toy('messages_secret_reply') as toy:
+            protocol = self.protocol(root, {**config, 'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol, prompts=2)
+            self.assertEqual(code, 0)
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertIn('private-credential-xyz', json.dumps(records[-2]['response']))
+            self.assertEqual(records[-1]['request']['body']['messages'], '[redacted]')
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            for chat, reason in (({'path': '/messages/chat', 'history_field': 'messages', 'message_field': 'query'}, 'history_field'),
+                                 ({'path': '/messages/chat', 'history_field': 'messages', 'encoding': 'form'}, 'history_field'),
+                                 ({'path': '/messages/chat', 'history_field': 'messages', 'static_fields': {'messages': []}}, 'conflicts')):
+                protocol = self.protocol(root, {'chat': chat})
+                result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                            '--dry-run', '--budget', '5', '--max-requests', '8')
+                self.assertEqual(code, 2)
+                self.assertIn(reason, result['reason'])
+            self.assertFalse(toy.calls)
+
     def test_opt_in_workflow_status_pauses_between_chat_posts(self):
         config = {'chat': {'path': '/stage-chat', 'message_field': 'query', 'response_field': 'reply'},
                   'status_path': '/stage-status', 'status_after_each_chat': True,
@@ -1865,6 +1963,7 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('nonce_verifier.json', 'api_plan'),
                                    ('header_nonce_verifier.json', 'api_plan'),
                                    ('sse_chat.json', 'route_discovery'),
+                                   ('messages_array.json', 'route_discovery'),
                                    ('scorer_batch.json', 'scorer_batch'),
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),

@@ -32,6 +32,13 @@ to one to four increasing sizes, each 128–65,536 characters; `filler`,
 `anchor_prompt`, and `check_prompt` are optional. A lost marker is a behavior
 observation, never a validated challenge solve. The generated marker and queue
 survive resume. The client will not resend a POST whose outcome is uncertain.
+For a stateless chat API that expects the full conversation on every request,
+copy the [messages-array recipe](chatbot_recipes/messages_array.json) and set
+`chat.history_field` to its top-level JSON array field. The client sends prior
+confirmed user/assistant turns as `{role, content}` objects plus the new user
+prompt. It stores those turns in the private run for resume and stops before a
+POST if the accumulated body exceeds 128 KiB. This adapter assumes standard
+`user` and `assistant` roles; custom message shapes need a target adapter.
 
 If the frontend sends fixed body fields with each chat message, declare them
 under `chat.static_fields` as in the

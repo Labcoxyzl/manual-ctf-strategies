@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="8e75449048b7bcc359ed7165cb49e5ebf1997971846e0ba375e3b5c77dd691f2">
+  <meta name="source-sha256" content="16a0a97800575bd7626e4d96df3008d8cc36d3549d4b922cb719bdc09b11b250">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -67,7 +67,14 @@ which the target stops returning the original marker. Set <code>strategy_params.
 to one to four increasing sizes, each 128–65,536 characters; <code>filler</code>,
 <code>anchor_prompt</code>, and <code>check_prompt</code> are optional. A lost marker is a behavior
 observation, never a validated challenge solve. The generated marker and queue
-survive resume. The client will not resend a POST whose outcome is uncertain.</p>
+survive resume. The client will not resend a POST whose outcome is uncertain.
+For a stateless chat API that expects the full conversation on every request,
+copy the <a href="scripts/chatbot_recipes/messages_array.json">messages-array recipe</a> and set
+<code>chat.history_field</code> to its top-level JSON array field. The client sends prior
+confirmed user/assistant turns as <code>{role, content}</code> objects plus the new user
+prompt. It stores those turns in the private run for resume and stops before a
+POST if the accumulated body exceeds 128 KiB. This adapter assumes standard
+<code>user</code> and <code>assistant</code> roles; custom message shapes need a target adapter.</p>
 <p>If the frontend sends fixed body fields with each chat message, declare them
 under <code>chat.static_fields</code> as in the
 <a href="scripts/chatbot_recipes/chat_static_fields.json">static-fields recipe</a>. JSON fields
