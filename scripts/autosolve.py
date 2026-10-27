@@ -38,11 +38,29 @@ def main(argv=None):
     setup = commands.add_parser('setup', help='prepare implemented local operations without administrator rights')
     setup.add_argument('--profiles', nargs='+', default=['all'])
     web = commands.add_parser('web', help='analyze an explicitly scoped web request')
-    web.add_argument('--request-file', required=True)
+    web.add_argument('--request-file', help='private raw request for WEB02/03/05')
     web.add_argument('--scope-origin', required=True)
     web.add_argument('--budget', type=float, default=180)
     web.add_argument('--wordlist', help='private file of at most 32 explicit discovery words')
     web.add_argument('--kind', choices=('path', 'parameter', 'vhost'), default='path')
+    web.add_argument('--lead-kind', choices=('traversal', 'template'),
+                     help='run one selected WEB05 differential check')
+    web.add_argument('--parameter', help='existing query parameter selected for WEB05')
+    web.add_argument('--probe-value', help='one explicitly selected relative file path for traversal')
+    web.add_argument('--expected', help='response marker for WEB05; 323 for template')
+    web.add_argument('--syntax', choices=('braces', 'dollar'),
+                     help='arithmetic template syntax for WEB05')
+    web.add_argument('--sql-parameter', help='existing query/form parameter selected for WEB03')
+    web.add_argument('--sql-test', action='store_true', help='opt in to bounded WEB03 test requests')
+    web.add_argument('--sql-location', choices=('query', 'form'), default='query')
+    web.add_argument('--sql-context', choices=('text', 'number'), default='text')
+    web.add_argument('--sql-table', help='selected table for bounded WEB03 candidate comparison')
+    web.add_argument('--sql-column', help='selected column for bounded WEB03 candidate comparison')
+    web.add_argument('--sql-candidate', action='append', dest='sql_candidates',
+                     help='selected value candidate; at most four')
+    web.add_argument('--workflow-file', help='private two-role WEB08 workflow fixture')
+    web.add_argument('--workflow-test', action='store_true',
+                     help='opt in to replay only explicitly safe WEB08 fixture steps')
     web.add_argument('--max-requests', type=int, default=34)
     web.add_argument('--rate', type=float, default=5, help='maximum requests per second, at most 20')
     web.add_argument('--runs-root', help='directory for private run records')
@@ -91,7 +109,8 @@ def main(argv=None):
             elif manifest.get('run_type') == 'service_inventory':
                 from autosolve_lib import service_inventory as inventory_module
                 run, status = inventory_module.resume(args.run)
-            elif manifest.get('run_type') == 'web_discovery':
+            elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
+                                               'web_workflow'):
                 from autosolve_lib import web as web_module
                 run, status = web_module.resume(args.run)
             else:
@@ -108,7 +127,8 @@ def main(argv=None):
             elif manifest.get('run_type') == 'service_inventory':
                 from autosolve_lib import service_inventory as inventory_module
                 path = inventory_module.report(args.run)
-            elif manifest.get('run_type') == 'web_discovery':
+            elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
+                                               'web_workflow'):
                 from autosolve_lib import web as web_module
                 path = web_module.report(args.run)
             else:
@@ -136,7 +156,16 @@ def main(argv=None):
             from autosolve_lib import web as web_module
             run, status = web_module.start(args.request_file, args.scope_origin, args.budget,
                                            args.wordlist, args.kind, args.max_requests,
-                                           args.rate, args.runs_root)
+                                           args.rate, args.runs_root, lead_kind=args.lead_kind,
+                                           parameter=args.parameter, probe_value=args.probe_value,
+                                           expected=args.expected, syntax=args.syntax,
+                                           sql_parameter=args.sql_parameter,
+                                           sql_test=args.sql_test, sql_location=args.sql_location,
+                                           sql_context=args.sql_context, sql_table=args.sql_table,
+                                           sql_column=args.sql_column,
+                                           sql_candidates=args.sql_candidates,
+                                           workflow_path=args.workflow_file,
+                                           workflow_test=args.workflow_test)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         elif args.command == 'service':

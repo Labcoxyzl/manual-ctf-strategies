@@ -5868,7 +5868,7 @@ def capabilities(category='auto'):
                    'AV01', 'AV02', 'AV03', 'AV04', 'AV06',
                    'OS01', 'OS02', 'OS03', 'CAN01', 'CAN02', 'NET01', 'NET02', 'NET03', 'NET05',
                    'DF01', 'DF02', 'DF03', 'DF04', 'DF05',
-                   'PWN01', 'PWN02', 'PWN07', 'WEB01', 'AIC01', 'AIC02'}
+                   'PWN01', 'PWN02', 'PWN07', 'WEB01', 'WEB02', 'WEB03', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
     return [{'id': row['id'], 'domain': row['domain'], 'stage': row['delivery_stage'],
              'status': 'partial' if row['id'] in implemented
              else 'not implemented'} for row in CATALOG

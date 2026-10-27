@@ -534,8 +534,8 @@
       "domain": "web",
       "delivery_stage": "baseline",
       "planned_coverage": "partial",
-      "automatic_scope": "Run chosen SQLmap checks from preserved request and selected input",
-      "limitations": "Unsupported DBMS/context or stateful workflow may need manual work"
+      "automatic_scope": "Run bounded paired SQL-condition probes from a saved request and selected parameter; optionally compare up to four declared candidates",
+      "limitations": "Only selected GET query or POST form text/number contexts; differential results need independent application evidence"
     },
     {
       "id": "WEB04",

@@ -910,6 +910,152 @@ def _web_discovery_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _web_leads_probe(self_test):
+    from .profiles.web_leads import probe_web_leads
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        from urllib.parse import parse_qs, urlsplit
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                value = parse_qs(urlsplit(self.path).query).get('file', [''])[0]
+                body = b'private-marker' if value == '../selected.txt' else b'missing'
+                self.send_response(200)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = None
+        thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            result, warnings = probe_web_leads(
+                {'origin': origin, 'kind': 'traversal', 'parameter': 'file',
+                 'request': {'method': 'GET', 'path': '/', 'query': {'file': 'ordinary'}},
+                 'probe_value': '../selected.txt', 'expected': 'private-marker'},
+                timeout=2, max_requests=4, rate=20)
+            probe = ('passed' if not warnings and result['requests_used'] == 4 and
+                     result['classification'] == 'candidate' else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _web_sql_probe(self_test):
+    from .profiles.web_sql import assess_sql
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        from urllib.parse import parse_qs, urlsplit
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                value = parse_qs(urlsplit(self.path).query).get('id', [''])[0]
+                database = sqlite3.connect(':memory:')
+                database.execute('CREATE TABLE users (id TEXT)')
+                database.execute("INSERT INTO users VALUES ('1')")
+                try:
+                    found = database.execute(
+                        "SELECT id FROM users WHERE id = '" + value + "'").fetchone()
+                    body = b'found' if found else b'missing'
+                    status = 200
+                except sqlite3.Error:
+                    body, status = b'error', 500
+                finally:
+                    database.close()
+                self.send_response(status)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            raw = (f'GET /?id=1 HTTP/1.1\r\nHost: 127.0.0.1:{server.server_port}\r\n\r\n').encode()
+            result, warnings = assess_sql(raw, origin, 'id', authorized=True,
+                                          test_mode=True, timeout=2, max_requests=6,
+                                          rate=20)
+            probe = ('passed' if not warnings and result['requests_used'] == 6 and
+                     result['classification'] == 'differential_candidate' else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
+def _web_workflow_probe(self_test):
+    from .profiles.web_workflows import replay_workflows
+    probe = 'not_run'
+    if self_test:
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class Site(BaseHTTPRequestHandler):
+            def do_GET(self):
+                status = 200 if self.headers.get('X-Role') == 'owner' else 403
+                self.send_response(status)
+                self.end_headers()
+                self.wfile.write(b'allowed' if status == 200 else b'denied')
+
+            def log_message(self, *args):
+                pass
+
+        server = thread = None
+        try:
+            server = ThreadingHTTPServer(('127.0.0.1', 0), Site)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f'http://127.0.0.1:{server.server_port}'
+            fixture = {'expected_invariant': {
+                'left': {'role': 'owner', 'step': 'read'},
+                'right': {'role': 'guest', 'step': 'read'},
+                'relation': 'different_status'},
+                'workflows': [
+                    {'role': role, 'steps': [{'id': 'read', 'method': 'GET', 'path': '/',
+                                               'headers': {'X-Role': role},
+                                               'safe_to_replay': True}]}
+                    for role in ('owner', 'guest')]}
+            result, warnings = replay_workflows(fixture, origin=origin, timeout=2)
+            probe = ('passed' if not warnings and result['assessment'] == 'invariant held'
+                     and [row['status'] for row in result['responses']] == [200, 403]
+                     else 'failed')
+        except (OSError, ValueError):
+            probe = 'failed'
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if thread:
+                thread.join(2)
+    return {'implemented': True, 'functional_probe': probe,
+            'status': 'ready' if probe == 'passed' else 'partial'}
+
+
 def _memory_probe(self_test):
     from .profiles import memory
     path = memory.VOL
@@ -1266,6 +1412,9 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     if "web" in selected:
         operations['web.static_inventory'] = _web_static_probe(self_test)
         operations['web.discovery'] = _web_discovery_probe(self_test)
+        operations['web.sql_assessment'] = _web_sql_probe(self_test)
+        operations['web.selected_leads'] = _web_leads_probe(self_test)
+        operations['web.workflow_comparison'] = _web_workflow_probe(self_test)
     status = "partial" if any(value["status"] != "ready" for value in engines.values()) or any(
         value["status"] != "ready" for value in operations.values()
     ) else "ready"

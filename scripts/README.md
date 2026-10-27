@@ -43,6 +43,41 @@ wordlist: `python3 scripts/autosolve.py web --request-file ./request.http
 --budget 30`. The origin is authoritative. Redirects are recorded without
 following them, and omitting the wordlist sends no requests.
 
+<a id="web-sql"></a>
+For one suspected SQL input, supply the saved request and opt in with
+`--sql-test --sql-parameter NAME`. A selected value comparison additionally
+needs `--sql-table TABLE --sql-column COLUMN` and one to four repeated
+`--sql-candidate VALUE` arguments. A differential response is a lead, not
+proof of a query or an accepted challenge result.
+
+<a id="web-leads"></a>
+For one suspected path traversal or template input, use
+`--lead-kind traversal|template` with an existing `--parameter` and explicit
+probe/expected value or syntax. WEB03 and WEB05 checks stay within the
+declared origin, budget and rate and are not replayed on resume.
+
+<a id="web-workflows"></a>
+WEB08 compares two supplied workflows against a declared response invariant.
+Put roles, ordered steps and the invariant in a private JSON fixture. Mark a
+step `safe_to_replay: true` only when sending it is intended; then run
+`python3 scripts/autosolve.py web --scope-origin https://assigned.example
+--workflow-file ./private.json --workflow-test --budget 30`. The transcript stays private, and resume reads
+it without sending the requests again. An explicit `Cookie` header seeds
+only that role's host-scoped session, and later `Set-Cookie` responses update
+it; a raw header cannot recover the cookie's original path scope. A difference
+is an observation, not proof of an authorization flaw. Replace the synthetic
+paths and role header
+in this fixture with two permitted principals and a known object:
+
+```json
+{"expected_invariant":{"left":{"role":"owner","step":"read"},
+ "right":{"role":"guest","step":"read"},"relation":"different_status"},
+ "workflows":[{"role":"owner","steps":[{"id":"read","method":"GET",
+ "path":"/object/1","headers":{"X-Role":"owner"},"safe_to_replay":true}]},
+ {"role":"guest","steps":[{"id":"read","method":"GET",
+ "path":"/object/1","headers":{"X-Role":"guest"},"safe_to_replay":true}]}]}
+```
+
 Setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="c4f1c31ecf72f801d0e9a22700ef836fce26b87525293bd40626a280d8c11243">
+  <meta name="source-sha256" content="d7316f632d5959106b7d88d91ef48596c885f48206bd174461f37c41f5ea8c96">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -76,6 +76,35 @@ or challenge acceptance.</p>
 <p>For scoped WEB02 discovery, supply a raw HTTP GET request and a small private
 wordlist: <code>python3 scripts/autosolve.py web --request-file ./request.http --scope-origin https://assigned.example --wordlist ./small-words.txt --kind path --budget 30</code>. The origin is authoritative. Redirects are recorded without
 following them, and omitting the wordlist sends no requests.</p>
+<p><a id="web-sql"></a>
+For one suspected SQL input, supply the saved request and opt in with
+<code>--sql-test --sql-parameter NAME</code>. A selected value comparison additionally
+needs <code>--sql-table TABLE --sql-column COLUMN</code> and one to four repeated
+<code>--sql-candidate VALUE</code> arguments. A differential response is a lead, not
+proof of a query or an accepted challenge result.</p>
+<p><a id="web-leads"></a>
+For one suspected path traversal or template input, use
+<code>--lead-kind traversal|template</code> with an existing <code>--parameter</code> and explicit
+probe/expected value or syntax. WEB03 and WEB05 checks stay within the
+declared origin, budget and rate and are not replayed on resume.</p>
+<p><a id="web-workflows"></a>
+WEB08 compares two supplied workflows against a declared response invariant.
+Put roles, ordered steps and the invariant in a private JSON fixture. Mark a
+step <code>safe_to_replay: true</code> only when sending it is intended; then run
+<code>python3 scripts/autosolve.py web --scope-origin https://assigned.example --workflow-file ./private.json --workflow-test --budget 30</code>. The transcript stays private, and resume reads
+it without sending the requests again. An explicit <code>Cookie</code> header seeds
+only that role's host-scoped session, and later <code>Set-Cookie</code> responses update
+it; a raw header cannot recover the cookie's original path scope. A difference
+is an observation, not proof of an authorization flaw. Replace the synthetic
+paths and role header
+in this fixture with two permitted principals and a known object:</p>
+<pre><code class="language-json">{&quot;expected_invariant&quot;:{&quot;left&quot;:{&quot;role&quot;:&quot;owner&quot;,&quot;step&quot;:&quot;read&quot;},
+ &quot;right&quot;:{&quot;role&quot;:&quot;guest&quot;,&quot;step&quot;:&quot;read&quot;},&quot;relation&quot;:&quot;different_status&quot;},
+ &quot;workflows&quot;:[{&quot;role&quot;:&quot;owner&quot;,&quot;steps&quot;:[{&quot;id&quot;:&quot;read&quot;,&quot;method&quot;:&quot;GET&quot;,
+ &quot;path&quot;:&quot;/object/1&quot;,&quot;headers&quot;:{&quot;X-Role&quot;:&quot;owner&quot;},&quot;safe_to_replay&quot;:true}]},
+ {&quot;role&quot;:&quot;guest&quot;,&quot;steps&quot;:[{&quot;id&quot;:&quot;read&quot;,&quot;method&quot;:&quot;GET&quot;,
+ &quot;path&quot;:&quot;/object/1&quot;,&quot;headers&quot;:{&quot;X-Role&quot;:&quot;guest&quot;},&quot;safe_to_replay&quot;:true}]}]}
+</code></pre>
 <p>Setup uses only wheels and verifies hashes from
 <a href="scripts/autosolve_requirements/core.lock.txt"><code>core.lock.txt</code></a>. It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
