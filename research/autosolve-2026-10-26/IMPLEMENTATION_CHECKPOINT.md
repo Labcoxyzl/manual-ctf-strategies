@@ -231,8 +231,10 @@ from genuine noncrashing program exits and adds an opt-in bounded StegSeek
 seed probe for IMG03's still-unmet negative-classification clause. The isolated
 PWN03 suite passed 15 tests; StegSeek passed 12 focused tests and three
 independently frozen real-carrier controls with stable resume and no published
-seed output. Full named IMG03 replay, integrated suites, rootless export and
-frozen release gates remain pending on the combined candidate.
+seed output. A two-carrier regression repaired an aggregate IMG03 report note
+that had implied no seed globally after a positive carrier. Full named IMG03
+replay, integrated suites, rootless export and frozen release gates remain
+pending on the combined candidate.
 
 ## Independent end-to-end evidence
 
