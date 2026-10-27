@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest import mock
 
 from scripts.autosolve_lib.profiles import rev_rules
-from scripts.autosolve_lib import setup as setup_module
+from scripts.autosolve_lib import setup as autosolve_setup
 from scripts.autosolve_lib import core
 
 
@@ -326,11 +326,11 @@ if offset >= 0:
         self.assertEqual(len([job for job in upgraded['jobs'] if job['adapter_id'] == 'rev-rules']), 3)
 
     def test_doctor_discloses_missing_rule_engines_and_required_data(self):
-        original = setup_module.shutil.which
-        with mock.patch.object(setup_module.shutil, 'which',
+        original = autosolve_setup.shutil.which
+        with mock.patch.object(autosolve_setup.shutil, 'which',
                                side_effect=lambda name: None if name in ('capa', 'yara')
                                else original(name)):
-            report = setup_module.doctor(['reversing'], self_test=True)
+            report = autosolve_setup.doctor(['reversing'], self_test=True)
         operation = report['operations']['malware_reversing.rule_matching']
         self.assertTrue(operation['implemented'])
         self.assertEqual(operation['status'], 'unavailable')
@@ -347,11 +347,11 @@ elif '--version' in sys.argv: print('capa 10.0.0')
 if '--help' in sys.argv: print('-s -L -e')
 elif '-v' in sys.argv: print('YARA 4.5.2')
 ''')
-        original = setup_module.shutil.which
-        with mock.patch.object(setup_module.shutil, 'which',
+        original = autosolve_setup.shutil.which
+        with mock.patch.object(autosolve_setup.shutil, 'which',
                                side_effect=lambda name: {'capa': capa, 'yara': yara}.get(name)
                                or original(name)):
-            report = setup_module.doctor(['reversing'], self_test=True)
+            report = autosolve_setup.doctor(['reversing'], self_test=True)
         for engine in ('capa', 'yara'):
             self.assertEqual(report['engines'][engine]['status'], 'partial')
             self.assertTrue(report['engines'][engine]['options_compatible'])

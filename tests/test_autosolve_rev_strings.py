@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest import mock
 
 from scripts.autosolve_lib.profiles import rev_strings
-from scripts.autosolve_lib import setup as setup_module
+from scripts.autosolve_lib import setup as autosolve_setup
 from scripts.autosolve_lib import core
 
 
@@ -212,10 +212,10 @@ class ReverseStringsTests(unittest.TestCase):
         self.assertEqual(auto['coverage']['REV02']['status'], 'truncated')
 
     def test_doctor_reports_missing_floss_and_static_fallback(self):
-        original = setup_module.shutil.which
-        with mock.patch.object(setup_module.shutil, 'which',
+        original = autosolve_setup.shutil.which
+        with mock.patch.object(autosolve_setup.shutil, 'which',
                                side_effect=lambda name: None if name == 'floss' else original(name)):
-            report = setup_module.doctor(['reversing'], self_test=True)
+            report = autosolve_setup.doctor(['reversing'], self_test=True)
         operation = report['operations']['malware_reversing.obfuscated_strings']
         self.assertEqual(operation['functional_probe'], 'passed')
         self.assertEqual(operation['status'], 'partial')
