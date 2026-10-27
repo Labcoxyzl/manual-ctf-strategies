@@ -1,6 +1,7 @@
 """Bounded printed-text OCR for complete SSTV-derived images."""
 
 import base64
+import ctypes
 import os
 import re
 import resource
@@ -24,7 +25,19 @@ def _limit_output():
 
 def _output_file():
     try:
-        return os.fdopen(os.memfd_create("autosolve-ocr", os.MFD_CLOEXEC), "w+b")
+        # Linux MFD_CLOEXEC is 1 even when Python omits the os binding.
+        creator = getattr(os, "memfd_create", None)
+        if creator is not None:
+            fd = creator("autosolve-ocr", 1)
+        else:
+            libc = ctypes.CDLL(None, use_errno=True)
+            memfd_create = libc.memfd_create
+            memfd_create.argtypes = (ctypes.c_char_p, ctypes.c_uint)
+            memfd_create.restype = ctypes.c_int
+            fd = memfd_create(b"autosolve-ocr", 1)
+            if fd < 0:
+                raise OSError(ctypes.get_errno(), "anonymous OCR output unavailable")
+        return os.fdopen(fd, "w+b")
     except AttributeError as error:
         raise OSError("anonymous OCR output unavailable") from error
 

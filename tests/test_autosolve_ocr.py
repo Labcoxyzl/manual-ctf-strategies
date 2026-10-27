@@ -1,6 +1,7 @@
 """Independent printed clue and bounded OCR controls."""
 
 import base64
+import fcntl
 import shutil
 import tempfile
 import time
@@ -176,11 +177,22 @@ class OCRTests(unittest.TestCase):
         fake.write_text("#!/bin/sh\nexit 0\n")
         fake.chmod(0o755)
         with (mock.patch.object(ocr, "TESSERACT", str(fake)),
-              mock.patch.object(ocr.os, "memfd_create", side_effect=OSError("unsupported"))):
+              mock.patch.object(ocr, "_output_file", side_effect=OSError("unsupported"))):
             self.assertIsNone(ocr.english_traineddata_path())
             rows, notices = ocr.extract_printed_text(source)
         self.assertEqual(rows, [])
         self.assertIn("Tesseract failed", notices[0])
+
+    def test_libc_memfd_fallback_is_seekable_and_cloexec(self):
+        with mock.patch.object(ocr.os, "memfd_create", None, create=True):
+            with ocr._output_file() as output:
+                self.assertTrue(fcntl.fcntl(output.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC)
+                output.write(b"bounded OCR")
+                output.seek(0)
+                self.assertEqual(output.read(), b"bounded OCR")
+            with mock.patch.object(ocr.ctypes, "CDLL", return_value=object()):
+                with self.assertRaises(OSError):
+                    ocr._output_file()
 
 
 if __name__ == "__main__":
