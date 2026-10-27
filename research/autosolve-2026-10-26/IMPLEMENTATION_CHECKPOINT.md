@@ -245,11 +245,14 @@ skipped, 517 subtests), and the remote hash was verified as `615d966`.
 IMG03, AV02 and IMG05 then passed their full named rows on that published hash.
 This does not establish the other 45 named rows or platform acceptance.
 
-The eighteenth candidate investigates NET01's reordered-capture truncation:
+The eighteenth candidate repairs NET01's reordered-capture truncation:
 a gap-free reassembled stream can coexist with a transient TShark lost-segment
-warning. Isolated focused controls and independent review are in progress;
-the frozen publisher and genuine-gap transfer and integrated gates remain
-pending.
+warning. The repair clears that provisional warning only when both matching
+TCP directions are complete and gap-free; genuine gaps, conflicts and stale
+packet jobs remain truncated. An isolated focused suite passed 34 tests,
+independent review cleared two false-success cases, and frozen reordered,
+missing-frame, conflict and source-removal transfers passed. Combined release
+gates and publication remain pending.
 
 ## Independent end-to-end evidence
 
