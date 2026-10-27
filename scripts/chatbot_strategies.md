@@ -189,6 +189,7 @@ provide a scorer observation.
 Start from the [history](chatbot_recipes/history_idor.json),
 [vector-store](chatbot_recipes/vector_store.json),
 [debug/verifier](chatbot_recipes/debug_verifier.json),
+[fresh-nonce verifier](chatbot_recipes/nonce_verifier.json),
 [scorer-batch](chatbot_recipes/scorer_batch.json),
 [tool-audit](chatbot_recipes/tool_audit.json), or
 [workflow](chatbot_recipes/workflow_action.json) examples. Replace every
@@ -204,6 +205,16 @@ resume. The upload file is limited to
 Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.
+
+For an exposed one-shot nonce route, one `api_plan` step may set
+`capture_field` to a scalar JSON response path. One later POST may set either
+`bind_body_field` or `bind_header` to place that fresh value in its declared
+request. The client keeps the same cookies, stores the captured value only in
+the private run, and redacts its later request body or header. A missing,
+non-scalar, oversized, or redirected capture stops before the verifier POST.
+The bound POST is never replayed after an uncertain outcome. This adapter does
+not derive signatures, chain multiple tokens, or infer acceptance from a model
+claim; use the challenge's documented checker field.
 
 ```sh
 python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
@@ -325,7 +336,7 @@ mean the attack will succeed against an arbitrary challenge.
 | Workflow validator and exact output | `output_validator` / `workflow_status` | Fill stage/status route and check persisted progress. |
 | Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
 | Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
-| Debug validator and direct verifier | `api_plan` + `debug_verifier.json` | Fill documented boundary input, nonce/signature rules, and official completion field. |
+| Debug validator and direct verifier | `api_plan` + `debug_verifier.json` or `nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar nonce can be bound, while signature derivation remains target-specific. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
 | Non-LLM application agent | `api_plan` for an exposed API; otherwise the web, protocol or reverse workflow | Identify the actual non-chat transport and its validator. |

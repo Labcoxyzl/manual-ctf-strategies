@@ -358,6 +358,12 @@ def _same_json(actual, expected):
     return actual == expected
 
 
+def _capture_scalar(value):
+    return ((isinstance(value, str) and 1 <= len(value) <= 512 and
+             all(32 <= ord(char) <= 126 for char in value)) or
+            (type(value) is int and 0 <= value <= 2 ** 63 - 1))
+
+
 def _redact(value):
     if isinstance(value, dict):
         return {k: '[redacted]' if SENSITIVE_KEY.search(k) else _redact(v) for k, v in value.items()}
@@ -446,7 +452,7 @@ class Client:
             self.cookies.load(ignore_discard=True, ignore_expires=True)
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies), _NoRedirect())
 
-    def request(self, method, path, *, body=None, encoding='json', probe='inspect'):
+    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None):
         if method != 'GET' and self.pending_probe is not None:
             return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
@@ -460,6 +466,10 @@ class Client:
             token = next((cookie.value for cookie in self.cookies if cookie.name == chat['csrf_cookie']), None)
             if token:
                 headers[chat['csrf_header']] = token
+        if extra_headers:
+            if {key.lower() for key in extra_headers} & {key.lower() for key in headers}:
+                raise core.InvalidInput('bound API header conflicts with an existing request header')
+            headers.update(extra_headers)
         data = None
         if body is not None:
             if encoding == 'multipart':
@@ -534,6 +544,9 @@ class Client:
                         method, data, body = 'GET', None, None
                         headers.pop('Content-Type', None)
                         logged_headers.pop('Content-Type', None)
+                        for key in extra_headers or {}:
+                            headers.pop(key, None)
+                            logged_headers.pop(key, None)
                         logged_body = None
                     continue
             else:
@@ -846,10 +859,24 @@ def _run(client):
         if (kind != 'api' and m['prompt_count'] >= m['max_prompts']) or m['request_count'] + needed > m['max_requests'] or time.monotonic() >= client.deadline or m.get('stop_reason'):
             m['stop_reason'] = m.get('stop_reason') or ('prompt budget' if kind != 'api' and m['prompt_count'] >= m['max_prompts'] else 'budget')
             break
+        if kind == 'api' and (spec.get('bind_body_field') or spec.get('bind_header')):
+            capture = m.get('api_capture')
+            if (not isinstance(capture, dict) or not _capture_scalar(capture.get('value')) or
+                    hashlib.sha256(json.dumps(capture['value'], ensure_ascii=False).encode()).hexdigest() != capture.get('sha256')):
+                m['stop_reason'] = 'API capture unavailable; inspect prior response before a new run'
+                break
         m['started'].append(probe)
         core._write_json(client.run / 'manifest.json', m)
         if kind == 'api':
-            result = client.request(spec['method'], spec['path'], body=spec['body'], encoding=spec['encoding'], probe=f'api:{probe}')
+            payload = dict(spec['body'] or {}) if spec['method'] == 'POST' else None
+            extra_headers = None
+            if spec.get('bind_body_field'):
+                value = m['api_capture']['value']
+                payload[spec['bind_body_field']] = str(value) if spec['encoding'] == 'form' else value
+            if spec.get('bind_header'):
+                extra_headers = {spec['bind_header']: str(m['api_capture']['value'])}
+            result = client.request(spec['method'], spec['path'], body=payload, encoding=spec['encoding'],
+                                    probe=f'api:{probe}', extra_headers=extra_headers)
             if result.get('signal') == 'budget':
                 m['stop_reason'] = 'budget after API step preparation; state uncertain'
                 break
@@ -862,14 +889,22 @@ def _run(client):
                                1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
             except OverflowError:
                 valid_score = False
+            captured_value = _nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else _MISSING
+            capture_valid = (not spec.get('capture_field') or
+                             result.get('status') in range(200, 300) and not result.get('signal') and
+                             not result.get('redirect_hops') and _capture_scalar(captured_value))
+            if spec.get('capture_field') and capture_valid:
+                m['api_capture'] = {'source_step': probe, 'value': captured_value,
+                                    'sha256': hashlib.sha256(json.dumps(captured_value, ensure_ascii=False).encode()).hexdigest()}
             m['api_checks'].append({'id': probe, 'path': _display_path(spec['path']), 'status': result.get('status'),
                                     'matched': matched if spec['expect'] is not None else None,
                                     'score': score if valid_score else None,
+                                    'capture_sha256': m['api_capture']['sha256'] if spec.get('capture_field') and capture_valid else None,
                                     'redirect_hops': result.get('redirect_hops', 0),
                                     'evidence_line': m['transcript_lines']})
             if (spec['method'] == 'POST' and result.get('status') in range(200, 300) and
                     not result.get('signal') and not result.get('redirect_hops') and
-                    (spec['expect'] is None or matched) and (not spec.get('score_field') or valid_score)):
+                    (spec['expect'] is None or matched) and (not spec.get('score_field') or valid_score) and capture_valid):
                 client.confirm_post()
             response_text = json.dumps(result.get('response'), ensure_ascii=False)[:MAX_RESPONSE]
             for hit in SECRET.finditer(response_text):
@@ -883,6 +918,8 @@ def _run(client):
                 m['stop_reason'] = f"API {result['signal']}"
             elif spec.get('score_field') and not valid_score:
                 m['stop_reason'] = 'model score unavailable'
+            elif not capture_valid:
+                m['stop_reason'] = 'API capture unavailable; inspect prior response before a new run'
             elif spec['method'] == 'POST' and client.pending_probe is not None:
                 m['stop_reason'] = 'API POST outcome uncertain; inspect state before another action'
             elif not spec['continue_on_error'] and (result.get('status') not in range(200, 300) or
@@ -1069,7 +1106,7 @@ def _render(run, m):
     for item in m.get('verification_checks', []):
         lines.append(f"- Checker {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, accepted={item['accepted']}" + (f" at transcript line {item['evidence_line']}" if item['evidence_line'] else '; request budget prevented the check'))
     for item in m.get('api_checks', []):
-        lines.append(f"- API {item['id']} {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, expected-field match={item['matched']}, score={item.get('score')} at transcript line {item['evidence_line']}")
+        lines.append(f"- API {item['id']} {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, expected-field match={item['matched']}, score={item.get('score')}, capture SHA-256={item.get('capture_sha256')} at transcript line {item['evidence_line']}")
     for item in m.get('behavior_observations', []):
         lines.append(f"- Context {item['filler_chars']} characters: marker retained={item['marker_retained']} at transcript line {item['evidence_line']}; challenge outcome unverified")
     if not m['candidates'] and not m['validated']:
@@ -1093,7 +1130,9 @@ def _render(run, m):
             lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field'), *chat.get('static_field_names', [])) if x)}."]
         for step in m.get('strategy_meta', []):
             if step['kind'] == 'api':
-                lines.append(f"Planned API request: {step['method']} {_display_path(step['path'])}; body fields: {', '.join(step['body_fields']) or 'none'}; encoding: {step['encoding']}.")
+                lines.append(f"Planned API request: {step['method']} {_display_path(step['path'])}; body fields: {', '.join(step['body_fields']) or 'none'}; encoding: {step['encoding']}" +
+                             (f"; captures response field {step['capture_field']}" if step.get('capture_field') else '') +
+                             (f"; captured value in header {step['bind_header']}" if step.get('bind_header') else '') + '.')
             elif step.get('filler_chars'):
                 lines.append(f"Planned context probe: {step['filler_chars']} filler characters plus the configured check prompt.")
         if m.get('injection_plan'):
@@ -1146,6 +1185,11 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
     steps = (strategy_plan(strategy, config.get('strategy_params', {}), marker, origin,
                            config.get('authorized_destinations', []), config.get('allow_state_change', False))
              if strategy else [])
+    active_headers = {key.lower() for key in config.get('headers', {})}
+    active_headers.update(value.lower() for value in ((config.get('bootstrap') or {}).get('header'),
+                                                       config.get('chat', {}).get('csrf_header')) if value)
+    if any(step.get('bind_header') and step['bind_header'].lower() in active_headers for step in steps):
+        raise core.InvalidInput('bound API header conflicts with an existing request header')
     injection_file_sha256 = (hashlib.sha256(_injection_bytes(config['injection']['file_path'])).hexdigest()
                              if config.get('injection', {}).get('encoding') == 'multipart' else None)
     owner_fd = _claim_origin(origin) if not dry_run else None
@@ -1172,14 +1216,14 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                     'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                     'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                     'strategy': strategy, 'strategy_marker': marker,
-                    'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection') if key in step}
-                                      | ({'body_fields': sorted(step['body']) if isinstance(step.get('body'), dict) else []} if step['kind'] == 'api' else {})
+                    'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection', 'capture_field', 'bind_body_field', 'bind_header') if key in step}
+                                      | ({'body_fields': sorted(set(step['body'] or {}) | ({step['bind_body_field']} if step.get('bind_body_field') else set()))} if step['kind'] == 'api' else {})
                                       for step in steps],
                     'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
                     'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
                     'injection_file_sha256': injection_file_sha256,
                     'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],
-                    'api_checks': [], 'behavior_observations': [],
+                    'api_checks': [], 'api_capture': None, 'behavior_observations': [],
                     'status': 'new', 'stop_reason': None}
         core._write_json(run / 'manifest.json', manifest)
         return _execute(run, config, budget, origin_fd=owner_fd)

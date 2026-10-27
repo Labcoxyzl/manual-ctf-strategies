@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="ac711d562c3eabcda58fff835e1cc10916fbd901510d33c3b745b5df8cbc6c83">
+  <meta name="source-sha256" content="5c8f95acf30cae4f13a9f1df98dd876562b1ba1f53b85ffe1cb0344d385e80cf">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -292,6 +292,7 @@ provide a scorer observation.</p>
 <p>Start from the <a href="scripts/chatbot_recipes/history_idor.json">history</a>,
 <a href="scripts/chatbot_recipes/vector_store.json">vector-store</a>,
 <a href="scripts/chatbot_recipes/debug_verifier.json">debug/verifier</a>,
+<a href="scripts/chatbot_recipes/nonce_verifier.json">fresh-nonce verifier</a>,
 <a href="scripts/chatbot_recipes/scorer_batch.json">scorer-batch</a>,
 <a href="scripts/chatbot_recipes/tool_audit.json">tool-audit</a>, or
 <a href="scripts/chatbot_recipes/workflow_action.json">workflow</a> examples. Replace every
@@ -307,6 +308,15 @@ resume. The upload file is limited to
 Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.</p>
+<p>For an exposed one-shot nonce route, one <code>api_plan</code> step may set
+<code>capture_field</code> to a scalar JSON response path. One later POST may set either
+<code>bind_body_field</code> or <code>bind_header</code> to place that fresh value in its declared
+request. The client keeps the same cookies, stores the captured value only in
+the private run, and redacts its later request body or header. A missing,
+non-scalar, oversized, or redirected capture stops before the verifier POST.
+The bound POST is never replayed after an uncertain outcome. This adapter does
+not derive signatures, chain multiple tokens, or infer acceptance from a model
+claim; use the challenge's documented checker field.</p>
 <pre><code class="language-sh">python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
   --protocol ./private-api-plan.json --strategy api_plan \
   --budget 60 --max-requests 12 --max-prompts 1 --dry-run
@@ -506,8 +516,8 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Debug validator and direct verifier</td>
-<td><code>api_plan</code> + <code>debug_verifier.json</code></td>
-<td>Fill documented boundary input, nonce/signature rules, and official completion field.</td>
+<td><code>api_plan</code> + <code>debug_verifier.json</code> or <code>nonce_verifier.json</code></td>
+<td>Fill documented boundary input and official completion field; one fresh scalar nonce can be bound, while signature derivation remains target-specific.</td>
 </tr>
 <tr>
 <td>Credential-gated diagnostic chat</td>

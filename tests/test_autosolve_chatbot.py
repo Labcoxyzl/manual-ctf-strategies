@@ -29,6 +29,10 @@ class Toy:
         self.completed = False
         self.marker = ''
         self.heartbeat_count = 0
+        self.nonce_count = 0
+        self.nonce = None
+        self.nonce_used = False
+        self.landing_nonce_header = None
         self.active_posts = 0
         self.peak_posts = 0
         self.active_lock = threading.Lock()
@@ -89,6 +93,16 @@ class Toy:
                         self.send(200, b'{"messages":[]}' + b' ' * 140_000)
                     else:
                         self.send(200, {'messages': toy.received, 'in_progress': toy.mode == 'timeout' and not toy.completed, 'complete': toy.completed})
+                elif self.path == '/nonce':
+                    toy.nonce_count += 1
+                    toy.nonce = f'toy-nonce-{toy.nonce_count}'
+                    payload = {} if toy.mode == 'nonce_missing' else {'nonce': toy.nonce}
+                    self.send(200, payload, {'Set-Cookie': 'sid=nonce; Path=/'})
+                elif self.path == '/nonce-status':
+                    self.send(200, {'done': toy.nonce_used})
+                elif self.path == '/nonce-landing':
+                    toy.landing_nonce_header = self.headers.get('X-Nonce')
+                    self.send(200, {'complete': True})
                 elif self.path == '/api/verify':
                     if toy.mode == 'partial_completion':
                         self.send(200, b'{"complete": true}' + b' ' * 140_000)
@@ -186,6 +200,19 @@ class Toy:
                     else:
                         self.send(200, {} if toy.mode == 'missing_checker' else
                                   {'accepted': 1 if toy.mode == 'numeric_checker' else body.get('answer') == 'flag{toy-instruction}'})
+                    return
+                if self.path == '/verify-nonce':
+                    candidate = (self.headers.get('X-Nonce') if toy.mode in ('nonce_header', 'nonce_header_redirect') else body.get('nonce'))
+                    accepted = (self.headers.get('Cookie') == 'sid=nonce' and candidate == toy.nonce and
+                                not toy.nonce_used)
+                    if accepted:
+                        toy.nonce_used = True
+                    if toy.mode == 'nonce_header_redirect' and accepted:
+                        self.send(302, b'', {'Location': '/nonce-landing'})
+                        return
+                    if toy.mode == 'nonce_timeout' and accepted:
+                        time.sleep(.18)
+                    self.send(200, {'complete': accepted})
                     return
                 if self.path == '/apply' and toy.mode == 'api_redirect':
                     self.send(302, b'', {'Location': '/check-result'})
@@ -1441,6 +1468,91 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(len(m['validated']), 1)
             self.assertIn('"include": "[redacted]"', (run / 'transcript.jsonl').read_text())
 
+    def test_api_plan_captures_fresh_nonce_for_one_later_body_or_header(self):
+        base = {'allow_state_change': True, 'strategy_params': {'steps': [
+            {'id': 'fresh_nonce', 'path': '/nonce', 'capture_field': 'nonce'},
+            {'id': 'official', 'method': 'POST', 'path': '/verify-nonce',
+             'body': {'answer': 'toy'}, 'bind_body_field': 'nonce',
+             'expect': {'field': 'complete', 'equals': True}, 'acceptance': True}]}}
+        with tempfile.TemporaryDirectory() as root, Toy('nonce_body') as toy:
+            protocol = self.protocol(root, base)
+            m, run, code = self.start(root, toy, protocol, strategy='api_plan', requests=4)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['completed'], ['fresh_nonce'])
+            self.assertEqual(m['request_count'], 4)
+            self.assertEqual(toy.nonce_count, 1)
+            self.assertEqual(sum(path == '/verify-nonce' for _, path in toy.calls), 0)
+            self.assertEqual(m['api_capture']['value'], toy.nonce)
+            self.assertNotIn(toy.nonce, (run / 'report.md').read_text())
+            self.run_cli(root, 'resume', run, '--budget', '5', '--max-requests', '6', code=0)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len(resumed['validated']), 1)
+            self.assertEqual(resumed['request_count'], 5)
+            self.assertEqual(toy.nonce_count, 1)
+            self.assertEqual(sum(path == '/verify-nonce' for _, path in toy.calls), 1)
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertEqual(records[-1]['request']['body']['nonce'], '[redacted]')
+        with tempfile.TemporaryDirectory() as root, Toy('nonce_header') as toy:
+            header_plan = {'allow_state_change': True, 'strategy_params': {'steps': [
+                {'id': 'fresh_nonce', 'path': '/nonce', 'capture_field': 'nonce'},
+                {'id': 'official', 'method': 'POST', 'path': '/verify-nonce',
+                 'bind_header': 'X-Nonce', 'expect': {'field': 'complete', 'equals': True},
+                 'acceptance': True}]}}
+            protocol = self.protocol(root, header_plan)
+            m, run, code = self.start(root, toy, protocol, strategy='api_plan')
+            self.assertEqual(code, 0)
+            self.assertTrue(toy.nonce_used)
+            self.assertEqual(len(m['validated']), 1)
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertEqual(records[-1]['request']['headers']['X-Nonce'], '[redacted]')
+            self.assertNotIn(toy.nonce, (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('nonce_header_redirect') as toy:
+            protocol = self.protocol(root, header_plan)
+            m, run, code = self.start(root, toy, protocol, strategy='api_plan')
+            self.assertEqual(code, 3)
+            self.assertTrue(toy.nonce_used)
+            self.assertIsNone(toy.landing_nonce_header)
+            self.assertFalse(m['validated'])
+            self.assertEqual(m['api_checks'][-1]['redirect_hops'], 1)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('nonce_missing') as toy:
+            protocol = self.protocol(root, base)
+            m, _, code = self.start(root, toy, protocol, strategy='api_plan')
+            self.assertEqual(code, 3)
+            self.assertIn('API capture unavailable', m['stop_reason'])
+            self.assertEqual(sum(path == '/verify-nonce' for _, path in toy.calls), 0)
+        with tempfile.TemporaryDirectory() as root, Toy('nonce_timeout') as toy:
+            protocol = self.protocol(root, {**base, 'status_path': '/nonce-status'})
+            m, run, code = self.start(root, toy, protocol, strategy='api_plan', timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'API timeout')
+            self.assertTrue(toy.nonce_used)
+            before_post = sum(path == '/verify-nonce' for _, path in toy.calls)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(sum(path == '/verify-nonce' for _, path in toy.calls), before_post)
+            self.assertFalse(json.loads((run / 'manifest.json').read_text())['validated'])
+            time.sleep(.2)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            bad = {'allow_state_change': True, 'strategy_params': {'steps': [
+                {'id': 'before_capture', 'method': 'POST', 'path': '/verify-nonce',
+                 'bind_body_field': 'nonce'},
+                {'id': 'fresh_nonce', 'path': '/nonce', 'capture_field': 'nonce'}]}}
+            protocol = self.protocol(root, bad)
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                        '--protocol', protocol, '--strategy', 'api_plan',
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('capture binding', result['reason'])
+            self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {**header_plan, 'headers': {'x-nonce': 'existing'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                        '--protocol', protocol, '--strategy', 'api_plan',
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('bound API header conflicts', result['reason'])
+            self.assertFalse(toy.calls)
+
     def test_api_plan_resume_keeps_completed_reads_and_skips_uncertain_posts(self):
         with tempfile.TemporaryDirectory() as root, Toy('api_only') as toy:
             config = {'allow_state_change': True, 'strategy_params': {'steps': [
@@ -1498,6 +1610,7 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('tool_audit.json', 'tool_audit'),
                                    ('workflow_action.json', 'orchestrator_action'),
                                    ('debug_verifier.json', 'api_plan'),
+                                   ('nonce_verifier.json', 'api_plan'),
                                    ('scorer_batch.json', 'scorer_batch'),
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),
