@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="3f53fb047991c06ee804cf590fc977d8245902451019e12edacc74729ed87a7d">
+  <meta name="source-sha256" content="2343bd070108bf516499bf85e76a27377bb841d5f9d993e2d23554f0afa4aad4">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -321,7 +321,11 @@ reversed text, groups, Base64, or byte-like embedding values, save the exact res
 file and decode it as a candidate. The tool-call audit helper compares
 <code>args_raw</code>, <code>args_validated</code>, <code>args_normalized</code>, and <code>args_applied</code> from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
-never proof of applied backend state.
+with type-strict equality so Boolean-to-number coercion and precise decimal
+argument changes remain visible. Duplicate JSON object keys are rejected.
+The report shows at most 100 changed paths and sets
+<code>changed_paths_truncated</code> when more exist. These differences are leads, never
+proof of applied backend state.
 The helper caps local input at 128 KiB and returns <code>invalid_input</code> for malformed
 or excessively nested JSON; it does not print decoded candidate text.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints

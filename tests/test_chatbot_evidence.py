@@ -69,6 +69,89 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual(report['comparisons'][0]['changed_paths'], ['mode'])
             self.assertNotIn('override', Path(result['report']).read_text())
 
+    def test_audit_detects_boolean_to_integer_tool_argument_coercion(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'trace.jsonl'
+            source.write_text(json.dumps({'response': {'tool_calls': [{
+                'args_raw': {'enabled': True, 'mode': 'safe'},
+                'args_validated': {'enabled': 1, 'mode': 'safe'},
+                'args_normalized': {'enabled': 1, 'mode': 'safe'},
+                'args_applied': {'enabled': 1, 'mode': 'safe'}}]}}) + '\n')
+            args = ['audit', '--input', source, '--line', '1']
+            for name in ('raw', 'validated', 'normalized', 'applied'):
+                args += [f'--{name}-field', f'tool_calls.0.args_{name}']
+            result = self.command(root, *args)
+            report = json.loads(Path(result['report']).read_text())
+            self.assertEqual([row['equal'] for row in report['comparisons']], [False, True, True])
+            self.assertEqual(report['comparisons'][0]['changed_paths'], ['enabled'])
+            self.assertNotIn('enabled', json.dumps(report['stages']))
+
+    def test_audit_marks_changed_path_cap_without_claiming_complete_diff(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'trace.jsonl'
+            raw = {f'field_{index:03}': 0 for index in range(101)}
+            changed = {key: 1 for key in raw}
+            source.write_text(json.dumps({'response': {'tool_calls': [{
+                'args_raw': raw, 'args_validated': changed,
+                'args_normalized': changed, 'args_applied': changed}]}}) + '\n')
+            args = ['audit', '--input', source, '--line', '1']
+            for name in ('raw', 'validated', 'normalized', 'applied'):
+                args += [f'--{name}-field', f'tool_calls.0.args_{name}']
+            result = self.command(root, *args)
+            report = json.loads(Path(result['report']).read_text())
+            first = report['comparisons'][0]
+            self.assertFalse(first['equal'])
+            self.assertEqual(len(first['changed_paths']), 100)
+            self.assertTrue(first['changed_paths_truncated'])
+            self.assertEqual(first['changed_paths'][0], 'field_000')
+            self.assertEqual(first['changed_paths'][-1], 'field_099')
+
+    def test_audit_keeps_high_precision_numeric_argument_difference(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'trace.jsonl'
+            source.write_text('{"response":{"tool_calls":[{'
+                              '"args_raw":{"threshold":1.0000000000000001},'
+                              '"args_validated":{"threshold":1.0},'
+                              '"args_normalized":{"threshold":1.0},'
+                              '"args_applied":{"threshold":1.0}}]}}\n')
+            args = ['audit', '--input', source, '--line', '1']
+            for name in ('raw', 'validated', 'normalized', 'applied'):
+                args += [f'--{name}-field', f'tool_calls.0.args_{name}']
+            result = self.command(root, *args)
+            report = json.loads(Path(result['report']).read_text())
+            self.assertEqual([row['equal'] for row in report['comparisons']], [False, True, True])
+            self.assertEqual(report['comparisons'][0]['changed_paths'], ['threshold'])
+            self.assertNotEqual(report['stages']['raw']['sha256'], report['stages']['validated']['sha256'])
+
+    def test_audit_rejects_duplicate_json_keys_before_comparing_stages(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'trace.jsonl'
+            source.write_text('{"response":{"tool_calls":[{'
+                              '"args_raw":{"role":"user","role":"admin"},'
+                              '"args_validated":{"role":"admin"},'
+                              '"args_normalized":{"role":"admin"},'
+                              '"args_applied":{"role":"admin"}}]}}\n')
+            args = ['audit', '--input', source, '--line', '1']
+            for name in ('raw', 'validated', 'normalized', 'applied'):
+                args += [f'--{name}-field', f'tool_calls.0.args_{name}']
+            result = self.command(root, *args, code=2)
+            self.assertIn('duplicate audit JSON key', result['reason'])
+            self.assertNotIn('report', result)
+
+    def test_audit_rejects_extreme_numeric_exponent_without_traceback(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'trace.jsonl'
+            source.write_text('{"response":{"tool_calls":[{'
+                              '"args_raw":{"threshold":1e99999999999999999999},'
+                              '"args_validated":{"threshold":1.0},'
+                              '"args_normalized":{"threshold":1.0},'
+                              '"args_applied":{"threshold":1.0}}]}}\n')
+            args = ['audit', '--input', source, '--line', '1']
+            for name in ('raw', 'validated', 'normalized', 'applied'):
+                args += [f'--{name}-field', f'tool_calls.0.args_{name}']
+            result = self.command(root, *args, code=2)
+            self.assertIn('numeric literal is invalid', result['reason'])
+
     def test_score_controls_rank_observations_without_membership_claim(self):
         with tempfile.TemporaryDirectory() as root:
             source = Path(root) / 'manifest.json'

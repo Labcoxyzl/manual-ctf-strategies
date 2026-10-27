@@ -219,7 +219,11 @@ reversed text, groups, Base64, or byte-like embedding values, save the exact res
 file and decode it as a candidate. The tool-call audit helper compares
 `args_raw`, `args_validated`, `args_normalized`, and `args_applied` from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
-never proof of applied backend state.
+with type-strict equality so Boolean-to-number coercion and precise decimal
+argument changes remain visible. Duplicate JSON object keys are rejected.
+The report shows at most 100 changed paths and sets
+`changed_paths_truncated` when more exist. These differences are leads, never
+proof of applied backend state.
 The helper caps local input at 128 KiB and returns `invalid_input` for malformed
 or excessively nested JSON; it does not print decoded candidate text.
 

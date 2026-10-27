@@ -45,20 +45,75 @@ def _nested(value, field):
     return value
 
 
-def _changed_paths(left, right, prefix=''):
-    if type(left) is not type(right):
-        return [prefix or '<root>']
-    if isinstance(left, dict):
-        return [path for key in sorted(set(left) | set(right))
-                for path in ([f'{prefix}.{key}'.lstrip('.')]
-                             if key not in left or key not in right else
-                             _changed_paths(left[key], right[key], f'{prefix}.{key}'.lstrip('.')))]
-    if isinstance(left, list):
-        return [path for index in range(max(len(left), len(right)))
-                for path in ([f'{prefix}.{index}'.lstrip('.')]
-                             if index >= len(left) or index >= len(right) else
-                             _changed_paths(left[index], right[index], f'{prefix}.{index}'.lstrip('.')))]
-    return [prefix or '<root>'] if left != right else []
+def _changed_paths(left, right, limit=101):
+    changes = []
+
+    def visit(a, b, path):
+        if len(changes) >= limit:
+            return
+        if type(a) is not type(b):
+            changes.append(path or '<root>')
+        elif isinstance(a, dict):
+            for key in sorted(set(a) | set(b)):
+                if len(changes) >= limit:
+                    break
+                child = f'{path}.{key}'.lstrip('.')
+                if key not in a or key not in b:
+                    changes.append(child)
+                else:
+                    visit(a[key], b[key], child)
+        elif isinstance(a, list):
+            for index in range(max(len(a), len(b))):
+                if len(changes) >= limit:
+                    break
+                child = f'{path}.{index}'.lstrip('.')
+                if index >= len(a) or index >= len(b):
+                    changes.append(child)
+                else:
+                    visit(a[index], b[index], child)
+        elif isinstance(a, Decimal):
+            if a.as_tuple() != b.as_tuple():
+                changes.append(path or '<root>')
+        elif a != b:
+            changes.append(path or '<root>')
+
+    visit(left, right, '')
+    return changes
+
+
+def _audit_json(text):
+    def unique(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError('duplicate audit JSON key')
+            value[key] = item
+        return value
+
+    def invalid_constant(value):
+        raise ValueError(f'non-JSON numeric constant: {value}')
+
+    try:
+        return json.loads(text, parse_float=Decimal, object_pairs_hook=unique,
+                          parse_constant=invalid_constant)
+    except InvalidOperation as error:
+        raise ValueError('audit JSON numeric literal is invalid') from error
+
+
+def _typed_json(value):
+    if isinstance(value, dict):
+        return ['object', [[key, _typed_json(item)] for key, item in sorted(value.items())]]
+    if isinstance(value, list):
+        return ['array', [_typed_json(item) for item in value]]
+    if isinstance(value, Decimal):
+        return ['decimal', str(value)]
+    if type(value) is int:
+        return ['integer', str(value)]
+    if type(value) is bool:
+        return ['boolean', value]
+    if value is None:
+        return ['null']
+    return ['string', value]
 
 
 def decode(text, mode):
@@ -102,22 +157,23 @@ def audit(text, line, fields):
         lines = text.splitlines()
         if not 1 <= line <= len(lines):
             raise ValueError('transcript line is out of range')
-        value = json.loads(lines[line - 1])
+        value = _audit_json(lines[line - 1])
         if not isinstance(value, dict):
             raise ValueError('transcript line must be a JSON object')
         value = value.get('response', value)
     else:
-        value = json.loads(text)
+        value = _audit_json(text)
     stages = {name: _nested(value, field) for name, field in fields.items()}
-    fingerprints = {name: {'type': type(item).__name__, 'sha256': hashlib.sha256(json.dumps(item, sort_keys=True).encode()).hexdigest()}
+    fingerprints = {name: {'type': type(item).__name__, 'sha256': hashlib.sha256(json.dumps(_typed_json(item)).encode()).hexdigest()}
                     for name, item in stages.items()}
     pairs = []
     ordered = list(stages)
     for before, after in zip(ordered, ordered[1:]):
         left, right = stages[before], stages[after]
-        changed = _changed_paths(left, right)[:100]
-        pairs.append({'from': before, 'to': after, 'equal': left == right,
-                      'type_changed': type(left).__name__ != type(right).__name__, 'changed_paths': changed})
+        changed = _changed_paths(left, right)
+        pairs.append({'from': before, 'to': after, 'equal': not changed,
+                      'type_changed': type(left).__name__ != type(right).__name__,
+                      'changed_paths': changed[:100], 'changed_paths_truncated': len(changed) > 100})
     return {'stages': fingerprints, 'comparisons': pairs,
             'limit': 'argument differences are leads; applied state needs a direct authorized check'}
 
