@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="c4fbd79caa0e25db2368cb52c7356b330b7ba45e723c621b17eb482d853ca89c">
+  <meta name="source-sha256" content="ac711d562c3eabcda58fff835e1cc10916fbd901510d33c3b745b5df8cbc6c83">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -68,6 +68,19 @@ to one to four increasing sizes, each 128–65,536 characters; <code>filler</cod
 <code>anchor_prompt</code>, and <code>check_prompt</code> are optional. A lost marker is a behavior
 observation, never a validated challenge solve. The generated marker and queue
 survive resume. The client will not resend a POST whose outcome is uncertain.</p>
+<p>If the frontend sends fixed body fields with each chat message, declare them
+under <code>chat.static_fields</code> as in the
+<a href="scripts/chatbot_recipes/chat_static_fields.json">static-fields recipe</a>. JSON fields
+may contain JSON values; form fields must be strings. The message, conversation
+ID, client ID, and captured bootstrap token remain dynamic fields. Static
+values are sent with each serial chat request but redacted in logged request
+bodies and reports; raw chatbot responses remain in the private transcript,
+including any value the target echoes. The private protocol is part of the
+resume identity. Bracketed form names such as <code>settings[mode]</code> are supported.</p>
+<p>When a chat POST times out, the run sends at most one configured history/status
+GET. If that read-only check is incomplete, <code>resume</code> can repeat only the GET
+within the raised request ceiling. It never replays the timed-out chat POST or
+turns a status response into an accepted challenge result.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>
@@ -113,6 +126,11 @@ survive resume. The client will not resend a POST whose outcome is uncertain.</p
 <td>Send one explicit fetch request through the chatbot; no destination is chosen from scraped text.</td>
 </tr>
 <tr>
+<td><code>retrieved_page_injection</code></td>
+<td><code>fetch_url</code>, <code>attack_goal</code>; callback origin in <code>authorized_destinations</code></td>
+<td>Ask the assistant to summarize one controlled page while the page tries to redirect its behavior. Check callback evidence and the independent verifier.</td>
+</tr>
+<tr>
 <td><code>route_discovery</code></td>
 <td>none</td>
 <td>Ask for chat, history, status, audit and verifier paths.</td>
@@ -154,8 +172,8 @@ survive resume. The client will not resend a POST whose outcome is uncertain.</p
 </tr>
 <tr>
 <td><code>kb_injection</code></td>
-<td>an <code>injection</code> object</td>
-<td>Write one exposed lower-trust KB item and send its trigger prompt. A repeated marker stays unvalidated.</td>
+<td>an <code>injection</code> object with exact <code>success_status</code></td>
+<td>Write one exposed lower-trust KB item or multipart document, require its declared acceptance response, then send its trigger prompt. A repeated marker stays unvalidated.</td>
 </tr>
 <tr>
 <td><code>custom_chat</code></td>
@@ -178,10 +196,44 @@ survive resume. The client will not resend a POST whose outcome is uncertain.</p
 run every strategy or the whole CHY corpus. A response that reveals a route or
 secret stops broad prompting. The private run contains a JSONL transcript,
 candidate and checker evidence, cookies, and a report. The ordinary terminal
-output contains only status and file paths. <code>--max-requests</code> is at most 100,
+output contains only status and file paths, including for <code>report</code>. <code>--max-requests</code> is at most 100,
 <code>--max-prompts</code> at most 20, and <code>--budget</code> at most 600 seconds. The HTTP client
 also caps each response at 128 KiB, each request body at 128 KiB, and its
 transcript at 2 MiB.</p>
+<p>One live owner lock is held for each authorized origin across runs from the
+same local user account, even when run directories differ. A second live start
+or resume exits busy before sending requests; dry runs remain independent.
+The lock and its private state live under the account's <code>~/.local/state</code>
+directory, independent of the process <code>HOME</code> setting. A <code>Retry-After</code> cooldown
+also applies to fresh runs at that origin, including lock-labeled 429 replies.
+An uncertain POST leaves a private origin marker after the client exits. New
+live runs stay blocked, while resuming the recorded run can make a read-only
+history/status check. Once you have checked that the server-side attempt is no
+longer active, release that origin explicitly:</p>
+<pre><code class="language-sh">python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 10
+python3 scripts/autosolve.py chatbot-release-origin .autosolve/runs/RUN_ID
+</code></pre>
+<p>The release command makes no network request and never replays the POST. It
+does not validate challenge success or bypass an active Retry-After cooldown.
+The lock is conservative for separate
+identities at one exact origin; aliases, machines and user accounts still need
+a single human-assigned chat owner.</p>
+<p>If the frontend requires one login, claim, or token-exchange POST before chat,
+add a <code>bootstrap</code> object like the <a href="scripts/chatbot_recipes/tab_claim.json">tab-claim example</a>.
+It declares the exact path/body and, when needed, the response token field to
+copy into a chat field or header. Set <code>allow_state_change: true</code>, the exact
+<code>success_status</code>, and optional <code>success_field</code>/<code>success_value</code> from the frontend.
+The request runs once in the same cookie jar before prompts; a redirect,
+timeout, or mismatched success field leaves its outcome uncertain. Resume can
+retry a read-only status check after an incomplete response, but never replays
+the claim POST. If the frontend also
+requires a heartbeat, use the <a href="scripts/chatbot_recipes/tab_heartbeat.json">tab-heartbeat example</a>
+to declare its path, body, exact success status, optional captured token field,
+optional success field/value, and interval. Due
+heartbeats run serially before chat and count against the same request budget.
+An uncertain heartbeat is not replayed; resume can inspect a configured status
+route once. Multi-step login and force-claim semantics still need target-
+specific work.</p>
 <p>For a tool-header capture, start the bounded callback receiver first. Its
 default bind is loopback, and it exits after one request or its duration. A
 remote challenge can reach it only if you deliberately provide a reachable
@@ -190,13 +242,37 @@ authorized address; put that address in the protocol's
 stay in a private JSONL file.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 </code></pre>
+<p>For a fetched-page injection, serve a bounded local file with the callback
+instead of its default empty response. Copy the
+<a href="scripts/chatbot_recipes/retrieved_page.json">retrieved-page protocol</a>, replace the
+chat fields and callback URL with the observed authorized routes, and use
+<code>--strategy retrieved_page_injection</code>. The example page contains only a
+synthetic marker. The callback logs the actual fetch in its private run; the
+chatbot run records a redacted entry URL and the declared goal's SHA-256; the
+exact goal remains in the private protocol. A
+page echo alone is not prompt-injection evidence, and a challenge result is
+validated only by an independent checker or persisted state.</p>
+<pre><code class="language-sh">python3 scripts/chatbot_callback.py --response-file scripts/chatbot_recipes/example_retrieved_page.txt \
+  --response-path /payload \
+  --content-type text/plain --max-requests 1 --duration 60
+python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
+  --protocol ./private-retrieved-page.json --strategy retrieved_page_injection \
+  --budget 60 --max-requests 10 --max-prompts 3 --dry-run
+</code></pre>
+<p>Use a reachable callback address only when that destination is explicitly
+authorized. The receiver binds to loopback by default; a public bind needs
+<code>--allow-public-bind</code> and serves the file only for the declared GET path and
+optional exact query,
+request count and duration. The served file is capped at 64 KiB; the callback
+run stores an exact private snapshot and its SHA-256 in the request log.</p>
 <p>When a guardrail returns code points, character arrays, NATO words, initials,
-reversed text, groups, or Base64, save the exact response in a private text
+reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
 file and decode it as a candidate. The tool-call audit helper compares
 <code>args_raw</code>, <code>args_validated</code>, <code>args_normalized</code>, and <code>args_applied</code> from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
 never proof of applied backend state.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
+python3 scripts/chatbot_evidence.py decode --input ./private-embedding.json --mode embedding-bytes
 python3 scripts/chatbot_evidence.py audit --input .autosolve/runs/RUN_ID/transcript.jsonl \
   --line 5 --raw-field tool_calls.0.args_raw \
   --validated-field tool_calls.0.args_validated \
@@ -210,7 +286,9 @@ contains one to ten declared GET or POST steps; POST requires
 <code>allow_state_change: true</code>. A configured <code>expect</code> compares an exact response
 field. Only an official checker/completion step marked <code>acceptance: true</code> can
 mark a result validated. An expected field match on a history or vector-store
-response is evidence, not a solve.</p>
+response is evidence, not a solve. Same-origin redirects are logged, but their
+final response does not validate the originally declared checker route or
+provide a scorer observation.</p>
 <p>Start from the <a href="scripts/chatbot_recipes/history_idor.json">history</a>,
 <a href="scripts/chatbot_recipes/vector_store.json">vector-store</a>,
 <a href="scripts/chatbot_recipes/debug_verifier.json">debug/verifier</a>,
@@ -218,8 +296,15 @@ response is evidence, not a solve.</p>
 <a href="scripts/chatbot_recipes/tool_audit.json">tool-audit</a>, or
 <a href="scripts/chatbot_recipes/workflow_action.json">workflow</a> examples. Replace every
 <code>REPLACE_</code> field before live use; the CLI rejects live plans that retain one.
-The <a href="scripts/chatbot_recipes/kb_article.json">KB example</a> shows an explicit writable
-injection surface. Do not enumerate IDs, origins, or ports by changing a plan
+The <a href="scripts/chatbot_recipes/kb_article.json">KB example</a> shows a JSON/form write.
+The <a href="scripts/chatbot_recipes/document_upload.json">document upload example</a> uses a
+synthetic text file and a multipart form. Replace its route, file field, and
+file content after inspecting the challenge. Set the write's exact
+<code>success_status</code> and optional <code>success_field</code>/<code>success_value</code> from the frontend;
+an unconfirmed write is never followed by its trigger prompt or replayed on
+resume. The upload file is limited to
+64 KiB and hashed into the run identity; changing it invalidates resume.
+Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.</p>
 <pre><code class="language-sh">python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
@@ -235,6 +320,7 @@ package) is installed. Parity runs two explicit wrapper commands on up to 20
 JSON canaries and requires <code>--execute-local</code>.</p>
 <pre><code class="language-sh">python3 scripts/ai_model.py inspect ./model.safetensors
 python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
+python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
 python3 scripts/ai_model.py svm ./private-svm-parameters.json
 python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
 python3 scripts/ai_model.py parity ./private-parity.json --execute-local
@@ -267,6 +353,25 @@ bounds into the <a href="scripts/chatbot_recipes/sign_network.json">sign-gate JS
 and checks whether another input also satisfies the declared constraints.
 It does not infer gates from a model or treat a satisfying assignment as a
 validated flag. The supplied checker must accept the serialized candidate.</p>
+<p><code>ai_model.py suppression</code> calculates the explicit <code>2*base-challenge</code>
+hypothesis for small matching floating NPZ tensors and stores a float64
+candidate. It does not identify historical weights from an ambiguous
+transformation. Check the producer's arithmetic and run parity before using
+the candidate.</p>
+<p>For a black-box scoring endpoint, <code>scorer_batch</code> can collect up to 50 explicit
+inputs serially. Put known member and nonmember controls at declared one-based
+positions, then compare their scalar scores offline:</p>
+<pre><code class="language-sh">python3 scripts/chatbot_evidence.py score-controls \
+  --input .autosolve/runs/RUN_ID/manifest.json \
+  --positive 1,2 --negative 3,4 --candidates 5,6 --direction higher
+</code></pre>
+<p>The private report gives control medians, whether the observed ranges strictly
+separate, and candidate rankings in the declared score direction. Calculations
+use decimal representations of the recorded scores and include the source
+manifest hash.
+It never
+labels a candidate as a member. Use repeated controls to assess stochasticity
+and the challenge's independent verifier to establish any membership claim.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>
@@ -298,13 +403,13 @@ validated flag. The supplied checker must accept the serialized candidate.</p>
 </tr>
 <tr>
 <td>Adapter/delta and weight differences</td>
-<td><code>ai_model.py compare</code> for supported small tensors</td>
+<td><code>ai_model.py compare</code> and explicit NPZ <code>suppression</code> hypothesis</td>
 <td>Reproduce merge arithmetic, quantization, and full-model behavior.</td>
 </tr>
 <tr>
 <td>Black-box extraction or membership</td>
-<td><code>scorer_batch</code> for bounded, explicit scorer inputs</td>
-<td>Design controls, statistics, and independent membership oracle.</td>
+<td><code>scorer_batch</code> plus <code>chatbot_evidence.py score-controls</code></td>
+<td>Supply known controls, repeated queries when needed, and an independent membership oracle.</td>
 </tr>
 <tr>
 <td>Token-identity parity and calibrated behavior search</td>
@@ -318,6 +423,9 @@ specialized solver still needs the challenge's wrapper, data constraints and
 acceptance endpoint. Refusals, marker echoes, high model scores, and plausible
 identifiers remain candidates until independent state or checker evidence
 confirms the objective.</p>
+<p>The <a href="scripts/chatbot_acceptance.json">AI/chatbot acceptance record</a> keeps AIC01 and
+AIC02 partial, lists the local fixture gates, and leaves publisher transfer
+untested. The broader MISC03 AI-dependent row remains unsupported.</p>
 <h2>CHY pattern coverage map</h2>
 <p>This map follows the installed CHY chatbot skill's pattern index. &quot;Ready&quot;
 means the command runs after the listed target fields are filled; it does not
@@ -342,6 +450,11 @@ mean the attack will succeed against an arbitrary challenge.</p>
 <td>Provide a reachable, separately authorized callback address.</td>
 </tr>
 <tr>
+<td>Retrieved-page tool-result injection</td>
+<td><code>retrieved_page_injection</code> + <code>chatbot_callback.py --response-file</code></td>
+<td>Supply the actual fetch URL, a controlled page and checker; compare behavior beyond a page echo.</td>
+</tr>
+<tr>
 <td>Tool-backed SQL/filter injection</td>
 <td><code>tool_filter</code></td>
 <td>Learn the exact callable/field, then use the web SQLi workflow for confirmed injection.</td>
@@ -353,7 +466,7 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Trusted KB or document injection</td>
-<td><code>kb_injection</code> + <code>kb_article.json</code></td>
+<td><code>kb_injection</code> + JSON or multipart recipe</td>
 <td>Fill the exposed write route and verify state beyond an echo.</td>
 </tr>
 <tr>
@@ -383,8 +496,8 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Chat ownership locks and rate limits</td>
-<td>Shared chatbot transport</td>
-<td>Map claim/heartbeat fields from frontend when needed; honor cooldowns.</td>
+<td>Shared transport, one-step <code>bootstrap</code>, and declared <code>heartbeat</code></td>
+<td>Map claim/heartbeat fields from frontend; honor cooldowns.</td>
 </tr>
 <tr>
 <td>Tool-call audit lifecycle</td>
@@ -417,6 +530,11 @@ mean the attack will succeed against an arbitrary challenge.</p>
 <td>Export parameters/gates, check exact semantics, and run the supplied checker.</td>
 </tr>
 <tr>
+<td>Tiny neural scorer and validator payloads</td>
+<td><code>ai_model.py inspect</code>, <code>ai_model_attack.py gradient</code>, and <code>parity</code> when the scorer is differentiable</td>
+<td>Reproduce the wrapper's forward path and checker constraints; discrete graph or integer payload search remains target-specific.</td>
+</tr>
+<tr>
 <td>Differentiable evasion and inversion</td>
 <td><code>ai_model_attack.py gradient</code></td>
 <td>Supply exact preprocessing, bounds, loss, and checker serialization.</td>
@@ -428,13 +546,13 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Adapter/delta weight recovery</td>
-<td><code>ai_model.py compare</code> and <code>parity</code></td>
+<td><code>ai_model.py compare</code>, <code>suppression</code>, and <code>parity</code></td>
 <td>Reproduce merge, casts, rounding and full-model behavior.</td>
 </tr>
 <tr>
 <td>Black-box extraction/membership</td>
-<td><code>scorer_batch</code> numeric observations</td>
-<td>Supply representative inputs, statistics and an independent membership oracle.</td>
+<td><code>scorer_batch</code> numeric observations plus <code>score-controls</code> comparison</td>
+<td>Supply representative controls and an independent membership oracle.</td>
 </tr>
 <tr>
 <td>Token-identity and inference parity</td>
@@ -443,8 +561,8 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Calibrated unknown-behavior search</td>
-<td><code>ai_model.py parity</code></td>
-<td>Supply positive/negative controls and a target-specific bounded search objective.</td>
+<td><code>ai_model.py parity</code> and <code>score-controls</code> when the wrapper exposes numeric scores</td>
+<td>Supply known controls and a target-specific bounded search objective; rankings are exploratory.</td>
 </tr>
 </tbody>
 </table></div>

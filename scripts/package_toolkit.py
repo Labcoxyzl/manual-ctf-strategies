@@ -75,6 +75,8 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_evidence.py', 'tests/test_chatbot_evidence.py',
         'scripts/chatbot_callback.py', 'tests/test_chatbot_callback.py',
         'scripts/chatbot_strategies.md',
+        'scripts/chatbot_acceptance.json',
+        'tests/test_chatbot_acceptance.py',
         'scripts/chatbot_recipes/context_bloat.json',
         'scripts/chatbot_recipes/kb_article.json',
         'scripts/chatbot_recipes/document_upload.json',

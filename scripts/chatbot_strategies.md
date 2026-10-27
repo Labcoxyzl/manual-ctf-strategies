@@ -300,6 +300,10 @@ acceptance endpoint. Refusals, marker echoes, high model scores, and plausible
 identifiers remain candidates until independent state or checker evidence
 confirms the objective.
 
+The [AI/chatbot acceptance record](chatbot_acceptance.json) keeps AIC01 and
+AIC02 partial, lists the local fixture gates, and leaves publisher transfer
+untested. The broader MISC03 AI-dependent row remains unsupported.
+
 ## CHY pattern coverage map
 
 This map follows the installed CHY chatbot skill's pattern index. "Ready"
@@ -326,9 +330,10 @@ mean the attack will succeed against an arbitrary challenge.
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
 | Non-LLM application agent | `api_plan` for an exposed API; otherwise the web, protocol or reverse workflow | Identify the actual non-chat transport and its validator. |
 | Sparse/SVM and sign-network verifiers | `ai_model.py inspect`, `svm`, `sign-gates`, `parity` | Export parameters/gates, check exact semantics, and run the supplied checker. |
+| Tiny neural scorer and validator payloads | `ai_model.py inspect`, `ai_model_attack.py gradient`, and `parity` when the scorer is differentiable | Reproduce the wrapper's forward path and checker constraints; discrete graph or integer payload search remains target-specific. |
 | Differentiable evasion and inversion | `ai_model_attack.py gradient` | Supply exact preprocessing, bounds, loss, and checker serialization. |
 | Recurrent policy/world-model alignment | `ai_model_attack.py recurrent` | Supply environment and policy step wrappers with the correct hidden-state timing. |
 | Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
 | Black-box extraction/membership | `scorer_batch` numeric observations plus `score-controls` comparison | Supply representative controls and an independent membership oracle. |
 | Token-identity and inference parity | `ai_model.py parity` | Supply tokenizer/model wrappers and exact prompt boundaries. |
-| Calibrated unknown-behavior search | `ai_model.py parity` | Supply positive/negative controls and a target-specific bounded search objective. |
+| Calibrated unknown-behavior search | `ai_model.py parity` and `score-controls` when the wrapper exposes numeric scores | Supply known controls and a target-specific bounded search objective; rankings are exploratory. |

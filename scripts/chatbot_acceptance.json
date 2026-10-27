@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "A-AIC01",
+      "family_id": "AIC01",
+      "fixture": "Independent JSON/form chat, context-retention, KB, multipart upload, controlled retrieved-page fetch, one-step claim/heartbeat, history and vector-store toy services",
+      "held_out_variations": "Different paths and fields, bracketed form/static JSON fields, fragmented replies, source maps, exact claim and lower-trust write acceptance, serial token heartbeat, concurrent same-origin starts/resumes across HOME values, durable interrupted-POST marker, shared Retry-After, context sizes, uploaded-file identity, exact callback path/query, direct API plans, scorer batches and verifier routes",
+      "negative_case": "Echo-only KB or retrieved-page injection, false or redirected lower-trust write, false/truncated/redirected checker result, false/redirected claim, impossible bodyless token response, static/dynamic field collision, ambiguous parsing, concurrent owner, unresolved timed-out or interrupted POST, lock, cooldown, cross-origin redirect, unresolved recipe placeholder, rejected heartbeat success body",
+      "oracle": "Only independent checker or persisted completion validates; exact requests and private transcript retained",
+      "minimum_cases": {
+        "positive": 1,
+        "held_out": 2,
+        "negative": 1
+      },
+      "status": "local toy-service checks passed; publisher transfer untested",
+      "independence": "Fixture handlers and expected state are written independently of the profile.",
+      "check_paths": [
+        "tests/test_autosolve_chatbot.py",
+        "tests/test_chatbot_callback.py",
+        "tests/test_chatbot_evidence.py"
+      ]
+    },
+    {
+      "id": "A-AIC02",
+      "family_id": "AIC02",
+      "fixture": "Independent NPY, NPZ, safetensors, pickle-global, SVM, sign-gate, wrapper parity, gradient, recurrent, and bounded scorer-control toy fixtures",
+      "held_out_variations": "Changed shapes/weights, an explicit suppression inverse, mismatched outputs, different gradient bounds, shifted recurrent action sequences, high-precision control scores and lower-score direction",
+      "negative_case": "Pickle code is never deserialized; timeout, oversized or malformed input, missing redirect provenance, and overlapping scorer controls stay incomplete or invalid",
+      "oracle": "Exact metadata and arithmetic from synthetic files; parity reports only observed canary equality; scorer controls report separation and rankings without membership validation",
+      "minimum_cases": {
+        "positive": 1,
+        "held_out": 2,
+        "negative": 1
+      },
+      "status": "local synthetic artifact checks passed; publisher transfer untested",
+      "independence": "Fixture bytes and wrapper outputs are independently authored and checked through the public CLI.",
+      "check_paths": [
+        "tests/test_ai_model.py",
+        "tests/test_ai_model_attack.py",
+        "tests/test_chatbot_evidence.py"
+      ]
+    }
+  ],
+  "legacy_misc03": {
+    "coverage": "unsupported",
+    "reason": "Broad bespoke AI-dependent tasks remain outside the bounded AI/chatbot profiles."
+  },
+  "transfer_gate": "Publisher challenge transfer has not been tested; local fixtures establish only the listed operations."
+}
