@@ -9,15 +9,25 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 
-def _task_temporary(root: Path) -> Path:
-    """Create private probe scratch below the exported toolkit without following links."""
-    directory = root / '.autosolve/tmp'
+_FLOSS_ARCHIVE_URL = ('https://github.com/mandiant/flare-floss/releases/download/'
+                      'v3.2.0/floss-v3.2.0-linux.zip')
+_FLOSS_ARCHIVE_SHA256 = 'c449366960b688769b6510662cd6db6a3bf9edada4e8a8878056becd324df52c'
+_FLOSS_ARCHIVE_BYTES = 44286277
+_FLOSS_BINARY_SHA256 = '87a07797df8d8d137b1ced0684c32061c8e696f8809ee998c8e5ab4ffbf3592b'
+_FLOSS_BINARY_BYTES = 44625688
+
+
+def _private_directory(root: Path, parts: tuple[str, ...]) -> Path:
+    """Create owned 0700 directories below the toolkit without following links."""
     fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        for name in ('.autosolve', 'tmp'):
+        for name in parts:
             try:
                 os.mkdir(name, 0o700, dir_fd=fd)
             except FileExistsError:
@@ -39,7 +49,12 @@ def _task_temporary(root: Path) -> Path:
             fd = child
     finally:
         os.close(fd)
-    return directory
+    return root.joinpath(*parts)
+
+
+def _task_temporary(root: Path) -> Path:
+    """Create private probe scratch below the exported toolkit without following links."""
+    return _private_directory(root, ('.autosolve', 'tmp'))
 
 
 def _writable_paths_safe(root: Path, env: Path) -> bool:
@@ -256,3 +271,139 @@ def prepare_checker(root: Path | None = None) -> dict:
                 'probe_detail': operation.get('probe_detail')}
     return {**prepared, 'functional_probe': 'passed', 'operation': 'rev07.checker',
             'engine_version': engine.get('version')}
+
+
+def _floss_binary_matches(path: Path) -> bool:
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, 'rb') as binary:
+            state = os.fstat(binary.fileno())
+            if not stat.S_ISREG(state.st_mode) or state.st_size != _FLOSS_BINARY_BYTES:
+                return False
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: binary.read(1 << 20), b''):
+                digest.update(chunk)
+            return digest.hexdigest() == _FLOSS_BINARY_SHA256
+    except OSError:
+        return False
+
+
+def prepare_floss(root: Path | None = None) -> dict:
+    """Install the pinned standalone FLOSS executable and probe real JSON extraction."""
+    root = root or Path(__file__).resolve().parents[2]
+    target = root / '.autosolve/engines/floss'
+    executable = target / 'floss'
+    result = {'status': 'partial', 'executable': str(executable), 'installed': [],
+              'archive_sha256': _FLOSS_ARCHIVE_SHA256,
+              'binary_sha256': _FLOSS_BINARY_SHA256, 'functional_probe': 'not_run'}
+    if sys.platform != 'linux' or platform.machine() != 'x86_64':
+        return {**result, 'reason': 'floss_requires_linux_x86_64'}
+    try:
+        import fcntl
+
+        temporary = _task_temporary(root)
+        engines = _private_directory(root, ('.autosolve', 'engines'))
+        home = _private_directory(root, ('.autosolve', 'home'))
+        cache = _private_directory(root, ('.autosolve', 'cache', 'floss'))
+        lock_fd = os.open(engines / '.floss.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(lock_fd, 'r+b') as lock:
+            state = os.fstat(lock.fileno())
+            if (not stat.S_ISREG(state.st_mode) or state.st_uid != os.geteuid() or
+                    state.st_nlink != 1):
+                return {**result, 'reason': 'floss_install_path_unsafe'}
+            os.fchmod(lock.fileno(), 0o600)
+            try:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return {**result, 'reason': 'floss_setup_busy'}
+            if target.is_symlink() or (target.exists() and not target.is_dir()):
+                return {**result, 'reason': 'floss_install_path_unsafe'}
+            if target.exists():
+                state = target.stat(follow_symlinks=False)
+                if state.st_uid != os.geteuid() or stat.S_IMODE(state.st_mode) != 0o700:
+                    return {**result, 'reason': 'floss_install_path_unsafe'}
+                if not _floss_binary_matches(executable):
+                    return {**result, 'reason': 'floss_existing_binary_mismatch'}
+            else:
+                with tempfile.TemporaryFile(dir=temporary) as archive_file:
+                    digest = hashlib.sha256()
+                    size = 0
+                    deadline = time.monotonic() + 180
+                    try:
+                        with urllib.request.urlopen(_FLOSS_ARCHIVE_URL, timeout=30) as response:
+                            read = getattr(response, 'read1', response.read)
+                            while True:
+                                if time.monotonic() >= deadline:
+                                    return {**result, 'reason': 'floss_download_timeout'}
+                                chunk = read(1 << 20)
+                                if time.monotonic() >= deadline:
+                                    return {**result, 'reason': 'floss_download_timeout'}
+                                if not chunk:
+                                    break
+                                size += len(chunk)
+                                if size > _FLOSS_ARCHIVE_BYTES:
+                                    return {**result, 'reason': 'floss_archive_size_mismatch'}
+                                digest.update(chunk)
+                                archive_file.write(chunk)
+                    except OSError:
+                        return {**result, 'reason': 'floss_download_failed'}
+                    if size != _FLOSS_ARCHIVE_BYTES:
+                        return {**result, 'reason': 'floss_archive_size_mismatch'}
+                    if digest.hexdigest() != _FLOSS_ARCHIVE_SHA256:
+                        return {**result, 'reason': 'floss_archive_hash_mismatch'}
+                    archive_file.seek(0)
+                    try:
+                        with zipfile.ZipFile(archive_file) as archive:
+                            members = archive.infolist()
+                            if (len(members) != 1 or members[0].filename != 'floss' or
+                                    not stat.S_ISREG(members[0].external_attr >> 16) or
+                                    members[0].file_size != _FLOSS_BINARY_BYTES or
+                                    members[0].flag_bits & 1):
+                                return {**result, 'reason': 'floss_archive_unsafe'}
+                            with tempfile.TemporaryDirectory(prefix='.floss-', dir=engines) as staged:
+                                staged_binary = Path(staged) / 'floss'
+                                binary_digest = hashlib.sha256()
+                                with archive.open(members[0]) as source, staged_binary.open('xb') as output:
+                                    extracted = 0
+                                    for chunk in iter(lambda: source.read(1 << 20), b''):
+                                        extracted += len(chunk)
+                                        if extracted > _FLOSS_BINARY_BYTES:
+                                            return {**result, 'reason': 'floss_archive_unsafe'}
+                                        binary_digest.update(chunk)
+                                        output.write(chunk)
+                                if (extracted != _FLOSS_BINARY_BYTES or
+                                        binary_digest.hexdigest() != _FLOSS_BINARY_SHA256):
+                                    return {**result, 'reason': 'floss_archive_unsafe'}
+                                staged_binary.chmod(0o700)
+                                os.rename(staged, target)
+                    except (OSError, ValueError, zipfile.BadZipFile, RuntimeError):
+                        return {**result, 'reason': 'floss_archive_unsafe'}
+
+        result['installed'] = ['floss']
+        environment = os.environ.copy()
+        environment.update(TMPDIR=str(temporary), TMP=str(temporary), TEMP=str(temporary),
+                           HOME=str(home), XDG_CACHE_HOME=str(cache),
+                           PATH=str(target) + os.pathsep + environment.get('PATH', '/usr/bin:/bin'),
+                           PYTHONDONTWRITEBYTECODE='1')
+        environment.pop('FLOSS_LOAD_VIV_WORKSPACE', None)
+        command = [sys.executable, '-I', str(root / 'scripts/autosolve.py'), '--json',
+                   'doctor', '--profiles', 'malware_reversing', '--self-test']
+        try:
+            run = subprocess.run(command, capture_output=True, timeout=180, check=False,
+                                 env=environment)
+            doctor = json.loads(run.stdout)
+            operation = doctor['operations']['malware_reversing.obfuscated_strings']
+            engine = doctor['engines']['floss']
+        except (OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError):
+            return {**result, 'reason': 'floss_probe_failed', 'functional_probe': 'failed'}
+        if (run.returncode not in (0, 3) or operation.get('status') != 'ready' or
+                operation.get('functional_probe') != 'passed' or
+                engine.get('status') != 'ready' or engine.get('functional_probe') != 'passed' or
+                engine.get('path') != str(executable)):
+            return {**result, 'reason': operation.get('reason') or engine.get('reason') or
+                    'floss_probe_failed', 'functional_probe': 'failed'}
+        return {**result, 'status': 'ready', 'functional_probe': 'passed',
+                'operation': 'malware_reversing.obfuscated_strings',
+                'engine_version': engine.get('version')}
+    except OSError:
+        return {**result, 'reason': 'floss_install_path_unsafe'}

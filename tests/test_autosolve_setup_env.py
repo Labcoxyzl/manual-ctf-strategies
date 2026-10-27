@@ -1,18 +1,202 @@
 import json
+import hashlib
+import io
 import os
+import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
+import urllib.request
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
+from zipfile import ZipFile, ZipInfo
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from autosolve_lib import setup, setup_env
+import autosolve
 
 
 class SetupEnvironmentTests(unittest.TestCase):
+    def test_floss_setup_cli_is_explicit_and_rejects_profile_mix(self):
+        output = io.StringIO()
+        with mock.patch.object(setup_env, 'prepare_floss', return_value={
+                'status': 'partial', 'reason': 'floss_probe_failed'}, create=True) as prepare, \
+             redirect_stdout(output):
+            code = autosolve.main(['--json', 'setup', '--floss'])
+            mixed = autosolve.main(['--json', 'setup', '--floss', '--profiles', 'encoding'])
+        self.assertEqual(code, 3)
+        self.assertEqual(mixed, 2)
+        self.assertEqual(prepare.call_count, 1)
+        self.assertIn('floss_probe_failed', output.getvalue())
+
+    @staticmethod
+    def _floss_archive(name='floss', mode=stat.S_IFREG | 0o755, extra=False):
+        binary = b'\x7fELF' + b'fixture executable bytes'
+        output = io.BytesIO()
+        with ZipFile(output, 'w') as archive:
+            member = ZipInfo(name)
+            member.create_system = 3
+            member.external_attr = mode << 16
+            archive.writestr(member, binary)
+            if extra:
+                archive.writestr('unexpected', b'other')
+        return output.getvalue(), binary
+
+    def test_floss_verified_install_private_probe_and_offline_reuse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data, binary = self._floss_archive()
+            executable = root / '.autosolve/engines/floss/floss'
+            checked = {'operations': {'malware_reversing.obfuscated_strings': {
+                'status': 'ready', 'functional_probe': 'passed'}},
+                'engines': {'floss': {'status': 'ready', 'functional_probe': 'passed',
+                                      'path': str(executable), 'version': '3.2.0'}}}
+
+            def doctor(command, **kwargs):
+                self.assertEqual(command[1:3], ['-I', str(root / 'scripts/autosolve.py')])
+                self.assertIn('--self-test', command)
+                env = kwargs['env']
+                for name in ('TMPDIR', 'TMP', 'TEMP', 'HOME', 'XDG_CACHE_HOME'):
+                    self.assertTrue(Path(env[name]).is_relative_to(root), name)
+                self.assertEqual(env['PATH'].split(os.pathsep)[0], str(executable.parent))
+                return subprocess.CompletedProcess(command, 3, json.dumps(checked).encode(), b'')
+
+            with mock.patch.object(setup_env, '_FLOSS_ARCHIVE_SHA256', hashlib.sha256(data).hexdigest(), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_ARCHIVE_BYTES', len(data), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_BINARY_SHA256', hashlib.sha256(binary).hexdigest(), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_BINARY_BYTES', len(binary), create=True), \
+                 mock.patch.object(urllib.request, 'urlopen', side_effect=lambda *a, **k: io.BytesIO(data)) as download, \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=doctor):
+                first = setup_env.prepare_floss(root)
+                second = setup_env.prepare_floss(root)
+            self.assertEqual(first['status'], 'ready')
+            self.assertEqual(first['functional_probe'], 'passed')
+            self.assertEqual(first['installed'], ['floss'])
+            self.assertEqual(first['binary_sha256'], hashlib.sha256(binary).hexdigest())
+            self.assertEqual(second['status'], 'ready')
+            self.assertEqual(executable.read_bytes(), binary)
+            self.assertEqual(executable.stat().st_mode & 0o777, 0o700)
+            self.assertEqual(download.call_count, 1)
+            self.assertFalse((root / '.autosolve/envs/core').exists())
+
+    def test_floss_rejects_wrong_hash_oversize_and_unsafe_archive(self):
+        cases = []
+        valid, binary = self._floss_archive()
+        cases.append(('hash', valid, 'f' * 64, len(valid), 'floss_archive_hash_mismatch'))
+        cases.append(('oversize', valid + b'x', hashlib.sha256(valid).hexdigest(),
+                      len(valid), 'floss_archive_size_mismatch'))
+        for name, mode, extra in (('../floss', stat.S_IFREG | 0o755, False),
+                                  ('floss', stat.S_IFLNK | 0o777, False),
+                                  ('floss', stat.S_IFREG | 0o755, True)):
+            data, _ = self._floss_archive(name, mode, extra)
+            cases.append(('unsafe', data, hashlib.sha256(data).hexdigest(), len(data),
+                          'floss_archive_unsafe'))
+        for label, data, digest, size, reason in cases:
+            with self.subTest(label=label, data_len=len(data)):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    with mock.patch.object(setup_env, '_FLOSS_ARCHIVE_SHA256', digest, create=True), \
+                         mock.patch.object(setup_env, '_FLOSS_ARCHIVE_BYTES', size, create=True), \
+                         mock.patch.object(setup_env, '_FLOSS_BINARY_SHA256', hashlib.sha256(binary).hexdigest(), create=True), \
+                         mock.patch.object(setup_env, '_FLOSS_BINARY_BYTES', len(binary), create=True), \
+                         mock.patch.object(urllib.request, 'urlopen', return_value=io.BytesIO(data)), \
+                         mock.patch.object(setup_env.subprocess, 'run') as run:
+                        result = setup_env.prepare_floss(root)
+                    self.assertEqual(result['status'], 'partial')
+                    self.assertEqual(result['reason'], reason)
+                    self.assertFalse((root / '.autosolve/engines/floss').exists())
+                    run.assert_not_called()
+
+    def test_floss_offline_and_existing_symlink_fail_without_touching_core(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'checkout'
+            root.mkdir()
+            with mock.patch.object(urllib.request, 'urlopen', side_effect=OSError('offline')):
+                offline = setup_env.prepare_floss(root)
+            self.assertEqual(offline['status'], 'partial')
+            self.assertEqual(offline['reason'], 'floss_download_failed')
+            outside = Path(directory) / 'outside'
+            outside.mkdir()
+            (outside / 'keep').write_text('safe')
+            target = root / '.autosolve/engines/floss'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(outside, target_is_directory=True)
+            with mock.patch.object(urllib.request, 'urlopen') as download:
+                symlink = setup_env.prepare_floss(root)
+            self.assertEqual(symlink['reason'], 'floss_install_path_unsafe')
+            self.assertEqual((outside / 'keep').read_text(), 'safe')
+            download.assert_not_called()
+            self.assertFalse((root / '.autosolve/envs/core').exists())
+
+    def test_floss_setup_busy_reports_partial_without_download(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch('fcntl.flock', side_effect=BlockingIOError), \
+                 mock.patch.object(urllib.request, 'urlopen') as download:
+                result = setup_env.prepare_floss(root)
+            self.assertEqual(result['status'], 'partial')
+            self.assertEqual(result['reason'], 'floss_setup_busy')
+            download.assert_not_called()
+
+    def test_floss_chunked_download_stops_at_total_deadline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            clock = [0.0]
+
+            class SlowChunks(io.BytesIO):
+                def read1(self, size=-1):
+                    clock[0] += 100.0
+                    return b'x'
+
+            with mock.patch.object(time, 'monotonic', side_effect=lambda: clock[0]), \
+                 mock.patch.object(urllib.request, 'urlopen', return_value=SlowChunks()) as download:
+                result = setup_env.prepare_floss(root)
+            self.assertEqual(result['status'], 'partial')
+            self.assertEqual(result['reason'], 'floss_download_timeout')
+            self.assertFalse((root / '.autosolve/engines/floss').exists())
+            download.assert_called_once()
+
+    def test_floss_binary_match_supports_python_without_file_digest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / 'floss'
+            executable.write_bytes(b'\x7fELF' + b'fixture')
+            with mock.patch.object(setup_env, '_FLOSS_BINARY_BYTES', executable.stat().st_size), \
+                 mock.patch.object(setup_env, '_FLOSS_BINARY_SHA256', hashlib.sha256(executable.read_bytes()).hexdigest()), \
+                 mock.patch.object(hashlib, 'file_digest', side_effect=AssertionError('unavailable')):
+                self.assertTrue(setup_env._floss_binary_matches(executable))
+
+    def test_floss_probe_never_promotes_install_only_or_other_engine(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data, binary = self._floss_archive()
+            executable = root / '.autosolve/engines/floss/floss'
+            checks = (
+                ({'status': 'ready', 'functional_probe': 'passed'},
+                 {'status': 'partial', 'functional_probe': 'failed', 'path': str(executable)}),
+                ({'status': 'partial', 'functional_probe': 'failed'},
+                 {'status': 'ready', 'functional_probe': 'passed', 'path': str(executable)}),
+                ({'status': 'ready', 'functional_probe': 'passed'},
+                 {'status': 'ready', 'functional_probe': 'passed', 'path': '/usr/bin/floss'}),
+            )
+            with mock.patch.object(setup_env, '_FLOSS_ARCHIVE_SHA256', hashlib.sha256(data).hexdigest(), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_ARCHIVE_BYTES', len(data), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_BINARY_SHA256', hashlib.sha256(binary).hexdigest(), create=True), \
+                 mock.patch.object(setup_env, '_FLOSS_BINARY_BYTES', len(binary), create=True), \
+                 mock.patch.object(urllib.request, 'urlopen', return_value=io.BytesIO(data)):
+                for operation, engine in checks:
+                    with self.subTest(operation=operation, engine=engine):
+                        report = {'operations': {'malware_reversing.obfuscated_strings': operation},
+                                  'engines': {'floss': engine}}
+                        with mock.patch.object(setup_env.subprocess, 'run', return_value=
+                                              subprocess.CompletedProcess([], 3, json.dumps(report).encode(), b'')):
+                            result = setup_env.prepare_floss(root)
+                        self.assertEqual(result['status'], 'partial')
+                        self.assertEqual(result['functional_probe'], 'failed')
+
     def test_core_uv_commands_use_private_task_local_scratch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

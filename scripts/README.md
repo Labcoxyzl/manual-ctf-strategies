@@ -147,6 +147,21 @@ Real checker execution still needs selected private hints and `--execute-local`;
 acceptance. Missing uv, CPython 3.12, compiler, wheel, network or compatible
 platform leaves this optional setup partial without changing the core env.
 
+For FLOSS string recovery on Linux x86-64, explicitly install the official
+[FLOSS 3.2.0 standalone release](https://github.com/mandiant/flare-floss/releases/tag/v3.2.0):
+
+```sh
+python3 scripts/autosolve.py --json setup --floss
+python3 scripts/autosolve.py --json doctor --profiles malware_reversing --self-test
+```
+
+Setup verifies the release ZIP's pinned SHA-256 and its sole executable before
+installing under `.autosolve/engines/floss/`. It reuses a verified install when
+offline, leaves the Python core untouched, and reports `partial` if the download,
+platform, or real FLOSS doctor probe fails. FLOSS unpacks into private task-local
+scratch on each run; its optional analysis still needs a selected local artifact.
+FLOSS output is evidence for a candidate, not challenge acceptance.
+
 For AIC02 gradient probes on Linux x86-64, explicitly install the separate
 CPU-only PyTorch environment. Its hash-checked lock uses a reviewed PyTorch
 CPU wheel URL and PyPI dependencies; the core lock and default setup remain
