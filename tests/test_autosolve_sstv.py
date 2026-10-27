@@ -1,4 +1,5 @@
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -60,13 +61,31 @@ class SSTVTests(unittest.TestCase):
         from scripts.autosolve_lib import setup
         with (mock.patch.object(setup, "__file__", str(self.root / "scripts/autosolve_lib/setup.py")),
               mock.patch.object(setup.shutil, "which", return_value="/synthetic/available"),
-              mock.patch.object(sstv, "decoder_available", return_value=True)):
+              mock.patch.object(sstv, "decoder_available", return_value=True),
+              mock.patch.object(setup.importlib.util, "find_spec", return_value=object())):
             operation, _ = setup._sstv_probe(True)
         self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
                          ("partial", "not_run", "sstv_probe_fixture_missing"))
 
-    @unittest.skipUnless(DECODER.is_file() and shutil.which("ffmpeg"),
-                         "approved decoder and FFmpeg required")
+    def test_missing_pillow_is_unavailable_after_compatible_decoder(self):
+        from scripts.autosolve_lib import setup
+        with (mock.patch.object(setup.shutil, "which", return_value="/synthetic/available"),
+              mock.patch.object(sstv, "decoder_available", return_value=True),
+              mock.patch.object(setup.importlib.util, "find_spec", return_value=None),
+              mock.patch.object(sstv, "decode_sstv", side_effect=AssertionError("must not decode"))):
+            operation, engine = setup._sstv_probe(True)
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("unavailable", "not_run", "sstv_pillow_missing"))
+        self.assertEqual(engine["status"], "unavailable")
+
+        with (mock.patch.object(setup.shutil, "which", return_value=None),
+              mock.patch.object(setup.importlib.util, "find_spec", return_value=None)):
+            operation, _ = setup._sstv_probe(True)
+        self.assertEqual(operation["reason"], "approved_sstv_decoder_or_ffmpeg_missing")
+
+    @unittest.skipUnless(DECODER.is_file() and shutil.which("ffmpeg") and
+                         importlib.util.find_spec("PIL"),
+                         "approved decoder, FFmpeg and Pillow required")
     def test_packaged_robot_doctor_and_decode_failure(self):
         from scripts.autosolve_lib import setup
         fixture = ROOT / "tests/fixtures/toolkit/audio/robot36.wav"

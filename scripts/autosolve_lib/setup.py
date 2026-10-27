@@ -704,9 +704,10 @@ def _sstv_probe(self_test):
     tool = shutil.which(SSTV)
     ffmpeg = shutil.which(FFMPEG)
     compatible = bool(tool and ffmpeg and decoder_available(tool))
+    pillow = importlib.util.find_spec('PIL') is not None
     probe = 'not_run'
     fixture = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio/robot36.wav'
-    if self_test and compatible and fixture.is_file():
+    if self_test and compatible and pillow and fixture.is_file():
         try:
             with tempfile.TemporaryDirectory() as directory:
                 records, warnings = decode_sstv(fixture, Path(directory) / 'stage',
@@ -717,9 +718,11 @@ def _sstv_probe(self_test):
                          else 'failed')
         except Exception:
             probe = 'failed'
-    status = 'ready' if probe == 'passed' else 'partial' if compatible else 'unavailable'
+    status = 'ready' if probe == 'passed' else 'partial' if compatible and pillow else 'unavailable'
     if not compatible:
         reason = 'approved_sstv_decoder_or_ffmpeg_missing'
+    elif not pillow:
+        reason = 'sstv_pillow_missing'
     elif self_test and not fixture.is_file():
         reason = 'sstv_probe_fixture_missing'
     elif self_test and probe != 'passed':
@@ -730,7 +733,7 @@ def _sstv_probe(self_test):
                  'reason': reason}
     engine = {'found': bool(tool), 'path': tool, 'version': None,
               'options_compatible': compatible,
-              'required_data': 'Martin/Robot recording with supported VIS header',
+              'required_data': 'Pillow; Martin/Robot recording with supported VIS header',
               'functional_probe': probe, 'status': status}
     return operation, engine
 
