@@ -609,17 +609,8 @@ class Client:
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
             response_value = ({'raw_b64': base64.b64encode(raw).decode(), 'sse_events': parsed} if response_format == 'sse' and status in range(200, 300) else
                               parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()})
-            if response_format == 'sse' and isinstance(parsed, list):
-                tool_evidence = []
-                for event in parsed:
-                    if len(tool_evidence) >= 20:
-                        break
-                    calls = (_nested(event, 'tool_calls') or _nested(event, 'metadata.tool_calls') or
-                             _nested(event, 'choices.0.delta.tool_calls'))
-                    if isinstance(calls, list):
-                        tool_evidence.extend(calls[:20 - len(tool_evidence)])
-            else:
-                tool_evidence = _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls')
+            tool_evidence = (_sse_tool_evidence(parsed) if response_format == 'sse' and isinstance(parsed, list) else
+                             _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'))
             record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': response_value, 'tool_call_evidence': tool_evidence, 'retry_after': retry_after}
             if response_format == 'sse':
                 record['response_format'] = 'sse'
@@ -712,6 +703,30 @@ def _sse_events(raw):
         return None
     except (UnicodeError, ValueError):
         return None
+
+
+def _sse_tool_evidence(events):
+    raw_calls, fragments, sizes, oversized = [], {}, {}, set()
+    for event in events:
+        calls = (_nested(event, 'tool_calls') or _nested(event, 'metadata.tool_calls') or
+                 _nested(event, 'choices.0.delta.tool_calls'))
+        if not isinstance(calls, list):
+            continue
+        for call in calls:
+            if len(raw_calls) < 20:
+                raw_calls.append(call)
+            index = call.get('index') if isinstance(call, dict) else None
+            fragment = _nested(call, 'function.arguments')
+            if type(index) is int and 0 <= index < 10 and isinstance(fragment, str) and index not in oversized:
+                sizes[index] = sizes.get(index, 0) + len(fragment)
+                if sizes[index] > 4096:
+                    oversized.add(index)
+                    fragments.pop(index, None)
+                else:
+                    fragments.setdefault(index, []).append(fragment)
+    assembled = [{'index': index, 'function': {'arguments': ''.join(parts)}, 'assembly': 'sse_fragments'}
+                 for index, parts in sorted(fragments.items()) if len(parts) > 1]
+    return raw_calls[:20 - len(assembled)] + assembled
 
 
 def _text(record, field=None):
@@ -821,12 +836,37 @@ def _inspect(client):
             m['stop_reason'] = 'chat request shape ambiguous; supply --protocol'
 
 
+def _tool_route_paths(evidence):
+    paths, stack, inspected = set(), [(evidence, 0)], 0
+    while stack and inspected < 80 and len(paths) < 5:
+        value, depth = stack.pop()
+        inspected += 1
+        if isinstance(value, list) and depth < 4:
+            stack.extend((item, depth + 1) for item in value[:20])
+        elif isinstance(value, dict):
+            for key, item in list(value.items())[:40]:
+                if key in ('path', 'route', 'endpoint', 'status_path', 'verification_path') and isinstance(item, str) and ROUTE.fullmatch(item):
+                    paths.add(item)
+                if depth < 4 and isinstance(item, (dict, list)):
+                    stack.append((item, depth + 1))
+                elif depth < 4 and key in ('arguments', 'args') and isinstance(item, str) and len(item) <= 4096:
+                    try:
+                        stack.append((json.loads(item), depth + 1))
+                    except (ValueError, RecursionError):
+                        pass
+    return sorted(paths)
+
+
 def _candidate(record, text, m):
     hits = []
     for match in SECRET.finditer(text):
         hits.append({'kind': 'secret-shaped text', 'sha256': hashlib.sha256(match.group().encode()).hexdigest(), 'evidence_line': m['transcript_lines']})
-    for path in sorted(set(ROUTE.findall(text)))[:5]:
+    text_paths = sorted(set(ROUTE.findall(text)))[:5]
+    for path in text_paths:
         hits.append({'kind': 'route clue', 'path': path, 'evidence_line': m['transcript_lines']})
+    for path in _tool_route_paths(record.get('tool_call_evidence')):
+        if path not in text_paths:
+            hits.append({'kind': 'route clue', 'path': path, 'source': 'tool_call', 'evidence_line': m['transcript_lines']})
     for hit in hits:
         hit['probe_id'] = record['probe_id']
         m['candidates'].append(hit)
@@ -1118,45 +1158,55 @@ def _run(client):
             if isinstance(conversation, (str, int)):
                 m['conversation_id'] = conversation
             text = _text(record, chat.get('response_field'))
-            if text is None:
+            hits = _candidate(record, text or '', m)
+            if text is None and not any(hit['kind'] == 'route clue' for hit in hits):
                 m['stop_reason'] = 'ambiguous response; supply response_field'
             else:
                 client.confirm_post()
-                if chat.get('history_field'):
+                if chat.get('history_field') and text is not None:
                     m['chat_history'].extend(({'role': 'user', 'content': prompt}, {'role': 'assistant', 'content': text}))
                     core._write_json(client.run / 'manifest.json', m)
-                hits = _candidate(record, text, m)
-                if not m.get('strategy') and 'lanes' not in client.config and probe in ('baseline', 'capability'):
+                if text is not None and not m.get('strategy') and 'lanes' not in client.config and probe in ('baseline', 'capability'):
                     for lane in _lane_clues(text) + m.get('lane_clues', []):
                         if lane not in m['queue'] and len(m['queue']) < 4:
                             m['queue'].append(lane)
-                if spec.get('filler_chars'):
+                if text is not None and spec.get('filler_chars'):
                     default_check = not any(key in client.config.get('strategy_params', {}) for key in ('anchor_prompt', 'check_prompt'))
                     retained = text.strip() == m['strategy_marker'] if default_check else None
                     m['behavior_observations'].append({'probe_id': probe, 'filler_chars': spec['filler_chars'],
                                                        'marker_retained': retained, 'evidence_line': m['transcript_lines']})
                     if retained is False:
                         m['stop_reason'] = 'context marker not retained; challenge outcome unverified'
-                if probe == 'injection' and client.config['injection']['marker'] in text:
+                if text is not None and probe == 'injection' and client.config['injection']['marker'] in text:
                     m['candidates'].append({'kind': 'marker repeated; influence unverified', 'probe_id': probe, 'evidence_line': m['transcript_lines']})
                 routes = [x for x in hits if x['kind'] == 'route clue']
                 if routes:
-                    route = routes[0]['path']
-                    known_routes = {client.config.get('verification', {}).get('path'),
-                                    client.config.get('history_path'), client.config.get('status_path'),
+                    verify = client.config.get('verification', {})
+                    known_routes = {client.config.get('history_path'), client.config.get('status_path'),
                                     client.config.get('audit_path')}
+                    if verify.get('method', 'GET') == 'GET':
+                        known_routes.add(verify.get('path'))
+                    route_hit = next((hit for hit in routes if verify.get('method', 'GET') == 'GET' and
+                                      hit['path'] == verify.get('path') and not urllib.parse.urlsplit(hit['path']).query), None)
+                    route_hit = route_hit or next((hit for hit in routes if hit['path'] in known_routes and
+                                                   not urllib.parse.urlsplit(hit['path']).query), routes[0])
+                    route = route_hit['path']
                     if urllib.parse.urlsplit(route).query:
                         m['stop_reason'] = 'route clue with query; inspect private transcript before direct check'
                     elif route not in known_routes:
                         m['stop_reason'] = 'route clue requires explicit API plan'
                     elif m['request_count'] < m['max_requests']:
                         direct = client.request('GET', route, probe='direct-route-check')
-                        m['direct_checks'].append({'path_sha256': hashlib.sha256(route.encode()).hexdigest(), 'source': 'model',
-                                                    'status': direct.get('status'), 'redirect_hops': direct.get('redirect_hops', 0),
-                                                    'evidence_line': m['transcript_lines']})
-                        verify = client.config.get('verification', {})
-                        if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') == 200 and not direct.get('signal') and not direct.get('redirect_hops') and _same_json(_nested(direct.get('response'), verify.get('success_field'), _MISSING), verify.get('success_value')):
-                            m['validated'].append({'candidate_sha256': None, 'probe_id': probe, 'evidence_line': m['transcript_lines'], 'checker_path': route})
+                        if direct.get('signal') == 'budget':
+                            m['stop_reason'] = 'route clue; request budget before direct check'
+                        else:
+                            m['direct_checks'].append({'path_sha256': hashlib.sha256(route.encode()).hexdigest(), 'source': route_hit.get('source', 'model'),
+                                                        'status': direct.get('status'), 'redirect_hops': direct.get('redirect_hops', 0),
+                                                        'evidence_line': m['transcript_lines']})
+                            if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') in range(200, 300) and not direct.get('signal') and not direct.get('redirect_hops') and _same_json(_nested(direct.get('response'), verify.get('success_field'), _MISSING), verify.get('success_value')):
+                                m['validated'].append({'candidate_sha256': None, 'probe_id': probe, 'evidence_line': m['transcript_lines'], 'checker_path': route})
+                    else:
+                        m['stop_reason'] = 'route clue; request budget before direct check'
                     if not m.get('stop_reason'):
                         m['stop_reason'] = 'checker accepted' if m['validated'] else 'route clue; inspect direct check before more prompts'
                 if hits and client.config.get('verification') and not m.get('stop_reason'):
@@ -1239,12 +1289,12 @@ def _render(run, m):
         lines.append(f"- {probe}: {hypothesis}; expected: {expected}; cost: {'2' if kind == 'injection' else '1'} request(s) plus optional direct check" + (' and a due heartbeat' if m.get('heartbeat_summary') and kind != 'api' else '') + f"; pivot: {pivot}; {'completed' if probe in m['completed'] else 'untested'}")
     lines += ['', '## Findings', '']
     for item in m['candidates']:
-        lines.append(f"- Candidate: {item['kind']} from {item['probe_id']}, transcript line {item['evidence_line']}" + (f"; route SHA-256 {hashlib.sha256(item['path'].encode()).hexdigest()}" if 'path' in item else ''))
+        lines.append(f"- Candidate: {item['kind']} from {item['probe_id']}, transcript line {item['evidence_line']}" + (f"; source {item['source']}" if item.get('source') else '') + (f"; route SHA-256 {hashlib.sha256(item['path'].encode()).hexdigest()}" if 'path' in item else ''))
     for item in m['validated']:
         lines.append(f"- Validated by {_display_path(item['checker_path'])} at transcript line {item['evidence_line']}")
     for item in m['direct_checks']:
-        label = f"route SHA-256 {item['path_sha256']}" if item.get('source') == 'model' else _display_path(item['path'])
-        lines.append(f"- Direct route {label}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)} at transcript line {item['evidence_line']}; acceptance unproven")
+        label = f"route SHA-256 {item['path_sha256']}" if item.get('path_sha256') else _display_path(item['path'])
+        lines.append(f"- Direct route {label}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, source={item.get('source', 'declared')} at transcript line {item['evidence_line']}; acceptance unproven")
     for item in m.get('verification_checks', []):
         lines.append(f"- Checker {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, accepted={item['accepted']}" + (f" at transcript line {item['evidence_line']}" if item['evidence_line'] else '; request budget prevented the check'))
     for item in m.get('api_checks', []):

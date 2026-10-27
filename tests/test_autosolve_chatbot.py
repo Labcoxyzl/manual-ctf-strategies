@@ -13,6 +13,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -130,6 +131,8 @@ class Toy:
                     self.send(204, b'', {'X-Fresh-Nonce': toy.nonce, 'Set-Cookie': 'sid=nonce; Path=/'})
                 elif self.path == '/nonce-status':
                     self.send(200, {'done': toy.nonce_used})
+                elif self.path == '/api/a-status':
+                    self.send(200, {'stage': 0})
                 elif self.path == '/stage-status':
                     toy.stage_status_calls += 1
                     if toy.mode in ('stage_status_partial_once', 'stage_candidate_partial_once') and toy.stage > 0 and toy.stage_status_calls == 2:
@@ -143,12 +146,14 @@ class Toy:
                 elif self.path == '/api/verify':
                     if toy.mode == 'partial_completion':
                         self.send(200, b'{"complete": true}' + b' ' * 140_000)
+                    elif toy.mode == 'tool_metadata_201_route':
+                        self.send(201, {'complete': True})
                     elif toy.mode == 'direct_redirect':
                         self.send(302, b'', {'Location': '/check-result'})
                     elif toy.mode == 'missing_completion':
                         self.send(200, {})
                     else:
-                        self.send(200, {'complete': 1 if toy.mode in ('numeric_complete', 'numeric_route') else toy.mode == 'route'})
+                        self.send(200, {'complete': 1 if toy.mode in ('numeric_complete', 'numeric_route') else toy.mode in ('route', 'tool_metadata_route', 'tool_metadata_arguments', 'tool_metadata_mixed_route', 'tool_metadata_no_text', 'tool_metadata_two_known_routes', 'stream_tool_route', 'stream_tool_fragments')})
                 elif self.path == '/check-result':
                     self.send(200, {'accepted': True, 'complete': True, 'score': 99})
                 elif self.path == '/result':
@@ -307,10 +312,17 @@ class Toy:
                         self.wfile.flush()
                         time.sleep(.18)
                         return
+                    calls = ([{'function': {'arguments': json.dumps({'path': '/api/verify'})}}]
+                             if toy.mode == 'stream_tool_route' else [{'name': 'noop'}])
                     parts = [b'data: {"delta":{"content":null},"conversation":{"id":"stream-A"}}\n\n',
                              b'data: {"delta":{"content":"role: "}}\n\n',
                              b': heartbeat\n\n',
-                             b'data: {"delta":{"content":"assistant"},"choices":[{"delta":{"tool_calls":[{"name":"noop"}]}}]}\n\n']
+                             b'data: ' + json.dumps({'delta': {'content': 'assistant'},
+                                                     'choices': [{'delta': {'tool_calls': calls}}]}).encode() + b'\n\n']
+                    if toy.mode == 'stream_tool_fragments':
+                        parts = [b'data: ' + json.dumps({'choices': [{'delta': {'tool_calls': [
+                            {'index': 0, 'function': {'arguments': fragment}}]}}]}).encode() + b'\n\n'
+                                 for fragment in ('{"path":"/api/', 'verify"}')]
                     if toy.mode == 'stream_malformed':
                         parts.append(b'data: {broken}\n\n')
                     if toy.mode != 'stream_incomplete':
@@ -448,6 +460,13 @@ class Toy:
                     self.send(200, {'reply': 'x' * 140_000})
                 elif toy.mode in ('route', 'direct_redirect'):
                     self.send(200, {'reply': 'Use /api/verify for completion.', 'conversation_id': 'thread-A', 'tool_calls': [{'name': 'verify', 'arguments': {'path': '/api/verify'}}]})
+                elif toy.mode in ('tool_metadata_route', 'tool_metadata_arguments', 'tool_metadata_post_route', 'tool_metadata_unknown_route', 'tool_metadata_query_route', 'tool_metadata_mixed_route', 'tool_metadata_201_route', 'tool_metadata_no_text', 'tool_metadata_two_known_routes'):
+                    path = ('/check' if toy.mode == 'tool_metadata_post_route' else
+                            '/internal/diagnostics' if toy.mode == 'tool_metadata_unknown_route' else
+                            '/api/verify?nonce=private123' if toy.mode == 'tool_metadata_query_route' else '/api/verify')
+                    call = {'function': {'arguments': json.dumps({'path': path})}} if toy.mode == 'tool_metadata_arguments' else {'result': {'endpoint': path}}
+                    self.send(200, {'reply': 'See /api/chat for help.' if toy.mode == 'tool_metadata_mixed_route' else None if toy.mode == 'tool_metadata_no_text' else 'role: assistant',
+                                    'tool_calls': [{'result': {'endpoint': '/api/a-status'}}, call] if toy.mode == 'tool_metadata_two_known_routes' else [call]})
                 elif toy.mode == 'form':
                     self.send(200, {'payload': {'reply': 'role: assistant'}, 'thread': 'thread-A'}, fragmented=True)
                 elif toy.mode == 'static_echo':
@@ -631,6 +650,115 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(m['completed'], ['baseline'])
             self.assertIn(('GET', '/api/verify'), toy.calls)
             self.assertIn('"name": "verify"', (run / 'transcript.jsonl').read_text())
+
+    def test_tool_call_route_clue_stops_broad_prompts_and_checks_only_declared_get(self):
+        for mode in ('tool_metadata_route', 'tool_metadata_arguments', 'tool_metadata_mixed_route', 'tool_metadata_201_route', 'tool_metadata_no_text'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                         'response_field': 'reply'}, 'lanes': ['capability'],
+                                                'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                                 'success_value': True}})
+                m, _, code = self.start(root, toy, protocol)
+                self.assertEqual(code, 0)
+                self.assertEqual(m['completed'], ['baseline'])
+                self.assertEqual(len(m['validated']), 1)
+                self.assertEqual(m['direct_checks'][0]['source'], 'tool_call')
+                self.assertEqual(sum(path == '/api/utter' for method, path in toy.calls if method == 'POST'), 1)
+                self.assertIn(('GET', '/api/verify'), toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('stream_tool_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/stream/chat', 'message_field': 'query',
+                                                     'response_format': 'sse', 'response_field': 'delta.content'},
+                                            'lanes': ['capability'],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertEqual(m['direct_checks'][0]['source'], 'tool_call')
+            self.assertEqual(len(m['validated']), 1)
+        with tempfile.TemporaryDirectory() as root, Toy('stream_tool_fragments') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/stream/chat', 'message_field': 'query',
+                                                     'response_format': 'sse', 'response_field': 'delta.content'},
+                                            'lanes': ['capability'],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertEqual(m['direct_checks'][0]['source'], 'tool_call')
+            self.assertEqual(len(m['validated']), 1)
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_two_known_routes') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability'],
+                                            'status_path': '/api/a-status',
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, _, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 0)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertEqual(m['direct_checks'][0]['path_sha256'], hashlib.sha256(b'/api/verify').hexdigest())
+            self.assertEqual(len(m['validated']), 1)
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_post_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability'],
+                                            'verification': {'path': '/check', 'method': 'POST',
+                                                             'candidate_field': 'answer', 'success_field': 'accepted',
+                                                             'success_value': True}})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertFalse(m['direct_checks'])
+            self.assertNotIn(('GET', '/check'), toy.calls)
+            self.assertEqual(m['stop_reason'], 'route clue requires explicit API plan')
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_unknown_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability']})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertFalse(m['direct_checks'])
+            self.assertNotIn(('GET', '/internal/diagnostics'), toy.calls)
+            self.assertEqual(m['stop_reason'], 'route clue requires explicit API plan')
+            self.assertNotIn('/internal/diagnostics', (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_query_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability'],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'route clue with query; inspect private transcript before direct check')
+            self.assertNotIn(('GET', '/api/verify?nonce=private123'), toy.calls)
+            self.assertNotIn('private123', (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability'],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, _, code = self.start(root, toy, protocol, requests=4)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'route clue; request budget before direct check')
+            self.assertFalse(m['validated'])
+            self.assertNotIn(('GET', '/api/verify'), toy.calls)
+        scripts = str(SCRIPT.parent)
+        if scripts not in sys.path:
+            sys.path.insert(0, scripts)
+        from autosolve_lib.profiles import chatbot as chatbot_profile
+        with tempfile.TemporaryDirectory() as root, Toy('tool_metadata_route') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query',
+                                                     'response_field': 'reply'}, 'lanes': ['capability'],
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            original = chatbot_profile.Client.request
+            def budget_direct(client, method, path, **kwargs):
+                return {'signal': 'budget', 'status': None} if kwargs.get('probe') == 'direct-route-check' else original(client, method, path, **kwargs)
+            with mock.patch.object(chatbot_profile.Client, 'request', budget_direct):
+                run, status = chatbot_profile.start(toy.origin, protocol, 5, 15, 3, 2, Path(root) / 'runs', False)
+            m = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(status, 'partial')
+            self.assertEqual(m['stop_reason'], 'route clue; request budget before direct check')
+            self.assertFalse(m['direct_checks'])
+            self.assertNotIn(('GET', '/api/verify'), toy.calls)
 
     def test_kb_marker_echo_is_only_candidate(self):
         with tempfile.TemporaryDirectory() as root, Toy('injection') as toy:

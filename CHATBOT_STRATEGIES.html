@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="f73e898adcf9a58a283ab323c9fe3f9149b5b59582756b4f7c7ab75b3b49e03b">
+  <meta name="source-sha256" content="f670d325ccffd59e0e0273b9d03154cd7a8f9579c129c8c8dd8a7b2e0edc679f">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -308,7 +308,14 @@ field. Only an official checker/completion step marked <code>acceptance: true</c
 mark a result validated. An expected field match on a history or vector-store
 response is evidence, not a solve. Same-origin redirects are logged, but their
 final response does not validate the originally declared checker route or
-provide a scorer observation.</p>
+provide a scorer observation.
+When a chat response exposes a same-origin route in <code>tool_calls</code> or JSON
+function arguments, the runner records that clue and stops broader prompting.
+Tool-only responses can supply the clue without assistant text. For SSE, the
+client joins bounded argument fragments by tool-call index before inspection.
+It directly checks only a configured GET verifier, history, status, or audit
+route. Unknown paths, POST-only verifiers, and routes with query values need an
+explicit API plan; a tool-call claim is never challenge acceptance by itself.</p>
 <p>Start from the <a href="scripts/chatbot_recipes/history_idor.json">history</a>,
 <a href="scripts/chatbot_recipes/vector_store.json">vector-store</a>,
 <a href="scripts/chatbot_recipes/debug_verifier.json">debug/verifier</a>,
@@ -543,7 +550,7 @@ mean the attack will succeed against an arbitrary challenge.</p>
 <tr>
 <td>Tool-call audit lifecycle</td>
 <td><code>tool_audit</code> + <code>chatbot_evidence.py audit</code></td>
-<td>Fill audit route and check applied state independently.</td>
+<td>Fill audit route, inspect applied state independently, and pivot on bounded tool-call route clues.</td>
 </tr>
 <tr>
 <td>Debug validator and direct verifier</td>

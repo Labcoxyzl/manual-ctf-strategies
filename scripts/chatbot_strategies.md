@@ -206,6 +206,13 @@ mark a result validated. An expected field match on a history or vector-store
 response is evidence, not a solve. Same-origin redirects are logged, but their
 final response does not validate the originally declared checker route or
 provide a scorer observation.
+When a chat response exposes a same-origin route in `tool_calls` or JSON
+function arguments, the runner records that clue and stops broader prompting.
+Tool-only responses can supply the clue without assistant text. For SSE, the
+client joins bounded argument fragments by tool-call index before inspection.
+It directly checks only a configured GET verifier, history, status, or audit
+route. Unknown paths, POST-only verifiers, and routes with query values need an
+explicit API plan; a tool-call claim is never challenge acceptance by itself.
 
 Start from the [history](chatbot_recipes/history_idor.json),
 [vector-store](chatbot_recipes/vector_store.json),
@@ -368,7 +375,7 @@ mean the attack will succeed against an arbitrary challenge.
 | DLP or guardrail representation | `guardrail_representation` + `chatbot_evidence.py decode` | Reconstruct a candidate and check the real verifier. |
 | Workflow validator and exact output | `output_validator` / `workflow_status` + `workflow_stage.json` | Fill stage/status route and inspect persisted progress between prompts when state can advance. |
 | Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
-| Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
+| Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route, inspect applied state independently, and pivot on bounded tool-call route clues. |
 | Debug validator and direct verifier | `api_plan` + `debug_verifier.json`, `nonce_verifier.json`, or `header_nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar body or response-header nonce can be bound, while signature derivation remains target-specific. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
