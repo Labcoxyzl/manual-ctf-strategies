@@ -12,6 +12,16 @@ from contextlib import closing, nullcontext
 from pathlib import Path
 
 
+def is_raw_tar_header(header: bytes) -> bool:
+    if len(header) != 512:
+        return False
+    try:
+        tarfile.TarInfo.frombuf(header, "utf-8", "surrogateescape")
+        return True
+    except (tarfile.TarError, ValueError):
+        return False
+
+
 def _safe_file(info: tarfile.TarInfo) -> bool:
     name = info.name
     if name.startswith("./"):
@@ -51,13 +61,15 @@ def extract_tar(path: Path, output_dir: Path, *, max_members: int,
     total = 0
     try:
         with path.open("rb") as raw:
-            magic = raw.read(6)
+            header = raw.read(512)
             raw.seek(0)
-            if magic.startswith(b"\x1f\x8b"):
+            if is_raw_tar_header(header):
+                decoded = raw
+            elif header.startswith(b"\x1f\x8b"):
                 decoded = gzip.GzipFile(fileobj=raw)
-            elif magic.startswith(b"BZh"):
+            elif header.startswith(b"BZh"):
                 decoded = bz2.BZ2File(raw)
-            elif magic.startswith(b"\xfd7zXZ\x00"):
+            elif header.startswith(b"\xfd7zXZ\x00"):
                 decoded = lzma.LZMAFile(raw)
             else:
                 decoded = raw

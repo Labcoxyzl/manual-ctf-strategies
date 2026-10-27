@@ -47,6 +47,27 @@ class OsArtifactTests(unittest.TestCase):
         self.assertEqual(self.path.read_bytes(), original)
         self.assertEqual(set(self.root.iterdir()), {self.path})
 
+    def test_truncated_browser_url_cannot_match_snapshot_prefix(self):
+        from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
+
+        self.history()
+        prefix = 'https://history.example/'
+        url = prefix + 'a' * (2048 - len(prefix)) + 'different-tail'
+        with sqlite3.connect(self.path) as db:
+            db.execute('UPDATE urls SET url=? WHERE id=7', (url,))
+        records, warnings = inspect_os_artifact(self.path)
+        self.assertEqual(records[0]['url'], url[:2048])
+        self.assertTrue(records[0]['url_truncated'])
+        self.assertTrue(any('URL truncated' in note for note in warnings))
+        page = self.root / 'snapshot.html'
+        data = (f'<meta name="source-url" content="{url[:2048]}">'
+                '<article data-captured="2020-12-30T00:01:00Z">Note</article>').encode()
+        page.write_bytes(data)
+        source = {'artifact_id': 'snapshot', 'source_name': page.name,
+                  'path': page, 'sha256': hashlib.sha256(data).hexdigest()}
+        rows, _ = build_snapshot_trail([source], browser_visits=[records[0]])
+        self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
+
     def test_held_out_schema_and_invalid_time_are_explicit(self):
         self.history(title=False)
         with sqlite3.connect(self.path) as db:
@@ -213,6 +234,23 @@ class OsArtifactTests(unittest.TestCase):
                              if item['tag'] == 'OS artifact' and item['job_id'] == os_jobs[0]['id']))
         self.assertTrue(any(item['current'] for item in refreshed['intelligence']
                             if item['tag'] == 'OS artifact' and item['job_id'] == os_jobs[1]['id']))
+
+    def test_extracted_sqlite_has_companion_identity_before_browser_records(self):
+        from scripts.autosolve_lib.core import _os_artifact_job
+        import time
+
+        self.history()
+        run = self.root / 'run'
+        (run / 'jobs').mkdir(parents=True)
+        artifact = {'id': 'derived-history', 'path': str(self.path), 'kind_evidence': 'sqlite',
+                    'sha256': hashlib.sha256(self.path.read_bytes()).hexdigest()}
+        manifest = {'jobs': [], 'intelligence': [], 'warnings': [],
+                    'coverage': {'DF03': {'status': 'no finding', 'note': ''}},
+                    'sqlite_companions': {}}
+        _os_artifact_job(run, manifest, artifact, time.monotonic() + 30)
+        self.assertEqual(manifest['coverage']['DF03']['status'], 'ran')
+        self.assertEqual(manifest['jobs'][0]['status'], 'complete')
+        self.assertTrue(manifest['sqlite_companions'].get(artifact['id']))
 
 
 if __name__ == '__main__':

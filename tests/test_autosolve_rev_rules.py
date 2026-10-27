@@ -311,6 +311,10 @@ if offset >= 0:
         evidence = next(item for item in manifest['intelligence'] if item['tag'] == 'REV03 rule match')
         self.assertEqual(evidence['source_locator']['strings'][0]['file_offset'], offset)
         self.assertIn('not proof', evidence['next_action'])
+        report_line = next(line for line in (run / 'report.md').read_text().splitlines()
+                           if '"REV03 rule match" ("yara")' in line)
+        self.assertIn(f'"identifier": "$a", "file_offset": {offset}', report_line)
+        self.assertNotIn('matched_hex', report_line)
         cli('resume', run, '--hints', hints, '--budget', '10')
         unchanged = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(len([job for job in unchanged['jobs'] if job['adapter_id'] == 'rev-rules']), 1)
@@ -320,10 +324,36 @@ if offset >= 0:
         self.assertEqual(len([job for job in changed['jobs'] if job['adapter_id'] == 'rev-rules']), 2)
         self.assertFalse(any(item['current'] for item in changed['intelligence']
                              if item['job_id'] == jobs[0]['id']))
+        self.assertEqual(sum('"REV03 rule match" ("yara")' in line
+                             for line in (run / 'report.md').read_text().splitlines()), 1)
         version_file.write_text('YARA 4.5.3')
         cli('resume', run, '--hints', hints, '--budget', '10')
         upgraded = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(len([job for job in upgraded['jobs'] if job['adapter_id'] == 'rev-rules']), 3)
+
+    def test_report_bounds_yara_string_locations_and_omits_private_data(self):
+        run = self.root / 'render'
+        run.mkdir()
+        strings = [{'identifier': '$bad\nPRIVATE_SENTINEL', 'file_offset': 70},
+                   {'identifier': '$negative', 'file_offset': -1},
+                   {'identifier': '$boolean', 'file_offset': True},
+                   {'identifier': 'PRIVATE_SENTINEL', 'file_offset': 80},
+                   'PRIVATE_SENTINEL']
+        strings.extend({'identifier': f'$s{number}', 'file_offset': number * 10,
+                        'matched_hex': 'PRIVATE_SENTINEL'} for number in range(6))
+        manifest = {'status': 'partial', 'findings': [], 'artifacts': [],
+                    'warnings': [], 'coverage': {}, 'intelligence': [
+                        {'tag': 'REV03 rule match', 'group': 'yara', 'value': 'BenignCapability',
+                         'artifact_id': 'sample', 'current': True,
+                         'source_locator': {'strings': strings,
+                                            'private': 'PRIVATE_SENTINEL'}}]}
+        core._render_report(run, manifest)
+        report = (run / 'report.md').read_text()
+        self.assertIn('"identifier": "$s0", "file_offset": 0', report)
+        self.assertIn('"identifier": "$s3", "file_offset": 30', report)
+        self.assertNotIn('"identifier": "$s4"', report)
+        self.assertNotIn('PRIVATE_SENTINEL', report)
+        self.assertNotIn('matched_hex', report)
 
     def test_doctor_discloses_missing_rule_engines_and_required_data(self):
         original = autosolve_setup.shutil.which

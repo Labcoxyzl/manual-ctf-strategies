@@ -143,7 +143,7 @@
       "delivery_stage": "baseline",
       "planned_coverage": "covered",
       "automatic_scope": "Decode supported symbols using limited rotations/inversion and extracted frames",
-      "limitations": "No arbitrary reconstruction or text OCR"
+      "limitations": "No arbitrary reconstruction or universal text OCR"
     },
     {
       "id": "IMG06",
@@ -247,7 +247,7 @@
       "delivery_stage": "baseline",
       "planned_coverage": "partial",
       "automatic_scope": "Decode documented SSTV modes and route resulting image",
-      "limitations": "Unsupported modes or missing sync may fail"
+      "limitations": "Unsupported modes or missing sync may fail; optional printed-text OCR is tentative"
     },
     {
       "id": "AV05",

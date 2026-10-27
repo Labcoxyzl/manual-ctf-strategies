@@ -1,11 +1,15 @@
+import hashlib
 import json
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
+from scripts.autosolve_lib import core
 from scripts.autosolve_lib.profiles.osint_ids import extract_identifiers
 
 
@@ -110,6 +114,49 @@ class IdentifierRunnerTests(unittest.TestCase):
                                 capture_output=True, text=True, timeout=45)
         self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
         return json.loads(result.stdout)
+
+    def test_expired_publication_budget_does_not_claim_source_changed(self):
+        source = self.root / 'stable.txt'
+        source.write_text('Visit https://example.org/stable', encoding='utf-8')
+        (self.root / 'jobs').mkdir()
+        artifact = {'id': 'stable', 'path': str(source),
+                    'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+        manifest = {'current_adapter_fingerprints': {'osint-ids': ['test']},
+                    'jobs': [], 'intelligence': [], 'warnings': [],
+                    'coverage': {'OS02': {'status': 'not scheduled'}}}
+        record = {'kind': 'url', 'value': 'https://example.org/stable',
+                  'ambiguity': 'URL pattern only; destination unverified',
+                  'byte_offset': 6, 'byte_length': 26, 'encoding': 'utf-8'}
+
+        with patch.object(core, '_run_osint_ids', return_value=([record], [])):
+            core._osint_ids_job(self.root, manifest, artifact, time.monotonic() - 1)
+
+        self.assertEqual(manifest['coverage']['OS02']['status'], 'truncated')
+        self.assertEqual(manifest['intelligence'], [])
+        self.assertTrue(any('identity incomplete' in warning for warning in manifest['warnings']))
+        self.assertFalse(any('source changed' in warning for warning in manifest['warnings']))
+
+    def test_changed_source_is_rejected_before_clue_publication(self):
+        source = self.root / 'changed.txt'
+        source.write_text('Visit https://example.org/old', encoding='utf-8')
+        (self.root / 'jobs').mkdir()
+        artifact = {'id': 'changed', 'path': str(source),
+                    'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+        manifest = {'current_adapter_fingerprints': {'osint-ids': ['test']},
+                    'jobs': [], 'intelligence': [], 'warnings': [],
+                    'coverage': {'OS02': {'status': 'not scheduled'}}}
+
+        def change_source(*_args):
+            source.write_text('Visit https://example.org/new', encoding='utf-8')
+            return [], []
+
+        with patch.object(core, '_run_osint_ids', side_effect=change_source):
+            core._osint_ids_job(self.root, manifest, artifact, time.monotonic() + 5)
+
+        self.assertEqual(manifest['coverage']['OS02']['status'], 'failed')
+        self.assertEqual(manifest['intelligence'], [])
+        self.assertTrue(any('source changed before publication' in warning
+                            for warning in manifest['warnings']))
 
     def test_public_cli_source_and_derived_text_are_clues(self):
         source = self.root / 'clues.txt'

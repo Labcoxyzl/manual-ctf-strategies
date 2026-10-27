@@ -40,7 +40,8 @@ HINT_TYPES = {'flag_patterns': list, 'known_plaintext': str, 'password_file': st
               'hash_wordlist_file': str, 'disk_target_paths': list,
               'memory_image': bool, 'memory_symbol_dir': str, 'memory_dump_targets': list,
               'dbc': str, 'symbol_paths': list, 'byte_order': str, 'checker': dict,
-              'scope_origin': str, 'jwt_keys': list, 'jwt_wordlist_file': str}
+              'scope_origin': str, 'jwt_keys': list, 'jwt_wordlist_file': str,
+              'answer_schema': dict}
 HINT_TYPES.update({'capa_rules': str, 'capa_signatures': str, 'yara_rules': str})
 SCHEMA = 1
 MAX_READ = 8 * 1024 * 1024
@@ -166,6 +167,12 @@ def load_hints(path):
         from .profiles.checker import _hints as checker_hints
         try:
             checker_hints(hints['checker'])
+        except ValueError as error:
+            raise InvalidInput(str(error)) from error
+    if 'answer_schema' in hints:
+        from .profiles.answers import validate_schema
+        try:
+            validate_schema(hints['answer_schema'])
         except ValueError as error:
             raise InvalidInput(str(error)) from error
     return hints, hashlib.sha256(raw).hexdigest()
@@ -417,11 +424,14 @@ def _hash(path, deadline):
 
 
 def _kind(path):
+    from .profiles.tar import is_raw_tar_header
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(fd, 'rb') as stream:
         source_size = os.fstat(stream.fileno()).st_size
         head = stream.read(4096)
         header = head[:512]
+        if is_raw_tar_header(header):
+            return 'tar'
         try:
             if head.startswith((b'\x1f\x8b', b'BZh', b'\xfd7zXZ\x00')):
                 compressed = io.BytesIO(head + stream.read(65536 - len(head)))
@@ -434,8 +444,7 @@ def _kind(path):
             elif head.startswith(b'\xfd7zXZ\x00'):
                 with lzma.LZMAFile(compressed) as decoded:
                     header = decoded.read(512)
-            if len(header) == 512:
-                tarfile.TarInfo.frombuf(header, 'utf-8', 'surrogateescape')
+            if is_raw_tar_header(header):
                 return 'tar'
         except (tarfile.TarError, OSError, EOFError, ValueError,
                 zlib.error, lzma.LZMAError):
@@ -709,8 +718,15 @@ def _refresh_current(manifest, source_ids):
                                         valid_job(job))))
     for item in manifest.get('intelligence', []):
         job = jobs_by_id.get(item.get('job_id'))
+        source = item.get('source_locator') or {}
+        browser_id = source.get('browser_artifact_id')
+        browser_job = jobs_by_id.get(source.get('browser_job_id'))
+        relation_current = (item.get('group') != 'browser_snapshot_relation' or
+                            (browser_id in current and browser_job is not None and
+                             browser_job['adapter_id'] == 'os-artifact' and
+                             browser_job['input_ids'] == [browser_id] and valid_job(browser_job)))
         item['current'] = (item['artifact_id'] in current and not item.get('superseded', False)
-                           and job is not None and valid_job(job))
+                           and job is not None and valid_job(job) and relation_current)
 
 
 def _upgrade_lineage(manifest):
@@ -773,6 +789,25 @@ def _descends_from(manifest, artifact_id, ancestor_id):
             if edge['id'] == ancestor_id:
                 return True
             pending.append(edge['id'])
+    return False
+
+
+def _has_classical_ancestor(manifest, artifact):
+    by_id = {item['id']: item for item in manifest['artifacts']}
+    pending = [artifact]
+    visited = set()
+    while pending:
+        current = pending.pop()
+        if current['id'] in visited:
+            continue
+        visited.add(current['id'])
+        for edge in current['parents']:
+            if edge['operation'] == 'rot13' or edge['operation'].startswith(
+                    ('atbash ', 'caesar-shift:', 'affine-decrypt:')):
+                return True
+            parent = by_id.get(edge['id'])
+            if parent is not None:
+                pending.append(parent)
     return False
 
 
@@ -1878,23 +1913,24 @@ def _run_jwt(path, keys, words, timeout):
         parent.close()
 
 
-def _snapshot_worker(sources, timeout, pipe):
+def _snapshot_worker(sources, browser_visits, timeout, pipe):
     from .profiles.osint_snapshots import build_snapshot_trail
     resource.setrlimit(resource.RLIMIT_CPU, (8, 8))
     resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
     try:
-        pipe.send(('ok', *build_snapshot_trail(sources, timeout=timeout)))
+        pipe.send(('ok', *build_snapshot_trail(sources, browser_visits=browser_visits,
+                                              timeout=timeout)))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
         pipe.close()
 
 
-def _run_snapshot(sources, timeout):
+def _run_snapshot(sources, browser_visits, timeout):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
     worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_snapshot_worker, sources, timeout, child))
+                                     args=(_snapshot_worker, sources, browser_visits, timeout, child))
     worker.start()
     child.close()
     try:
@@ -2300,6 +2336,37 @@ def _run_qr(path, max_pixels, max_bytes, timeout):
     try:
         if not parent.poll(timeout + .25):
             raise TimeoutError('QR inspection exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
+def _ocr_worker(path, timeout, max_bytes, pipe):
+    resource.setrlimit(resource.RLIMIT_CPU, (11, 11))
+    resource.setrlimit(resource.RLIMIT_AS, (1536 * 1024 * 1024, 1536 * 1024 * 1024))
+    from .profiles.ocr import extract_printed_text
+    try:
+        pipe.send(('ok', *extract_printed_text(path, timeout=timeout, max_bytes=max_bytes)))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_ocr(path, timeout, max_bytes):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_ocr_worker, path, timeout, max_bytes, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout + .25):
+            raise TimeoutError('OCR exceeded its time limit')
         result = parent.recv()
         if result[0] != 'ok':
             raise RuntimeError(result[1])
@@ -2951,6 +3018,8 @@ def _sstv_job(run, manifest, artifact, deadline):
                 locator = {'mode': record['mode'], 'start_seconds': record['start_seconds'],
                            'end_seconds': record['end_seconds'], 'time_basis': record['time_basis'],
                            'media_type': record['media_type'], 'sstv_preview': True}
+                if record['tail_uncertain']:
+                    locator.update(tail_uncertain=True, decoder_padding_ms=record['decoder_padding_ms'])
                 child = _store_staged(run, manifest, artifact, record, deadline,
                                       locator=locator, operation=f"SSTV {record['mode']} image",
                                       producer_key=key)
@@ -2975,6 +3044,9 @@ def _sstv_job(run, manifest, artifact, deadline):
         ('truncated', 'limit', 'timed out', 'incomplete', 'exited')) else
         'ran' if children else 'no finding')
     entry['note'] = 'supported VIS modes only; complete decoder image is a candidate, with recording-time locator'
+    if any(item['current'] and (item.get('source_locator') or {}).get('sstv_preview')
+           and item['source_locator'].get('tail_uncertain') for item in manifest['artifacts']):
+        entry['note'] += '; tail uncertain where 5 ms silent decoder lookahead was needed'
     return children
 
 
@@ -3356,6 +3428,76 @@ def _qr_job(run, manifest, artifact, deadline):
     return children
 
 
+def _ocr_job(run, manifest, artifact, deadline):
+    from .profiles import ocr
+
+    if not shutil.which(ocr.TESSERACT):
+        manifest['warnings'].append('SSTV printed-text OCR skipped: Tesseract unavailable')
+        return []
+    fingerprints = manifest['current_adapter_fingerprints']['ocr']
+    if not fingerprints:
+        manifest['warnings'].append('SSTV printed-text OCR skipped: English traineddata identity unavailable')
+        return []
+    fingerprint = fingerprints[0]
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:ocr.v1:{fingerprint}".encode()).hexdigest()
+    old = next((job for job in manifest['jobs']
+                if job['key'] == key and job['status'] == 'complete'), None)
+    reusable = _reusable_children(manifest, old, deadline) if old else None
+    if old and reusable is None:
+        old['status'] = 'invalidated'
+    if reusable is not None:
+        for child in reusable:
+            _attach_reused_child(child, old, artifact)
+        manifest['warnings'].extend(old.get('warnings', []))
+        return reusable
+    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'ocr',
+           'input_ids': [artifact['id']], 'operation': 'bounded SSTV printed-text OCR',
+           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+           'limits': {'source_bytes': ocr.MAX_SOURCE_BYTES, 'pixels': ocr.MAX_PIXELS,
+                      'output_bytes': 2 * ocr.MAX_TEXT_BYTES, 'seconds': 8},
+           'status': 'running', 'child_ids': [], 'started': time.time()}
+    manifest['jobs'].append(job)
+    _write_json(run / 'manifest.json', manifest)
+    children = []
+    try:
+        path = Path(artifact['path'])
+        records, warnings = _run_ocr(path, min(8, max(.01, deadline - time.monotonic() - .1)),
+                                     ocr.MAX_TEXT_BYTES)
+        if _hash(path, deadline) != artifact['sha256']:
+            raise RuntimeError('SSTV image changed before OCR publication')
+        for record in records:
+            locator = {'ocr_engine': 'tesseract', 'ocr_kind': record['kind'],
+                       'line_start': record['line_start'], 'line_end': record['line_end'],
+                       'ocr_base64': record['kind'] == 'OCR Base64 candidate',
+                       'sstv_image': artifact['source_locator']}
+            child = _store_child(run, manifest, artifact, record['data'],
+                                 record['kind'], deadline, source_locator=locator,
+                                 force_record=True, producer_key=key)
+            if child is None:
+                warnings.append('OCR publication limit reached; text withheld')
+                break
+            job['child_ids'].append(child['id'])
+            children.append(child)
+            if locator['ocr_base64']:
+                manifest['findings'].append({
+                    'state': 'candidate', 'artifact_id': child['id'], 'job_id': job['id'],
+                    'current': True, 'source_locator': locator,
+                    'evidence': f"OCR Base64 candidate SHA-256 {child['sha256']}; transcription unverified",
+                    'operation': 'printed-text OCR',
+                    'next_action': 'Check recognized characters against the SSTV image.'})
+        job['warnings'] = warnings[:100]
+        manifest['warnings'].extend(warnings[:100])
+        job['status'] = 'truncated' if warnings else 'complete'
+    except Exception as error:
+        job['status'] = 'failed'
+        job['warning'] = f'{type(error).__name__}: {error}'
+        manifest['warnings'].append(f"OCR job failed: {job['warning']}")
+    job['ended'] = time.time()
+    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+    _write_json(run / 'manifest.json', manifest)
+    return children
+
+
 def _office_job(run, manifest, artifact, deadline):
     path = Path(artifact['path'])
     if artifact['kind_evidence'] == 'zip':
@@ -3454,18 +3596,87 @@ def _doc01_coverage(manifest, status):
 
 
 def _tar_job(run, manifest, artifact, deadline):
-    from .profiles.tar import extract_tar
+    from .profiles.tar import extract_tar, is_raw_tar_header
     path = Path(artifact['path'])
     try:
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
         with os.fdopen(descriptor, 'rb') as source:
-            magic = source.read(6)
+            magic = source.read(512)
     except OSError:
         magic = b''
-    compression = ('gzip' if magic.startswith(b'\x1f\x8b') else
+    compression = (None if is_raw_tar_header(magic) else
+                   'gzip' if magic.startswith(b'\x1f\x8b') else
                    'bzip2' if magic.startswith(b'BZh') else
                    'xz' if magic.startswith(b'\xfd7zXZ\x00') else None)
     compression_note = f' ({compression} container)' if compression else ''
+    if compression:
+        from .profiles.encoding import decode
+        decoder_fingerprint = hashlib.sha256(Path(decode.__code__.co_filename).read_bytes()).hexdigest()
+        decoder_key = hashlib.sha256(
+            f"{artifact['sha256']}:tar-container.v1:{decoder_fingerprint}".encode()).hexdigest()
+        old_decoder = next((job for job in manifest['jobs']
+                            if job['key'] == decoder_key and job['status'] == 'complete'), None)
+        reusable = _reusable_children(manifest, old_decoder, deadline) if old_decoder else None
+        if old_decoder and reusable is None:
+            old_decoder['status'] = 'invalidated'
+        if reusable is not None:
+            for child in reusable:
+                _attach_reused_child(child, old_decoder, artifact)
+            if any(child['kind_evidence'] == 'tar' for child in reusable):
+                _doc01_coverage(manifest, 'ran')
+                return reusable
+        elif artifact['size'] <= MAX_READ and time.monotonic() < deadline:
+            decoder_job = {'id': uuid.uuid4().hex, 'key': decoder_key, 'adapter_id': 'encoding',
+                           'input_ids': [artifact['id']], 'operation': 'bounded compressed TAR decode',
+                           'tool_fingerprint': decoder_fingerprint, 'data_fingerprints': {},
+                           'cwd': str(run), 'limits': {'input_bytes': MAX_READ,
+                                                      'output_bytes': MAX_CHILD},
+                           'status': 'running', 'child_ids': [], 'started': time.time()}
+            manifest['jobs'].append(decoder_job)
+            _write_json(run / 'manifest.json', manifest)
+            try:
+                descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                with os.fdopen(descriptor, 'rb') as source:
+                    data = source.read(MAX_READ + 1)
+                if len(data) > MAX_READ or hashlib.sha256(data).hexdigest() != artifact['sha256']:
+                    raise RuntimeError('compressed TAR source changed before decode')
+                results, diagnostics = _run_decode(
+                    data, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
+                    min(30, max(.01, deadline - time.monotonic())))
+                decoder_job['diagnostics'] = diagnostics
+                matching = next(((decoded, operation) for decoded, operation in results
+                                 if operation.startswith(compression)), None)
+                children = []
+                if matching:
+                    decoded, operation = matching
+                    diagnostic = next(item for item in diagnostics if item['kind'] == compression)
+                    locator = {'transform': compression, 'status': diagnostic['status'],
+                               'members': diagnostic['members'],
+                               'trailing_bytes': diagnostic['trailing_bytes']}
+                    if 'padding_bytes' in diagnostic:
+                        locator['padding_bytes'] = diagnostic['padding_bytes']
+                    child = _store_child(run, manifest, artifact, decoded, operation, deadline,
+                                         source_locator=locator, producer_key=decoder_key)
+                    if child:
+                        decoder_job['child_ids'].append(child['id'])
+                        children.append(child)
+                decoder_job['status'] = 'complete'
+                _mark_encoding_coverage(manifest, [matching[1]] if children else [],
+                                        diagnostics, artifact['id'])
+                if any(child['kind_evidence'] == 'tar' for child in children):
+                    _doc01_coverage(manifest, 'ran')
+                    return children
+            except Exception as error:
+                decoder_job['status'] = 'failed'
+                decoder_job['warning'] = f'{type(error).__name__}: {error}'
+                manifest['warnings'].append(f"compressed TAR decode failed: {type(error).__name__}")
+            finally:
+                decoder_job['ended'] = time.time()
+                _write_json(run / 'jobs' / f"{decoder_job['id']}.json", decoder_job)
+                _write_json(run / 'manifest.json', manifest)
+        else:
+            manifest['warnings'].append('compressed TAR parent decode input or time limit reached')
+        _doc01_coverage(manifest, 'truncated')
     fingerprint = hashlib.sha256(Path(extract_tar.__code__.co_filename).read_bytes()).hexdigest()
     key = hashlib.sha256(f"{artifact['sha256']}:tar.v1:{fingerprint}".encode()).hexdigest()
     old = next((job for job in manifest['jobs']
@@ -5026,7 +5237,11 @@ def _osint_ids_job(run, manifest, artifact, deadline):
         try:
             records, warnings = _run_osint_ids(path, 1024 * 1024, 128,
                                                 min(10, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            source_sha256 = _hash(path, deadline)
+            if source_sha256 is None:
+                records = []
+                warnings.append('OSINT clue source identity incomplete before work budget ended')
+            elif source_sha256 != artifact['sha256']:
                 raise RuntimeError('OSINT clue source changed before publication')
             output = run / 'jobs' / f"{job['id']}.osint-ids.json"
             _write_json(output, records)
@@ -5070,6 +5285,12 @@ def _os_artifact_job(run, manifest, artifact, deadline):
     path = Path(artifact['path'])
     companions = (manifest.get('sqlite_companions', {}).get(artifact['id'])
                   if artifact['kind_evidence'] == 'sqlite' else None)
+    if artifact['kind_evidence'] == 'sqlite' and companions is None:
+        fingerprints, companions = _sqlite_companions(path, deadline)
+        if 'incomplete' in fingerprints.values():
+            manifest['warnings'].append(f"{artifact['id']}: browser companion identity incomplete")
+            return
+        manifest.setdefault('sqlite_companions', {})[artifact['id']] = companions
     if companions == 'incomplete':
         manifest['warnings'].append(f"{artifact['id']}: browser companion identity incomplete")
         return
@@ -5392,6 +5613,32 @@ def _osint_snapshot_job(run, manifest, deadline):
         sources = sources[:64]
     dependencies = []
     fingerprints = manifest['current_adapter_fingerprints']
+    browser_visits = []
+    for artifact in manifest['artifacts']:
+        if (not artifact['current'] or not artifact['complete'] or
+                artifact['kind_evidence'] != 'sqlite' or artifact['sha256'] is None):
+            continue
+        job = next((item for item in reversed(manifest['jobs'])
+                    if item['adapter_id'] == 'os-artifact' and item['status'] == 'complete'
+                    and item['input_ids'] == [artifact['id']]
+                    and item['tool_fingerprint'] in fingerprints['os-artifact']
+                    and item.get('data_fingerprints', {}).get('sqlite_companions') ==
+                    manifest.get('sqlite_companions', {}).get(artifact['id'])), None)
+        if job is None or _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            continue
+        output = Path(job.get('records_path', ''))
+        try:
+            if not output.is_file() or output.is_symlink() or _hash(output, deadline) != job.get('records_sha256'):
+                continue
+            records = json.loads(output.read_text())
+        except (OSError, ValueError):
+            continue
+        dependencies.append((artifact['id'], 'os-artifact', job['key'], job['records_sha256']))
+        source_name = (artifact.get('source_locator') or {}).get('disk_path') or artifact['path']
+        for record in records:
+            if record.get('kind') == 'browser_visit' and len(browser_visits) < 257:
+                browser_visits.append({**record, 'source_artifact_id': artifact['id'],
+                                       'source_name': source_name, 'browser_job_id': job['id']})
     for source in sources:
         for adapter, field in (('web-static', 'web_records'), ('osint-ids', 'identifier_records')):
             job = next((item for item in reversed(manifest['jobs'])
@@ -5446,7 +5693,8 @@ def _osint_snapshot_job(run, manifest, deadline):
         manifest['jobs'].append(job)
         _write_json(run / 'manifest.json', manifest)
         try:
-            records, warnings = _run_snapshot(sources, min(8, max(.01, deadline - time.monotonic())))
+            records, warnings = _run_snapshot(sources, browser_visits,
+                                               min(8, max(.01, deadline - time.monotonic())))
             if any(_hash(source['path'], deadline) != source['sha256'] for source in sources):
                 raise RuntimeError('OSINT snapshot source changed before publication')
             while records and len(json.dumps(records).encode()) > 2 * 1024 * 1024:
@@ -5460,14 +5708,28 @@ def _osint_snapshot_job(run, manifest, deadline):
             if job['records_sha256'] is None:
                 raise RuntimeError('OSINT snapshot record identity incomplete')
             for record in records:
+                value = (f"{record['browser_source_name']} {record['browser_locator']} "
+                         f"at {record['browser_timestamp']} and supplied {record['source_name']} "
+                         f"captured at {record['snapshot_timestamp']}: same HTML-decoded URL "
+                         f"{record['matched_url']}; capture {record['elapsed_seconds']:g} seconds later"
+                         if record['kind'] == 'browser_snapshot_relation' else
+                         f"{record['source_name']} byte {record['source_offset']}: {record['value']}")
                 manifest['intelligence'].append({
                     'artifact_id': record['source_artifact_id'], 'job_id': job['id'],
                     'current': True, 'tag': 'OS03 trail', 'group': record['kind'],
-                    'value': f"{record['source_name']} byte {record['source_offset']}: "
-                             f"{record['value']}"[:512],
+                    'value': value[:512],
                     'source_locator': {'byte_offset': record['source_offset'],
                                        'byte_length': record['source_length'],
                                        'line': record['source_line'], 'relation': record['relation'],
+                                       'source_value': (record['value'] if record['kind'] ==
+                                                        'browser_snapshot_relation' else None),
+                                       'matched_url': record.get('matched_url'),
+                                       'browser_artifact_id': record.get('browser_artifact_id'),
+                                       'browser_job_id': record.get('browser_job_id'),
+                                       'browser_record': record.get('browser_locator'),
+                                       'browser_time': record.get('browser_timestamp'),
+                                       'snapshot_time_offset': record.get('snapshot_time_offset'),
+                                       'snapshot_time': record.get('snapshot_timestamp'),
                                        'target_artifact_id': record.get('target_artifact_id'),
                                        'claims': record.get('claims')},
                     'next_action': record['ambiguity']})
@@ -6168,7 +6430,7 @@ def _memory_symbol_identity(hints, hints_path, deadline):
 
 def _current_adapter_fingerprints(deadline):
     import sqlite3
-    from .profiles import disk, disk_recovery, image_metadata, media, memory, packet_objects, packet_streams, packet_tls, packets, sstv, stegseek, tones, zsteg
+    from .profiles import disk, disk_recovery, image_metadata, media, memory, ocr, packet_objects, packet_streams, packet_tls, packets, sstv, stegseek, tones, zsteg
     profiles = Path(__file__).parent / 'profiles'
 
     def module_hash(name):
@@ -6207,6 +6469,9 @@ def _current_adapter_fingerprints(deadline):
     multimon_hash = executable_hash(shutil.which(tones.MULTIMON) or tones.MULTIMON)
     sstv_hash = module_hash('sstv')
     sstv_tool_hash = executable_hash(shutil.which(sstv.SSTV) or sstv.SSTV)
+    ocr_hash = module_hash('ocr')
+    ocr_tool_hash = executable_hash(shutil.which(ocr.TESSERACT) or ocr.TESSERACT)
+    ocr_data_hash = executable_hash(ocr.english_traineddata_path())
     packers_hash = module_hash('rev_packers')
     upx = shutil.which('upx')
     packers_binwalk = shutil.which('binwalk')
@@ -6245,6 +6510,8 @@ def _current_adapter_fingerprints(deadline):
         'media': [hashlib.sha256(f'{media_hash}:{ffprobe_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
         'tones': [hashlib.sha256(f'{tones_hash}:{multimon_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
         'sstv': [hashlib.sha256(f'{sstv_hash}:{sstv_tool_hash}:{ffmpeg_hash}'.encode()).hexdigest()],
+        'ocr': [hashlib.sha256(f'{ocr_hash}:{ocr_tool_hash}:{ocr_data_hash}'.encode()).hexdigest()]
+        if ocr_tool_hash and ocr_data_hash else [],
         'qr': [_qr_fingerprint()],
         'can-log': [module_hash('canlog')],
         'can-dbc': [_can_dbc_fingerprint()],
@@ -6326,6 +6593,27 @@ def _render_report(run, manifest):
                          f"locator {json.dumps(finding['source_locator'], ensure_ascii=True)})")
     else:
         lines.append('No candidate found in the sampled bytes. This does not establish that the challenge is solved.')
+    answers = manifest.get('answers')
+    if answers:
+        lines += ['', '## Sourced answer fields', '']
+        for field in answers['fields']:
+            question = json.dumps(field['question'], ensure_ascii=True)
+            if field['status'] == 'answered':
+                lines.append(f"- {field['name']} ({question}): "
+                             f"{json.dumps(field['value'], ensure_ascii=True)}; "
+                             f"sources {json.dumps(field['sources'], ensure_ascii=True)}")
+            elif field['status'] == 'conflict':
+                lines.append(f"- {field['name']} ({question}): conflicting source values; "
+                             f"{json.dumps(field['alternatives'], ensure_ascii=True)}")
+            else:
+                lines.append(f"- {field['name']} ({question}): unresolved")
+        composition = answers.get('composition')
+        if composition:
+            if composition['status'] == 'ready':
+                lines.append(f"- Composed candidate: {json.dumps(composition['value'], ensure_ascii=True)}; "
+                             'verify source fields against the questions before submission.')
+            else:
+                lines.append('- Composition unresolved; required fields or source coverage remain incomplete.')
     lines += ['', '## Actionable intelligence', '']
     for item in manifest['artifacts']:
         if item['current']:
@@ -6344,6 +6632,22 @@ def _render_report(run, manifest):
                        if isinstance(source.get(key), int) and not isinstance(source[key], bool)}
             if isinstance(source.get('exif_tag'), str):
                 locator['exif_tag'] = source['exif_tag'][:64]
+            if item['tag'] == 'REV03 rule match' and item['group'] == 'yara':
+                matches = source.get('strings')
+                if isinstance(matches, list):
+                    shown = []
+                    for match in matches[:64]:
+                        if not isinstance(match, dict):
+                            continue
+                        identifier, offset = match.get('identifier'), match.get('file_offset')
+                        if (isinstance(identifier, str) and
+                                re.fullmatch(r'\$[A-Za-z0-9_]{1,64}', identifier) and
+                                type(offset) is int and offset >= 0):
+                            shown.append({'identifier': identifier, 'file_offset': offset})
+                            if len(shown) == 4:
+                                break
+                    if shown:
+                        locator['strings'] = shown
             if item['tag'] == 'OS03 trail' and item['group'] == 'date_conflict':
                 dates = sorted({claim['date'] for claim in source.get('claims') or []
                                 if isinstance(claim, dict) and
@@ -6406,6 +6710,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
     manifest.setdefault('history_warnings', []).extend(manifest['warnings'])
     manifest.setdefault('intelligence', [])
     manifest['warnings'] = []
+    manifest.pop('answers', None)
     _upgrade_lineage(manifest)
     manifest['coverage'] = _coverage(manifest['category'])
     if manifest['execute_local'] and 'checker' not in hints:
@@ -6597,6 +6902,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 (artifact.get('source_locator') or {}).get('sstv_preview')):
             for child in _qr_job(run, manifest, artifact, deadline):
                 queue.append((child, depth + 1))
+            if (artifact.get('source_locator') or {}).get('sstv_preview') and time.monotonic() < deadline:
+                for child in _ocr_job(run, manifest, artifact, deadline):
+                    queue.append((child, depth + 1))
             if (metadata_selected or (artifact.get('source_locator') or {}).get('sstv_preview')) and time.monotonic() < deadline:
                 _image_metadata_job(run, manifest, artifact, deadline, make_views=False)
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
@@ -7131,7 +7439,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             manifest['warnings'].append(f"{artifact['id']}: artifact file is unavailable")
             continue
         doc01_gzip = manifest['category'] in ('auto', 'documents') and artifact['kind_evidence'] == 'gzip'
-        decode_selected = encoding_selected or doc01_gzip
+        decode_selected = encoding_selected or doc01_gzip or bool(
+            (artifact.get('source_locator') or {}).get('ocr_base64'))
         data = None
         if path.stat().st_size <= MAX_READ:
             data = path.read_bytes()
@@ -7146,6 +7455,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             _osint_ids_job(run, manifest, artifact, deadline)
         if data is not None and decode_selected and artifact['kind_evidence'] in ('text', 'gzip', 'binary'):
             fingerprint = hashlib.sha256(Path(decode.__code__.co_filename).read_bytes()).hexdigest()
+            suppress_unranked = _has_classical_ancestor(manifest, artifact)
             key = hashlib.sha256(f"{artifact['sha256']}:encoding.v1:{fingerprint}".encode()).hexdigest()
             if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
                 seen.setdefault(key, artifact['id'])
@@ -7156,8 +7466,17 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 if reusable is not None:
                     reused_operations = []
                     for child in reusable:
-                        reused_operations.extend(_attach_reused_child(child, old, artifact))
-                        queue.append((child, depth + 1))
+                        source_operations = [edge['operation'] for edge in child['parents']
+                                             if edge.get('job_key') == old['key'] and
+                                             edge['id'] in old['input_ids']]
+                        if (suppress_unranked and source_operations and
+                                all(operation.endswith('(hypothesis; unranked)')
+                                    for operation in source_operations)):
+                            continue
+                        operations = _attach_reused_child(child, old, artifact)
+                        reused_operations.extend(operations)
+                        if not all(operation.endswith('(hypothesis; unranked)') for operation in operations):
+                            queue.append((child, depth + 1))
                     _mark_encoding_coverage(manifest, reused_operations,
                                             old.get('diagnostics', []), artifact['id'])
                     if doc01_gzip:
@@ -7178,6 +7497,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         job['diagnostics'] = diagnostics
                         produced = []
                         for decoded, operation in results:
+                            if suppress_unranked and operation.endswith('(hypothesis; unranked)'):
+                                continue
                             bit_block = re.fullmatch(r'bit-text lines:(\d+)-(\d+) bits:(\d+)', operation)
                             locator = None
                             if bit_block:
@@ -7201,7 +7522,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                                  source_locator=locator, producer_key=key)
                             if child:
                                 job['child_ids'].append(child['id'])
-                                queue.append((child, depth + 1))
+                                if not operation.endswith('(hypothesis; unranked)'):
+                                    queue.append((child, depth + 1))
                                 produced.append(operation)
                         job['status'] = 'complete'
                         _mark_encoding_coverage(manifest, produced, diagnostics, artifact['id'])
@@ -7304,6 +7626,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
     if osint_selected and time.monotonic() < overall_deadline:
         _osint_snapshot_job(run, manifest, overall_deadline)
         _refresh_current(manifest, {artifact['id'] for artifact in active})
+    if 'answer_schema' in hints:
+        from .profiles.answers import collect_answers
+        manifest['answers'], answer_warnings = collect_answers(
+            manifest['artifacts'], hints['answer_schema'], overall_deadline)
+        manifest['warnings'].extend(answer_warnings)
     incomplete = any(a['sha256'] is None for a in active) or bool(manifest['warnings'])
     pending = any(x['status'] not in ('ran', 'no finding') and x['delivery_stage'] == 'baseline'
                   for x in manifest['coverage'].values())

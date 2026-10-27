@@ -34,6 +34,14 @@ repetition. Matches report the byte offset and key phase as unverified
 candidates. When this hint is present, candidate previews are withheld from
 reports; offsets and hashes still point to exact bytes in private artifacts.
 
+For a multi-question case with JSONL evidence, put an explicit schema in the
+private hints file, for example
+`{"answer_schema":{"fields":[{"name":"operator","question":"Who calibrated it?"},{"name":"badge_number","question":"Which badge?"}],"compose":"{operator}|{badge_number}"}}`.
+The field names match top-level JSONL keys. The report gives source line and
+byte offsets, leaves missing or conflicting fields unresolved, and composes a
+candidate only when every field is present. Verify each field against the
+question before submitting an answer.
+
 For a selected Linux x86 ELF checker, put its bounded input model in a private
 hints file: `{"checker":{"channel":"argv","length":4,"find":{"stdout":"WIN"},"avoid":{"stdout":"LOSE"}}}`.
 Run `analyze ./checker --category reversing --hints ./checker.json

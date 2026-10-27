@@ -31,7 +31,7 @@ PROFILE_ENGINES = {
     "encoding": ("crypto-attacks", "cryptolib", "passwords", "refinery", "rsa", "stdlib", "xortool"),
     "images": ("archive", "binwalk", "exif", "ghidra", "image", "qr", "stegseek", "zsteg"),
     "documents": ("archive", "binwalk", "bkcrack", "office", "passwords", "pdf", "refinery", "stdlib"),
-    "audio_video": ("ffmpeg", "image", "multimon", "sstv", "stegolsb"),
+    "audio_video": ("ffmpeg", "image", "multimon", "sstv", "stegolsb", "tesseract"),
     "packets": ("archive", "hcxtools", "passwords", "scapy", "stdlib", "tshark", "zeek"),
     "disk_memory": ("binwalk", "dissect", "stdlib", "tsk", "volatility"),
     "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "java", "javap", "pefile", "pwntools", "pyelftools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
@@ -754,6 +754,39 @@ def _sstv_probe(self_test):
     engine = {'found': bool(tool), 'path': tool, 'version': None,
               'options_compatible': compatible,
               'required_data': 'Martin/Robot recording with supported VIS header',
+              'functional_probe': probe, 'status': status}
+    return operation, engine
+
+
+def _ocr_probe(self_test):
+    from .profiles.ocr import TESSERACT, english_traineddata_path, extract_printed_text
+    path = shutil.which(TESSERACT)
+    model = english_traineddata_path() if path else None
+    probe = 'not_run'
+    if self_test and model and importlib.util.find_spec('PIL'):
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            with tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / 'printed.png'
+                image = Image.new('RGB', (410, 90), 'white')
+                ImageDraw.Draw(image).text((15, 18), 'OCR PROBE 2468', fill='black',
+                                           font=ImageFont.load_default(size=30))
+                image.save(source)
+                records, warnings = extract_printed_text(source, timeout=5)
+                probe = ('passed' if not warnings and any(
+                    b'OCR PROBE 2468' in row['data'] for row in records) else 'failed')
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if path else 'unavailable'
+    version = _command([path, '--version']) if path else None
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status,
+                 'reason': 'English traineddata identity unavailable' if path and not model else
+                           None if path else 'tesseract_missing'}
+    engine = {'found': bool(path), 'path': path,
+              'version': version.stdout.decode('utf-8', 'replace').splitlines()[0][:80]
+              if version and version.returncode == 0 else None,
+              'options_compatible': bool(model),
+              'required_data': str(model) if model else 'English traineddata identity unavailable',
               'functional_probe': probe, 'status': status}
     return operation, engine
 
@@ -1703,7 +1736,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     selected = _profiles(profiles)
     planned = sorted({engine for profile in selected for engine in PROFILE_ENGINES[profile]})
     engines = {engine: _planned() for engine in planned
-               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "qr", "tshark", "tsk", "zsteg", "stegseek", "pyelftools", "pefile", "ffmpeg", "multimon", "can", "volatility")}
+               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "qr", "tshark", "tsk", "zsteg", "stegseek", "pyelftools", "pefile", "ffmpeg", "multimon", "can", "volatility", "tesseract")}
     if "stdlib" in planned or "encoding" in selected:
         engines["stdlib"] = _stdlib(self_test)
     if "file" in planned:
@@ -1744,6 +1777,9 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     sstv_probes = _sstv_probe(self_test) if 'sstv' in planned else None
     if 'sstv' in planned:
         engines['sstv'] = sstv_probes[1]
+    ocr_probes = _ocr_probe(self_test) if 'tesseract' in planned else None
+    if ocr_probes:
+        engines['tesseract'] = ocr_probes[1]
     elf_probe = _elf_probe(self_test) if 'pyelftools' in planned else None
     if 'pyelftools' in planned:
         spec = importlib.util.find_spec('elftools')
@@ -1849,6 +1885,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations['audio_video.dtmf'] = tone_probes[0]
         operations['audio_video.morse_afsk'] = tone_probes[1]
         operations['audio_video.sstv'] = sstv_probes[0]
+        operations['audio_video.ocr'] = ocr_probes[0]
     if "disk_memory" in selected:
         operations['disk_memory.disk_image'] = disk_probes[0]
         operations['disk_memory.recovery'] = disk_probes[2]

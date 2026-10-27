@@ -98,9 +98,40 @@ class SSTVTests(unittest.TestCase):
         )
         subprocess.run([str(ENCODER_PYTHON), "-c", script, str(source), str(oracle)],
                        check=True, capture_output=True, timeout=15)
+        with mock.patch.object(sstv, "SSTV", str(DECODER)):
+            bare_rows, bare_warnings = sstv.decode_sstv(
+                source, self.root / "bare", timeout=20, max_bytes=1024 * 1024)
+        self.assertEqual(bare_warnings, [])
+        self.assertEqual(len(bare_rows), 1)
+        self.assertEqual(bare_rows[0]["mode"], "Robot 36")
+        self.assertTrue(bare_rows[0].get("tail_uncertain"))
+        bare_cli = self.root / "robot-unpadded.wav"
+        shutil.copyfile(source, bare_cli)
+        result = subprocess.run([sys.executable, "-B", str(ROOT / "scripts/autosolve.py"),
+                                 "--json", "analyze", str(bare_cli), "--category", "audio_video",
+                                 "--budget", "30", "--runs-root", str(self.root / "bare-runs")],
+                                capture_output=True, timeout=60,
+                                env={**os.environ, "AUTOSOLVE_SSTV": str(DECODER)})
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        job = next(job for job in manifest["jobs"] if job["adapter_id"] == "sstv")
+        child = next(item for item in manifest["artifacts"] if item["id"] in job["child_ids"])
+        self.assertEqual(child["source_locator"].get("tail_uncertain"), True)
+        self.assertEqual(child["source_locator"]["decoder_padding_ms"], 5)
+        self.assertIn("tail uncertain", manifest["coverage"]["AV04"]["note"])
+        self.assertIn('"tail_uncertain": true', (run / "report.md").read_text())
         with wave.open(str(source), "rb") as wav:
             params = wav.getparams()
             content = wav.readframes(wav.getnframes())
+        two_ms = self.root / "two-ms.wav"
+        with wave.open(str(two_ms), "wb") as wav:
+            wav.setparams(params)
+            wav.writeframes(content[:-round(params.framerate * .002) * params.sampwidth])
+        near_end = self.root / "near-end.wav"
+        with wave.open(str(near_end), "wb") as wav:
+            wav.setparams(params)
+            wav.writeframes(content[:-params.framerate * params.sampwidth // 20])
         lead = b"\x00\x00" * (params.framerate // 2)
         tail = b"".join(struct.pack("<h", int(8000 * math.sin(2 * math.pi * 1900 * i / params.framerate)))
                         for i in range(params.framerate * 3))
@@ -113,10 +144,20 @@ class SSTVTests(unittest.TestCase):
             self.assertEqual(warnings, [])
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["mode"], "Robot 36")
+            self.assertFalse(rows[0].get("tail_uncertain"))
             from PIL import Image, ImageChops, ImageStat
             with Image.open(rows[0]["path"]) as decoded, Image.open(oracle) as expected:
                 error = ImageStat.Stat(ImageChops.difference(decoded.convert("RGB"), expected)).mean
             self.assertLess(max(error), 40, error)
+            rows, warnings = sstv.decode_sstv(two_ms, self.root / "two-ms-stage", timeout=20,
+                                               max_bytes=1024 * 1024)
+            self.assertEqual(warnings, [])
+            self.assertEqual(len(rows), 1)
+            self.assertTrue(rows[0].get("tail_uncertain"))
+            rows, warnings = sstv.decode_sstv(near_end, self.root / "near-end-stage", timeout=20,
+                                               max_bytes=1024 * 1024)
+            self.assertEqual(rows, [])
+            self.assertTrue(any("truncated" in message for message in warnings), warnings)
             truncated = self.root / "truncated.wav"
             with wave.open(str(truncated), "wb") as wav:
                 wav.setparams(params)

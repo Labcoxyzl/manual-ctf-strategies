@@ -53,9 +53,13 @@ def _browser(path, descriptor, max_records):
                     pass
             if when is None:
                 warnings.append(f"visits id {visit_id}: unsupported visit_time")
+            url_truncated = isinstance(url, str) and len(url) > 2048
+            if url_truncated:
+                warnings.append(f"visits id {visit_id}: browser URL truncated at 2048 characters")
             records.append({"kind": "browser_visit", "source": str(path),
                             "locator": f"visits id {visit_id}", "visit_id": visit_id,
                             "url_id": url_id, "url": url[:2048] if isinstance(url, str) else None,
+                            "url_truncated": url_truncated,
                             "title": page_title[:512] if isinstance(page_title, str) else None,
                             "timestamp": when,
                             "timestamp_basis": "Chromium microseconds since 1601 UTC"})

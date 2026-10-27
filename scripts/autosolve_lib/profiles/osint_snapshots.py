@@ -1,8 +1,9 @@
 """Source-linked, offline relationships among supplied site and document artifacts."""
 
 import bisect
-from datetime import date
+from datetime import date, datetime, timezone
 import hashlib
+import html
 import os
 from pathlib import Path
 import posixpath
@@ -18,6 +19,48 @@ _STATIC = {'.html', '.htm', '.js', '.mjs', '.cjs', '.map', '.pdf', '.txt', '.md'
 _DOC = {'.pdf', '.txt', '.md', '.eml', '.docx'}
 _REF_KINDS = {'link', 'resource', 'source_map_ref', 'source_map_source'}
 _AMBIGUITY = 'Offline supplied snapshot only; relation and current live state are unverified'
+_HTML_TAG = re.compile(rb'<[^>]{0,4096}>', re.S)
+_HTML_ATTR = re.compile(rb'([a-z][\w:-]*)\s*=\s*(["\'])(.*?)\2', re.I | re.S)
+
+
+def _claimed_page_identity(data):
+    urls, times = [], []
+    for tag in _HTML_TAG.finditer(data):
+        raw = tag.group()
+        attrs = {}
+        for match in _HTML_ATTR.finditer(raw):
+            try:
+                source_value = match.group(3).decode('utf-8')
+            except UnicodeDecodeError:
+                continue
+            attrs[match.group(1).decode('ascii').lower()] = (
+                html.unescape(source_value), tag.start() + match.start(3),
+                len(match.group(3)), source_value)
+        tag_name = re.match(rb'<([a-z][a-z0-9]*)\b', raw, re.I)
+        tag_name = tag_name.group(1).lower() if tag_name else b''
+        if tag_name == b'meta' and attrs.get('name', ('',))[0].lower() == 'source-url':
+            if 'content' in attrs:
+                urls.append(attrs['content'])
+        if tag_name == b'link' and attrs.get('rel', ('',))[0].lower() == 'canonical':
+            if 'href' in attrs:
+                urls.append(attrs['href'])
+        if 'data-captured' in attrs:
+            times.append(attrs['data-captured'])
+    if len(urls) != 1 or len(times) != 1:
+        return None
+    url, url_offset, url_length, source_url = urls[0]
+    when, time_offset, time_length, _ = times[0]
+    try:
+        parsed = urlsplit(url)
+        timestamp = datetime.fromisoformat(when.replace('Z', '+00:00'))
+        if (len(url) > 2048 or parsed.scheme not in ('http', 'https') or not parsed.hostname
+                or parsed.username is not None or parsed.password is not None
+                or any(char.isspace() for char in url) or timestamp.tzinfo is None):
+            return None
+        timestamp = timestamp.astimezone(timezone.utc)
+    except ValueError:
+        return None
+    return url, source_url, url_offset, url_length, timestamp, time_offset, time_length
 
 
 def _name(value):
@@ -89,7 +132,7 @@ def _read(source, max_file_bytes):
     return data, None
 
 
-def build_snapshot_trail(sources, *, max_sources=64, max_file_bytes=1024 * 1024,
+def build_snapshot_trail(sources, *, browser_visits=(), max_sources=64, max_file_bytes=1024 * 1024,
                          max_total_bytes=8 * 1024 * 1024, max_records=512,
                          timeout=5.0):
     """Join existing WEB01/OS02 records with dated local files; never fetch URLs.
@@ -101,11 +144,13 @@ def build_snapshot_trail(sources, *, max_sources=64, max_file_bytes=1024 * 1024,
             or not 0 < max_total_bytes <= 16 * 1024 * 1024 or not 0 < max_records <= 1024
             or not 0 < timeout <= 30):
         raise ValueError('snapshot limits must be positive and bounded')
-    if not isinstance(sources, (list, tuple)):
+    if not isinstance(sources, (list, tuple)) or not isinstance(browser_visits, (list, tuple)):
         raise TypeError('sources must be a list or tuple')
     warnings = []
     if len(sources) > max_sources:
         warnings.append('snapshot source count limit reached')
+    if len(browser_visits) > 256:
+        warnings.append('browser visit relation limit reached')
     deadline = time.monotonic() + timeout
     selected = sources[:max_sources]
     names = {}
@@ -138,6 +183,42 @@ def build_snapshot_trail(sources, *, max_sources=64, max_file_bytes=1024 * 1024,
             warnings.append('snapshot analysis timed out')
             break
         line_starts = [0] + [match.end() for match in re.finditer(b'\n', data)]
+
+        if name.lower().endswith(('.html', '.htm')) and browser_visits:
+            identity = _claimed_page_identity(data)
+            if identity is not None:
+                page_url, source_url, url_offset, url_length, captured, time_offset, time_length = identity
+                for visit in browser_visits[:256]:
+                    if len(records) >= max_records:
+                        warnings.append('snapshot record limit reached')
+                        break
+                    if (visit.get('kind') != 'browser_visit' or visit.get('url_truncated')
+                            or visit.get('url') != page_url):
+                        continue
+                    try:
+                        viewed = datetime.fromisoformat(visit.get('timestamp').replace('Z', '+00:00'))
+                        if viewed.tzinfo is None:
+                            continue
+                        elapsed = (captured - viewed.astimezone(timezone.utc)).total_seconds()
+                    except (AttributeError, TypeError, ValueError, OverflowError):
+                        continue
+                    if not 0 <= elapsed <= 420:
+                        continue
+                    records.append({'kind': 'browser_snapshot_relation', 'value': source_url,
+                                    'matched_url': page_url,
+                                    'source_artifact_id': artifact_id, 'source_name': name,
+                                    'source_offset': url_offset, 'source_length': url_length,
+                                    'source_line': bisect.bisect_right(line_starts, url_offset),
+                                    'relation': 'inferred_same_url_time', 'ambiguity': _AMBIGUITY,
+                                    'snapshot_timestamp': captured.isoformat().replace('+00:00', 'Z'),
+                                    'snapshot_time_offset': time_offset,
+                                    'snapshot_time_length': time_length,
+                                    'browser_timestamp': viewed.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z'),
+                                    'browser_artifact_id': visit.get('source_artifact_id'),
+                                    'browser_job_id': visit.get('browser_job_id'),
+                                    'browser_source_name': visit.get('source_name'),
+                                    'browser_locator': visit.get('locator'),
+                                    'elapsed_seconds': elapsed})
 
         def location(offset, length, kind, value, relation='direct_observation', **details):
             if len(records) >= max_records:

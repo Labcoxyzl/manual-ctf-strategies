@@ -170,8 +170,20 @@ def _classical(data: bytes, max_output: int) -> list[tuple[bytes, str]]:
                 label = f"affine-decrypt:a={a},b={b}"
             ranked.append((score, value, label))
     ranked.sort(key=lambda row: (-row[0], row[2]))
-    return [(value, f"{label} (hypothesis; score={score})")
-            for score, value, label in ranked[:4]]
+    candidates = [(value, f"{label} (hypothesis; score={score})")
+                  for score, value, label in ranked[:4]]
+    words = re.findall(rb"[A-Za-z]{2,}", data)
+    if not ranked and len(data) <= 128 and original_score == 0 and (
+            any(byte >= 128 for byte in data) or len(words) >= 3):
+        # shortcut: short structured text gets all Caesar shifts; unknown affine keys need a language clue.
+        seen = {value for value, _ in candidates}
+        for shift in range(1, 26):
+            mapping = bytes((index - shift) % 26 + offset
+                            for offset in (65, 97) for index in range(26))
+            value = data.translate(bytes.maketrans(_ALPHABET, mapping))
+            if value not in seen:
+                candidates.append((value, f"caesar-shift:-{shift} (hypothesis; unranked)"))
+    return candidates
 
 
 def decode(data: bytes, max_output: int, diagnostics: list[dict] | None = None) -> list[tuple[bytes, str]]:

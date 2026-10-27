@@ -165,6 +165,25 @@ class EncodingTests(unittest.TestCase):
                             operation.startswith("affine-decrypt:a=5,b=8") for value, operation in
                             decode(source, 100)))
 
+    def test_classical_caesar_retains_spanish_prose_as_bounded_hypothesis(self):
+        source = "¡Nurg, ykñux! Bgsuy gr iglé.".encode()
+        expected = "¡Hola, señor! Vamos al café.".encode()
+        classical = [(value, operation) for value, operation in decode(source, 100)
+                     if operation.startswith(("caesar-shift:", "affine-decrypt:", "atbash "))]
+        self.assertTrue(any(value == expected and operation.startswith("caesar-shift:-6") and
+                            "hypothesis" in operation for value, operation in classical))
+        self.assertLessEqual(len(classical), 29)
+        self.assertEqual(len({value for value, _ in classical}), len(classical))
+
+    def test_classical_caesar_retains_short_ascii_non_english_prose(self):
+        source = b"Qxuj, jvrpxb! Ejvxb ju yjazdn."
+        expected = b"Hola, amigos! Vamos al parque."
+        classical = [(value, operation) for value, operation in decode(source, 100)
+                     if operation.startswith("caesar-shift:")]
+        self.assertTrue(any(value == expected and operation.startswith("caesar-shift:-9") and
+                            "hypothesis" in operation for value, operation in classical))
+        self.assertLessEqual(len(classical), 25)
+
     def test_classical_candidates_are_bounded_and_avoid_unrelated_text(self):
         for source in (b"The quick brown fox jumps over the lazy dog.",
                        b"qzxjvknpmrtsbcyglqzxjvknpmrtsbcygl"):

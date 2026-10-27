@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -35,6 +36,94 @@ class SnapshotTrailTests(unittest.TestCase):
         return {'artifact_id': name, 'source_name': name, 'path': path,
                 'sha256': hashlib.sha256(content).hexdigest(),
                 'web_records': web_records, 'identifier_records': identifier_records}
+
+    def test_browser_snapshot_relation_requires_explicit_matching_url_and_time(self):
+        from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
+
+        url = 'https://records.example.invalid/waterline/shift-c'
+        page = self.source('capture/page.html',
+                           (f'<meta name="source-url" content="{url}">'
+                            '<article data-captured="2026-04-09T14:18:22+07:00">Note</article>').encode())
+        visit = {'kind': 'browser_visit', 'source_artifact_id': 'history',
+                 'source_name': 'profiles/default/History', 'locator': 'visits id 17',
+                 'url': url, 'timestamp': '2026-04-09T07:11:22Z'}
+        rows, warnings = build_snapshot_trail([page], browser_visits=[visit])
+        self.assertEqual(warnings, [])
+        relations = [row for row in rows if row['kind'] == 'browser_snapshot_relation']
+        self.assertEqual(len(relations), 1)
+        self.assertEqual(relations[0]['elapsed_seconds'], 420)
+        self.assertEqual(relations[0]['browser_source_name'], 'profiles/default/History')
+        self.assertEqual(relations[0]['browser_locator'], 'visits id 17')
+        self.assertEqual(relations[0]['snapshot_timestamp'], '2026-04-09T07:18:22Z')
+        self.assertEqual(page['path'].read_bytes()[relations[0]['source_offset']:
+                                                     relations[0]['source_offset'] +
+                                                     relations[0]['source_length']].decode(), url)
+        for altered in ({**visit, 'url': url + '/other'},
+                        {**visit, 'url_truncated': True},
+                        {**visit, 'timestamp': '2026-04-09T07:10:21Z'},
+                        {**visit, 'timestamp': None}):
+            rows, _ = build_snapshot_trail([page], browser_visits=[altered])
+            self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
+        undated = self.source('capture/undated.html',
+                              f'<meta name="source-url" content="{url}">'.encode())
+        rows, _ = build_snapshot_trail([undated], browser_visits=[visit])
+        self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
+
+    def test_relation_currentness_requires_browser_artifact_and_job(self):
+        from scripts.autosolve_lib.core import _refresh_current
+
+        manifest = {
+            'artifacts': [{'id': artifact_id, 'depth': 0, 'complete': True, 'parents': [],
+                           'source_locator': {}, 'current': True}
+                          for artifact_id in ('history', 'snapshot')],
+            'jobs': [{'id': 'browser-job', 'adapter_id': 'os-artifact', 'status': 'complete',
+                      'tool_fingerprint': 'browser-v1', 'input_ids': ['history'],
+                      'data_fingerprints': {'sqlite_companions': None}},
+                     {'id': 'snapshot-job', 'adapter_id': 'osint-snapshots',
+                      'status': 'complete', 'tool_fingerprint': 'snapshot-v1',
+                      'input_ids': ['snapshot'], 'data_fingerprints': {'scope_origin': None}}],
+            'current_adapter_fingerprints': {'os-artifact': ['browser-v1'],
+                                             'osint-snapshots': ['snapshot-v1']},
+            'intelligence': [
+                {'artifact_id': 'snapshot', 'job_id': 'snapshot-job', 'group': 'date',
+                 'source_locator': {}, 'superseded': False},
+                {'artifact_id': 'snapshot', 'job_id': 'snapshot-job',
+                 'group': 'browser_snapshot_relation', 'superseded': False,
+                 'source_locator': {'browser_artifact_id': 'history',
+                                    'browser_job_id': 'browser-job'}}],
+            'findings': []}
+        _refresh_current(manifest, {'snapshot'})
+        self.assertTrue(manifest['intelligence'][0]['current'])
+        self.assertFalse(manifest['intelligence'][1]['current'])
+        _refresh_current(manifest, {'history', 'snapshot'})
+        self.assertTrue(manifest['intelligence'][1]['current'])
+        manifest['current_adapter_fingerprints']['os-artifact'] = ['browser-v2']
+        _refresh_current(manifest, {'history', 'snapshot'})
+        self.assertFalse(manifest['intelligence'][1]['current'])
+        self.assertTrue(manifest['intelligence'][0]['current'])
+
+    def test_escaped_canonical_url_keeps_exact_source_span(self):
+        from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
+
+        url = 'https://records.example.invalid/page?x=1&y=2'
+        raw_url = url.replace('&', '&amp;')
+        page = self.source('capture/escaped.html',
+                           (f'<link rel="canonical" href="{raw_url}">'
+                            '<article data-captured="2026-04-09T07:18:22Z">Note</article>').encode())
+        visit = {'kind': 'browser_visit', 'source_artifact_id': 'history',
+                 'source_name': 'profiles/default/History', 'locator': 'visits id 17',
+                 'url': url, 'timestamp': '2026-04-09T07:11:22Z'}
+        rows, warnings = build_snapshot_trail([page], browser_visits=[visit])
+        self.assertEqual(warnings, [])
+        relation, = [row for row in rows if row['kind'] == 'browser_snapshot_relation']
+        self.assertEqual(relation['value'], raw_url)
+        self.assertEqual(relation['matched_url'], url)
+        raw = page['path'].read_bytes()
+        self.assertEqual(raw[relation['source_offset']:
+                             relation['source_offset'] + relation['source_length']], raw_url.encode())
+        wrong = {**visit, 'url': url.replace('y=2', 'y=3')}
+        rows, _ = build_snapshot_trail([page], browser_visits=[wrong])
+        self.assertFalse(any(row['kind'] == 'browser_snapshot_relation' for row in rows))
 
     def test_multi_page_links_comments_and_document_dates_keep_original_provenance(self):
         from scripts.autosolve_lib.profiles.osint_snapshots import build_snapshot_trail
@@ -176,6 +265,34 @@ class SnapshotRunnerTests(unittest.TestCase):
                                  *map(str, args)], capture_output=True, text=True, timeout=60)
         self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
         return json.loads(result.stdout)
+
+    def test_public_cli_escaped_canonical_url_preserves_raw_locator(self):
+        site = self.root / 'site'
+        (site / 'capture').mkdir(parents=True)
+        history = site / 'History'
+        url = 'https://records.example.invalid/page?x=1&y=2'
+        source_url = url.replace('&', '&amp;')
+        with sqlite3.connect(history) as db:
+            db.execute('CREATE TABLE urls(id INTEGER PRIMARY KEY, url TEXT)')
+            db.execute('CREATE TABLE visits(id INTEGER PRIMARY KEY, url INTEGER, visit_time INTEGER)')
+            db.execute('INSERT INTO urls VALUES (?, ?)', (7, url))
+            db.execute('INSERT INTO visits VALUES (?, ?, ?)', (17, 7, 13253760000000000))
+        page = site / 'capture' / 'page.html'
+        page.write_text(f'<link rel="canonical" href="{source_url}">'
+                        '<article data-captured="2020-12-30T00:05:00Z">Note</article>')
+        run = Path(self.cli('analyze', site, '--category', 'auto', '--budget', 30,
+                            '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        relation, = [row for row in manifest['intelligence']
+                     if row['group'] == 'browser_snapshot_relation' and row['current']]
+        locator = relation['source_locator']
+        self.assertEqual(locator['source_value'], source_url)
+        self.assertEqual(locator['matched_url'], url)
+        self.assertEqual(page.read_bytes()[locator['byte_offset']:
+                                           locator['byte_offset'] + locator['byte_length']],
+                         source_url.encode())
+        self.assertIn('same HTML-decoded URL ' + url, relation['value'])
+        self.assertIn('browser_snapshot_relation', (run / 'report.md').read_text())
 
     def test_public_cli_directory_resume_and_source_retirement(self):
         site = self.root / 'site'

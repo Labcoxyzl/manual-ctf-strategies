@@ -47,8 +47,23 @@ Commit `35020b4` is published. The fourth snapshot added reviewed encrypted
 AV06 frame timing and Java no-perfdata changes. It passed 652 CPython 3.12
 autosolve tests (20 optional skipped), nine copied-export tests and the full
 pre-push gate (711 passed, 37 optional skipped); commit `82190b4` is published.
-The next snapshot covers raw-ext4 routing, OS01 interpretation, bounded report
-locators and the encrypted-7z doctor probe; its full gate is pending.
+The fifth snapshot covers raw-ext4 routing, OS01 interpretation, bounded report
+locators and the encrypted-7z doctor probe. Its focused Python 3.12 run passed
+142 tests (five optional skips), the copied-export gate passed nine tests, and
+the repository pre-push gate passed 724 tests (37 optional skips, 348 subtests).
+Commit `11d4168` is published and its remote hash was verified. A concurrent
+full Python 3.12 run had two 15-second CLI timeouts and one process-group
+timing assertion; all three passed on a focused rerun. This remains a
+load-sensitive test observation, not a clean full Python 3.12 pass.
+
+The sixth isolated snapshot adds the reviewed OS02 deadline distinction,
+SSTV-to-OCR clue chain, bounded answer schema, explicit browser-to-snapshot
+relation, compressed/raw TAR lineage, non-English Caesar hypotheses, and
+YARA source offsets. Its focused Python 3.12 integration run passed 187 tests
+(three optional skips), the copied-export gate passed nine tests, and the full
+Python 3.12 autosolve suite passed 695 tests (20 optional skips). A further
+22 OS artifact/snapshot tests passed after the long-browser-URL comparison
+guard. The repository pre-push gate remains the publication condition.
 
 ## Independent end-to-end evidence
 
@@ -113,19 +128,33 @@ partial: 40 of 53 operations ready. Evidence stays in the corresponding
 Later fresh transfers recovered a second OS01/OS03 conflict case with bounded
 readable provenance and a raw-ext4 deleted file byte-for-byte after routing
 repair. NET05 TLS-keylog cases, DF01 targeted files and DF04 WAL rows also
-matched independent oracles. DF03 Firefox records remain unsupported; the
-remaining X04/X05/X07/X08 and F01–F12 ledgers are in progress. AIC02 selected
-offline cases passed, while two frozen AIC01 protocols are rejected by the
-published chatbot schema before network use.
+matched independent oracles. DF03 Firefox records remain unsupported in the
+sixth published branch; the
+X04/X05/X07/X08 and F01–F12 frozen ledgers are recorded. AIC02 selected
+offline cases passed. Current shared-code AIC01 checker repairs passed local
+GET/POST verifier transfers, but are reserved for a later publication batch.
+A separate official
+pwn.college babyrop handout matched static `win`/gadget/mitigation observations
+and bounded service replay; autosolve did not synthesize the exploit or claim
+challenge acceptance. Detailed publisher exploit notes remain local.
+
+The sixth-branch evidence matrix credits 47 of 57 rows with four observed
+narrow case slots and 94 of 114 first-use held-out slots. Current shared work
+provisionally reaches 49/57 and 98/114 with AIC01 and REV02, pending their
+separate publication gate. These counts do not establish family-wide or release
+acceptance. Fresh X04 and X08 transfers recovered exact sourced outputs; X05
+joined a recovered browser visit to a supplied snapshot by exact URL/time,
+with mismatched and stale sources withheld and zero network requests.
 
 ## Remaining order
 
-1. Verify and publish the isolated raw-ext4/OSINT-report/7z-doctor snapshot.
-   Resolve confirmed gaps from the remaining cross-category, failure, AI and
-   document/audio held-outs without changing their frozen oracles.
+1. Publish the sixth isolated checkpoint through the repository gate, then
+   integrate the reviewed AIC01 checker and REV02 XOR-string repairs. Preserve
+   all frozen failures as regressions and use fresh transfers after fixes.
 2. Freeze and execute each baseline row's positive, two independent held-out
-   variations and negative controls. The source audit found no complete
-   57-row transfer ledger; local tests alone do not satisfy this gate.
+   variations and negative controls. AV06, DF03, DF05, REV05, REV07, REV11,
+   CAN02 and AIC02 still lack complete narrow case-slot evidence; local tests
+   alone do not satisfy their gates.
 3. Complete the cross-category and failure cases, approved-engine discovery
    in a clean copied export, and the three-publisher diversity requirement.
    Keep release status partial until all required evidence passes.
@@ -136,5 +165,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; four tested commits are published and the next repair set is under
-its isolated gate.
+pushes; five tested commits are published and the sixth repair set is under
+its isolated publication gate.

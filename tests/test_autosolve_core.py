@@ -313,6 +313,40 @@ int main(int argc, char **argv) {
                                 for a in manifest['artifacts']))
             self.assertEqual(manifest['coverage']['ENC03']['status'], 'ran')
 
+    def test_unranked_classical_candidates_do_not_expand_recursively(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'cipher.txt'
+            source.write_bytes('¡Nurg, ykñux! Bgsuy gr iglé.'.encode())
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            children = [a for a in manifest['artifacts'] if a['depth'] > 0]
+            self.assertEqual(len(children), 25)
+            self.assertTrue(any(Path(a['path']).read_bytes() == '¡Hola, señor! Vamos al café.'.encode()
+                                and a['parents'][0]['operation'].startswith('caesar-shift:-6')
+                                for a in children))
+            self.assertTrue(all(a['depth'] == 1 for a in children))
+            self.assertFalse(any(f['state'] == 'accepted' for f in manifest['findings']))
+            self.run_cli('resume', run, '--budget', 30, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len(resumed['artifacts']), len(manifest['artifacts']))
+            self.assertEqual(len(resumed['jobs']), len(manifest['jobs']))
+            self.assertFalse(any(f['state'] == 'accepted' for f in resumed['findings']))
+
+    def test_plain_prose_rot13_child_does_not_spawn_unranked_caesar_set(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'ordinary.txt'
+            source.write_bytes(b'The ordinary report describes a meeting at noon; no cipher was applied.')
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertLessEqual(len(manifest['artifacts']), 5)
+            self.assertFalse(any(edge['operation'].endswith('(hypothesis; unranked)')
+                                 for item in manifest['artifacts'] for edge in item['parents']))
+            self.assertFalse(any(f['state'] == 'accepted' for f in manifest['findings']))
+
     def test_directory_privacy_and_shared_lineage_on_resume(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

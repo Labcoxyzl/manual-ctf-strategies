@@ -188,9 +188,24 @@ def decode_sstv(path: Path, output_dir: Path, *, timeout: float,
         if duration < 1:
             return [], ["SSTV recording too short for a supported transmission"]
 
+        padding_ms = 0
         log, warning = _invoke([shutil.which(SSTV), "-d", str(wav), "-o", str(png)],
                                deadline, min(max_bytes, MAX_IMAGE_BYTES), supervised,
                                terminal=True)
+        if not warning and b"Reached end of audio whilst decoding" in log:
+            progress = re.findall(rb"\]\s+(\d+)%\r", log.split(b"Reached end of audio whilst decoding")[0])
+            if progress and int(progress[-1]) >= 99:
+                # A 5 ms lookahead lets the final FFT finish without filling a missing scan.
+                padding_ms = 5
+                padded = Path(scratch) / "padded.wav"
+                with wave.open(str(wav), "rb") as source, wave.open(str(padded), "wb") as target:
+                    target.setparams(source.getparams())
+                    target.writeframes(source.readframes(source.getnframes()) +
+                                       b"\0\0" * round(source.getframerate() * padding_ms / 1000))
+                png.unlink(missing_ok=True)
+                log, warning = _invoke([shutil.which(SSTV), "-d", str(padded), "-o", str(png)],
+                                       deadline, min(max_bytes, MAX_IMAGE_BYTES), supervised,
+                                       terminal=True)
         decoded = log.decode("utf-8", "replace")
         if warning:
             return [], [f"SSTV decoder: {warning}"]
@@ -221,4 +236,5 @@ def decode_sstv(path: Path, output_dir: Path, *, timeout: float,
                  "start_seconds": 0.0, "end_seconds": duration,
                  "time_basis": "whole recording; decoder does not expose exact header time",
                  "locator": f"{mode.group(1)} VIS, recording 0-{duration:.3f}s",
-                 "media_type": "image/png", "width": width, "height": height}], []
+                 "media_type": "image/png", "width": width, "height": height,
+                 "tail_uncertain": bool(padding_ms), "decoder_padding_ms": padding_ms}], []
