@@ -180,10 +180,14 @@ writes, and eleven adverse controls behaved as expected. AIC01/AIC02,
 CryptoHack RSA/XOR, encrypted PyInstaller and two official ret2win handouts
 matched independent local oracles without platform acceptance claims.
 
-The next isolated worktree repairs DOC02 leading-signature corruption and
-reports omitted candidate counts. Both repairs have focused tests and
-independent review; combined release gates remain pending. PWN03 local offset
-discovery is under separate review.
+The fifteenth candidate repairs DOC02 leading-signature corruption, reports
+how many unverified findings exceed the report display limit, and adds opt-in
+PWN03 local crash-offset discovery from GDB evidence with controlled replay.
+Both pinned ROP Emporium and pwn.college handouts yielded independently known
+offset 40 with negative controls; this is local replay, not platform
+acceptance. The deterministic Offline kit now contains 250 verified files.
+The DOC02 full named row passed 11/11 on the isolated fix; combined full-suite,
+rootless and frozen release gates remain pending on the integrated candidate.
 
 ## Independent end-to-end evidence
 
