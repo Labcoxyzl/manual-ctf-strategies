@@ -153,22 +153,37 @@ directory and ZIP rootless gates and 15 representative measurements passed.
 
 Four published-tenth row batches replayed 82 frozen cases: 80 narrow passes,
 with ENC01 Base85 and ENC05 no-crib H2 excluded. A fifth batch on the
-thirteenth commit passed 20/20 more narrow cases. IMG01, ENC02 and DOC01 also
-passed their complete named row contracts on their pinned published commits;
-CAN02 passed a further full named DBC/ARXML row. The other 53 rows remain
-unproved at that level. DOC02 remains partial after a full-row transfer found
-encrypted ZIP corruption reported as a wrong password; a reviewed local
-repair now distinguishes corrupt headers and withholds unverified decrypted
-members.
+thirteenth commit passed 20/20 more narrow cases. IMG01, ENC02, DOC01 and
+CAN02 passed their complete named row contracts on pinned published commits.
+AV03 later passed its eight-case named row, including Morse, AFSK and negative
+controls; IMG02 passed its nine-case named row under its explicitly partial
+contract, with four truncated runs and 873 unverified candidates on one public
+image. DOC02 passed 11/11 only on the isolated post-fourteenth repair; the
+other 50 rows remain unproved at named-row depth.
 
-The next isolated checkpoint adds an authored AV03 Morse/AFSK doctor probe,
-an opt-in hash-locked AI CPU environment whose four Torch gradient tests
-passed in a clean copied export, and a separate wheel-only angr checker
-environment. Two tiny source-only checker dependencies were reviewed and
-vendored as hash-verified wheels so user setup does not run their build code;
-seven public checker cases passed from the copied environment. The tracked
-Offline kit must be regenerated for those source changes and the DOC02
-repair. Combined full-suite, rootless and frozen release gates remain pending.
+The fourteenth checkpoint adds an authored AV03 Morse/AFSK doctor probe, an
+opt-in hash-locked AI CPU environment, a separate wheel-only angr checker
+environment and encrypted-ZIP corruption classification before decrypted
+children are published. Two tiny source-only checker dependencies were reviewed
+and vendored as hash-verified wheels so user setup does not run their build code.
+The deterministic README-linked Offline kit contains 248 verified files. Its
+quiet Python 3.12 suite passed 817 tests (24 optional skipped) after an initial
+15-second JPEG timeout; the timed-out case passed in isolation. The repository
+pre-push gate passed 893 tests (44 optional skipped, 513
+subtests). Commit `1858634` is published and its remote hash was verified.
+On that exact candidate, the all-domain gate passed 22/22 with all selected
+families `ran`, X/F passed 20/20, and 15 representative measurements passed
+with zero validated false solutions in two classified negatives. Fresh copied
+directory and ZIP setup passed core 30/30; opt-in AI CPU 39/39 and checker
+65/65 passed functional probes. Traced optional installs made zero outside-task
+writes, and eleven adverse controls behaved as expected. AIC01/AIC02,
+CryptoHack RSA/XOR, encrypted PyInstaller and two official ret2win handouts
+matched independent local oracles without platform acceptance claims.
+
+The next isolated worktree repairs DOC02 leading-signature corruption and
+reports omitted candidate counts. Both repairs have focused tests and
+independent review; combined release gates remain pending. PWN03 local offset
+discovery is under separate review.
 
 ## Independent end-to-end evidence
 
