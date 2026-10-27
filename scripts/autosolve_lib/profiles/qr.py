@@ -13,10 +13,10 @@ MAX_FRAMES = 8
 def _decoder():
     try:
         import zxingcpp
-    except ImportError:
+    except (ImportError, OSError):
         try:
             from pyzbar.pyzbar import decode
-        except ImportError:
+        except (ImportError, OSError):
             return None, None
         return "pyzbar", decode
     return "zxingcpp", zxingcpp.read_barcodes

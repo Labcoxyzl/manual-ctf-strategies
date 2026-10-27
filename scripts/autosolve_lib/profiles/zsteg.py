@@ -14,7 +14,7 @@ from pathlib import Path
 
 ZSTEG = (shutil.which(os.environ.get("AUTOSOLVE_ZSTEG", "zsteg"))
          or os.environ.get("AUTOSOLVE_ZSTEG") or "zsteg")
-_SELECTOR = re.compile(rb"^((?:b1|b2)p?,[A-Za-z0-9,]+)\s+\.\.\s+(text|file|zlib):\s+(.+)$")
+_SELECTOR = re.compile(rb"^((?:b1|b2|b10)p?,[A-Za-z0-9,]+)\s+\.\.\s+(text|file|zlib):\s+(.+)$")
 _CHANNELS = "r,g,b,a,rgb,bgr,rgba,abgr"
 _ORDERS = "xy,yx,XY,YX"
 _MAX_SCAN_OUTPUT = 1024 * 1024
@@ -94,7 +94,7 @@ def inspect_lsb(path: Path, output_dir: Path, *, max_pixels: int,
 
     deadline = time.monotonic() + timeout
     source = str(path.resolve())
-    scan, warning = _run([ZSTEG, "-b", "1-2", "-c", _CHANNELS, "-o", _ORDERS,
+    scan, warning = _run([ZSTEG, "-b", "1-2,0x02", "-c", _CHANNELS, "-o", _ORDERS,
                           "-l", "256", "--no-color", source],
                          deadline, _MAX_SCAN_OUTPUT, supervised)
     warnings = [warning] if warning else []

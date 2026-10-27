@@ -1,13 +1,18 @@
 import base64
 import hashlib
 import hmac
+from importlib import metadata
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
+import venv
+import zipfile
+from unittest.mock import patch
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -34,6 +39,111 @@ class JwtProfileTests(unittest.TestCase):
                                 capture_output=True, text=True, timeout=45)
         self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
         return json.loads(result.stdout)
+
+    def test_public_cli_missing_optional_crypto_skips_jwt_and_keeps_derived_text(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            clean_env = root / 'minimal-venv'
+            venv.EnvBuilder(with_pip=False).create(clean_env)
+            python = clean_env / 'bin' / 'python'
+            source = root / 'sample.zip'
+            with zipfile.ZipFile(source, 'w') as archive:
+                archive.writestr('clue.txt', b'FLAG{unrelated_text_survives}\n')
+            result = subprocess.run(
+                [str(python), '-B', str(SCRIPT), '--json', 'analyze', str(source),
+                 '--category', 'auto', '--budget', '15', '--runs-root', str(root / 'runs')],
+                capture_output=True, text=True, timeout=30,
+                env={**os.environ, 'PYTHONPATH': ''})
+            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+            answer = json.loads(result.stdout)
+            run = Path(answer['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue((run / 'report.md').is_file())
+            self.assertEqual(manifest['coverage']['WEB04']['status'], 'skipped prerequisite')
+            self.assertTrue(any(job['adapter_id'] == 'jwt' and
+                                job['status'] == 'skipped prerequisite'
+                                for job in manifest['jobs']))
+            self.assertTrue(any(item['depth'] == 1 and item['complete'] and item['current']
+                                and Path(item['path']).read_bytes() ==
+                                b'FLAG{unrelated_text_survives}\n'
+                                for item in manifest['artifacts']))
+            resumed = self._cli('resume', run, '--budget', '15')
+            self.assertEqual(Path(resumed['run']), run)
+            manifest = json.loads((run / 'manifest.json').read_text())
+            jwt_jobs = [job for job in manifest['jobs'] if job['adapter_id'] == 'jwt']
+            skipped = [job for job in jwt_jobs if job['status'] == 'skipped prerequisite']
+            completed = [job for job in jwt_jobs if job['status'] == 'complete']
+            self.assertTrue(skipped)
+            self.assertEqual({tuple(job['input_ids']) for job in skipped},
+                             {tuple(job['input_ids']) for job in completed})
+            self.assertTrue({job['tool_fingerprint'] for job in skipped}.isdisjoint(
+                            {job['tool_fingerprint'] for job in completed}))
+
+    def test_unrelated_jwt_import_failure_remains_failed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = Path(temporary)
+            source = run / 'source.txt'
+            source.write_bytes(b'ordinary text')
+            artifact = {'id': 'source', 'path': str(source),
+                        'sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+            manifest = {'jobs': [], 'intelligence': [], 'warnings': [],
+                        'coverage': {'WEB04': {'status': 'planned'}}}
+            error = ModuleNotFoundError("No module named 'broken_parser'", name='broken_parser')
+            with patch.object(core.importlib, 'import_module', side_effect=error):
+                core._jwt_job(run, manifest, artifact, [], [], None, time.monotonic() + 4)
+            self.assertEqual(manifest['jobs'][0]['status'], 'failed')
+            self.assertEqual(manifest['coverage']['WEB04']['status'], 'failed')
+
+    def test_public_cli_verified_jwt_becomes_historical_without_crypto_on_resume(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            secret = b'jwt-engine-identity-key'
+            token = compact({'alg': 'HS256'}, {'sub': 'engine-check'},
+                            lambda data: hmac.digest(secret, data, hashlib.sha256))
+            source = root / 'auth.txt'
+            source.write_bytes(token)
+            (root / 'key.bin').write_bytes(secret)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'key_files': ['key.bin'],
+                                         'jwt_keys': [{'alg': 'HS256', 'key_file_index': 0}]}))
+            run = Path(self._cli('analyze', source, '--category', 'web', '--hints', hints,
+                                 '--budget', '10', '--runs-root', root / 'runs')['run'])
+            before = json.loads((run / 'manifest.json').read_text())
+            verified = next(job for job in before['jobs'] if job['adapter_id'] == 'jwt'
+                            and job['status'] == 'complete')
+            self.assertTrue(any(row['job_id'] == verified['id'] and row['current']
+                                for row in before['intelligence']))
+
+            clean_env = root / 'minimal-venv'
+            venv.EnvBuilder(with_pip=False).create(clean_env)
+            result = subprocess.run(
+                [str(clean_env / 'bin' / 'python'), '-B', str(SCRIPT), '--json',
+                 'resume', str(run), '--hints', str(hints), '--budget', '10'],
+                capture_output=True, text=True, timeout=30,
+                env={**os.environ, 'PYTHONPATH': ''})
+            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+            json.loads(result.stdout)
+            after = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(after['coverage']['WEB04']['status'], 'skipped prerequisite')
+            self.assertEqual(next(job for job in after['jobs'] if job['id'] == verified['id'])['status'],
+                             'complete')
+            self.assertFalse(any(row['job_id'] == verified['id'] and row['current']
+                                 for row in after['intelligence']))
+            self.assertTrue(any(job['adapter_id'] == 'jwt' and
+                                job['status'] == 'skipped prerequisite' and
+                                job['tool_fingerprint'] != verified['tool_fingerprint']
+                                for job in after['jobs']))
+            self.assertNotIn('signature locally verified', (run / 'report.md').read_text())
+
+    def test_jwt_fingerprint_tracks_crypto_version_and_runtime_readiness(self):
+        ready = core._jwt_fingerprint()
+        original_version = metadata.version
+        with patch.object(metadata, 'version', side_effect=lambda name:
+                          '999.0' if name == 'cryptography' else original_version(name)):
+            self.assertNotEqual(core._jwt_fingerprint(), ready)
+        missing = ModuleNotFoundError("No module named 'cryptography'", name='cryptography')
+        with patch.object(core.importlib, 'import_module', side_effect=missing):
+            self.assertNotEqual(core._jwt_fingerprint(), ready)
 
     def test_hs_token_found_at_exact_byte_offset_and_word_index_without_secret_disclosure(self):
         secret = b'held-out-secret-47'

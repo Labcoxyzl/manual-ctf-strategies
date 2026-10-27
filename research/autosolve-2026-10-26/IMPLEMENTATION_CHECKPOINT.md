@@ -40,6 +40,12 @@ optional skipped), nine copied-export distribution tests and the repository's
 full pre-push gate (695 passed, 35 optional skipped). Commit `f34b805` is on
 the same remote progress branch.
 
+The reviewed NET02 wire-completeness repair passed its isolated copied-export
+gate and the repository's pre-push gate (699 passed, 35 optional skipped).
+Commit `35020b4` is published. The next snapshot adds reviewed encrypted 7z,
+IMG02 bit-plane, IMG05 DataMatrix readiness, JWT optional-engine identity,
+AV06 frame timing and Java no-perfdata changes; its full gate is pending.
+
 ## Independent end-to-end evidence
 
 - A local ret2win ELF/service has an independently replayed exploit oracle.
@@ -85,16 +91,26 @@ URLs; the original strict result remains 3/4 and a newly frozen correctly
 scoped case passed. The first NET01/02/03 and CAN01/02 ledger met 19 of 20
 row/case slots. A later reviewed NET02 repair passed two freshly sealed
 out-of-order and chunked/gzip transfers with byte-exact, wire-verified bodies;
-missing and conflicting TCP data stayed withheld. It is pending the next
-publication gate. NET01 still labels the reordered capture `truncated`.
+missing and conflicting TCP data stayed withheld. NET01 still labels the
+reordered capture `truncated`.
 These are local/public-corpus observations, not the complete 57-row acceptance
 gate or a competition solve-rate measurement.
 
+Further frozen evidence includes 17/17 AV01–AV04 checks, AV06 QR/frame/subtitle
+transfers, exact IMG02 bit-plane and DataMatrix results, exact encrypted 7z
+with wrong-password controls, 157/157 OSINT checks, and 71/71 checks on four
+cross-category chains. A copied export installed the 24 hash-pinned core
+packages; direct Java launcher flags removed all six observed outside-task
+perfdata writes in a fresh trace. Its untraced all-profile doctor remains
+partial: 40 of 53 operations ready. Evidence stays in the corresponding
+`/tmp/autosolve-heldout-*`, `/tmp/autosolve-cross-chain-20261027/` and
+`/tmp/autosolve-java-writecheck-20261027/` directories.
+
 ## Remaining order
 
-1. Publish the reviewed NET02 repair after its isolated copied-export and
-   repository gates. Execute the already frozen audio/video and image/document
-   transfer cases and repair any concrete gaps they expose.
+1. Freeze and verify the next 7z/image/media/JWT/Java snapshot in the isolated
+   branch, then publish it after copied-export and repository gates. Finish
+   the raw-ext4 DF02 and OSINT report repairs found by independent cases.
 2. Freeze and execute each baseline row's positive, two independent held-out
    variations and negative controls. The source audit found no complete
    57-row transfer ledger; local tests alone do not satisfy this gate.
@@ -108,5 +124,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; two tested commits are published and the NET02 repair is under its
-next isolated gate.
+pushes; three tested commits are published and the next repair set is under
+its isolated gate.

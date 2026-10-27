@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import random
 import shutil
 import subprocess
 import sys
@@ -18,7 +19,8 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts/autosolve.py"
 
 
 def carrier(path: Path, payload: bytes, *, bits: int, channels: str,
-            traversal: str = "xy", mode: str = "RGB", bit_order: str = "lsb") -> None:
+            traversal: str = "xy", mode: str = "RGB", bit_order: str = "lsb",
+            bit_offset: int = 0) -> None:
     width, height = 17, 16
     names = "RGBA" if mode == "RGBA" else "RGB"
     pixels = [[32, 96, 160, 224][:len(names)] for _ in range(width * height)]
@@ -36,7 +38,8 @@ def carrier(path: Path, payload: bytes, *, bits: int, channels: str,
                 value = (value << 1) | (bits_in[cursor] if cursor < len(bits_in) else 0)
                 cursor += 1
             index = names.index(channel)
-            pixels[y * width + x][index] = (pixels[y * width + x][index] & ~((1 << bits) - 1)) | value
+            mask = ((1 << bits) - 1) << bit_offset
+            pixels[y * width + x][index] = (pixels[y * width + x][index] & ~mask) | (value << bit_offset)
     image = Image.new(mode, (width, height))
     image.putdata([tuple(pixel) for pixel in pixels])
     image.save(path)
@@ -94,6 +97,34 @@ class ZstegTests(unittest.TestCase):
         records, warnings = self.inspect(clean, "clean-staged")
         self.assertEqual(records, [], warnings)
 
+    def test_blue_second_plane_bmp_extracts_exact_candidate(self):
+        source = self.root / "blue-second-plane.bmp"
+        payload = b"SECOND-PLANE-ORACLE\n"
+        carrier(source, payload, bits=1, channels="b", bit_offset=1)
+        records, warnings = self.inspect(source, "blue-second-plane-staged")
+        selected = [row for row in records if row["selector"] == "b10,b,lsb,xy"]
+        self.assertEqual(len(selected), 1, (records, warnings))
+        self.assertEqual(selected[0]["path"].read_bytes(), payload)
+        self.assertEqual(selected[0]["source"], str(source.resolve()))
+        self._cli_case("bmp", payload, 1, "b", "b10,b,lsb,xy", bit_offset=1)
+
+    def test_noisy_second_plane_is_never_validated(self):
+        source = self.root / "noise.bmp"
+        generator = random.Random(20261027)
+        image = Image.new("RGB", (17, 16))
+        image.putdata([tuple(generator.randrange(256) for _ in range(3)) for _ in range(272)])
+        image.save(source)
+        result = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
+             "--category", "images", "--budget", "30", "--runs-root", str(self.root / "runs-noise")],
+            capture_output=True, timeout=35)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        manifest = json.loads((Path(json.loads(result.stdout)["run"]) / "manifest.json").read_text())
+        self.assertFalse(any(finding["state"] == "challenge_accepted"
+                             for finding in manifest["findings"]))
+        self.assertFalse(any(Path(item["path"]).read_bytes().startswith(b"SECOND-PLANE-ORACLE")
+                             for item in manifest["artifacts"] if item["id"] != manifest["artifacts"][0]["id"]))
+
     def test_limits_missing_tool_and_separate_staging(self):
         source = self.root / "small.png"
         carrier(source, b"BOUNDARY-ORACLE\n", bits=1, channels="r")
@@ -144,9 +175,9 @@ class ZstegTests(unittest.TestCase):
         with self.subTest(format="BMP"):
             self._cli_case("bmp", b"CLI-BGR-ORACLE\n", 2, "bgr", "b2,bgr,lsb,xy")
 
-    def _cli_case(self, suffix, payload, bits, channels, selector):
+    def _cli_case(self, suffix, payload, bits, channels, selector, bit_offset=0):
         source = self.root / f"cli-{suffix}.{suffix}"
-        carrier(source, payload, bits=bits, channels=channels)
+        carrier(source, payload, bits=bits, channels=channels, bit_offset=bit_offset)
         before = source.read_bytes()
         command = [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(source),
                    "--category", "images", "--budget", "30", "--runs-root",

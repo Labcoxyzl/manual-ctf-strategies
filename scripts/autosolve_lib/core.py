@@ -447,7 +447,8 @@ def _kind(path):
             return 'pe'
     if re.fullmatch(rb'dex\n0(?:3[5-9]|4[01])\x00', head[:8]):
         return 'dex'
-    signatures = ((b'PK\x03\x04', 'zip'), (b'\x1f\x8b', 'gzip'),
+    signatures = ((b'PK\x03\x04', 'zip'), (b'7z\xbc\xaf\x27\x1c', '7z'),
+                  (b'\x1f\x8b', 'gzip'),
                   (b'\x89PNG\r\n\x1a\n', 'png'), (b'BM', 'bmp'), (b'%PDF-', 'pdf'),
                   (b'SQLite format 3\x00', 'sqlite'),
                   (b'regf', 'registry'), (b'ElfFile\x00', 'evtx'),
@@ -646,7 +647,7 @@ def _refresh_current(manifest, source_ids):
         job = valid_producers.get(artifact['id'], {}).get(edge.get('job_key'))
         if edge['id'] not in current or job is None:
             return False
-        if (job['adapter_id'] in ('zip', 'stegseek') and
+        if (job['adapter_id'] in ('zip', '7z', 'stegseek') and
                 job.get('data_fingerprints', {}).get('password_file') != current_password):
             return False
         if (job['adapter_id'] == 'sqlite' and
@@ -1047,6 +1048,42 @@ def _run_zip(path, staging, max_members, max_bytes, passwords, timeout):
     try:
         if not parent.poll(timeout):
             raise TimeoutError('ZIP extraction exceeded its time limit')
+        result = parent.recv()
+        if result[0] != 'ok':
+            raise RuntimeError(result[1])
+        return result[1], result[2]
+    finally:
+        _stop_worker(worker)
+        parent.close()
+
+
+def _sevenzip_worker(path, staging, max_members, max_bytes, passwords, executable, pipe):
+    from .profiles.sevenzip import extract_7z
+    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+    resource.setrlimit(resource.RLIMIT_AS, (768 * 1024 * 1024, 768 * 1024 * 1024))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (MAX_DERIVED, MAX_DERIVED))
+    try:
+        records, warnings = extract_7z(path, staging, max_members=max_members,
+                                        max_total_bytes=max_bytes, max_member_bytes=MAX_CHILD,
+                                        passwords=passwords, executable=executable)
+        pipe.send(('ok', records, warnings))
+    except Exception as error:
+        pipe.send(('error', f'{type(error).__name__}: {error}'))
+    finally:
+        pipe.close()
+
+
+def _run_sevenzip(path, staging, max_members, max_bytes, passwords, executable, timeout):
+    import multiprocessing
+    parent, child = multiprocessing.Pipe(duplex=False)
+    worker = multiprocessing.Process(target=_worker_entry,
+                                     args=(_sevenzip_worker, path, staging, max_members,
+                                           max_bytes, passwords, executable, child))
+    worker.start()
+    child.close()
+    try:
+        if not parent.poll(timeout):
+            raise TimeoutError('7z extraction exceeded its time limit')
         result = parent.recv()
         if result[0] != 'ok':
             raise RuntimeError(result[1])
@@ -3405,7 +3442,7 @@ def _doc01_coverage(manifest, status):
     entry = manifest['coverage']['DOC01']
     if priority[status] > priority.get(entry['status'], 0):
         entry['status'] = status
-    entry['note'] = 'bounded safe ZIP/TAR members and gzip containers'
+    entry['note'] = 'bounded safe ZIP/7z/TAR members and gzip containers'
 
 
 def _tar_job(run, manifest, artifact, deadline):
@@ -5226,9 +5263,8 @@ def _web_static_job(run, manifest, artifact, origin, deadline):
 
 
 def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
-    from .profiles import jwt
     path = Path(artifact['path'])
-    fingerprint = hashlib.sha256(Path(jwt.__file__).read_bytes()).hexdigest()
+    fingerprint = _jwt_fingerprint()
     key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:jwt.v1:"
                           f"{fingerprint}:{hint_hash}".encode()).hexdigest()
     old = next((job for job in manifest['jobs'] if job['key'] == key and
@@ -5263,6 +5299,7 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
         _write_json(run / 'manifest.json', manifest)
         status, warnings = 'no finding', []
         try:
+            importlib.import_module('.profiles.jwt', __package__)
             records, warnings = _run_jwt(path, keys, words, min(4, max(.01, deadline - time.monotonic())))
             if _hash(path, deadline) != artifact['sha256']:
                 raise RuntimeError('JWT source changed before inspection publication')
@@ -5294,10 +5331,16 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            job['status'] = 'failed'
-            job['warning'] = f'{type(error).__name__}: {error}'
-            manifest['warnings'].append(f"JWT job failed: {type(error).__name__}")
-            status = 'failed'
+            if (isinstance(error, ModuleNotFoundError) and error.name and
+                    (error.name == 'cryptography' or error.name.startswith('cryptography.'))):
+                job['status'] = status = 'skipped prerequisite'
+                job['warning'] = 'cryptography unavailable'
+                manifest['warnings'].append('WEB04 skipped prerequisite: cryptography unavailable')
+            else:
+                job['status'] = 'failed'
+                job['warning'] = f'{type(error).__name__}: {error}'
+                manifest['warnings'].append(f"JWT job failed: {type(error).__name__}")
+                status = 'failed'
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
@@ -5305,9 +5348,12 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
     if coverage:
         previous = coverage['status']
         coverage['status'] = ('failed' if status == 'failed' else
+                              'skipped prerequisite' if status == 'skipped prerequisite' else
                               'truncated' if status == 'truncated' or previous == 'truncated' else
                               'ran' if status == 'ran' or previous == 'ran' else status)
-        coverage['note'] = 'offline JWT/JWS only; claims are untrusted and local signatures do not prove server acceptance'
+        coverage['note'] = ('cryptography required for offline JWT/JWS inspection'
+                            if coverage['status'] == 'skipped prerequisite' else
+                            'offline JWT/JWS only; claims are untrusted and local signatures do not prove server acceptance')
 
 
 def _osint_snapshot_job(run, manifest, deadline):
@@ -5940,6 +5986,16 @@ def _cryptography_fingerprint(profile):
                            ':cryptography=' + version).encode()).hexdigest()
 
 
+def _jwt_fingerprint():
+    package = _cryptography_fingerprint('jwt')
+    try:
+        importlib.import_module('.profiles.jwt', __package__)
+        runtime = 'ready'
+    except Exception as error:
+        runtime = f'{type(error).__name__}:{getattr(error, "name", "")}'
+    return hashlib.sha256(f'{package}:{runtime}'.encode()).hexdigest()
+
+
 def _qr_fingerprint():
     from importlib import metadata
     from .profiles import qr
@@ -6154,6 +6210,8 @@ def _current_adapter_fingerprints(deadline):
     java = shutil.which('java')
     javap_hash = executable_hash(Path(javap).resolve() if javap else None)
     java_runtime_hash = executable_hash(Path(java).resolve() if java else None)
+    sevenzip = shutil.which('7z') or shutil.which('7zz')
+    sevenzip_hash = executable_hash(Path(sevenzip).resolve() if sevenzip else None)
     try:
         from importlib.metadata import PackageNotFoundError, version
         angr_version = version('angr')
@@ -6167,6 +6225,7 @@ def _current_adapter_fingerprints(deadline):
         'aes-declared': [_cryptography_fingerprint('symmetric')],
         'password-hashes': [module_hash('passwords')],
         'zip': [module_hash('documents')],
+        '7z': [hashlib.sha256(f"{module_hash('sevenzip')}:{sevenzip_hash}".encode()).hexdigest()],
         'tar': [module_hash('tar')],
         'mime': [module_hash('mime')],
         'pdf': [module_hash('pdf')],
@@ -6184,7 +6243,7 @@ def _current_adapter_fingerprints(deadline):
         'sqlite': [hashlib.sha256(f'{sqlite_hash}:{sqlite3.sqlite_version}'.encode()).hexdigest()],
         'os-artifact': [_os_artifact_fingerprint()],
         'web-static': [module_hash('web_static')],
-        'jwt': [module_hash('jwt')],
+        'jwt': [_jwt_fingerprint()],
         'osint-snapshots': [hashlib.sha256(':'.join(module_hash(name) for name in
                             ('osint_snapshots', 'web_static', 'osint_ids')).encode()).hexdigest()],
         'disk': [hashlib.sha256(f'{disk_hash}:{disk_tools}'.encode()).hexdigest()],
@@ -6307,6 +6366,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
     from .profiles.encoding import decode
     from .profiles.xor import recover_repeating_key, recover_single_byte
     from .profiles.documents import extract_zip
+    from .profiles.sevenzip import extract_7z
     from .profiles.images import extract_image_tail
     from .profiles.mime import parse_mime
     from .profiles.pdf import extract_pdf
@@ -6443,7 +6503,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 'riff': 'audio_video', 'flac': 'audio_video', 'ogg': 'audio_video',
                 'mp4': 'audio_video', 'matroska': 'audio_video', 'mp3': 'audio_video',
                 'png': 'images', 'bmp': 'images', 'jpeg': 'images', 'gif': 'images', 'tiff': 'images',
-                'zip': 'documents', 'dex': 'malware_reversing',
+                'zip': 'documents', '7z': 'documents', 'dex': 'malware_reversing',
                 'tar': 'documents', 'mime': 'documents', 'pdf': 'documents',
                 'office': 'documents'}.get(
                     item['kind_evidence'], 'encoding')
@@ -6700,6 +6760,84 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
+            _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
+            continue
+        if documents_selected and artifact['kind_evidence'] == '7z':
+            executable = shutil.which('7z') or shutil.which('7zz')
+            if not executable:
+                manifest['coverage']['DOC02']['status'] = 'skipped prerequisite'
+                manifest['coverage']['DOC02']['note'] = '7-Zip executable unavailable'
+                manifest['warnings'].append('7z extraction requires 7z or 7zz')
+                continue
+            fingerprint = manifest['current_adapter_fingerprints']['7z'][0]
+            key = hashlib.sha256(f"{artifact['sha256']}:7z.v1:{fingerprint}:{password_hash}".encode()).hexdigest()
+            if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
+                seen.setdefault(key, artifact['id'])
+                old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
+                reusable = _reusable_children(manifest, old, deadline) if old else None
+                if old and reusable is None:
+                    old['status'] = 'invalidated'
+                if reusable is not None:
+                    for child in reusable:
+                        _attach_reused_child(child, old, artifact)
+                        queue.append((child, depth + 1))
+                    manifest['warnings'].extend(old.get('warnings', []))
+                    _doc01_coverage(manifest, old.get('coverage_status',
+                                                     'ran' if reusable else 'no finding'))
+                    manifest['coverage']['DOC02']['status'] = (
+                        'skipped prerequisite' if old.get('encrypted_unresolved') else
+                        'ran' if old.get('encrypted_recovered') else 'no finding')
+                else:
+                    job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': '7z',
+                           'input_ids': [artifact['id']], 'operation': 'bounded 7z member streaming',
+                           'tool_fingerprint': fingerprint,
+                           'data_fingerprints': {'password_file': password_hash}, 'cwd': str(run),
+                           'limits': {'members': 100, 'member_bytes': MAX_CHILD,
+                                      'derived_bytes': MAX_DERIVED, 'seconds': 30},
+                           'status': 'running', 'child_ids': [], 'started': time.time()}
+                    manifest['jobs'].append(job)
+                    _write_json(run / 'manifest.json', manifest)
+                    staging = run / 'staging' / job['id']
+                    try:
+                        records, warnings = _run_sevenzip(
+                            path, staging, min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
+                            MAX_DERIVED - manifest['derived_bytes'], passwords, executable,
+                            min(30, max(.01, deadline - time.monotonic())))
+                        if _hash(path, deadline) != artifact['sha256']:
+                            raise RuntimeError('archive changed before member publication')
+                        for record in records:
+                            locator = {'archive_member': record['member'],
+                                       'member_index': record['index'], 'encrypted': record['encrypted']}
+                            if record['encrypted']:
+                                locator['password_file_sha256'] = password_hash
+                            child = _store_staged(run, manifest, artifact, record, deadline,
+                                                  locator=locator,
+                                                  operation=f"7z member {record['index']}",
+                                                  producer_key=key)
+                            if child:
+                                job['child_ids'].append(child['id'])
+                                queue.append((child, depth + 1))
+                        manifest['warnings'].extend(warnings[:100])
+                        job['warnings'] = warnings[:100]
+                        job['status'] = 'complete'
+                        job['coverage_status'] = 'truncated' if warnings else 'ran' if records else 'no finding'
+                        _doc01_coverage(manifest, job['coverage_status'])
+                        job['encrypted_recovered'] = any(record['encrypted'] for record in records)
+                        job['encrypted_unresolved'] = any('password' in warning for warning in warnings)
+                        manifest['coverage']['DOC02']['status'] = (
+                            'skipped prerequisite' if job['encrypted_unresolved'] else
+                            'ran' if job['encrypted_recovered'] else 'no finding')
+                    except Exception as error:
+                        job['status'] = 'failed'
+                        job['warning'] = f'{type(error).__name__}: {error}'
+                        manifest['warnings'].append(f"7z job failed: {type(error).__name__}")
+                        _doc01_coverage(manifest, 'failed')
+                    finally:
+                        shutil.rmtree(staging, ignore_errors=True)
+                    job['ended'] = time.time()
+                    _write_json(run / 'jobs' / f"{job['id']}.json", job)
+                    _write_json(run / 'manifest.json', manifest)
+            manifest['coverage']['DOC02']['note'] = 'supplied 7z password candidates only'
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'office':

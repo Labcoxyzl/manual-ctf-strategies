@@ -795,9 +795,17 @@ def _stegseek_probe(self_test):
 
 def _qr_probe(self_test):
     pillow = importlib.util.find_spec('PIL')
-    zxing = importlib.util.find_spec('zxingcpp')
-    pyzbar = importlib.util.find_spec('pyzbar')
-    backend = (zxing or pyzbar) if pillow else None
+    if pillow:
+        from .profiles.qr import _decoder
+        backend_name, _ = _decoder()
+    else:
+        backend_name = None
+    backend = importlib.util.find_spec(backend_name) if backend_name else None
+    try:
+        version = importlib.metadata.version('zxing-cpp' if backend_name == 'zxingcpp'
+                                             else 'pyzbar') if backend else None
+    except (importlib.metadata.PackageNotFoundError, KeyError, OSError, ValueError):
+        version = None
     probe = 'not_run'
     zxing_functional = False
     if self_test and backend:
@@ -814,18 +822,30 @@ def _qr_probe(self_test):
                 Image.frombytes('1', (25, 25), matrix).resize(
                     (250, 250), Image.Resampling.NEAREST).save(source)
                 rows, _ = _run_qr(source, 100_000, 1024, 3)
-                probe = 'passed' if any(row['payload'] == b'QR-ORACLE-123' for row in rows) else 'failed'
+                qr_functional = any(row['payload'] == b'QR-ORACLE-123' for row in rows)
                 zxing_functional = any(row['payload'] == b'QR-ORACLE-123' and
                                        row['decoder'] == 'zxingcpp' for row in rows)
+                if zxing_functional:
+                    import zxingcpp
+                    symbol = zxingcpp.create_barcode('DM-ORACLE-123',
+                                                     zxingcpp.BarcodeFormat.DataMatrix)
+                    Image.fromarray(symbol.to_image(scale=8)).save(source)
+                    rows, _ = _run_qr(source, 100_000, 1024, 3)
+                    zxing_functional = any(row['payload'] == b'DM-ORACLE-123' and
+                                           row['format'] == 'Data Matrix' and
+                                           row['decoder'] == 'zxingcpp' for row in rows)
+                probe = ('passed' if qr_functional and
+                         (backend_name != 'zxingcpp' or zxing_functional) else 'failed')
         except Exception:
             probe = 'failed'
-    status = ('ready' if zxing_functional else
+    status = ('ready' if zxing_functional and version else
               'partial' if backend else 'unavailable')
     operation = {'implemented': True, 'functional_probe': probe, 'status': status,
-                 'note': 'QR and DataMatrix enabled' if zxing_functional else
+                 'note': 'QR and DataMatrix enabled' if status == 'ready' else
+                         'decoder package metadata unavailable' if backend and not version else
                          'DataMatrix requires functional zxing-cpp'}
     engine = {'found': bool(backend), 'path': backend.origin if backend else None,
-              'version': importlib.metadata.version('zxing-cpp' if zxing else 'pyzbar') if backend else None,
+              'version': version,
               'options_compatible': bool(backend), 'required_data': 'Pillow; zxing-cpp for DataMatrix',
               'functional_probe': probe, 'status': status}
     return operation, engine
@@ -1427,8 +1447,8 @@ def _java_android_probe(self_test):
     from .profiles.java_android import inspect_java_android
     java, javap, javac, jadx = (shutil.which(name) for name in
                                  ('java', 'javap', 'javac', 'jadx'))
-    version = _command([java, '-version']) if java else None
-    javap_version = _command([javap, '-version']) if javap else None
+    version = _command([java, '-XX:-UsePerfData', '-version']) if java else None
+    javap_version = _command([javap, '-J-XX:-UsePerfData', '-version']) if javap else None
     java_ok = bool(version and version.returncode == 0)
     javap_ok = bool(javap_version and javap_version.returncode == 0)
     probe = 'not_run'
@@ -1441,7 +1461,8 @@ def _java_android_probe(self_test):
                     source = root / 'Probe.java'
                     source.write_text('public class Probe { static String clue() '
                                       '{ return "REV06_PROBE"; } }')
-                    compiled = _command([javac, '--release', '17', str(source)])
+                    compiled = _command([javac, '-J-XX:-UsePerfData',
+                                         '--release', '17', str(source)])
                     if compiled and compiled.returncode == 0:
                         archive = root / 'probe.jar'
                         with zipfile.ZipFile(archive, 'w') as jar:

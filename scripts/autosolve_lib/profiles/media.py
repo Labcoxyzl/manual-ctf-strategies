@@ -86,13 +86,35 @@ def _seconds(value) -> float | None:
     return result if math.isfinite(result) and result >= 0 else None
 
 
+def _tag_duration(tags) -> float | None:
+    value = tags.get("DURATION") if isinstance(tags, dict) else None
+    match = (re.fullmatch(r"(\d{1,4}):([0-5]\d):([0-5]\d(?:\.\d{1,9})?)", value)
+             if isinstance(value, str) and len(value) <= 32 else None)
+    if match is None:
+        return None
+    return _seconds(int(match[1]) * 3600 + int(match[2]) * 60 + float(match[3]))
+
+
+def _known_stream_duration(stream: dict, container_duration: float | None,
+                           container_start: float | None) -> float | None:
+    value = _seconds(stream.get("duration"))
+    if value is not None:
+        return value
+    value = _tag_duration(stream.get("tags"))
+    start = _seconds(stream.get("start_time")) or container_start or 0.0
+    if value is not None and (container_duration is None or
+                              value <= container_duration - start + .05):
+        return value
+    return None
+
+
 def _frame_times(path: str, stream_index: int, deadline: float,
                  limit: int, max_frames: int,
                  supervised: bool) -> tuple[list[float], str | None]:
     raw, _, warning = _run(
         [FFPROBE, "-v", "error", "-protocol_whitelist", "file,pipe",
          "-select_streams", f"v:{stream_index}", "-read_intervals",
-         f"0%+#{max_frames + 1}", "-show_frames", "-show_entries",
+         f"0%+#{max_frames + 2}", "-show_frames", "-show_entries",
          "frame=best_effort_timestamp_time", "-of", "json", path],
         deadline, limit, supervised)
     if warning:
@@ -146,6 +168,7 @@ def inspect_media(path: Path, output_dir: Path, *, timeout: float,
         return [], warnings + ["invalid FFprobe JSON; media inspection incomplete"]
 
     duration = _seconds(probe["format"].get("duration"))
+    container_start = _seconds(probe["format"].get("start_time"))
     audio_streams, video_streams, subtitle_streams = [], [], []
     for stream in streams[:64]:
         if not isinstance(stream, dict):
@@ -163,9 +186,11 @@ def inspect_media(path: Path, output_dir: Path, *, timeout: float,
         if isinstance(tags, dict):
             details["tags"] = {key: value[:256] for key, value in tags.items()
                                if key in ("language", "title") and isinstance(value, str)}
+        known_duration = _known_stream_duration(stream, duration, container_start)
         records.append({"kind": "stream", "stream_type": kind, "stream_index": index,
                         "locator": f"stream {index}", "source": source,
-                        "duration_seconds": _seconds(stream.get("duration")) or duration,
+                        "duration_seconds": known_duration if known_duration is not None else
+                                            (duration if len(streams) == 1 else None),
                         "metadata": details})
         {"audio": audio_streams, "video": video_streams,
          "subtitle": subtitle_streams}[kind].append(stream)
@@ -256,8 +281,10 @@ def inspect_media(path: Path, output_dir: Path, *, timeout: float,
     for relative_index, stream in enumerate(video_streams[:1]):
         index = stream["index"]
         stream_start = (_seconds(stream.get("start_time")) or
-                        _seconds(probe["format"].get("start_time")) or 0.0)
-        video_duration = _seconds(stream.get("duration")) or duration
+                        container_start or 0.0)
+        stream_duration = _known_stream_duration(stream, duration, container_start)
+        video_duration = (stream_duration or
+                          (max(0.0, duration - stream_start) if duration is not None else None))
         frame_count = stream.get("nb_frames")
         try:
             frame_count = int(frame_count)
@@ -265,7 +292,7 @@ def inspect_media(path: Path, output_dir: Path, *, timeout: float,
             frame_count = None
         if len(video_streams) > 1:
             warnings.append(f"video frames inspect stream {index} only; {len(video_streams) - 1} other video streams omitted")
-        exact = (frame_count is None and full_frames or
+        exact = (frame_count is None and (full_frames or stream_duration is None) or
                  frame_count is not None and 0 < frame_count <= max_frames)
         times = []
         if exact:
@@ -278,11 +305,20 @@ def inspect_media(path: Path, output_dir: Path, *, timeout: float,
         else:
             mode = "sampled"
             count = min(max_frames, frame_count or max_frames)
-            if video_duration is None:
+            if len(times) == max_frames + 1:
+                frame_count = len(times)
+                times = [times[round(i * (frame_count - 1) / max(1, count - 1))]
+                         for i in range(count)]
+            elif times and stream_duration is None:
+                observed = len(times)
+                times = [times[round(i * (observed - 1) / max(1, count - 1))]
+                         for i in range(count)]
+                warnings.append(f"video duration unknown; sampled first {observed} timestamped frames only; later frames may be missed")
+            elif video_duration is None:
                 times = [0.0]
                 warnings.append("video duration unknown; sampled first frame only")
             else:
-                times = [(i + .5) * video_duration / count for i in range(count)]
+                times = [stream_start + i * video_duration / count for i in range(count)]
             if frame_count is not None and frame_count > len(times):
                 warnings.append(f"video sampled {len(times)} of {frame_count} frames; brief frames may be missed")
             elif frame_count is None:

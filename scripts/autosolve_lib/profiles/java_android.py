@@ -256,12 +256,14 @@ def inspect_java_android(path: Path, output_dir: Path, *, timeout: float = 20,
             runtime_version = None
             has_class = any(info.orig_filename.endswith('.class') for info in entries)
             if has_class and javap and java:
-                version, failure = _run([java, '-version'], deadline, supervised)
+                version, failure = _run([java, '-XX:-UsePerfData', '-version'],
+                                        deadline, supervised)
                 if failure:
                     warnings.append(f'Java runtime {failure}')
                 elif version:
                     runtime_version = version.decode('utf-8', 'replace').splitlines()[0][:100]
-                version, failure = _run([javap, '-J-Xmx128m', '-version'], deadline, supervised)
+                version, failure = _run([javap, '-J-Xmx128m', '-J-XX:-UsePerfData',
+                                         '-version'], deadline, supervised)
                 if failure:
                     warnings.append(f'javap {failure}')
                 elif version:
@@ -351,7 +353,8 @@ def inspect_java_android(path: Path, output_dir: Path, *, timeout: float = 20,
                         continue
                     if javap_major is None:
                         continue
-                    listing, failure = _run([javap, '-J-Xmx128m', '-J-XX:ActiveProcessorCount=1',
+                    listing, failure = _run([javap, '-J-Xmx128m', '-J-XX:-UsePerfData',
+                                             '-J-XX:ActiveProcessorCount=1',
                                              '-c', '-p', '-constants', str(record['path'])],
                                             deadline, supervised)
                     if failure:

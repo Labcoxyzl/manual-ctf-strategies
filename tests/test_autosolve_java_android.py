@@ -12,7 +12,9 @@ import time
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
+from scripts.autosolve_lib.profiles import java_android
 from scripts.autosolve_lib.profiles.java_android import inspect_java_android
 from scripts.autosolve_lib import setup as autosolve_setup
 
@@ -58,7 +60,8 @@ class JavaAndroidTests(unittest.TestCase):
                           '  }\n}\n')
         obfuscated = self.root / 'a.java'
         obfuscated.write_text('public class a { static String x() { return "OBF_LEAD"; } }')
-        subprocess.run(['javac', '--release', '17', str(source), str(obfuscated)], check=True,
+        subprocess.run(['javac', '-J-XX:-UsePerfData', '--release', '17',
+                        str(source), str(obfuscated)], check=True,
                        capture_output=True, timeout=10)
         jar = self.root / 'renamed.bin'
         resource = b'FLAG{resource_exact}\x00\xff'
@@ -68,7 +71,16 @@ class JavaAndroidTests(unittest.TestCase):
             archive.writestr('assets/clue.dat', resource)
             archive.writestr('META-INF/MANIFEST.MF', b'Manifest-Version: 1.0\n')
         original = jar.read_bytes()
-        records, warnings = inspect_java_android(jar, self.root / 'stage', timeout=10)
+        launched = []
+        real_run = java_android._run
+        def observe(argv, *args):
+            launched.append(argv)
+            return real_run(argv, *args)
+        with patch.object(java_android, '_run', side_effect=observe):
+            records, warnings = inspect_java_android(jar, self.root / 'stage', timeout=10)
+        self.assertTrue(any(Path(argv[0]).name == 'javap' for argv in launched))
+        self.assertTrue(all(('-XX:-UsePerfData' if Path(argv[0]).name == 'java'
+                             else '-J-XX:-UsePerfData') in argv for argv in launched))
         by_kind = {kind: [row for row in records if row['kind'] == kind]
                    for kind in ('resource', 'manifest', 'class', 'bytecode_listing')}
         self.assertEqual(len(by_kind['bytecode_listing']), 2, warnings)
@@ -177,7 +189,7 @@ class JavaAndroidTests(unittest.TestCase):
     def test_public_cli_renamed_jar_resource_listing_and_resume(self):
         source = self.root / 'R.java'
         source.write_text('public class R { public static String clue() { return "FLAG{jar_cli}"; } }')
-        subprocess.run(['javac', '--release', '17', str(source)], check=True,
+        subprocess.run(['javac', '-J-XX:-UsePerfData', '--release', '17', str(source)], check=True,
                        capture_output=True, timeout=10)
         jar = self.root / 'renamed.bin'
         resource = b'FLAG{resource_cli}\x00\xff'
@@ -241,7 +253,14 @@ class JavaAndroidTests(unittest.TestCase):
                             row['value'] == 'FLAG{direct_dex}' for row in manifest['intelligence']))
 
     def test_doctor_java_probe_is_honest(self):
-        report = autosolve_setup.doctor(['reversing'], self_test=True)
+        launched = []
+        real_command = autosolve_setup._command
+        def observe(argv, *args, **kwargs):
+            if Path(argv[0]).name in ('java', 'javap', 'javac'):
+                launched.append(argv)
+            return real_command(argv, *args, **kwargs)
+        with patch.object(autosolve_setup, '_command', side_effect=observe):
+            report = autosolve_setup.doctor(['reversing'], self_test=True)
         operation = report['operations']['malware_reversing.java_android']
         self.assertTrue(operation['implemented'])
         self.assertIn(operation['functional_probe'], ('passed', 'failed'))
@@ -250,6 +269,10 @@ class JavaAndroidTests(unittest.TestCase):
         if shutil.which('javac') and shutil.which('javap') and shutil.which('java'):
             self.assertEqual(operation['functional_probe'], 'passed')
             self.assertEqual(report['engines']['javap']['functional_probe'], 'passed')
+            self.assertEqual({Path(argv[0]).name for argv in launched},
+                             {'java', 'javap', 'javac'})
+            self.assertTrue(all(('-XX:-UsePerfData' if Path(argv[0]).name == 'java'
+                                 else '-J-XX:-UsePerfData') in argv for argv in launched))
 
 
 if __name__ == '__main__':

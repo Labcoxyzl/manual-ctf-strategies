@@ -147,6 +147,63 @@ class MediaProfileTests(unittest.TestCase):
         self.assertEqual(warnings, [])
         self.assertEqual([row["sampled_seconds"] for row in frames], [5.0, 6.0, 7.0])
         self.assertEqual([row["requested_seconds"] for row in frames], [5.0, 6.0, 7.0])
+        sparse, _ = inspect_media(source, self.root / "offset-sparse-stage",
+                                  timeout=10, max_bytes=100000, max_frames=2)
+        sampled = [row for row in sparse if row["kind"] == "video_frame"]
+        self.assertEqual([row["requested_seconds"] for row in sampled], [5.0, 7.0])
+        self.assertEqual([row["sampled_seconds"] for row in sampled], [5.0, 7.0])
+
+    def test_sparse_h264_does_not_seek_past_last_frame(self):
+        source = self.root / "three-seconds.mp4"
+        subprocess.run(["ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                        "-f", "lavfi", "-i", "testsrc2=size=96x96:rate=8:duration=3",
+                        "-c:v", "libx264", "-pix_fmt", "yuv420p", str(source)],
+                       check=True, capture_output=True, timeout=15)
+        records, warnings = inspect_media(source, self.root / "h264-stage", timeout=15,
+                                          max_bytes=1_000_000, max_frames=16,
+                                          full_frames=True)
+        frames = [row for row in records if row["kind"] == "video_frame"]
+        self.assertEqual(len(frames), 16)
+        self.assertEqual(frames[-1]["sampled_seconds"], 2.875)
+        self.assertLessEqual(frames[-1]["requested_seconds"], 2.875)
+        self.assertFalse(any("decoded frame timestamp unavailable" in row for row in warnings))
+
+    def test_short_video_track_does_not_sample_through_longer_audio(self):
+        for frame_count, last_pts in ((17, 0.8), (18, 0.84), (24, 1.16)):
+            with self.subTest(frame_count=frame_count):
+                lines = ["ffconcat version 1.0"]
+                for index in range(frame_count):
+                    frame = self.root / f"short{frame_count}-{index:02d}.png"
+                    Image.new("RGB", (16, 16), (index * 13 % 256, 0, 0)).save(frame)
+                    lines += [f"file '{frame}'", "duration 0.05"]
+                concat = self.root / f"frames{frame_count}.ffconcat"
+                concat.write_text("\n".join(lines) + "\n")
+                source = self.root / f"mixed{frame_count}.mkv"
+                subprocess.run(["ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                                "-f", "concat", "-safe", "0", "-i", str(concat),
+                                "-f", "lavfi", "-i", "anullsrc=r=8000:cl=mono:d=3",
+                                "-map", "0:v", "-map", "1:a", "-fps_mode", "vfr",
+                                "-c:v", "ffv1", "-c:a", "pcm_s16le", str(source)],
+                               check=True, capture_output=True, timeout=15)
+                records, warnings = inspect_media(source, self.root / f"short-stage-{frame_count}",
+                                                  timeout=15, max_bytes=2_000_000,
+                                                  max_frames=16, full_frames=True)
+                video = next(row for row in records if row["kind"] == "stream" and
+                             row["stream_type"] == "video")
+                self.assertAlmostEqual(video["duration_seconds"], last_pts + 0.04)
+                frames = [row for row in records if row["kind"] == "video_frame"]
+                self.assertEqual(len(frames), 16)
+                self.assertEqual(frames[-1]["sampled_seconds"], last_pts)
+                self.assertFalse(any("decoded frame timestamp unavailable" in row for row in warnings))
+                _, manifest = self.run_cli("analyze", source, "--category", "audio_video",
+                                           "--budget", 30,
+                                           "--runs-root", self.root / f"short-runs-{frame_count}")
+                artifacts = [row for row in manifest["artifacts"]
+                             if row["source_locator"].get("media_kind") == "video_frame"]
+                self.assertEqual(len(artifacts), 16)
+                self.assertEqual(artifacts[-1]["source_locator"]["sampled_seconds"], last_pts)
+                self.assertFalse(any("decoded frame timestamp unavailable" in row
+                                     for row in manifest["warnings"]))
 
     def test_corrupt_and_silent_negative_controls(self):
         invalid = self.root / "bad.mkv"

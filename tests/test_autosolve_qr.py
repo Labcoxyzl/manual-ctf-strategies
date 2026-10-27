@@ -194,6 +194,60 @@ class QRTests(unittest.TestCase):
         self.assertEqual(operation["status"],
                          "ready" if decoder == "zxingcpp" else "partial" if decoder else "unavailable")
 
+    @unittest.skipUnless(qr._decoder()[0] == "zxingcpp", "zxing-cpp required for DataMatrix")
+    def test_doctor_requires_datamatrix_probe_before_claiming_readiness(self):
+        with mock.patch("scripts.autosolve_lib.core._run_qr", side_effect=[
+                ([{"payload": _PAYLOAD, "decoder": "zxingcpp"}], []), ([], [])]) as run:
+            operation, engine = capabilities._qr_probe(True)
+        self.assertEqual(run.call_count, 2)
+        self.assertEqual(operation["functional_probe"], "failed")
+        self.assertEqual(operation["status"], "partial")
+        self.assertEqual(engine["status"], "partial")
+
+    def test_broken_zxing_native_import_uses_pyzbar_for_qr_only(self):
+        import builtins
+        import types
+
+        original_import = builtins.__import__
+        original_find = capabilities.importlib.util.find_spec
+
+        def import_backend(name, *args, **kwargs):
+            if name == "zxingcpp":
+                raise OSError("broken native library")
+            if name == "pyzbar.pyzbar":
+                return types.SimpleNamespace(decode=lambda image: [])
+            return original_import(name, *args, **kwargs)
+
+        def find_backend(name):
+            if name in ("zxingcpp", "pyzbar"):
+                return types.SimpleNamespace(origin=f"/fake/{name}")
+            return original_find(name)
+
+        with mock.patch("builtins.__import__", side_effect=import_backend), \
+             mock.patch.object(capabilities.importlib.util, "find_spec", side_effect=find_backend), \
+             mock.patch.object(capabilities.importlib.metadata, "version", return_value="0.1"), \
+             mock.patch("scripts.autosolve_lib.core._run_qr", return_value=(
+                 [{"payload": _PAYLOAD, "decoder": "pyzbar"}], [])):
+            self.assertEqual(qr._decoder()[0], "pyzbar")
+            operation, engine = capabilities._qr_probe(True)
+        self.assertEqual(operation["functional_probe"], "passed")
+        self.assertEqual(operation["status"], "partial")
+        self.assertEqual(engine["status"], "partial")
+        self.assertEqual(engine["path"], "/fake/pyzbar")
+
+    @unittest.skipUnless(qr._decoder()[0] == "zxingcpp", "zxing-cpp required for DataMatrix")
+    def test_doctor_missing_or_corrupt_zxing_metadata_is_partial(self):
+        for error in (capabilities.importlib.metadata.PackageNotFoundError("zxing-cpp"),
+                      KeyError("Version"), OSError("metadata unreadable")):
+            with self.subTest(error=type(error).__name__), \
+                 mock.patch.object(capabilities.importlib.metadata, "version",
+                                   side_effect=error):
+                operation, engine = capabilities._qr_probe(True)
+                self.assertEqual(operation["functional_probe"], "passed")
+                self.assertEqual(operation["status"], "partial")
+                self.assertEqual(engine["status"], "partial")
+                self.assertIsNone(engine["version"])
+
 
 if __name__ == "__main__":
     unittest.main()
