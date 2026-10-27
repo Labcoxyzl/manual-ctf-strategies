@@ -64,6 +64,79 @@ class PyInstallerTests(unittest.TestCase):
                                    max_members=max_members,
                                    max_total_bytes=max_total_bytes)
 
+    def test_inventory_continues_after_staging_cap(self):
+        pyz = make_pyz(importlib.util.MAGIC_NUMBER,
+                       [(f'module_{index}', b'code') for index in range(4)])
+        self.source.write_bytes(make_bundle([
+            ('first', b'one', 'x', False), ('PYZ.pyz', pyz, 'z', False),
+            ('last', b'three', 'x', False)]))
+        records, warnings, inventory = self.inspect(max_members=1)
+        self.assertEqual([record['member'] for record in records], ['first'])
+        self.assertTrue(any('member limit reached' in warning for warning in warnings))
+        self.assertTrue(inventory['carchive']['complete'])
+        self.assertEqual([item['name'] for item in inventory['carchive']['entries']],
+                         ['first', 'PYZ.pyz', 'last'])
+        self.assertEqual(inventory['pyz'][0]['entry_count'], 4)
+        self.assertTrue(inventory['pyz'][0]['complete'])
+        self.assertEqual([item['name'] for item in inventory['pyz'][0]['entries']],
+                         [f'module_{index}' for index in range(4)])
+        self.assertEqual(len(list(self.staging.iterdir())), 1)
+
+    def test_corrupt_toc_inventory_is_incomplete(self):
+        bundle = bytearray(make_bundle([('one', b'1', 'x', False)]))
+        toc_start = len(bundle) - COOKIE.size - 32
+        struct.pack_into('!I', bundle, toc_start, 0xffffffff)
+        self.source.write_bytes(bundle)
+        records, warnings, inventory = self.inspect()
+        self.assertEqual(records, [])
+        self.assertTrue(any('corrupt PyInstaller table' in warning for warning in warnings))
+        self.assertFalse(inventory['carchive']['complete'])
+        self.assertEqual(inventory['carchive']['entries'], [])
+
+    def test_undecodable_toc_entry_preserves_later_original_index(self):
+        bundle = bytearray(make_bundle([('broken', b'bad', 'x', False),
+                                        ('valid', b'good', 'x', False)]))
+        _, archive_length, toc_offset, _, _, _ = COOKIE.unpack_from(bundle,
+                                                                     len(bundle) - COOKIE.size)
+        archive_start = len(bundle) - archive_length
+        bundle[archive_start + toc_offset + ENTRY.size] = 0xff
+        self.source.write_bytes(bundle)
+        records, warnings, inventory = self.inspect()
+        self.assertEqual([(record['index'], record['member'], record['path'].read_bytes())
+                          for record in records], [(1, 'valid', b'good')])
+        self.assertIn('CArchive entry 0: invalid name or type', warnings)
+        self.assertFalse(inventory['carchive']['complete'])
+        self.assertEqual(inventory['carchive']['entry_count'], 2)
+        self.assertEqual([(entry['index'], entry['name'])
+                          for entry in inventory['carchive']['entries']], [(1, 'valid')])
+
+    def test_trailing_pyz_table_bytes_do_not_claim_complete_metadata(self):
+        pyz = make_pyz(importlib.util.MAGIC_NUMBER, [('module', b'code')]) + b'TRAIL'
+        self.source.write_bytes(make_bundle([('clue.txt', b'CLUE', 'x', False),
+                                             ('PYZ.pyz', pyz, 'z', False)]))
+        records, warnings, inventory = self.inspect()
+        self.assertEqual([(record['member'], record['path'].read_bytes())
+                          for record in records], [('clue.txt', b'CLUE')])
+        self.assertTrue(any('unsupported or corrupt PYZ table' in warning
+                            for warning in warnings))
+        self.assertTrue(inventory['carchive']['complete'])
+        self.assertFalse(inventory['pyz'][0]['complete'])
+        self.assertEqual(inventory['pyz'][0]['entries'], [])
+
+    def test_metadata_entry_cap_is_reported_separately(self):
+        pyz = make_pyz(importlib.util.MAGIC_NUMBER,
+                       [(f'm{index}', b'x') for index in range(4096)])
+        self.source.write_bytes(make_bundle([('clue', b'ok', 'x', False),
+                                             ('PYZ.pyz', pyz, 'z', False)]))
+        records, warnings, inventory = self.inspect(max_members=0)
+        self.assertEqual(records, [])
+        self.assertTrue(inventory['carchive']['complete'])
+        self.assertEqual(inventory['pyz'][0]['entry_count'], 4096)
+        self.assertEqual(len(inventory['pyz'][0]['entries']), 4094)
+        self.assertFalse(inventory['pyz'][0]['complete'])
+        self.assertTrue(any('PYZ metadata entry limit reached' in warning
+                            for warning in warnings))
+
     def test_public_cli_extracts_and_resumes_with_lineage(self):
         payload = b'REV05{RESOURCE}'
         self.source.write_bytes(make_bundle([('assets/clue.txt', payload, 'x', True)],
@@ -84,6 +157,10 @@ class PyInstallerTests(unittest.TestCase):
         self.assertEqual(len(children), 1)
         job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'pyinstaller')
         self.assertEqual(job['status'], 'complete')
+        self.assertTrue(job['inventory']['carchive']['complete'])
+        self.assertEqual([(item['index'], item['name']) for item in
+                          job['inventory']['carchive']['entries']],
+                         [(0, 'assets/clue.txt')])
         self.assertTrue(any(edge.get('job_key') == job['key']
                             for edge in children[0]['parents']))
         self.assertEqual(children[0]['source_locator']['offset'],
@@ -95,6 +172,8 @@ class PyInstallerTests(unittest.TestCase):
         self.assertEqual(resumed.returncode, 3, resumed.stderr + resumed.stdout)
         after = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(len([j for j in after['jobs'] if j['adapter_id'] == 'pyinstaller']), 1)
+        self.assertEqual(next(j for j in after['jobs'] if j['adapter_id'] == 'pyinstaller')['inventory'],
+                         job['inventory'])
         self.source.write_bytes(b'changed source')
         changed = subprocess.run([sys.executable, '-B', str(script), '--json', 'resume',
                                   str(run), '--budget', '5'],
@@ -136,7 +215,7 @@ class PyInstallerTests(unittest.TestCase):
         bundle = make_bundle([('payload/data.txt', b'HELLO TEST', 'x', True),
                               ('PYZ-00.pyz', pyz, 'z', False)])
         self.source.write_bytes(bundle)
-        records, warnings = self.inspect()
+        records, warnings, _ = self.inspect()
         self.assertEqual(warnings, [])
         self.assertEqual([r['kind'] for r in records], ['resource', 'pyz_bytecode'])
         self.assertEqual([r['path'].read_bytes() for r in records], [b'HELLO TEST', code])
@@ -154,7 +233,7 @@ class PyInstallerTests(unittest.TestCase):
         pyz = make_pyz(b'\xff\xff\r\n', [('heldout', raw)])
         self.source.write_bytes(make_bundle([('resource.bin', b'EXACT', 'x', False),
                                              ('PYZ-00.pyz', pyz, 'z', False)], pyvers=310))
-        records, warnings = self.inspect()
+        records, warnings, _ = self.inspect()
         self.assertEqual([r['path'].read_bytes() for r in records], [b'EXACT', raw])
         self.assertEqual(records[1]['python_version'], '3.10')
         self.assertIn('unsupported version', records[1]['bytecode_inspection'])
@@ -166,7 +245,7 @@ class PyInstallerTests(unittest.TestCase):
                                  [('secret', b'marshalled code')]))
         pyz[12:16] = b'NOPE'
         self.source.write_bytes(make_bundle([('PYZ-00.pyz', bytes(pyz), 'z', False)]))
-        records, warnings = self.inspect()
+        records, warnings, _ = self.inspect()
         self.assertEqual(records, [])
         self.assertTrue(any('encrypted or corrupt' in warning for warning in warnings))
 
@@ -175,7 +254,7 @@ class PyInstallerTests(unittest.TestCase):
                                              ('link', b'elsewhere\0', 'n', False),
                                              ('huge', b'A' * 100, 'x', True),
                                              ('small', b'ok', 'x', False)]))
-        records, warnings = self.inspect(max_total_bytes=8)
+        records, warnings, _ = self.inspect(max_total_bytes=8)
         self.assertEqual([(r['member'], r['path'].read_bytes()) for r in records],
                          [('small', b'ok')])
         self.assertTrue(any('unsafe path' in warning for warning in warnings))
@@ -184,12 +263,14 @@ class PyInstallerTests(unittest.TestCase):
 
     def test_corrupt_archive_and_non_archive_do_not_stage(self):
         self.source.write_bytes(b'MZ ordinary')
-        self.assertEqual(self.inspect(), ([], []))
+        records, warnings, inventory = self.inspect()
+        self.assertEqual((records, warnings), ([], []))
+        self.assertFalse(inventory['carchive']['complete'])
         bundle = bytearray(make_bundle([('data', b'ok', 'x', False)]))
         cookie = len(bundle) - COOKIE.size
         struct.pack_into('!I', bundle, cookie + 8, 0xffffffff)
         self.source.write_bytes(bundle)
-        records, warnings = self.inspect()
+        records, warnings, _ = self.inspect()
         self.assertEqual(records, [])
         self.assertTrue(any('corrupt' in warning for warning in warnings))
         self.assertFalse(self.staging.exists())
@@ -197,7 +278,7 @@ class PyInstallerTests(unittest.TestCase):
     def test_data_resources_precede_runtime_binaries_under_budget(self):
         self.source.write_bytes(make_bundle([('libpython.so', b'B' * 100, 'b', False),
                                              ('assets/clue.txt', b'CLUE', 'x', False)]))
-        records, warnings = self.inspect(max_total_bytes=8)
+        records, warnings, _ = self.inspect(max_total_bytes=8)
         self.assertEqual([(r['member'], r['path'].read_bytes()) for r in records],
                          [('assets/clue.txt', b'CLUE')])
         self.assertTrue(any('decoded byte limit' in warning for warning in warnings))
@@ -205,7 +286,7 @@ class PyInstallerTests(unittest.TestCase):
     def test_budget_and_symlink_source(self):
         self.source.write_bytes(make_bundle([('one', b'1', 'x', False),
                                              ('two', b'2', 'x', False)]))
-        records, warnings = self.inspect(max_members=1)
+        records, warnings, _ = self.inspect(max_members=1)
         self.assertEqual([r['member'] for r in records], ['one'])
         self.assertTrue(any('member limit' in warning for warning in warnings))
         link = self.root / 'link'

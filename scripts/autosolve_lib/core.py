@@ -1732,7 +1732,7 @@ def _run_pyinstaller(path, staging, max_members, max_bytes, timeout):
         result = parent.recv()
         if result[0] != 'ok':
             raise RuntimeError(result[1])
-        return result[1], result[2]
+        return result[1], result[2], result[3]
     finally:
         _stop_worker(worker)
         parent.close()
@@ -4604,7 +4604,7 @@ def _pyinstaller_job(run, manifest, artifact, deadline, queue, depth):
     _write_json(run / 'manifest.json', manifest)
     staging = run / 'staging' / job['id']
     try:
-        records, warnings = _run_pyinstaller(
+        records, warnings, inventory = _run_pyinstaller(
             Path(artifact['path']), staging,
             min(64, MAX_ARTIFACTS - len(manifest['artifacts'])),
             min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
@@ -4630,8 +4630,9 @@ def _pyinstaller_job(run, manifest, artifact, deadline, queue, depth):
             else:
                 warnings.append(f"REV05 member {record['index']} could not be stored")
         status = ('truncated' if warnings else 'ran' if job['child_ids'] else 'no finding')
+        job['inventory'] = inventory
         job['coverage_status'] = status
-        job['coverage_note'] = 'bounded CArchive/PYZ bytes and version; no execution or decompilation'
+        job['coverage_note'] = 'bounded CArchive/PYZ metadata, bytes and version; no execution or decompilation'
         job['warnings'] = warnings[:100]
         job['status'] = 'complete'
         if status != 'no finding' or coverage['status'] == 'not scheduled':

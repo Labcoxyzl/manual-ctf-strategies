@@ -1495,12 +1495,14 @@ def _pyinstaller_probe(self_test):
                 source.write_bytes(b'MZ' + body + COOKIE.pack(
                     MAGIC, len(body) + COOKIE.size, len(payload), len(toc), 312,
                     b'libpython3.12.so'))
-                records, warnings = inspect_pyinstaller(
+                records, warnings, inventory = inspect_pyinstaller(
                     source, Path(directory) / 'stage', max_members=2,
                     max_total_bytes=1024)
                 probe = ('passed' if not warnings and len(records) == 1 and
                          records[0]['path'].read_bytes() == payload and
-                         records[0]['offset'] == 2 else 'failed')
+                         records[0]['offset'] == 2 and
+                         inventory['carchive']['complete'] and
+                         inventory['carchive']['entry_count'] == 1 else 'failed')
         except Exception:
             probe = 'failed'
     operation = {'implemented': True, 'functional_probe': probe, 'status': 'partial',

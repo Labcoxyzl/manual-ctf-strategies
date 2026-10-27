@@ -55,7 +55,7 @@ def _inflate(source, offset: int, length: int, limit: int) -> bytes:
 
 
 def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
-                        max_total_bytes: int) -> tuple[list[dict], list[str]]:
+                        max_total_bytes: int) -> tuple[list[dict], list[str], dict]:
     """Stage exact archive resources and marshalled code; never execute/decompile code."""
     if max_members < 0 or max_total_bytes < 0:
         raise ValueError("PyInstaller limits must be nonnegative")
@@ -66,6 +66,7 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
 
     records: list[dict] = []
     warnings: list[str] = []
+    inventory = {"carchive": {"complete": False, "entries": []}, "pyz": []}
     total = 0
 
     def stage(data: bytes, kind: str, locator: str, **details) -> bool:
@@ -98,15 +99,15 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             raise ValueError("PyInstaller source must be a regular file")
         size = before.st_size
         if size > MAX_SOURCE_BYTES:
-            return [], [f"PyInstaller source byte limit reached ({MAX_SOURCE_BYTES})"]
+            return [], [f"PyInstaller source byte limit reached ({MAX_SOURCE_BYTES})"], inventory
         source.seek(max(0, size - MAX_COOKIE_SEARCH))
         tail = source.read(MAX_COOKIE_SEARCH)
         relative = tail.rfind(MAGIC)
         if relative < 0:
-            return [], []
+            return [], [], inventory
         cookie_offset = size - len(tail) + relative
         if cookie_offset + COOKIE.size > size:
-            return [], ["corrupt PyInstaller cookie"]
+            return [], ["corrupt PyInstaller cookie"], inventory
         _, archive_length, toc_offset, toc_length, pyvers, pylib = COOKIE.unpack_from(tail, relative)
         archive_end = cookie_offset + COOKIE.size
         archive_start = archive_end - archive_length
@@ -116,16 +117,18 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                 toc_length > archive_length - COOKIE.size - toc_offset or
                 archive_start + toc_offset + toc_length > cookie_offset or
                 not pylib.strip(b"\x00")):
-            return [], ["corrupt PyInstaller archive boundaries"]
+            return [], ["corrupt PyInstaller archive boundaries"], inventory
         py_version = f"{pyvers // 100}.{pyvers % 100}"
         source.seek(archive_start + toc_offset)
         toc = source.read(toc_length)
         if len(toc) != toc_length:
-            return [], ["truncated PyInstaller table of contents"]
+            return [], ["truncated PyInstaller table of contents"], inventory
         cursor = 0
         entries = []
+        entry_indices = []
+        toc_index = 0
         while cursor < len(toc):
-            if len(entries) >= MAX_ENTRIES:
+            if toc_index >= MAX_ENTRIES:
                 warnings.append("PyInstaller table of contents entry limit reached")
                 break
             if len(toc) - cursor < ENTRY.size:
@@ -140,15 +143,30 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                 name = raw_name.decode("utf-8")
                 typecode = raw_type.decode("ascii")
             except UnicodeError:
-                warnings.append(f"CArchive entry {len(entries)}: invalid name or type")
+                warnings.append(f"CArchive entry {toc_index}: invalid name or type")
                 cursor += entry_size
+                toc_index += 1
                 continue
             entries.append((name, typecode, offset, length, decoded_length, compressed))
+            entry_indices.append(toc_index)
+            inventory["carchive"]["entries"].append({
+                "index": toc_index, "name": name, "typecode": typecode,
+                "offset": archive_start + offset, "compressed_size": length,
+                "decoded_size": decoded_length, "compressed": bool(compressed)})
             cursor += entry_size
+            toc_index += 1
         if cursor != len(toc):
             warnings.append("incomplete PyInstaller table of contents")
+        inventory["carchive"]["complete"] = (cursor == len(toc) and not any(
+            "invalid name or type" in warning for warning in warnings))
+        inventory["carchive"]["entry_count"] = toc_index
+        metadata_remaining = MAX_ENTRIES - toc_index
 
         def pyz_members(base: int, length: int, parent_name: str, parent_index: int) -> None:
+            nonlocal metadata_remaining
+            pyz_inventory = {"carchive_index": parent_index, "name": parent_name,
+                             "complete": False, "entry_count": 0, "entries": []}
+            inventory["pyz"].append(pyz_inventory)
             if length < 12:
                 warnings.append(f"CArchive member {parent_index}: truncated PYZ header")
                 return
@@ -168,7 +186,11 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             source.seek(base + pyz_toc_offset)
             # shortcut: encrypted PYZ members need a version-aware key workflow.
             try:
-                table = marshal.loads(source.read(length - pyz_toc_offset))
+                raw_table = source.read(length - pyz_toc_offset)
+                table_stream = io.BytesIO(raw_table)
+                table = marshal.load(table_stream)
+                if table_stream.tell() != len(raw_table):
+                    raise ValueError("trailing PYZ table bytes")
             except (EOFError, ValueError, TypeError):
                 warnings.append(f"CArchive member {parent_index}: unsupported or corrupt PYZ table")
                 return
@@ -177,15 +199,19 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             if not isinstance(table, (tuple, list)) or len(table) > MAX_ENTRIES:
                 warnings.append(f"CArchive member {parent_index}: unsupported PYZ table")
                 return
+            pyz_inventory["entry_count"] = len(table)
+            metadata_complete = len(table) <= metadata_remaining
+            if not metadata_complete:
+                warnings.append(f"CArchive member {parent_index}: PYZ metadata entry limit reached")
             for pyz_index, item in enumerate(table):
-                locator = f"CArchive member {parent_index} ({parent_name!r}) PYZ member {pyz_index}"
-                if len(records) >= max_members:
-                    warnings.append(f"{locator}: member limit reached")
+                if pyz_index >= metadata_remaining:
                     break
+                locator = f"CArchive member {parent_index} ({parent_name!r}) PYZ member {pyz_index}"
                 if (not isinstance(item, (tuple, list)) or len(item) != 2 or
                         not isinstance(item[0], str) or not _safe_name(item[0]) or
                         not isinstance(item[1], (tuple, list)) or len(item[1]) != 3):
                     warnings.append(f"{locator}: unsafe or unsupported PYZ entry")
+                    metadata_complete = False
                     continue
                 name, (kind_code, member_offset, member_length) = item
                 locator += f" ({name!r}) offset {base + member_offset}"
@@ -193,12 +219,21 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                         isinstance(value, int) and not isinstance(value, bool)
                         for value in (member_offset, member_length)):
                     warnings.append(f"{locator}: invalid PYZ member descriptor")
+                    metadata_complete = False
                     continue
+                pyz_inventory["entries"].append({
+                    "index": pyz_index, "name": name, "kind_code": kind_code,
+                    "offset": base + member_offset, "compressed_size": member_length})
                 if member_length == 0 and kind_code == 2:
                     continue  # Namespace package, no resource bytes.
                 if (member_offset < 12 or member_length <= 0 or
                         member_offset + member_length > pyz_toc_offset):
                     warnings.append(f"{locator}: PYZ member outside data region")
+                    metadata_complete = False
+                    continue
+                if len(records) >= max_members:
+                    if not any("member limit reached" in warning for warning in warnings):
+                        warnings.append(f"{locator}: member limit reached")
                     continue
                 try:
                     data = _inflate(source, base + member_offset, member_length,
@@ -215,15 +250,15 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                       bytecode_magic=bytecode_magic.hex(),
                       bytecode_inspection=("same-version marshal; no decompilation" if same_version
                                            else "unsupported version; raw marshal only"))
+            metadata_remaining -= min(len(table), metadata_remaining)
+            pyz_inventory["complete"] = metadata_complete
 
         order = sorted(range(len(entries)),
                        key=lambda index: {"x": 0, "s": 1, "m": 1, "M": 1, "z": 2}.get(entries[index][1], 3))
-        for index in order:
-            name, typecode, offset, length, decoded_length, compressed = entries[index]
+        for position in order:
+            index = entry_indices[position]
+            name, typecode, offset, length, decoded_length, compressed = entries[position]
             locator = f"CArchive member {index} ({name!r}) offset {archive_start + offset}"
-            if len(records) >= max_members:
-                warnings.append(f"{locator}: member limit reached")
-                break
             if not _safe_name(name) or typecode == "n":
                 warnings.append(f"{locator}: unsafe path or symbolic link")
                 continue
@@ -235,6 +270,10 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                 continue
             if typecode == "z" and compressed == 0:
                 pyz_members(archive_start + offset, length, name, index)
+                continue
+            if len(records) >= max_members:
+                if not any("member limit reached" in warning for warning in warnings):
+                    warnings.append(f"{locator}: member limit reached")
                 continue
             if decoded_length > max_total_bytes - total:
                 warnings.append(f"{locator}: decoded byte limit reached")
@@ -263,5 +302,6 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
         if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
             for record in records:
                 record["path"].unlink()
-            return [], ["PyInstaller source changed during reading"]
-    return records, warnings
+            return [], ["PyInstaller source changed during reading"], {
+                "carchive": {"complete": False, "entries": []}, "pyz": []}
+    return records, warnings, inventory
