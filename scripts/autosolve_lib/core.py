@@ -3562,12 +3562,7 @@ def _office_job(run, manifest, artifact, deadline):
         old['status'] = 'invalidated'
     if reusable is not None:
         for child in reusable:
-            operation = next((edge['operation'] for edge in child['parents']
-                              if edge.get('job_key') == key), 'Office embedded evidence')
-            edge = {'id': artifact['id'], 'operation': operation, 'job_key': key}
-            if edge not in child['parents']:
-                child['parents'].append(edge)
-            child['current'] = True
+            _attach_reused_child(child, old, artifact)
         manifest['warnings'].extend(old.get('warnings', []))
         status = old.get('coverage_status', 'no finding')
         children = reusable
@@ -6990,7 +6985,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             continue
         artifact, depth = queue.popleft()
         documents_selected = (manifest['category'] in ('auto', 'documents', 'osint') or
-                              manifest['category'] == 'packets' and depth > 0)
+                              manifest['category'] == 'packets' and depth > 0 or
+                              manifest['category'] == 'images' and artifact['kind_evidence'] == 'zip'
+                              and 'image_offset' in (artifact.get('source_locator') or {}))
         domain = routed_domain(artifact)
         if depth == 0 and domain in remaining_first_domains:
             now = time.monotonic()

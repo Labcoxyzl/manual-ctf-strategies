@@ -1911,6 +1911,30 @@ int main(int argc, char **argv) {
             for family in ('IMG01', 'DOC01', 'ENC01', 'ENC02'):
                 self.assertEqual(manifest['coverage'][family]['status'], 'ran')
 
+    def test_images_category_extracts_member_from_validated_png_tail(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            payload = b'IMAGE_TAIL_MEMBER\x00\xff'
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('oracle.bin', payload)
+            source = root / 'image.blob'
+            source.write_bytes(sample_png() + archive.getvalue())
+            run = Path(self.run_cli('analyze', source, '--category', 'images',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            members = [item for item in manifest['artifacts']
+                       if item['current'] and item['depth'] == 2
+                       and item['source_locator'].get('archive_member') == 'oracle.bin']
+            self.assertEqual(len(members), 1)
+            self.assertEqual(Path(members[0]['path']).read_bytes(), payload)
+            self.assertEqual(source.read_bytes(), sample_png() + archive.getvalue())
+            self.run_cli('resume', run, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            member = next(item for item in resumed['artifacts'] if item['id'] == members[0]['id'])
+            self.assertTrue(member['current'])
+            self.assertEqual(member['parents'], members[0]['parents'])
+
     def test_png_binary_gap_zip_child_is_current_after_resume(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

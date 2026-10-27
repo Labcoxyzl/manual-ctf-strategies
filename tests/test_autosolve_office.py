@@ -162,6 +162,11 @@ class OfficeInspectionTests(unittest.TestCase):
                 self.assertEqual(len([job for job in resumed['jobs']
                                       if job['adapter_id'] == 'office']), len(office_jobs))
                 self.assertEqual(resumed['coverage']['DOC05']['status'], 'ran')
+                for child in children:
+                    retained = next(item for item in resumed['artifacts'] if item['id'] == child['id'])
+                    self.assertEqual(retained['parents'], child['parents'])
+                    self.assertEqual(retained['current_source_locators'],
+                                     child['current_source_locators'])
                 source.write_bytes(b'changed source')
                 changed = subprocess.run(
                     [sys.executable, '-B', str(script), '--json', 'resume', str(run)],
