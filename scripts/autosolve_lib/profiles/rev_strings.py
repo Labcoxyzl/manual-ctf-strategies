@@ -9,6 +9,7 @@ import signal
 import stat
 import subprocess
 import time
+from collections import deque
 from pathlib import Path
 
 from .xor import recover_single_byte
@@ -188,11 +189,46 @@ def _append_sequence(sequence: list[tuple[int, int, int, int]],
                     'state': 'candidate', 'backend': 'literal-store-sequence'})
 
 
+def _code_xor_candidates(encoded: bytes, start: int,
+                         sites: list[dict]) -> list[dict]:
+    direct = {}
+    evidence = {}
+    for site in sites:
+        address, key, offset = site['address'], site['key'], site['offset']
+        if not start <= address < start + len(encoded):
+            continue
+        if site['kind'] == 'direct':
+            direct.setdefault(key, []).append((address, offset))
+        elif site['index'] is not None and address == start:
+            length = site['bound']
+            if isinstance(length, int) and 16 <= length <= len(encoded) and \
+                    not any(encoded[length:]):
+                evidence[(key, length)] = offset
+    for key, offsets in direct.items():
+        addresses = {address for address, _ in offsets}
+        length = len(addresses)
+        if length >= 16 and addresses == set(range(start, start + length)) and \
+                not any(encoded[length:]):
+            evidence[(key, length)] = offsets[0][1]
+    candidates = []
+    for (key, length), offset in evidence.items():
+        if key == 0:
+            continue
+        decoded = bytes(byte ^ key for byte in encoded[:length])
+        words = decoded.split(b' ')
+        if len(words) < 3 or not all(32 <= byte <= 126 for byte in decoded) or \
+                sum(65 <= byte <= 90 or 97 <= byte <= 122 for byte in decoded) < len(decoded) * 0.6:
+            continue
+        candidates.append({'data': decoded, 'key_hex': f'{key:02x}',
+                           'instruction_file_offset': offset})
+    return candidates if len(candidates) == 1 else []
+
+
 def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], list[str]]:
     try:
         from capstone import Cs, CS_ARCH_X86, CS_MODE_32, CS_MODE_64
-        from capstone.x86_const import (X86_OP_IMM, X86_OP_MEM, X86_REG_RBP, X86_REG_RSP,
-                                        X86_REG_EBP, X86_REG_ESP)
+        from capstone.x86_const import (X86_OP_IMM, X86_OP_MEM, X86_OP_REG, X86_REG_RBP,
+                                        X86_REG_RSP, X86_REG_EBP, X86_REG_ESP, X86_REG_RIP)
         from elftools.elf.elffile import ELFFile
         from elftools.elf.sections import SymbolTableSection
     except ImportError as error:
@@ -207,7 +243,199 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
         md = Cs(CS_ARCH_X86, mode)
         md.detail = True
         bases = {X86_REG_RBP: 'bp', X86_REG_RSP: 'sp', X86_REG_EBP: 'bp', X86_REG_ESP: 'sp'}
+        aliases = {name: parent for parent, names in {
+            'rax': ('rax', 'eax', 'ax', 'al', 'ah'),
+            'rbx': ('rbx', 'ebx', 'bx', 'bl', 'bh'),
+            'rcx': ('rcx', 'ecx', 'cx', 'cl', 'ch'),
+            'rdx': ('rdx', 'edx', 'dx', 'dl', 'dh'),
+            'rsi': ('rsi', 'esi', 'si', 'sil'),
+            'rdi': ('rdi', 'edi', 'di', 'dil'),
+            'rbp': ('rbp', 'ebp', 'bp', 'bpl'),
+            'rsp': ('rsp', 'esp', 'sp', 'spl'),
+        }.items() for name in names}
+        aliases.update({name: f'r{index}' for index in range(8, 16)
+                        for name in (f'r{index}', f'r{index}d', f'r{index}w', f'r{index}b')})
+
+        def family(register: int) -> str | None:
+            name = md.reg_name(register)
+            return aliases.get(name, name)
+
+        def byte_lane(register: int) -> tuple[str | None, int]:
+            return family(register), int(md.reg_name(register) in ('ah', 'bh', 'ch', 'dh'))
+
+        def memory_key(operand):
+            mem = operand.mem
+            return family(mem.base), family(mem.index), mem.scale, mem.disp
+
+        def loop_bound(history, site, branch):
+            target = branch.operands[0].imm
+            body = [row for row in history if target <= row.address <= branch.address]
+            prior = [row for row in history if row.address < target]
+            if not prior or not (target <= site['read'] < site['xor'] < site['store'] < branch.address):
+                return None
+
+            def safe_entry(initial_address):
+                controls = [row for row in prior if row.address < initial_address and
+                            row.mnemonic.startswith(('j', 'call', 'ret', 'loop'))]
+                if not controls:
+                    return len(history) < history.maxlen
+                last = controls[-1]
+                if last.mnemonic.startswith('ret'):
+                    return True
+                if last.mnemonic != 'jmp' or not last.operands or \
+                        last.operands[0].type != X86_OP_IMM or \
+                        last.operands[0].imm >= last.address:
+                    return False
+                after = [row for row in prior if last.address < row.address < initial_address]
+                return not after or (
+                    len(after) >= 2 and after[0].mnemonic == 'push' and
+                    after[0].operands and after[0].operands[0].type == X86_OP_REG and
+                    family(after[0].operands[0].reg) == 'rbp' and
+                    after[1].mnemonic == 'mov' and len(after[1].operands) == 2 and
+                    all(op.type == X86_OP_REG for op in after[1].operands) and
+                    family(after[1].operands[0].reg) == 'rbp' and
+                    family(after[1].operands[1].reg) == 'rsp' and
+                    all(row.mnemonic in ('sub', 'nop', 'endbr64')
+                        for row in after[2:]))
+            compares = [row for row in body if site['store'] < row.address < branch.address and
+                        row.mnemonic == 'cmp' and len(row.operands) == 2 and
+                        row.operands[1].type == X86_OP_IMM]
+            if len(compares) != 1:
+                return None
+            compare = compares[0]
+            if any(row.mnemonic.startswith(('j', 'call', 'ret', 'loop'))
+                   for row in body if row.address < branch.address):
+                return None
+            if any('rflags' in {md.reg_name(reg) for reg in row.regs_access()[1]}
+                   for row in body if compare.address < row.address < branch.address):
+                return None
+            bound = compare.operands[1].imm + int(branch.mnemonic in ('jbe', 'jna'))
+            if not 16 <= bound <= 256:
+                return None
+            index = site['index']
+            if branch.mnemonic in ('jne', 'jnz') and compare.operands[0].type == X86_OP_REG and \
+                    compare.operands[0].size >= 4:
+                counter = family(compare.operands[0].reg)
+                copies = [row for row in body if row.address < site['read'] and
+                          row.mnemonic == 'mov' and len(row.operands) == 2 and
+                          row.operands[0].type == X86_OP_REG and
+                          row.operands[0].size >= 4 and
+                          family(row.operands[0].reg) == index and
+                          row.operands[1].type == X86_OP_REG and
+                          row.operands[1].size >= 4 and
+                          family(row.operands[1].reg) == counter]
+                if len(copies) != 1:
+                    return None
+                copy = copies[0]
+                increments = [row for row in body if copy.address < row.address < site['read'] and
+                              row.mnemonic == 'add' and len(row.operands) == 2 and
+                              row.operands[0].type == X86_OP_REG and
+                              row.operands[0].size >= 4 and
+                              family(row.operands[0].reg) == counter and
+                              row.operands[1].type == X86_OP_IMM and row.operands[1].imm == 1]
+                if len(increments) != 1 or any(
+                        counter in {family(reg) for reg in row.regs_access()[1]}
+                        for row in body if row.address != increments[0].address):
+                    return None
+                initial = [row for row in prior if counter in
+                           {family(reg) for reg in row.regs_access()[1]}]
+                if not initial:
+                    return None
+                zero = initial[-1]
+                if not (zero.mnemonic == 'xor' and len(zero.operands) == 2 and
+                        all(op.type == X86_OP_REG and op.size >= 4 and
+                            family(op.reg) == counter
+                            for op in zero.operands)):
+                    return None
+                if any(row.mnemonic not in ('lea', 'nop') and not (
+                        row.mnemonic == 'jmp' and row.operands and
+                        row.operands[0].type == X86_OP_IMM and
+                        row.operands[0].imm == compare.address)
+                       for row in prior if row.address > zero.address):
+                    return None
+                if not safe_entry(zero.address):
+                    return None
+                if any(index in {family(reg) for reg in row.regs_access()[1]}
+                       for row in body if copy.address < row.address <= site['store']):
+                    return None
+                return bound
+            if branch.mnemonic not in ('jbe', 'jna') or \
+                    compare.operands[0].type != X86_OP_MEM or compare.operands[0].size < 4:
+                return None
+            slot = memory_key(compare.operands[0])
+            slot_width = compare.operands[0].size
+            loads = [row for row in body if row.address < site['read'] and
+                     row.mnemonic == 'mov' and len(row.operands) == 2 and
+                     row.operands[0].type == X86_OP_REG and
+                     row.operands[0].size >= 4 and
+                     family(row.operands[0].reg) == index and
+                     row.operands[1].type == X86_OP_MEM and
+                     row.operands[1].size == slot_width and memory_key(row.operands[1]) == slot]
+            increments = [row for row in body if site['store'] < row.address < compare.address and
+                          row.mnemonic == 'add' and len(row.operands) == 2 and
+                          row.operands[0].type == X86_OP_MEM and
+                          row.operands[0].size == slot_width and memory_key(row.operands[0]) == slot and
+                          row.operands[1].type == X86_OP_IMM and row.operands[1].imm == 1]
+            if len(loads) != 1 or len(increments) != 1:
+                return None
+            if any(index in {family(reg) for reg in row.regs_access()[1]}
+                   for row in body if loads[0].address < row.address < site['read']):
+                return None
+            slot_writes = [row for row in body if row.operands and
+                           row.operands[0].type == X86_OP_MEM and
+                           memory_key(row.operands[0]) == slot and row.mnemonic != 'cmp']
+            if len(slot_writes) != 1:
+                return None
+            initial = [row for row in prior if row.operands and
+                       row.operands[0].type == X86_OP_MEM and memory_key(row.operands[0]) == slot and
+                       row.mnemonic == 'mov' and len(row.operands) == 2 and
+                       row.operands[0].size == slot_width and
+                       row.operands[1].type == X86_OP_IMM and row.operands[1].imm == 0]
+            prior_writes = [row for row in prior if row.operands and
+                            row.operands[0].type == X86_OP_MEM and
+                            memory_key(row.operands[0]) == slot and row.mnemonic != 'cmp']
+            if not initial or prior_writes[-1].address != initial[-1].address:
+                return None
+            if not safe_entry(initial[-1].address):
+                return None
+            after_init = [row for row in prior if row.address > initial[-1].address]
+            if len(after_init) != 1 or after_init[0].mnemonic != 'jmp' or \
+                    not after_init[0].operands or after_init[0].operands[0].type != X86_OP_IMM or \
+                    after_init[0].operands[0].imm != compare.address:
+                return None
+            slot_registers = {slot[0], slot[1]} - {None, ''}
+            if any(slot_registers.intersection({family(reg) for reg in row.regs_access()[1]})
+                   for row in body):
+                return None
+            reloads = []
+            if any(index in {family(reg) for reg in row.regs_access()[1]}
+                   for row in body if site['read'] <= row.address < site['store']):
+                reloads = [row for row in body if site['xor'] < row.address < site['store'] and
+                           row.mnemonic == 'mov' and len(row.operands) == 2 and
+                           row.operands[0].type == X86_OP_REG and
+                           row.operands[0].size >= 4 and
+                           family(row.operands[0].reg) == index and
+                           row.operands[1].type == X86_OP_MEM and
+                           row.operands[1].size == slot_width and memory_key(row.operands[1]) == slot]
+                if len(reloads) != 1:
+                    return None
+                index_writes = [row for row in body if site['xor'] < row.address < site['store'] and
+                                index in {family(reg) for reg in row.regs_access()[1]}]
+                if not index_writes or index_writes[-1].address != reloads[0].address:
+                    return None
+            allowed_memory = {loads[0].address, site['read'], site['store'],
+                              increments[0].address, compare.address}
+            allowed_memory.update(row.address for row in reloads)
+            if any(row.mnemonic not in ('mov', 'movzx', 'xor', 'add', 'cmp',
+                                        'lea', 'nop', 'jbe', 'jna') or
+                   (row.mnemonic != 'lea' and row.address not in allowed_memory and
+                    any(op.type == X86_OP_MEM for op in row.operands))
+                   for row in body):
+                return None
+            return bound
+
         scanned = 0
+        xor_sites = []
         for section in elf.iter_sections():
             if time.monotonic() >= deadline:
                 warnings.append('static string scan timed out')
@@ -224,15 +452,111 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
             stores: dict[str, dict[int, tuple[int, int, int]]] = {}
             sequence = []
             since_store = 0
+            previous = pending = None
+            address_registers = {}
+            recent = deque(maxlen=96)
+            section_sites_start = len(xor_sites)
             for instruction in md.disasm(blob, section['sh_addr']):
                 if time.monotonic() >= deadline or len(records) >= limit:
                     break
+                operands = instruction.operands
+                recent.append(instruction)
+                written = {family(register) for register in instruction.regs_access()[1]}
+                if pending:
+                    signature, address, key, xor_offset, remaining, tracked, outputs, index, read, xor = pending
+                    changed = written.intersection(tracked)
+                    if changed and not (len(changed) == 1 and instruction.mnemonic == 'lea' and
+                                        len(operands) == 2 and operands[0].type == X86_OP_REG and
+                                        family(operands[0].reg) in changed and
+                                        operands[1].type == X86_OP_MEM and
+                                        operands[1].mem.base == X86_REG_RIP and
+                                        not operands[1].mem.index and
+                                        instruction.address + instruction.size +
+                                        operands[1].mem.disp == tracked[family(operands[0].reg)]):
+                        pending = None
+                    if pending:
+                        copied = (byte_lane(operands[0].reg) if instruction.mnemonic == 'mov' and
+                                  len(operands) == 2 and operands[0].type == X86_OP_REG and
+                                  operands[1].type == X86_OP_REG and
+                                  byte_lane(operands[1].reg) in outputs else None)
+                        outputs = {output for output in outputs if output[0] not in written}
+                        if copied:
+                            outputs.add(copied)
+                        if not outputs:
+                            pending = None
+                    if pending and instruction.mnemonic == 'mov' and len(operands) == 2 and \
+                            operands[0].type == X86_OP_MEM and operands[0].size == 1 and \
+                            operands[1].type == X86_OP_REG and \
+                            byte_lane(operands[1].reg) in outputs:
+                        mem = operands[0].mem
+                        if (mem.base, mem.index, mem.scale, mem.disp) == signature and \
+                                len(xor_sites) < 4096:
+                            xor_sites.append({'address': address, 'key': key, 'offset': xor_offset,
+                                              'kind': 'loop', 'index': index, 'bound': None,
+                                              'read': read, 'xor': xor, 'store': instruction.address})
+                            pending = None
+                    if pending:
+                        pending = (signature, address, key, xor_offset,
+                                   remaining - 1, tracked, outputs, index, read, xor) if remaining > 1 else None
+                if instruction.mnemonic == 'xor' and len(operands) == 2 and \
+                        operands[1].type == X86_OP_IMM and 0 < operands[1].imm < 256:
+                    key = operands[1].imm
+                    xor_offset = section['sh_offset'] + instruction.address - section['sh_addr']
+                    if operands[0].type == X86_OP_MEM and operands[0].size == 1 and \
+                            len(xor_sites) < 4096:
+                        mem = operands[0].mem
+                        address = (instruction.address + instruction.size + mem.disp
+                                   if mem.base == X86_REG_RIP else mem.disp)
+                        if mem.base in (0, X86_REG_RIP) and not mem.index:
+                            xor_sites.append({'address': address, 'key': key, 'offset': xor_offset,
+                                              'kind': 'direct', 'index': None, 'bound': None})
+                    elif operands[0].type == X86_OP_REG and previous and \
+                            previous.mnemonic in ('mov', 'movzx') and len(previous.operands) == 2 and \
+                            previous.operands[0].type == X86_OP_REG and \
+                            previous.operands[0].reg == operands[0].reg and \
+                            previous.operands[1].type == X86_OP_MEM and \
+                            previous.operands[1].size == 1:
+                        mem = previous.operands[1].mem
+                        tracked = {name: address_registers[name]
+                                   for name in (family(mem.base), family(mem.index))
+                                   if name in address_registers}
+                        unknown = {family(register) for register in (mem.base, mem.index)
+                                   if register not in (0, X86_REG_RIP) and
+                                   family(register) not in tracked}
+                        if len(tracked) <= 1 and len(unknown) <= 1 and mem.scale == 1 and \
+                                family(operands[0].reg) not in tracked:
+                            address = mem.disp + next(iter(tracked.values()), 0)
+                            pending = ((mem.base, mem.index, mem.scale, mem.disp),
+                                       address, key, xor_offset, 4, tracked,
+                                       {byte_lane(operands[0].reg)},
+                                       next(iter(unknown), None), previous.address,
+                                       instruction.address)
+                for register in written:
+                    address_registers.pop(register, None)
+                if instruction.mnemonic == 'lea' and len(operands) == 2 and \
+                        operands[0].type == X86_OP_REG and operands[1].type == X86_OP_MEM and \
+                        operands[1].mem.base == X86_REG_RIP and not operands[1].mem.index:
+                    address_registers[family(operands[0].reg)] = (instruction.address +
+                                                                   instruction.size + operands[1].mem.disp)
+                previous = instruction
                 if instruction.mnemonic.startswith(('ret', 'jmp', 'j', 'call')):
+                    if instruction.mnemonic.startswith('j') and instruction.mnemonic != 'jmp' and \
+                            operands and operands[0].type == X86_OP_IMM and \
+                            operands[0].imm < instruction.address:
+                        for site in reversed(xor_sites[section_sites_start:]):
+                            if site.get('xor', instruction.address) < operands[0].imm:
+                                break
+                            if site['kind'] == 'loop' and site['index'] is not None and \
+                                    site['bound'] is None and \
+                                    operands[0].imm <= site['xor'] < instruction.address:
+                                site['bound'] = loop_bound(recent, site, instruction)
                     _append_stack(stores, records, limit)
                     _append_sequence(sequence, records, limit)
                     stores = {}
                     sequence = []
                     since_store = 0
+                    pending = None
+                    address_registers.clear()
                     continue
                 since_store += 1
                 if since_store > 64:
@@ -287,8 +611,37 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
                     continue
                 offset = target['sh_offset'] + symbol['st_value'] - target['sh_addr']
                 if target['sh_offset'] <= offset and offset + size <= target['sh_offset'] + target['sh_size']:
-                    blocks.append((offset, size, symbol.name))
-        if not blocks:
+                    blocks.append((offset, size, symbol.name, symbol['st_value']))
+        has_symbols = bool(blocks)
+        symbol_starts = {address for _, _, _, address in blocks}
+        linked_blocks = set()
+        data_cache = {}
+        for site in xor_sites:
+            bound = site.get('bound')
+            if site['kind'] != 'loop' or site['index'] is None or \
+                    not isinstance(bound, int) or not 16 <= bound <= 256 or \
+                    site['address'] in symbol_starts:
+                continue
+            for section in data_sections.values():
+                relative = site['address'] - section['sh_addr']
+                if not 0 <= relative or relative + bound > section['sh_size'] or \
+                        section['sh_size'] > MAX_SCAN_BYTES:
+                    continue
+                section_offset = section['sh_offset']
+                if section_offset not in data_cache:
+                    data_cache[section_offset] = section.data()
+                data = data_cache[section_offset]
+                end = relative + bound
+                if (end < len(data) and data[end] == 0) or \
+                        relative == 0 or data[relative - 1] == 0:
+                    linked_blocks.add((section['sh_offset'] + relative, bound, None,
+                                       site['address']))
+                break
+            if len(linked_blocks) >= 128:
+                warnings.append('XOR linked block limit reached')
+                break
+        blocks = sorted(linked_blocks) + blocks
+        if not has_symbols:
             for section in data_sections.values():
                 if section['sh_size'] > MAX_SCAN_BYTES:
                     warnings.append('data byte scan limit reached')
@@ -296,12 +649,13 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
                 for match in re.finditer(rb'[^\x00]+', section.data()):
                     if not 16 <= len(match.group()) <= 256:
                         continue
-                    blocks.append((section['sh_offset'] + match.start(), len(match.group()), None))
+                    blocks.append((section['sh_offset'] + match.start(), len(match.group()), None,
+                                   section['sh_addr'] + match.start()))
                     if len(blocks) >= 128:
                         warnings.append('XOR data block limit reached')
                         break
         seen_blocks = set()
-        for offset, length, symbol in blocks[:128]:
+        for offset, length, symbol, address in blocks[:128]:
             if (offset, length) in seen_blocks:
                 continue
             seen_blocks.add((offset, length))
@@ -312,16 +666,24 @@ def _elf_records(path: Path, deadline: float, limit: int) -> tuple[list[dict], l
                 warnings.append('XOR string output limit reached')
                 break
             stream.seek(offset)
-            encoded = stream.read(length).rstrip(b'\0')
-            for candidate in recover_single_byte(encoded, max_candidates=1):
-                if candidate['key_hex'] == '00' or candidate['data'] == encoded:
+            raw = stream.read(length)
+            encoded = raw.rstrip(b'\0')
+            candidates = _code_xor_candidates(raw, address, xor_sites)
+            if not candidates and any(start >= offset and start + size <= offset + length and
+                                      (start, size) != (offset, length)
+                                      for start, size, _, _ in linked_blocks):
+                continue
+            for candidate in candidates or recover_single_byte(encoded, max_candidates=1):
+                if candidate['key_hex'] == '00' or candidate['data'] == raw[:len(candidate['data'])]:
                     continue
+                locator = {'backend': 'symbol-data-xor' if symbol else 'data-run-xor',
+                           'file_offset': offset, 'length': len(candidate['data']), 'symbol': symbol}
+                if 'instruction_file_offset' in candidate:
+                    locator['xor_instruction_file_offset'] = candidate['instruction_file_offset']
                 records.append({'kind': 'xor', 'data': candidate['data'],
                                 'text': candidate['data'].decode('ascii', 'replace'),
                                 'encoding': 'ASCII', 'key_hex': candidate['key_hex'],
-                                'source_locator': {'backend': 'symbol-data-xor' if symbol else 'data-run-xor',
-                                                   'file_offset': offset, 'length': len(encoded),
-                                                   'symbol': symbol}, 'state': 'candidate',
+                                'source_locator': locator, 'state': 'candidate',
                                 'backend': 'single-byte-xor'})
     return records, warnings
 

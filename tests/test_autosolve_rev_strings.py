@@ -75,6 +75,245 @@ class ReverseStringsTests(unittest.TestCase):
             offset = row['source_locator']['file_offset']
             self.assertEqual(binary.read_bytes()[offset:offset + len(phrase)], encoded)
 
+    def test_xor_string_without_dictionary_words_uses_decoder_code(self):
+        cases = [('gcc_o0', 'gcc', '-O0', False, b'copper harbor violet route', 0x37),
+                 ('gcc_o2_stripped', 'gcc', '-O2', True, b'silver meadow branch crossing', 0x59)]
+        if shutil.which('clang-16'):
+            cases.append(('clang_o2', 'clang-16', '-O2', False,
+                          b'orchard lantern melody river', 0x4b))
+        for name, compiler, optimization, strip, phrase, key in cases:
+            with self.subTest(name=name):
+                encoded = bytes(byte ^ key for byte in phrase)
+                source = ('volatile unsigned char payload[] = {' +
+                          ','.join(str(byte) for byte in encoded + b'\0') + '};'
+                          'int main(void){for(unsigned i=0;i<' + str(len(phrase)) +
+                          ';i++)payload[i]^=' + str(key) + ';return payload[0];}')
+                binary = self.build(name, source, compiler=compiler,
+                                    optimization=optimization, strip=strip)
+                rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+                matches = [row for row in rows if row['kind'] == 'xor' and row['data'] == phrase]
+                self.assertEqual(len(matches), 1, (name, rows, warnings))
+                row = matches[0]
+                self.assertEqual(row['key_hex'], f'{key:02x}')
+                self.assertEqual(row['state'], 'candidate')
+                offset = row['source_locator']['file_offset']
+                self.assertEqual(binary.read_bytes()[offset:offset + len(encoded)], encoded)
+
+    def test_unrelated_xor_constant_does_not_decode_random_data(self):
+        binary = self.build('unrelated_xor',
+                            'volatile unsigned char constants[] = {' +
+                            ','.join(str(byte) for byte in bytes(range(16, 48))) +
+                            '}; int main(void){unsigned x=0x1234; x^=0x59;'
+                            'return x + constants[0];}', optimization='-O2', strip=True)
+        rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+        self.assertEqual([row for row in rows if row['kind'] == 'xor'], [], warnings)
+
+    def test_stale_register_address_does_not_claim_xor_plaintext(self):
+        encoded = bytes(byte ^ 0x37 for byte in b'copper harbor violet route')
+        data = ('.section .data\n.globl payload\n.type payload, @object\n'
+                '.size payload, 26\npayload:\n.byte ' + ','.join(map(str, encoded)) +
+                '\n.globl noise\nnoise:\n.byte 1\n.space 512\n.section .text\n')
+        cases = {
+            'alias_write': ('lea payload(%rip), %rax\nmov $noise, %eax\n'
+                            'movb (%rax), %cl\nxorb $0x37, %cl\nmovb %cl, (%rax)\n'),
+            'alias_write_after_xor': ('lea payload(%rip), %rax\nmovb (%rax), %cl\n'
+                                      'xorb $0x37, %cl\nmov $noise, %eax\n'
+                                      'movb %cl, (%rax)\n'),
+            'result_overwrite': ('lea payload(%rip), %rax\nmovb (%rax), %cl\n'
+                                 'xorb $0x37, %cl\nmovb $0, %cl\nmovb %cl, (%rax)\n'),
+            'wrong_store_register': ('lea payload(%rip), %rax\nmovb (%rax), %cl\n'
+                                     'xorb $0x37, %cl\nmovb $0, %dl\nmovb %dl, (%rax)\n'),
+            'wrong_byte_lane': ('lea payload(%rip), %rax\nmovb (%rax), %cl\n'
+                                'xorb $0x37, %cl\nmovb %cl, %dh\nmovb %dl, (%rax)\n'),
+            'function_boundary': ('lea payload(%rip), %rax\nret\n'
+                                  'other:\nmovb (%rax), %cl\nxorb $0x37, %cl\n'
+                                  'movb %cl, (%rax)\n'),
+            'unknown_direct_base': ('mov $noise, %eax\n' +
+                                    ''.join(f'xorb $0x37, payload+{i}(%rax)\n'
+                                            for i in range(len(encoded)))),
+            'unknown_index_base': ('mov $26, %eax\nmovb payload(%rax), %cl\n'
+                                   'xorb $0x37, %cl\nmovb %cl, payload(%rax)\n'),
+            'one_byte_only': ('lea payload(%rip), %rax\nmovb (%rax), %cl\n'
+                              'xorb $0x37, %cl\nmovb %cl, (%rax)\n'),
+            'false_bound_flags': ('xor %esi, %esi\njmp compare\nbody:\n'
+                                  'mov %esi, %edx\nadd $1, %esi\n'
+                                  'lea payload(%rip), %rax\nmovb (%rax,%rdx), %cl\n'
+                                  'xorb $0x37, %cl\nmovb %cl, (%rax,%rdx)\n'
+                                  'compare:\ncmp $26, %esi\nxor %ebx, %ebx\njne body\n'),
+            'skipped_decoder_body': ('xor %esi, %esi\njmp compare\nbody:\njmp compare\n'
+                                     'mov %esi, %edx\nadd $1, %esi\n'
+                                     'lea payload(%rip), %rax\nmovb (%rax,%rdx), %cl\n'
+                                     'xorb $0x37, %cl\nmovb %cl, (%rax,%rdx)\n'
+                                     'compare:\ncmp $26, %esi\njne body\n'),
+            'counter_alias_reset': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                    'lea -4(%rbp), %r8\nmovl $0, -4(%rbp)\njmp compare\n'
+                                    'body:\nmov -4(%rbp), %edx\nlea payload(%rip), %rax\n'
+                                    'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                    'movb %cl, (%rax,%rdx)\naddl $1, -4(%rbp)\n'
+                                    'movl $0, (%r8)\ncompare:\ncmpl $25, -4(%rbp)\n'
+                                    'jbe body\nleave\n'),
+            'counter_alias_preloop_set': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                          'lea -4(%rbp), %r8\nmovl $0, -4(%rbp)\n'
+                                          'movl $25, (%r8)\njmp compare\n'
+                                          'body:\nmov -4(%rbp), %edx\n'
+                                          'lea payload(%rip), %rax\n'
+                                          'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                          'movb %cl, (%rax,%rdx)\naddl $1, -4(%rbp)\n'
+                                          'compare:\ncmpl $25, -4(%rbp)\njbe body\nleave\n'),
+            'counter_bypass_zero': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                    'movl $25, -4(%rbp)\njmp body\n'
+                                    'movl $0, -4(%rbp)\njmp compare\n'
+                                    'body:\nmov -4(%rbp), %edx\n'
+                                    'lea payload(%rip), %rax\n'
+                                    'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                    'movb %cl, (%rax,%rdx)\naddl $1, -4(%rbp)\n'
+                                    'compare:\ncmpl $25, -4(%rbp)\njbe body\nleave\n'),
+            'counter_mixed_width': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                    'movabs $4294967296, %r9\nmov %r9, -4(%rbp)\n'
+                                    'movl $0, -4(%rbp)\njmp compare\n'
+                                    'body:\nmov -4(%rbp), %edx\n'
+                                    'lea payload(%rip), %rax\n'
+                                    'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                    'movb %cl, (%rax,%rdx)\naddl $1, -4(%rbp)\n'
+                                    'compare:\ncmpq $25, -4(%rbp)\njbe body\nleave\n'),
+            'counter_index_overwrite': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                        'movl $0, -4(%rbp)\njmp compare\n'
+                                        'body:\nmov -4(%rbp), %edx\nmov $0, %edx\n'
+                                        'lea payload(%rip), %rax\nmovb (%rax,%rdx), %cl\n'
+                                        'xorb $0x37, %cl\nmovb %cl, (%rax,%rdx)\n'
+                                        'addl $1, -4(%rbp)\ncompare:\n'
+                                        'cmpl $25, -4(%rbp)\njbe body\nleave\n'),
+            'register_bypass_zero': ('mov $25, %esi\njmp body\nxor %esi, %esi\n'
+                                     'body:\nmov %esi, %edx\nadd $1, %esi\n'
+                                     'lea payload(%rip), %rax\n'
+                                     'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                     'movb %cl, (%rax,%rdx)\n'
+                                     'cmp $26, %esi\njne body\n'),
+            'partial_index_write': ('push %rbp\nmov %rsp, %rbp\nsub $16, %rsp\n'
+                                    'mov $256, %rdx\nmovl $0, -4(%rbp)\njmp compare\n'
+                                    'body:\nmovb -4(%rbp), %dl\n'
+                                    'lea payload(%rip), %rax\n'
+                                    'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                    'movb %cl, (%rax,%rdx)\naddl $1, -4(%rbp)\n'
+                                    'compare:\ncmpl $25, -4(%rbp)\n'
+                                    'jbe body\nleave\n'),
+            'partial_counter_zero': ('mov $256, %rsi\nxor %sil, %sil\n'
+                                     'body:\nmov %esi, %edx\nadd $1, %esi\n'
+                                     'lea payload(%rip), %rax\n'
+                                     'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                     'movb %cl, (%rax,%rdx)\n'
+                                     'cmp $26, %esi\njne body\n'),
+            'register_indirect_bypass': ('lea body(%rip), %r9\njmp *%r9\n'
+                                         'xor %esi, %esi\nbody:\n'
+                                         'mov %esi, %edx\nadd $1, %esi\n'
+                                         'lea payload(%rip), %rax\n'
+                                         'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                         'movb %cl, (%rax,%rdx)\n'
+                                         'cmp $26, %esi\njne body\n'),
+            'register_skip_loop': ('jmp finish\nxor %esi, %esi\nbody:\n'
+                                   'mov %esi, %edx\nadd $1, %esi\n'
+                                   'lea payload(%rip), %rax\n'
+                                   'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                                   'movb %cl, (%rax,%rdx)\n'
+                                   'cmp $26, %esi\njne body\nfinish:\n'),
+        }
+        for name, body in cases.items():
+            with self.subTest(name=name):
+                source = self.root / f'{name}.S'
+                binary = self.root / name
+                source.write_text(data + '.globl main\nmain:\n' + body +
+                                  'xor %eax, %eax\nret\n.section .note.GNU-stack,"",@progbits\n')
+                subprocess.run(['gcc', '-no-pie', '-o', str(binary), str(source)],
+                               check=True, capture_output=True)
+                rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+                self.assertEqual([row for row in rows if row['kind'] == 'xor'], [],
+                                 (rows, warnings))
+                self.assertIn('no plaintext inferred', ' '.join(warnings))
+
+    def test_shifted_loop_does_not_claim_full_encoded_symbol(self):
+        encoded = bytes(byte ^ 0x37 for byte in b'copper harbor violet route')
+        source = self.root / 'shifted.S'
+        binary = self.root / 'shifted'
+        source.write_text('.section .data\n.globl payload\n.type payload, @object\n'
+                          '.size payload, 27\npayload:\n.byte ' +
+                          ','.join(map(str, encoded + b'\0')) +
+                          '\n.section .text\n.globl main\nmain:\n'
+                          'xor %esi, %esi\njmp compare\nbody:\nmov %esi, %edx\n'
+                          'add $1, %esi\nlea payload+1(%rip), %rax\n'
+                          'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                          'movb %cl, (%rax,%rdx)\ncompare:\ncmp $26, %esi\n'
+                          'jne body\nxor %eax, %eax\nret\n'
+                          '.section .note.GNU-stack,"",@progbits\n')
+        subprocess.run(['gcc', '-no-pie', '-o', str(binary), str(source)],
+                       check=True, capture_output=True)
+        rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+        self.assertEqual([row for row in rows if row['kind'] == 'xor'], [],
+                         (rows, warnings))
+        self.assertIn('no plaintext inferred', ' '.join(warnings))
+
+    def test_xor_encoded_zero_before_terminator_is_preserved(self):
+        phrase = b'copper harbor violet route7'
+        key = 0x37
+        encoded = bytes(byte ^ key for byte in phrase)
+        self.assertEqual(encoded[-1], 0)
+        source = ('volatile unsigned char payload[] = {' +
+                  ','.join(map(str, encoded + b'\0')) + '};'
+                  'int main(void){for(unsigned i=0;i<' + str(len(phrase)) +
+                  ';i++)payload[i]^=0x37;return payload[0];}')
+        for name, optimization, strip in (('encoded_zero', '-O0', False),
+                                           ('encoded_zero_stripped', '-O2', True)):
+            with self.subTest(name=name):
+                binary = self.build(name, source, optimization=optimization, strip=strip)
+                rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+                matches = [row for row in rows if row['kind'] == 'xor' and row['data'] == phrase]
+                self.assertEqual(len(matches), 1, (rows, warnings))
+                row = matches[0]
+                self.assertEqual(row['key_hex'], f'{key:02x}')
+                self.assertEqual(row['state'], 'candidate')
+                offset = row['source_locator']['file_offset']
+                self.assertEqual(row['source_locator']['length'], len(encoded))
+                self.assertEqual(binary.read_bytes()[offset:offset + len(encoded) + 1],
+                                 encoded + b'\0')
+
+    def test_bounded_embedded_xor_span_has_slice_offset(self):
+        for phrase in (b'copper harbor violet route', b'hello secret message in the data'):
+            encoded = bytes(byte ^ 0x37 for byte in phrase)
+            source = self.root / 'embedded.S'
+            source.write_text('.section .data\n.globl bundle\n.type bundle, @object\n'
+                              f'.size bundle, {len(encoded) + 2}\nbundle:\n.byte 18,' +
+                              ','.join(map(str, encoded + b'\0')) +
+                              '\n.section .text\n.globl main\nmain:\n'
+                              'xor %esi, %esi\njmp compare\nbody:\nmov %esi, %edx\n'
+                              'add $1, %esi\nlea bundle+1(%rip), %rax\n'
+                              'movb (%rax,%rdx), %cl\nxorb $0x37, %cl\n'
+                              'movb %cl, (%rax,%rdx)\ncompare:\n'
+                              f'cmp ${len(encoded)}, %esi\n'
+                              'jne body\nxor %eax, %eax\nret\n'
+                              '.section .note.GNU-stack,"",@progbits\n')
+            for label, strip in (('embedded', False), ('embedded_stripped', True)):
+                name = f'{label}_{len(phrase)}'
+                with self.subTest(name=name):
+                    binary = self.root / name
+                    command = ['gcc', '-no-pie', '-o', str(binary), str(source)]
+                    if strip:
+                        command.insert(2, '-s')
+                    subprocess.run(command, check=True, capture_output=True)
+                    offset = binary.read_bytes().find(encoded)
+                    self.assertGreaterEqual(offset, 0)
+                    rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+                    matches = [row for row in rows if row['kind'] == 'xor' and row['data'] == phrase]
+                    self.assertEqual(len(matches), 1, (rows, warnings))
+                    self.assertEqual([row for row in rows if row['kind'] == 'xor'], matches,
+                                     (rows, warnings))
+                    row = matches[0]
+                    self.assertEqual(row['key_hex'], '37')
+                    self.assertEqual(row['state'], 'candidate')
+                    self.assertEqual(row['source_locator']['file_offset'], offset)
+                    self.assertEqual(row['source_locator']['length'], len(phrase))
+                    self.assertEqual(binary.read_bytes()[offset - 1], 18)
+                    self.assertEqual(binary.read_bytes()[offset:offset + len(phrase) + 1],
+                                     encoded + b'\0')
+
     def test_heldout_compiler_stack_placement(self):
         compiler = shutil.which('clang-16')
         if not compiler:
