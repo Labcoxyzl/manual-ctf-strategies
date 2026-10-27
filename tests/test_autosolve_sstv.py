@@ -27,6 +27,14 @@ class SSTVTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
 
+    def _export(self):
+        exported = self.root / "copied kit"
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/package_toolkit.py"),
+                                 "--out", str(exported)], capture_output=True, text=True,
+                                timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return exported
+
     def test_missing_wrong_decoder_and_source_bounds(self):
         source = self.root / "noise.wav"
         with wave.open(str(source), "wb") as wav:
@@ -53,6 +61,80 @@ class SSTVTests(unittest.TestCase):
         self.assertIn("byte limit", warnings[0])
         with self.assertRaises(ValueError):
             sstv.decode_sstv(source, self.root / "out", timeout=0, max_bytes=1024)
+
+    def test_doctor_reports_missing_fixture_with_compatible_decoder(self):
+        from scripts.autosolve_lib import setup
+        with (mock.patch.object(setup, "__file__", str(self.root / "scripts/autosolve_lib/setup.py")),
+              mock.patch.object(setup.shutil, "which", return_value="/synthetic/decoder"),
+              mock.patch.object(sstv, "decoder_available", return_value=True)):
+            operation, _ = setup._sstv_probe(True)
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("partial", "not_run", "sstv_probe_fixture_missing"))
+
+    def test_doctor_reports_failed_decode_without_claiming_ready(self):
+        from scripts.autosolve_lib import setup
+        with (mock.patch.object(setup.shutil, "which", return_value="/synthetic/decoder"),
+              mock.patch.object(sstv, "decoder_available", return_value=True),
+              mock.patch.object(sstv, "decode_sstv", return_value=([], ["no image"]))):
+            operation, _ = setup._sstv_probe(True)
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("partial", "failed", "sstv_probe_failed"))
+
+    def test_doctor_rejects_unrelated_valid_size_image(self):
+        from PIL import Image
+        from scripts.autosolve_lib import setup
+        black = self.root / "unrelated.png"
+        Image.new("RGB", (320, 240), "black").save(black)
+        record = {"mode": "Robot 36", "width": 320, "height": 240, "path": black}
+        with (mock.patch.object(setup.shutil, "which", return_value="/synthetic/decoder"),
+              mock.patch.object(sstv, "decoder_available", return_value=True),
+              mock.patch.object(sstv, "decode_sstv", return_value=([record], []))):
+            operation, _ = setup._sstv_probe(True)
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("partial", "failed", "sstv_probe_failed"))
+
+    @unittest.skipUnless(Path(os.environ.get("AUTOSOLVE_SSTV", str(DECODER))).is_file()
+                         and shutil.which("ffmpeg"),
+                         "approved decoder and FFmpeg required")
+    def test_copied_export_doctor_uses_bundled_recording(self):
+        fixture = ROOT / "tests/fixtures/toolkit/audio/robot36.ogg"
+        original_hash = hashlib.sha256(fixture.read_bytes()).hexdigest()
+        self.assertEqual(original_hash,
+                         "3b76b7b85a092266cff642a9391b31a3015ce73ac86b721a28267378e08c62c0")
+        exported = self._export()
+        self.assertEqual(hashlib.sha256((exported / fixture.relative_to(ROOT)).read_bytes()).hexdigest(),
+                         original_hash)
+        env = {**os.environ, "AUTOSOLVE_SSTV": os.environ.get("AUTOSOLVE_SSTV", str(DECODER))}
+        command = [sys.executable, "-I", str(exported / "scripts/autosolve.py"), "--json",
+                   "doctor", "--profiles", "audio_video", "--self-test"]
+        result = subprocess.run(command, cwd=self.root, env=env, capture_output=True,
+                                text=True, timeout=45)
+        self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
+        operation = json.loads(result.stdout)["operations"]["audio_video.sstv"]
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("ready", "passed", None))
+        self.assertEqual(hashlib.sha256(fixture.read_bytes()).hexdigest(), original_hash)
+        self.assertEqual(hashlib.sha256((exported / fixture.relative_to(ROOT)).read_bytes()).hexdigest(),
+                         original_hash)
+
+    def test_copied_export_wrong_decoders_are_unavailable(self):
+        exported = self._export()
+        fixture = exported / "tests/fixtures/toolkit/audio/robot36.ogg"
+        original_hash = hashlib.sha256(fixture.read_bytes()).hexdigest()
+        command = [sys.executable, "-I", str(exported / "scripts/autosolve.py"), "--json",
+                   "doctor", "--profiles", "audio_video", "--self-test"]
+        wrong = self.root / "wrong-decoder"
+        wrong.write_text("#!/bin/sh\necho 'PySSTV encoder'\n")
+        wrong.chmod(0o700)
+        for decoder in (str(self.root / "missing-decoder"), str(wrong)):
+            result = subprocess.run(command, cwd=self.root,
+                                    env={**os.environ, "AUTOSOLVE_SSTV": decoder},
+                                    capture_output=True, text=True, timeout=45)
+            self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
+            operation = json.loads(result.stdout)["operations"]["audio_video.sstv"]
+            self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                             ("unavailable", "not_run", "approved_sstv_decoder_or_ffmpeg_missing"))
+        self.assertEqual(hashlib.sha256(fixture.read_bytes()).hexdigest(), original_hash)
 
     @unittest.skipUnless(DECODER.is_file() and MARTIN.is_file() and shutil.which("ffmpeg"),
                          "approved decoder, Martin fixture and FFmpeg required")

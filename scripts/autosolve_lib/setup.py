@@ -736,21 +736,37 @@ def _sstv_probe(self_test):
     ffmpeg = shutil.which(FFMPEG)
     compatible = bool(tool and ffmpeg and decoder_available(tool))
     probe = 'not_run'
-    fixture = Path(__file__).resolve().parents[2] / 'tools/python/sstv-decoder/test/data/m1.ogg'
+    fixture = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio/robot36.ogg'
     if self_test and compatible and fixture.is_file():
         try:
             with tempfile.TemporaryDirectory() as directory:
                 records, warnings = decode_sstv(fixture, Path(directory) / 'stage',
                                                 timeout=15, max_bytes=1024 * 1024)
-                probe = ('passed' if not warnings and len(records) == 1 and
-                         records[0]['mode'] == 'Martin 1' and
-                         (records[0]['width'], records[0]['height']) == (320, 256)
-                         else 'failed')
+                if not warnings and len(records) == 1 and records[0]['mode'] == 'Robot 36' and \
+                        (records[0]['width'], records[0]['height']) == (320, 240):
+                    from PIL import Image, ImageStat
+                    with Image.open(records[0]['path']) as image:
+                        image = image.convert('RGB')
+                        boxes = ((100, 5, 220, 25), (40, 105, 65, 130),
+                                 (120, 105, 200, 130), (255, 105, 280, 130),
+                                 (100, 220, 220, 237))
+                        white_top, red_left, blue, red_right, white_bottom = (
+                            ImageStat.Stat(image.crop(box)).mean for box in boxes)
+                    probe = ('passed' if all(min(rgb) > 170 for rgb in (white_top, white_bottom))
+                             and all(red > 150 and red > green + 80 and red > blue_channel + 80
+                                     for red, green, blue_channel in (red_left, red_right))
+                             and blue[2] > 100 and blue[2] > blue[0] + 60 and blue[2] > blue[1] + 60
+                             else 'failed')
+                else:
+                    probe = 'failed'
         except Exception:
             probe = 'failed'
     status = 'ready' if probe == 'passed' else 'partial' if compatible else 'unavailable'
+    reason = ('approved_sstv_decoder_or_ffmpeg_missing' if not compatible else
+              'sstv_probe_fixture_missing' if self_test and not fixture.is_file() else
+              'sstv_probe_failed' if self_test and probe != 'passed' else None)
     operation = {'implemented': True, 'functional_probe': probe, 'status': status,
-                 'reason': None if compatible else 'approved_sstv_decoder_or_ffmpeg_missing'}
+                 'reason': reason}
     engine = {'found': bool(tool), 'path': tool, 'version': None,
               'options_compatible': compatible,
               'required_data': 'Martin/Robot recording with supported VIS header',
