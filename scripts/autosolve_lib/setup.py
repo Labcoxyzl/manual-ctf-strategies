@@ -705,21 +705,29 @@ def _sstv_probe(self_test):
     ffmpeg = shutil.which(FFMPEG)
     compatible = bool(tool and ffmpeg and decoder_available(tool))
     probe = 'not_run'
-    fixture = Path(__file__).resolve().parents[2] / 'tools/python/sstv-decoder/test/data/m1.ogg'
+    fixture = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio/robot36.wav'
     if self_test and compatible and fixture.is_file():
         try:
             with tempfile.TemporaryDirectory() as directory:
                 records, warnings = decode_sstv(fixture, Path(directory) / 'stage',
                                                 timeout=15, max_bytes=1024 * 1024)
                 probe = ('passed' if not warnings and len(records) == 1 and
-                         records[0]['mode'] == 'Martin 1' and
-                         (records[0]['width'], records[0]['height']) == (320, 256)
+                         records[0]['mode'] == 'Robot 36' and
+                         (records[0]['width'], records[0]['height']) == (320, 240)
                          else 'failed')
         except Exception:
             probe = 'failed'
     status = 'ready' if probe == 'passed' else 'partial' if compatible else 'unavailable'
+    if not compatible:
+        reason = 'approved_sstv_decoder_or_ffmpeg_missing'
+    elif self_test and not fixture.is_file():
+        reason = 'sstv_probe_fixture_missing'
+    elif self_test and probe != 'passed':
+        reason = 'sstv_probe_failed'
+    else:
+        reason = None
     operation = {'implemented': True, 'functional_probe': probe, 'status': status,
-                 'reason': None if compatible else 'approved_sstv_decoder_or_ffmpeg_missing'}
+                 'reason': reason}
     engine = {'found': bool(tool), 'path': tool, 'version': None,
               'options_compatible': compatible,
               'required_data': 'Martin/Robot recording with supported VIS header',

@@ -16,7 +16,7 @@ from scripts.autosolve_lib.profiles import sstv
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DECODER = ROOT / "tools/python/PySSTV/bin/sstv"
+DECODER = Path(os.environ.get("AUTOSOLVE_SSTV", ROOT / "tools/python/PySSTV/bin/sstv"))
 ENCODER_PYTHON = ROOT / "tools/python/PySSTV/bin/python"
 MARTIN = ROOT / "tools/python/sstv-decoder/test/data/m1.ogg"
 
@@ -46,6 +46,8 @@ class SSTVTests(unittest.TestCase):
             readiness = setup.doctor(["audio_video"], self_test=False)
         self.assertEqual(readiness["engines"]["sstv"]["status"], "unavailable")
         self.assertEqual(readiness["operations"]["audio_video.sstv"]["status"], "unavailable")
+        self.assertEqual(readiness["operations"]["audio_video.sstv"]["reason"],
+                         "approved_sstv_decoder_or_ffmpeg_missing")
         with mock.patch.object(sstv, "MAX_SOURCE_BYTES", 10):
             rows, warnings = sstv.decode_sstv(source, self.root / "out", timeout=2,
                                                max_bytes=1024)
@@ -53,6 +55,30 @@ class SSTVTests(unittest.TestCase):
         self.assertIn("byte limit", warnings[0])
         with self.assertRaises(ValueError):
             sstv.decode_sstv(source, self.root / "out", timeout=0, max_bytes=1024)
+
+    def test_missing_fixture_reason_when_decoder_is_compatible(self):
+        from scripts.autosolve_lib import setup
+        with (mock.patch.object(setup, "__file__", str(self.root / "scripts/autosolve_lib/setup.py")),
+              mock.patch.object(setup.shutil, "which", return_value="/synthetic/available"),
+              mock.patch.object(sstv, "decoder_available", return_value=True)):
+            operation, _ = setup._sstv_probe(True)
+        self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                         ("partial", "not_run", "sstv_probe_fixture_missing"))
+
+    @unittest.skipUnless(DECODER.is_file() and shutil.which("ffmpeg"),
+                         "approved decoder and FFmpeg required")
+    def test_packaged_robot_doctor_and_decode_failure(self):
+        from scripts.autosolve_lib import setup
+        fixture = ROOT / "tests/fixtures/toolkit/audio/robot36.wav"
+        self.assertTrue(fixture.is_file())
+        with mock.patch.object(sstv, "SSTV", str(DECODER)):
+            operation = setup.doctor(["audio_video"], self_test=True)["operations"]["audio_video.sstv"]
+            self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                             ("ready", "passed", None))
+            with mock.patch.object(sstv, "decode_sstv", return_value=([], ["bad fixture"])):
+                operation, _ = setup._sstv_probe(True)
+            self.assertEqual((operation["status"], operation["functional_probe"], operation["reason"]),
+                             ("partial", "failed", "sstv_probe_failed"))
 
     @unittest.skipUnless(DECODER.is_file() and MARTIN.is_file() and shutil.which("ffmpeg"),
                          "approved decoder, Martin fixture and FFmpeg required")
