@@ -299,10 +299,17 @@ out during preliminary inspection instead of their intended chat request;
 controlled delayed-GET checks supported a test-only timing repair without
 weakening the chat-timeout assertions. One deep-JSON helper exceeded its 12 s
 subprocess cap under the slower diagnostic suite; its cause remains unproved,
-so only sanitized failure diagnostics were added. Combined release gates and
-publication remain pending on the repaired candidate. Full CAN01 and OS01
-named-row credit awaits integrated published-hash replay. PDF metadata remains
-outside OS01 routing and is a separate breadth gap.
+so only sanitized failure diagnostics were added. A later default-environment
+trace found OCR output and setup/doctor scratch attempts outside the task root.
+Reviewed repairs use anonymous OCR output, private toolkit scratch for setup,
+doctor and their child tools, and per-run scratch for actual zsteg and checker
+jobs. An isolated combined copied-export setup and all-profile doctor trace
+found zero outside ordinary-file or directory write attempts, with PTY devices
+excluded; no-trace doctor passed its zsteg and GDB probes. This is not yet a
+same-hash release gate for the integrated candidate. Combined release gates and
+publication remain pending. Full CAN01, OS01 and PWN03 named-row credit awaits
+integrated published-hash replay. PDF metadata remains outside OS01 routing
+and is a separate breadth gap.
 
 ## Independent end-to-end evidence
 
