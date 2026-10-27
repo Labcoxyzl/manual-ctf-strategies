@@ -41,6 +41,7 @@ def main(argv=None):
     doctor.add_argument('--self-test', action='store_true')
     setup = commands.add_parser('setup', help='prepare implemented local operations without administrator rights')
     setup.add_argument('--profiles', nargs='+', default=['all'])
+    setup.add_argument('--ai-cpu', action='store_true', help='install and probe the optional CPU-only AIC02 environment')
     web = commands.add_parser('web', help='analyze an explicitly scoped web request')
     web.add_argument('--request-file', help='private raw request for WEB02/03/05')
     web.add_argument('--scope-origin', required=True)
@@ -171,8 +172,15 @@ def main(argv=None):
             result, code = {'status': 'complete', 'families': core.capabilities(args.category)}, 0
         elif args.command in ('doctor', 'setup'):
             from autosolve_lib import setup as setup_module
-            result = (setup_module.doctor(args.profiles, args.self_test)
-                      if args.command == 'doctor' else setup_module.setup(args.profiles))
+            if args.command == 'doctor':
+                result = setup_module.doctor(args.profiles, args.self_test)
+            elif args.ai_cpu:
+                if args.profiles != ['all']:
+                    raise ValueError('--ai-cpu cannot be combined with --profiles')
+                from autosolve_lib.setup_env import prepare_ai_cpu
+                result = prepare_ai_cpu()
+            else:
+                result = setup_module.setup(args.profiles)
             code = 0 if result['status'] == 'ready' else 3
         elif args.command == 'chatbot':
             from autosolve_lib.profiles import chatbot as chatbot_module

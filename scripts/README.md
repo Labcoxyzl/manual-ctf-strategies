@@ -97,6 +97,26 @@ Setup uses only wheels and verifies hashes from
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
 It does not delete an unexpected pre-existing `.autosolve/envs/core` directory.
 
+For AIC02 gradient probes on Linux x86-64, explicitly install the separate
+CPU-only PyTorch environment. Its hash-checked lock uses a reviewed PyTorch
+CPU wheel URL and PyPI dependencies; the core lock and default setup remain
+unchanged. The setup command runs a generated two-element gradient through
+`ai_model_attack.py` and reports `functional_probe: passed` only after
+checking the public command's output. It does not load challenge models or
+make a solve claim. PyTorch's wheel alone is about 184 MB, so this optional
+environment needs substantially more download and disk space than core.
+
+```sh
+python3 scripts/autosolve.py --json setup --ai-cpu
+.autosolve/envs/ai-cpu/bin/python scripts/ai_model_attack.py --help
+```
+
+The optional lock targets Linux x86-64 CPython 3.12 with glibc 2.28 or newer.
+Other architectures, missing uv or wheels, and offline uncached installs return
+partial setup results without changing the core environment. The generated
+probe is local and temporary; real model adapters still require deliberate
+`--execute-local` and independent validation of candidates.
+
 For an encrypted ZIP, put candidate passwords in a private file, one exact
 byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing `{"password_file":
 "/path/to/private-passwords.txt"}` with `--hints`. The local `analyze` command never sends

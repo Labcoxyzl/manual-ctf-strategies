@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -12,6 +13,140 @@ from autosolve_lib import setup, setup_env
 
 
 class SetupEnvironmentTests(unittest.TestCase):
+    def test_ai_cpu_prepares_a_separate_hash_checked_environment(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / 'scripts/autosolve_requirements/ai-cpu.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('torch==2.9.1+cpu --hash=sha256:' + '0' * 64 + '\n')
+            commands = []
+
+            def run(command, **kwargs):
+                commands.append(command)
+                self.assertEqual(kwargs['env']['UV_CACHE_DIR'], str(root / '.autosolve/cache/uv'))
+                self.assertNotIn('UV_EXTRA_INDEX_URL', kwargs['env'])
+                self.assertNotIn('PIP_INDEX_URL', kwargs['env'])
+                if command[0].endswith('/bin/python'):
+                    data = {'implementation': 'CPython', 'version': [3, 12],
+                            'prefix': str(root / '.autosolve/envs/ai-cpu')}
+                    return subprocess.CompletedProcess(command, 0, json.dumps(data).encode(), b'')
+                return subprocess.CompletedProcess(command, 0, b'', b'')
+
+            with mock.patch.dict(os.environ, {'UV_EXTRA_INDEX_URL': 'https://untrusted.invalid/simple',
+                                              'PIP_INDEX_URL': 'https://untrusted.invalid/simple'}), \
+                 mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                result = setup_env.prepare(root, environment_name='ai-cpu')
+            self.assertEqual(result['status'], 'ready')
+            self.assertEqual(result['installed'], ['ai-cpu'])
+            self.assertEqual(result['environment'], str(root / '.autosolve/envs/ai-cpu'))
+            self.assertIn('--require-hashes', commands[-1])
+            self.assertIn('https://pypi.org/simple', commands[-1])
+            self.assertEqual(commands[-1][-1], str(lock))
+            self.assertFalse((root / '.autosolve/envs/core').exists())
+
+    def test_ai_cpu_wrong_arch_and_missing_uv_leave_core_untouched(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(setup_env.platform, 'machine', return_value='aarch64'), \
+                 mock.patch.object(setup_env.shutil, 'which') as which:
+                wrong_arch = setup_env.prepare_ai_cpu(root)
+            self.assertEqual(wrong_arch['reason'], 'ai_cpu_requires_linux_x86_64')
+            self.assertEqual(wrong_arch['functional_probe'], 'not_run')
+            which.assert_not_called()
+            with mock.patch.object(setup_env.shutil, 'which', return_value=None):
+                missing_uv = setup_env.prepare_ai_cpu(root)
+            self.assertEqual(missing_uv['reason'], 'uv_missing')
+            self.assertFalse((root / '.autosolve').exists())
+
+    def test_ai_cpu_sync_failure_is_partial_without_probe(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / 'scripts/autosolve_requirements/ai-cpu.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('torch==2.9.1+cpu --hash=sha256:' + '0' * 64 + '\n')
+
+            def run(command, **kwargs):
+                if command[0].endswith('/bin/python'):
+                    data = {'implementation': 'CPython', 'version': [3, 12],
+                            'prefix': str(root / '.autosolve/envs/ai-cpu')}
+                    return subprocess.CompletedProcess(command, 0, json.dumps(data).encode(), b'')
+                return subprocess.CompletedProcess(command, 1 if command[1:3] == ['pip', 'sync'] else 0,
+                                                   b'', b'offline or unavailable wheel')
+
+            with mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                result = setup_env.prepare_ai_cpu(root)
+            self.assertEqual(result['status'], 'partial')
+            self.assertEqual(result['reason'], 'sync_failed')
+            self.assertEqual(result['functional_probe'], 'not_run')
+
+    def test_ai_cpu_probe_checks_public_gradient_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / '.autosolve').mkdir()
+            prepared = {'status': 'ready', 'python': '/tmp/ai-cpu/bin/python',
+                        'environment': str(root / '.autosolve/envs/ai-cpu'), 'installed': ['ai-cpu']}
+
+            def run(command, **kwargs):
+                if command[1:3] == ['-I', '-c']:
+                    self.assertIn('allow_pickle=False', command[3])
+                    return subprocess.CompletedProcess(command, 0, json.dumps({
+                        'shape': [2], 'dtype': 'float32', 'values': [.4, .5]}).encode(), b'')
+                self.assertEqual(command[1], '-I')
+                self.assertTrue(command[2].endswith('/scripts/ai_model_attack.py'))
+                self.assertIn('--execute-local', command)
+                self.assertIn('gradient', command)
+                probe = Path(command[command.index('--runs-root') + 1])
+                probe.mkdir()
+                report = probe / 'result.json'
+                candidate = probe / 'candidate.npy'
+                candidate.write_bytes(b'generated')
+                report.write_text(json.dumps({'state': 'candidate', 'clean_objective': .5,
+                                              'candidate_objective': .9, 'max_abs_change': .2}))
+                return subprocess.CompletedProcess(command, 0, json.dumps({
+                    'status': 'complete', 'report': str(report),
+                    'candidate_file': str(candidate)}).encode(), b'')
+
+            with mock.patch.object(setup_env, 'prepare', return_value=prepared), \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                result = setup_env.prepare_ai_cpu(root)
+            self.assertEqual(result['functional_probe'], 'passed')
+            self.assertEqual(result['operation'], 'aic02.gradient')
+            self.assertEqual(result['status'], 'ready')
+
+    def test_ai_cpu_probe_rejects_corrupt_or_wrong_candidate_tensor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / '.autosolve').mkdir()
+            prepared = {'status': 'ready', 'python': '/tmp/ai-cpu/bin/python',
+                        'environment': str(root / '.autosolve/envs/ai-cpu'), 'installed': ['ai-cpu']}
+            for check_code, values in ((1, None), (0, [.2, .3])):
+                with self.subTest(check_code=check_code, values=values):
+                    def run(command, **kwargs):
+                        if command[1:3] == ['-I', '-c']:
+                            body = json.dumps({'shape': [2], 'dtype': 'float32',
+                                               'values': values}).encode()
+                            return subprocess.CompletedProcess(command, check_code, body, b'')
+                        runs = Path(command[command.index('--runs-root') + 1])
+                        runs.mkdir()
+                        candidate = runs / 'candidate.npy'
+                        candidate.write_bytes(b'candidate')
+                        report = runs / 'result.json'
+                        report.write_text(json.dumps({'state': 'candidate', 'clean_objective': .5,
+                                                      'candidate_objective': .9,
+                                                      'max_abs_change': .2}))
+                        body = json.dumps({'status': 'complete', 'report': str(report),
+                                           'candidate_file': str(candidate)}).encode()
+                        return subprocess.CompletedProcess(command, 0, body, b'')
+
+                    with mock.patch.object(setup_env, 'prepare', return_value=prepared), \
+                         mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                        result = setup_env.prepare_ai_cpu(root)
+                    self.assertEqual(result['status'], 'partial')
+                    self.assertEqual(result['reason'], 'ai_cpu_probe_failed')
+                    self.assertEqual(result['functional_probe'], 'failed')
+
     def test_prepare_uses_explicit_python_and_hash_checked_wheel_sync(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

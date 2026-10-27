@@ -1,0 +1,4 @@
+# Optional AIC02 CPU runtime for Linux x86-64 CPython 3.12.
+# The Torch wheel URL and SHA256 are from PyTorch's official CPU wheel index.
+-r core.in
+torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=7417d8c565f219d3455654cb431c6d892a3eb40246055e14d645422de13b9ea1
