@@ -8079,10 +8079,37 @@ def _locked_execute(run, manifest, budget, hints, hint_hash, hints_path, replay_
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             raise RunBusy(f'run is already active: {run}') from error
+        _remember_private_hints(manifest, hints_path, hints)
         for job in manifest['jobs']:
             if job['status'] == 'running':
                 job['status'] = 'interrupted'
-        _remember_private_hints(manifest, hints_path, hints)
+        source = Path(manifest['input_path'])
+        try:
+            source_mode = source.lstat().st_mode
+        except (FileNotFoundError, NotADirectoryError):
+            for item in (*manifest['artifacts'], *manifest['findings'],
+                         *manifest.get('intelligence', [])):
+                item['current'] = False
+                item.pop('current_source_locators', None)
+            manifest.pop('answers', None)
+            manifest['memory_routed_input_ids'] = []
+            manifest.setdefault('history_warnings', []).extend(manifest['warnings'])
+            manifest['warnings'] = ['source path no longer exists']
+            manifest['coverage'] = _coverage(manifest['category'])
+            manifest['status'] = 'partial'
+            _write_json(run / 'findings.json', manifest['findings'])
+            _write_json(run / 'manifest.json', manifest)
+            _render_report(run, manifest)
+            _event(run, 'checkpoint', status=manifest['status'])
+            raise InvalidInput('source must be a regular file or directory')
+        if stat.S_ISLNK(source_mode):
+            raise InvalidInput('source symlinks are not accepted')
+        if stat.S_ISREG(source_mode):
+            _sources(source, exclude=run.parent,
+                     excluded_files=manifest['private_hint_paths'],
+                     excluded_identities=manifest.get('private_hint_identities', ()))
+        elif not stat.S_ISDIR(source_mode):
+            raise InvalidInput('source must be a regular file or directory')
         _write_json(run / 'manifest.json', manifest)
         return _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker)
     finally:
