@@ -40,7 +40,7 @@ if plugin == 'windows.info':
     rows += [('NTBuildLab', '26000.test'), ('Major/Minor', '10.0')]
     result = [{'Variable': key, 'Value': value, '__children': []} for key, value in rows]
 elif plugin == 'windows.pslist':
-    result = [] if mode in ('pslist_empty', 'metadata_only') else [
+    result = [] if mode in ('pslist_empty', 'metadata_only', 'process_empty') else [
         {'PID': 4, 'PPID': 0, 'ImageFileName': 'System',
          'Offset(V)': '0x3000', '__children': []}]
     if mode == 'many_rows':
@@ -48,18 +48,18 @@ elif plugin == 'windows.pslist':
                    'Offset(V)': 0x3000 + index, '__children': []}
                   for index in range(120)]
 elif plugin == 'windows.psscan':
-    result = [] if mode == 'metadata_only' else [
+    result = [] if mode in ('metadata_only', 'process_empty') else [
         {'PID': 1640, 'PPID': 1484, 'ImageFileName': 'reader_sl.exe',
          'Offset(V)': 34061728, '__children': []}]
 elif plugin == 'windows.cmdline':
-    result = [] if mode in ('pslist_empty', 'metadata_only', 'cmdline_empty') else [
+    result = [] if mode in ('pslist_empty', 'metadata_only', 'cmdline_empty', 'process_empty') else [
         {'PID': 4, 'Process': 'System', 'Args': 'System', '__children': []}]
     if mode == 'many_rows':
         result = [{'PID': index, 'Process': f'process-{index}',
                    'Args': f'command-{index}', '__children': []}
                   for index in range(120)]
 elif plugin == 'windows.filescan':
-    result = [] if mode in ('pslist_empty', 'metadata_only') else [
+    result = [] if mode in ('pslist_empty', 'metadata_only', 'filescan_empty') else [
         {'Offset': '0x4000', 'Name': r'\\Windows\\System32\\file.txt',
          '__children': []}]
     if mode == 'many_rows':
@@ -212,7 +212,9 @@ class MemoryProfileTest(unittest.TestCase):
     def test_metadata_only_is_incomplete_triage(self):
         with mock.patch.dict(os.environ, {'MEM_FAKE_MODE': 'metadata_only'}):
             records, warnings = self.inspect()
-        self.assertTrue(any('process, command or file' in warning for warning in warnings))
+        for group in ('process', 'command-line', 'file'):
+            self.assertTrue(any(f'{group} triage returned no rows' in warning
+                                for warning in warnings))
         self.assertFalse(any(row['kind'] == 'row' and
                              row['plugin'] != 'windows.info' for row in records))
 
@@ -366,8 +368,9 @@ class MemoryCLITest(unittest.TestCase):
                              '--runs-root', self.root / 'runs')['run'])
         manifest = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
-        self.assertTrue(any('process, command or file' in warning
-                            for warning in manifest['warnings']))
+        for group in ('process', 'command-line', 'file'):
+            self.assertTrue(any(f'{group} triage returned no rows' in warning
+                                for warning in manifest['warnings']))
 
     def test_psscan_process_only_keeps_evidence_with_partial_coverage(self):
         self.hints.write_text(json.dumps({'memory_image': True,
@@ -379,6 +382,10 @@ class MemoryCLITest(unittest.TestCase):
         manifest = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
         self.assertIn('network triage not attempted', manifest['coverage']['DF05']['note'])
+        self.assertTrue(any('command-line triage returned no rows' in warning
+                            for warning in manifest['warnings']))
+        self.assertTrue(any('file triage returned no rows' in warning
+                            for warning in manifest['warnings']))
         self.assertTrue(any(row['current'] and row['group'] == 'windows.psscan' and
                             'reader_sl.exe' in row['value'] for row in manifest['intelligence']))
 
@@ -398,6 +405,39 @@ class MemoryCLITest(unittest.TestCase):
         self.assertIn('windows.pslist', groups)
         self.assertIn('windows.filescan', groups)
         self.assertNotIn('windows.cmdline', groups)
+
+    def test_empty_filescan_keeps_process_and_command_evidence_but_not_full_coverage(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'filescan_empty'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertTrue(any('file triage returned no rows' in warning
+                            for warning in manifest['warnings']))
+        groups = {row['group'] for row in manifest['intelligence'] if
+                  row['tag'] == 'memory row' and row['current']}
+        self.assertIn('windows.pslist', groups)
+        self.assertIn('windows.cmdline', groups)
+        self.assertNotIn('windows.filescan', groups)
+
+    def test_empty_process_and_cmdline_report_both_missing_groups(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'process_empty'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['DF05']['status'], 'truncated')
+        self.assertTrue(any('process triage returned no rows' in warning
+                            for warning in manifest['warnings']))
+        self.assertTrue(any('command-line triage returned no rows' in warning
+                            for warning in manifest['warnings']))
+        self.assertTrue(any(row['current'] and row['group'] == 'windows.filescan'
+                            for row in manifest['intelligence']))
 
     def test_mismatched_dump_name_never_publishes_child(self):
         self.hints.write_text(json.dumps({

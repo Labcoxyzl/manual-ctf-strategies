@@ -237,12 +237,12 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
         return records, warnings
 
     triage_plugins = {record['plugin'] for record in records if record['kind'] == 'row'}
-    if triage_plugins <= {'windows.info'}:
-        warnings.append('memory process, command or file triage returned no rows')
-    elif not triage_plugins.intersection(('windows.pslist', 'windows.psscan')):
+    if not triage_plugins.intersection(('windows.pslist', 'windows.psscan')):
         warnings.append('memory process triage returned no rows')
-    elif 'windows.cmdline' not in triage_plugins:
+    if 'windows.cmdline' not in triage_plugins:
         warnings.append('memory command-line triage returned no rows')
+    if 'windows.filescan' not in triage_plugins:
+        warnings.append('memory file triage returned no rows')
 
     available = set()
     for row in file_rows:
