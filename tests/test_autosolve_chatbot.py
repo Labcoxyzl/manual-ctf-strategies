@@ -224,7 +224,7 @@ class Toy:
                         self.send_header('Content-Length', str(len(data)))
                         self.send_header('Set-Cookie', 'sid=rotated; Path=/')
                         self.end_headers()
-                        time.sleep(.18)
+                        time.sleep(1.5)
                         try:
                             self.wfile.write(data)
                         except (BrokenPipeError, ConnectionResetError):
@@ -644,6 +644,7 @@ class ChatbotCLITests(unittest.TestCase):
         if dry:
             args.append('--dry-run')
         result, code = self.run_cli(root, *args)
+        self.assertIn('run', result, {'code': code, 'reason': result.get('reason')})
         run = Path(result['run'])
         return json.loads((run / 'manifest.json').read_text()), run, code
 
@@ -1582,7 +1583,7 @@ class ChatbotCLITests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as root, Toy('claim_timeout') as toy:
             protocol = self.protocol(root, config)
-            m, run, code = self.start(root, toy, protocol, timeout=.05)
+            m, run, code = self.start(root, toy, protocol, timeout=.5)
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'bootstrap unconfirmed')
             self.assertEqual(m['prompt_count'], 0)
@@ -1686,9 +1687,13 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertFalse(toy.calls)
         with tempfile.TemporaryDirectory() as root, Toy('claim_timeout') as toy:
             protocol = self.protocol(root, {**config, 'status_path': '/history'})
-            m, run, code = self.start(root, toy, protocol, requests=12, prompts=1, timeout=.05)
+            m, run, code = self.start(root, toy, protocol, requests=12, prompts=1, timeout=.5)
             self.assertEqual(code, 3)
-            self.assertTrue(m['bootstrap_started'])
+            probes = [(row['probe_id'], row.get('signal'), row.get('status'))
+                      for row in map(json.loads, (run / 'transcript.jsonl').read_text().splitlines())]
+            self.assertTrue(m['bootstrap_started'], {'stop_reason': m['stop_reason'],
+                                                   'request_count': m['request_count'],
+                                                   'probes': probes, 'toy_calls': toy.calls})
             toy.mode = 'heartbeat_history_partial'
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
             self.assertFalse(json.loads((run / 'manifest.json').read_text())['bootstrap_checked'])
@@ -2019,7 +2024,11 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 2)
             self.assertIn('cooldown', blocked['reason'])
             self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1)
-            time.sleep(1.05)
+            cooldown_end = m['cooldown_until'] + .05
+            wait_deadline = time.monotonic() + 5
+            while time.time() < cooldown_end:
+                self.assertLess(time.monotonic(), wait_deadline, 'Retry-After wall-clock deadline did not expire')
+                time.sleep(max(0, min(.05, cooldown_end - time.time())))
             toy.mode = 'normal'
             newer, _, code = self.start(root, toy, protocol, prompts=1)
             self.assertEqual(code, 0)
