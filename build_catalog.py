@@ -48,6 +48,8 @@ LOCAL_ROUTE_HELP = {
     "server-fetch": (("Server fetch workflow", "SPECIALIST_WORKFLOWS.html#server-fetch"),),
     "object-authorization": (("Authorization workflow", "SPECIALIST_WORKFLOWS.html#object-authorization"),
                               ("Two-role workflow helper", "TOOLKIT.html#web-workflows")),
+    "path-traversal-read": (("Outside-root file workflow", "SPECIALIST_WORKFLOWS.html#path-traversal-read"),
+                            ("Selected web lead helper", "TOOLKIT.html#web-leads")),
     "web-cross-site-state": (("Cross-site state workflow", "SPECIALIST_WORKFLOWS.html#web-cross-site-state"),
                              ("One-click form template", "scripts/templates/cross_site_form.html")),
     "jwt-verification": (("JWT workflow", "SPECIALIST_WORKFLOWS.html#web-jwt"),
@@ -115,7 +117,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 42
+    assert len(routes) == len({route["id"] for route in routes}) == 43
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

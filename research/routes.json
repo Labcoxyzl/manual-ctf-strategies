@@ -998,6 +998,38 @@
     ]
   },
   {
+    "id": "path-traversal-read",
+    "category": "web",
+    "title": "File path input → verified outside-root read",
+    "input": "An assigned file-serving request, its intended root, one allowed file, and a permitted benign outside-root file with independently known bytes.",
+    "tool_ids": [
+      "windows-20"
+    ],
+    "steps": [
+      "Save the working file request and repeat it unchanged in Burp Repeater; compare the allowed file's raw response body bytes with one missing-file control, recording exact request encoding, session and intended serving root.",
+      "Change only the file input to one relative path reaching a known benign file outside that root. Preserve byte-exact encoding of untouched query fields, record the selected value's encoding, and keep requests bounded to the assigned service.",
+      "Compare the returned raw response body bytes with the file's independently known bytes, then check its location against the intended root and the missing-file response before treating the result as a cross-boundary read."
+    ],
+    "expected": "Exact independently known outside-root file bytes from the selected endpoint, or an explicit inconclusive result.",
+    "fallback": "A reflected path, generic 200, redirect, error, or WEB05 marker lead does not prove a file read. If the outside file or its bytes are unknown, or a wrapper transforms the response, record a hypothesis until a reliable byte comparison is possible.",
+    "caveat": "Use only a permitted benign file on the assigned service; do not request unrelated private files or spray paths. A readable outside file still needs a known intended root and access rule before it demonstrates a flaw.",
+    "verification": "OWASP and PortSwigger source-reviewed; positive, reflected-path and generic-200 controls exercised on a disposable loopback fixture. No live challenge or competition machine tested.",
+    "references": [
+      {
+        "title": "OWASP directory traversal testing",
+        "url": "https://wstg.owasp.org/latest/4-Web_Application_Security_Testing/05-Authorization/01-Directory_Traversal_File_Include/"
+      },
+      {
+        "title": "PortSwigger path traversal",
+        "url": "https://portswigger.net/web-security/file-path-traversal"
+      },
+      {
+        "title": "Burp Repeater",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/repeater"
+      }
+    ]
+  },
+  {
     "id": "xor-keystream-reuse",
     "category": "crypto",
     "title": "XOR or reused stream → aligned bytes → checked plaintext",

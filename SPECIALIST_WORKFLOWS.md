@@ -197,6 +197,13 @@ Use two permitted principals with objects whose ownership is already known. Capt
 
 **Check:** Name the intended access rule, both object owners, the session used for each request, and the data or action the server actually allowed. Without a second principal or reliable ownership evidence, report the authorization question as untested. [PortSwigger IDOR](https://portswigger.net/web-security/access-control/idor).
 
+<a id="path-traversal-read"></a>
+## File path input: verify an outside-root read
+
+Use a file-serving request on the **assigned** service and establish its intended serving root. Choose one allowed file, one missing filename, and one permitted benign file known to be **outside** that root with bytes known independently from the HTTP response. If the outside file's location or bytes are unknown, record a path-traversal lead rather than a confirmed read. Save the unchanged request and its raw response. In Burp Repeater, repeat the allowed-file request, send the missing-file control, then change only the file input to one relative traversal path reaching the known outside file. Preserve the other fields and session; inspect and retain the exact query bytes sent, including the chosen path encoding. Keep the request count small and within the assigned scope. The optional [WEB05 selected-input check](TOOLKIT.html#web-leads) compares a candidate marker against two missing-file controls; it preserves untouched raw query fields but re-encodes the selected value and does not establish file provenance.
+
+**Check:** Compare raw response body bytes with the independently known outside file, and confirm that this file lies beyond the intended root and was not deliberately served through that endpoint. Repeat the selected request only if session or cache behavior needs calibration. A reflected path, familiar filename, generic 200, error text, redirect, or WEB05 lead alone is inconclusive; a body wrapper or transformation needs an independently justified byte comparison. Do not request unrelated private files or widen into recursive path spraying. [OWASP directory traversal testing](https://wstg.owasp.org/latest/4-Web_Application_Security_Testing/05-Authorization/01-Directory_Traversal_File_Include/) · [PortSwigger path traversal](https://portswigger.net/web-security/file-path-traversal) · [Burp Repeater](https://portswigger.net/burp/documentation/desktop/tools/repeater).
+
 <a id="web-cross-site-state"></a>
 ## Cross-site request: establish a state change
 

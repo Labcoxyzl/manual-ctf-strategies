@@ -133,7 +133,7 @@ def check_archive(guide, rendered=False):
 
 RESOURCE_FILES = [ROOT / "research/resources" / name for name in
                   ("forensics.json", "web-network.json", "reverse.json", "media.json", "crypto-foundations.json")]
-ROUTE_COUNTS = {"forensics": 12, "malware": 3, "web": 9, "reversing": 5, "osint": 3, "crypto": 7, "misc": 3}
+ROUTE_COUNTS = {"forensics": 12, "malware": 3, "web": 10, "reversing": 5, "osint": 3, "crypto": 7, "misc": 3}
 
 
 def check_catalog(guide, records=None, routes=None):
@@ -179,11 +179,11 @@ def check_catalog(guide, records=None, routes=None):
                 errors.append(f"Missing selected resource: {row['id']}")
     if Counter(row["category"] for row in routes) != Counter(ROUTE_COUNTS):
         errors.append("Wrong route category counts")
-    if len({row["id"] for row in routes}) != 42:
-        errors.append("Expected 42 distinct route IDs")
+    if len({row["id"] for row in routes}) != 43:
+        errors.append("Expected 43 distinct route IDs")
     route_nodes = [node for node in guide.nodes if "task-route" in node["attrs"].get("class", "").split()]
-    if len(route_nodes) != 42 or any(node["tag"] != "details" for node in route_nodes):
-        errors.append("Expected 42 rendered route details")
+    if len(route_nodes) != 43 or any(node["tag"] != "details" for node in route_nodes):
+        errors.append("Expected 43 rendered route details")
     for row in routes:
         node = nodes.get("route-" + row["id"])
         if node is None:
