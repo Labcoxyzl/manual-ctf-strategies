@@ -23,9 +23,9 @@ In the bundled `autosolve.py` EVTX record, `locator`, `record_number` and `heade
 <a id="registry-hive"></a>
 ## Registry hive: keep key, hive and transaction state together
 
-Identify the hive type and preserve its transaction logs with a working copy. In RegRipper, list installed plugins with `rip.pl -l` and select one relevant to the question. Run `rip.pl -r HIVE -p PLUGIN` from the installed tool directory, keeping the plugin name and source hive beside the output. RegRipper does not replay transaction logs automatically, so a dirty hive or missing LOG1/LOG2 can hide recently committed state. Use an approved second registry view or related artifact to corroborate a decisive value.
+Identify the hive type and preserve its transaction logs with a working copy. On Kali/WSL, the upstream RegRipper `rip.pl` is not directly executable: from its installed directory, use `perl ./rip.pl -l` to list plugins and `perl ./rip.pl -r HIVE -p PLUGIN` on the copied hive. This source build needs `Parse::Win32Registry` and the patched WinNT modules named in its README; check those prerequisites before interpreting a failed run. Use `perl ./rip.pl -r HIVE -d` to check the hive's dirty state. A clean and a dirty hive can both return exit zero; this option does not replay LOG1/LOG2. A plugin can also exit zero while reporting that its key is absent, so read the output and keep the plugin name and source hive with any hit. Use an approved second registry view or related artifact to corroborate a decisive value.
 
-**Check:** Record the key/value, source hive, plugin, and exact timestamp basis. A key's last-write time does not identify the person who changed a particular value. [RegRipper CLI and transaction-log note](https://github.com/keydet89/RegRipper3.0/blob/master/rip.pl).
+**Check:** Record the key/value, source hive, plugin, and exact timestamp basis. An isolated RegRipper 3.0 check listed 257 plugins; `applets` found a known key in a [public NTUSER hive](https://github.com/mkorman90/regipy/tree/c6de929abc37d8315d1c31aba5e937db636f3303/regipy_tests/data), while a SAM control exited zero with no matching key. Dirty and clean controls produced distinct `-d` messages. A key's last-write time does not identify the person who changed a particular value. [RegRipper README](https://github.com/keydet89/RegRipper3.0/blob/master/README.md) · [RegRipper CLI](https://github.com/keydet89/RegRipper3.0/blob/master/rip.pl).
 
 <a id="sqlite-artifact"></a>
 ## SQLite artifact: preserve WAL rows and read a copy
@@ -424,6 +424,15 @@ The quoted value is one URL **component** containing the complete forged message
 <a id="zip-known-plaintext"></a>
 ## ZipCrypto: prove the known bytes match the stored stream
 
-Run `7z l -slt archive.zip` and inspect the selected member's Encrypted and Method fields. The simple bkcrack case is ZipCrypto with a stored member and at least 11 supplied plaintext bytes, including eight contiguous; bkcrack adds one inferred ZIP header check byte for 12 total. Write the exact supplied bytes to a local file without an accidental newline. For a deflated member, the bytes to match are compressed data, so a familiar uncompressed file header may not apply. Use the [bkcrack 1.8.1 tutorial](https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md) command form only after the preconditions hold. Decrypt the selected member with `-d` and validate its bytes; a deflated result still needs decompression. Use `-D` to make a passwordless archive, then `7z t`, only when all entries share the same keys. Internal keys are not necessarily the original password.
+Run `7z l -slt archive.zip` and inspect the selected member's Encrypted and Method fields. The simple bkcrack case is ZipCrypto with a stored member and at least 11 supplied plaintext bytes, including eight contiguous; bkcrack adds one inferred ZIP header check byte for 12 total. Write the exact supplied bytes to a local file without an accidental newline. For a deflated member, the bytes to match are compressed data, so a familiar uncompressed file header may not apply. Use the [bkcrack 1.8.1 tutorial](https://github.com/kimci86/bkcrack/blob/v1.8.1/example/tutorial.md) command form only after the preconditions hold. Run the final two lines only if all entries share the same keys:
+
+```sh
+bkcrack -C archive.zip -c MEMBER -p known.bin
+bkcrack -C archive.zip -c MEMBER -k KEY1 KEY2 KEY3 -d NEW_member
+bkcrack -C archive.zip -k KEY1 KEY2 KEY3 -D NEW_archive.zip
+7z t NEW_archive.zip
+```
+
+Validate the decrypted member bytes independently; a deflated result still needs decompression. Internal keys are not necessarily the original password. On a benign stored ZipCrypto fixture, isolated bkcrack 1.8.1 recovered the keys and exact known member bytes; a one-byte-wrong plaintext control found no keys.
 
 **Check:** Record the member, encryption and compression methods, exact known-byte source, recovered-key output, and independent member validation. ZIP AES or a wrong plaintext offset belongs on a different route; a candidate-password search can use the [Hashcat guide](HASHCAT.md) when its format and candidate evidence fit.

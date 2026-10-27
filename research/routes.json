@@ -989,12 +989,12 @@
     "steps": [
       "Run `7z l -slt archive.zip`; identify the member, encryption method and compression method. Continue with bkcrack only for ZipCrypto and known bytes of its encrypted compressed stream.",
       "Prepare at least 11 exact supplied plaintext bytes, including eight contiguous; bkcrack adds one inferred ZIP header check byte for archive input. Run `bkcrack -C archive.zip -c MEMBER -p known.bin` against the matching member.",
-      "If internal keys are recovered, use `bkcrack -C archive.zip -c MEMBER -k KEY1 KEY2 KEY3 -d NEW_member` for the selected member and validate its bytes. Use `-D NEW_archive.zip` and `7z t` only when all archive members share the same keys."
+      "If internal keys are recovered, use `bkcrack -C archive.zip -c MEMBER -k KEY1 KEY2 KEY3 -d NEW_member` for the selected member and validate its bytes. Only when all entries share the same keys, run `bkcrack -C archive.zip -k KEY1 KEY2 KEY3 -D NEW_archive.zip` and `7z t NEW_archive.zip`."
     ],
     "expected": "Recovered internal keys and a structurally valid decrypted member, or a clear failed precondition; the original password need not be recovered.",
     "fallback": "ZIP AES is outside this attack. For a deflated member, original file-header bytes may not match the compressed stream; revisit that assumption instead of extending a blind search.",
     "caveat": "The tutorial's easy case is stored data. A deflated member's decrypted bytes still need decompression. Do not treat guessed bytes or reported keys as verified until the selected member passes an independent check.",
-    "verification": "Source-reviewed against the bkcrack 1.8.1 tutorial; no local bkcrack run or competition-machine check.",
+    "verification": "Official bkcrack 1.8.1 recovered keys and exact member bytes from a self-authored stored ZipCrypto ZIP; a passwordless copy passed 7z t, while a same-length one-byte-wrong plaintext candidate found no keys. Competition-machine build unverified.",
     "references": [
       {
         "title": "bkcrack 1.8.1 known-plaintext tutorial",
@@ -1021,17 +1021,25 @@
     ],
     "steps": [
       "Identify whether the source is SYSTEM, SOFTWARE, SAM, SECURITY or a user hive; keep its path and any LOG1/LOG2 companions with a working copy.",
-      "From the installed RegRipper directory, use `rip.pl -l` to choose a plugin, then run `rip.pl -r HIVE -p PLUGIN` on the copied hive; record the plugin, source hive, key/value and displayed last-write time.",
-      "Check the decisive value in a second approved registry view or related artifact and resolve the timestamp's time basis before drawing a timeline conclusion."
+      "On Kali/WSL, from the installed RegRipper source directory, check Parse::Win32Registry and upstream patched WinNT modules, then use `perl ./rip.pl -l` and `perl ./rip.pl -r HIVE -p PLUGIN` on the copied hive. Read the output for a real key hit; exit zero alone can also mean the plugin found nothing.",
+      "Use `perl ./rip.pl -r HIVE -d` to check dirty state without replaying logs. Check a decisive value in a second approved registry view or related artifact and resolve the timestamp's time basis before a timeline conclusion."
     ],
     "expected": "A specific key/value or other registry artifact tied to its hive, plugin and corroborating evidence.",
     "fallback": "If the hive is dirty or a recent value is missing, account for transaction logs; RegRipper does not replay them automatically. A plugin mismatch or missing hive is not absence of the artifact.",
-    "caveat": "Run on copies. Last-write time belongs to a key and does not identify the actor or prove that every value changed then; keep log replay and time-zone assumptions explicit.",
-    "verification": "Source-reviewed against RegRipper 3.0 CLI; no Windows hive or competition-machine run.",
+    "caveat": "Run on copies. A RegRipper plugin and dirty-state check can both exit zero without finding the target or replaying transaction logs. Last-write time belongs to a key and does not identify the actor or prove that every value changed then; keep time-zone assumptions explicit.",
+    "verification": "Isolated upstream RegRipper 3.0 with Parse::Win32Registry and patched modules listed 257 plugins, found a known Applets key in a public NTUSER hive, reported no match in a SAM control despite exit zero, and distinguished clean/dirty -d output. Competition-machine build unverified.",
     "references": [
       {
         "title": "RegRipper 3.0 CLI syntax and transaction-log limit",
         "url": "https://github.com/keydet89/RegRipper3.0/blob/master/rip.pl"
+      },
+      {
+        "title": "RegRipper Perl prerequisites",
+        "url": "https://github.com/keydet89/RegRipper3.0/blob/master/README.md"
+      },
+      {
+        "title": "Public registry test hives",
+        "url": "https://github.com/mkorman90/regipy/tree/c6de929abc37d8315d1c31aba5e937db636f3303/regipy_tests/data"
       },
       {
         "title": "Eric Zimmerman's tools",
