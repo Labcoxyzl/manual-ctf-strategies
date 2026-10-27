@@ -407,3 +407,37 @@ def parse_can_log(path: Path, *, max_frames: int,
         frame["raw_line"] = original
         frames.append(frame)
     return frames, warnings
+
+
+def _worker_main():
+    import json
+    import resource
+    import sys
+    from multiprocessing.connection import Connection
+
+    max_frames, max_bytes, request_limit, output_limit, pipe_fd = sys.argv[1:]
+    pipe = Connection(int(pipe_fd), readable=False, writable=True)
+    try:
+        resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
+        resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+        resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
+        request = sys.stdin.buffer.read(int(request_limit) + 1)
+        if len(request) > int(request_limit):
+            raise ValueError('CAN source path exceeds worker request limit')
+        path = json.loads(request)
+        if not isinstance(path, str):
+            raise ValueError('CAN source path must be text')
+        frames, warnings = parse_can_log(Path(path), max_frames=int(max_frames),
+                                         max_bytes=int(max_bytes))
+        result = json.dumps({'state': 'ok', 'frames': frames, 'warnings': warnings},
+                            ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+        if len(result) > int(output_limit):
+            result = b'{"state":"limit"}'
+        pipe.send_bytes(result)
+    except Exception as error:
+        reason = str(error).replace('\n', ' ')[:256]
+        pipe.send_bytes(json.dumps({'state': 'error',
+                                    'error': f'{type(error).__name__}: {reason}'},
+                                   ensure_ascii=True).encode('ascii'))
+    finally:
+        pipe.close()

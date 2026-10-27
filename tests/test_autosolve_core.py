@@ -10,6 +10,7 @@ import lzma
 import mmap
 import multiprocessing
 import os
+import struct
 import sqlite3
 import shutil
 from email.message import EmailMessage
@@ -1324,6 +1325,133 @@ int main(int argc, char **argv) {
             self.assertEqual(manifest['coverage']['CAN02']['status'], 'truncated')
             self.assertIn('Limit or prerequisite: CAN signal output byte limit reached (1)',
                           (run / 'report.md').read_text())
+
+    def test_can_worker_survives_pillow_import_with_memory_cap(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest('Pillow is optional outside core setup')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n')
+            with patch.dict(os.environ, {'PYTHONSAFEPATH': '1'}):
+                run, _ = core.analyze(source, category='can', runs_root=root / 'runs')
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(job for job in manifest['jobs'] if job['adapter_id'] == 'can-log')
+            self.assertEqual(job.get('frame_count'), 1, job)
+            self.assertEqual(manifest['coverage']['CAN01']['status'], 'ran')
+
+    def test_can_worker_preserves_frame_and_byte_limits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n(2.0) can0 456#0304\n')
+            original = subprocess.Popen
+            commands = []
+
+            def launch(argv, **kwargs):
+                commands.append(argv)
+                return original(argv, **kwargs)
+
+            with patch.object(core.subprocess, 'Popen', side_effect=launch):
+                frames, warnings = core._run_can(source, 1, 4096, 5)
+            self.assertEqual(len(frames), 1)
+            self.assertTrue(any('frame limit reached' in warning for warning in warnings))
+            self.assertEqual(len(commands), 1)
+            self.assertNotIn(str(source), ' '.join(commands[0]))
+            frames, warnings = core._run_can(source, 100, 2, 5)
+            self.assertEqual(frames, [])
+            self.assertTrue(any('byte limit reached' in warning for warning in warnings))
+
+    def test_can_worker_accepts_valid_long_unicode_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            for _ in range(12):
+                folder /= '😀' * 60
+                folder.mkdir()
+            source = folder / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n')
+            self.assertGreater(len(json.dumps(str(source)).encode()), 8192)
+            frames, warnings = core._run_can(source, 100, 4096, 5)
+            self.assertEqual(len(frames), 1)
+            self.assertEqual(warnings, [])
+
+    def test_can_worker_timeout_reaps_process(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n')
+            original = subprocess.Popen
+            launched = []
+
+            def launch(*args, **kwargs):
+                worker = original(*args, **kwargs)
+                launched.append(worker)
+                return worker
+
+            with patch.object(core.subprocess, 'Popen', side_effect=launch):
+                with self.assertRaises(TimeoutError):
+                    core._run_can(source, 10000, 8 * 1024 * 1024, 0)
+            self.assertEqual(len(launched), 1)
+            self.assertIsNotNone(launched[0].poll())
+
+    def test_can_worker_body_stall_obeys_deadline_and_reaps_process(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n')
+            original = subprocess.Popen
+            launched = []
+
+            def stalled_launch(*args, **kwargs):
+                script = ('import os,struct,sys,time; '
+                          'os.write(int(sys.argv[1]), struct.pack("!i", 1024)); '
+                          'time.sleep(2)')
+                worker = original([sys.executable, '-I', '-B', '-c', script,
+                                   str(kwargs['pass_fds'][0])], **kwargs)
+                launched.append(worker)
+                return worker
+
+            started = time.monotonic()
+            with patch.object(core.subprocess, 'Popen', side_effect=stalled_launch):
+                with self.assertRaises(TimeoutError):
+                    core._run_can(source, 10000, 8 * 1024 * 1024, .1)
+            self.assertLess(time.monotonic() - started, 1)
+            self.assertEqual(len(launched), 1)
+            self.assertIsNotNone(launched[0].poll())
+
+    def test_can_worker_rejects_invalid_and_oversized_ipc(self):
+        from multiprocessing.connection import Connection
+
+        class Done:
+            def __init__(self):
+                self._read, write = os.pipe()
+                self.stdin = os.fdopen(write, 'wb', buffering=0)
+
+            def poll(self):
+                return 0
+
+            def wait(self):
+                os.close(self._read)
+                return 0
+
+        def fake_launch(*args, pass_fds, **kwargs):
+            descriptor = os.dup(pass_fds[0])
+            with Connection(descriptor, readable=False, writable=True) as pipe:
+                if oversized:
+                    os.write(descriptor, struct.pack('!i', 32 * 1024 * 1024 + 1))
+                else:
+                    pipe.send_bytes(b'not JSON')
+            return Done()
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'frames.log'
+            source.write_text('(1.0) can0 123#0102\n')
+            for oversized in (False, True):
+                with self.subTest(oversized=oversized), \
+                     patch.object(core.subprocess, 'Popen', side_effect=fake_launch):
+                    with self.assertRaisesRegex(
+                            core.WorkLimit if oversized else RuntimeError,
+                            'output limit' if oversized else 'invalid result'):
+                        core._run_can(source, 10000, 8 * 1024 * 1024, 1)
 
     def test_blf_non_can_notice_does_not_truncate_can01_or_hide_real_skip(self):
         try:

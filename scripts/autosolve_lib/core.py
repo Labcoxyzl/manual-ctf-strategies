@@ -11,9 +11,13 @@ import lzma
 import os
 import re
 import resource
+import selectors
 import shutil
 import signal
 import stat
+import struct
+import subprocess
+import sys
 import tarfile
 import tempfile
 import time
@@ -1343,35 +1347,94 @@ def _run_office(path, staging, max_parts, max_bytes, timeout):
         parent.close()
 
 
-def _can_worker(path, max_frames, max_bytes, pipe):
-    from .profiles.canlog import parse_can_log
-    resource.setrlimit(resource.RLIMIT_CPU, (31, 31))
-    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
-    try:
-        frames, warnings = parse_can_log(path, max_frames=max_frames, max_bytes=max_bytes)
-        pipe.send(('ok', frames, warnings))
-    except Exception as error:
-        pipe.send(('error', f'{type(error).__name__}: {error}'))
-    finally:
-        pipe.close()
-
-
 def _run_can(path, max_frames, max_bytes, timeout):
     import multiprocessing
+    request_limit = 32 * 1024
+    output_limit = 32 * 1024 * 1024
+    deadline = time.monotonic() + timeout
+    request = json.dumps(str(Path(path).absolute())).encode('utf-8')
+    if len(request) > request_limit:
+        raise InvalidInput('CAN source path exceeds worker request limit')
     parent, child = multiprocessing.Pipe(duplex=False)
-    worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_can_worker, path, max_frames, max_bytes, child))
-    worker.start()
+    env = os.environ.copy()
+    env.pop('PYTHONPATH', None)
+    env.pop('PYTHONHOME', None)
+    env['PYTHONDONTWRITEBYTECODE'] = '1'
+    try:
+        worker = subprocess.Popen(
+            [sys.executable, '-I', '-B', '-c',
+             'import sys; sys.path.insert(0, sys.argv.pop(1)); '
+             'from autosolve_lib.profiles.canlog import _worker_main; _worker_main()',
+             str(ROOT / 'scripts'), str(max_frames), str(max_bytes), str(request_limit),
+             str(output_limit), str(child.fileno())],
+            cwd=ROOT / 'scripts', env=env, pass_fds=(child.fileno(),),
+            stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, start_new_session=True)
+    except Exception:
+        child.close()
+        parent.close()
+        raise
     child.close()
     try:
-        if not parent.poll(timeout):
-            raise TimeoutError('CAN log normalization exceeded its time limit')
-        result = parent.recv()
-        if result[0] != 'ok':
-            raise RuntimeError(result[1])
-        return result[1], result[2]
+        with selectors.DefaultSelector() as selector:
+            os.set_blocking(worker.stdin.fileno(), False)
+            selector.register(worker.stdin, selectors.EVENT_WRITE)
+            sent = 0
+            while sent < len(request):
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not selector.select(remaining):
+                    raise TimeoutError('CAN log normalization exceeded its time limit')
+                try:
+                    sent += os.write(worker.stdin.fileno(), request[sent:])
+                except BlockingIOError:
+                    continue
+                except BrokenPipeError as error:
+                    raise RuntimeError('CAN worker did not accept its source request') from error
+            selector.unregister(worker.stdin)
+            worker.stdin.close()
+            selector.register(parent.fileno(), selectors.EVENT_READ)
+
+            def receive(size):
+                data = bytearray()
+                while len(data) < size:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0 or not selector.select(remaining):
+                        raise TimeoutError('CAN log normalization exceeded its time limit')
+                    chunk = os.read(parent.fileno(), min(65536, size - len(data)))
+                    if not chunk:
+                        raise RuntimeError('CAN worker exited without a result')
+                    data.extend(chunk)
+                return bytes(data)
+
+            size = struct.unpack('!i', receive(4))[0]
+            if size < 0:
+                raise RuntimeError('CAN worker returned an invalid result')
+            if size > output_limit:
+                raise WorkLimit('CAN worker result exceeded its output limit')
+            data = receive(size)
+        try:
+            result = json.loads(data)
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise RuntimeError('CAN worker returned an invalid result') from error
+        if not isinstance(result, dict):
+            raise RuntimeError('CAN worker returned an invalid result')
+        if result.get('state') == 'limit':
+            raise WorkLimit('CAN worker result exceeded its output limit')
+        if result.get('state') == 'error':
+            raise RuntimeError(result.get('error', 'CAN worker failed'))
+        if (result.get('state') != 'ok' or not isinstance(result.get('frames'), list)
+                or not isinstance(result.get('warnings'), list)):
+            raise RuntimeError('CAN worker returned an invalid result')
+        return result['frames'], result['warnings']
     finally:
-        _stop_worker(worker)
+        if not worker.stdin.closed:
+            worker.stdin.close()
+        if worker.poll() is None:
+            try:
+                os.killpg(worker.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        worker.wait()
         parent.close()
 
 
