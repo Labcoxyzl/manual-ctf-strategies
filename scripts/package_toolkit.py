@@ -180,8 +180,9 @@ Native Windows Python is unsupported. The byte workflows use only the standard
 library. Full inspection also needs approved `file` and ExifTool installations;
 `doctor --workflow inspect` reports readiness without installing anything.
 
-Locally tested on CPython 3.11.11 and 3.12.3 in Ubuntu/WSL. Python 3.10, Kali and organiser
-machines remain unverified. This export is a local snapshot; it does not update
+Locally checked on CPython 3.10.16, 3.11.11 and 3.12.3 in Ubuntu/WSL. The 3.10
+check covered standard-library helpers and this export, not optional third-party
+stacks. Kali and organiser machines remain unverified. This export is a local snapshot; it does not update
 the hosted guide.
 This folder contains authored content only; private evidence and organiser
 source documents are excluded. Prewritten helpers are not new approved tools.
