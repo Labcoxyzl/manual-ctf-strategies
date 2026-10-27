@@ -2,6 +2,7 @@ import hashlib
 import json
 import random
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -98,6 +99,11 @@ class RealStegseekTests(unittest.TestCase):
         self.root = Path(temporary.name)
 
     def _cover(self, suffix):
+        if suffix == "au":
+            path = self.root / "cover.au"
+            samples = random.Random(13).randbytes(32000)
+            path.write_bytes(struct.pack(">4s5I", b".snd", 24, len(samples), 3, 8000, 1) + samples)
+            return path
         if suffix == "wav":
             path = self.root / "cover.wav"
             with wave.open(str(path), "wb") as output:
@@ -238,6 +244,54 @@ class RealStegseekTests(unittest.TestCase):
         self.assertTrue(any(item["current"] and item["source_locator"].get("stego_engine") == "stegseek"
                             and Path(item["path"]).read_bytes() == b"WAV-STEGO-ORACLE"
                             for item in manifest["artifacts"]))
+
+    def test_public_cli_au_carrier_in_auto_profile_with_controls(self):
+        cover = self._cover("au")
+        payload = self.root / "message.bin"
+        content = b"AU-STEGO-ORACLE"
+        payload.write_bytes(content)
+        source = self.root / "stego.au"
+        subprocess.run(["steghide", "embed", "-cf", str(cover), "-ef", str(payload),
+                        "-sf", str(source), "-p", "fixture-secret", "-f", "-q"],
+                       check=True, capture_output=True, timeout=10)
+        original = hashlib.sha256(source.read_bytes()).hexdigest()
+        for carrier, password, expected in ((source, b"wrong", False),
+                                            (cover, b"fixture-secret", False),
+                                            (source, b"fixture-secret", True)):
+            with self.subTest(carrier=carrier.name, password=password):
+                records, warnings = stegseek.extract_steghide(
+                    carrier, self.root / f"stage-{carrier.name}-{password.decode()}",
+                    passwords=[password], max_total_bytes=1024, timeout=10)
+                self.assertEqual(bool(records), expected, warnings)
+                if records:
+                    self.assertEqual(records[0]["path"].read_bytes(), content)
+        password_file = self.root / "passwords.txt"
+        password_file.write_text("wrong\nfixture-secret\n")
+        hints = self.root / "hints.json"
+        hints.write_text(json.dumps({"password_file": str(password_file)}))
+        result = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json", "analyze",
+                                 str(source), "--category", "auto", "--hints", str(hints),
+                                 "--budget", "30", "--runs-root", str(self.root / "runs")],
+                                capture_output=True, timeout=40)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(manifest["coverage"]["IMG03"]["status"], "ran")
+        self.assertTrue(any(item["current"] and item["kind_evidence"] == "au"
+                            for item in manifest["artifacts"]))
+        self.assertTrue(any(item["current"] and item["source_locator"].get("stego_engine") == "stegseek"
+                            and Path(item["path"]).read_bytes() == content
+                            for item in manifest["artifacts"]))
+        media_result = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json", "analyze",
+                                       str(cover), "--category", "audio_video", "--budget", "15",
+                                       "--runs-root", str(self.root / "media-runs")],
+                                      capture_output=True, timeout=25)
+        self.assertEqual(media_result.returncode, 3, media_result.stderr + media_result.stdout)
+        media_run = Path(json.loads(media_result.stdout)["run"])
+        media_manifest = json.loads((media_run / "manifest.json").read_text())
+        self.assertEqual(media_manifest["coverage"]["AV01"]["status"], "ran")
+        self.assertTrue(any(job["adapter_id"] == "media" for job in media_manifest["jobs"]))
+        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), original)
 
     def test_public_cli_clean_carrier_does_not_hide_other_success(self):
         cover = self._cover("jpg")

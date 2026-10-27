@@ -125,6 +125,36 @@
     }
   },
   {
+    "id": "steghide-carrier",
+    "category": "forensics",
+    "title": "JPEG/BMP/WAV/AU → steghide payload",
+    "input": "A copied JPEG, BMP, WAV or AU carrier and one clue-derived passphrase or up to eight private candidates.",
+    "tool_ids": [
+      "kali-134",
+      "kali-135"
+    ],
+    "steps": [
+      "Record the original file's SHA-256, copy it to a private working directory, and verify its actual JPEG/BMP/WAV/AU signature; a renamed PNG is not a steghide carrier.",
+      "For one clue-derived passphrase, run `steghide info ./COPIED_CARRIER` and `steghide extract -sf ./COPIED_CARRIER -xf ./NEW_payload.bin`; enter the passphrase at the prompt and use a new output name.",
+      "For at most eight private candidate lines, run `stegseek --crack -s -n -t 1 ./COPIED_CARRIER ./private-words.txt ./NEW_payload.bin`. Keep the wordlist and terminal output private; the optional local helper adds a 20-second limit.",
+      "Check extracted byte length, signature or parser, and source relationship independently; repeat a wrong-passphrase check and a clean-carrier control before treating the result as evidence."
+    ],
+    "expected": "A new extracted file whose bytes and format can be checked independently against the carrier and supplied clue.",
+    "fallback": "If no candidate works, confirm the carrier format and passphrase bytes, then revisit the clue or another format workflow; an empty result does not prove absence of hidden content.",
+    "caveat": "Steghide supports JPEG/BMP/WAV/AU, not PNG. The manual Stegseek command has no wall-time cap; its seed mode is outside this path and does not generally recover encrypted data. Local steghide 0.5.1 differs from the workbook's 0.6.0 entry; verify competition versions and help.",
+    "verification": "Benign local carrier and failure controls; not tested on competition machines.",
+    "references": [
+      {
+        "title": "steghide — Kali documentation",
+        "url": "https://www.kali.org/tools/steghide/"
+      },
+      {
+        "title": "Stegseek — official usage",
+        "url": "https://github.com/RickdeJager/stegseek"
+      }
+    ]
+  },
+  {
     "id": "executable-triage",
     "category": "malware",
     "title": "Unknown executable → format and capabilities",

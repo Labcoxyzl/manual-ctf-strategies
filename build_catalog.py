@@ -31,6 +31,8 @@ LOCAL_ROUTE_HELP = {
     "media-inspection": (("Image workflow", "CORE_WORKFLOWS.html#media"),
                          ("Audio practice", "research/learning/video-coverage/practice/AUDIO_PRACTICE.html"),
                          ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
+    "steghide-carrier": (("Steghide carrier workflow", "CORE_WORKFLOWS.html#steghide-carrier"),
+                         ("Optional local toolkit", "TOOLKIT.html#setup")),
     "executable-triage": (("Executable workflow", "SPECIALIST_WORKFLOWS.html#malware-executable"),
                           ("File preview script", "scripts/templates/file_intel.py")),
     "document-code": (("Document workflow", "SPECIALIST_WORKFLOWS.html#malware-document"),
@@ -126,7 +128,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 49
+    assert len(routes) == len({route["id"] for route in routes}) == 50
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

@@ -384,7 +384,7 @@ def _kind(path):
                   (b'\xff\xd8\xff', 'jpeg'), (b'GIF87a', 'gif'),
                   (b'GIF89a', 'gif'), (b'II*\x00', 'tiff'), (b'MM\x00*', 'tiff'),
                   (b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1', 'office'),
-                  (b'\x7fELF', 'elf'), (b'RIFF', 'riff'),
+                  (b'\x7fELF', 'elf'), (b'RIFF', 'riff'), (b'.snd', 'au'),
                   (b'fLaC', 'flac'), (b'OggS', 'ogg'),
                   (b'\x1a\x45\xdf\xa3', 'matroska'), (b'ID3', 'mp3'))
     for signature, kind in signatures:
@@ -5274,7 +5274,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 'registry': 'disk_memory', 'evtx': 'disk_memory',
                 'can_log': 'can_misc', 'elf': 'pwn_services', 'pe': 'malware_reversing',
                 'pcap': 'packets', 'pcapng': 'packets',
-                'riff': 'audio_video', 'flac': 'audio_video', 'ogg': 'audio_video',
+                'riff': 'audio_video', 'au': 'audio_video', 'flac': 'audio_video', 'ogg': 'audio_video',
                 'mp4': 'audio_video', 'matroska': 'audio_video', 'mp3': 'audio_video',
                 'png': 'images', 'bmp': 'images', 'jpeg': 'images', 'gif': 'images', 'tiff': 'images',
                 'zip': 'documents', 'tar': 'documents', 'mime': 'documents', 'pdf': 'documents',
@@ -5333,7 +5333,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         if not artifact['complete'] or depth >= MAX_DEPTH:
             continue
         path = Path(artifact['path'])
-        if images_selected and artifact['kind_evidence'] in ('jpeg', 'bmp', 'riff') and time.monotonic() < deadline:
+        if images_selected and artifact['kind_evidence'] in ('jpeg', 'bmp', 'riff', 'au') and time.monotonic() < deadline:
             for child in _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
                 queue.append((child, depth + 1))
         if artifact['kind_evidence'] == 'png' and (
@@ -5666,7 +5666,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []))
             continue
         if media_selected and (artifact['kind_evidence'] in
-                               ('riff', 'flac', 'ogg', 'mp4', 'matroska', 'mp3') or
+                               ('riff', 'au', 'flac', 'ogg', 'mp4', 'matroska', 'mp3') or
                                manifest['category'] == 'audio_video' and
                                artifact['kind_evidence'] in ('gif', 'binary')):
             if artifact['kind_evidence'] == 'riff':
