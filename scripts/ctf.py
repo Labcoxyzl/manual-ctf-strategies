@@ -96,10 +96,35 @@ def open_input(path):
         raise
 
 
-def unchanged(stream, path, original):
+def unchanged(stream, path, original, expected_digest=None, budget=None, expected_prefix=None):
     try:
         if identity(os.fstat(stream.fileno())) != identity(original) or identity(os.stat(path)) != identity(original):
             raise Problem("Input changed during the operation; the result was not committed.")
+        if expected_digest is not None:
+            if original.st_size > SOURCE_LIMIT:
+                raise WorkLimit("256 MiB source-byte limit exceeded; use the approved manual workflow.")
+            stream.seek(0)
+            digest = hashlib.sha256()
+            verification_bytes_left = original.st_size + 1
+            while verification_bytes_left:
+                budget.check()
+                chunk = stream.read(min(CHUNK, verification_bytes_left))
+                if not chunk:
+                    break
+                digest.update(chunk)
+                verification_bytes_left -= len(chunk)
+            if (digest.digest() != expected_digest or verification_bytes_left == 0
+                    or identity(os.fstat(stream.fileno())) != identity(original)
+                    or identity(os.stat(path)) != identity(original)):
+                raise Problem("Input changed during the operation; the result was not committed.")
+        elif expected_prefix is not None:
+            stream.seek(0)
+            budget.check()
+            if (stream.read(len(expected_prefix)) != expected_prefix
+                    or identity(os.fstat(stream.fileno())) != identity(original)
+                    or identity(os.stat(path)) != identity(original)):
+                raise Problem("Input changed during the operation; the result was not committed.")
+            budget.check()
     except OSError:
         raise Problem("Input became unavailable during the operation; the result was not committed.")
 
@@ -147,6 +172,7 @@ class Output:
             if validate:
                 validate()
             try:
+                # shortcut: source mutation between validation and link can race; use snapshots for adversarial writers.
                 os.link(self.stage, self.path)
             except FileExistsError:
                 raise Problem("Output appeared during processing; existing destination was preserved.", 2)
@@ -397,6 +423,7 @@ def zip_directory(stream, size, prefix, budget, end_offset, fields):
 def inspect_file(args, result, budget):
     stream, original = open_input(args.file)
     with stream:
+        sha_digest = None
         prefix = budget.read(stream)
         result["facts"]["input"] = {"size_bytes": original.st_size, "source": "regular-file stat"}
         result["scope"].append("Classification covers at most the first 64 KiB; inspection never extracts or executes content.")
@@ -472,12 +499,14 @@ def inspect_file(args, result, budget):
                     if not chunk:
                         break
                     digest.update(chunk)
+                sha_digest = digest.digest()
                 result["facts"]["sha256"] = {"value": digest.hexdigest(), "source": "whole-file read"}
             except Problem as problem:
                 add_issue(result, problem)
         try:
             budget.check()
-            unchanged(stream, args.file, original)
+            unchanged(stream, args.file, original, sha_digest, budget,
+                      expected_prefix=prefix if sha_digest is None else None)
         except Problem as problem:
             result["facts"].pop("sha256", None)
             add_issue(result, problem)
@@ -510,6 +539,7 @@ def bits(args, result, budget):
     else:
         stream, original = open_input(args.file)
     output = None
+    digest = hashlib.sha256() if original else None
     try:
         if original and original.st_size > SOURCE_LIMIT:
             raise WorkLimit("256 MiB source-byte limit exceeded; use the approved manual workflow.")
@@ -520,6 +550,8 @@ def bits(args, result, budget):
             chunk = budget.read(stream)
             if not chunk:
                 break
+            if digest:
+                digest.update(chunk)
             decoded = bytearray()
             for byte in chunk:
                 source_offset += 1
@@ -550,9 +582,11 @@ def bits(args, result, budget):
         def validate():
             budget.check()
             if original:
-                unchanged(stream, args.file, original)
-        validate()
-        output.publish(validate)
+                unchanged(stream, args.file, original, digest.digest(), budget)
+        if output.path:
+            output.publish(validate)
+        else:
+            validate()
         result["facts"]["transform"] = output.facts()
         result["facts"]["transform"].update({"selected_bits": bit_count, "groups": output.count,
                                                    "selected_lines": list(selection) if selection else "all"})
@@ -586,6 +620,7 @@ def xor(args, result, budget):
     result["parameters"]["key_bytes"] = len(key)
     stream, original = open_input(args.file)
     output = None
+    digest = hashlib.sha256()
     try:
         if original.st_size > SOURCE_LIMIT:
             raise WorkLimit("256 MiB source-byte limit exceeded; use the approved manual workflow.")
@@ -595,14 +630,17 @@ def xor(args, result, budget):
             chunk = budget.read(stream)
             if not chunk:
                 break
+            digest.update(chunk)
             transformed = bytes(byte ^ key[(offset + index) % len(key)] for index, byte in enumerate(chunk))
             output.write(transformed)
             offset += len(chunk)
         def validate():
             budget.check()
-            unchanged(stream, args.file, original)
-        validate()
-        output.publish(validate)
+            unchanged(stream, args.file, original, digest.digest(), budget)
+        if output.path:
+            output.publish(validate)
+        else:
+            validate()
         result["facts"]["transform"] = output.facts()
         result["scope"].append("Whole-file bytes XORed unchanged in length; key cycles from offset zero. Key contents are omitted from reports.")
         if not output.count:

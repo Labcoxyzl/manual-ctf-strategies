@@ -271,7 +271,7 @@ class ToolkitTests(unittest.TestCase):
         def mutate_during_fsync(fd):
             real_fsync(fd)
             source.write_bytes(b"changed!")
-        with mock.patch.object(ctf.os, "fsync", mutate_during_fsync), mock.patch("sys.stdout", io.StringIO()):
+        with mock.patch.object(ctf.os, "fsync", mutate_during_fsync), mock.patch.object(ctf, "identity", return_value=(1,)), mock.patch("sys.stdout", io.StringIO()):
             code = ctf.main(["xor", "--file", str(source), "--key-hex", "01", "--out", str(destination), "--json"])
         self.assertEqual(code, 1)
         self.assertFalse(destination.exists())
@@ -379,10 +379,69 @@ class ToolkitTests(unittest.TestCase):
                 source.write_bytes(b"B" * (ctf.CHUNK + 1))
                 changed = True
         result = {"parameters": {}, "facts": {}, "scope": [], "notices": []}
-        with mock.patch.object(ctf.Output, "write", mutate):
+        # Exercise the content guard even when a filesystem reports unchanged metadata.
+        with mock.patch.object(ctf.Output, "write", mutate), mock.patch.object(ctf, "identity", return_value=(1,)):
             with self.assertRaisesRegex(ctf.Problem, "changed"):
                 ctf.xor(args, result, ctf.Budget())
         self.assertFalse(output.exists())
+        self.assertFalse(list(self.directory.glob(".ctf-*")))
+
+    def test_changed_bit_input_with_same_metadata_never_publishes(self):
+        source = self.write("input", b"0" * (ctf.CHUNK + 8))
+        output = self.directory / "output"
+        args = ctf.parser().parse_args(["bits", "--file", str(source), "--out", str(output)])
+        original_write = ctf.Output.write
+        changed = False
+        def mutate(sink, data):
+            nonlocal changed
+            original_write(sink, data)
+            if not changed:
+                source.write_bytes(b"1" * (ctf.CHUNK + 8))
+                changed = True
+        result = {"parameters": {}, "facts": {}, "scope": [], "notices": []}
+        with mock.patch.object(ctf.Output, "write", mutate), mock.patch.object(ctf, "identity", return_value=(1,)):
+            with self.assertRaisesRegex(ctf.Problem, "changed"):
+                ctf.bits(args, result, ctf.Budget())
+        self.assertFalse(output.exists())
+        self.assertFalse(list(self.directory.glob(".ctf-*")))
+
+    def test_inspect_rejects_same_metadata_rewrite(self):
+        source = self.write("input", b"A" * (ctf.CHUNK + 1))
+        original_read = ctf.Budget.read
+        changed = False
+        def mutate(budget, stream, size=ctf.CHUNK):
+            nonlocal changed
+            data = original_read(budget, stream, size)
+            if not changed:
+                source.write_bytes(b"B" * (ctf.CHUNK + 1))
+                changed = True
+            return data
+        for sha256 in (False, True):
+            with self.subTest(sha256=sha256):
+                source.write_bytes(b"A" * (ctf.CHUNK + 1))
+                changed = False
+                capture = io.StringIO()
+                arguments = ["inspect", "--file", str(source), "--json"]
+                if sha256:
+                    arguments.append("--sha256")
+                with mock.patch.object(ctf.Budget, "read", mutate), mock.patch.object(ctf, "identity", return_value=(1,)), mock.patch.object(ctf, "file_classification", return_value="text/plain"), mock.patch("sys.stdout", capture):
+                    code = ctf.main(arguments)
+                report = json.loads(capture.getvalue())
+                self.assertEqual(code, 1)
+                self.assertEqual(report["status"], "partial")
+                self.assertNotIn("sha256", report["facts"])
+                self.assertIn("changed", " ".join(report["notices"]))
+
+    def test_content_validation_keeps_analysis_byte_budget(self):
+        source = self.write("input", b"A" * 80)
+        output = self.directory / "output"
+        args = ctf.parser().parse_args(["xor", "--file", str(source), "--key-hex", "01", "--out", str(output)])
+        result = {"parameters": {}, "facts": {}, "scope": [], "notices": []}
+        budget = ctf.Budget()
+        with mock.patch.object(ctf, "SOURCE_LIMIT", 100):
+            self.assertEqual(ctf.xor(args, result, budget), 0)
+        self.assertEqual(budget.read_bytes, 80)
+        self.assertEqual(output.read_bytes(), b"@" * 80)
         self.assertFalse(list(self.directory.glob(".ctf-*")))
 
     def test_publication_race_preserves_existing_destination(self):
