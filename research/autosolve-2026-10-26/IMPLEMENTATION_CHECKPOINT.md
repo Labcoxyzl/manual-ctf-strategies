@@ -132,16 +132,35 @@ oracles without claiming platform acceptance. PWN03 autonomous offset
 discovery, broader PWN04 ROP, foreign PyInstaller bytecode and unsupported
 REV02 compiler layouts remain partial.
 
-Four published-tenth row batches replayed 82 frozen cases; 80 passed narrow
-slot checks and the two exclusions were ENC01 Base85 and ENC05 no-crib H2.
-Seventeen rows now have narrow P/H1/H2/N examples on one candidate, but none
-has every named contract variation proven. The next local checkpoint bundles
-a functional authored SSTV doctor recording, rootless pefile/Capstone parsers,
-and a refreshed deterministic README-linked Offline kit with 237 validated
-members. Its focused checks and independent reviews passed; combined release
-gates and remote publication remain pending. A proposed DF04 WAL status repair
-is held separately after corrupt-WAL review showed the simple exemption could
-hide missing committed rows.
+The twelfth checkpoint bundles a functional authored SSTV doctor recording,
+rootless pefile/Capstone parsers, and a refreshed deterministic README-linked
+Offline kit with 237 validated members. Its Python 3.12 autosolve suite passed
+800 tests (23 optional skipped), and the pre-push gate passed 877 tests
+(42 optional skipped, 498 subtests). Commit `dc8aa70` is published and remote
+verified. The exact pinned all-domain and X/F gates passed 22/22 and 20/20;
+copied rootless directory and ZIP setup installed 30 locked packages, with
+44 ready, 10 partial and one unavailable doctor operation. Write tracing had
+zero outside-task ordinary-file targets.
+
+The thirteenth checkpoint validates copied SQLite WAL integrity before
+treating missing `-shm` as informational and refreshes the Offline kit to
+match. Corrupt WAL remains truncated, and ambiguous reused WAL stays partial.
+Its Python 3.12 suite passed 802 tests (23 optional skipped); the pre-push gate
+passed 879 tests (42 optional skipped, 509 subtests). Commit `4680795` is
+published and remote verified. On that exact candidate the all-domain gate
+passed 22/22 with all selected families `ran`; X/F passed 20/20; clean
+directory and ZIP rootless gates and 15 representative measurements passed.
+
+Four published-tenth row batches replayed 82 frozen cases: 80 narrow passes,
+with ENC01 Base85 and ENC05 no-crib H2 excluded. A fifth batch on the
+thirteenth commit passed 20/20 more narrow cases. IMG01, ENC02 and DOC01 also
+passed their complete named row contracts on their pinned published commits;
+the other 54 rows remain unproved at that level. The next isolated checkpoint
+adds an authored AV03 Morse/AFSK doctor probe and an opt-in hash-locked AI CPU
+environment whose four Torch gradient tests passed in a clean copied export.
+Optional angr checker setup is held pending a reviewed wheel-only path for two
+sdist-only dependencies. The tracked Offline kit must be regenerated after
+those source changes before publication.
 
 ## Independent end-to-end evidence
 
