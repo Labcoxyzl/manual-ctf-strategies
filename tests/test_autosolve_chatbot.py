@@ -349,7 +349,7 @@ class Toy:
                         self.end_headers()
                         self.wfile.write(b'data: {"delta":{"content":"partial')
                         self.wfile.flush()
-                        time.sleep(.18)
+                        time.sleep(1.5)
                         return
                     calls = ([{'function': {'arguments': json.dumps({'path': '/api/verify'})}}]
                              if toy.mode == 'stream_tool_route' else [{'name': 'noop'}])
@@ -378,7 +378,7 @@ class Toy:
                         self.wfile.write(part[:5]); self.wfile.flush()
                         self.wfile.write(part[5:]); self.wfile.flush()
                         if toy.mode == 'stream_timeout_after_chunk':
-                            time.sleep(.18)
+                            time.sleep(1.5)
                             return
                     if toy.mode in ('stream_delayed_close', 'stream_cr_only'):
                         time.sleep(.18)
@@ -482,7 +482,7 @@ class Toy:
                             toy.active_posts -= 1
                     return
                 if toy.mode in ('timeout', 'timeout_check_partial'):
-                    time.sleep(.18)
+                    time.sleep(1.5 if toy.mode == 'timeout_check_partial' else .18)
                     toy.completed = True
                     self.send(200, {'reply': 'completed later'})
                     return
@@ -1458,8 +1458,9 @@ class ChatbotCLITests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root, Toy('timeout_check_partial') as toy:
             protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
                                             'history_path': '/history', 'lanes': ['system']})
-            m, run, code = self.start(root, toy, protocol, timeout=.05, requests=12)
+            m, run, code = self.start(root, toy, protocol, timeout=.5, requests=12)
             self.assertEqual(code, 3)
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), 1, m['stop_reason'])
             self.assertEqual(m['stop_reason'], 'chat timed out; inspect history/status before any retry')
             self.assertTrue(m['chat_timeout_pending'])
             self.assertFalse(m['chat_timeout_checked'])
@@ -2316,8 +2317,10 @@ class ChatbotCLITests(unittest.TestCase):
         for mode in ('stream_timeout_after_chunk', 'stream_timeout_midline'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
                 protocol = self.protocol(root, config)
-                m, run, code = self.start(root, toy, protocol, prompts=2, timeout=.05)
+                m, run, code = self.start(root, toy, protocol, prompts=2, timeout=.5)
                 self.assertEqual(code, 3)
+                self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'),
+                                 1, m['stop_reason'])
                 self.assertIn('chat timed out', m['stop_reason'])
                 records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
                 self.assertEqual(records[-1]['status'], 200)
@@ -2350,7 +2353,14 @@ class ChatbotCLITests(unittest.TestCase):
                                                       'response_format': 'sse', 'response_field': 'delta.content'})):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
                 protocol = self.protocol(root, {'chat': chat, 'lanes': ['capability']})
-                m, run, code = self.start(root, toy, protocol)
+                try:
+                    m, run, code = self.start(root, toy, protocol)
+                except subprocess.TimeoutExpired:
+                    manifests = list((Path(root) / 'runs').glob('*/manifest.json'))
+                    state = json.loads(manifests[0].read_text()) if manifests else {}
+                    raise AssertionError({'mode': mode, 'request_count': state.get('request_count'),
+                                          'prompt_count': state.get('prompt_count'), 'stop_reason': state.get('stop_reason'),
+                                          'toy_call_count': len(toy.calls)}) from None
                 self.assertEqual(code, 3)
                 self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
                 self.assertEqual(m['prompt_count'], 1)
