@@ -83,6 +83,47 @@ def post_upload(body, response=None):
     return rows
 
 
+def complete_transfer(body, *, chunked=False, bad_chunk=False, reordered=False,
+                      conflicting=False, missing=False):
+    client, server, client_port, port = '198.51.100.10', '198.51.100.20', 41000, 19091
+    request = b'GET /object.bin HTTP/1.1\r\nHost: example.invalid\r\n\r\n'
+    if chunked:
+        compressed = gzip.compress(body, mtime=0)
+        middle = max(1, len(compressed) // 2)
+        encoded = (f'{middle:X}\r\n'.encode() + compressed[:middle] + b'\r\n'
+                   + f'{len(compressed) - middle:X}\r\n'.encode()
+                   + compressed[middle:] + b'\r\n'
+                   + (b'X\r\n\r\n' if bad_chunk else b'0\r\n\r\n'))
+        header = (b'HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n'
+                  b'Content-Encoding: gzip\r\n\r\n')
+    else:
+        encoded = body
+        header = b'HTTP/1.1 200 OK\r\nContent-Length: ' + str(len(body)).encode() + b'\r\n\r\n'
+    wire = header + encoded
+    cut1 = len(header) + max(1, len(encoded) // 3)
+    cut2 = len(header) + max(2, 2 * len(encoded) // 3)
+    pieces = (wire[:cut1], wire[cut1:cut2], wire[cut2:])
+    rows = [frame(client, server, client_port, port, 1000, 0, 2),
+            frame(server, client, port, client_port, 2000, 1001, 18),
+            frame(client, server, client_port, port, 1001, 2001, 16),
+            frame(client, server, client_port, port, 1001, 2001, 24, request)]
+    sequence = [0, 2, 1] if reordered else [0, 1, 2]
+    if missing:
+        sequence.remove(1)
+    for index in sequence:
+        rows.append(frame(server, client, port, client_port,
+                          2001 + sum(len(part) for part in pieces[:index]),
+                          1001 + len(request), 24, pieces[index]))
+    rows.append(frame(server, client, port, client_port, 2001 + len(wire),
+                      1001 + len(request), 17))
+    if conflicting:
+        changed = bytearray(pieces[1])
+        changed[-1] ^= 1
+        rows.append(frame(server, client, port, client_port, 2001 + len(pieces[0]),
+                          1001 + len(request), 24, bytes(changed)))
+    return rows
+
+
 class PacketObjectTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -177,6 +218,100 @@ class PacketObjectTests(unittest.TestCase):
         self.assertEqual(rows[0]['source_locator']['request_packet'], 4)
         self.assertTrue(any('frame 4' in warning and 'response evidence' in warning
                             for warning in warnings))
+
+    def test_reordered_complete_response_and_conflicting_retransmission(self):
+        body = b'PK\x03\x04WIRE-ORDER-ORACLE-' + bytes(range(64))
+        self.source.write_bytes(pcap(complete_transfer(body, reordered=True)))
+        rows, warnings = self.export()
+        self.assertEqual(len(rows), 1, warnings)
+        self.assertEqual(rows[0]['path'].read_bytes(), body)
+        self.assertEqual(rows[0]['wire_verification'], 'Content-Length')
+
+        self.output = self.root / 'conflicting'
+        self.source.write_bytes(pcap(complete_transfer(body, reordered=True, conflicting=True)))
+        rows, warnings = self.export()
+        self.assertEqual(rows, [])
+        self.assertTrue(any('conflicting' in warning for warning in warnings), warnings)
+
+    def test_identical_retransmission_without_fin_keeps_content_length_evidence(self):
+        body = b'IDENTICAL-RETRANSMISSION-ORACLE' * 3
+        frames = complete_transfer(body)
+        frames.insert(-1, frames[5])
+        frames.pop()
+        self.source.write_bytes(pcap(frames))
+        rows, warnings = self.export()
+        self.assertEqual(len(rows), 1, warnings)
+        self.assertEqual(rows[0]['path'].read_bytes(), body)
+        self.assertEqual(rows[0]['wire_verification'], 'Content-Length')
+
+    def test_complete_chunked_gzip_requires_exact_wire_terminator(self):
+        body = b'CHUNKED-GZIP-WIRE-ORACLE-' * 8
+        self.source.write_bytes(pcap(complete_transfer(body, chunked=True)))
+        rows, warnings = self.export()
+        self.assertEqual(len(rows), 1, warnings)
+        self.assertEqual(rows[0]['path'].read_bytes(), body)
+        self.assertEqual(rows[0]['wire_verification'], 'chunked-gzip-wire')
+
+        self.output = self.root / 'invalid-chunk'
+        self.source.write_bytes(pcap(complete_transfer(body, chunked=True, bad_chunk=True)))
+        rows, warnings = self.export()
+        self.assertFalse(any(row['wire_verification'] for row in rows), warnings)
+        self.assertTrue(warnings)
+
+    def test_public_cli_wire_verification_resume_and_negative_controls(self):
+        body = b'PK\x03\x04PUBLIC-WIRE-ORACLE-' + bytes(range(64))
+        script = Path(__file__).resolve().parents[1] / 'scripts/autosolve.py'
+        cases = [('reordered', complete_transfer(body, reordered=True), 'Content-Length'),
+                 ('chunked', complete_transfer(body, chunked=True), 'chunked-gzip-wire'),
+                 ('missing', complete_transfer(body, missing=True), None),
+                 ('conflict', complete_transfer(body, reordered=True, conflicting=True), None),
+                 ('invalid-chunk', complete_transfer(body, chunked=True, bad_chunk=True), None)]
+        for name, frames, expected in cases:
+            with self.subTest(name=name):
+                source = self.root / f'{name}.pcap'
+                source.write_bytes(pcap(frames))
+                identity = hashlib.sha256(source.read_bytes()).hexdigest()
+                command = [sys.executable, '-B', str(script), '--json', 'analyze', str(source),
+                           '--category', 'packets', '--runs-root', str(self.root / f'{name}-runs')]
+                result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
+                run = Path(json.loads(result.stdout)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                children = [item for item in manifest['artifacts']
+                            if 'object_index' in item['source_locator']]
+                if expected:
+                    self.assertEqual(manifest['coverage']['NET02']['status'], 'ran')
+                    self.assertEqual(len(children), 1)
+                    self.assertTrue(children[0]['current'])
+                    self.assertEqual(Path(children[0]['path']).read_bytes(), body)
+                    self.assertEqual(children[0]['source_locator']['wire_verification'], expected)
+                    self.assertTrue(children[0]['source_locator']['wire_length_verified'])
+                    finding = [item for item in manifest['findings']
+                               if item['operation'] == 'HTTP object export' and
+                               item['artifact_id'] == children[0]['id']]
+                    self.assertEqual(len(finding), 1)
+                    self.assertTrue(finding[0]['current'])
+                else:
+                    self.assertEqual(manifest['coverage']['NET02']['status'], 'truncated')
+                    self.assertFalse(any(item['source_locator']['wire_length_verified']
+                                         for item in children))
+                    if name in ('missing', 'conflict'):
+                        self.assertEqual(children, [])
+                previous = len([job for job in manifest['jobs'] if job['adapter_id'] == 'packet-objects'])
+                result = subprocess.run([sys.executable, '-B', str(script), '--json', 'resume',
+                                         str(run)], capture_output=True, text=True, timeout=30)
+                self.assertIn(result.returncode, (0, 3), result.stderr + result.stdout)
+                resumed = json.loads((run / 'manifest.json').read_text())
+                self.assertEqual(len([job for job in resumed['jobs']
+                                      if job['adapter_id'] == 'packet-objects']), previous)
+                if expected:
+                    child = next(item for item in resumed['artifacts']
+                                 if item['id'] == children[0]['id'])
+                    self.assertTrue(child['current'])
+                    self.assertTrue(next(item for item in resumed['findings']
+                                         if item['operation'] == 'HTTP object export' and
+                                         item['artifact_id'] == child['id'])['current'])
+                self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), identity)
 
     def test_limits_and_unsafe_output_are_rejected(self):
         self.source.write_bytes(pcap(transaction(41000, b'1234567890')))

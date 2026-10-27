@@ -4620,15 +4620,16 @@ def _packets_job(run, manifest, artifact, deadline):
 
 
 def _packet_objects_job(run, manifest, artifact, deadline):
-    from .profiles import packet_objects
+    from .profiles import packet_objects, packet_streams
     path = Path(artifact['path'])
     module_hash = hashlib.sha256(Path(packet_objects.__file__).read_bytes()).hexdigest()
     try:
         tool_hash = _hash(Path(packet_objects.TSHARK), deadline)
     except OSError:
         tool_hash = None
-    fingerprint = hashlib.sha256(f'{module_hash}:{tool_hash}'.encode()).hexdigest()
-    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:packet-objects.v1:{fingerprint}".encode()).hexdigest()
+    stream_hash = hashlib.sha256(Path(packet_streams.__file__).read_bytes()).hexdigest()
+    fingerprint = hashlib.sha256(f'{module_hash}:{stream_hash}:{tool_hash}'.encode()).hexdigest()
+    key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:packet-objects.v2:{fingerprint}".encode()).hexdigest()
     old = next((job for job in manifest['jobs']
                 if job['key'] == key and job['status'] == 'complete'), None)
     reusable = _reusable_children(manifest, old, deadline) if old else None
@@ -4672,7 +4673,8 @@ def _packet_objects_job(run, manifest, artifact, deadline):
                            'object_name': record['name'][:256],
                            'packet': record['packet'], 'tcp_stream': record['tcp_stream'],
                            'source_locators': record['source_locators'],
-                           'wire_length_verified': record['length_verified']}
+                           'wire_length_verified': bool(record['wire_verification']),
+                           'wire_verification': record['wire_verification']}
                 child = _store_staged(run, manifest, artifact, record, deadline,
                                       locator=locator,
                                       operation=f"HTTP object {record['index']}",
@@ -4686,8 +4688,10 @@ def _packet_objects_job(run, manifest, artifact, deadline):
                     'state': 'candidate', 'artifact_id': child['id'], 'job_id': job['id'],
                     'current': True, 'source_locator': locator,
                     'evidence': f"TShark HTTP response body SHA-256 {child['sha256']}; "
-                                + ('Content-Length verified' if record['length_verified'] else
-                                   'wire completeness unverified'),
+                                + ('Content-Length verified' if record['wire_verification'] == 'Content-Length'
+                                   else 'chunk framing and gzip CRC verified'
+                                   if record['wire_verification'] == 'chunked-gzip-wire'
+                                   else 'wire completeness unverified'),
                     'operation': 'HTTP object export',
                     'next_action': 'Inspect extracted bytes and validate challenge meaning.'})
             status = ('skipped prerequisite' if any('TShark unavailable' in note for note in warnings) else
@@ -6189,7 +6193,7 @@ def _current_adapter_fingerprints(deadline):
         'memory': [hashlib.sha256(f'{memory_hash}:{vol_hash}'.encode()).hexdigest()],
         'packets': [hashlib.sha256(f'{packet_hash}:{tshark_hash}'.encode()).hexdigest()],
         'packet-objects': [hashlib.sha256(
-            f'{packet_object_hash}:{executable_hash(packet_objects.TSHARK)}'.encode()).hexdigest()],
+            f'{packet_object_hash}:{packet_stream_hash}:{executable_hash(packet_objects.TSHARK)}'.encode()).hexdigest()],
         'packet-streams': [hashlib.sha256(
             f'{packet_stream_hash}:{executable_hash(packet_streams.TSHARK)}'.encode()).hexdigest()],
         'packet-tls': [hashlib.sha256(

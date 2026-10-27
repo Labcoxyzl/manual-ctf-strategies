@@ -36,8 +36,9 @@ arithmetic service. All 57 baseline IDs have source-visible code paths, but
 the row-specific transfer gate is still incomplete.
 
 The second isolated snapshot passed 630 CPython 3.12 autosolve tests (17
-optional skipped) and nine copied-export distribution tests. Its repository
-pre-push gate is the remaining publication check at this checkpoint.
+optional skipped), nine copied-export distribution tests and the repository's
+full pre-push gate (695 passed, 35 optional skipped). Commit `f34b805` is on
+the same remote progress branch.
 
 ## Independent end-to-end evidence
 
@@ -81,15 +82,19 @@ The later frozen case ledgers report 12/12 scoped PWN01/02/07 checks,
 first-use transfers for ENC01/02/05, DOC01, IMG01 and a second Windows-memory
 dump. A separate WEB01 oracle expected `same_origin` for unresolved relative
 URLs; the original strict result remains 3/4 and a newly frozen correctly
-scoped case passed. NET01/02/03 and CAN01/02 meet 19 of 20 row/case slots:
-NET02 still marks one exact chunked/gzip object `truncated` because wire
-completeness is unverified. These are local/public-corpus observations, not
-the complete 57-row acceptance gate or a competition solve-rate measurement.
+scoped case passed. The first NET01/02/03 and CAN01/02 ledger met 19 of 20
+row/case slots. A later reviewed NET02 repair passed two freshly sealed
+out-of-order and chunked/gzip transfers with byte-exact, wire-verified bodies;
+missing and conflicting TCP data stayed withheld. It is pending the next
+publication gate. NET01 still labels the reordered capture `truncated`.
+These are local/public-corpus observations, not the complete 57-row acceptance
+gate or a competition solve-rate measurement.
 
 ## Remaining order
 
-1. Finish current ENC05 privacy/transfer and Windows-memory transfer checks,
-   then rerun the shared and copied-export suites on a frozen code snapshot.
+1. Publish the reviewed NET02 repair after its isolated copied-export and
+   repository gates. Execute the already frozen audio/video and image/document
+   transfer cases and repair any concrete gaps they expose.
 2. Freeze and execute each baseline row's positive, two independent held-out
    variations and negative controls. The source audit found no complete
    57-row transfer ledger; local tests alone do not satisfy this gate.
@@ -103,5 +108,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; the first tested commit is published and newer work is being verified
-for the next checkpoint.
+pushes; two tested commits are published and the NET02 repair is under its
+next isolated gate.
