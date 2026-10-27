@@ -90,14 +90,18 @@ python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
 ```
 
 The protocol can also set `headers` for auth, `csrf_cookie`/`csrf_header` inside
-`chat`, and `client_id_field`. Put secrets in the private protocol file, not
+`chat`, `client_id_field`, and one explicit `bootstrap` login or tab-claim
+request. Put secrets in the private protocol file, not
 command arguments. `verification` requires an explicit same-origin path,
 `success_field`, and `success_value`; a POST checker also needs
-`candidate_field`. `injection` requires an exposed writable `path`, `field`,
-`payload`, `marker`, and `trigger_prompt`. It writes once and tests the later
-chat response; a repeated marker is only a candidate. The private run directory
+`candidate_field`. A JSON/form `injection` requires an exposed writable `path`,
+`field`, `payload`, `marker`, and `trigger_prompt`; multipart upload uses an
+explicit regular file, file field, filename, and content type instead. The
+client writes once, then tests the later chat response. A repeated marker is
+only a candidate. The private run directory
 contains raw responses and cookies. Stop reasons, transcript line numbers,
-untested probes, and exact request counts appear in `report.md`. A timeout,
+untested probes, and exact request counts appear in `report.md`. The `report`
+command prints its private file path for chatbot runs. A timeout,
 lock, rate limit, ambiguous reply, or unverified route leaves the run partial.
 
 For broader competition preparation, install the [no-AI Python requirements](../requirements.txt) in a fresh **Linux/WSL or Kali** CPython 3.11/3.12 virtual environment. For a new checkout, use a GitHub account with access to this private repository:

@@ -1,0 +1,19 @@
+{
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "injection": {
+    "path": "/REPLACE_UPLOAD_PATH",
+    "encoding": "multipart",
+    "file_path": "example_injection.txt",
+    "file_field": "document",
+    "filename": "example_injection.txt",
+    "content_type": "text/plain",
+    "fields": {"collection": "kb"},
+    "marker": "demo-marker",
+    "trigger_prompt": "Quote the uploaded article and name its source."
+  }
+}

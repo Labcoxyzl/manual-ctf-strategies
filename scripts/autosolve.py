@@ -119,7 +119,7 @@ def main(argv=None):
         result, code = {'status': 'failed', 'reason': f'{type(error).__name__}: {error.strerror}'}, 1
     if args.json:
         print(json.dumps(result, sort_keys=True))
-    elif args.command == 'report' and code == 0:
+    elif args.command == 'report' and code == 0 and manifest.get('category') != 'ai_chatbot':
         print(path.read_text(), end='')
     else:
         print(json.dumps(result, indent=2, sort_keys=True))

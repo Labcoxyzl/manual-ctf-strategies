@@ -50,7 +50,7 @@ survive resume. The client will not resend a POST whose outcome is uncertain.
 | `diagnostic_chat` | credentials in private `headers` or chat fields | Ask for diagnostic fields and status after the app authorizes the session. |
 | `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. |
 | `orchestrator_action` | `action_prompt`, `status_path`, `allow_state_change: true` | Send one explicit final action prompt, then read status once. |
-| `kb_injection` | an `injection` object | Write one exposed lower-trust KB item and send its trigger prompt. A repeated marker stays unvalidated. |
+| `kb_injection` | an `injection` object | Write one exposed lower-trust KB item or multipart document and send its trigger prompt. A repeated marker stays unvalidated. |
 | `custom_chat` | `prompts`: one to four strings | Run a target-specific prompt idea with the same session and evidence controls. |
 | `context_bloat` | none | Test context retention at bounded sizes. |
 | `scorer_batch` | `path`, `body_field`, `score_field`, `candidates`, `allow_state_change: true` | Score one to fifty explicit inputs serially; numerical scores are observations, not membership proof. |
@@ -59,10 +59,18 @@ The selected strategy sends its listed probes after one baseline. It does not
 run every strategy or the whole CHY corpus. A response that reveals a route or
 secret stops broad prompting. The private run contains a JSONL transcript,
 candidate and checker evidence, cookies, and a report. The ordinary terminal
-output contains only status and file paths. `--max-requests` is at most 100,
+output contains only status and file paths, including for `report`. `--max-requests` is at most 100,
 `--max-prompts` at most 20, and `--budget` at most 600 seconds. The HTTP client
 also caps each response at 128 KiB, each request body at 128 KiB, and its
 transcript at 2 MiB.
+
+If the frontend requires one login, claim, or token-exchange POST before chat,
+add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.json).
+It declares the exact path/body and, when needed, the response token field to
+copy into a chat field or header. Set `allow_state_change: true`. The request
+runs once in the same cookie jar before prompts; a timeout leaves its outcome
+uncertain and resume will not replay it automatically. Multi-step login,
+heartbeat, and force-claim semantics still need target-specific work.
 
 For a tool-header capture, start the bounded callback receiver first. Its
 default bind is loopback, and it exits after one request or its duration. A
@@ -76,7 +84,7 @@ python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 ```
 
 When a guardrail returns code points, character arrays, NATO words, initials,
-reversed text, groups, or Base64, save the exact response in a private text
+reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
 file and decode it as a candidate. The tool-call audit helper compares
 `args_raw`, `args_validated`, `args_normalized`, and `args_applied` from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
@@ -84,6 +92,7 @@ never proof of applied backend state.
 
 ```sh
 python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
+python3 scripts/chatbot_evidence.py decode --input ./private-embedding.json --mode embedding-bytes
 python3 scripts/chatbot_evidence.py audit --input .autosolve/runs/RUN_ID/transcript.jsonl \
   --line 5 --raw-field tool_calls.0.args_raw \
   --validated-field tool_calls.0.args_validated \
@@ -108,8 +117,12 @@ Start from the [history](chatbot_recipes/history_idor.json),
 [tool-audit](chatbot_recipes/tool_audit.json), or
 [workflow](chatbot_recipes/workflow_action.json) examples. Replace every
 `REPLACE_` field before live use; the CLI rejects live plans that retain one.
-The [KB example](chatbot_recipes/kb_article.json) shows an explicit writable
-injection surface. Do not enumerate IDs, origins, or ports by changing a plan
+The [KB example](chatbot_recipes/kb_article.json) shows a JSON/form write.
+The [document upload example](chatbot_recipes/document_upload.json) uses a
+synthetic text file and a multipart form. Replace its route, file field, and
+file content after inspecting the challenge. The upload file is limited to
+64 KiB and hashed into the run identity; changing it invalidates resume.
+Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.
 
@@ -131,6 +144,7 @@ JSON canaries and requires `--execute-local`.
 ```sh
 python3 scripts/ai_model.py inspect ./model.safetensors
 python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
+python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
 python3 scripts/ai_model.py svm ./private-svm-parameters.json
 python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
 python3 scripts/ai_model.py parity ./private-parity.json --execute-local
@@ -167,13 +181,19 @@ and checks whether another input also satisfies the declared constraints.
 It does not infer gates from a model or treat a satisfying assignment as a
 validated flag. The supplied checker must accept the serialized candidate.
 
+`ai_model.py suppression` calculates the explicit `2*base-challenge`
+hypothesis for small matching floating NPZ tensors and stores a float64
+candidate. It does not identify historical weights from an ambiguous
+transformation. Check the producer's arithmetic and run parity before using
+the candidate.
+
 | CHY offline route | Ready script step | Target-specific work that remains |
 | --- | --- | --- |
 | Sparse model or classical binary SVM | `ai_model.py inspect`; `svm` computes primal weight, margins and slack from exported JSON parameters | Recover exact preprocessing and verify decoded text through the checker. |
 | Deterministic sign verifier | `ai_model.py sign-gates` for exported affine gates; parity-check the scorer | Derive gates from the wrapper and verify a satisfying input. |
 | Differentiable evasion or inversion | `ai_model_attack.py gradient` and parity canaries | Supply the challenge adapter, input bounds, loss direction, serializer, and checker. |
 | Recurrent policy and world-model state | `ai_model_attack.py recurrent` and parity canaries | Supply environment, policy step, action list, and exact hidden-state contract. |
-| Adapter/delta and weight differences | `ai_model.py compare` for supported small tensors | Reproduce merge arithmetic, quantization, and full-model behavior. |
+| Adapter/delta and weight differences | `ai_model.py compare` and explicit NPZ `suppression` hypothesis | Reproduce merge arithmetic, quantization, and full-model behavior. |
 | Black-box extraction or membership | `scorer_batch` for bounded, explicit scorer inputs | Design controls, statistics, and independent membership oracle. |
 | Token-identity parity and calibrated behavior search | `ai_model.py parity` on representative canaries | Supply tokenizer/model wrappers and calibrated controls. |
 
@@ -195,13 +215,13 @@ mean the attack will succeed against an arbitrary challenge.
 | Tool header capture | `fetch_tool` + `chatbot_callback.py` | Provide a reachable, separately authorized callback address. |
 | Tool-backed SQL/filter injection | `tool_filter` | Learn the exact callable/field, then use the web SQLi workflow for confirmed injection. |
 | Fetch-tool SSRF and blocklist bypass | `fetch_tool` / `fetch_blocklist` | Supply each authorized destination and verify the actual fetch, not a model claim. |
-| Trusted KB or document injection | `kb_injection` + `kb_article.json` | Fill the exposed write route and verify state beyond an echo. |
+| Trusted KB or document injection | `kb_injection` + JSON or multipart recipe | Fill the exposed write route and verify state beyond an echo. |
 | RAG source and alias mapping | `rag_sources` / `rag_aliases` | Supply a topic and verify returned IDs against the app. |
 | Exposed vector store | `api_plan` + `vector_store.json` | Fill collection ID and inspect returned documents and metadata. |
 | Model/agent switching | `agent_routing`, then `custom_chat` | Supply the observed trigger and verify a response field or backend state. |
 | DLP or guardrail representation | `guardrail_representation` + `chatbot_evidence.py decode` | Reconstruct a candidate and check the real verifier. |
 | Workflow validator and exact output | `output_validator` / `workflow_status` | Fill stage/status route and check persisted progress. |
-| Chat ownership locks and rate limits | Shared chatbot transport | Map claim/heartbeat fields from frontend when needed; honor cooldowns. |
+| Chat ownership locks and rate limits | Shared chatbot transport and one-step `bootstrap` | Map claim/heartbeat fields from frontend when needed; honor cooldowns. |
 | Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
 | Debug validator and direct verifier | `api_plan` + `debug_verifier.json` | Fill documented boundary input, nonce/signature rules, and official completion field. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
@@ -210,7 +230,7 @@ mean the attack will succeed against an arbitrary challenge.
 | Sparse/SVM and sign-network verifiers | `ai_model.py inspect`, `svm`, `sign-gates`, `parity` | Export parameters/gates, check exact semantics, and run the supplied checker. |
 | Differentiable evasion and inversion | `ai_model_attack.py gradient` | Supply exact preprocessing, bounds, loss, and checker serialization. |
 | Recurrent policy/world-model alignment | `ai_model_attack.py recurrent` | Supply environment and policy step wrappers with the correct hidden-state timing. |
-| Adapter/delta weight recovery | `ai_model.py compare` and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
+| Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
 | Black-box extraction/membership | `scorer_batch` numeric observations | Supply representative inputs, statistics and an independent membership oracle. |
 | Token-identity and inference parity | `ai_model.py parity` | Supply tokenizer/model wrappers and exact prompt boundaries. |
 | Calibrated unknown-behavior search | `ai_model.py parity` | Supply positive/negative controls and a target-specific bounded search objective. |

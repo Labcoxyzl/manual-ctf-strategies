@@ -11,6 +11,7 @@ import re
 import shlex
 import signal
 import socket
+import stat
 import threading
 import time
 import urllib.error
@@ -27,6 +28,7 @@ from .chatbot_strategies import plan as strategy_plan
 
 MAX_RESPONSE = 128 * 1024
 MAX_LOG = 2 * 1024 * 1024
+_MISSING = object()
 SECRET = re.compile(r'(?:flag\{[^}\s]{1,200}\}|(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{3,})', re.I)
 PATH = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}')
 ROUTE = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}(?:\?[^\s"\'<>]{1,200})?')
@@ -43,6 +45,8 @@ PROBES = {
 
 
 def _origin(value):
+    if not isinstance(value, str) or any(char.isspace() or ord(char) < 33 for char in value):
+        raise core.InvalidInput('origin must be one URL token without control characters')
     parsed = urllib.parse.urlsplit(value)
     if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password or parsed.path not in ('', '/') or parsed.query or parsed.fragment:
         raise core.InvalidInput('origin must be an http(s) origin without credentials, path, query, or fragment')
@@ -73,6 +77,7 @@ def _display_path(value):
     for index in range(1, len(segments)):
         segment = urllib.parse.unquote(segments[index])
         if segments[index] and (PATH_SECRET_PARENT.fullmatch(urllib.parse.unquote(segments[index - 1])) or
+                                any(char.isdigit() for char in segment) and segment.lower() not in ('v1', 'v2', 'v3') or
                                 len(segment) >= 16 and re.fullmatch(r'[A-Za-z0-9_-]+', segment) and
                                 (any(char.isdigit() for char in segment) or len(segment) >= 24)):
             segments[index] = '[redacted]'
@@ -89,6 +94,17 @@ def _relative_url(value):
     return (parsed.path or '/') + (f'?{parsed.query}' if parsed.query else '')
 
 
+def _injection_bytes(path):
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(descriptor, 'rb') as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise core.InvalidInput('multipart injection file must be regular')
+        data = stream.read(64 * 1024 + 1)
+    if len(data) > 64 * 1024:
+        raise core.InvalidInput('multipart injection file exceeds 64 KiB')
+    return data
+
+
 def _protocol(path):
     if path is None:
         return {}, None
@@ -100,7 +116,7 @@ def _protocol(path):
         config = json.loads(raw)
     except (UnicodeError, ValueError) as error:
         raise core.InvalidInput('invalid protocol JSON') from error
-    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
+    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
     if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'}:
@@ -130,6 +146,24 @@ def _protocol(path):
         raise core.InvalidInput('authorized_destinations must list at most four exact origins')
     if type(config.get('allow_state_change', False)) is not bool:
         raise core.InvalidInput('allow_state_change must be boolean')
+    bootstrap = config.get('bootstrap')
+    if bootstrap is not None:
+        if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'encoding', 'body', 'token_field', 'chat_field', 'header'} or not config.get('allow_state_change'):
+            raise core.InvalidInput('bootstrap needs allow_state_change=true and a declared request')
+        _path(bootstrap.get('path'))
+        if bootstrap.get('encoding', 'json') not in ('json', 'form') or not isinstance(bootstrap.get('body'), dict):
+            raise core.InvalidInput('bootstrap body must be a JSON or form object')
+        if bootstrap.get('encoding') == 'form' and any(not isinstance(v, str) for v in bootstrap['body'].values()):
+            raise core.InvalidInput('bootstrap form values must be strings')
+        if any(not isinstance(k, str) for k in bootstrap['body']):
+            raise core.InvalidInput('bootstrap body keys must be strings')
+        for key in ('token_field', 'chat_field', 'header'):
+            if key in bootstrap and (not isinstance(bootstrap[key], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,80}', bootstrap[key])):
+                raise core.InvalidInput(f'invalid bootstrap {key}')
+        if ('header' in bootstrap or 'chat_field' in bootstrap) and 'token_field' not in bootstrap:
+            raise core.InvalidInput('bootstrap header/chat_field needs token_field')
+        if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
+            raise core.InvalidInput('bootstrap body exceeds 64 KiB')
     verify = config.get('verification')
     if verify is not None:
         if not isinstance(verify, dict) or set(verify) - {'path', 'method', 'candidate_field', 'success_field', 'success_value'} or 'path' not in verify or 'success_field' not in verify or 'success_value' not in verify:
@@ -141,24 +175,41 @@ def _protocol(path):
             raise core.InvalidInput('verification success_field must be a nonempty path')
     injection = config.get('injection')
     if injection is not None:
-        if not isinstance(injection, dict) or set(injection) - {'path', 'encoding', 'field', 'payload', 'trigger_prompt', 'marker'} or not all(isinstance(injection.get(k), str) for k in ('path', 'field', 'payload', 'trigger_prompt', 'marker')):
+        if not isinstance(injection, dict) or set(injection) - {'path', 'encoding', 'field', 'payload', 'trigger_prompt', 'marker', 'file_path', 'file_field', 'filename', 'content_type', 'fields'} or not all(isinstance(injection.get(k), str) for k in ('path', 'trigger_prompt', 'marker')):
             raise core.InvalidInput('invalid injection schema')
         _path(injection['path'])
-        if injection.get('encoding', 'json') not in ('json', 'form') or not injection['marker'] or injection['marker'] not in injection['payload']:
+        encoding = injection.get('encoding', 'json')
+        if not injection['marker'] or encoding not in ('json', 'form', 'multipart'):
             raise core.InvalidInput('invalid injection encoding or marker')
+        if encoding == 'multipart':
+            if not all(isinstance(injection.get(k), str) for k in ('file_path', 'file_field', 'filename', 'content_type')) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', injection['file_field']) or not re.fullmatch(r'[A-Za-z0-9._-]{1,120}', injection['filename']) or not re.fullmatch(r'[A-Za-z0-9.+/-]{1,80}', injection['content_type']):
+                raise core.InvalidInput('invalid multipart file fields')
+            fields = injection.get('fields', {})
+            if not isinstance(fields, dict) or any(not isinstance(k, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', k) or not isinstance(v, str) for k, v in fields.items()):
+                raise core.InvalidInput('invalid multipart form fields')
+            source = Path(injection['file_path'])
+            if not source.is_absolute():
+                source = p.absolute().parent / source
+            if source.is_symlink() or not source.is_file() or source.stat().st_size > 64 * 1024:
+                raise core.InvalidInput('multipart injection file must be regular and at most 64 KiB')
+            if injection['marker'].encode() not in _injection_bytes(source):
+                raise core.InvalidInput('multipart marker must occur in the supplied file')
+            injection['file_path'] = str(source.absolute())
+        elif not all(isinstance(injection.get(k), str) for k in ('field', 'payload')) or injection['marker'] not in injection['payload']:
+            raise core.InvalidInput('invalid injection payload or marker')
     return config, hashlib.sha256(raw).hexdigest()
 
 
-def _nested(value, field):
+def _nested(value, field, missing=None):
     if not field:
-        return None
+        return missing
     for part in field.split('.'):
         if isinstance(value, dict) and part in value:
             value = value[part]
         elif isinstance(value, list) and part.isdecimal() and int(part) < len(value):
             value = value[int(part)]
         else:
-            return None
+            return missing
     return value
 
 
@@ -180,6 +231,22 @@ def _redact(value):
     if isinstance(value, str):
         return SECRET.sub('[redacted]', value)[:4000]
     return value
+
+
+def _multipart(body):
+    boundary = f'ctf-{uuid.uuid4().hex}'
+    chunks = []
+    for name, value in body.get('fields', {}).items():
+        chunks.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode())
+    source = Path(body['file_path'])
+    data = _injection_bytes(source)
+    if hashlib.sha256(data).hexdigest() != body['expected_sha256']:
+        raise core.InvalidInput('multipart injection file changed since planning')
+    chunks.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{body["file_field"]}"; filename="{body["filename"]}"\r\nContent-Type: {body["content_type"]}\r\n\r\n'.encode())
+    chunks.extend((data, f'\r\n--{boundary}--\r\n'.encode()))
+    return b''.join(chunks), boundary, {'file_sha256': hashlib.sha256(data).hexdigest(),
+                                         'file_size': len(data), 'field_names': sorted(body.get('fields', {})),
+                                         'file_field': body['file_field'], 'filename': body['filename']}
 
 
 class _Forms(HTMLParser):
@@ -245,17 +312,25 @@ class Client:
         url = self.manifest['origin'] + path
         headers = dict(self.config.get('headers', {}))
         chat = self.config.get('chat', {})
+        bootstrap = self.config.get('bootstrap', {})
+        if bootstrap.get('header') and self.manifest.get('bootstrap_token') and probe != 'bootstrap':
+            headers[bootstrap['header']] = self.manifest['bootstrap_token']
         if chat.get('csrf_cookie') and chat.get('csrf_header'):
             token = next((cookie.value for cookie in self.cookies if cookie.name == chat['csrf_cookie']), None)
             if token:
                 headers[chat['csrf_header']] = token
         data = None
         if body is not None:
-            data = json.dumps(body).encode() if encoding == 'json' else urllib.parse.urlencode(body).encode()
+            if encoding == 'multipart':
+                data, boundary, multipart_log = _multipart(body)
+            else:
+                data = json.dumps(body).encode() if encoding == 'json' else urllib.parse.urlencode(body).encode()
             if len(data) > 128 * 1024:
                 raise core.InvalidInput('request body exceeds 128 KiB')
-            headers['Content-Type'] = 'application/json' if encoding == 'json' else 'application/x-www-form-urlencoded'
-        logged_body = {key: '[redacted]' for key in body} if isinstance(body, dict) and (probe in ('injection-write', 'verification') or probe.startswith('api:')) else _redact(body)
+            headers['Content-Type'] = f'multipart/form-data; boundary={boundary}' if encoding == 'multipart' else 'application/json' if encoding == 'json' else 'application/x-www-form-urlencoded'
+        logged_body = multipart_log if body is not None and encoding == 'multipart' else {key: '[redacted]' for key in body} if isinstance(body, dict) and (probe in ('bootstrap', 'injection-write', 'verification') or probe.startswith('api:')) else _redact(body)
+        if isinstance(logged_body, dict) and bootstrap.get('chat_field') in logged_body:
+            logged_body[bootstrap['chat_field']] = '[redacted]'
         logged_headers = {key: value if key.lower() == 'content-type' else '[redacted]' for key, value in headers.items()}
         redirects = 0
         while True:
@@ -279,15 +354,28 @@ class Client:
             except (socket.timeout, TimeoutError, urllib.error.URLError) as error:
                 signal = 'timeout' if isinstance(error, (socket.timeout, TimeoutError)) or isinstance(getattr(error, 'reason', None), socket.timeout) else 'network_error'
                 record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': None, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal}
+                self._save_cookies()
                 self._log(record)
                 return record
             if status in (301, 302, 303, 307, 308) and response_headers.get('Location'):
                 target = urllib.parse.urljoin(url, response_headers['Location'])
-                if _origin_from_url(target) != self.manifest['origin']:
+                if len(raw) > MAX_RESPONSE:
+                    signal = 'partial_response'
+                elif _origin_from_url(target) != self.manifest['origin']:
                     signal = 'cross_origin_redirect'
                 elif redirects >= 3 or (method == 'POST' and status in (307, 308)):
                     signal = 'redirect_not_replayed'
                 else:
+                    redirect_record = {'at': time.time(), 'probe_id': probe,
+                                       'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers},
+                                       'status': status, 'duration': round(time.monotonic() - start, 3),
+                                       'conversation_id': self.manifest.get('conversation_id'), 'signal': 'same_origin_redirect',
+                                       'location': _display_path(target),
+                                       'response': {'raw_b64': base64.b64encode(raw).decode()}}
+                    self._save_cookies()
+                    self._log(redirect_record)
+                    if redirect_record.get('signal') == 'log_limit':
+                        return redirect_record
                     redirects += 1
                     url = target
                     if method == 'POST':
@@ -313,9 +401,12 @@ class Client:
             if signal == 'rate_limit':
                 self.manifest['cooldown_until'] = time.time() + (_retry_seconds(retry_after) or 60)
             self._log(record)
-            self.cookies.save(ignore_discard=True, ignore_expires=True)
-            self.manifest['session_cookie_names'] = sorted({cookie.name for cookie in self.cookies})
+            self._save_cookies()
             return record
+
+    def _save_cookies(self):
+        self.cookies.save(ignore_discard=True, ignore_expires=True)
+        self.manifest['session_cookie_names'] = sorted({cookie.name for cookie in self.cookies})
 
     def _log(self, record):
         line = json.dumps(record, ensure_ascii=False) + '\n'
@@ -464,6 +555,38 @@ def _candidate(record, text, m):
     return hits
 
 
+def _bootstrap(client):
+    config = client.config.get('bootstrap')
+    m = client.manifest
+    if not config or m.get('bootstrap_completed'):
+        return
+    if m.get('bootstrap_started'):
+        check = client.config.get('history_path') or client.config.get('status_path')
+        if check and not m.get('bootstrap_checked'):
+            client.request('GET', check, probe='bootstrap-status-check')
+            m['bootstrap_checked'] = True
+        m['stop_reason'] = 'bootstrap outcome uncertain; inspect session state before a new run'
+        return
+    if m['request_count'] >= m['max_requests'] or time.monotonic() >= client.deadline:
+        m['stop_reason'] = 'budget before bootstrap'
+        return
+    m['bootstrap_started'] = True
+    core._write_json(client.run / 'manifest.json', m)
+    result = client.request('POST', config['path'], body=config['body'],
+                            encoding=config.get('encoding', 'json'), probe='bootstrap')
+    if result.get('signal') or result.get('status') not in range(200, 300):
+        m['stop_reason'] = 'bootstrap unconfirmed'
+        return
+    if config.get('token_field'):
+        token = _nested(result.get('response'), config['token_field'], _MISSING)
+        if not isinstance(token, str) or not 1 <= len(token) <= 4096:
+            m['stop_reason'] = 'bootstrap token missing or invalid'
+            return
+        m['bootstrap_token'] = token
+    m['bootstrap_completed'] = True
+    core._write_json(client.run / 'manifest.json', m)
+
+
 def _run(client):
     m = client.manifest
     strategy_steps = ({step['id']: step for step in strategy_plan(m['strategy'], client.config.get('strategy_params', {}),
@@ -481,6 +604,8 @@ def _run(client):
         _inspect(client)
         m['inspected'] = not bool(m.get('stop_reason'))
         core._write_json(client.run / 'manifest.json', m)
+    if not m.get('stop_reason'):
+        _bootstrap(client)
     chat = client.config.get('chat') or m.get('discovered_chat')
     if (not chat and m.get('strategy') not in ('api_plan', 'scorer_batch')) or m.get('stop_reason'):
         return
@@ -502,7 +627,7 @@ def _run(client):
                 break
             m['completed'].append(probe)
             matched = (result.get('status') in range(200, 300) and not result.get('signal') and
-                       spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field']), spec['expect']['equals']))
+                       spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field'], _MISSING), spec['expect']['equals']))
             score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') else None
             try:
                 valid_score = (type(score) in (int, float) and math.isfinite(score)) or (isinstance(score, list) and
@@ -532,8 +657,13 @@ def _run(client):
             continue
         if kind == 'injection':
             inj = client.config['injection']
-            m['injection_summary'] = {'entry_path': inj['path'], 'entry_field': inj['field'], 'payload_sha256': hashlib.sha256(inj['payload'].encode()).hexdigest(), 'attempted_redirection': 'stored lower-trust content instructs the assistant to change its reply'}
-            write = client.request('POST', inj['path'], body={inj['field']: inj['payload']}, encoding=inj.get('encoding', 'json'), probe='injection-write')
+            multipart = inj.get('encoding') == 'multipart'
+            m['injection_summary'] = {'entry_path': inj['path'], 'entry_field': inj['file_field'] if multipart else inj['field'],
+                                      'payload_sha256': m['injection_file_sha256'] if multipart else hashlib.sha256(inj['payload'].encode()).hexdigest(),
+                                      'attempted_redirection': 'stored lower-trust content instructs the assistant to change its reply'}
+            payload = ({key: inj[key] for key in ('file_path', 'file_field', 'filename', 'content_type')}
+                       | {'fields': inj.get('fields', {}), 'expected_sha256': m['injection_file_sha256']}) if multipart else {inj['field']: inj['payload']}
+            write = client.request('POST', inj['path'], body=payload, encoding=inj.get('encoding', 'json'), probe='injection-write')
             if write.get('signal') or write.get('status') not in (200, 201, 204):
                 m['completed'].append(probe)
                 m['stop_reason'] = 'injection write unconfirmed'
@@ -542,6 +672,9 @@ def _run(client):
         else:
             prompt = spec['prompt'] if spec else PROBES[probe][1]
         body = {chat.get('message_field', 'message'): prompt}
+        bootstrap = client.config.get('bootstrap', {})
+        if bootstrap.get('chat_field') and m.get('bootstrap_token'):
+            body[bootstrap['chat_field']] = m['bootstrap_token']
         if chat.get('conversation_field') and m.get('conversation_id'):
             body[chat['conversation_field']] = m['conversation_id']
         if chat.get('client_id_field'):
@@ -587,13 +720,19 @@ def _run(client):
                 routes = [x for x in hits if x['kind'] == 'route clue']
                 if routes:
                     route = routes[0]['path']
+                    known_routes = {client.config.get('verification', {}).get('path'),
+                                    client.config.get('history_path'), client.config.get('status_path'),
+                                    client.config.get('audit_path')}
                     if urllib.parse.urlsplit(route).query:
                         m['stop_reason'] = 'route clue with query; inspect private transcript before direct check'
+                    elif route not in known_routes:
+                        m['stop_reason'] = 'route clue requires explicit API plan'
                     elif m['request_count'] < m['max_requests']:
                         direct = client.request('GET', route, probe='direct-route-check')
-                        m['direct_checks'].append({'path': _display_path(route), 'status': direct.get('status'), 'evidence_line': m['transcript_lines']})
+                        m['direct_checks'].append({'path_sha256': hashlib.sha256(route.encode()).hexdigest(), 'source': 'model',
+                                                    'status': direct.get('status'), 'evidence_line': m['transcript_lines']})
                         verify = client.config.get('verification', {})
-                        if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') == 200 and not direct.get('signal') and _same_json(_nested(direct.get('response'), verify.get('success_field')), verify.get('success_value')):
+                        if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') == 200 and not direct.get('signal') and _same_json(_nested(direct.get('response'), verify.get('success_field'), _MISSING), verify.get('success_value')):
                             m['validated'].append({'candidate_sha256': None, 'probe_id': probe, 'evidence_line': m['transcript_lines'], 'checker_path': route})
                     if not m.get('stop_reason'):
                         m['stop_reason'] = 'checker accepted' if m['validated'] else 'route clue; inspect direct check before more prompts'
@@ -606,7 +745,7 @@ def _run(client):
                         method = verify.get('method', 'GET')
                         payload = {verify['candidate_field']: candidate} if method == 'POST' else None
                         check = client.request(method, verify['path'], body=payload, probe='verification')
-                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and _same_json(_nested(check.get('response'), verify['success_field']), verify['success_value'])
+                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and _same_json(_nested(check.get('response'), verify['success_field'], _MISSING), verify['success_value'])
                         m['verification_checks'].append({'path': _display_path(verify['path']), 'status': check.get('status'), 'accepted': accepted, 'evidence_line': m['transcript_lines'] if check.get('signal') != 'budget' else None})
                         if check.get('signal'):
                             m['stop_reason'] = f"verification {check['signal']}"
@@ -646,6 +785,9 @@ def _render(run, m):
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
              f"Stop reason: {m.get('stop_reason') or 'queue complete'}", '', '## Probes', '']
+    if m.get('bootstrap_summary'):
+        entry = m['bootstrap_summary']
+        lines.insert(10, f"Bootstrap: POST {_display_path(entry['path'])}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
     for probe in m['queue']:
         spec = strategy_meta.get(probe)
         hypothesis = spec['hypothesis'] if spec else 'Lower-trust document instruction influences reply' if probe == 'injection' else PROBES[probe][0]
@@ -655,11 +797,12 @@ def _render(run, m):
         lines.append(f"- {probe}: {hypothesis}; expected: {expected}; cost: {'2' if kind == 'injection' else '1'} request(s) plus optional direct check; pivot: {pivot}; {'completed' if probe in m['completed'] else 'untested'}")
     lines += ['', '## Findings', '']
     for item in m['candidates']:
-        lines.append(f"- Candidate: {item['kind']} from {item['probe_id']}, transcript line {item['evidence_line']}" + (f"; path {_display_path(item['path'])}" if 'path' in item else ''))
+        lines.append(f"- Candidate: {item['kind']} from {item['probe_id']}, transcript line {item['evidence_line']}" + (f"; route SHA-256 {hashlib.sha256(item['path'].encode()).hexdigest()}" if 'path' in item else ''))
     for item in m['validated']:
         lines.append(f"- Validated by {_display_path(item['checker_path'])} at transcript line {item['evidence_line']}")
     for item in m['direct_checks']:
-        lines.append(f"- Direct route {item['path']}: HTTP {item['status']} at transcript line {item['evidence_line']}; acceptance unproven")
+        label = f"route SHA-256 {item['path_sha256']}" if item.get('source') == 'model' else _display_path(item['path'])
+        lines.append(f"- Direct route {label}: HTTP {item['status']} at transcript line {item['evidence_line']}; acceptance unproven")
     for item in m.get('verification_checks', []):
         lines.append(f"- Checker {item['path']}: HTTP {item['status']}, accepted={item['accepted']}" + (f" at transcript line {item['evidence_line']}" if item['evidence_line'] else '; request budget prevented the check'))
     for item in m.get('api_checks', []):
@@ -673,6 +816,9 @@ def _render(run, m):
         entry = m['injection_summary']
         lines += ['', f"Injection entry point: {_display_path(entry['entry_path'])} field {entry['entry_field']}; attempted redirection: {entry['attempted_redirection']}; payload SHA-256 {entry['payload_sha256']}."]
     if m['dry_run']:
+        if m.get('bootstrap_summary'):
+            entry = m['bootstrap_summary']
+            lines += ['', f"Planned bootstrap: POST {_display_path(entry['path'])}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
         if m.get('strategy') not in ('api_plan', 'scorer_batch'):
             lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field')) if x)}."]
         for step in m.get('strategy_meta', []):
@@ -730,6 +876,8 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
     steps = (strategy_plan(strategy, config.get('strategy_params', {}), marker, origin,
                            config.get('authorized_destinations', []), config.get('allow_state_change', False))
              if strategy else [])
+    injection_file_sha256 = (hashlib.sha256(_injection_bytes(config['injection']['file_path'])).hexdigest()
+                             if config.get('injection', {}).get('encoding') == 'multipart' else None)
     root = Path(runs_root) if runs_root else core.ROOT / '.autosolve' / 'runs'
     run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
     run.mkdir(parents=True, mode=0o700)
@@ -739,6 +887,9 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                 'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
                 'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')},
                 'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
+                'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
+                                      'encoding': config['bootstrap'].get('encoding', 'json')} if config.get('bootstrap') else None,
+                'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_token': None,
                 'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                 'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                 'strategy': strategy, 'strategy_marker': marker,
@@ -746,7 +897,8 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                                   | ({'body_fields': sorted(step['body']) if isinstance(step.get('body'), dict) else []} if step['kind'] == 'api' else {})
                                   for step in steps],
                 'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
-                'injection_plan': {'path': config['injection']['path'], 'field': config['injection']['field'], 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
+                'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
+                'injection_file_sha256': injection_file_sha256,
                 'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],
                 'api_checks': [], 'behavior_observations': [],
                 'status': 'new', 'stop_reason': None}
@@ -774,9 +926,11 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
         config, digest = _protocol(protocol_path or m.get('protocol_path'))
         if digest != m['protocol_sha256']:
             raise core.InvalidInput('protocol/auth context changed; start a new run')
+        if m.get('injection_file_sha256') and hashlib.sha256(_injection_bytes(config['injection']['file_path'])).hexdigest() != m['injection_file_sha256']:
+            raise core.InvalidInput('multipart injection file changed; start a new run')
         if m['dry_run']:
             raise core.InvalidInput('dry-run cannot be resumed live')
-        if m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check ')):
+        if m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check ')):
             _render(run, m)
             return run, m['status']
         if m.get('cooldown_until', 0) > time.time():

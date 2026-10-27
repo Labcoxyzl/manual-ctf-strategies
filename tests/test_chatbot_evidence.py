@@ -32,6 +32,11 @@ class EvidenceTests(unittest.TestCase):
                 self.assertNotIn(expected, json.dumps(result))
             source.write_text('[55296]')
             self.assertEqual(self.command(root, 'decode', '--input', source, '--mode', 'codepoints', code=2)['status'], 'invalid_input')
+            source.write_text(json.dumps([65 / 255, 66 / 255, 67 / 255, 0]))
+            result = self.command(root, 'decode', '--input', source, '--mode', 'embedding-bytes')
+            self.assertEqual(Path(result['candidate_file']).read_text(), 'ABC')
+            source.write_text('[1.2]')
+            self.assertEqual(self.command(root, 'decode', '--input', source, '--mode', 'embedding-bytes', code=2)['status'], 'invalid_input')
 
     def test_rejects_nonobject_transcript_line_without_traceback(self):
         with tempfile.TemporaryDirectory() as root:
