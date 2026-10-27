@@ -50,7 +50,10 @@ MAX_CHILD = 16 * 1024 * 1024
 MAX_DERIVED = 512 * 1024 * 1024
 MAX_ARTIFACTS = 256
 MAX_DEPTH = 6
-_CAN_NON_FRAME_NOTICE = re.compile(r'BLF skipped [1-9]\d* non-CAN objects\Z')
+_CAN_INFORMATIONAL_NOTICE = re.compile(
+    r'(?:BLF skipped [1-9]\d* non-CAN objects|'
+    r'CAN report displays first 100 (?:frames|signals); '
+    r'all bounded rows remain in job output)\Z')
 
 
 class InvalidInput(ValueError):
@@ -3941,7 +3944,7 @@ def _can_job(run, manifest, artifact, deadline):
     if 'CAN01' in manifest['coverage']:
         status = ('truncated' if old is None and job['status'] == 'truncated' else
                   'failed' if not old and job['status'] == 'failed' else
-                  'truncated' if any(not _CAN_NON_FRAME_NOTICE.fullmatch(note)
+                  'truncated' if any(not _CAN_INFORMATIONAL_NOTICE.fullmatch(note)
                                      for note in warnings) else
                   'ran' if count else 'no finding')
         priority = {'not scheduled': 0, 'no finding': 1, 'ran': 2, 'truncated': 3, 'failed': 4}
@@ -6969,7 +6972,7 @@ def _render_report(run, manifest):
                          (f"; interpretation: {json.dumps(item['interpretation'][:256], ensure_ascii=True)}"
                           if isinstance(item.get('interpretation'), str) else ''))
     for warning in manifest['warnings']:
-        label = 'Notice' if _CAN_NON_FRAME_NOTICE.fullmatch(warning) else 'Limit or prerequisite'
+        label = 'Notice' if _CAN_INFORMATIONAL_NOTICE.fullmatch(warning) else 'Limit or prerequisite'
         lines.append(f'- {label}: {warning}')
     historical = sum(not f.get('current', True) for f in manifest['findings'])
     if historical:
@@ -7776,7 +7779,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 manifest['coverage']['NET01']['status'] = 'skipped prerequisite'
         if manifest['category'] == 'can_misc' and artifact['kind_evidence'] == 'text':
             manifest['warnings'].append(f"{artifact['id']}: text has no supported CAN log framing")
-            if 'CAN01' in manifest['coverage']:
+            if ('CAN01' in manifest['coverage'] and
+                    manifest['coverage']['CAN01']['status'] == 'not scheduled'):
                 manifest['coverage']['CAN01']['status'] = 'skipped prerequisite'
         if not path.is_file():
             manifest['warnings'].append(f"{artifact['id']}: artifact file is unavailable")
@@ -7980,7 +7984,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             manifest['artifacts'], hints['answer_schema'], overall_deadline)
         manifest['warnings'].extend(answer_warnings)
     incomplete = (any(a['sha256'] is None for a in active) or
-                  any(not _CAN_NON_FRAME_NOTICE.fullmatch(note)
+                  any(not _CAN_INFORMATIONAL_NOTICE.fullmatch(note)
                       for note in manifest['warnings']))
     pending = any(x['status'] not in ('ran', 'no finding') and x['delivery_stage'] == 'baseline'
                   for x in manifest['coverage'].values())

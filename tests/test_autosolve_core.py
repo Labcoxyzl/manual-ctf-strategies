@@ -1224,6 +1224,107 @@ int main(int argc, char **argv) {
             rows = json.loads(Path(job['frames_path']).read_text())
             self.assertTrue(all(row['timestamp'] is None for row in rows))
 
+    def test_unframed_text_does_not_erase_can01_directory_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for valid_first in (True, False):
+                with self.subTest(valid_first=valid_first):
+                    bundle = root / ('valid_first' if valid_first else 'note_first')
+                    bundle.mkdir()
+                    valid = bundle / ('a_valid.log' if valid_first else 'z_valid.log')
+                    note = bundle / ('z_notes.txt' if valid_first else 'a_notes.txt')
+                    valid.write_text('(1700000000.000000) can0 123#0102\n')
+                    note.write_text('unrelated note with no CAN framing\n')
+                    run = Path(self.run_cli('analyze', bundle, '--category', 'can',
+                                            '--runs-root', root / 'runs', code=3)['run'])
+                    first = json.loads((run / 'manifest.json').read_text())
+                    self.assertEqual(first['coverage']['CAN01']['status'], 'ran')
+                    self.assertEqual(len([job for job in first['jobs']
+                                          if job['adapter_id'] == 'can-log']), 1)
+                    self.run_cli('resume', run, code=3)
+                    resumed = json.loads((run / 'manifest.json').read_text())
+                    self.assertEqual(resumed['coverage']['CAN01']['status'], 'ran')
+
+    def test_can_report_display_limit_is_notice_but_bad_row_truncates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'frames.log'
+            source.write_text(''.join(
+                f'(1700000000.{index:06d}) can0 123#0102\n' for index in range(101)))
+            run = Path(self.run_cli('analyze', source, '--category', 'can',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            first = json.loads((run / 'manifest.json').read_text())
+            job = next(job for job in first['jobs'] if job['adapter_id'] == 'can-log')
+            self.assertEqual(job['frame_count'], 101)
+            self.assertEqual(len(json.loads(Path(job['frames_path']).read_text())), 101)
+            self.assertEqual(first['coverage']['CAN01']['status'], 'ran')
+            self.assertIn('Notice: CAN report displays first 100 frames',
+                          (run / 'report.md').read_text())
+
+            source.write_text(source.read_text() + 'unparseable CAN row\n')
+            self.run_cli('resume', run, code=3)
+            truncated = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(truncated['coverage']['CAN01']['status'], 'truncated')
+            self.assertTrue(any('line 102:' in warning for warning in truncated['warnings']))
+
+            with source.open('wb') as oversized:
+                oversized.write(b'(1700000000.000000) can0 123#0102\n')
+                oversized.truncate(8 * 1024 * 1024 + 1)
+            self.run_cli('resume', run, code=3)
+            limited = json.loads((run / 'manifest.json').read_text())
+            latest_job = [job for job in limited['jobs'] if job['adapter_id'] == 'can-log'][-1]
+            self.assertEqual(limited['coverage']['CAN01']['status'], 'truncated')
+            self.assertTrue(any('CAN source byte limit reached' in warning
+                                for warning in latest_job['warnings']))
+
+    def test_can_signal_report_display_limit_is_notice(self):
+        try:
+            import cantools
+        except ImportError:
+            self.skipTest('cantools is optional outside core setup')
+        from test_autosolve_can_dbc import DBC
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'frames.log'
+            source.write_text(''.join(
+                f'({index + 1}.0) can0 123#01ECFF0007000000\n'
+                for index in range(101)))
+            database = root / 'signals.dbc'
+            database.write_text(DBC)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'dbc': str(database)}))
+            run = Path(self.run_cli('analyze', source, '--category', 'can', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(job for job in manifest['jobs'] if job['adapter_id'] == 'can-dbc')
+            self.assertEqual(job['record_count'], 101)
+            self.assertEqual(manifest['coverage']['CAN01']['status'], 'ran')
+            self.assertEqual(manifest['coverage']['CAN02']['status'], 'ran')
+            report = (run / 'report.md').read_text()
+            self.assertIn('Notice: CAN report displays first 100 frames', report)
+            self.assertIn('Notice: CAN report displays first 100 signals', report)
+
+    def test_can_signal_output_limit_remains_truncated(self):
+        from test_autosolve_can_dbc import DBC
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'frames.log'
+            source.write_text('(1.0) can0 123#01ECFF0007000000\n')
+            database = root / 'signals.dbc'
+            database.write_text(DBC)
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'dbc': str(database)}))
+            with patch.object(core, '_run_can_dbc', return_value=(
+                    [], ['CAN signal output byte limit reached (1)'])):
+                run, _ = core.analyze(source, category='can', hints_path=hints,
+                                      runs_root=root / 'runs')
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['CAN02']['status'], 'truncated')
+            self.assertIn('Limit or prerequisite: CAN signal output byte limit reached (1)',
+                          (run / 'report.md').read_text())
+
     def test_blf_non_can_notice_does_not_truncate_can01_or_hide_real_skip(self):
         try:
             import can
