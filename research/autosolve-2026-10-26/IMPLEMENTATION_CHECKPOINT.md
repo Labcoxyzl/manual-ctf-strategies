@@ -166,8 +166,13 @@ outcomes; AV02 passed 7/7 DTMF cases, and IMG05 passed 8/8 with the pinned
 rootless DataMatrix decoder. Those twelve named rows are proved on earlier
 published commits. NET01 then passed 8/8 on the published eighteenth hash,
 including reordered complete traffic and true gap, clipped and unsupported
-link negatives. Thirteen named rows are now proved on pinned published
-commits; the other 44 remain unproved at named-row depth.
+link negatives. That brought the count to thirteen named rows on pinned
+published commits. AV04, NET03, IMG04, NET02, ENC05, DOC05, AV06 and DF04
+later passed their named rows on that same published hash. Twenty-one named rows
+are now proved on pinned published commits; the other 36 remain unproved at
+named-row depth. DF04's stationary exclusive-lock control recovered only its
+committed row but did not test concurrent writes; DOC05 proved static VBA
+source extraction, not desktop Office execution.
 
 The fourteenth checkpoint adds an authored AV03 Morse/AFSK doctor probe, an
 opt-in hash-locked AI CPU environment, a separate wheel-only angr checker
@@ -277,8 +282,14 @@ passed 924 tests (44 optional skipped, 520 subtests); remote hash `a611072`
 was verified. This does not establish the other 44 named rows or platform
 challenge acceptance.
 
-The next isolated row gates target AV04, NET03 and DOC05; no new product
-result is claimed until their exact published-hash oracles are checked.
+The nineteenth candidate adds bounded binary BLF support to CAN01 using the
+pinned python-can environment, with conservative corrupt/truncated handling
+and a functional doctor probe. A separate OS01 repair interprets
+`XMP-exif:DateTimeOriginal` time basis and conflicts. Both isolated changes
+passed focused tests, independent review and frozen local transfers; combined
+release gates and publication remain pending. Full CAN01 and OS01 named-row
+credit awaits the integrated published-hash replay. PDF metadata remains
+outside OS01 routing and is a separate breadth gap.
 
 ## Independent end-to-end evidence
 
