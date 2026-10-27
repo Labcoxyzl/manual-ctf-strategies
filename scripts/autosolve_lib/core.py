@@ -3240,9 +3240,15 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
                                                    'ran' if views_found else 'no finding')
         manifest['coverage']['IMG04']['note'] = 'bounded sampled channel/bit-plane previews'
     if 'OS01' in manifest['coverage']:
-        manifest['coverage']['OS01']['status'] = ('truncated' if metadata_warnings else
-                                                  'ran' if tags_found else 'no finding')
-        manifest['coverage']['OS01']['note'] = 'source-linked ExifTool metadata; coordinates are unverified clues'
+        job_status = old['status'] if reusable is not None else job['status']
+        status = ('failed' if job_status == 'failed' else
+                  'truncated' if job_status == 'truncated' or metadata_warnings else
+                  'ran' if tags_found else 'no finding')
+        priority = {'not scheduled': 0, 'no finding': 1, 'ran': 2, 'truncated': 3, 'failed': 4}
+        entry = manifest['coverage']['OS01']
+        if priority[status] > priority.get(entry['status'], 0):
+            entry['status'] = status
+        entry['note'] = 'source-linked ExifTool metadata; coordinates are unverified clues'
 
 
 def _zsteg_job(run, manifest, artifact, deadline):
