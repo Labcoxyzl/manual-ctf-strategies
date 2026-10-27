@@ -123,11 +123,11 @@ def _debugger(binary, channel, payload, run, label, deadline, executable, librar
         inferior_fd = os.open(inferior_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                               0o600)
         with os.fdopen(fd, "wb") as output, os.fdopen(inferior_fd, "wb") as inferior:
-            process = subprocess.Popen(command, cwd=binary.parent,
+            process = subprocess.Popen(command, cwd=run,
                                        stdin=subprocess.DEVNULL, stdout=output,
                                        stderr=subprocess.STDOUT, start_new_session=True,
                                        preexec_fn=limit_trace,
-                                       env={**os.environ, "LC_ALL": "C"})
+                                       env={"LC_ALL": "C"})
             if channel == "stdin":
                 os.write(master, payload + b"\n\x04")
             os.set_blocking(master, False)
@@ -233,7 +233,7 @@ def start(binary_path, channel, alphabet, length, budget, runs_root=None, librar
     run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
     run.mkdir(parents=True, mode=0o700)
     _private_bytes(run / "pattern.bin", pattern)
-    debugger = shutil.which("gdb")
+    debugger = shutil.which("gdb", path="/usr/bin:/bin")
     controls = []
     offset = None
     issue = identity_issue()

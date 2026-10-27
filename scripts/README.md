@@ -103,6 +103,11 @@ line. It does not need a core file. No crash, unavailable debugger, changed
 source, missing shared library, or failed replay leaves a partial result without
 a verified offset. For a local ELF with bundled libraries, use
 `--library-path ./lib` explicitly; the directory and libraries are hash checked.
+GDB and the ELF receive a minimal environment, so caller secrets and loader
+settings are not forwarded.
+The selected ELF starts in the private run directory, so ordinary relative
+writes do not land beside the source binary. An ELF that requires other
+relative companion files may stop before reaching its input.
 Raw debugger output and inputs stay in the private run directory; `resume` and
 `report` never execute the ELF. This local return-slot check does not build
 an exploit or establish challenge acceptance. `pwn-ret2win` remains a separate

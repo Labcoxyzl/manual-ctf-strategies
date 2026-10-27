@@ -99,6 +99,25 @@ class OffsetTests(unittest.TestCase):
         self.assertGreater(row["offset"], 0)
         self.assertFalse(row["challenge_accepted"])
 
+    def test_relative_target_writes_stay_in_the_private_run(self):
+        source = self.root / "relative.c"
+        source.write_text(
+            '#include <stdio.h>\n#include <unistd.h>\n'
+            '__attribute__((noinline)) void vuln(void) { char buf[32]; '
+            'FILE *file = fopen("relative-marker", "w"); '
+            'if (file) { fputs("local", file); fclose(file); } '
+            'read(0, buf, 512); }\n'
+            'int main(void) { vuln(); return 0; }\n')
+        binary = self.root / "relative"
+        subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
+                        "-no-pie", "-o", str(binary), str(source)],
+                       check=True, capture_output=True)
+        result = self.cli(*self.args(binary=binary))
+        run = Path(result["run"])
+        self.assertEqual(self.record(result)["verification"], "controlled local replay")
+        self.assertEqual((run / "relative-marker").read_text(), "local")
+        self.assertFalse((self.root / "relative-marker").exists())
+
     def test_no_crash_is_partial_and_never_guesses_offset(self):
         row = self.record(self.cli(*self.args(binary=self.safe)))
         self.assertIsNone(row["offset"])
@@ -107,11 +126,48 @@ class OffsetTests(unittest.TestCase):
         self.assertEqual(row["coverage"]["PWN03"]["status"], "partial")
 
     def test_unavailable_debugger_is_partial(self):
-        env = os.environ.copy()
-        env["PATH"] = str(self.root)
-        row = self.record(self.cli(*self.args(), env=env))
+        with mock.patch.object(pwn_offset.shutil, "which", return_value=None):
+            run, _ = pwn_offset.start(self.binary, "stdin", "abcde12345", 256, 8,
+                                      self.root / "runs")
+        row = json.loads((run / "manifest.json").read_text())
         self.assertIsNone(row["offset"])
         self.assertEqual(row["stop_reason"], "debugger_unavailable")
+
+    def test_selected_elf_cannot_inherit_parent_secrets_or_loader_controls(self):
+        source = self.root / "environment.c"
+        source.write_text(
+            '#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n'
+            'static const char *readvar(const char *name) { const char *value = getenv(name); '
+            'return value ? value : "unset"; }\n'
+            '__attribute__((noinline)) void vuln(void) { char buf[32]; '
+            'printf("TOKEN=%s\\nPRELOAD=%s\\nLIBRARY=%s\\n", '
+            'readvar("AUTOSOLVE_SECRET_SENTINEL"), readvar("LD_PRELOAD"), '
+            'readvar("LD_LIBRARY_PATH")); fflush(stdout); read(0, buf, 512); }\n'
+            'int main(void) { vuln(); return 0; }\n')
+        binary = self.root / "environment"
+        subprocess.run(["gcc", "-O0", "-fno-stack-protector", "-fno-omit-frame-pointer",
+                        "-no-pie", "-o", str(binary), str(source)],
+                       check=True, capture_output=True)
+        fake_debugger = self.root / "gdb"
+        fake_debugger.write_text('#!/bin/sh\nprintf selected > "' +
+                                 str(self.root / "fake-gdb-ran") + '"\n')
+        fake_debugger.chmod(0o755)
+        original_which = shutil.which
+        with mock.patch.dict(os.environ, {"AUTOSOLVE_SECRET_SENTINEL": "LEAK_ONLY_IF_BROKEN",
+                                              "LD_PRELOAD": "/tmp/unsafe-loader-sentinel.so",
+                                              "LD_LIBRARY_PATH": "/tmp/unsafe-library-sentinel",
+                                              "PATH": str(self.root)}), \
+             mock.patch.object(pwn_offset.shutil, "which", wraps=original_which) as resolver:
+            run, _ = pwn_offset.start(binary, "stdin", "abcde12345", 256, 8,
+                                      self.root / "runs")
+        row = json.loads((run / "manifest.json").read_text())
+        text = (run / "probe-inferior.txt").read_text()
+        self.assertIn("TOKEN=unset\nPRELOAD=unset\nLIBRARY=unset", text)
+        self.assertNotIn("LEAK_ONLY_IF_BROKEN", text)
+        self.assertNotIn("unsafe-loader-sentinel", (run / "probe-gdb.txt").read_text())
+        resolver.assert_called_with("gdb", path="/usr/bin:/bin")
+        self.assertFalse((self.root / "fake-gdb-ran").exists())
+        self.assertEqual(row["verification"], "controlled local replay")
 
     def test_explicit_local_library_path_and_loader_failure(self):
         library = self.root / "lib"
@@ -143,7 +199,8 @@ class OffsetTests(unittest.TestCase):
             self.assertEqual(self.cli(*self.args(binary=binary), "--library-path", unsafe,
                                       code=2)["status"], "invalid_input")
         with mock.patch.object(pwn_offset.shutil, "which",
-                               side_effect=lambda name: "/usr/bin/gdb" if name == "gdb" else None):
+                               side_effect=lambda name, path=None:
+                               "/usr/bin/gdb" if name == "gdb" else None):
             run, _ = pwn_offset.start(binary, "stdin", "abcde12345", 256, 8,
                                       self.root / "runs", library)
         self.assertEqual(json.loads((run / "manifest.json").read_text())["offset"], 40)
