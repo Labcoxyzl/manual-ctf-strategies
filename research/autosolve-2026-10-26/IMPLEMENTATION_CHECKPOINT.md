@@ -163,8 +163,11 @@ passed 6/6 on the same hash. DOC04 passed 10/10 on the published sixteenth
 commit, including encrypted PDF, incremental, Unicode and unsafe-name cases.
 IMG03 later passed 9/9 with conservative no-seed, possible-seed and timeout
 outcomes; AV02 passed 7/7 DTMF cases, and IMG05 passed 8/8 with the pinned
-rootless DataMatrix decoder. Twelve named rows are now proved on pinned
-published commits; the other 45 remain unproved at named-row depth.
+rootless DataMatrix decoder. Those twelve named rows are proved on earlier
+published commits. NET01 then passed 8/8 on the published eighteenth hash,
+including reordered complete traffic and true gap, clipped and unsupported
+link negatives. Thirteen named rows are now proved on pinned published
+commits; the other 44 remain unproved at named-row depth.
 
 The fourteenth checkpoint adds an authored AV03 Morse/AFSK doctor probe, an
 opt-in hash-locked AI CPU environment, a separate wheel-only angr checker
@@ -245,7 +248,7 @@ skipped, 517 subtests), and the remote hash was verified as `615d966`.
 IMG03, AV02 and IMG05 then passed their full named rows on that published hash.
 This does not establish the other 45 named rows or platform acceptance.
 
-The eighteenth candidate repairs NET01's reordered-capture truncation:
+The eighteenth checkpoint repairs NET01's reordered-capture truncation:
 a gap-free reassembled stream can coexist with a transient TShark lost-segment
 warning. The repair clears that provisional warning only when both matching
 TCP directions are complete and gap-free. Independent review then found ACK
@@ -254,16 +257,28 @@ mark NET01 `ran`; a follow-up retains ACK-loss warnings and aggregates status
 across current sources. Genuine gaps, conflicts and stale packet jobs remain
 truncated. Isolated focused and frozen reordered, missing-frame, conflict,
 ACK, mixed-source and source-removal transfers passed; full named NET01 row
-acceptance remains unproved. An initial integrated Python 3.12 suite failed
-one chatbot bootstrap test with a 50 ms inspection timeout; the exact focused
-test passed alone. The first pre-push gate then failed a recurring 429 test
+acceptance was then proved 8/8 on the published commit. An initial integrated
+Python 3.12 suite failed one chatbot bootstrap test with a 50 ms inspection
+timeout; that test passed alone. The first pre-push gate then failed a
+recurring 429 test
 whose fixed 1.05-second sleep could return before the recorded cooldown
 expired. A reviewed test-only repair now waits to that expiry, gives
 pre-bootstrap inspection its own adequate timeout while still forcing the
 delayed claim to time out, and reports a sanitized CLI reason on failure.
 Controlled red-to-green checks and three focused tests passed on Python 3.12
-and 3.13. The repaired candidate's combined release gates and publication
-remain pending.
+and 3.13. The final commit `a611072` passed 848 Python 3.12 tests (24
+optional skipped), all-domain 22/22, X/F 20/20, exact NET01 changed-path
+controls and 15 representative measurements on byte-identical production
+source. The earlier F10 host-pause failure remains a timing risk. Fresh ZIP
+core setup installed 30 locked packages from 250 verified files, three
+packaged chatbot reliability tests passed, and setup/doctor traces made zero
+outside ordinary-file or directory write attempts. The final pre-push hook
+passed 924 tests (44 optional skipped, 520 subtests); remote hash `a611072`
+was verified. This does not establish the other 44 named rows or platform
+challenge acceptance.
+
+The next isolated row gates target AV04, NET03 and DOC05; no new product
+result is claimed until their exact published-hash oracles are checked.
 
 ## Independent end-to-end evidence
 
