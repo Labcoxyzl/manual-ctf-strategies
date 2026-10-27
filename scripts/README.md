@@ -90,8 +90,9 @@ python3 scripts/autosolve.py report .autosolve/runs/RUN_ID
 ```
 
 The protocol can also set `headers` for auth, `csrf_cookie`/`csrf_header` inside
-`chat`, `client_id_field`, and one explicit `bootstrap` login or tab-claim
-request. Put secrets in the private protocol file, not
+`chat`, `client_id_field`, one explicit `bootstrap` login or tab-claim, and a
+declared serial `heartbeat` before chat when the frontend requires it.
+Put secrets in the private protocol file, not
 command arguments. `verification` requires an explicit same-origin path,
 `success_field`, and `success_value`; a POST checker also needs
 `candidate_field`. A JSON/form `injection` requires an exposed writable `path`,

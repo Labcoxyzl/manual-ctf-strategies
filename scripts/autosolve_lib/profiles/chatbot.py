@@ -116,7 +116,7 @@ def _protocol(path):
         config = json.loads(raw)
     except (UnicodeError, ValueError) as error:
         raise core.InvalidInput('invalid protocol JSON') from error
-    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
+    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
     if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'}:
@@ -164,6 +164,24 @@ def _protocol(path):
             raise core.InvalidInput('bootstrap header/chat_field needs token_field')
         if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
             raise core.InvalidInput('bootstrap body exceeds 64 KiB')
+    heartbeat = config.get('heartbeat')
+    if heartbeat is not None:
+        if not isinstance(heartbeat, dict) or set(heartbeat) - {'path', 'encoding', 'body', 'token_field', 'interval_seconds', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
+            raise core.InvalidInput('heartbeat needs allow_state_change=true and a declared request')
+        _path(heartbeat.get('path'))
+        if heartbeat.get('encoding', 'json') not in ('json', 'form') or not isinstance(heartbeat.get('body'), dict) or any(not isinstance(k, str) for k in heartbeat['body']):
+            raise core.InvalidInput('heartbeat body must be a JSON or form object')
+        if heartbeat.get('encoding') == 'form' and any(not isinstance(v, str) for v in heartbeat['body'].values()):
+            raise core.InvalidInput('heartbeat form values must be strings')
+        if 'token_field' in heartbeat and (not isinstance(heartbeat['token_field'], str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', heartbeat['token_field']) or not bootstrap or not bootstrap.get('token_field')):
+            raise core.InvalidInput('heartbeat token_field needs a bootstrap response token')
+        interval = heartbeat.get('interval_seconds', 0)
+        if type(interval) not in (int, float) or not 0 <= interval <= 300 or not math.isfinite(interval) or len(json.dumps(heartbeat['body']).encode()) > 64 * 1024:
+            raise core.InvalidInput('heartbeat interval/body is outside limits')
+        if type(heartbeat.get('success_status')) is not int or not 200 <= heartbeat['success_status'] <= 299:
+            raise core.InvalidInput('heartbeat needs an exact 2xx success_status')
+        if ('success_field' in heartbeat) != ('success_value' in heartbeat) or ('success_field' in heartbeat and (not isinstance(heartbeat['success_field'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', heartbeat['success_field']))):
+            raise core.InvalidInput('heartbeat success_field and success_value must be paired')
     verify = config.get('verification')
     if verify is not None:
         if not isinstance(verify, dict) or set(verify) - {'path', 'method', 'candidate_field', 'success_field', 'success_value'} or 'path' not in verify or 'success_field' not in verify or 'success_value' not in verify:
@@ -328,7 +346,7 @@ class Client:
             if len(data) > 128 * 1024:
                 raise core.InvalidInput('request body exceeds 128 KiB')
             headers['Content-Type'] = f'multipart/form-data; boundary={boundary}' if encoding == 'multipart' else 'application/json' if encoding == 'json' else 'application/x-www-form-urlencoded'
-        logged_body = multipart_log if body is not None and encoding == 'multipart' else {key: '[redacted]' for key in body} if isinstance(body, dict) and (probe in ('bootstrap', 'injection-write', 'verification') or probe.startswith('api:')) else _redact(body)
+        logged_body = multipart_log if body is not None and encoding == 'multipart' else {key: '[redacted]' for key in body} if isinstance(body, dict) and (probe in ('bootstrap', 'heartbeat', 'injection-write', 'verification') or probe.startswith('api:')) else _redact(body)
         if isinstance(logged_body, dict) and bootstrap.get('chat_field') in logged_body:
             logged_body[bootstrap['chat_field']] = '[redacted]'
         logged_headers = {key: value if key.lower() == 'content-type' else '[redacted]' for key, value in headers.items()}
@@ -397,7 +415,7 @@ class Client:
             retry_after = response_headers.get('Retry-After') if status == 429 else None
             if retry_after is None and signal == 'rate_limit' and isinstance(parsed, dict):
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
-            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'response': parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()}, 'tool_call_evidence': _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'), 'retry_after': retry_after}
+            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()}, 'tool_call_evidence': _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'), 'retry_after': retry_after}
             if signal == 'rate_limit':
                 self.manifest['cooldown_until'] = time.time() + (_retry_seconds(retry_after) or 60)
             self._log(record)
@@ -587,11 +605,48 @@ def _bootstrap(client):
     core._write_json(client.run / 'manifest.json', m)
 
 
+def _heartbeat_due(client):
+    config = client.config.get('heartbeat')
+    if not config:
+        return False
+    last = client.manifest.get('heartbeat_last_at')
+    return last is None or time.time() - last >= config.get('interval_seconds', 0)
+
+
+def _heartbeat(client, due):
+    config = client.config.get('heartbeat')
+    m = client.manifest
+    if not config or not due:
+        return True
+    m['heartbeat_pending'] = True
+    core._write_json(client.run / 'manifest.json', m)
+    body = dict(config['body'])
+    if config.get('token_field'):
+        body[config['token_field']] = m['bootstrap_token']
+    result = client.request('POST', config['path'], body=body,
+                            encoding=config.get('encoding', 'json'), probe='heartbeat')
+    if (result.get('signal') or result.get('redirect_hops') or result.get('status') != config['success_status'] or
+            ('success_field' in config and not _same_json(_nested(result.get('response'), config['success_field'], _MISSING), config['success_value']))):
+        m['stop_reason'] = 'heartbeat unconfirmed'
+        return False
+    m['heartbeat_pending'] = False
+    m['heartbeat_last_at'] = time.time()
+    core._write_json(client.run / 'manifest.json', m)
+    return True
+
+
 def _run(client):
     m = client.manifest
     strategy_steps = ({step['id']: step for step in strategy_plan(m['strategy'], client.config.get('strategy_params', {}),
                        m.get('strategy_marker'), m['origin'], client.config.get('authorized_destinations', []),
                        client.config.get('allow_state_change', False))} if m.get('strategy') else {})
+    if m.get('heartbeat_pending'):
+        check = client.config.get('history_path') or client.config.get('status_path')
+        if check and not m.get('heartbeat_checked'):
+            result = client.request('GET', check, probe='heartbeat-status-check')
+            m['heartbeat_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
+        m['stop_reason'] = 'heartbeat outcome uncertain; inspect session state before a new run'
+        return
     uncertain = [probe for probe in m['started'] if probe not in m['completed']]
     if uncertain:
         check = client.config.get('history_path') or client.config.get('status_path')
@@ -614,7 +669,8 @@ def _run(client):
             continue
         spec = strategy_steps.get(probe, {})
         kind = spec.get('kind', 'injection' if probe == 'injection' else 'chat')
-        needed = 2 if kind == 'injection' else 1
+        heartbeat_due = kind != 'api' and _heartbeat_due(client)
+        needed = (2 if kind == 'injection' else 1) + (1 if heartbeat_due else 0)
         if (kind != 'api' and m['prompt_count'] >= m['max_prompts']) or m['request_count'] + needed > m['max_requests'] or time.monotonic() >= client.deadline or m.get('stop_reason'):
             m['stop_reason'] = m.get('stop_reason') or ('prompt budget' if kind != 'api' and m['prompt_count'] >= m['max_prompts'] else 'budget')
             break
@@ -671,6 +727,8 @@ def _run(client):
             prompt = inj['trigger_prompt']
         else:
             prompt = spec['prompt'] if spec else PROBES[probe][1]
+        if not _heartbeat(client, heartbeat_due):
+            break
         body = {chat.get('message_field', 'message'): prompt}
         bootstrap = client.config.get('bootstrap', {})
         if bootstrap.get('chat_field') and m.get('bootstrap_token'):
@@ -788,13 +846,17 @@ def _render(run, m):
     if m.get('bootstrap_summary'):
         entry = m['bootstrap_summary']
         lines.insert(10, f"Bootstrap: POST {_display_path(entry['path'])}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
+    if m.get('heartbeat_summary'):
+        entry = m['heartbeat_summary']
+        lines.insert(11 if m.get('bootstrap_summary') else 10,
+                     f"Heartbeat: POST {_display_path(entry['path'])}; interval={entry['interval_seconds']}s; uncertain={m.get('heartbeat_pending', False)}")
     for probe in m['queue']:
         spec = strategy_meta.get(probe)
         hypothesis = spec['hypothesis'] if spec else 'Lower-trust document instruction influences reply' if probe == 'injection' else PROBES[probe][0]
         expected = spec['expected'] if spec else 'Stored content affects later behavior' if probe == 'injection' else PROBES[probe][2]
         pivot = spec['pivot'] if spec else 'Require independent state proof' if probe == 'injection' else PROBES[probe][3]
         kind = spec.get('kind') if spec else 'injection' if probe == 'injection' else 'chat'
-        lines.append(f"- {probe}: {hypothesis}; expected: {expected}; cost: {'2' if kind == 'injection' else '1'} request(s) plus optional direct check; pivot: {pivot}; {'completed' if probe in m['completed'] else 'untested'}")
+        lines.append(f"- {probe}: {hypothesis}; expected: {expected}; cost: {'2' if kind == 'injection' else '1'} request(s) plus optional direct check" + (' and a due heartbeat' if m.get('heartbeat_summary') and kind != 'api' else '') + f"; pivot: {pivot}; {'completed' if probe in m['completed'] else 'untested'}")
     lines += ['', '## Findings', '']
     for item in m['candidates']:
         lines.append(f"- Candidate: {item['kind']} from {item['probe_id']}, transcript line {item['evidence_line']}" + (f"; route SHA-256 {hashlib.sha256(item['path'].encode()).hexdigest()}" if 'path' in item else ''))
@@ -819,6 +881,9 @@ def _render(run, m):
         if m.get('bootstrap_summary'):
             entry = m['bootstrap_summary']
             lines += ['', f"Planned bootstrap: POST {_display_path(entry['path'])}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
+        if m.get('heartbeat_summary'):
+            entry = m['heartbeat_summary']
+            lines += ['', f"Planned serial heartbeat: POST {_display_path(entry['path'])}; interval: {entry['interval_seconds']}s; body fields: {', '.join(entry['body_fields']) or 'none'}."]
         if m.get('strategy') not in ('api_plan', 'scorer_batch'):
             lines += ['', f"Planned chat request shape: POST {_display_path(chat['path']) if chat.get('path') else 'unknown'}; body fields: {', '.join(x for x in (chat.get('message_field') or 'message', chat.get('conversation_field'), chat.get('client_id_field')) if x)}."]
         for step in m.get('strategy_meta', []):
@@ -890,6 +955,11 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                 'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
                                       'encoding': config['bootstrap'].get('encoding', 'json')} if config.get('bootstrap') else None,
                 'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_token': None,
+                'heartbeat_summary': {'path': config['heartbeat']['path'],
+                                      'body_fields': sorted(set(config['heartbeat']['body']) | ({config['heartbeat']['token_field']} if config['heartbeat'].get('token_field') else set())),
+                                      'encoding': config['heartbeat'].get('encoding', 'json'),
+                                      'interval_seconds': config['heartbeat'].get('interval_seconds', 0)} if config.get('heartbeat') else None,
+                'heartbeat_pending': False, 'heartbeat_last_at': None,
                 'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                 'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                 'strategy': strategy, 'strategy_marker': marker,
@@ -930,11 +1000,18 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
             raise core.InvalidInput('multipart injection file changed; start a new run')
         if m['dry_run']:
             raise core.InvalidInput('dry-run cannot be resumed live')
-        if m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check ')):
-            _render(run, m)
-            return run, m['status']
         if m.get('cooldown_until', 0) > time.time():
             raise core.InvalidInput('Retry-After cooldown is still active; resume later')
+        if (m.get('stop_reason') in ('bootstrap unconfirmed', 'heartbeat unconfirmed') or
+                m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked')) and (config.get('history_path') or config.get('status_path')):
+            m['max_requests'] = max_requests or m['max_requests']
+            m['max_prompts'] = max_prompts or m['max_prompts']
+            m['stop_reason'] = None
+            core._write_json(run / 'manifest.json', m)
+            return _execute(run, config, budget, held_lock=lock_fd)
+        if m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check ')):
+            _render(run, m)
+            return run, m['status']
         m['max_requests'] = max_requests or m['max_requests']
         m['max_prompts'] = max_prompts or m['max_prompts']
         m['stop_reason'] = None

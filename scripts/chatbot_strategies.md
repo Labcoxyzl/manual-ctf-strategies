@@ -69,8 +69,14 @@ add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.
 It declares the exact path/body and, when needed, the response token field to
 copy into a chat field or header. Set `allow_state_change: true`. The request
 runs once in the same cookie jar before prompts; a timeout leaves its outcome
-uncertain and resume will not replay it automatically. Multi-step login,
-heartbeat, and force-claim semantics still need target-specific work.
+uncertain and resume will not replay it automatically. If the frontend also
+requires a heartbeat, use the [tab-heartbeat example](chatbot_recipes/tab_heartbeat.json)
+to declare its path, body, exact success status, optional captured token field,
+optional success field/value, and interval. Due
+heartbeats run serially before chat and count against the same request budget.
+An uncertain heartbeat is not replayed; resume can inspect a configured status
+route once. Multi-step login and force-claim semantics still need target-
+specific work.
 
 For a tool-header capture, start the bounded callback receiver first. Its
 default bind is loopback, and it exits after one request or its duration. A
@@ -221,7 +227,7 @@ mean the attack will succeed against an arbitrary challenge.
 | Model/agent switching | `agent_routing`, then `custom_chat` | Supply the observed trigger and verify a response field or backend state. |
 | DLP or guardrail representation | `guardrail_representation` + `chatbot_evidence.py decode` | Reconstruct a candidate and check the real verifier. |
 | Workflow validator and exact output | `output_validator` / `workflow_status` | Fill stage/status route and check persisted progress. |
-| Chat ownership locks and rate limits | Shared chatbot transport and one-step `bootstrap` | Map claim/heartbeat fields from frontend when needed; honor cooldowns. |
+| Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
 | Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
 | Debug validator and direct verifier | `api_plan` + `debug_verifier.json` | Fill documented boundary input, nonce/signature rules, and official completion field. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
