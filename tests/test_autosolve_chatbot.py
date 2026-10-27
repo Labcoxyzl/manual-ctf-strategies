@@ -33,6 +33,9 @@ class Toy:
         self.nonce = None
         self.nonce_used = False
         self.landing_nonce_header = None
+        self.stage = 0
+        self.stage_checked = True
+        self.stage_status_calls = 0
         self.active_posts = 0
         self.peak_posts = 0
         self.active_lock = threading.Lock()
@@ -100,6 +103,13 @@ class Toy:
                     self.send(200, payload, {'Set-Cookie': 'sid=nonce; Path=/'})
                 elif self.path == '/nonce-status':
                     self.send(200, {'done': toy.nonce_used})
+                elif self.path == '/stage-status':
+                    toy.stage_status_calls += 1
+                    if toy.mode in ('stage_status_partial_once', 'stage_candidate_partial_once') and toy.stage > 0 and toy.stage_status_calls == 2:
+                        self.send(200, b'{"current_stage":1}' + b' ' * 140_000)
+                    else:
+                        toy.stage_checked = True
+                        self.send(200, {'current_stage': toy.stage})
                 elif self.path == '/nonce-landing':
                     toy.landing_nonce_header = self.headers.get('X-Nonce')
                     self.send(200, {'complete': True})
@@ -213,6 +223,15 @@ class Toy:
                     if toy.mode == 'nonce_timeout' and accepted:
                         time.sleep(.18)
                     self.send(200, {'complete': accepted})
+                    return
+                if self.path == '/stage-chat':
+                    if toy.stage > 0 and not toy.stage_checked:
+                        self.send(409, {'error': 'stage status must be read first'})
+                    else:
+                        toy.stage += 1
+                        toy.stage_checked = False
+                        self.send(200, {'reply': 'stage advanced', 'answer': 'another'} if toy.mode == 'stage_ambiguous' else
+                                  {'reply': 'flag{toy-candidate}' if toy.mode in ('stage_candidate', 'stage_candidate_partial_once') else 'stage advanced'})
                     return
                 if self.path == '/apply' and toy.mode == 'api_redirect':
                     self.send(302, b'', {'Location': '/check-result'})
@@ -1438,6 +1457,83 @@ class ChatbotCLITests(unittest.TestCase):
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
             self.assertEqual(len(toy.calls), before)
 
+    def test_opt_in_workflow_status_pauses_between_chat_posts(self):
+        config = {'chat': {'path': '/stage-chat', 'message_field': 'query', 'response_field': 'reply'},
+                  'status_path': '/stage-status', 'status_after_each_chat': True,
+                  'lanes': ['capability']}
+        with tempfile.TemporaryDirectory() as root, Toy('stage_workflow') as toy:
+            protocol = self.protocol(root, config)
+            dry, dry_run, code = self.start(root, toy, protocol, requests=8, prompts=2, dry=True)
+            self.assertEqual(code, 0)
+            self.assertIn('Planned workflow check: GET /stage-status', (dry_run / 'report.md').read_text())
+            self.assertFalse(toy.calls)
+            m, run, code = self.start(root, toy, protocol, requests=8, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'workflow stage observed; inspect status before next prompt')
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertEqual(m['request_count'], 6)
+            self.assertEqual(toy.stage, 1)
+            self.assertEqual(toy.calls[-2:], [('POST', '/stage-chat'), ('GET', '/stage-status')])
+            self.run_cli(root, 'resume', run, '--budget', '5', code=0)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(resumed['completed'], ['baseline', 'capability'])
+            self.assertEqual(resumed['request_count'], 8)
+            self.assertEqual(toy.stage, 2)
+            self.assertFalse(resumed['validated'])
+            self.assertEqual(len(resumed['workflow_status_checks']), 2)
+        with tempfile.TemporaryDirectory() as root, Toy('stage_status_partial_once') as toy:
+            protocol = self.protocol(root, config)
+            m, run, code = self.start(root, toy, protocol, requests=10, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'workflow status unconfirmed; retry read-only check')
+            self.assertEqual(m['workflow_pending'], 'baseline')
+            self.assertEqual(toy.stage, 1)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(toy.stage, 1)
+            self.assertEqual(json.loads((run / 'manifest.json').read_text())['stop_reason'],
+                             'workflow stage observed; inspect status before next prompt')
+            self.run_cli(root, 'resume', run, '--budget', '5', code=0)
+            self.assertEqual(toy.stage, 2)
+        with tempfile.TemporaryDirectory() as root, Toy('stage_candidate') as toy:
+            protocol = self.protocol(root, config)
+            m, _, code = self.start(root, toy, protocol, requests=8, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'candidate needs explicit verifier')
+            self.assertEqual(m['completed'], ['baseline'])
+            self.assertEqual(len(m['workflow_status_checks']), 1)
+            self.assertEqual(toy.calls[-2:], [('POST', '/stage-chat'), ('GET', '/stage-status')])
+            self.assertTrue(toy.stage_checked)
+            self.assertFalse(m['validated'])
+        with tempfile.TemporaryDirectory() as root, Toy('stage_candidate_partial_once') as toy:
+            protocol = self.protocol(root, config)
+            m, run, code = self.start(root, toy, protocol, requests=10, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'workflow status unconfirmed; retry read-only check')
+            self.assertEqual(m['workflow_prior_stop_reason'], 'candidate needs explicit verifier')
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(resumed['stop_reason'], 'candidate needs explicit verifier')
+            self.assertEqual(toy.stage, 1)
+            self.assertTrue(toy.stage_checked)
+        with tempfile.TemporaryDirectory() as root, Toy('stage_ambiguous') as toy:
+            ambiguous = {**config, 'chat': {key: value for key, value in config['chat'].items() if key != 'response_field'}}
+            protocol = self.protocol(root, ambiguous)
+            m, _, code = self.start(root, toy, protocol, requests=8, prompts=2)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
+            self.assertEqual(toy.stage, 1)
+            self.assertEqual(len(m['workflow_status_checks']), 1)
+            self.assertEqual(toy.calls[-2:], [('POST', '/stage-chat'), ('GET', '/stage-status')])
+            self.assertTrue(toy.stage_checked)
+        with tempfile.TemporaryDirectory() as root, Toy('stage_workflow') as toy:
+            protocol = self.protocol(root, {key: value for key, value in config.items() if key != 'status_path'})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin,
+                                        '--protocol', protocol, '--dry-run', '--budget', '5',
+                                        '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('status_after_each_chat needs', result['reason'])
+            self.assertFalse(toy.calls)
+
     def test_api_plan_preserves_scope_and_separates_candidate_from_acceptance(self):
         with tempfile.TemporaryDirectory() as root, Toy('api_only') as toy:
             protocol = self.protocol(root, {'strategy_params': {'steps': [
@@ -1609,6 +1705,7 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('vector_store.json', 'api_plan'),
                                    ('tool_audit.json', 'tool_audit'),
                                    ('workflow_action.json', 'orchestrator_action'),
+                                   ('workflow_stage.json', 'workflow_status'),
                                    ('debug_verifier.json', 'api_plan'),
                                    ('nonce_verifier.json', 'api_plan'),
                                    ('scorer_batch.json', 'scorer_batch'),

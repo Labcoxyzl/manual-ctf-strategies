@@ -1,0 +1,11 @@
+{
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "encoding": "json",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "status_path": "/REPLACE_STATUS_PATH",
+  "status_after_each_chat": true,
+  "lanes": ["format"]
+}

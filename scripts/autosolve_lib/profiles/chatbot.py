@@ -198,7 +198,7 @@ def _protocol(path):
         config = json.loads(raw)
     except (UnicodeError, ValueError) as error:
         raise core.InvalidInput('invalid protocol JSON') from error
-    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change'}:
+    if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change', 'status_after_each_chat'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
     if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
@@ -239,6 +239,8 @@ def _protocol(path):
         raise core.InvalidInput('authorized_destinations must list at most four exact origins')
     if type(config.get('allow_state_change', False)) is not bool:
         raise core.InvalidInput('allow_state_change must be boolean')
+    if type(config.get('status_after_each_chat', False)) is not bool or (config.get('status_after_each_chat') and not config.get('status_path')):
+        raise core.InvalidInput('status_after_each_chat needs a declared status_path and boolean value')
     bootstrap = config.get('bootstrap')
     if bootstrap is not None:
         if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'encoding', 'body', 'token_field', 'chat_field', 'header', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
@@ -800,6 +802,21 @@ def _heartbeat(client, due):
     return True
 
 
+def _workflow_status_check(client):
+    m = client.manifest
+    result = client.request('GET', client.config['status_path'], probe='workflow-stage-check')
+    if result.get('signal') != 'budget':
+        m['workflow_status_checks'].append({'after_probe': m['workflow_pending'], 'status': result.get('status'),
+                                            'signal': result.get('signal'), 'redirect_hops': result.get('redirect_hops', 0),
+                                            'evidence_line': m['transcript_lines']})
+    if result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops'):
+        m['workflow_pending'] = None
+        prior_stop = m.pop('workflow_prior_stop_reason', None)
+        m['stop_reason'] = prior_stop or ('workflow stage observed; inspect status before next prompt' if len(m['completed']) < len(m['queue']) else None)
+    else:
+        m['stop_reason'] = 'workflow status unconfirmed; retry read-only check'
+
+
 def _run(client):
     m = client.manifest
     strategy_steps = ({step['id']: step for step in strategy_plan(m['strategy'], client.config.get('strategy_params', {}),
@@ -817,6 +834,9 @@ def _run(client):
                             'heartbeat outcome uncertain; inspect session state before a new run' if checked == 'heartbeat_checked' else
                             'chat timed out; inspect history/status before any retry' if checked == 'chat_timeout_checked' else
                             'origin POST unresolved; inspect history/status and release origin before new sends')
+        return
+    if m.get('workflow_pending'):
+        _workflow_status_check(client)
         return
     if m.get('heartbeat_pending'):
         check = client.config.get('history_path') or client.config.get('status_path')
@@ -855,7 +875,7 @@ def _run(client):
         spec = strategy_steps.get(probe, {})
         kind = spec.get('kind', 'injection' if probe == 'injection' else 'chat')
         heartbeat_due = kind != 'api' and _heartbeat_due(client)
-        needed = (2 if kind == 'injection' else 1) + (1 if heartbeat_due else 0)
+        needed = (2 if kind == 'injection' else 1) + (1 if heartbeat_due else 0) + (1 if kind != 'api' and client.config.get('status_after_each_chat') else 0)
         if (kind != 'api' and m['prompt_count'] >= m['max_prompts']) or m['request_count'] + needed > m['max_requests'] or time.monotonic() >= client.deadline or m.get('stop_reason'):
             m['stop_reason'] = m.get('stop_reason') or ('prompt budget' if kind != 'api' and m['prompt_count'] >= m['max_prompts'] else 'budget')
             break
@@ -1050,7 +1070,7 @@ def _run(client):
                             m['stop_reason'] = 'candidate checked; acceptance unproven'
                 elif any(hit['kind'] == 'secret-shaped text' for hit in hits) and not m.get('stop_reason'):
                     m['stop_reason'] = 'candidate needs explicit verifier'
-                if not m.get('stop_reason') and m.get('strategy') in ('tool_audit', 'workflow_status', 'orchestrator_action') and probe == m['queue'][-1]:
+                if not m.get('stop_reason') and not client.config.get('status_after_each_chat') and m.get('strategy') in ('tool_audit', 'workflow_status', 'orchestrator_action') and probe == m['queue'][-1]:
                     followup = client.config.get('audit_path') if m['strategy'] == 'tool_audit' else client.config.get('status_path')
                     if followup:
                         check = client.request('GET', followup, probe='strategy-state-check')
@@ -1058,6 +1078,11 @@ def _run(client):
                                                    'redirect_hops': check.get('redirect_hops', 0), 'evidence_line': m['transcript_lines']})
                         if check.get('signal'):
                             m['stop_reason'] = f"state check {check['signal']}"
+        if client.config.get('status_after_each_chat') and record.get('status') == 200 and not record.get('signal'):
+            m['workflow_pending'] = probe
+            m['workflow_prior_stop_reason'] = m.get('stop_reason')
+            core._write_json(client.run / 'manifest.json', m)
+            _workflow_status_check(client)
         core._write_json(client.run / 'manifest.json', m)
         if m['prompt_count'] >= m['max_prompts'] and len(m['completed']) < len(m['queue']):
             m['stop_reason'] = m.get('stop_reason') or 'prompt budget'
@@ -1078,6 +1103,7 @@ def _render(run, m):
             f"Response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
+            f"Status after each chat: {bool(m.get('status_after_each_chat'))}" + (f" via GET {_display_path(m['workflow_status_path'])}" if m.get('workflow_status_path') else ''),
              f"Stop reason: {m.get('stop_reason') or 'queue complete'}", '', '## Probes', '']
     if m.get('bootstrap_summary'):
         entry = m['bootstrap_summary']
@@ -1109,6 +1135,8 @@ def _render(run, m):
         lines.append(f"- API {item['id']} {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, expected-field match={item['matched']}, score={item.get('score')}, capture SHA-256={item.get('capture_sha256')} at transcript line {item['evidence_line']}")
     for item in m.get('behavior_observations', []):
         lines.append(f"- Context {item['filler_chars']} characters: marker retained={item['marker_retained']} at transcript line {item['evidence_line']}; challenge outcome unverified")
+    for item in m.get('workflow_status_checks', []):
+        lines.append(f"- Workflow status after {item['after_probe']}: final HTTP {item['status']}, redirects={item['redirect_hops']}, signal={item['signal']} at transcript line {item['evidence_line']}; challenge acceptance unproven")
     if not m['candidates'] and not m['validated']:
         lines.append('No candidate or validated outcome observed.')
     untested = [x for x in m['queue'] if x not in m['completed']]
@@ -1138,6 +1166,8 @@ def _render(run, m):
         if m.get('injection_plan'):
             entry = m['injection_plan']
             lines.append(f"Planned lower-trust write: POST {_display_path(entry['path'])}; body field: {entry['field']}; encoding: {entry['encoding']}.")
+        if m.get('status_after_each_chat'):
+            lines.append(f"Planned workflow check: GET {_display_path(m['workflow_status_path'])} after each completed chat message, then pause before the next.")
     uncertain = [x for x in untested if x in m['started']]
     if uncertain:
         lines.append(f"Started without a confirmed completed observation; never replayed automatically: {', '.join(uncertain)}.")
@@ -1213,6 +1243,10 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                                           'interval_seconds': config['heartbeat'].get('interval_seconds', 0)} if config.get('heartbeat') else None,
                     'heartbeat_pending': False, 'heartbeat_last_at': None,
                     'chat_timeout_pending': False, 'chat_timeout_checked': False,
+                    'workflow_pending': None, 'workflow_status_checks': [],
+                    'workflow_prior_stop_reason': None,
+                    'status_after_each_chat': config.get('status_after_each_chat', False),
+                    'workflow_status_path': config.get('status_path') if config.get('status_after_each_chat') else None,
                     'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                     'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                     'strategy': strategy, 'strategy_marker': marker,

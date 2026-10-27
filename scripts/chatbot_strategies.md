@@ -64,7 +64,7 @@ turns a status response into an accepted challenge result.
 | `guardrail_representation` | `item` | Ask for code points and a character array; reconstruct and verify separately. |
 | `refusal_policy` | none | Ask for the refusal label and prerequisite. |
 | `diagnostic_chat` | credentials in private `headers` or chat fields | Ask for diagnostic fields and status after the app authorizes the session. |
-| `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. |
+| `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. Set `status_after_each_chat` to inspect and pause after each prompt. |
 | `orchestrator_action` | `action_prompt`, `status_path`, `allow_state_change: true` | Send one explicit final action prompt, then read status once. |
 | `kb_injection` | an `injection` object with exact `success_status` | Write one exposed lower-trust KB item or multipart document, require its declared acceptance response, then send its trigger prompt. A repeated marker stays unvalidated. |
 | `custom_chat` | `prompts`: one to four strings | Run a target-specific prompt idea with the same session and evidence controls. |
@@ -216,6 +216,15 @@ The bound POST is never replayed after an uncertain outcome. This adapter does
 not derive signatures, chain multiple tokens, or infer acceptance from a model
 claim; use the challenge's documented checker field.
 
+For a staged chat workflow, copy the
+[workflow-stage recipe](chatbot_recipes/workflow_stage.json) and set
+`status_after_each_chat: true` with the observed `status_path`. The runner
+reserves one GET after every completed chat prompt, stores its exact response
+in the private transcript, and pauses before the next prompt. Resume retries
+only an incomplete status GET; after a complete check, the next explicit
+resume sends the next chat prompt once. A stage number or artifact is an
+observation until the official completion state confirms the objective.
+
 ```sh
 python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
   --protocol ./private-api-plan.json --strategy api_plan \
@@ -333,7 +342,7 @@ mean the attack will succeed against an arbitrary challenge.
 | Exposed vector store | `api_plan` + `vector_store.json` | Fill collection ID and inspect returned documents and metadata. |
 | Model/agent switching | `agent_routing`, then `custom_chat` | Supply the observed trigger and verify a response field or backend state. |
 | DLP or guardrail representation | `guardrail_representation` + `chatbot_evidence.py decode` | Reconstruct a candidate and check the real verifier. |
-| Workflow validator and exact output | `output_validator` / `workflow_status` | Fill stage/status route and check persisted progress. |
+| Workflow validator and exact output | `output_validator` / `workflow_status` + `workflow_stage.json` | Fill stage/status route and inspect persisted progress between prompts when state can advance. |
 | Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
 | Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
 | Debug validator and direct verifier | `api_plan` + `debug_verifier.json` or `nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar nonce can be bound, while signature derivation remains target-specific. |
