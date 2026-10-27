@@ -1349,13 +1349,13 @@
       "kali-131"
     ],
     "steps": [
-      "Record browser/profile path and version; work on a copy. Check help through the actual runnable Hindsight launcher and its own Python interpreter. Only if that same launcher lists `--only`, run it with `-i PROFILE_DIR -o PRIVATE_OUT --only history` using the version-specific form in the bundled workflow; do not assume `hindsight.py` is executable.",
+      "Record browser/profile path and version; work on a copy. Check help through the actual runnable Hindsight launcher and its own Python interpreter. Only if that same launcher lists `--only`, run it with `-i PROFILE_DIR --only history` and explicit absolute private output (`-o`), log (`-l`) and temporary-copy (`--temp_dir`) paths using the version-specific form in the bundled workflow; do not assume `hindsight.py` is executable.",
       "Inspect the parser status, skipped artifacts, selected visit row and time zone. If selective parsing is unavailable, inspect the copied History or places.sqlite schema with `sqlite3 -readonly` and use the browser-specific read-only query in the bundled workflow.",
       "Cross-check a decisive visit against its exact source database row and independent context such as a known local server log. Keep the raw timestamp, UTC interpretation, source file and parser version together."
     ],
     "expected": "A selected visit record with source-profile and time provenance, or a documented parser/schema limit.",
     "fallback": "A missing row may reflect absent WAL sidecars, a different profile, unsupported parser/schema, a filtered artifact, or a wrong time basis. An empty report alone cannot prove the visit never happened.",
-    "caveat": "Hindsight can parse cookies and saved passwords by default; require a supported selective filter or use SQLite instead, and keep private output local. A stored visit does not identify the human actor. Download analysis needs its own source-specific check.",
+    "caveat": "Hindsight can parse cookies and saved passwords by default; require a supported selective filter or use SQLite instead. Its default log and temporary-copy locations are under the installation; keep all three output paths private and check for copies after an interrupted run. A stored visit does not identify the human actor. Download analysis needs its own source-specific check.",
     "verification": "Hindsight CLI and browser schemas source-reviewed; local synthetic SQLite query and a pinned upstream filtered Chrome build exercised with one known visit and two skipped downloads. Firefox and competition-machine behavior unverified.",
     "references": [
       {
