@@ -41,7 +41,9 @@ def main(argv=None):
     doctor.add_argument('--self-test', action='store_true')
     setup = commands.add_parser('setup', help='prepare implemented local operations without administrator rights')
     setup.add_argument('--profiles', nargs='+', default=['all'])
-    setup.add_argument('--ai-cpu', action='store_true', help='install and probe the optional CPU-only AIC02 environment')
+    optional_setup = setup.add_mutually_exclusive_group()
+    optional_setup.add_argument('--ai-cpu', action='store_true', help='install and probe the optional CPU-only AIC02 environment')
+    optional_setup.add_argument('--checker', action='store_true', help='install and probe the optional REV07 symbolic checker environment')
     web = commands.add_parser('web', help='analyze an explicitly scoped web request')
     web.add_argument('--request-file', help='private raw request for WEB02/03/05')
     web.add_argument('--scope-origin', required=True)
@@ -179,6 +181,11 @@ def main(argv=None):
                     raise ValueError('--ai-cpu cannot be combined with --profiles')
                 from autosolve_lib.setup_env import prepare_ai_cpu
                 result = prepare_ai_cpu()
+            elif args.checker:
+                if args.profiles != ['all']:
+                    raise ValueError('--checker cannot be combined with --profiles')
+                from autosolve_lib.setup_env import prepare_checker
+                result = prepare_checker()
             else:
                 result = setup_module.setup(args.profiles)
             code = 0 if result['status'] == 'ready' else 3

@@ -92,10 +92,32 @@ The parser handles bounded integer arithmetic only; unsupported questions
 stop before an answer is sent. Resume uses the saved transcript without
 reconnecting.
 
-Setup uses only wheels and verifies hashes from
+Default setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
 It does not delete an unexpected pre-existing `.autosolve/envs/core` directory.
+
+For REV07 checker analysis on Linux x86-64, install the separate optional
+[`checker.lock.txt`](autosolve_requirements/checker.lock.txt) environment:
+
+```sh
+python3 scripts/autosolve.py --json setup --checker
+.autosolve/envs/checker/bin/python scripts/autosolve.py --json doctor --profiles malware_reversing --self-test
+```
+
+The checker lock includes the core libraries and angr 9.2.215, with compatible
+bitstring and pycparser pins. Its 65 packages are hash-pinned and setup uses
+only wheels. The two small included wheels for source-only arpy 1.1.1 and
+mulpyplexer 0.9 were built twice byte-identically from reviewed, hash-checked
+source archives using the pinned
+[`checker-builder.lock.txt`](autosolve_requirements/checker-builder.lock.txt).
+The installer reads those local wheels and verifies their hashes; it does not
+download or execute a source build backend. Setup reports readiness only after
+a generated checker solves and concretely replays its expected input.
+Real checker execution still needs selected private hints and `--execute-local`;
+`--replay-checker` is a separate opt-in and a replay does not prove challenge
+acceptance. Missing uv, CPython 3.12, compiler, wheel, network or compatible
+platform leaves this optional setup partial without changing the core env.
 
 For AIC02 gradient probes on Linux x86-64, explicitly install the separate
 CPU-only PyTorch environment. Its hash-checked lock uses a reviewed PyTorch

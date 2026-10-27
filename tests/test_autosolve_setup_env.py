@@ -13,6 +13,117 @@ from autosolve_lib import setup, setup_env
 
 
 class SetupEnvironmentTests(unittest.TestCase):
+    def test_checker_prepares_separate_hashed_environment_with_reviewed_sources(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / 'scripts/autosolve_requirements/checker.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('angr==9.2.215 --hash=sha256:' + '0' * 64 + '\n')
+            wheels = lock.parent / 'wheels'
+            wheels.mkdir()
+            for name in ('arpy-1.1.1-py3-none-any.whl', 'mulpyplexer-0.9-py3-none-any.whl'):
+                (wheels / name).write_bytes(b'wheel')
+            commands = []
+
+            def run(command, **kwargs):
+                commands.append(command)
+                self.assertNotIn('UV_NO_VERIFY_HASHES', kwargs['env'])
+                self.assertNotIn('UV_EXTRA_INDEX_URL', kwargs['env'])
+                self.assertEqual(kwargs['env']['TMPDIR'], str(root / '.autosolve/tmp'))
+                if command[0].endswith('/bin/python'):
+                    data = {'implementation': 'CPython', 'version': [3, 12],
+                            'prefix': str(root / '.autosolve/envs/checker')}
+                    return subprocess.CompletedProcess(command, 0, json.dumps(data).encode(), b'')
+                return subprocess.CompletedProcess(command, 0, b'', b'')
+
+            with mock.patch.dict(os.environ, {'UV_NO_VERIFY_HASHES': 'true',
+                                              'UV_EXTRA_INDEX_URL': 'https://untrusted.invalid/simple'}), \
+                 mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                result = setup_env.prepare(root, environment_name='checker')
+            self.assertEqual(result['status'], 'ready')
+            self.assertEqual(result['installed'], ['checker'])
+            self.assertIn('--require-hashes', commands[-1])
+            self.assertIn('https://pypi.org/simple', commands[-1])
+            self.assertEqual(commands[-1][-3:-1], ['--only-binary', ':all:'])
+            self.assertEqual(commands[-1][commands[-1].index('--find-links') + 1], str(wheels))
+            self.assertEqual(commands[-1][-1], str(lock))
+            self.assertFalse((root / '.autosolve/envs/core').exists())
+
+    def test_checker_rejects_temporary_directory_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'checkout'
+            outside = Path(directory) / 'outside'
+            outside.mkdir()
+            (outside / 'keep.txt').write_text('untouched')
+            lock = root / 'scripts/autosolve_requirements/checker.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('angr==9.2.215 --hash=sha256:' + '0' * 64 + '\n')
+            wheels = lock.parent / 'wheels'
+            wheels.mkdir()
+            for name in ('arpy-1.1.1-py3-none-any.whl', 'mulpyplexer-0.9-py3-none-any.whl'):
+                (wheels / name).write_bytes(b'wheel')
+            temporary = root / '.autosolve/tmp'
+            temporary.parent.mkdir(parents=True)
+            temporary.symlink_to(outside, target_is_directory=True)
+            with mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run') as run:
+                result = setup_env.prepare(root, environment_name='checker')
+            self.assertEqual(result['reason'], 'setup_path_is_symlink')
+            self.assertEqual((outside / 'keep.txt').read_text(), 'untouched')
+            run.assert_not_called()
+
+    def test_checker_missing_wheel_fails_before_uv_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / 'scripts/autosolve_requirements/checker.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('angr==9.2.215 --hash=sha256:' + '0' * 64 + '\n')
+            with mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run') as run:
+                result = setup_env.prepare(root, environment_name='checker')
+            self.assertEqual(result['reason'], 'checker_wheels_missing_or_symlink')
+            run.assert_not_called()
+
+    def test_checker_missing_tool_or_platform_is_explicit_and_does_not_touch_core(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(setup_env.platform, 'machine', return_value='aarch64'), \
+                 mock.patch.object(setup_env.shutil, 'which') as which:
+                wrong_arch = setup_env.prepare_checker(root)
+            self.assertEqual(wrong_arch['reason'], 'checker_requires_linux_x86_64')
+            self.assertEqual(wrong_arch['functional_probe'], 'not_run')
+            which.assert_not_called()
+            with mock.patch.object(setup_env.shutil, 'which', return_value=None):
+                missing_uv = setup_env.prepare_checker(root)
+            self.assertEqual(missing_uv['reason'], 'uv_missing')
+            self.assertFalse((root / '.autosolve').exists())
+
+    def test_checker_probe_requires_real_doctor_replay_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            prepared = {'status': 'ready', 'python': '/tmp/checker/bin/python',
+                        'environment': str(root / '.autosolve/envs/checker'),
+                        'installed': ['checker']}
+            for probe in ('passed', 'failed'):
+                with self.subTest(probe=probe):
+                    checked = {'status': 'partial',
+                               'operations': {'malware_reversing.checker': {
+                                   'functional_probe': probe, 'reason': 'functional_probe_failed'}},
+                               'engines': {'angr': {'status': 'ready' if probe == 'passed' else 'partial',
+                                                    'version': '9.2.215'}}}
+                    with mock.patch.object(setup_env, 'prepare', return_value=prepared), \
+                         mock.patch.object(setup_env.subprocess, 'run', return_value=
+                                           subprocess.CompletedProcess([], 3,
+                                                                      json.dumps(checked).encode(), b'')) as run:
+                        result = setup_env.prepare_checker(root)
+                    self.assertEqual(result['status'], 'ready' if probe == 'passed' else 'partial')
+                    self.assertEqual(result['functional_probe'], probe)
+                    self.assertIn('--self-test', run.call_args.args[0])
+                    self.assertEqual(run.call_args.args[0][0:2], ['/tmp/checker/bin/python', '-I'])
+                    self.assertEqual(run.call_args.kwargs['env']['TMPDIR'],
+                                     str(root / '.autosolve/tmp'))
+
     def test_ai_cpu_prepares_a_separate_hash_checked_environment(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -1,0 +1,10 @@
+# Optional REV07 symbolic checker environment; includes the reviewed core set.
+# Local arpy and mulpyplexer wheels come from source SHA-256 values
+# 3ec36309d2234648ef8dcd2118fe7d81c30195087e0353473546583f3434e776
+# and 144e9e9bf66d3988f60542c9d3d4c94857438f7908f60e53f4c1cb1622fbbd30.
+-r core.in
+angr==9.2.215
+# pyvex 9.2.215 imports bitstring.ConstBitStream; bitstring 5 removed it.
+bitstring==4.4.0
+# angr 9.2.215's C parser calls the lexer interface from pycparser 3.0.
+pycparser==3.0

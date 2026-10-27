@@ -1,0 +1,4 @@
+# Rebuild the two source-only checker wheels in a disposable CPython 3.12 env.
+pip==25.3
+setuptools==84.2.1
+wheel==0.45.1

@@ -15,11 +15,12 @@ def _writable_paths_safe(root: Path, env: Path) -> bool:
     autosolve = root / '.autosolve'
     cache = autosolve / 'cache/uv'
     managed_python = autosolve / 'python'
+    temporary = autosolve / 'tmp'
     if any(path.is_symlink() for path in (autosolve, autosolve / 'envs',
                                           autosolve / 'cache', cache,
-                                          managed_python, env)):
+                                          managed_python, temporary, env)):
         return False
-    for tree in (cache, managed_python, env):
+    for tree in (cache, managed_python, temporary, env):
         if not tree.exists():
             continue
         scan_errors = []
@@ -45,20 +46,26 @@ def _writable_paths_safe(root: Path, env: Path) -> bool:
 
 def prepare(root: Path | None = None, environment_name: str = 'core') -> dict:
     root = root or Path(__file__).resolve().parents[2]
-    if environment_name not in ('core', 'ai-cpu'):
+    if environment_name not in ('core', 'ai-cpu', 'checker'):
         raise ValueError('unknown autosolve environment')
     lock = root / f'scripts/autosolve_requirements/{environment_name}.lock.txt'
     env = root / '.autosolve/envs' / environment_name
     python = env / 'bin/python'
     result = {'status': 'partial', 'environment': str(env), 'python': str(python),
               'installed': [], 'interpreter_request': 'cpython3.12'}
-    if environment_name == 'ai-cpu' and (sys.platform != 'linux' or platform.machine() != 'x86_64'):
-        return {**result, 'reason': 'ai_cpu_requires_linux_x86_64'}
+    if environment_name in ('ai-cpu', 'checker') and (
+            sys.platform != 'linux' or platform.machine() != 'x86_64'):
+        return {**result, 'reason': f'{environment_name.replace("-", "_")}_requires_linux_x86_64'}
     uv = shutil.which('uv')
     if not uv:
         return {**result, 'reason': 'uv_missing'}
     if not lock.is_file():
         return {**result, 'reason': f'{environment_name}_lock_missing'}
+    wheels = root / 'scripts/autosolve_requirements/wheels'
+    if environment_name == 'checker' and (wheels.is_symlink() or not wheels.is_dir() or
+            any(not (wheels / name).is_file() or (wheels / name).is_symlink() for name in (
+                'arpy-1.1.1-py3-none-any.whl', 'mulpyplexer-0.9-py3-none-any.whl'))):
+        return {**result, 'reason': 'checker_wheels_missing_or_symlink'}
     if not _writable_paths_safe(root, env):
         return {**result, 'reason': 'setup_path_is_symlink'}
     if env.is_symlink() or (env.exists() and not (env / 'pyvenv.cfg').is_file()):
@@ -67,11 +74,22 @@ def prepare(root: Path | None = None, environment_name: str = 'core') -> dict:
     environment = os.environ.copy()
     environment['UV_CACHE_DIR'] = str(root / '.autosolve/cache/uv')
     environment['UV_PYTHON_INSTALL_DIR'] = str(root / '.autosolve/python')
-    if environment_name == 'ai-cpu':
+    if environment_name in ('ai-cpu', 'checker'):
         for name in ('UV_INDEX', 'UV_INDEX_URL', 'UV_EXTRA_INDEX_URL', 'UV_DEFAULT_INDEX',
                      'UV_FIND_LINKS', 'UV_NO_INDEX', 'UV_INDEX_STRATEGY', 'UV_TORCH_BACKEND',
+                     'UV_NO_VERIFY_HASHES', 'UV_NO_BINARY', 'UV_ONLY_BINARY',
+                     'UV_NO_BUILD_ISOLATION', 'UV_BUILD_CONSTRAINT',
                      'PIP_INDEX_URL', 'PIP_EXTRA_INDEX_URL', 'PIP_FIND_LINKS', 'PIP_NO_INDEX'):
             environment.pop(name, None)
+    if environment_name == 'checker':
+        temporary = root / '.autosolve/tmp'
+        try:
+            temporary.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            return {**result, 'reason': 'checker_temporary_directory_unavailable'}
+        if not _writable_paths_safe(root, env):
+            return {**result, 'reason': 'setup_path_is_symlink'}
+        environment.update(TMPDIR=str(temporary), TMP=str(temporary), TEMP=str(temporary))
     commands = []
     if not env.exists():
         commands.append(('venv', [uv, 'venv', '--no-project', '--no-config',
@@ -83,8 +101,11 @@ def prepare(root: Path | None = None, environment_name: str = 'core') -> dict:
                     '"version":list(sys.version_info[:2]),"prefix":sys.prefix,'
                     '"base_executable":sys._base_executable}))']),
         ('sync', [uv, 'pip', 'sync', '--no-config', '--python', str(python),
-                  *(['--default-index', 'https://pypi.org/simple'] if environment_name == 'ai-cpu' else []),
-                  '--require-hashes', '--only-binary', ':all:', str(lock)]),
+                  *(['--default-index', 'https://pypi.org/simple']
+                    if environment_name in ('ai-cpu', 'checker') else []),
+                  *(['--find-links', str(wheels)] if environment_name == 'checker' else []),
+                  '--require-hashes', '--only-binary', ':all:',
+                  str(lock)]),
     ])
     for stage, command in commands:
         if not _writable_paths_safe(root, env):
@@ -166,3 +187,45 @@ def prepare_ai_cpu(root: Path | None = None) -> dict:
         return {**prepared, 'status': 'partial', 'reason': 'ai_cpu_probe_failed',
                 'functional_probe': 'failed'}
     return {**prepared, 'functional_probe': 'passed', 'operation': 'aic02.gradient'}
+
+
+def prepare_checker(root: Path | None = None) -> dict:
+    """Install and exercise the opt-in REV07 symbolic checker environment."""
+    root = root or Path(__file__).resolve().parents[2]
+    prepared = prepare(root, environment_name='checker')
+    if prepared['status'] != 'ready':
+        return {**prepared, 'functional_probe': 'not_run'}
+    env = root / '.autosolve/envs/checker'
+    if not _writable_paths_safe(root, env):
+        return {**prepared, 'status': 'partial', 'reason': 'setup_path_is_symlink',
+                'functional_probe': 'not_run'}
+    temporary = root / '.autosolve/tmp'
+    try:
+        temporary.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return {**prepared, 'status': 'partial', 'reason': 'checker_temporary_directory_unavailable',
+                'functional_probe': 'not_run'}
+    if not _writable_paths_safe(root, env):
+        return {**prepared, 'status': 'partial', 'reason': 'setup_path_is_symlink',
+                'functional_probe': 'not_run'}
+    command = [prepared['python'], '-I', str(root / 'scripts/autosolve.py'),
+               '--json', 'doctor', '--profiles', 'malware_reversing', '--self-test']
+    try:
+        environment = {**os.environ, 'TMPDIR': str(temporary), 'TMP': str(temporary),
+                       'TEMP': str(temporary)}
+        run = subprocess.run(command, capture_output=True, timeout=180,
+                             check=False, env=environment)
+        doctor = json.loads(run.stdout)
+        operation = doctor['operations']['malware_reversing.checker']
+        engine = doctor['engines']['angr']
+    except (OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError):
+        return {**prepared, 'status': 'partial', 'reason': 'checker_probe_failed',
+                'functional_probe': 'failed'}
+    if run.returncode not in (0, 3) or operation.get('functional_probe') != 'passed' or (
+            engine.get('status') != 'ready'):
+        return {**prepared, 'status': 'partial',
+                'reason': operation.get('reason', 'checker_probe_failed'),
+                'functional_probe': operation.get('functional_probe', 'failed'),
+                'probe_detail': operation.get('probe_detail')}
+    return {**prepared, 'functional_probe': 'passed', 'operation': 'rev07.checker',
+            'engine_version': engine.get('version')}
