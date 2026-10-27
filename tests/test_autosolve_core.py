@@ -92,6 +92,9 @@ class AutosolveCoreTests(unittest.TestCase):
                                         '--runs-root', root / 'runs', code=3)['run'])
                 manifest = json.loads((run / 'manifest.json').read_text())
                 self.assertEqual(manifest['coverage']['ENC04']['status'], 'skipped prerequisite')
+                self.assertIn('record 0', manifest['coverage']['ENC04']['note'])
+                self.assertIn('missing ' + ('key' if parameter['family'] == 'vigenere'
+                                             else 'rails'), manifest['coverage']['ENC04']['note'])
                 self.assertFalse(any(f['state'] == 'challenge_accepted' for f in manifest['findings']))
             for parameter in ({'family': 'vigenere', 'key': ''},
                               {'family': 'vigenere', 'key': 'é'},
@@ -102,6 +105,42 @@ class AutosolveCoreTests(unittest.TestCase):
                 self.assertEqual(self.run_cli('analyze', source, '--category', 'encoding',
                                               '--hints', hints, '--runs-root', root / 'runs',
                                               code=2)['status'], 'invalid_input')
+
+    def test_mixed_classical_hints_report_each_missing_prerequisite_after_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'cipher.txt'
+            source.write_bytes(b'Avfb th kim hzu czbrxf iyhvs anbjfb.')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'classical_parameters': [
+                {'family': 'vigenere', 'key': 'ORBIT'},
+                {'family': 'rail_fence'},
+                {'family': 'vigenere'},
+            ]}))
+            run = Path(self.run_cli('analyze', source, '--category', 'encoding', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            entry = manifest['coverage']['ENC04']
+            self.assertEqual(entry['status'], 'ran')
+            self.assertIn('record 1 (rail_fence) missing rails', entry['note'])
+            self.assertIn('record 2 (vigenere) missing key', entry['note'])
+            self.assertTrue(any(a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'Meet at the old bridge after sunset.'
+                                for a in manifest['artifacts']))
+            report = (run / 'report.md').read_text()
+            self.assertIn(entry['note'], report)
+            self.assertNotIn('ORBIT', report)
+            self.assertFalse(any(f['state'] == 'challenge_accepted' for f in manifest['findings']))
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(resumed['coverage']['ENC04']['status'], 'ran')
+            self.assertEqual(resumed['coverage']['ENC04']['note'].count('record 1'), 1)
+            self.assertEqual(resumed['coverage']['ENC04']['note'].count('record 2'), 1)
+            self.run_cli('resume', run, '--hints', hints, '--budget', '0.001', code=3)
+            limited = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(limited['coverage']['ENC04']['note'].count('record 1'), 1)
+            self.assertEqual(limited['coverage']['ENC04']['note'].count('record 2'), 1)
+            self.assertIn('record 1 (rail_fence) missing rails', (run / 'report.md').read_text())
 
     def test_classical_changed_key_retires_old_plaintext_on_resume(self):
         with tempfile.TemporaryDirectory() as directory:

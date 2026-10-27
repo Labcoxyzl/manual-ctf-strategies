@@ -8102,6 +8102,13 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     'from more bytes or a six-byte literal crib')
         _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []),
                        data, private_crib=crib)
+    if encoding_selected and classical_parameters:
+        missing = [f"record {index} ({row['family']}) missing "
+                   f"{'key' if row['family'] == 'vigenere' else 'rails'}"
+                   for index, row in enumerate(classical_parameters)
+                   if ('key' if row['family'] == 'vigenere' else 'rails') not in row]
+        if missing:
+            manifest['coverage']['ENC04']['note'] += '; ' + '; '.join(missing)
     if queue or time.monotonic() >= overall_deadline:
         manifest['warnings'].append('overall work budget ended before all artifacts were processed')
     _refresh_current(manifest, {artifact['id'] for artifact in active})
