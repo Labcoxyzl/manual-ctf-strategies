@@ -109,8 +109,9 @@ def _candidate(binary, symbol, offset, runtime_base, base_evidence, deadline):
 
 def _loader(directory, deadline):
     directory = Path(directory).absolute()
-    if directory.is_symlink() or not directory.is_dir():
-        raise ValueError("library path must be a real directory")
+    if (directory.is_symlink() or not directory.is_dir() or
+            any(character in str(directory) for character in ":;\r\n$")):
+        raise ValueError("library path must be a real directory without loader separators or tokens")
     env = shutil.which("env")
     if env is None:
         raise ValueError("local env tool is unavailable")
@@ -156,6 +157,88 @@ def _loader_current(directory, env_path, env_hash, libraries, deadline):
         return False
 
 
+def _evidence_bytes(path, limit):
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), "rb") as source:
+        metadata = os.fstat(source.fileno())
+        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.getuid() or
+                metadata.st_mode & 0o077 or metadata.st_size > limit):
+            raise ValueError("offset run evidence must be a private bounded file")
+        data = source.read(limit + 1)
+        if len(data) > limit:
+            raise ValueError("offset run evidence exceeds its size limit")
+        return data
+
+
+def _offset_evidence(run_path, binary, digest, deadline):
+    from . import pwn_offset
+
+    run = Path(run_path).absolute()
+    try:
+        if (run.is_symlink() or not run.is_dir() or run.stat().st_uid != os.getuid() or
+                run.stat().st_mode & 0o077):
+            raise ValueError("offset run must contain private regular evidence files")
+        manifest = json.loads(_evidence_bytes(run / "manifest.json", 32768))
+        offset = manifest.get("offset")
+        controls = manifest.get("controls")
+        length = manifest.get("pattern_length")
+        if type(length) is not int or not 8 <= length <= 2048:
+            raise ValueError("offset run pattern length is invalid")
+        pattern = _evidence_bytes(run / "pattern.bin", 2048)
+        probe = _evidence_bytes(run / "probe-gdb.txt", 1024 * 1024)
+        replay = _evidence_bytes(run / "replay-gdb.txt", 1024 * 1024)
+        short = _evidence_bytes(run / "short-gdb.txt", 1024 * 1024)
+
+        def return_bytes(trace):
+            if (b"Program received signal SIGSEGV" not in trace or
+                    not re.search(rb"=>\s*0x[0-9a-f]+[^\n]*:\s*retq?\b", trace)):
+                return None
+            match = re.search(rb"(?m)^0x[0-9a-f]+:\s*((?:0x[0-9a-f]{1,2}\s*){8})$", trace)
+            return (bytes(int(value, 16) for value in re.findall(rb"0x[0-9a-f]{1,2}", match[1]))
+                    if match else None)
+
+        stack = return_bytes(probe)
+        if (manifest.get("schema_version") != core.SCHEMA or
+                type(manifest.get("schema_version")) is not int or
+                manifest.get("category") != "pwn_services" or
+                manifest.get("run_type") != "pwn_offset" or
+                manifest.get("verification") != "controlled local replay" or
+                manifest.get("stop_reason") != "verified" or
+                manifest.get("channel") != "stdin" or
+                manifest.get("coverage", {}).get("PWN03", {}).get("status") != "ran" or
+                type(offset) is not int or not 0 < offset <= 4096 or
+                type(manifest.get("candidate_offset")) is not int or
+                manifest.get("candidate_offset") != offset or
+                controls != [{"name": "changed return bytes", "status": "matched"},
+                             {"name": "short input", "status": "no crash"}] or
+                pattern != pwn_offset._pattern(manifest.get("alphabet"), length) or
+                stack is None or pattern.find(stack) != offset or
+                pattern.rfind(stack) != offset or return_bytes(replay) != b"B" * 8 or
+                b"Program received signal" in short or
+                not (b"exited normally" in short or b"exited with code" in short) or
+                _evidence_bytes(run / "replay.bin", 4104) != b"A" * offset + b"B" * 8):
+            raise ValueError("offset run lacks verified stdin return-address controls")
+        source_hash = manifest.get("source_sha256")
+        if (manifest.get("source") != str(binary) or not isinstance(source_hash, str) or
+                not re.fullmatch(r"[0-9a-f]{64}", source_hash) or
+                source_hash != digest or _source_current(binary, source_hash, deadline) is not True):
+            raise ValueError("offset run source identity is stale or different")
+        library_path = manifest.get("library_path")
+        records = manifest.get("libraries")
+        if (library_path is None and records != [] or
+                library_path is not None and
+                (not isinstance(library_path, str) or not Path(library_path).is_absolute()) or
+                not isinstance(records, list)):
+            raise ValueError("offset run library evidence is malformed")
+        if library_path is not None:
+            library, current_records = pwn_offset._libraries(library_path, deadline)
+            if str(library) != library_path or current_records != records:
+                raise ValueError("offset run library identity changed")
+        return offset, library_path
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError, TypeError, AttributeError,
+            RecursionError) as error:
+        raise ValueError("offset run evidence is unavailable or malformed") from error
+
+
 def _render(run, manifest, current):
     lines = ["# Autosolve local ret2win", "",
              "PWN04: " + manifest["validation"] + ". Challenge acceptance: unverified.",
@@ -177,7 +260,7 @@ def _render(run, manifest, current):
 
 def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
           runs_root=None, replay_local=False, runtime_base=None, base_evidence=None,
-          library_path=None):
+          library_path=None, offset_run=None):
     if not isinstance(budget, (int, float)) or isinstance(budget, bool) or not 0 < budget <= 120:
         raise ValueError("ret2win budget must be positive and at most 120 seconds")
     prompt = _bytes(prompt_hex, "prompt delimiter")
@@ -186,7 +269,14 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         raise ValueError("success marker and prompt delimiter overlap ambiguously")
     deadline = time.monotonic() + budget
     binary, digest = _source(binary_path, deadline)
-    if library_path is not None and not replay_local:
+    if offset_run is not None:
+        if offset is not None:
+            raise ValueError("use either an explicit offset or an offset run")
+        offset, recorded_library = _offset_evidence(offset_run, binary, digest, deadline)
+        if library_path is not None and str(Path(library_path).absolute()) != recorded_library:
+            raise ValueError("explicit library path conflicts with offset run")
+        library_path = recorded_library
+    if library_path is not None and not replay_local and offset_run is None:
         raise ValueError("library path requires explicit local replay")
     if replay_local and not os.access(binary, os.X_OK):
         raise ValueError("local replay needs an executable binary")
@@ -200,6 +290,9 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         _loader(library_path, deadline) if library_path is not None
         else (None, None, None, []))
     _require_source(binary, digest, deadline, "during candidate construction")
+    if offset_run is not None and _offset_evidence(offset_run, binary, digest, deadline) != (
+            offset, library_path):
+        raise ValueError("offset run evidence changed during candidate construction")
     root = Path(runs_root) if runs_root else core.ROOT / ".autosolve" / "runs"
     run = root / f"{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:8]}"
     run.mkdir(parents=True, mode=0o700)
@@ -213,6 +306,14 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
             if library is not None else [str(binary)])
     controls = []
     operation = None
+    def offset_current():
+        if offset_run is None:
+            return True
+        try:
+            return _offset_evidence(offset_run, binary, digest, deadline) == (offset, library_path)
+        except ValueError:
+            return False
+
     if replay_local:
         for name, control_payload in (("short", b"B\n"),
                                       ("wrong-target", payload[:-8] + b"\x00" * 8)):
@@ -221,6 +322,10 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 warnings.append("source identity " + ("incomplete" if source_identity is None
                                                        else "changed") + " before local control")
                 controls.append({"name": name, "status": "inconclusive", "error": "source_identity"})
+                continue
+            if not offset_current():
+                warnings.append("offset run evidence changed before local control")
+                controls.append({"name": name, "status": "inconclusive", "error": "offset_identity"})
                 continue
             loader_identity = _loader_current(library, env_path, env_hash, libraries, deadline)
             if loader_identity is not True:
@@ -258,6 +363,9 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 warnings.append("library identity " + ("incomplete" if loader_identity is None
                                                         else "changed") + " after local control")
                 controls[-1]["status"] = "inconclusive"
+            if not offset_current():
+                warnings.append("offset run evidence changed after local control")
+                controls[-1]["status"] = "inconclusive"
         source_before = _source_current(binary, digest, deadline)
         if source_before is not True:
             warnings.append("source identity " + ("incomplete" if source_before is None
@@ -266,8 +374,11 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         if loader_before is not True:
             warnings.append("library identity " + ("incomplete" if loader_before is None
                                                     else "changed") + " before local replay")
+        offset_before = offset_current()
+        if not offset_before:
+            warnings.append("offset run evidence changed before local replay")
         remaining = deadline - time.monotonic()
-        if remaining > 0 and source_before is True and loader_before is True:
+        if remaining > 0 and source_before is True and loader_before is True and offset_before:
             operation, transport_warnings = run_service(
                 {"transport": {"argv": argv, "cwd": str(binary.parent)},
                  "steps": [{"read": {"delimiter_hex": prompt.hex()}},
@@ -302,9 +413,12 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
         if loader_after is not True:
             warnings.append("library identity " + ("incomplete" if loader_after is None
                                                     else "changed") + " after local replay")
+        offset_after = offset_current()
+        if not offset_after:
+            warnings.append("offset run evidence changed after local replay")
         if (operation["status"] == "complete" and operation["bytes_sent"] == len(payload)
                 and marker in post and marker not in pre and identity is True
-                and loader_before is True and loader_after is True
+                and loader_before is True and loader_after is True and offset_after
                 and len(controls) == 2 and all(row["status"] == "marker absent"
                                                for row in controls)):
             validation = "local marker observed with controls"
@@ -316,6 +430,7 @@ def start(binary_path, offset, symbol, prompt_hex, success_hex, budget,
                 "challenge_accepted": False, "source": str(binary), "source_sha256": digest,
                 "payload_sha256": hashlib.sha256(payload).hexdigest(),
                 "offset": offset, "symbol": symbol, "target_address": target,
+                "offset_run": str(Path(offset_run).absolute()) if offset_run is not None else None,
                 "ret_address": ret, "architecture": elf_report["architecture"],
                 "mitigations": elf_report["mitigations"],
                 "runtime_base": int(runtime_base, 16) if runtime_base is not None else None,

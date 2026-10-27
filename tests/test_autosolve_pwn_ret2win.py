@@ -53,6 +53,109 @@ class Ret2winTests(unittest.TestCase):
                 "--success-hex", marker.encode().hex(),
                 "--budget", 3, "--runs-root", self.root / "runs")
 
+    def offset_args(self, run):
+        return ("pwn-ret2win", "--binary", self.binary, "--offset-run", run,
+                "--symbol", "win", "--prompt-hex", b"READY>\n".hex(),
+                "--success-hex", b"LOCAL-RET2WIN-SUCCESS".hex(),
+                "--budget", 5, "--runs-root", self.root / "runs")
+
+    def verified_offset(self, channel="stdin", library=None):
+        arguments = ("pwn-offset", "--binary", self.binary, "--channel", channel,
+                     "--length", 128, "--budget", 8, "--runs-root", self.root / "runs")
+        if library is not None:
+            arguments += ("--library-path", library)
+        result = self.cli(*arguments)
+        run = Path(result["run"])
+        self.assertEqual(json.loads((run / "manifest.json").read_text())["stop_reason"],
+                         "verified")
+        return run
+
+    @unittest.skipUnless(shutil.which("gdb"), "GDB unavailable")
+    def test_verified_offset_run_replays_with_explicit_marker(self):
+        offset_run = self.verified_offset()
+        candidate = self.cli(*self.offset_args(offset_run))
+        candidate_run = Path(candidate["run"])
+        self.assertEqual(json.loads((candidate_run / "manifest.json").read_text())
+                         ["validation"], "candidate")
+        self.assertFalse((candidate_run / "transcript.jsonl").exists())
+        result = self.cli(*self.offset_args(offset_run), "--replay-local")
+        manifest = json.loads((Path(result["run"]) / "manifest.json").read_text())
+        self.assertEqual(manifest["offset"], 40)
+        self.assertEqual(manifest["validation"], "local marker observed with controls")
+        self.assertEqual(manifest["offset_run"], str(offset_run))
+        self.assertFalse(manifest["challenge_accepted"])
+        conflict = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json",
+                                   *map(str, self.offset_args(offset_run)), "--offset", "40"],
+                                  capture_output=True, text=True, timeout=15)
+        self.assertEqual(conflict.returncode, 2)
+        self.assertIn("not allowed", conflict.stderr)
+
+    @unittest.skipUnless(shutil.which("gdb"), "GDB unavailable")
+    def test_offset_handoff_rejects_tampered_and_unverified_evidence(self):
+        offset_run = self.verified_offset()
+        manifest_path = offset_run / "manifest.json"
+        original = json.loads(manifest_path.read_text())
+        cases = (("verification", "unverified"), ("stop_reason", "timeout"),
+                 ("offset", 41), ("channel", "argv"), ("schema_version", 999),
+                 ("source", str(self.root / "other")),
+                 ("source_sha256", "0" * 64),
+                 ("controls", [{"name": "changed return bytes", "status": "matched"}]))
+        for key, value in cases:
+            with self.subTest(key=key):
+                changed = dict(original)
+                changed[key] = value
+                manifest_path.write_text(json.dumps(changed))
+                before = set((self.root / "runs").iterdir())
+                result = self.cli(*self.offset_args(offset_run), "--replay-local", code=2)
+                self.assertEqual(result["status"], "invalid_input")
+                self.assertEqual(set((self.root / "runs").iterdir()), before)
+        manifest_path.write_text(json.dumps(original))
+        manifest_path.write_text("[" * 10000 + "0" + "]" * 10000)
+        self.assertEqual(self.cli(*self.offset_args(offset_run), code=2)["status"],
+                         "invalid_input")
+        manifest_path.write_text(json.dumps(original))
+        replay = offset_run / "replay.bin"
+        replay.write_bytes(b"A" * 40 + b"C" * 8)
+        self.assertEqual(self.cli(*self.offset_args(offset_run), code=2)["status"],
+                         "invalid_input")
+        replay.write_bytes(b"A" * 39 + b"B" * 8)
+        paired = dict(original, offset=39, candidate_offset=39)
+        manifest_path.write_text(json.dumps(paired))
+        self.assertEqual(self.cli(*self.offset_args(offset_run), code=2)["status"],
+                         "invalid_input")
+        manifest_path.write_text(json.dumps(original))
+        replay.write_bytes(b"A" * 40 + b"B" * 8)
+        trace = offset_run / "replay-gdb.txt"
+        recorded_trace = trace.read_bytes()
+        trace.write_bytes(recorded_trace.replace(b"0x42", b"0x43"))
+        self.assertEqual(self.cli(*self.offset_args(offset_run), code=2)["status"],
+                         "invalid_input")
+        trace.write_bytes(recorded_trace)
+        self.binary.write_bytes(self.binary.read_bytes() + b"stale")
+        self.assertEqual(self.cli(*self.offset_args(offset_run), code=2)["status"],
+                         "invalid_input")
+
+    @unittest.skipUnless(shutil.which("gdb"), "GDB unavailable")
+    def test_offset_handoff_rejects_argv_and_changed_library_entry(self):
+        library = self.root / "lib"
+        library.mkdir()
+        extra = library / "notes.txt"
+        extra.write_text("recorded")
+        offset_run = self.verified_offset(library=library)
+        result = self.cli(*self.offset_args(offset_run), "--replay-local")
+        manifest = json.loads((Path(result["run"]) / "manifest.json").read_text())
+        self.assertEqual(manifest["library_path"], str(library))
+        self.assertEqual(manifest["validation"], "local marker observed with controls")
+        extra.write_text("changed")
+        self.assertEqual(self.cli(*self.offset_args(offset_run), "--replay-local",
+                                  code=2)["status"], "invalid_input")
+        extra.unlink()
+        self.assertEqual(self.cli(*self.offset_args(offset_run), "--replay-local",
+                                  code=2)["status"], "invalid_input")
+        self.assertEqual(self.cli(*self.offset_args(offset_run), "--replay-local",
+                                  "--library-path", self.root, code=2)["status"],
+                         "invalid_input")
+
     def test_generates_private_candidate_and_replays_success_once(self):
         before = hashlib.sha256(self.binary.read_bytes()).hexdigest()
         result = self.cli(*self.args(), "--replay-local")

@@ -99,7 +99,9 @@ def main(argv=None):
     commands.add_parser('chatbot-strategies', help='list bounded chatbot playbooks and required parameters')
     ret2win = commands.add_parser('pwn-ret2win', help='prepare an explicit local ret2win candidate')
     ret2win.add_argument('--binary', required=True, help='local x86-64 ELF')
-    ret2win.add_argument('--offset', type=int, required=True, help='known overflow offset in bytes')
+    ret2win_offset = ret2win.add_mutually_exclusive_group(required=True)
+    ret2win_offset.add_argument('--offset', type=int, help='known overflow offset in bytes')
+    ret2win_offset.add_argument('--offset-run', help='private verified PWN03 run for this ELF')
     ret2win.add_argument('--symbol', required=True, help='target ELF function')
     ret2win.add_argument('--prompt-hex', required=True, help='exact initial prompt delimiter')
     ret2win.add_argument('--success-hex', required=True, help='nonsecret local success marker')
@@ -276,7 +278,7 @@ def main(argv=None):
                                                args.prompt_hex, args.success_hex, args.budget,
                                                args.runs_root, args.replay_local,
                                                args.runtime_base, args.base_evidence,
-                                               args.library_path)
+                                               args.library_path, args.offset_run)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         elif args.command == 'pwn-offset':

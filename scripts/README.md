@@ -120,6 +120,18 @@ explicit command. Execute only a selected practice binary in a disposable
 environment; GDB does not contain a target that deliberately escapes its
 process group.
 
+To use a verified stdin offset without copying its number, pass the PWN03 run
+to PWN04: `python3 scripts/autosolve.py pwn-ret2win --binary ./practice
+--offset-run .autosolve/runs/VERIFIED-RUN --symbol win --prompt-hex 52454144593e0a
+--success-hex 4c4f43414c2d4f4b`. The prompt and marker must match the selected
+practice ELF. This checks the private GDB evidence, current ELF hash and every
+recorded library entry before writing a candidate; it reuses the recorded
+library path for local replay. Add `--replay-local` to run the ELF. Without it,
+the command only writes a candidate. An `argv` offset run, stale or changed
+evidence, or a conflicting `--library-path` is refused. `--offset` and
+`--offset-run` are mutually exclusive. A local marker remains candidate
+evidence, not challenge acceptance.
+
 Default setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
