@@ -37,6 +37,14 @@ Collect a consistent snapshot of the database with matching `-wal` and `-shm` si
 
 Use a coherent copy of one supplied Chrome/Chromium or Firefox profile. Keep `History` or `places.sqlite` with any matching `-wal` and `-shm` files; note whether the browser was running when copied. Record the browser/profile version and source path. Check help through the **actual runnable launcher** (`VENV/bin/python VENV/bin/hindsight.py --help` if the `.py` file is not executable), using the Python interpreter from that Hindsight installation and its required reader dependencies. Only if that same launcher lists `--only`, run it with `-i PROFILE_DIR -o PRIVATE_OUT --only history` (`-b Firefox` only if detection needs it). Keep the output private and inspect the parse/skip/error report. A disposable PyPI `pyhindsight` 20260600 install had a non-executable launcher, needed the separately listed `ccl_chromium_reader` dependency, and lacked `--only` even after that dependency was installed. Use the SQLite fallback below when the local build cannot filter history; a default full-profile export can also parse cookies and passwords.
 
+An isolated [upstream source revision](https://github.com/RyanDFIR/hindsight/tree/c53de560d0c40eb046d68ce8546c8f77c71ed0a7) bundled its Chromium reader and passed a filtered Chrome history check with this launcher form:
+
+```sh
+VENV/bin/hindsight -i PROFILE_DIR -b Chrome -f jsonl -o PRIVATE_OUT --only history
+```
+
+The benign profile held one known visit and two downloads. The filtered output contained the visit only and reported downloads skipped; an unfiltered control contained all three records. This source build displayed the same `2026.06` version family as the incompatible PyPI install, so use its pinned revision and the installed help rather than the version label to choose the command. Filtering the output does not guarantee that plugins or version detection never read other profile metadata. Keep the output private and verify its exact artifact types; a download can have a type containing the word `history`, so do not filter JSONL by that substring.
+
 Check the copied schema first: `sqlite3 -readonly COPY/History '.schema urls' '.schema visits'` or `sqlite3 -readonly COPY/places.sqlite '.schema moz_places' '.schema moz_historyvisits'`. Then select a small, evidenced URL set, replacing `MARKER` locally:
 
 ```sh
