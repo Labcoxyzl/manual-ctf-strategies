@@ -82,8 +82,12 @@ def probe_seed(path: Path, output_dir: Path, *, timeout: float) -> str:
                 return "timed_out"
         if status == 0:
             return "possible_seed"
-        if status == 1 and error_path.read_bytes().strip().lower() == b"error: could not find a valid seed.":
-            return "no_seed"
+        if status == 1:
+            lines = error_path.read_bytes().strip().lower().splitlines()
+            if (lines == [b"error: could not find a valid seed."] or
+                    len(lines) == 3 and lines[0].startswith(b"stegseek 0.6 - ") and
+                    lines[1] == b"" and lines[2] == b"[!] error: could not find a valid seed."):
+                return "no_seed"
         return "timed_out" if status in (-signal.SIGXCPU, -signal.SIGKILL) else "inconclusive"
 
 

@@ -107,6 +107,10 @@ class StegseekTests(unittest.TestCase):
                         "if source == 'unknown.jpg':\n"
                         "    print('error: unsupported input', file=sys.stderr)\n"
                         "    sys.exit(1)\n"
+                        "if pathlib.Path(sys.argv[0]).with_suffix('.banner').exists():\n"
+                        "    print('StegSeek 0.6 - https://github.com/RickdeJager/StegSeek\\n', file=sys.stderr)\n"
+                        "    print('[!] error: Could not find a valid seed.', file=sys.stderr)\n"
+                        "    sys.exit(1)\n"
                         "print('error: Could not find a valid seed.', file=sys.stderr)\n"
                         "sys.exit(1)\n")
         stub.chmod(0o700)
@@ -128,6 +132,10 @@ class StegseekTests(unittest.TestCase):
             self.assertEqual(stegseek.probe_seed(self.root / "clean.jpg", self.root / "version-stderr",
                                                  timeout=1), "no_seed")
             (self.root / "stegseek-seed-stub.stderr").unlink()
+            (self.root / "stegseek-seed-stub.banner").touch()
+            self.assertEqual(stegseek.probe_seed(self.root / "clean.jpg", self.root / "banner-error",
+                                                 timeout=1), "no_seed")
+            (self.root / "stegseek-seed-stub.banner").unlink()
             slow = self.root / "slow.jpg"
             slow.write_bytes(b"\xff\xd8\xff" + b"x" * 20)
             self.assertEqual(stegseek.probe_seed(slow, self.root / "slow", timeout=0.2),
