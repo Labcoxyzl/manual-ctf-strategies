@@ -86,9 +86,28 @@ acceptance is inferred from local toy services.
 
 The ninth isolated snapshot addresses nullable hash deadlines and unverified
 cache reuse across adapters, adds EVTX truncation and header/XML provenance,
-and retains short flag-shaped XOR candidates. Focused tests and integration
-review are in progress. A timed-out cache check may rerun the affected job on
-later resume; it does not reuse unverified bytes or stop unrelated ready work.
+and retains short flag-shaped XOR candidates. Its Python 3.12 autosolve suite
+passed 745 tests (20 optional skipped), the copied-export gate passed nine,
+and the repository pre-push gate passed 805 tests (39 optional skipped,
+448 subtests). Commit `2407b36` is published and its remote hash was verified.
+A timed-out cache check may rerun the affected job on later resume; it does not
+reuse unverified bytes or stop unrelated ready work.
+
+On that pinned ninth candidate, 20 of 22 frozen two-family all-domain cases
+passed; IMG01 explicit-image ZIP routing and DOC05 resume provenance failed.
+The strict X01–X08/F01–F12 replay passed 19 of 20 rows; F10 exposed a started
+encoding job whose family coverage still said `not scheduled`. A separate
+15-case measurement run passed its frozen oracles but is not a release-wide
+solve-rate sample. CryptoHack's short-XOR handout recovered an independently
+verified candidate, without platform submission. A public XP memory transfer
+exposed missing late-row report sampling and stale rows after switching symbol
+paths back. Each failure remains in a preserved local evidence ledger.
+
+The next local checkpoint repairs independent memory-triage warnings, bounded
+job coverage, cross-archive DOC02 status, and PyInstaller metadata inventory.
+The affected focused tests and independent review have passed; the full suite
+and remote publication remain pending. REV02 proof and the IMG01/DOC05 and
+memory-resume repairs are in separate review/test lanes.
 
 ## Independent end-to-end evidence
 
@@ -191,9 +210,10 @@ hash-deadline bug now included in the ninth repair set.
 
 ## Remaining order
 
-1. Publish the ninth isolated deadline/EVTX/XOR checkpoint through the
-   repository gate. Keep REV02 separate until its code-linked XOR proof clears
-   adversarial review and a fresh post-fix transfer.
+1. Publish the next reviewed checkpoint through the repository gate, then
+   rerun the frozen all-domain and X/F cases on that one remote hash. Keep
+   REV02 separate until its code-linked XOR proof clears adversarial review
+   and a fresh post-fix transfer.
 2. Freeze and execute each baseline row's positive, two independent held-out
    variations and negative controls. DF05 process/file coverage, REV05 full
    archive/decryption scope, AIC02 broader scorer/model behavior and REV02
