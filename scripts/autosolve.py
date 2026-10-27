@@ -108,6 +108,16 @@ def main(argv=None):
     ret2win.add_argument('--runtime-base', help='PIE base from an observed process, candidate only')
     ret2win.add_argument('--base-evidence', help='description of the observation that supports PIE base')
     ret2win.add_argument('--library-path', help='explicit local shared-library directory for replay')
+    offset = commands.add_parser('pwn-offset', help='discover a local x86-64 return offset under GDB')
+    offset.add_argument('--binary', required=True, help='explicit executable local ELF')
+    offset.add_argument('--channel', choices=('stdin', 'argv'), required=True,
+                        help='input channel used by the ELF')
+    offset.add_argument('--alphabet', default='abcdefghijklmnopqrstuvwxyz',
+                        help='distinct ASCII letters or digits for the cyclic probe')
+    offset.add_argument('--length', type=int, default=512, help='cyclic probe bytes, at most 2048')
+    offset.add_argument('--budget', type=float, default=15, help='local debugger seconds, at most 60')
+    offset.add_argument('--runs-root', help='directory for private run records')
+    offset.add_argument('--library-path', help='explicit local shared-library directory')
     args = parser.parse_args(argv)
     try:
         if args.command == 'analyze':
@@ -137,6 +147,9 @@ def main(argv=None):
             elif manifest.get('run_type') == 'pwn_ret2win':
                 from autosolve_lib import pwn_ret2win as ret2win_module
                 run, status = ret2win_module.resume(args.run)
+            elif manifest.get('run_type') == 'pwn_offset':
+                from autosolve_lib import pwn_offset as offset_module
+                run, status = offset_module.resume(args.run)
             elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
                                                'web_workflow'):
                 from autosolve_lib import web as web_module
@@ -163,6 +176,9 @@ def main(argv=None):
             elif manifest.get('run_type') == 'pwn_ret2win':
                 from autosolve_lib import pwn_ret2win as ret2win_module
                 path = ret2win_module.report(args.run)
+            elif manifest.get('run_type') == 'pwn_offset':
+                from autosolve_lib import pwn_offset as offset_module
+                path = offset_module.report(args.run)
             elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
                                                'web_workflow'):
                 from autosolve_lib import web as web_module
@@ -255,6 +271,13 @@ def main(argv=None):
                                                args.runs_root, args.replay_local,
                                                args.runtime_base, args.base_evidence,
                                                args.library_path)
+            result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
+            code = 3
+        elif args.command == 'pwn-offset':
+            from autosolve_lib import pwn_offset as offset_module
+            run, status = offset_module.start(args.binary, args.channel, args.alphabet,
+                                              args.length, args.budget, args.runs_root,
+                                              args.library_path)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         else:

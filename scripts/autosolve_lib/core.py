@@ -7970,7 +7970,7 @@ def capabilities(category='auto'):
                    'NET01', 'NET02', 'NET03', 'NET05',
                    'DF01', 'DF02', 'DF03', 'DF04', 'DF05',
                    'REV01', 'REV02', 'REV03', 'REV04', 'REV05', 'REV06', 'REV07', 'REV11',
-                   'PWN01', 'PWN02', 'PWN07',
+                   'PWN01', 'PWN02', 'PWN03', 'PWN07',
                    'WEB01', 'WEB02', 'WEB03', 'WEB04', 'WEB05', 'WEB08', 'AIC01', 'AIC02'}
     return [{'id': row['id'], 'domain': row['domain'], 'stage': row['delivery_stage'],
              'status': 'partial' if row['id'] in implemented

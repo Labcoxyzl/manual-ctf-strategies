@@ -92,6 +92,24 @@ The parser handles bounded integer arithmetic only; unsupported questions
 stop before an answer is sent. Resume uses the saved transcript without
 reconnecting.
 
+For a selected local x86-64 ELF that reads standard input, use
+`python3 scripts/autosolve.py pwn-offset --binary ./practice --channel stdin`.
+Select `--channel argv` when it reads the first argument. This explicit command
+runs a bounded cyclic input under GDB, inspects the saved return bytes, then
+checks the offset with a changed payload and a shorter control. `--alphabet`
+accepts 3–62 distinct ASCII letters or digits; `--length` is 8–2048 bytes.
+The stdin channel uses a line-oriented PTY and sends end-of-file after the
+line. It does not need a core file. No crash, unavailable debugger, changed
+source, missing shared library, or failed replay leaves a partial result without
+a verified offset. For a local ELF with bundled libraries, use
+`--library-path ./lib` explicitly; the directory and libraries are hash checked.
+Raw debugger output and inputs stay in the private run directory; `resume` and
+`report` never execute the ELF. This local return-slot check does not build
+an exploit or establish challenge acceptance. `pwn-ret2win` remains a separate
+explicit command. Execute only a selected practice binary in a disposable
+environment; GDB does not contain a target that deliberately escapes its
+process group.
+
 Default setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.

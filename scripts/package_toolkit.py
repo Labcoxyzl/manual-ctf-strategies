@@ -59,6 +59,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/autosolve_lib/service_inventory.py',
         'scripts/autosolve_lib/service_arithmetic.py',
         'scripts/autosolve_lib/pwn_ret2win.py', 'tests/test_autosolve_pwn_ret2win.py',
+        'scripts/autosolve_lib/pwn_offset.py', 'tests/test_autosolve_pwn_offset.py',
         'scripts/autosolve_lib/web.py',
         'scripts/autosolve_lib/setup.py',
         'scripts/autosolve_lib/setup_env.py', 'tests/test_autosolve_setup_env.py',
