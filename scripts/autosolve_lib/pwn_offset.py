@@ -161,6 +161,11 @@ def _debugger(binary, channel, payload, run, label, deadline, executable, librar
         if b"Program received signal SIGSEGV" not in raw:
             if b"error while loading shared libraries" in inferior_raw or b"ld.so:" in inferior_raw:
                 return "loader_failure", None
+            if b"During startup program exited with code" in raw:
+                if (b"Could not trace the inferior process" in inferior_raw and
+                        b"ptrace: Operation not permitted" in inferior_raw):
+                    return "ptrace_denied", None
+                return "debugger_startup_failure", None
             if b"exited normally" in raw or b"exited with code" in raw:
                 return "no_crash", None
             return ("other_crash" if b"Program received signal" in raw

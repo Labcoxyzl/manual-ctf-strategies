@@ -125,6 +125,51 @@ class OffsetTests(unittest.TestCase):
         self.assertEqual(row["stop_reason"], "no_crash")
         self.assertEqual(row["coverage"]["PWN03"]["status"], "partial")
 
+    def test_debugger_startup_failure_is_not_an_inferior_exit(self):
+        fake_debugger = self.root / "fake-gdb"
+        fake_debugger.write_text(
+            '#!/bin/sh\n'
+            'printf "During startup program exited with code 127.\\n'
+            'The program has no registers now.\\n"\n')
+        fake_debugger.chmod(0o755)
+        with mock.patch.object(pwn_offset.shutil, "which", return_value=str(fake_debugger)):
+            run, _ = pwn_offset.start(self.binary, "stdin", "abcde12345", 256, 8,
+                                      self.root / "runs")
+        row = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(row["stop_reason"], "debugger_startup_failure")
+        self.assertIsNone(row["offset"])
+        self.assertIsNone(row["candidate_offset"])
+        self.assertEqual(row["coverage"]["PWN03"]["status"], "partial")
+
+    def test_ptrace_denial_is_reported_from_both_gdb_channels(self):
+        fake_debugger = self.root / "fake-gdb"
+        fake_debugger.write_text(
+            '#!/bin/sh\n'
+            'for arg do\n'
+            '  case "$arg" in "set inferior-tty "*) tty="${arg#set inferior-tty }";; esac\n'
+            'done\n'
+            'printf "warning: Could not trace the inferior process.\\n'
+            'warning: ptrace: Operation not permitted\\n" > "$tty"\n'
+            'printf "During startup program exited with code 127.\\n"\n')
+        fake_debugger.chmod(0o755)
+        with mock.patch.object(pwn_offset.shutil, "which", return_value=str(fake_debugger)):
+            run, _ = pwn_offset.start(self.binary, "stdin", "abcde12345", 256, 8,
+                                      self.root / "runs")
+        row = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(row["stop_reason"], "ptrace_denied")
+        self.assertIsNone(row["offset"])
+        self.assertEqual(row["coverage"]["PWN03"]["status"], "partial")
+
+    def test_inferior_exit_127_remains_no_crash(self):
+        source = self.root / "exit127.c"
+        source.write_text('int main(void) { return 127; }\n')
+        binary = self.root / "exit127"
+        subprocess.run(["gcc", "-o", str(binary), str(source)],
+                       check=True, capture_output=True)
+        row = self.record(self.cli(*self.args(binary=binary)))
+        self.assertEqual(row["stop_reason"], "no_crash")
+        self.assertIsNone(row["offset"])
+
     def test_unavailable_debugger_is_partial(self):
         with mock.patch.object(pwn_offset.shutil, "which", return_value=None):
             run, _ = pwn_offset.start(self.binary, "stdin", "abcde12345", 256, 8,
