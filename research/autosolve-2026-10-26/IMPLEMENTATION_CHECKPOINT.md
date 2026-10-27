@@ -256,8 +256,14 @@ truncated. Isolated focused and frozen reordered, missing-frame, conflict,
 ACK, mixed-source and source-removal transfers passed; full named NET01 row
 acceptance remains unproved. An initial integrated Python 3.12 suite failed
 one chatbot bootstrap test with a 50 ms inspection timeout; the exact focused
-test passed alone, and its missing failure diagnostics remain under review.
-The follow-up candidate's combined release gates and publication are pending.
+test passed alone. The first pre-push gate then failed a recurring 429 test
+whose fixed 1.05-second sleep could return before the recorded cooldown
+expired. A reviewed test-only repair now waits to that expiry, gives
+pre-bootstrap inspection its own adequate timeout while still forcing the
+delayed claim to time out, and reports a sanitized CLI reason on failure.
+Controlled red-to-green checks and three focused tests passed on Python 3.12
+and 3.13. The repaired candidate's combined release gates and publication
+remain pending.
 
 ## Independent end-to-end evidence
 
