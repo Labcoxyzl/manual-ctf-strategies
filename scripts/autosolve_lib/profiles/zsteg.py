@@ -22,10 +22,14 @@ _MAX_CANDIDATES = 16
 
 
 def _run(argv: list[str], deadline: float, output_limit: int,
-         supervised: bool) -> tuple[bytes, str | None]:
+         supervised: bool, scratch_dir: Path | None = None) -> tuple[bytes, str | None]:
     try:
+        if scratch_dir is not None and (scratch_dir.is_symlink() or not scratch_dir.is_dir()):
+            raise ValueError('zsteg scratch directory must be a real directory')
+        env = ({**os.environ, 'TMPDIR': str(scratch_dir), 'TMP': str(scratch_dir),
+                'TEMP': str(scratch_dir)} if scratch_dir is not None else None)
         process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   start_new_session=not supervised)
+                                   start_new_session=not supervised, env=env)
     except OSError as error:
         return b"", f"zsteg unavailable: {error}"
 
@@ -75,7 +79,8 @@ def _run(argv: list[str], deadline: float, output_limit: int,
 
 def inspect_lsb(path: Path, output_dir: Path, *, max_pixels: int,
                 max_total_bytes: int, timeout: float,
-                supervised: bool = False) -> tuple[list[dict], list[str]]:
+                supervised: bool = False,
+                scratch_dir: Path | None = None) -> tuple[list[dict], list[str]]:
     """Stage at most 16 selected zsteg outputs, preserving selectors and tool bytes."""
     from PIL import Image
 
@@ -83,6 +88,8 @@ def inspect_lsb(path: Path, output_dir: Path, *, max_pixels: int,
         raise ValueError("zsteg limits must be positive pixels/time and nonnegative bytes")
     if output_dir.is_symlink() or output_dir.resolve() == path.resolve().parent:
         raise ValueError("zsteg output directory must be separate from the source and not a symlink")
+    if scratch_dir is not None:
+        scratch_dir = Path(scratch_dir)
     try:
         with Image.open(path) as image:
             if image.format not in ("PNG", "BMP"):
@@ -96,7 +103,7 @@ def inspect_lsb(path: Path, output_dir: Path, *, max_pixels: int,
     source = str(path.resolve())
     scan, warning = _run([ZSTEG, "-b", "1-2,0x02", "-c", _CHANNELS, "-o", _ORDERS,
                           "-l", "256", "--no-color", source],
-                         deadline, _MAX_SCAN_OUTPUT, supervised)
+                         deadline, _MAX_SCAN_OUTPUT, supervised, scratch_dir)
     warnings = [warning] if warning else []
     if warning and (warning.startswith("zsteg unavailable") or warning.startswith("zsteg exited")):
         return [], warnings
@@ -125,7 +132,7 @@ def inspect_lsb(path: Path, output_dir: Path, *, max_pixels: int,
             warnings.append("zsteg derived byte limit reached")
             break
         payload, extraction_warning = _run([ZSTEG, "-E", selector, source],
-                                           deadline, remaining, supervised)
+                                           deadline, remaining, supervised, scratch_dir)
         if extraction_warning:
             warnings.append(f"selector {selector}: {extraction_warning}")
             if "timed out" in extraction_warning:

@@ -59,10 +59,15 @@ def _limit(kind, cap):
     resource.setrlimit(kind, (limit, hard))
 
 
-def _solve(path, hints, max_steps, deadline, pipe):
+def _solve(path, hints, max_steps, deadline, pipe, scratch_dir):
     try:
         _limit(resource.RLIMIT_AS, 2 * 1024**3)
         _limit(resource.RLIMIT_CPU, max(2, min(60, int(deadline - time.monotonic()) + 2)))
+        if scratch_dir is not None:
+            # This dedicated spawned worker may scope third-party parser scratch safely.
+            os.environ.update(HOME=str(scratch_dir), XDG_CACHE_HOME=str(scratch_dir),
+                              TMPDIR=str(scratch_dir), TMP=str(scratch_dir),
+                              TEMP=str(scratch_dir))
         import angr
         import claripy
         from cle.backends.elf import ELF
@@ -132,10 +137,12 @@ def _solve(path, hints, max_steps, deadline, pipe):
         pipe.close()
 
 
-def _replay(path, hints, candidate, timeout):
+def _replay(path, hints, candidate, timeout, scratch_dir: Path | None = None):
     argv = [str(path)] + ([candidate.decode('ascii')] if hints['channel'] == 'argv' else [])
     stdin = candidate + b'\n' if hints['channel'] == 'stdin' else b''
-    with tempfile.TemporaryDirectory(prefix='autosolve-checker-') as work:
+    if scratch_dir is not None and (scratch_dir.is_symlink() or not scratch_dir.is_dir()):
+        raise ValueError('checker scratch directory must be a real directory')
+    with tempfile.TemporaryDirectory(prefix='autosolve-checker-', dir=scratch_dir) as work:
         env = {'PATH': '/usr/bin:/bin', 'HOME': work, 'TMPDIR': work, 'LANG': 'C'}
         process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, cwd=work, env=env,
@@ -187,7 +194,8 @@ def _replay(path, hints, candidate, timeout):
 
 def inspect_checker(path: Path, checker: dict, *, execute_local: bool = False,
                     replay: bool = False, timeout: float = 20,
-                    max_steps: int = MAX_STEPS) -> tuple[dict, list[str]]:
+                    max_steps: int = MAX_STEPS,
+                    scratch_dir: Path | None = None) -> tuple[dict, list[str]]:
     """Search a local checker only after explicit execution authorization.
 
     `replay=True` authorizes a separate concrete run. A symbolic candidate is not a
@@ -212,11 +220,15 @@ def inspect_checker(path: Path, checker: dict, *, execute_local: bool = False,
     if not os.access(path, os.X_OK):
         return {**report, 'status': 'skipped_prerequisite',
                 'reason': 'checker is not executable'}, []
+    if scratch_dir is not None:
+        scratch_dir = Path(scratch_dir).absolute()
+        if scratch_dir.is_symlink() or not scratch_dir.is_dir():
+            raise ValueError('checker scratch directory must be a real directory')
     context = multiprocessing.get_context('spawn')
     parent, child = context.Pipe(duplex=False)
     deadline = time.monotonic() + timeout
     worker = context.Process(target=_solve,
-                             args=(path, hints, max_steps, deadline, child))
+                             args=(path, hints, max_steps, deadline, child, scratch_dir))
     try:
         worker.start()
     except Exception:
@@ -249,7 +261,7 @@ def inspect_checker(path: Path, checker: dict, *, execute_local: bool = False,
     if report['status'] == 'candidate' and replay:
         try:
             report['replay'] = _replay(path, hints, bytes.fromhex(report['candidate_hex']),
-                                       max(.01, deadline - time.monotonic()))
+                                       max(.01, deadline - time.monotonic()), scratch_dir)
         except (OSError, ValueError, subprocess.SubprocessError) as error:
             report['replay'] = {'attempted': True, 'problem': f'{type(error).__name__}: {error}'[:200]}
         if report['replay']['problem'] is None:

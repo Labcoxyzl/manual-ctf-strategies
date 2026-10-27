@@ -6,6 +6,7 @@ import sys
 import tempfile
 import types
 import unittest
+import stat
 from pathlib import Path
 from unittest import mock
 
@@ -17,6 +18,78 @@ from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
+    def test_doctor_probe_scratch_is_private_and_local_without_tmpdir(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'export'
+            root.mkdir()
+            source = root / 'scripts/autosolve_lib/setup.py'
+            with mock.patch.object(capabilities, '__file__', str(source)), \
+                 mock.patch.dict(os.environ, {}, clear=False):
+                with capabilities._probe_directory() as probe:
+                    path = Path(probe)
+                    self.assertEqual(path.parent, root / '.autosolve/tmp')
+                    self.assertEqual(stat.S_IMODE(path.parent.stat().st_mode), 0o700)
+                    (path / 'sentinel').write_text('local')
+                self.assertFalse(path.exists())
+
+    def test_doctor_probe_rejects_symlinked_scratch_parent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'export'
+            outside = Path(directory) / 'outside'
+            root.mkdir()
+            outside.mkdir()
+            (root / '.autosolve').symlink_to(outside, target_is_directory=True)
+            source = root / 'scripts/autosolve_lib/setup.py'
+            with mock.patch.object(capabilities, '__file__', str(source)):
+                with self.assertRaises(OSError):
+                    with capabilities._probe_directory():
+                        pass
+            self.assertEqual(list(outside.iterdir()), [])
+
+    def test_doctor_probe_closes_world_writable_parent_before_creating_scratch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'export'
+            parent = root / '.autosolve'
+            parent.mkdir(parents=True)
+            parent.chmod(0o777)
+            source = root / 'scripts/autosolve_lib/setup.py'
+            with mock.patch.object(capabilities, '__file__', str(source)):
+                with capabilities._probe_directory() as probe:
+                    self.assertTrue(Path(probe).is_relative_to(parent / 'tmp'))
+                    self.assertEqual(stat.S_IMODE(parent.stat().st_mode), 0o700)
+
+    def test_setup_child_doctor_uses_task_local_scratch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'export'
+            root.mkdir()
+            source = root / 'scripts/autosolve_lib/setup.py'
+            prepared = {'status': 'ready', 'python': '/fake/python', 'installed': ['core']}
+            observed = {'status': 'partial', 'engines': {}, 'operations': {}}
+            completed = subprocess.CompletedProcess([], 3, json.dumps(observed).encode(), b'')
+            with mock.patch.object(capabilities, '__file__', str(source)), \
+                 mock.patch('autosolve_lib.setup_env.prepare', return_value=prepared), \
+                 mock.patch.object(capabilities.subprocess, 'run', return_value=completed) as run:
+                result = capabilities.setup(['encoding'])
+            self.assertEqual(result['status'], 'partial')
+            self.assertEqual(run.call_args.kwargs['env']['TMPDIR'],
+                             str(root / '.autosolve/tmp'))
+            self.assertEqual((root / '.autosolve/tmp').stat().st_mode & 0o777, 0o700)
+
+    def test_doctor_tool_command_uses_clean_local_scratch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'export'
+            root.mkdir()
+            source = root / 'scripts/autosolve_lib/setup.py'
+            completed = subprocess.CompletedProcess([], 0, b'ok', b'')
+            with mock.patch.object(capabilities, '__file__', str(source)), \
+                 mock.patch.object(capabilities.subprocess, 'run', return_value=completed) as run:
+                self.assertIs(capabilities._command(['/fake/tool', '--version']), completed)
+            env = run.call_args.kwargs['env']
+            self.assertEqual(env['TMPDIR'], env['XDG_CACHE_HOME'])
+            self.assertEqual(env['HOME'], env['TMPDIR'])
+            self.assertTrue(Path(env['TMPDIR']).is_relative_to(root / '.autosolve/tmp'))
+            self.assertFalse(Path(env['TMPDIR']).exists())
+
     def test_pwn_offset_doctor_reports_missing_trusted_gdb_without_running(self):
         with mock.patch.object(capabilities.shutil, 'which', return_value=None) as which, \
              mock.patch.object(capabilities.subprocess, 'run') as run:
@@ -49,8 +122,12 @@ class SetupTests(unittest.TestCase):
         self.assertIn('info registers rip rsp', command)
         self.assertTrue(any(item.startswith('set inferior-tty /dev/pts/') for item in command))
         self.assertIn('/usr/bin/true', command)
+        scratch = run.call_args.kwargs['cwd']
         self.assertEqual(run.call_args.kwargs['env'], {'LC_ALL': 'C',
-                                                      'PYTHONDONTWRITEBYTECODE': '1'})
+                                                      'PYTHONDONTWRITEBYTECODE': '1',
+                                                      'TMPDIR': scratch, 'TMP': scratch,
+                                                      'TEMP': scratch,
+                                                      'XDG_CACHE_HOME': scratch})
         self.assertEqual(run.call_args.kwargs['timeout'], 5)
 
     def test_pwn_offset_doctor_reports_ptrace_failure_as_partial(self):

@@ -41,6 +41,19 @@ class CheckerTests(unittest.TestCase):
                         str(source_file)], check=True, capture_output=True)
         return binary
 
+    def test_replay_uses_supplied_scratch_directory(self):
+        binary = self.build('cwd_probe', '''#include <stdio.h>
+#include <unistd.h>
+int main(void) { char path[4096]; puts(getcwd(path, sizeof(path))); return 0; }''')
+        scratch = self.root / 'scratch'
+        scratch.mkdir()
+        result = checker._replay(binary, {'channel': 'stdin'}, b'', 3,
+                                 scratch_dir=scratch)
+        self.assertIsNone(result['problem'])
+        work = Path(bytes.fromhex(result['stdout_hex']).decode().strip())
+        self.assertEqual(work.parent, scratch)
+        self.assertFalse(work.exists())
+
     def test_no_execution_gate_needs_no_angr_import(self):
         binary = self.build('no_execute', 'int main(void) { return 0; }')
         skipped, _ = checker.inspect_checker(
@@ -55,6 +68,24 @@ class CheckerTests(unittest.TestCase):
                     {'channel': 'argv', 'length': 1, 'find': {'address': '0x401000'}}):
             with self.assertRaises(ValueError):
                 checker.inspect_checker(self.root / 'missing', bad, execute_local=True)
+
+    @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
+    def test_checker_symbolic_worker_uses_supplied_local_scratch(self):
+        binary = self.build('scratch_check', '''#include <stdio.h>
+int main(int argc, char **argv) { if (argc == 2 && argv[1][0] == 'S') {
+  puts("SCRATCH_WIN"); return 0; } puts("SCRATCH_LOSE"); return 1; }''')
+        scratch = self.root / 'symbolic-scratch'
+        scratch.mkdir()
+        hints = {'channel': 'argv', 'length': 1, 'find': {'stdout': 'SCRATCH_WIN'},
+                 'avoid': {'stdout': 'SCRATCH_LOSE'}}
+        result, warnings = checker.inspect_checker(binary, hints, execute_local=True,
+                                                    replay=True, timeout=20,
+                                                    scratch_dir=scratch)
+        self.assertEqual(result['status'], 'validated_input', (result, warnings))
+        self.assertTrue(any(path.name.startswith('pyvex_ffi_parser_cache.')
+                            for path in scratch.iterdir()))
+        self.assertTrue(all(path.is_file() and not path.is_symlink()
+                            for path in scratch.iterdir()))
 
     @unittest.skipUnless(ANGR_IMPORT_READY, 'angr cannot import in this interpreter')
     def test_stdin_candidate_requires_execution_gate_and_replay(self):

@@ -13,6 +13,32 @@ from autosolve_lib import setup, setup_env
 
 
 class SetupEnvironmentTests(unittest.TestCase):
+    def test_core_uv_commands_use_private_task_local_scratch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lock = root / 'scripts/autosolve_requirements/core.lock.txt'
+            lock.parent.mkdir(parents=True)
+            lock.write_text('example==1.0 --hash=sha256:' + '0' * 64 + '\n')
+            commands = []
+
+            def run(command, **kwargs):
+                commands.append(command)
+                self.assertEqual(kwargs['env']['TMPDIR'], str(root / '.autosolve/tmp'))
+                self.assertEqual(kwargs['env']['TMP'], str(root / '.autosolve/tmp'))
+                self.assertEqual(kwargs['env']['TEMP'], str(root / '.autosolve/tmp'))
+                self.assertEqual((root / '.autosolve/tmp').stat().st_mode & 0o777, 0o700)
+                if command[0].endswith('/bin/python'):
+                    data = {'implementation': 'CPython', 'version': [3, 12],
+                            'prefix': str(root / '.autosolve/envs/core')}
+                    return subprocess.CompletedProcess(command, 0, json.dumps(data).encode(), b'')
+                return subprocess.CompletedProcess(command, 0, b'', b'')
+
+            with mock.patch.object(setup_env.shutil, 'which', return_value='/usr/bin/uv'), \
+                 mock.patch.object(setup_env.subprocess, 'run', side_effect=run):
+                result = setup_env.prepare(root)
+            self.assertEqual(result['status'], 'ready')
+            self.assertEqual(len(commands), 3)
+
     def test_checker_prepares_separate_hashed_environment_with_reviewed_sources(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

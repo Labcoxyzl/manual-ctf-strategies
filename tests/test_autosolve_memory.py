@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -117,6 +118,18 @@ class MemoryProfileTest(unittest.TestCase):
         return memory.inspect_memory(self.image, self.output, targets=targets,
                                      timeout=timeout, max_output=output,
                                      max_files=2, max_total_bytes=100)
+
+    def test_volatility_child_receives_task_local_cache_and_temp(self):
+        scratch = self.root / 'scratch'
+        scratch.mkdir()
+        command = [sys.executable, '-c',
+                   'import os; print(os.environ["XDG_CACHE_HOME"]); '
+                   'print(os.environ["TMPDIR"]); print(os.environ["HOME"])']
+        output, error, problem = memory._run(command, time.monotonic() + 5, 4096,
+                                             scratch_dir=scratch)
+        self.assertIsNone(problem)
+        self.assertEqual(error, b'')
+        self.assertEqual(output.decode().splitlines(), [str(scratch)] * 3)
 
     def test_info_gate_process_rows_and_exact_target_dump(self):
         target = {'address': 0x4000, 'space': 'physical',

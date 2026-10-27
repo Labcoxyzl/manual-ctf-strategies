@@ -19,16 +19,24 @@ VOL = shutil.which(os.environ.get('AUTOSOLVE_VOL', 'vol')) or os.environ.get('AU
 PLUGINS = ('windows.info', 'windows.pslist', 'windows.cmdline', 'windows.filescan')
 
 
-def _run(argv, deadline, max_output, dump_dir=None, max_dump_bytes=0):
+def _run(argv, deadline, max_output, dump_dir=None, max_dump_bytes=0,
+         scratch_dir=None):
     def limit_dump():
         soft, hard = resource.getrlimit(resource.RLIMIT_FSIZE)
         resource.setrlimit(resource.RLIMIT_FSIZE,
                            (min(max_dump_bytes, soft) if soft >= 0 else max_dump_bytes, hard))
 
     try:
+        if scratch_dir is not None and (scratch_dir.is_symlink() or not scratch_dir.is_dir()):
+            raise ValueError('Volatility scratch directory must be a real directory')
+        environment = ({**os.environ, 'HOME': str(scratch_dir),
+                        'XDG_CACHE_HOME': str(scratch_dir),
+                        'TMPDIR': str(scratch_dir), 'TMP': str(scratch_dir),
+                        'TEMP': str(scratch_dir)} if scratch_dir is not None else None)
         process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    start_new_session=True,
-                                   preexec_fn=limit_dump if dump_dir is not None else None)
+                                   preexec_fn=limit_dump if dump_dir is not None else None,
+                                   env=environment)
     except OSError as error:
         return b'', b'', f'Volatility unavailable: {error}'
     streams = (bytearray(), bytearray())
@@ -184,7 +192,8 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
     plugins = list(PLUGINS)
     symbol_identity = None
     for plugin in plugins:
-        raw, err, problem = _run(base + [plugin], deadline, max_output)
+        raw, err, problem = _run(base + [plugin], deadline, max_output,
+                                 scratch_dir=cache)
         record = {'kind': 'plugin_output', 'plugin': plugin, 'status': 'complete',
                   'raw_stdout': raw.decode('utf-8', 'replace'),
                   'raw_stderr': err.decode('utf-8', 'replace'), **identity}
@@ -270,7 +279,7 @@ def inspect_memory(path: Path, output_dir: Path, *, symbols_dir: Path | None = N
         dump_base[1:1] = ['-o', str(dump_dir)]
         raw, err, problem = _run(dump_base + ['windows.dumpfiles', address_option,
                                             str(target['address'])], deadline, max_output,
-                                 dump_dir, max_total_bytes - total)
+                                 dump_dir, max_total_bytes - total, cache)
         records.append({'kind': 'plugin_output', 'plugin': 'windows.dumpfiles',
                         'status': 'failed' if problem else 'complete',
                         'raw_stdout': raw.decode('utf-8', 'replace'),

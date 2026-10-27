@@ -66,9 +66,19 @@ def _profiles(requested):
     return selected
 
 
+def _probe_directory():
+    from .setup_env import _task_temporary
+    return tempfile.TemporaryDirectory(dir=_task_temporary(Path(__file__).resolve().parents[2]))
+
+
 def _command(argv, data=None):
     try:
-        return subprocess.run(argv, input=data, capture_output=True, timeout=5, check=False)
+        with _probe_directory() as directory:
+            environment = {**os.environ, 'HOME': directory, 'TMPDIR': directory,
+                           'TMP': directory, 'TEMP': directory,
+                           'XDG_CACHE_HOME': directory}
+            return subprocess.run(argv, input=data, capture_output=True, timeout=5,
+                                  check=False, env=environment)
     except (OSError, subprocess.TimeoutExpired):
         return None
 
@@ -180,7 +190,7 @@ def _osint_snapshot_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 page = root / 'index.html'
                 target = root / 'notice.txt'
@@ -287,7 +297,7 @@ def _zip_probe(self_test):
     probe = "not_run"
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 with zipfile.ZipFile(root / 'probe.zip', 'w') as archive:
                     archive.writestr('probe.txt', b'probe')
@@ -311,7 +321,7 @@ def _sevenzip_probe(self_test):
     if self_test and compatible:
         try:
             from .profiles.sevenzip import extract_7z
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 (root / 'probe.txt').write_bytes(b'7z-doctor-probe')
                 source = root / 'probe.7z'
@@ -344,7 +354,7 @@ def _tar_probe(self_test):
     probe = "not_run"
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 with tarfile.open(root / 'probe.tar.gz', 'w:gz') as archive:
                     info = tarfile.TarInfo('probe.txt')
@@ -368,7 +378,7 @@ def _mime_probe(self_test):
     probe = "not_run"
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 message = EmailMessage()
                 message.set_content('probe')
@@ -393,7 +403,7 @@ def _pdf_probe(self_test):
     probe = "not_run"
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 writer = PdfWriter()
                 writer.add_blank_page(width=72, height=72)
@@ -419,7 +429,7 @@ def _office_probe(self_test):
     probe = "not_run"
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 with zipfile.ZipFile(root / 'probe.docx', 'w') as archive:
                     archive.writestr('[Content_Types].xml', b'<Types/>')
@@ -446,7 +456,7 @@ def _png_probe(self_test):
                 return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
             png = (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
                    + chunk(b'IDAT', zlib.compress(b'\x00\xff\x00\x00')) + chunk(b'IEND', b''))
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 with zipfile.ZipFile(root / 'tail.zip', 'w') as archive:
                     archive.writestr('probe', b'probe')
@@ -473,7 +483,7 @@ def _jpeg_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 image = io.BytesIO()
                 Image.new('RGB', (2, 2), (20, 80, 140)).save(image, format='JPEG')
@@ -503,7 +513,7 @@ def _image_metadata_probe(self_test):
                 return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
             png = (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
                    + chunk(b'IDAT', zlib.compress(b'\x00\xff\x00\x00')) + chunk(b'IEND', b''))
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 (root / 'probe.png').write_bytes(png)
                 tags, notes = read_metadata(root / 'probe.png', timeout=3)
@@ -537,7 +547,7 @@ def _can_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 path = Path(directory) / 'capture.log'
                 path.write_text('(1.0) can0 123#0102\n')
                 frames, warnings = parse_can_log(path, max_frames=2, max_bytes=128)
@@ -553,7 +563,7 @@ def _can_probe(self_test):
         if version < (4, 6, 1):
             blf_probe = 'unsupported_version'
         elif self_test:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 path = Path(directory) / 'capture.blf'
                 with can.BLFWriter(path) as writer:
                     writer.on_message_received(can.Message(
@@ -580,7 +590,7 @@ def _can_dbc_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 path = Path(directory) / 'probe.dbc'
                 path.write_text('VERSION ""\nNS_ :\nBS_:\nBU_: Node\n'
                                 'BO_ 291 Demo: 2 Node\n'
@@ -633,7 +643,7 @@ def _packet_object_probe(self_test):
     probe = 'not_run'
     if self_test and path:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 sample = Path(__file__).resolve().parents[2] / 'examples/core/http.pcap'
                 rows, warnings = export_http_objects(sample, Path(directory) / 'objects', timeout=5)
                 probe = ('passed' if not warnings and len(rows) == 1 and
@@ -687,7 +697,7 @@ def _media_probe(self_test):
     probe = 'not_run'
     if self_test and ffmpeg and ffprobe:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 source = root / 'silent.wav'
                 with wave.open(str(source), 'wb') as writer:
@@ -720,7 +730,7 @@ def _tone_probe(self_test):
     probe = 'not_run'
     if self_test and multimon and ffmpeg:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'dtmf.wav'
                 rate = 22050
                 samples = bytearray(b'\0\0' * (rate // 10))
@@ -734,7 +744,7 @@ def _tone_probe(self_test):
                     writer.setparams((1, 2, rate, 0, 'NONE', 'not compressed'))
                     writer.writeframes(samples)
                 rows, warnings = inspect_tones(source, timeout=5, max_output=4096,
-                                               modes=('DTMF',))
+                                               modes=('DTMF',), scratch_dir=Path(directory))
                 probe = ('passed' if not warnings and
                          ''.join(row['symbol'] for row in rows) == '12' else 'failed')
         except Exception:
@@ -753,10 +763,13 @@ def _tone_probe(self_test):
                    for path, size, digest in expected):
                 narrow_probe, narrow_reason = 'failed', 'fixture_missing_or_changed'
             else:
-                morse_rows, morse_warnings = inspect_tones(morse, timeout=5, max_output=4096,
-                                                          modes=('MORSE_CW',))
-                afsk_rows, afsk_warnings = inspect_tones(afsk, timeout=5, max_output=4096,
-                                                       modes=('AFSK1200',))
+                with _probe_directory() as directory:
+                    morse_rows, morse_warnings = inspect_tones(
+                        morse, timeout=5, max_output=4096, modes=('MORSE_CW',),
+                        scratch_dir=Path(directory))
+                    afsk_rows, afsk_warnings = inspect_tones(
+                        afsk, timeout=5, max_output=4096, modes=('AFSK1200',),
+                        scratch_dir=Path(directory))
                 morse_ok = (not morse_warnings and len(morse_rows) == 1 and
                             morse_rows[0]['mode'] == 'MORSE_CW' and
                             morse_rows[0]['raw_output'].strip() == 'SOS')
@@ -798,7 +811,7 @@ def _sstv_probe(self_test):
     fixture = Path(__file__).resolve().parents[2] / 'tests/fixtures/toolkit/audio/robot36.ogg'
     if self_test and compatible and fixture.is_file():
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 records, warnings = decode_sstv(fixture, Path(directory) / 'stage',
                                                 timeout=15, max_bytes=1024 * 1024)
                 if not warnings and len(records) == 1 and records[0]['mode'] == 'Robot 36' and \
@@ -841,7 +854,7 @@ def _ocr_probe(self_test):
     if self_test and model and importlib.util.find_spec('PIL'):
         try:
             from PIL import Image, ImageDraw, ImageFont
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'printed.png'
                 image = Image.new('RGB', (410, 90), 'white')
                 ImageDraw.Draw(image).text((15, 18), 'OCR PROBE 2468', fill='black',
@@ -874,11 +887,12 @@ def _zsteg_probe(self_test):
     probe = 'not_run'
     if self_test and path and pillow:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 sample = Path(__file__).resolve().parents[2] / 'examples/core/carrier.png'
                 records, warnings = inspect_lsb(sample, root / 'out', max_pixels=1000,
-                                                  max_total_bytes=65536, timeout=5)
+                                                  max_total_bytes=65536, timeout=5,
+                                                  scratch_dir=root)
                 probe = ('passed' if not warnings and any(
                     row['selector'] == 'b1,r,lsb,xy' and
                     row['path'].read_bytes() == b'TRAINING-LSB\n' for row in records)
@@ -902,7 +916,7 @@ def _stegseek_probe(self_test):
     probe = 'not_run'
     if self_test and path and shutil.which('steghide'):
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 cover = root / 'cover.wav'
                 with wave.open(str(cover), 'wb') as output:
@@ -961,7 +975,7 @@ def _qr_probe(self_test):
                 'ffffff80ffffff80c0410180df6b7d80d1674580d1634580d1754580df797d80'
                 'c0550180ffc1ff80c9657d80d9cc4980c11e2b80d8d22d80d206f380ffc83980'
                 'c065ad80df71f780d1491980d151c780d1662980df462380c0428380ffffff80ffffff80')
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'probe.png'
                 Image.frombytes('1', (25, 25), matrix).resize(
                     (250, 250), Image.Resampling.NEAREST).save(source)
@@ -1000,7 +1014,7 @@ def _sqlite_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 source = root / 'probe.db'
                 with sqlite3.connect(source) as connection:
@@ -1025,7 +1039,7 @@ def _os_artifact_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'renamed-history'
                 with sqlite3.connect(source) as db:
                     db.execute('CREATE TABLE urls(id INTEGER PRIMARY KEY, url TEXT)')
@@ -1048,7 +1062,7 @@ def _web_static_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'page.html'
                 source.write_text('<form action="/submit"></form><script>fetch("/api/probe")</script>')
                 records, warnings = inspect_web_static(source, origin='https://example.test')
@@ -1285,7 +1299,7 @@ def _memory_probe(self_test):
     probe = 'not_run'
     if self_test and compatible:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 image = root / 'invalid.raw'
                 image.write_bytes(b'not a Windows memory image')
@@ -1320,7 +1334,7 @@ def _disk_probe(self_test):
     recovery_probe = 'not_run'
     if self_test and all(tools):
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 filesystem = bytearray(2880 * 512)
                 filesystem[:3] = b'\xeb\x3c\x90'
@@ -1423,11 +1437,15 @@ def _pwn_offset_probe(self_test):
                                '-ex', f'set inferior-tty {os.ttyname(slave)}',
                                '-ex', 'starti', '-ex', 'info registers rip rsp',
                                '-ex', 'continue', '--args', target]
-                    with tempfile.TemporaryDirectory() as directory:
+                    with _probe_directory() as directory:
                         result = subprocess.run(command, stdin=subprocess.DEVNULL,
                                                 capture_output=True, timeout=5,
                                                 cwd=directory, env={'LC_ALL': 'C',
-                                                                    'PYTHONDONTWRITEBYTECODE': '1'},
+                                                                    'PYTHONDONTWRITEBYTECODE': '1',
+                                                                    'TMPDIR': directory,
+                                                                    'TMP': directory,
+                                                                    'TEMP': directory,
+                                                                    'XDG_CACHE_HOME': directory},
                                                 check=False)
                     lines = result.stdout.splitlines()
                     probe = ('passed' if result.returncode == 0 and
@@ -1476,7 +1494,7 @@ def _binary_probe(self_test):
                                        (92, '<I', 16)):
             struct.pack_into(format_, sample, optional + offset, value)
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 target = Path(directory) / 'probe.exe'
                 target.write_bytes(sample)
                 elf_report, _ = inspect_binary(Path(sys.executable).resolve())
@@ -1526,7 +1544,7 @@ def _rev_powershell_probe(self_test):
     if self_test:
         try:
             from .profiles.powershell import inspect_powershell
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'probe.ps1'
                 source.write_text("'REV' + '11_PROBE'")
                 records, warnings = inspect_powershell(source)
@@ -1579,7 +1597,7 @@ def _rev_packers_probe(self_test):
     if self_test and binwalk:
         try:
             from .profiles.rev_packers import inspect_packers
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'nested.bin'
                 source.write_bytes(b'HEADER' + gzip.compress(b'REV04_PROBE', mtime=0))
                 records, _ = inspect_packers(source, Path(directory) / 'stage', timeout=5,
@@ -1612,7 +1630,7 @@ def _pyinstaller_probe(self_test):
     probe = 'not_run'
     if self_test:
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 source = Path(directory) / 'probe.exe'
                 payload = b'REV05_PROBE'
                 name = b'probe.txt\0'
@@ -1656,7 +1674,7 @@ def _java_android_probe(self_test):
         probe = 'failed'
         if java_ok and javap_ok and javac:
             try:
-                with tempfile.TemporaryDirectory() as directory:
+                with _probe_directory() as directory:
                     root = Path(directory)
                     source = root / 'Probe.java'
                     source.write_text('public class Probe { static String clue() '
@@ -1709,7 +1727,7 @@ def _checker_probe(self_test):
     if self_test and spec and compiler:
         probe = 'failed'
         try:
-            with tempfile.TemporaryDirectory() as directory:
+            with _probe_directory() as directory:
                 root = Path(directory)
                 source = root / 'checker.c'
                 binary = root / 'checker'
@@ -1727,7 +1745,8 @@ int main(int argc, char **argv) {
                         binary, {'channel': 'argv', 'length': 1,
                                  'find': {'stdout': 'REV07_PROBE'},
                                  'avoid': {'stdout': 'REV07_FAIL'}},
-                        execute_local=True, replay=True, timeout=30, max_steps=2500)
+                        execute_local=True, replay=True, timeout=30, max_steps=2500,
+                        scratch_dir=root)
                     if (not warnings and report['status'] == 'validated_input' and
                             bytes.fromhex(report['candidate_hex']) == b'Q' and
                             report['replay']['returncode'] == 0):
@@ -2053,14 +2072,18 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
 def setup(profiles: list[str]) -> dict:
     """Install the Python core locally and probe requested operations inside it."""
     selected = _profiles(profiles)
-    from .setup_env import prepare
+    from .setup_env import _task_temporary, prepare
     prepared = prepare()
     if prepared['status'] != 'ready':
         return {**prepared, 'profiles': selected}
     command = [prepared['python'], str(Path(__file__).resolve().parents[1] / 'autosolve.py'),
                '--json', 'doctor', '--profiles', *selected, '--self-test']
     try:
-        run = subprocess.run(command, capture_output=True, timeout=180, check=False)
+        temporary = _task_temporary(Path(__file__).resolve().parents[2])
+        environment = {**os.environ, 'TMPDIR': str(temporary), 'TMP': str(temporary),
+                       'TEMP': str(temporary)}
+        run = subprocess.run(command, capture_output=True, timeout=180, check=False,
+                             env=environment)
         result = json.loads(run.stdout)
     except (OSError, subprocess.TimeoutExpired, ValueError):
         return {**prepared, 'status': 'partial', 'profiles': selected,

@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -16,6 +17,19 @@ from scripts.autosolve_lib.profiles import zsteg
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts/autosolve.py"
+
+
+class ZstegScratchTests(unittest.TestCase):
+    def test_tool_child_uses_supplied_local_scratch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            scratch = Path(directory)
+            code = ('import tempfile; f=tempfile.NamedTemporaryFile(delete=False); '
+                    'print(f.name); f.close()')
+            output, warning = zsteg._run([sys.executable, '-c', code],
+                                          time.monotonic() + 5, 4096, False,
+                                          scratch_dir=scratch)
+            self.assertIsNone(warning)
+            self.assertTrue(Path(output.decode().strip()).is_relative_to(scratch))
 
 
 def carrier(path: Path, payload: bytes, *, bits: int, channels: str,

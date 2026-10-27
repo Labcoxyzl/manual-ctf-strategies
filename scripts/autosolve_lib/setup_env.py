@@ -5,10 +5,41 @@ import json
 import os
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+
+def _task_temporary(root: Path) -> Path:
+    """Create private probe scratch below the exported toolkit without following links."""
+    directory = root / '.autosolve/tmp'
+    fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        for name in ('.autosolve', 'tmp'):
+            try:
+                os.mkdir(name, 0o700, dir_fd=fd)
+            except FileExistsError:
+                pass
+            child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=fd)
+            try:
+                state = os.fstat(child)
+                if state.st_uid != os.geteuid():
+                    raise OSError('autosolve scratch directory is not owned by this user')
+                if stat.S_IMODE(state.st_mode) != 0o700:
+                    os.fchmod(child, 0o700)
+                    if stat.S_IMODE(os.fstat(child).st_mode) != 0o700:
+                        raise OSError('autosolve scratch directory is not private')
+            except BaseException:
+                os.close(child)
+                raise
+            os.close(fd)
+            fd = child
+    finally:
+        os.close(fd)
+    return directory
 
 
 def _writable_paths_safe(root: Path, env: Path) -> bool:
@@ -70,10 +101,15 @@ def prepare(root: Path | None = None, environment_name: str = 'core') -> dict:
         return {**result, 'reason': 'setup_path_is_symlink'}
     if env.is_symlink() or (env.exists() and not (env / 'pyvenv.cfg').is_file()):
         return {**result, 'reason': f'{environment_name}_environment_path_not_a_venv'}
+    try:
+        temporary = _task_temporary(root)
+    except OSError:
+        return {**result, 'reason': f'{environment_name}_temporary_directory_unavailable'}
     result['lock_sha256'] = hashlib.sha256(lock.read_bytes()).hexdigest()
     environment = os.environ.copy()
     environment['UV_CACHE_DIR'] = str(root / '.autosolve/cache/uv')
     environment['UV_PYTHON_INSTALL_DIR'] = str(root / '.autosolve/python')
+    environment.update(TMPDIR=str(temporary), TMP=str(temporary), TEMP=str(temporary))
     if environment_name in ('ai-cpu', 'checker'):
         for name in ('UV_INDEX', 'UV_INDEX_URL', 'UV_EXTRA_INDEX_URL', 'UV_DEFAULT_INDEX',
                      'UV_FIND_LINKS', 'UV_NO_INDEX', 'UV_INDEX_STRATEGY', 'UV_TORCH_BACKEND',
@@ -81,15 +117,6 @@ def prepare(root: Path | None = None, environment_name: str = 'core') -> dict:
                      'UV_NO_BUILD_ISOLATION', 'UV_BUILD_CONSTRAINT',
                      'PIP_INDEX_URL', 'PIP_EXTRA_INDEX_URL', 'PIP_FIND_LINKS', 'PIP_NO_INDEX'):
             environment.pop(name, None)
-    if environment_name == 'checker':
-        temporary = root / '.autosolve/tmp'
-        try:
-            temporary.mkdir(parents=True, exist_ok=True)
-        except OSError:
-            return {**result, 'reason': 'checker_temporary_directory_unavailable'}
-        if not _writable_paths_safe(root, env):
-            return {**result, 'reason': 'setup_path_is_symlink'}
-        environment.update(TMPDIR=str(temporary), TMP=str(temporary), TEMP=str(temporary))
     commands = []
     if not env.exists():
         commands.append(('venv', [uv, 'venv', '--no-project', '--no-config',
