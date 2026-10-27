@@ -4995,9 +4995,14 @@ def _packets_job(run, manifest, artifact, deadline):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'NET01' in manifest['coverage']:
-        manifest['coverage']['NET01']['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
-                          'failed' if not old and job['status'] == 'failed' else
-                                                   'truncated' if warnings else 'ran' if count else 'no finding')
+        status = ('truncated' if old is None and job['status'] == 'truncated' else
+                  'failed' if not old and job['status'] == 'failed' else
+                  'truncated' if warnings else 'ran' if count else 'no finding')
+        previous = manifest['coverage']['NET01']['status']
+        manifest['coverage']['NET01']['status'] = (
+            'failed' if 'failed' in (previous, status) else
+            'truncated' if 'truncated' in (previous, status) else
+            'ran' if 'ran' in (previous, status) else status)
         manifest['coverage']['NET01']['note'] = 'frame-linked TShark DNS/HTTP/endpoints only'
 
 
@@ -7730,7 +7735,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         if (manifest['category'] == 'packets' and depth == 0 and
                 artifact['kind_evidence'] not in ('pcap', 'pcapng')):
             manifest['warnings'].append(f"{artifact['id']}: input has no supported PCAP signature")
-            if 'NET01' in manifest['coverage']:
+            if ('NET01' in manifest['coverage'] and
+                    manifest['coverage']['NET01']['status'] == 'not scheduled'):
                 manifest['coverage']['NET01']['status'] = 'skipped prerequisite'
         if manifest['category'] == 'can_misc' and artifact['kind_evidence'] == 'text':
             manifest['warnings'].append(f"{artifact['id']}: text has no supported CAN log framing")

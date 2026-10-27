@@ -1320,6 +1320,65 @@ int main(int argc, char **argv) {
             self.assertFalse(any('packet data truncated by capture' in warning
                                  for warning in current['warnings']))
 
+            ack_source = root / 'ack-gap.pcap'
+            ack_frames = complete_transfer(bytes(range(100)))
+            ack_frames.extend((
+                tcp_frame('198.51.100.10', '198.51.100.20', 41000, 19091,
+                          1001 + len(request), 999999, 16),
+                tcp_frame('198.51.100.10', '198.51.100.20', 41000, 19091,
+                          1001 + len(request), 999999, 17)))
+            ack_source.write_bytes(object_pcap(ack_frames))
+            run = Path(self.run_cli('analyze', ack_source, '--category', 'packets',
+                                    '--runs-root', root / 'ack-runs', code=3)['run'])
+            ack = json.loads((run / 'manifest.json').read_text())
+            ack_job = next(job for job in ack['jobs'] if job['adapter_id'] == 'packets')
+            ack_rows = json.loads(Path(ack_job['records_path']).read_text())
+            self.assertIn('ack_lost_segment', ack_rows[8]['tcp_analysis'])
+            self.assertEqual(ack['coverage']['NET03']['status'], 'ran')
+            self.assertEqual(ack['coverage']['NET01']['status'], 'truncated')
+            self.assertTrue(any('ACK acknowledges uncaptured TCP segment' in warning
+                                for warning in ack['warnings']))
+
+            clean_dir = root / 'clean-mixed'
+            clean_dir.mkdir()
+            (clean_dir / 'a-clipped.pcap').write_bytes(capture)
+            clean_frames = complete_transfer(bytes(range(100)))
+            clean_frames.append(tcp_frame('198.51.100.10', '198.51.100.20',
+                                          41000, 19091, 1001 + len(request), 0, 17))
+            (clean_dir / 'b-clean.pcap').write_bytes(object_pcap(clean_frames))
+            run = Path(self.run_cli('analyze', clean_dir, '--category', 'packets',
+                                    '--runs-root', root / 'clean-mixed-runs', code=3)['run'])
+            clean_mixed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(clean_mixed['coverage']['NET01']['status'], 'truncated')
+            self.assertTrue(any('packet data truncated by capture' in warning
+                                for warning in clean_mixed['warnings']))
+            (clean_dir / 'a-clipped.pcap').unlink()
+            core.resume(run, budget=20)
+            clean_only = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(clean_only['coverage']['NET01']['status'], 'ran')
+            self.assertFalse(any('packet data truncated by capture' in warning
+                                 for warning in clean_only['warnings']))
+
+    def test_net01_unsupported_sibling_does_not_replace_packet_coverage(self):
+        examples = Path(__file__).resolve().parents[1] / 'examples/core'
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = root / 'sources'
+            sources.mkdir()
+            packet = sources / 'a-incomplete.pcap'
+            packet.write_bytes((examples / 'http-incomplete.pcap').read_bytes())
+            (sources / 'z-note.txt').write_text('unrelated note')
+            run = Path(self.run_cli('analyze', sources, '--category', 'packets',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['NET01']['status'], 'truncated')
+            self.assertTrue(any('conversation incomplete' in warning
+                                for warning in manifest['warnings']))
+            packet.unlink()
+            core.resume(run, budget=20)
+            only_note = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(only_note['coverage']['NET01']['status'], 'skipped prerequisite')
+
     def test_packet_cli_exports_archive_with_exact_locator_and_recurses(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

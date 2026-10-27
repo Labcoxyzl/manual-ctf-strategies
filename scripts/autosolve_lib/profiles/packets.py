@@ -168,7 +168,10 @@ def inspect_pcap(path: Path, *, timeout: float, max_output: int) -> tuple[list[d
             records.append(record)
             if record["captured_length"] < record["wire_length"]:
                 warnings.append(f"frame {number}: packet data truncated by capture")
-            if "lost_segment" in flags or "ack_lost_segment" in flags:
+            if "ack_lost_segment" in flags:
+                warnings.append(f"frame {number} TCP stream {record['tcp_stream']}: "
+                                "ACK acknowledges uncaptured TCP segment; conversation incomplete")
+            elif "lost_segment" in flags:
                 warnings.append(f"frame {number} TCP stream {record['tcp_stream']}: "
                                 "uncaptured TCP segment; conversation incomplete")
     except (json.JSONDecodeError, ValueError, TypeError) as error:
