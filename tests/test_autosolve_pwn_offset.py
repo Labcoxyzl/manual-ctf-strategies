@@ -153,13 +153,19 @@ class OffsetTests(unittest.TestCase):
                                  str(self.root / "fake-gdb-ran") + '"\n')
         fake_debugger.chmod(0o755)
         original_which = shutil.which
+        original_popen = subprocess.Popen
         with mock.patch.dict(os.environ, {"AUTOSOLVE_SECRET_SENTINEL": "LEAK_ONLY_IF_BROKEN",
                                               "LD_PRELOAD": "/tmp/unsafe-loader-sentinel.so",
                                               "LD_LIBRARY_PATH": "/tmp/unsafe-library-sentinel",
                                               "PATH": str(self.root)}), \
-             mock.patch.object(pwn_offset.shutil, "which", wraps=original_which) as resolver:
+             mock.patch.object(pwn_offset.shutil, "which", wraps=original_which) as resolver, \
+             mock.patch.object(pwn_offset.subprocess, "Popen", wraps=original_popen) as launcher:
             run, _ = pwn_offset.start(binary, "stdin", "abcde12345", 256, 8,
                                       self.root / "runs")
+        self.assertTrue(launcher.call_args_list)
+        self.assertTrue(all(call.kwargs['env'] == {'LC_ALL': 'C',
+                                                 'PYTHONDONTWRITEBYTECODE': '1'}
+                            for call in launcher.call_args_list))
         row = json.loads((run / "manifest.json").read_text())
         text = (run / "probe-inferior.txt").read_text()
         self.assertIn("TOKEN=unset\nPRELOAD=unset\nLIBRARY=unset", text)

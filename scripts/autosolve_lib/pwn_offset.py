@@ -127,7 +127,7 @@ def _debugger(binary, channel, payload, run, label, deadline, executable, librar
                                        stdin=subprocess.DEVNULL, stdout=output,
                                        stderr=subprocess.STDOUT, start_new_session=True,
                                        preexec_fn=limit_trace,
-                                       env={"LC_ALL": "C"})
+                                       env={"LC_ALL": "C", "PYTHONDONTWRITEBYTECODE": "1"})
             if channel == "stdin":
                 os.write(master, payload + b"\n\x04")
             os.set_blocking(master, False)

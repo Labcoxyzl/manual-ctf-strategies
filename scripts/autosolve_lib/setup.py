@@ -1404,7 +1404,9 @@ def _pwn_offset_probe(self_test):
                     with tempfile.TemporaryDirectory() as directory:
                         result = subprocess.run(command, stdin=subprocess.DEVNULL,
                                                 capture_output=True, timeout=5,
-                                                cwd=directory, env={'LC_ALL': 'C'}, check=False)
+                                                cwd=directory, env={'LC_ALL': 'C',
+                                                                    'PYTHONDONTWRITEBYTECODE': '1'},
+                                                check=False)
                     lines = result.stdout.splitlines()
                     probe = ('passed' if result.returncode == 0 and
                              b'exited normally' in result.stdout and

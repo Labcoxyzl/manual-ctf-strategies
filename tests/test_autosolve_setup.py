@@ -49,7 +49,8 @@ class SetupTests(unittest.TestCase):
         self.assertIn('info registers rip rsp', command)
         self.assertTrue(any(item.startswith('set inferior-tty /dev/pts/') for item in command))
         self.assertIn('/usr/bin/true', command)
-        self.assertEqual(run.call_args.kwargs['env'], {'LC_ALL': 'C'})
+        self.assertEqual(run.call_args.kwargs['env'], {'LC_ALL': 'C',
+                                                      'PYTHONDONTWRITEBYTECODE': '1'})
         self.assertEqual(run.call_args.kwargs['timeout'], 5)
 
     def test_pwn_offset_doctor_reports_ptrace_failure_as_partial(self):
