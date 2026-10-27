@@ -126,12 +126,44 @@ def _registry(data, path, max_records):
     return records, warnings
 
 
-def _evtx(path, max_records):
+def _evtx_boundaries(source, size):
+    if size < 4096:
+        return ["EVTX truncated file header"]
+    source.seek(0x2a)
+    declared_chunks = int.from_bytes(source.read(2), 'little')
+    full_chunks, partial = divmod(size - 4096, 65536)
+    warnings = []
+    if declared_chunks > full_chunks:
+        warnings.append(f"EVTX truncated: {declared_chunks} declared chunks, {full_chunks} complete")
+    if partial:
+        chunk_start = 4096 + full_chunks * 65536
+        source.seek(chunk_start)
+        if source.read(8) == b'ElfChnk\x00':
+            offset = 512
+            while offset + 8 <= partial:
+                source.seek(chunk_start + offset)
+                record_header = source.read(8)
+                if record_header[:4] != b'\x2a\x2a\x00\x00':
+                    break
+                length = int.from_bytes(record_header[4:8], 'little')
+                if length < 24 or length > 65536 - offset:
+                    warnings.append(f"EVTX corrupt record length at offset {chunk_start + offset}")
+                    break
+                if length > partial - offset:
+                    warnings.append(f"EVTX truncated record at offset {chunk_start + offset}: "
+                                    f"declared {length} bytes, {partial - offset} available")
+                    break
+                offset += length
+        warnings.append(f"EVTX truncated chunk at offset {chunk_start}: {partial} of 65536 bytes")
+    return warnings
+
+
+def _evtx(path, max_records, boundary_warnings=()):
     try:
         from Evtx.Evtx import Evtx
     except ImportError:
-        return [], ["python-evtx unavailable; EVTX records unsupported"]
-    records, warnings = [], []
+        return [], list(boundary_warnings) + ["python-evtx unavailable; EVTX records unsupported"]
+    records, warnings = [], list(boundary_warnings)
     namespace = '{http://schemas.microsoft.com/win/2004/08/events/event}'
     with Evtx(str(path)) as log:
         for entry in log.records():
@@ -142,12 +174,37 @@ def _evtx(path, max_records):
             system = root.find(namespace + 'System')
             event_id = system.findtext(namespace + 'EventID') if system is not None else None
             provider = system.find(namespace + 'Provider') if system is not None else None
+            raw_id = system.findtext(namespace + 'EventRecordID') if system is not None else None
+            event_record_id = (int(raw_id) if raw_id and len(raw_id) <= 20 and
+                               raw_id.isascii() and raw_id.isdecimal() else None)
+            raw_time = system.find(namespace + 'TimeCreated') if system is not None else None
+            raw_time = raw_time.get('SystemTime') if raw_time is not None else None
+            xml_time = None
+            if raw_time:
+                try:
+                    if len(raw_time) > 80:
+                        raise ValueError('oversized SystemTime')
+                    parsed = datetime.fromisoformat(raw_time.replace('Z', '+00:00'))
+                    if parsed.tzinfo is not None:
+                        xml_time = _utc(parsed)
+                except (ValueError, OverflowError):
+                    pass
+                if xml_time is None:
+                    warnings.append(f"record {entry.record_num()}: invalid System TimeCreated")
+            header_time = _utc(entry.timestamp())
             records.append({"kind": "evtx_event", "source": str(path),
                             "locator": f"record {entry.record_num()} offset {entry.offset()}",
                             "record_number": entry.record_num(), "offset": entry.offset(),
+                            "record_number_basis": "EVTX record header",
+                            "event_record_id": event_record_id,
                             "event_id": event_id,
                             "provider": provider.get('Name') if provider is not None else None,
-                            "timestamp": _utc(entry.timestamp()),
+                            "header_timestamp": header_time,
+                            "header_timestamp_basis": "EVTX record FILETIME UTC",
+                            "system_time_raw": raw_time[:80] if raw_time else None,
+                            "xml_timestamp": xml_time,
+                            "xml_timestamp_basis": ("Event.System.TimeCreated.SystemTime UTC" if xml_time else None),
+                            "timestamp": header_time,
                             "timestamp_basis": "EVTX record FILETIME UTC"})
     return records, warnings
 
@@ -158,6 +215,7 @@ def inspect_os_artifact(path: Path, *, max_records: int = 100,
     if not 0 < max_records <= 1000 or not 0 < max_bytes <= 64 * 1024 * 1024:
         raise ValueError("OS artifact limits must be positive and bounded")
     path = Path(path)
+    boundary_warnings = []
     try:
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
         with os.fdopen(descriptor, 'rb') as source:
@@ -177,16 +235,18 @@ def inspect_os_artifact(path: Path, *, max_records: int = 100,
                 data = source.read(max_bytes + 1)
                 if len(data) > max_bytes:
                     return [], ["OS artifact input byte limit reached"]
+            elif prefix.startswith(b'ElfFile\x00'):
+                boundary_warnings = _evtx_boundaries(source, info.st_size)
     except OSError as error:
         return [], [f"OS artifact input unavailable: {type(error).__name__}"]
     try:
         if prefix.startswith(b'regf'):
             return _registry(data, path, max_records)
         if prefix.startswith(b'ElfFile\x00'):
-            return _evtx(path, max_records)
+            return _evtx(path, max_records, boundary_warnings)
     except (sqlite3.Error, ET.ParseError, ValueError, OSError) as error:
-        return [], [f"OS artifact parse failed: {type(error).__name__}: {error}"]
+        return [], boundary_warnings + [f"OS artifact parse failed: {type(error).__name__}: {error}"]
     except Exception as error:
         # Optional parsers raise their own format exceptions on corrupt evidence.
-        return [], [f"OS artifact parse failed: {type(error).__name__}: {error}"]
+        return [], boundary_warnings + [f"OS artifact parse failed: {type(error).__name__}: {error}"]
     return [], ["unsupported OS artifact format"]

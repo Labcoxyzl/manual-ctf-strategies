@@ -74,13 +74,21 @@ passed. Its full Python 3.12 autosolve suite passed 703 tests (20 optional
 skips), and its pre-push gate passed 760 tests (39 optional skips, 363
 subtests). Commit `8a4bbd3` is published and its remote hash was verified.
 
-The eighth local snapshot integrates declared chatbot checkers, bounded route
+The eighth snapshot integrates declared chatbot checkers, bounded route
 and CSRF handling, and score-controls with redirect provenance. The isolated
 prep passed 69 chatbot/scorer tests and nine copied-export tests. An integrated
 fixed archive passed 18 frozen AIC01 local cases, and a separate first-use
 scorer transfer passed seven high-precision, overlap and redirect controls.
-The full branch and pre-push gates are still pending; no publisher acceptance
-is inferred from local toy services.
+Its full Python 3.12 autosolve suite passed 727 tests (20 optional skips), and
+its pre-push gate passed 786 tests (39 optional skips, 424 subtests). Commit
+`5fc5584` is published and its remote hash was verified. No publisher
+acceptance is inferred from local toy services.
+
+The ninth isolated snapshot addresses nullable hash deadlines and unverified
+cache reuse across adapters, adds EVTX truncation and header/XML provenance,
+and retains short flag-shaped XOR candidates. Focused tests and integration
+review are in progress. A timed-out cache check may rerun the affected job on
+later resume; it does not reuse unverified bytes or stop unrelated ready work.
 
 ## Independent end-to-end evidence
 
@@ -148,17 +156,18 @@ repair. NET05 TLS-keylog cases, DF01 targeted files and DF04 WAL rows also
 matched independent oracles. Firefox visits are covered in the seventh
 snapshot; real EVTX/registry CLI validation remains pending. The
 X04/X05/X07/X08 and F01–F12 frozen ledgers are recorded. AIC02 selected
-offline cases passed. Current shared-code AIC01 checker repairs passed local
-GET/POST verifier transfers, but are reserved for a later publication batch.
+offline cases and scorer controls passed local independent oracles. Published
+AIC01 checker repairs passed local GET/POST, route and CSRF transfers.
 A separate official
 pwn.college babyrop handout matched static `win`/gadget/mitigation observations
 and bounded service replay; autosolve did not synthesize the exploit or claim
 challenge acceptance. Detailed publisher exploit notes remain local.
 
-The seventh published evidence matrix credits 51 of 57 rows with four observed
-narrow case slots and 105 of 114 first-use held-out slots. AIC01 and REV02
-remain outside that published tally; AIC01's eighth local transfer passed, but
-REV02 still awaits a later code checkpoint. These counts do not establish
+The eighth published evidence matrix credits 52 of 57 rows with four observed
+narrow case slots and 107 of 114 first-use held-out slots. Later first-use
+IMG02/DOC02 transfers and REV11's four-slot run raise the local postpublication
+evidence to 53/57 and 110/114; REV02 still awaits a code checkpoint. These
+counts do not establish
 family-wide or release acceptance. Fresh X04 and X08 transfers recovered
 exact sourced outputs; X05
 joined a recovered browser visit to a supplied snapshot by exact URL/time,
@@ -171,22 +180,27 @@ regression; a fresh 27-frame transfer recovered its exact QR and subtitle
 under the new 32-frame bound. DF05 post-repair public memory cases and the
 REV05 encrypted bundle recovered their frozen facts/resources, but retained
 explicit command/file and archive/decryption limits. The AIC02 model transfer
-passed artifact, gradient and recurrent checks; scorer controls are included
-in the eighth local snapshot but not yet published. A refreshed row/held-out
-audit is pending after its publication gate.
+passed artifact, gradient and recurrent checks; scorer controls now have exact
+high-precision and redirect-provenance oracles. CryptoHack's official attached
+RSA handout became the third distinct executed publisher; exact plaintext was
+recovered with public-parameter hints, without platform submission. A fresh
+rootless export matched all 232 authored files; setup and doctor had zero writes
+outside assigned targets. Doctor found 42/55 operations ready and kept missing
+prerequisites explicit. F05 rule/tool invalidation passed, while F10 exposed a separate ZIP
+hash-deadline bug now included in the ninth repair set.
 
 ## Remaining order
 
-1. Publish the eighth isolated chatbot/scorer checkpoint through the repository
-   gate. Keep REV02 separate until its code-linked XOR proof clears adversarial
-   review and a fresh post-fix transfer.
+1. Publish the ninth isolated deadline/EVTX/XOR checkpoint through the
+   repository gate. Keep REV02 separate until its code-linked XOR proof clears
+   adversarial review and a fresh post-fix transfer.
 2. Freeze and execute each baseline row's positive, two independent held-out
-   variations and negative controls. DF03 real EVTX/registry, DF05 partial
-   process coverage, REV05 complete archive/decryption evidence and REV11
-   remain open; local tests alone do not satisfy these gates.
-3. Complete the cross-category and failure cases, approved-engine discovery
-   in a clean copied export, and the three-publisher diversity requirement.
-   Keep release status partial until all required evidence passes.
+   variations and negative controls. DF05 process/file coverage, REV05 full
+   archive/decryption scope, AIC02 broader scorer/model behavior and REV02
+   remain partial; local tests alone do not satisfy those promises.
+3. Replay cross-category and failure gates on one pinned release candidate,
+   complete the remaining rootless approved-engine branches and all-domain
+   breadth/measurement checks. Keep release status partial until they pass.
 
 The repository has concurrent unrelated guide edits. At this checkpoint,
 `package_toolkit.py` expects 36 public task routes while `index.html` contains
@@ -194,5 +208,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; seven tested commits are published and the eighth chatbot/scorer set is
-under its isolated publication gate.
+pushes; eight tested commits are published and the ninth repair set is under
+its isolated publication gate.

@@ -11,6 +11,8 @@ _COMMON_WORDS = frozenset(
     b"with world would you your".split()
 )
 _WORDS = re.compile(rb"[A-Za-z]{2,}")
+_FLAG_TOKEN = re.compile(rb"[A-Za-z][A-Za-z0-9_]{2,31}\{[A-Za-z0-9_!@#$%^&*()+,./:=?+-]{6,128}\}\r?\n?")
+MIN_FLAG_TOKEN_BYTES = 3 + 2 + 6  # minimum prefix, braces, and body in _FLAG_TOKEN
 _MAX_INPUT = 1 << 20
 _ENGLISH = b" etaoinshrdlcumwfgypbvkjxqz"
 _LETTER_SCORE = {byte: 2.5 - rank * 0.08 for rank, byte in enumerate(_ENGLISH)}
@@ -23,12 +25,12 @@ _BYTE_SCORE = tuple(
 
 
 def recover_single_byte(data: bytes, *, max_candidates: int = 8) -> list[dict]:
-    """Exhaust all 256 keys and return ranked English-looking candidates, never validation."""
+    """Exhaust all 256 keys and rank English or flag-shaped candidates, never validation."""
     if not isinstance(data, bytes):
         raise TypeError("data must be bytes")
     if len(data) > _MAX_INPUT:
         raise ValueError("single-byte XOR input exceeds 1 MiB")
-    if len(data) < 16 or max_candidates <= 0:
+    if len(data) < MIN_FLAG_TOKEN_BYTES or max_candidates <= 0:
         return []
 
     counts = Counter(data)
@@ -38,18 +40,23 @@ def recover_single_byte(data: bytes, *, max_candidates: int = 8) -> list[dict]:
                         if 32 <= byte ^ key <= 126 or byte ^ key in (9, 10, 13))
         letters = sum(count for byte, count in counts.items()
                       if 65 <= byte ^ key <= 90 or 97 <= byte ^ key <= 122)
-        if printable / len(data) < 0.8 or letters / len(data) < 0.35:
+        if printable / len(data) < 0.8 or (len(data) > 164 and letters / len(data) < 0.35):
             continue
         recovered = data.translate(bytes(byte ^ key for byte in range(256)))
+        flag_shaped = len(data) <= 164 and _FLAG_TOKEN.fullmatch(recovered) is not None
         words = [match.group().lower() for match in _WORDS.finditer(recovered)]
         common = sum(word in _COMMON_WORDS for word in words)
-        if len(words) < 3 or common < 2:
+        if not flag_shaped and (len(data) < 16 or letters / len(data) < 0.35 or
+                                len(words) < 3 or common < 2):
             continue
         candidates.append({
             "data": recovered,
             "key_hex": f"{key:02x}",
-            "score": round(common * 10 + printable / len(data) + letters / len(data), 4),
-            "rationale": f"{printable}/{len(data)} printable bytes; {common} common English words",
+            "score": round((1000 if flag_shaped else common * 10) +
+                           printable / len(data) + letters / len(data), 4),
+            "rationale": (f"{printable}/{len(data)} printable bytes; flag-shaped token; key unverified"
+                          if flag_shaped else
+                          f"{printable}/{len(data)} printable bytes; {common} common English words"),
             "state": "candidate",
         })
     candidates.sort(key=lambda candidate: (-candidate["score"], candidate["key_hex"]))

@@ -172,8 +172,51 @@ class OsArtifactTests(unittest.TestCase):
         self.assertEqual(records, [])
         self.assertTrue(any('parse failed' in item for item in warnings))
 
+    def test_evtx_partial_chunk_and_record_warn_without_events(self):
+        from types import ModuleType
+
+        class EmptyLog:
+            def __init__(self, path):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                pass
+
+            def records(self):
+                return iter(())
+
+        package = ModuleType('Evtx')
+        module = ModuleType('Evtx.Evtx')
+        module.Evtx = EmptyLog
+        with patch.dict(sys.modules, {'Evtx': package, 'Evtx.Evtx': module}):
+            data = bytearray(5000)
+            data[:8] = b'ElfFile\x00'
+            data[0x28:0x2c] = b'\x00\x10\x01\x00'
+            data[4096:4104] = b'ElfChnk\x00'
+            data[4608:4616] = b'\x2a\x2a\x00\x00\x80\x08\x00\x00'
+            self.path.write_bytes(data)
+            records, warnings = inspect_os_artifact(self.path)
+            self.assertEqual(records, [])
+            self.assertTrue(any('EVTX truncated' in note and 'record' in note for note in warnings))
+            second = bytearray(7500)
+            second[:len(data)] = data
+            second[6784:6792] = b'\x2a\x2a\x00\x00\x20\x05\x00\x00'
+            self.path.write_bytes(second)
+            records, warnings = inspect_os_artifact(self.path)
+            self.assertEqual(records, [])
+            self.assertTrue(any('EVTX truncated record at offset 6784' in note for note in warnings))
+            self.path.write_bytes(b'ElfFile\x00' + b'\x00' * (4096 - 8))
+            self.assertEqual(inspect_os_artifact(self.path), ([], []))
+
     def test_evtx_record_number_offset_and_time_from_parser(self):
-        self.path.write_bytes(b'ElfFile\x00' + b'\x00' * 32)
+        data = bytearray(4096 + 65536)
+        data[:8] = b'ElfFile\x00'
+        data[0x28:0x2c] = b'\x00\x10\x01\x00'
+        data[4096:4104] = b'ElfChnk\x00'
+        self.path.write_bytes(data)
 
         class Record:
             def xml(self):
@@ -189,6 +232,36 @@ class OsArtifactTests(unittest.TestCase):
             def timestamp(self):
                 return datetime(2024, 2, 3, 4, 5, tzinfo=timezone.utc)
 
+        class Issue38Record(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><Provider Name="Microsoft-Windows-Security-Auditing"/>'
+                        '<EventID>4672</EventID><EventRecordID>17845</EventRecordID>'
+                        '<TimeCreated SystemTime="2017-06-23T05:31:19.787263200Z"/>'
+                        '</System></Event>')
+
+            def record_num(self):
+                return 1
+
+            def offset(self):
+                return 4608
+
+            def timestamp(self):
+                return datetime(2017, 6, 23, 5, 31, 44, 420743, tzinfo=timezone.utc)
+
+        class InvalidTimeRecord(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><EventID>42</EventID><TimeCreated SystemTime="invalid"/>'
+                        '</System></Event>')
+
+        class OverflowTimeRecord(Record):
+            def xml(self):
+                return ('<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">'
+                        '<System><EventID>42</EventID>'
+                        '<TimeCreated SystemTime="0001-01-01T00:00:00+01:00"/>'
+                        '</System></Event>')
+
         class Log:
             def __init__(self, path):
                 self.path = path
@@ -201,6 +274,9 @@ class OsArtifactTests(unittest.TestCase):
 
             def records(self):
                 yield Record()
+                yield Issue38Record()
+                yield InvalidTimeRecord()
+                yield OverflowTimeRecord()
 
         import sys
         from types import ModuleType
@@ -209,10 +285,26 @@ class OsArtifactTests(unittest.TestCase):
         module.Evtx = Log
         with patch.dict(sys.modules, {'Evtx': package, 'Evtx.Evtx': module}):
             records, warnings = inspect_os_artifact(self.path)
-        self.assertEqual(warnings, [])
+        self.assertEqual(warnings, ['record 9: invalid System TimeCreated'] * 2)
         self.assertEqual(records[0]['locator'], 'record 9 offset 8192')
         self.assertEqual(records[0]['timestamp'], '2024-02-03T04:05:00Z')
         self.assertEqual(records[0]['event_id'], '42')
+        self.assertIsNone(records[0]['event_record_id'])
+        self.assertIsNone(records[0]['xml_timestamp'])
+        issue38 = records[1]
+        self.assertEqual(issue38['locator'], 'record 1 offset 4608')
+        self.assertEqual(issue38['record_number_basis'], 'EVTX record header')
+        self.assertEqual(issue38['event_record_id'], 17845)
+        self.assertEqual(issue38['timestamp'], '2017-06-23T05:31:44.420743Z')
+        self.assertEqual(issue38['timestamp_basis'], 'EVTX record FILETIME UTC')
+        self.assertEqual(issue38['header_timestamp'], issue38['timestamp'])
+        self.assertEqual(issue38['header_timestamp_basis'], issue38['timestamp_basis'])
+        self.assertEqual(issue38['system_time_raw'], '2017-06-23T05:31:19.787263200Z')
+        self.assertEqual(issue38['xml_timestamp'], '2017-06-23T05:31:19.787263Z')
+        self.assertEqual(issue38['xml_timestamp_basis'], 'Event.System.TimeCreated.SystemTime UTC')
+        self.assertNotEqual(issue38['timestamp'], issue38['xml_timestamp'])
+        self.assertIsNone(records[2]['xml_timestamp'])
+        self.assertIsNone(records[3]['xml_timestamp'])
 
     def test_registry_key_timestamp_and_binary_value_basis(self):
         self.path.write_bytes(b'regf' + b'\x00' * 4096)
@@ -258,6 +350,48 @@ class OsArtifactTests(unittest.TestCase):
         self.assertEqual(records[0]['values'][0]['value'], {
             'bytes': 2, 'sha256': hashlib.sha256(b'\x00\xff').hexdigest(),
             'prefix_base64': base64.b64encode(b'\x00\xff').decode(), 'truncated': False})
+
+    def test_evtx_issue38_intelligence_keeps_header_and_xml_provenance(self):
+        from scripts.autosolve_lib import core
+        import time
+
+        self.path.write_bytes(b'ElfFile\x00' + b'\x00' * 32)
+        run = self.root / 'run'
+        (run / 'jobs').mkdir(parents=True)
+        artifact = {'id': 'source', 'path': str(self.path), 'kind_evidence': 'evtx',
+                    'sha256': hashlib.sha256(self.path.read_bytes()).hexdigest(),
+                    'size': self.path.stat().st_size, 'current': True, 'depth': 0,
+                    'source_locator': {'path': str(self.path)}}
+        manifest = {'status': 'partial', 'jobs': [], 'artifacts': [artifact],
+                    'findings': [], 'intelligence': [], 'warnings': [],
+                    'coverage': {'DF03': {'status': 'not scheduled'}}}
+        record = {'kind': 'evtx_event', 'source': str(self.path),
+                  'locator': 'record 1 offset 4608', 'record_number': 1,
+                  'event_record_id': 17845, 'event_id': '4672',
+                  'provider': 'Microsoft-Windows-Security-Auditing',
+                  'timestamp': '2017-06-23T05:31:44.420744Z',
+                  'timestamp_basis': 'EVTX record FILETIME UTC',
+                  'system_time_raw': '2017-06-23 05:31:19.787264+00:00',
+                  'xml_timestamp': '2017-06-23T05:31:19.787264Z',
+                  'xml_timestamp_basis': 'Event.System.TimeCreated.SystemTime UTC'}
+        with patch.object(core, '_run_os_artifact', return_value=([record], [])):
+            core._os_artifact_job(run, manifest, artifact, time.monotonic() + 30)
+        self.assertEqual(manifest['jobs'][0]['status'], 'complete')
+        lead = manifest['intelligence'][0]
+        locator = lead['source_locator']
+        self.assertEqual(locator['record'], record['locator'])
+        self.assertEqual(locator['time'], record['timestamp'])
+        self.assertEqual(locator['time_basis'], record['timestamp_basis'])
+        self.assertEqual(locator['event_record_id'], 17845)
+        self.assertEqual(locator['xml_time'], record['xml_timestamp'])
+        self.assertEqual(locator['xml_time_basis'], record['xml_timestamp_basis'])
+        self.assertEqual(locator['system_time_raw'], record['system_time_raw'])
+        core._render_report(run, manifest)
+        report = (run / 'report.md').read_text()
+        for value in ('XML record ID 17845', record['timestamp'], record['timestamp_basis'],
+                      record['xml_timestamp'], record['xml_timestamp_basis'],
+                      record['system_time_raw']):
+            self.assertIn(value, report)
 
     def test_public_cli_source_linked_browser_job_and_resume(self):
         self.history()

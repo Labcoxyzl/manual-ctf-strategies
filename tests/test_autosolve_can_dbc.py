@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from scripts.autosolve_lib.profiles.can_dbc import decode_can_frames
 from scripts.autosolve_lib.profiles.canlog import parse_can_log
+from scripts.autosolve_lib import core
 from scripts.autosolve_lib import setup as autosolve_setup
 
 
@@ -49,6 +50,20 @@ class CanDbcTests(unittest.TestCase):
         return decode_can_frames(frames, self.database, max_frames=100,
                                  max_db_bytes=4096, max_output_bytes=65536,
                                  timeout=5, **kwargs)
+
+    def test_missing_database_postworker_identity_preserves_skipped_prerequisite(self):
+        self.capture.write_text('(1.0) can0 123#01ECFF0007000000\n')
+        missing = self.root / 'missing.dbc'
+        hints = self.root / 'hints.json'
+        hints.write_text(json.dumps({'dbc': str(missing)}))
+        with patch.object(core, '_run_can_dbc', return_value=(
+                [{'status': 'unavailable'}], ['database unavailable'])):
+            run, _ = core.analyze(self.capture, category='can_misc', hints_path=hints,
+                                  budget=5, runs_root=self.root / 'runs')
+        manifest = json.loads((run / 'manifest.json').read_text())
+        job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'can-dbc')
+        self.assertEqual(job['status'], 'complete')
+        self.assertEqual(manifest['coverage']['CAN02']['status'], 'skipped prerequisite')
 
     @unittest.skipUnless(importlib.util.find_spec('cantools'), 'optional cantools unavailable')
     def test_signed_scaled_and_multiplexed_values_preserve_raw_provenance(self):

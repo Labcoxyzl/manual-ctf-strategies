@@ -92,6 +92,30 @@ class XorTests(unittest.TestCase):
         ciphertext = bytes(byte ^ 0x56 for byte in plaintext)
         self.assertTrue(any(candidate["data"] == plaintext for candidate in recover_single_byte(ciphertext)))
 
+    def test_short_flag_token_without_english_words_retains_single_byte_key(self):
+        plaintext = b'crypto{compact_token_7e9a2c01234}'
+        ciphertext = bytes(byte ^ 0x5c for byte in plaintext)
+        exact = [candidate for candidate in recover_single_byte(ciphertext)
+                 if candidate['data'] == plaintext]
+        self.assertEqual(len(exact), 1)
+        self.assertEqual(exact[0]['key_hex'], '5c')
+        self.assertEqual(exact[0]['state'], 'candidate')
+        self.assertIn('flag-shaped', exact[0]['rationale'])
+
+    def test_minimum_flag_shapes_bypass_only_the_short_english_gate(self):
+        for plaintext, key in ((b'ctf{123456}', 0x91),
+                               (b'flag{123456}', 0x5c),
+                               (b'crypto{abcdef}', 0xd3)):
+            with self.subTest(length=len(plaintext)):
+                ciphertext = bytes(byte ^ key for byte in plaintext)
+                exact = [row for row in recover_single_byte(ciphertext)
+                         if row['data'] == plaintext]
+                self.assertEqual(len(exact), 1)
+                self.assertEqual(exact[0]['key_hex'], f'{key:02x}')
+                self.assertEqual(exact[0]['state'], 'candidate')
+        self.assertEqual(recover_single_byte(bytes(byte ^ 0x5c for byte in b'not-a-flag!')), [])
+        self.assertEqual(recover_single_byte(bytes(range(12))), [])
+
     def test_random_and_otp_like_data_do_not_produce_english_claims(self):
         rng = random.Random(2016)
         for source in (

@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest import mock
 
 from scripts.autosolve_lib.profiles import memory
+from scripts.autosolve_lib import core
 from scripts.autosolve_lib import setup as capabilities
 
 
@@ -470,6 +471,45 @@ class MemoryCLITest(unittest.TestCase):
         manifest = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(manifest['coverage']['DF05']['status'], 'skipped prerequisite')
         self.assertTrue(any('Volatility unavailable' in warning for warning in manifest['warnings']))
+
+    def test_postworker_volatility_identity_distinguishes_missing_expired_and_changed(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        real_hash = core._hash
+        for identity, expected_job, expected_coverage in (
+                ('missing', 'complete', 'skipped prerequisite'),
+                ('matching', 'complete', 'skipped prerequisite'),
+                ('expired', 'truncated', 'truncated'),
+                ('changed', 'failed', 'failed')):
+            with self.subTest(identity=identity):
+                self.vol.write_text(FAKE_VOL)
+                tool = self.root / 'missing-vol' if identity == 'missing' else self.vol
+                after_worker = False
+
+                def run_memory(*args):
+                    nonlocal after_worker
+                    after_worker = True
+                    if identity == 'changed':
+                        self.vol.write_text(FAKE_VOL + '\n# changed')
+                    return ([{'kind': 'plugin_output', 'plugin': 'windows.info',
+                              'status': 'skipped', 'reason': 'Volatility unavailable'}],
+                            ['Volatility unavailable'])
+
+                def source_hash(path, deadline):
+                    if identity == 'expired' and after_worker and Path(path) == tool:
+                        return None
+                    return real_hash(path, deadline)
+
+                with mock.patch.object(memory, 'VOL', str(tool)), \
+                     mock.patch.object(core, '_run_memory', side_effect=run_memory), \
+                     mock.patch.object(core, '_hash', side_effect=source_hash):
+                    run, _ = core.analyze(self.image, category='memory', hints_path=self.hints,
+                                          budget=5, runs_root=self.root / f'runs-{identity}')
+                manifest = json.loads((run / 'manifest.json').read_text())
+                job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'memory')
+                self.assertTrue(after_worker)
+                self.assertEqual(job['status'], expected_job)
+                self.assertEqual(manifest['coverage']['DF05']['status'], expected_coverage)
 
 
 if __name__ == '__main__':

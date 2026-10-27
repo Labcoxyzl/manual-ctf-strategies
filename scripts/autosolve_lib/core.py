@@ -74,14 +74,15 @@ def _stop_worker(worker):
         try:
             os.killpg(worker.pid, signal.SIGTERM)
         except ProcessLookupError:
-            pass
+            if worker.is_alive():
+                worker.terminate()
     worker.join(0.5)
     if worker.is_alive():
         try:
             os.killpg(worker.pid, signal.SIGKILL)
         except ProcessLookupError:
-            pass
-        worker.join()
+            worker.kill()
+        worker.join(0.5)
 
 
 def category_name(value):
@@ -421,6 +422,25 @@ def _hash(path, deadline):
             if not block:
                 return digest.hexdigest()
             digest.update(block)
+
+
+def _identity_matches(path, expected, deadline):
+    """Return True/False for a verified digest, or None when time runs out."""
+    if not isinstance(expected, str) or re.fullmatch(r'[0-9a-f]{64}', expected) is None:
+        return False
+    current = _hash(path, deadline)
+    return None if current is None else current == expected
+
+
+def _require_identity(path, expected, deadline):
+    matches = _identity_matches(path, expected, deadline)
+    if matches is None:
+        raise WorkLimit('source identity incomplete before work budget ended')
+    return matches
+
+
+def _error_status(error):
+    return 'truncated' if isinstance(error, WorkLimit) else 'failed'
 
 
 def _kind(path):
@@ -848,7 +868,11 @@ def _store_child(run, manifest, parent, data, operation, deadline, *, source_loc
         if (not force_record and old['sha256'] == digest and old['complete']
                 and old['id'] not in ancestors and old['depth'] > 0):
             old_path = Path(old['path'])
-            if old_path.is_symlink() or not old_path.is_file() or _hash(old_path, deadline) != digest:
+            match = (False if old_path.is_symlink() or not old_path.is_file() else
+                     _identity_matches(old_path, digest, deadline))
+            if match is None:
+                raise WorkLimit('stored artifact identity incomplete before work budget ended')
+            if not match:
                 old['complete'] = False
                 old['current'] = False
                 continue
@@ -893,7 +917,7 @@ def _store_symmetric_plaintext(run, manifest, job, index, data, deadline):
     digest = hashlib.sha256(data).hexdigest()
     target = run / 'artifacts' / digest
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.is_symlink() or not target.is_file() or _hash(target, deadline) != digest:
+    if target.is_symlink() or not target.is_file() or not _require_identity(target, digest, deadline):
         fd, name = tempfile.mkstemp(prefix='.stage-', dir=target.parent)
         try:
             with os.fdopen(fd, 'wb') as stream:
@@ -925,7 +949,9 @@ def _store_staged(run, manifest, parent, record, deadline, *, locator=None,
         manifest['warnings'].append('ZIP member changed or exceeded the derived byte limit')
         return None
     digest = _hash(stage, deadline)
-    if digest is None or digest != record['sha256']:
+    if digest is None:
+        raise WorkLimit('staged member identity incomplete before work budget ended')
+    if digest != record['sha256']:
         manifest['warnings'].append('ZIP member identity incomplete or changed')
         return None
     if digest == parent['sha256']:
@@ -943,7 +969,11 @@ def _store_staged(run, manifest, parent, record, deadline, *, locator=None,
         if (old['complete'] and old['depth'] > 0 and old['sha256'] == digest
                 and old['source_locator'] == locator and old['id'] not in ancestors):
             old_path = Path(old['path'])
-            if old_path.is_symlink() or not old_path.is_file() or _hash(old_path, deadline) != digest:
+            match = (False if old_path.is_symlink() or not old_path.is_file() else
+                     _identity_matches(old_path, digest, deadline))
+            if match is None:
+                raise WorkLimit('stored artifact identity incomplete before work budget ended')
+            if not match:
                 old['complete'] = False
                 old['current'] = False
                 continue
@@ -958,7 +988,7 @@ def _store_staged(run, manifest, parent, record, deadline, *, locator=None,
         return None
     target = run / 'artifacts' / digest
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.is_symlink() or (target.exists() and _hash(target, deadline) != digest):
+    if target.is_symlink() or (target.exists() and not _require_identity(target, digest, deadline)):
         os.replace(stage, target)
     elif not target.exists():
         os.link(stage, target)
@@ -1183,10 +1213,16 @@ def _mime_worker(path, staging, max_parts, max_bytes, pipe):
 
 def _run_mime(path, staging, max_parts, max_bytes, timeout):
     import multiprocessing
-    parent, child = multiprocessing.Pipe(duplex=False)
-    worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_mime_worker, path, staging, max_parts, max_bytes, child))
-    worker.start()
+    context = multiprocessing.get_context('spawn')
+    parent, child = context.Pipe(duplex=False)
+    worker = context.Process(target=_worker_entry,
+                             args=(_mime_worker, path, staging, max_parts, max_bytes, child))
+    try:
+        worker.start()
+    except Exception:
+        parent.close()
+        child.close()
+        raise
     child.close()
     try:
         if not parent.poll(timeout):
@@ -2605,7 +2641,7 @@ def _rsa_job(run, manifest, parameters, params_hash, deadline):
             job['status'] = 'complete'
         except Exception as error:
             recovered = set()
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"RSA job failed: {type(error).__name__}")
         job['ended'] = time.time()
@@ -2613,7 +2649,8 @@ def _rsa_job(run, manifest, parameters, params_hash, deadline):
         _write_json(run / 'manifest.json', manifest)
     for family in families:
         if family in manifest['coverage']:
-            manifest['coverage'][family]['status'] = ('failed' if (old or job)['status'] == 'failed'
+            manifest['coverage'][family]['status'] = ('truncated' if (old or job)['status'] == 'truncated' else
+                                                  'failed' if (old or job)['status'] == 'failed'
                                                    else 'ran' if family in recovered else 'no finding')
             manifest['coverage'][family]['note'] = 'bounded textbook RSA relationships and PEM/DER public keys'
 
@@ -2668,14 +2705,15 @@ def _hash_job(run, manifest, records, params_hash, words, wordlist_hash, deadlin
             failed = False
         except Exception as error:
             statuses = []
-            failed = True
-            job['status'] = 'failed'
+            failed = not isinstance(error, WorkLimit)
+            job['status'] = _error_status(error)
             job['warning'] = type(error).__name__
             manifest['warnings'].append(f"password hash job failed: {type(error).__name__}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
-    coverage['status'] = ('failed' if failed or 'tool_error' in statuses else
+    coverage['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
+                          'failed' if failed or 'tool_error' in statuses else
                           'truncated' if 'incomplete' in statuses else
                           'ran' if 'validated_transform' in statuses else 'no finding')
     coverage['note'] = 'declared MD5/SHA digest recipes; bounded exact-byte wordlist only'
@@ -2738,14 +2776,15 @@ def _symmetric_job(run, manifest, records, params_hash, deadline):
             job['status'] = 'complete'
         except Exception as error:
             found = 0
-            failed = True
-            job['status'] = 'failed'
+            failed = not isinstance(error, WorkLimit)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"AES job failed: {type(error).__name__}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
-    manifest['coverage']['ENC08']['status'] = 'failed' if failed else 'ran' if found else 'no finding'
+    manifest['coverage']['ENC08']['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                                               'failed' if failed else 'ran' if found else 'no finding')
     manifest['coverage']['ENC08']['note'] = 'declared AES-GCM/CBC/CTR only; CBC/CTR are candidates'
     return children
 
@@ -2802,7 +2841,7 @@ def _media_job(run, manifest, artifact, deadline):
             records, warnings = _run_media(
                 path, staging, min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 min(30, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('media source changed before preview publication')
             for record in records:
                 if record['kind'] == 'stream':
@@ -2833,8 +2872,8 @@ def _media_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            failed = True
-            job['status'] = 'failed'
+            failed = not isinstance(error, WorkLimit)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"media job failed: {job['warning']}")
         finally:
@@ -2846,7 +2885,8 @@ def _media_job(run, manifest, artifact, deadline):
         entry = manifest['coverage']['AV01']
         audio_warnings = [note for note in warnings if note.startswith((
             'audio ', 'stream ', 'ffmpeg ', 'ffprobe '))]
-        entry['status'] = ('failed' if failed else 'truncated' if audio_warnings else
+        entry['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                           'failed' if failed else 'truncated' if audio_warnings else
                            'ran' if 'audio' in stream_types else 'no finding')
         entry['note'] = 'first 20s, first two channels; waveform, spectrum and reversed PCM views'
     if 'AV06' in manifest['coverage']:
@@ -2854,7 +2894,8 @@ def _media_job(run, manifest, artifact, deadline):
         video_warnings = [note for note in warnings if note.startswith(('video ', 'subtitle ',
                                                                         'frame ', 'stream ',
                                                                         'full-frame', 'ffmpeg ', 'ffprobe '))]
-        entry['status'] = ('failed' if failed else 'truncated' if video_warnings else
+        entry['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                           'failed' if failed else 'truncated' if video_warnings else
                            'ran' if set(stream_types) & {'video', 'subtitle'} else 'no finding')
         entry['note'] = 'first video stream, at most 32 frames and 4 text subtitle streams; sampling may miss brief frames'
     return [child for child in children if child['kind_evidence'] != 'riff']
@@ -2888,7 +2929,7 @@ def _tones_job(run, manifest, artifact, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink()
-                     and _hash(output, deadline) == old.get('records_sha256'))
+                     and _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -2918,14 +2959,14 @@ def _tones_job(run, manifest, artifact, deadline):
         try:
             records, warnings = _run_tones(path, staging,
                                            min(20, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('WAV source changed before tone publication')
             output = run / 'jobs' / f"{job['id']}.tones.json"
             _write_json(output, records)
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                raise RuntimeError('tone output identity incomplete before work budget ended')
+                raise WorkLimit('tone output identity incomplete before work budget ended')
             for record in records[:100]:
                 manifest['intelligence'].append({
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
@@ -2952,8 +2993,8 @@ def _tones_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            failed = True
-            job['status'] = 'failed'
+            failed = not isinstance(error, WorkLimit)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"tone job failed: {job['warning']}")
         finally:
@@ -2967,7 +3008,8 @@ def _tones_job(run, manifest, artifact, deadline):
     for family, modes in (('AV02', {'DTMF'}), ('AV03', {'MORSE_CW', 'AFSK1200'})):
         if family in manifest['coverage']:
             entry = manifest['coverage'][family]
-            entry['status'] = ('failed' if failed else 'truncated' if limited else
+            entry['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
+                               'failed' if failed else 'truncated' if limited else
                                'ran' if any(row['mode'] in modes for row in records) else 'no finding')
             entry['note'] = 'literal decoder symbols/text; event times unavailable; no keypad word inference'
 
@@ -3012,7 +3054,7 @@ def _sstv_job(run, manifest, artifact, deadline):
                 Path(artifact['path']), staging,
                 min(sstv.MAX_IMAGE_BYTES, MAX_DERIVED - manifest['derived_bytes']),
                 min(40, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
                 raise RuntimeError('SSTV source changed before image publication')
             for record in records:
                 locator = {'mode': record['mode'], 'start_seconds': record['start_seconds'],
@@ -3030,8 +3072,8 @@ def _sstv_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            failed = True
-            job['status'] = 'failed'
+            failed = not isinstance(error, WorkLimit)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"SSTV job failed: {job['warning']}")
         finally:
@@ -3039,7 +3081,8 @@ def _sstv_job(run, manifest, artifact, deadline):
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
-    entry['status'] = ('failed' if failed else 'truncated' if any(
+    entry['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                       'failed' if failed else 'truncated' if any(
         word in warning for warning in warnings for word in
         ('truncated', 'limit', 'timed out', 'incomplete', 'exited')) else
         'ran' if children else 'no finding')
@@ -3091,7 +3134,7 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
                 path, staging, 4_000_000,
                 min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 min(30, max(.01, deadline - time.monotonic())), make_views)
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('image changed before metadata publication')
             for tag in tags[:100]:
                 value = tag['value']
@@ -3136,7 +3179,7 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
             job['tags_found'] = tags_found
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"image metadata job failed: {type(error).__name__}")
             metadata_warnings = view_warnings = warnings = [job['warning']]
@@ -3150,7 +3193,7 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
         if previous != 'truncated':
             manifest['coverage']['IMG01']['status'] = ('ran' if tags_found or previous == 'ran' else
                                                         'truncated' if metadata_warnings else 'no finding')
-        manifest['coverage']['IMG01']['note'] = 'ExifTool tags, image tails, and clear ZIP member CRCs'
+            manifest['coverage']['IMG01']['note'] = 'ExifTool tags, image tails, and clear ZIP member CRCs'
     if 'IMG04' in manifest['coverage'] and make_views:
         manifest['coverage']['IMG04']['status'] = ('truncated' if view_warnings else
                                                    'ran' if views_found else 'no finding')
@@ -3210,7 +3253,7 @@ def _zsteg_job(run, manifest, artifact, deadline):
                 path, staging, max_pixels=4_000_000,
                 max_total_bytes=min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 timeout=min(20, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('image changed before zsteg publication')
             for record in records:
                 locator = {'zsteg_selector': record['selector'],
@@ -3233,7 +3276,7 @@ def _zsteg_job(run, manifest, artifact, deadline):
             manifest['warnings'].extend(warnings[:100])
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             warnings = [job['warning']]
             manifest['warnings'].append(f"zsteg job failed: {job['warning']}")
@@ -3243,7 +3286,8 @@ def _zsteg_job(run, manifest, artifact, deadline):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     previous = coverage['status']
-    coverage['status'] = ('failed' if reusable is None and job['status'] == 'failed' else
+    coverage['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                          'failed' if reusable is None and job['status'] == 'failed' else
                           'truncated' if warnings else 'ran' if children or previous == 'ran'
                           else 'no finding')
     coverage['note'] = 'bounded zsteg PNG/BMP selectors; extracted bytes are candidates'
@@ -3300,7 +3344,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
                 path, staging, passwords,
                 min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
                 min(20, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('Stegseek source changed before payload publication')
             for record in records:
                 locator = {'password_index': record['password_index'],
@@ -3325,7 +3369,7 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
             manifest['warnings'].extend(warnings[:100])
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             warnings = [job['warning']]
             manifest['warnings'].append(f"Stegseek job failed: {type(error).__name__}")
@@ -3335,7 +3379,8 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     previous = coverage['status']
-    coverage['status'] = ('failed' if reusable is None and job['status'] == 'failed' else
+    coverage['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                          'failed' if reusable is None and job['status'] == 'failed' else
                           'truncated' if any('timed out' in warning or 'byte limit' in warning
                                              for warning in warnings) or previous == 'truncated' else
                           'ran' if children or previous == 'ran' else 'no finding')
@@ -3381,7 +3426,7 @@ def _qr_job(run, manifest, artifact, deadline):
             records, warnings = _run_qr(path, 4_000_000,
                                         min(1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                                         min(10, max(.01, deadline - time.monotonic() - .1)))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('image changed before QR publication')
             for record in records:
                 locator = {'frame': record['frame'], 'duration_ms': record['duration_ms'],
@@ -3412,7 +3457,7 @@ def _qr_job(run, manifest, artifact, deadline):
             manifest['warnings'].extend(warnings[:100])
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             warnings = [job['warning']]
             manifest['warnings'].append(f"QR job failed: {job['warning']}")
@@ -3421,7 +3466,8 @@ def _qr_job(run, manifest, artifact, deadline):
         _write_json(run / 'manifest.json', manifest)
     if coverage is not None:
         previous = coverage['status']
-        coverage['status'] = ('failed' if reusable is None and job['status'] == 'failed' else
+        coverage['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                          'failed' if reusable is None and job['status'] == 'failed' else
                               'truncated' if warnings else 'ran' if children or previous == 'ran'
                               else 'no finding')
         coverage['note'] = 'bounded QR/barcode payloads; DataMatrix requires zxing-cpp'
@@ -3463,7 +3509,7 @@ def _ocr_job(run, manifest, artifact, deadline):
         path = Path(artifact['path'])
         records, warnings = _run_ocr(path, min(8, max(.01, deadline - time.monotonic() - .1)),
                                      ocr.MAX_TEXT_BYTES)
-        if _hash(path, deadline) != artifact['sha256']:
+        if not _require_identity(path, artifact['sha256'], deadline):
             raise RuntimeError('SSTV image changed before OCR publication')
         for record in records:
             locator = {'ocr_engine': 'tesseract', 'ocr_kind': record['kind'],
@@ -3489,7 +3535,7 @@ def _ocr_job(run, manifest, artifact, deadline):
         manifest['warnings'].extend(warnings[:100])
         job['status'] = 'truncated' if warnings else 'complete'
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
         manifest['warnings'].append(f"OCR job failed: {job['warning']}")
     job['ended'] = time.time()
@@ -3541,7 +3587,7 @@ def _office_job(run, manifest, artifact, deadline):
                 path, staging, min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
                 min(64 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('Office source changed before output publication')
             for record in records:
                 locator = {'office_locator': record['locator'], 'office_kind': record['kind']}
@@ -3565,10 +3611,10 @@ def _office_job(run, manifest, artifact, deadline):
             job['coverage_status'] = status
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"Office job failed: {type(error).__name__}")
-            status = 'failed'
+            status = _error_status(error)
         finally:
             shutil.rmtree(staging, ignore_errors=True)
         job['ended'] = time.time()
@@ -3667,7 +3713,7 @@ def _tar_job(run, manifest, artifact, deadline):
                     _doc01_coverage(manifest, 'ran')
                     return children
             except Exception as error:
-                decoder_job['status'] = 'failed'
+                decoder_job['status'] = _error_status(error)
                 decoder_job['warning'] = f'{type(error).__name__}: {error}'
                 manifest['warnings'].append(f"compressed TAR decode failed: {type(error).__name__}")
             finally:
@@ -3706,7 +3752,7 @@ def _tar_job(run, manifest, artifact, deadline):
                 path, staging, min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
                 MAX_DERIVED - manifest['derived_bytes'],
                 min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('TAR source changed before member publication')
             for record in records:
                 child = _store_staged(
@@ -3722,8 +3768,8 @@ def _tar_job(run, manifest, artifact, deadline):
             job['coverage_status'] = status
             job['status'] = 'complete'
         except Exception as error:
-            status = 'failed'
-            job['status'] = 'failed'
+            status = _error_status(error)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"TAR job failed: {job['warning']}")
         finally:
@@ -3745,7 +3791,7 @@ def _can_job(run, manifest, artifact, deadline):
         output = Path(old.get('frames_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink()
-                     and _hash(output, deadline) == old.get('frames_sha256'))
+                     and _identity_matches(output, old.get('frames_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -3771,14 +3817,14 @@ def _can_job(run, manifest, artifact, deadline):
         try:
             frames, warnings = _run_can(path, 10000, 8 * 1024 * 1024,
                                         min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('CAN source changed before normalization publication')
             output = run / 'jobs' / f"{job['id']}.frames.json"
             _write_json(output, frames)
             job['frames_path'] = str(output)
             job['frames_sha256'] = _hash(output, deadline)
             if job['frames_sha256'] is None:
-                warnings.append('CAN normalization identity incomplete before work budget ended')
+                raise WorkLimit('CAN normalization identity incomplete before work budget ended')
             for frame in frames[:100]:
                 manifest['intelligence'].append({
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
@@ -3799,14 +3845,15 @@ def _can_job(run, manifest, artifact, deadline):
             count = 0
             frames = []
             warnings = [f'{type(error).__name__}: {error}']
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = warnings[0]
             manifest['warnings'].append(f"CAN job failed: {type(error).__name__}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'CAN01' in manifest['coverage']:
-        manifest['coverage']['CAN01']['status'] = ('failed' if not old and job['status'] == 'failed' else
+        manifest['coverage']['CAN01']['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
+                          'failed' if not old and job['status'] == 'failed' else
                                                    'truncated' if warnings else 'ran' if count else 'no finding')
         manifest['coverage']['CAN01']['note'] = 'bounded candump/ASC text frames; no signal semantics'
     return frames
@@ -3833,7 +3880,7 @@ def _can_dbc_job(run, manifest, artifact, frames, database_path, database_hash, 
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink()
-                     and _hash(output, deadline) == old.get('records_sha256'))
+                     and _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -3860,12 +3907,16 @@ def _can_dbc_job(run, manifest, artifact, frames, database_path, database_hash, 
         records, warnings = _run_can_dbc(frames, database_path, 10000, 4 * 1024 * 1024,
                                          16 * 1024 * 1024,
                                          min(30, max(.01, deadline - time.monotonic())))
-        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('CAN source changed before signal publication')
+        database_missing = False
         try:
             after_database_hash = _hash(database_path, deadline)
         except OSError:
             after_database_hash = None
+            database_missing = True
+        if after_database_hash is None and not database_missing:
+            raise WorkLimit('CAN database identity incomplete before work budget ended')
         if after_database_hash != database_hash:
             raise RuntimeError('CAN signal database changed before publication')
         output = run / 'jobs' / f"{job['id']}.signals.json"
@@ -3874,7 +3925,7 @@ def _can_dbc_job(run, manifest, artifact, frames, database_path, database_hash, 
         job['records_path'] = str(output)
         job['records_sha256'] = _hash(output, deadline)
         if job['records_sha256'] is None:
-            warnings.append('CAN signal output identity incomplete before work budget ended')
+            raise WorkLimit('CAN signal output identity incomplete before work budget ended')
         shown = 0
         for record in records:
             if record['status'] not in ('decoded', 'out_of_range'):
@@ -3915,9 +3966,9 @@ def _can_dbc_job(run, manifest, artifact, frames, database_path, database_hash, 
         job['status'] = 'complete'
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'CAN signal decoder failed; raw CAN01 frames remain available'
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
         manifest['warnings'].append(f"CAN signal job failed: {type(error).__name__}")
     job['ended'] = time.time()
@@ -3940,7 +3991,7 @@ def _elf_job(run, manifest, artifact, deadline):
         output = Path(old.get('report_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink()
-                     and _hash(output, deadline) == old.get('report_sha256'))
+                     and _identity_matches(output, old.get('report_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -3966,14 +4017,14 @@ def _elf_job(run, manifest, artifact, deadline):
         warnings = []
         try:
             report, warnings = _run_elf(path, min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('ELF source changed before static report publication')
             output = run / 'jobs' / f"{job['id']}.elf.json"
             _write_json(output, report)
             job['report_path'] = str(output)
             job['report_sha256'] = _hash(output, deadline)
             if job['report_sha256'] is None:
-                warnings.append('ELF report identity incomplete before work budget ended')
+                raise WorkLimit('ELF report identity incomplete before work budget ended')
             if report is not None:
                 mitigation = report['mitigations']
                 manifest['intelligence'].append({
@@ -4009,13 +4060,14 @@ def _elf_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"ELF job failed: {job['warning']}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
-    coverage['status'] = ('failed' if not old and job['status'] == 'failed' else
+    coverage['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
+                          'failed' if not old and job['status'] == 'failed' else
                           'skipped prerequisite' if report is None and any(
                               'unsupported' in note or 'malformed' in note for note in warnings) else
                           'truncated' if warnings else 'ran' if report else 'no finding')
@@ -4043,7 +4095,7 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
         output = Path(old.get('report_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('report_sha256'))
+                     _identity_matches(output, old.get('report_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -4074,7 +4126,7 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
         job['report_path'] = str(output)
         job['report_sha256'] = _hash(output, deadline)
         if job['report_sha256'] is None:
-            raise RuntimeError('checker report identity incomplete before work budget ended')
+            raise WorkLimit('checker report identity incomplete before work budget ended')
         outcome = report['status']
         coverage_status = ('ran' if outcome in ('candidate', 'validated_input') else
                            'no finding' if outcome in ('unsat_under_model', 'replay_failed') else
@@ -4103,9 +4155,9 @@ def _checker_job(run, manifest, artifact, hints, replay, deadline):
         manifest['warnings'].extend(warnings[:100])
         job['status'] = 'complete'
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'[:300]
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV07 checker inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV07 job failed: {job['warning']}")
     job['ended'] = time.time()
@@ -4131,7 +4183,7 @@ def _binary_job(run, manifest, artifact, deadline):
         output = Path(old.get('report_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('report_sha256'))
+                     _identity_matches(output, old.get('report_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -4156,14 +4208,14 @@ def _binary_job(run, manifest, artifact, deadline):
         report, warnings = None, []
         try:
             report, warnings = _run_binary(path, min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('binary source changed before static report publication')
             output = run / 'jobs' / f"{job['id']}.binary.json"
             _write_json(output, report)
             job['report_path'] = str(output)
             job['report_sha256'] = _hash(output, deadline)
             if job['report_sha256'] is None:
-                warnings.append('binary report identity incomplete before work budget ended')
+                raise WorkLimit('binary report identity incomplete before work budget ended')
             if report is not None:
                 common = {'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True}
                 manifest['intelligence'].append({**common, 'tag': 'Binary structure',
@@ -4207,13 +4259,14 @@ def _binary_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"binary static job failed: {job['warning']}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
-    outcome = ('failed' if not old and job['status'] == 'failed' else
+    outcome = ('truncated' if old is None and job['status'] == 'truncated' else
+                          'failed' if not old and job['status'] == 'failed' else
                'skipped prerequisite' if report is None else
                'truncated' if warnings else 'ran')
     priority = {'not scheduled': 0, 'skipped prerequisite': 1,
@@ -4234,7 +4287,7 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('records_sha256'))
+                     _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         reused = _reusable_children(manifest, old, deadline) if valid else None
@@ -4263,7 +4316,7 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
     warnings = []
     try:
         records, warnings = _run_rev_strings(path, min(20, max(.01, deadline - time.monotonic() - 1)))
-        if _hash(path, deadline) != artifact['sha256']:
+        if not _require_identity(path, artifact['sha256'], deadline):
             raise RuntimeError('binary source changed before REV02 publication')
         stored = [{**row, 'data_hex': row['data'].hex()} for row in records]
         for row in stored:
@@ -4273,7 +4326,7 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
         job['records_path'] = str(output)
         job['records_sha256'] = _hash(output, deadline)
         if job['records_sha256'] is None:
-            raise RuntimeError('REV02 record identity incomplete before work budget ended')
+            raise WorkLimit('REV02 record identity incomplete before work budget ended')
         for record in records:
             locator = {**record['source_locator'], 'encoding': record['encoding'],
                        'candidate_state': 'candidate', 'key_hex': record.get('key_hex')}
@@ -4306,9 +4359,9 @@ def _rev_strings_job(run, manifest, artifact, deadline, queue, depth):
         coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV02 string recovery failed; source bytes remain available'
         manifest['warnings'].append(f"REV02 job failed: {job['warning']}")
     job['ended'] = time.time()
@@ -4327,7 +4380,7 @@ def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('records_sha256'))
+                     _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         reused = _reusable_children(manifest, old, deadline) if valid else None
@@ -4358,7 +4411,7 @@ def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
     try:
         records, warnings = _run_rev_powershell(
             Path(artifact['path']), min(5, max(.01, deadline - time.monotonic() - 1)))
-        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('PowerShell source changed before REV11 publication')
         stored = [{**row, 'data_hex': row['data'].hex()} for row in records]
         for row in stored:
@@ -4368,7 +4421,7 @@ def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
         job['records_path'] = str(output)
         job['records_sha256'] = _hash(output, deadline)
         if job['records_sha256'] is None:
-            raise RuntimeError('REV11 record identity incomplete before work budget ended')
+            raise WorkLimit('REV11 record identity incomplete before work budget ended')
         for record in records:
             data = record['data']
             locator = {**record['source_locator'],
@@ -4406,9 +4459,9 @@ def _rev_powershell_job(run, manifest, artifact, deadline, queue, depth):
             coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV11 static inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV11 job failed: {job['warning']}")
     job['ended'] = time.time()
@@ -4428,7 +4481,7 @@ def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
         output = Path(old.get('report_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('report_sha256'))
+                     _identity_matches(output, old.get('report_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -4456,14 +4509,14 @@ def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
         remaining = max(.01, deadline - time.monotonic())
         report, warnings = _run_rev_rules(Path(artifact['path']), rule_paths,
                                           min(10, max(.01, (remaining - 5) / 2)))
-        if report['sample_sha256'] != artifact['sha256'] or _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if report['sample_sha256'] != artifact['sha256'] or not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('binary source changed before REV03 publication')
         output = run / 'jobs' / f"{job['id']}.rev-rules.json"
         _write_json(output, report)
         job['report_path'] = str(output)
         job['report_sha256'] = _hash(output, deadline)
         if job['report_sha256'] is None:
-            raise RuntimeError('REV03 report identity incomplete before work budget ended')
+            raise WorkLimit('REV03 report identity incomplete before work budget ended')
         for engine, row in report['engines'].items():
             for match in row['matches']:
                 manifest['intelligence'].append({
@@ -4497,9 +4550,9 @@ def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
         coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV03 rule matching failed; sample bytes remain available'
         manifest['warnings'].append(f"REV03 job failed: {job['warning']}")
     job['ended'] = time.time()
@@ -4542,7 +4595,7 @@ def _pyinstaller_job(run, manifest, artifact, deadline, queue, depth):
             min(64, MAX_ARTIFACTS - len(manifest['artifacts'])),
             min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
             min(15, max(.01, deadline - time.monotonic() - 1)))
-        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('PyInstaller source changed before output publication')
         for record in records:
             locator = {'pyinstaller_kind': record['kind'],
@@ -4572,9 +4625,9 @@ def _pyinstaller_job(run, manifest, artifact, deadline, queue, depth):
         coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV05 archive inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV05 job failed: {job['warning']}")
     finally:
@@ -4629,7 +4682,7 @@ def _java_android_job(run, manifest, artifact, deadline, queue, depth):
         records, warnings = _run_java_android(
             Path(artifact['path']), staging,
             min(20, max(.01, deadline - time.monotonic() - 1)), parts, remaining)
-        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('REV06 source changed before output publication')
         for record in records:
             if record['source_sha256'] != artifact['sha256']:
@@ -4673,9 +4726,9 @@ def _java_android_job(run, manifest, artifact, deadline, queue, depth):
         coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings)
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV06 static Java/Android inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV06 job failed: {job['warning']}")
     finally:
@@ -4695,7 +4748,7 @@ def _rev_packers_job(run, manifest, artifact, deadline, queue, depth):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('records_sha256'))
+                     _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         reused = _reusable_children(manifest, old, deadline) if valid else None
@@ -4729,7 +4782,7 @@ def _rev_packers_job(run, manifest, artifact, deadline, queue, depth):
             Path(artifact['path']), staging,
             min(20, max(.01, deadline - time.monotonic() - 1)),
             min(64 * 1024 * 1024, remaining), upx, binwalk)
-        if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('binary source changed before REV04 publication')
         by_sha = {artifact['sha256']: artifact}
         stored = []
@@ -4768,7 +4821,7 @@ def _rev_packers_job(run, manifest, artifact, deadline, queue, depth):
         job['records_path'] = str(output)
         job['records_sha256'] = _hash(output, deadline)
         if job['records_sha256'] is None:
-            raise RuntimeError('REV04 record identity incomplete before work budget ended')
+            raise WorkLimit('REV04 record identity incomplete before work budget ended')
         status = ('skipped prerequisite' if upx is None else
                   'truncated' if any(any(word in note for word in
                                       ('limit', 'timed out', 'incomplete', 'changed'))
@@ -4783,9 +4836,9 @@ def _rev_packers_job(run, manifest, artifact, deadline, queue, depth):
         coverage['note'] = job['coverage_note']
         manifest['warnings'].extend(warnings[:100])
     except Exception as error:
-        job['status'] = 'failed'
+        job['status'] = _error_status(error)
         job['warning'] = f'{type(error).__name__}: {error}'
-        coverage['status'] = 'failed'
+        coverage['status'] = _error_status(error)
         coverage['note'] = 'REV04 inspection failed; source bytes remain available'
         manifest['warnings'].append(f"REV04 job failed: {job['warning']}")
     finally:
@@ -4810,7 +4863,7 @@ def _packets_job(run, manifest, artifact, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink()
-                     and _hash(output, deadline) == old.get('records_sha256'))
+                     and _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -4834,7 +4887,7 @@ def _packets_job(run, manifest, artifact, deadline):
         try:
             records, warnings = _run_packets(path, min(30, max(.01, deadline - time.monotonic())),
                                               8 * 1024 * 1024)
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('capture changed before packet publication')
             if len(records) > 10000:
                 warnings.append('packet record limit reached; later frames omitted')
@@ -4844,7 +4897,7 @@ def _packets_job(run, manifest, artifact, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                warnings.append('packet inventory identity incomplete before work budget ended')
+                raise WorkLimit('packet inventory identity incomplete before work budget ended')
             useful = [row for row in records if any(field in row for field in ('dns', 'http', 'tcp_analysis'))][:80]
             useful.extend(row for row in records[:20] if row not in useful)
             for row in useful[:100]:
@@ -4866,14 +4919,15 @@ def _packets_job(run, manifest, artifact, deadline):
         except Exception as error:
             count = 0
             warnings = [f'{type(error).__name__}: {error}']
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = warnings[0]
             manifest['warnings'].append(f"packet job failed: {type(error).__name__}")
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'NET01' in manifest['coverage']:
-        manifest['coverage']['NET01']['status'] = ('failed' if not old and job['status'] == 'failed' else
+        manifest['coverage']['NET01']['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
+                          'failed' if not old and job['status'] == 'failed' else
                                                    'truncated' if warnings else 'ran' if count else 'no finding')
         manifest['coverage']['NET01']['note'] = 'frame-linked TShark DNS/HTTP/endpoints only'
 
@@ -4922,7 +4976,7 @@ def _packet_objects_job(run, manifest, artifact, deadline):
                 records, warnings = _run_packet_objects(
                     path, staging, 32, remaining,
                     min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('capture changed before HTTP object publication')
             for record in records:
                 if record['size'] > MAX_CHILD:
@@ -4960,10 +5014,10 @@ def _packet_objects_job(run, manifest, artifact, deadline):
             job['coverage_status'] = status
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"HTTP object job failed: {type(error).__name__}")
-            status = 'failed'
+            status = _error_status(error)
         finally:
             shutil.rmtree(staging, ignore_errors=True)
         job['ended'] = time.time()
@@ -5023,7 +5077,7 @@ def _packet_tls_job(run, manifest, artifact, keylog, keylog_hash, deadline):
                 records, warnings = _run_packet_tls(
                     path, keylog, staging, 32, remaining,
                     min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256'] or _hash(keylog, deadline) != keylog_hash:
+            if not _require_identity(path, artifact['sha256'], deadline) or not _require_identity(keylog, keylog_hash, deadline):
                 raise RuntimeError('capture or TLS key log changed before publication')
             for record in records:
                 if record['size'] > MAX_CHILD or not record['length_verified']:
@@ -5059,10 +5113,10 @@ def _packet_tls_job(run, manifest, artifact, keylog, keylog_hash, deadline):
             job['coverage_status'] = status
             job['status'] = 'complete'
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"TLS job failed: {type(error).__name__}")
-            status = 'failed'
+            status = _error_status(error)
         finally:
             shutil.rmtree(staging, ignore_errors=True)
         job['ended'] = time.time()
@@ -5095,7 +5149,7 @@ def _packet_streams_job(run, manifest, artifact, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = output.is_file() and not output.is_symlink() and (
-                _hash(output, deadline) == old.get('records_sha256'))
+                _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5132,7 +5186,7 @@ def _packet_streams_job(run, manifest, artifact, deadline):
                 records, warnings = _run_packet_streams(
                     path, min(30, max(.01, deadline - time.monotonic())),
                     8 * 1024 * 1024, 16, remaining)
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('capture changed before TCP stream publication')
             summaries = []
             for record in records:
@@ -5179,7 +5233,7 @@ def _packet_streams_job(run, manifest, artifact, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                warnings.append('TCP stream evidence identity incomplete before budget ended')
+                raise WorkLimit('TCP stream evidence identity incomplete before budget ended')
             status = ('skipped prerequisite' if any('TShark unavailable' in note for note in warnings) else
                       'truncated' if warnings or any(not row['complete'] for row in records) else
                       'ran' if records else 'no finding')
@@ -5189,8 +5243,8 @@ def _packet_streams_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            status = 'failed'
-            job['status'] = 'failed'
+            status = _error_status(error)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"TCP stream job failed: {type(error).__name__}")
         job['ended'] = time.time()
@@ -5214,7 +5268,7 @@ def _osint_ids_job(run, manifest, artifact, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = output.is_file() and not output.is_symlink() and (
-                _hash(output, deadline) == old.get('records_sha256'))
+                _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5242,16 +5296,15 @@ def _osint_ids_job(run, manifest, artifact, deadline):
                                                 min(10, max(.01, deadline - time.monotonic())))
             source_sha256 = _hash(path, deadline)
             if source_sha256 is None:
-                records = []
-                warnings.append('OSINT clue source identity incomplete before work budget ended')
-            elif source_sha256 != artifact['sha256']:
+                raise WorkLimit('OSINT clue source identity incomplete before work budget ended')
+            if source_sha256 != artifact['sha256']:
                 raise RuntimeError('OSINT clue source changed before publication')
             output = run / 'jobs' / f"{job['id']}.osint-ids.json"
             _write_json(output, records)
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                warnings.append('OSINT clue output identity incomplete before work budget ended')
+                raise WorkLimit('OSINT clue output identity incomplete before work budget ended')
             for record in records:
                 manifest['intelligence'].append({
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
@@ -5268,8 +5321,8 @@ def _osint_ids_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            status = 'failed'
-            job['status'] = 'failed'
+            status = _error_status(error)
+            job['status'] = status
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"OSINT clue job failed: {job['warning']}")
         job['ended'] = time.time()
@@ -5306,7 +5359,7 @@ def _os_artifact_job(run, manifest, artifact, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('records_sha256'))
+                     _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5334,7 +5387,7 @@ def _os_artifact_job(run, manifest, artifact, deadline):
             records, warnings = _run_os_artifact(
                 path, 100, 64 * 1024 * 1024,
                 min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('OS artifact changed before record publication')
             if artifact['kind_evidence'] == 'sqlite':
                 _, after = _sqlite_companions(path, deadline)
@@ -5349,21 +5402,35 @@ def _os_artifact_job(run, manifest, artifact, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                warnings.append('OS artifact record identity incomplete before work budget ended')
+                raise WorkLimit('OS artifact record identity incomplete before work budget ended')
             for record in records[:100]:
+                source_locator = {'record': record['locator'],
+                                  'time': record.get('timestamp'),
+                                  'time_basis': record.get('timestamp_basis')}
+                time_detail = record.get('timestamp')
                 if record['kind'] == 'browser_visit':
                     detail = record.get('url') or 'URL row missing'
                 elif record['kind'] == 'evtx_event':
-                    detail = f"event {record.get('event_id')} provider {record.get('provider')}"
+                    xml_id = record.get('event_record_id')
+                    xml_time = record.get('xml_timestamp')
+                    xml_basis = record.get('xml_timestamp_basis')
+                    raw_time = record.get('system_time_raw')
+                    source_locator.update(event_record_id=xml_id,
+                                          xml_time=xml_time, xml_time_basis=xml_basis,
+                                          system_time_raw=raw_time)
+                    time_detail = f"{time_detail} ({record.get('timestamp_basis')})"
+                    xml_detail = (f"XML time {xml_time} ({xml_basis}); SystemTime {raw_time}"
+                                  if xml_time else "XML time unavailable")
+                    detail = (f"XML record ID {xml_id if xml_id is not None else 'unavailable'}; "
+                              f"{xml_detail}; "
+                              f"event {record.get('event_id')} provider {record.get('provider')}")
                 else:
                     detail = str(record.get('values', []))
                 manifest['intelligence'].append({
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
                     'tag': 'OS artifact', 'group': record['kind'],
-                    'value': f"{record['locator']} @ {record.get('timestamp')}: {detail}"[:512],
-                    'source_locator': {'record': record['locator'],
-                                       'time': record.get('timestamp'),
-                                       'time_basis': record.get('timestamp_basis')},
+                    'value': f"{record['locator']} @ {time_detail}: {detail}"[:512],
+                    'source_locator': source_locator,
                     'next_action': 'Inspect the source-linked record before inferring an event sequence.'})
             status = ('skipped prerequisite' if any('unavailable' in note or 'unsupported' in note
                                                    for note in warnings) and not records else
@@ -5374,10 +5441,10 @@ def _os_artifact_job(run, manifest, artifact, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"OS artifact job failed: {type(error).__name__}")
-            status = 'failed'
+            status = _error_status(error)
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
@@ -5387,7 +5454,7 @@ def _os_artifact_job(run, manifest, artifact, deadline):
             'failed' if status == 'failed' else 'truncated' if status == 'truncated' or previous == 'truncated'
             else 'ran' if status == 'ran' or previous == 'ran' else status)
         manifest['coverage']['DF03']['note'] = (
-            'bounded Chromium and Firefox visits, registry keys and optional EVTX metadata; original time basis retained')
+            'bounded Chromium visits, registry keys and optional EVTX metadata; original time basis retained')
 
 
 def _web_source_name(artifact):
@@ -5415,7 +5482,7 @@ def _web_static_job(run, manifest, artifact, origin, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = (output.is_file() and not output.is_symlink() and
-                     _hash(output, deadline) == old.get('records_sha256'))
+                     _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5446,7 +5513,7 @@ def _web_static_job(run, manifest, artifact, origin, deadline):
         try:
             records, warnings = _run_web_static(path, origin, source_name,
                                                 min(4, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('web source changed before inventory publication')
             while records and len(json.dumps(records).encode()) > 2 * 1024 * 1024:
                 records.pop()
@@ -5457,7 +5524,7 @@ def _web_static_job(run, manifest, artifact, origin, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                raise RuntimeError('web inventory identity incomplete before work budget ended')
+                raise WorkLimit('web inventory identity incomplete before work budget ended')
             for record in records:
                 locator = {'offset': record['offset'], 'line': record['line'],
                            'column': record['column'], 'record': record['locator'],
@@ -5478,10 +5545,10 @@ def _web_static_job(run, manifest, artifact, origin, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"web static job failed: {type(error).__name__}")
-            status = 'failed'
+            status = _error_status(error)
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
@@ -5504,7 +5571,7 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
     if old:
         output = Path(old.get('records_path', ''))
         try:
-            valid = output.is_file() and not output.is_symlink() and _hash(output, deadline) == old.get('records_sha256')
+            valid = output.is_file() and not output.is_symlink() and _identity_matches(output, old.get('records_sha256'), deadline) is True
         except OSError:
             valid = False
         if not valid:
@@ -5533,7 +5600,7 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
         try:
             importlib.import_module('.profiles.jwt', __package__)
             records, warnings = _run_jwt(path, keys, words, min(4, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('JWT source changed before inspection publication')
             while records and len(json.dumps(records).encode()) > 2 * 1024 * 1024:
                 records.pop()
@@ -5544,7 +5611,7 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                raise RuntimeError('JWT record identity incomplete before work budget ended')
+                raise WorkLimit('JWT record identity incomplete before work budget ended')
             for row in records:
                 relation = ('signature locally verified' if row['signature_verified'] else
                             'signature not verified against supplied material')
@@ -5569,10 +5636,10 @@ def _jwt_job(run, manifest, artifact, keys, words, hint_hash, deadline):
                 job['warning'] = 'cryptography unavailable'
                 manifest['warnings'].append('WEB04 skipped prerequisite: cryptography unavailable')
             else:
-                job['status'] = 'failed'
+                job['status'] = _error_status(error)
                 job['warning'] = f'{type(error).__name__}: {error}'
                 manifest['warnings'].append(f"JWT job failed: {type(error).__name__}")
-                status = 'failed'
+                status = _error_status(error)
         job['ended'] = time.time()
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
@@ -5627,11 +5694,19 @@ def _osint_snapshot_job(run, manifest, deadline):
                     and item['tool_fingerprint'] in fingerprints['os-artifact']
                     and item.get('data_fingerprints', {}).get('sqlite_companions') ==
                     manifest.get('sqlite_companions', {}).get(artifact['id'])), None)
-        if job is None or _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+        if job is None:
+            continue
+        browser_match = _identity_matches(Path(artifact['path']), artifact['sha256'], deadline)
+        if browser_match is None:
+            manifest['warnings'].append('OSINT browser source identity incomplete before work budget ended')
+            manifest['coverage']['OS03']['status'] = 'truncated'
+            return
+        if not browser_match:
             continue
         output = Path(job.get('records_path', ''))
         try:
-            if not output.is_file() or output.is_symlink() or _hash(output, deadline) != job.get('records_sha256'):
+            if (not output.is_file() or output.is_symlink() or
+                    _identity_matches(output, job.get('records_sha256'), deadline) is not True):
                 continue
             records = json.loads(output.read_text())
         except (OSError, ValueError):
@@ -5656,7 +5731,7 @@ def _osint_snapshot_job(run, manifest, deadline):
             output = Path(job.get('records_path', ''))
             try:
                 if (output.is_file() and not output.is_symlink() and
-                        _hash(output, deadline) == job.get('records_sha256')):
+                        _identity_matches(output, job.get('records_sha256'), deadline) is True):
                     source[field] = json.loads(output.read_text())
                     dependencies.append((source['artifact_id'], adapter, job['key'],
                                          job['records_sha256']))
@@ -5673,7 +5748,7 @@ def _osint_snapshot_job(run, manifest, deadline):
         output = Path(old.get('records_path', ''))
         try:
             valid = output.is_file() and not output.is_symlink() and (
-                _hash(output, deadline) == old.get('records_sha256'))
+                _identity_matches(output, old.get('records_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5698,7 +5773,7 @@ def _osint_snapshot_job(run, manifest, deadline):
         try:
             records, warnings = _run_snapshot(sources, browser_visits,
                                                min(8, max(.01, deadline - time.monotonic())))
-            if any(_hash(source['path'], deadline) != source['sha256'] for source in sources):
+            if any(not _require_identity(source['path'], source['sha256'], deadline) for source in sources):
                 raise RuntimeError('OSINT snapshot source changed before publication')
             while records and len(json.dumps(records).encode()) > 2 * 1024 * 1024:
                 records.pop()
@@ -5709,7 +5784,7 @@ def _osint_snapshot_job(run, manifest, deadline):
             job['records_path'] = str(output)
             job['records_sha256'] = _hash(output, deadline)
             if job['records_sha256'] is None:
-                raise RuntimeError('OSINT snapshot record identity incomplete')
+                raise WorkLimit('OSINT snapshot record identity incomplete')
             for record in records:
                 value = (f"{record['browser_source_name']} {record['browser_locator']} "
                          f"at {record['browser_timestamp']} and supplied {record['source_name']} "
@@ -5743,8 +5818,8 @@ def _osint_snapshot_job(run, manifest, deadline):
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            status = 'failed'
-            job['status'] = 'failed'
+            status = _error_status(error)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"OSINT snapshot job failed: {job['warning']}")
         job['ended'] = time.time()
@@ -5796,9 +5871,11 @@ def _sqlite_job(run, manifest, artifact, deadline, queue, depth):
             records, warnings = _run_sqlite(path, staging, 100,
                                             min(64 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                                             min(30, max(.01, deadline - time.monotonic())))
-            if _hash(path, deadline) != artifact['sha256']:
+            if not _require_identity(path, artifact['sha256'], deadline):
                 raise RuntimeError('SQLite database changed before output publication')
-            _, after_hash = _sqlite_companions(path, deadline)
+            after_companions, after_hash = _sqlite_companions(path, deadline)
+            if 'incomplete' in after_companions.values():
+                raise WorkLimit('SQLite companion identity incomplete before work budget ended')
             if after_hash != companion_hash:
                 raise RuntimeError('SQLite companions changed before output publication')
             for record in records:
@@ -5818,7 +5895,7 @@ def _sqlite_job(run, manifest, artifact, deadline, queue, depth):
         except Exception as error:
             count = 0
             warnings = [f'{type(error).__name__}: {error}']
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = warnings[0]
             manifest['warnings'].append(f"SQLite job failed: {type(error).__name__}")
         finally:
@@ -5827,7 +5904,8 @@ def _sqlite_job(run, manifest, artifact, deadline, queue, depth):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'DF04' in manifest['coverage']:
-        manifest['coverage']['DF04']['status'] = ('failed' if not old and job['status'] == 'failed' else
+        manifest['coverage']['DF04']['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                                                  'failed' if reusable is None and job['status'] == 'failed' else
                                                   'truncated' if warnings else 'ran' if count else 'no finding')
         manifest['coverage']['DF04']['note'] = 'bounded copied SQLite schema/rows; WAL basis reported'
 
@@ -5853,7 +5931,7 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
         inventory = Path(old.get('inventory_path', ''))
         try:
             valid = (reusable is not None and inventory.is_file() and not inventory.is_symlink()
-                     and _hash(inventory, deadline) == old.get('inventory_sha256'))
+                     and _identity_matches(inventory, old.get('inventory_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -5889,17 +5967,23 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
                 1024 * 1024, 8,
                 min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 min(30, max(.01, deadline - time.monotonic())))
-            if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
                 raise RuntimeError('memory image changed before output publication')
             _, after_symbols, symbol_error = _memory_symbol_identity(
                 {'memory_symbol_dir': str(symbols_dir)}, None, deadline)
+            if symbol_error and 'incomplete' in symbol_error:
+                raise WorkLimit(symbol_error)
             if symbol_error or after_symbols != symbol_hash:
                 raise RuntimeError('memory symbols changed before output publication')
             current_module = hashlib.sha256(Path(memory.__file__).read_bytes()).hexdigest()
+            vol_missing = False
             try:
                 current_vol = _hash(Path(memory.VOL), deadline)
             except OSError:
                 current_vol = None
+                vol_missing = True
+            if current_vol is None and not vol_missing:
+                raise WorkLimit('Volatility executable identity incomplete before work budget ended')
             if hashlib.sha256(f'{current_module}:{current_vol}'.encode()).hexdigest() != fingerprint:
                 raise RuntimeError('Volatility executable or profile changed before publication')
             inventory = run / 'jobs' / f"{job['id']}.memory.json"
@@ -5908,7 +5992,7 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
             job['inventory_path'] = str(inventory)
             job['inventory_sha256'] = _hash(inventory, deadline)
             if job['inventory_sha256'] is None:
-                raise RuntimeError('memory inventory identity incomplete before budget ended')
+                raise WorkLimit('memory inventory identity incomplete before budget ended')
             plugin_rows = {}
             for record in records:
                 if record['kind'] == 'row':
@@ -5962,8 +6046,8 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
             job['status'] = 'complete'
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
-            status = 'failed'
-            job['status'] = 'failed'
+            status = _error_status(error)
+            job['status'] = _error_status(error)
             job['warning'] = f'{type(error).__name__}: {error}'
             manifest['warnings'].append(f"memory job failed: {type(error).__name__}")
         finally:
@@ -5987,7 +6071,7 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
         inventory = Path(old.get('inventory_path', ''))
         try:
             valid = (reusable is not None and inventory.is_file() and not inventory.is_symlink()
-                     and _hash(inventory, deadline) == old.get('inventory_sha256'))
+                     and _identity_matches(inventory, old.get('inventory_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -6020,7 +6104,7 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
                                           2 * 1024 * 1024, 8,
                                           min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                                           min(30, max(.01, deadline - time.monotonic())))
-            if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
                 raise RuntimeError('disk image changed before output publication')
             summary = [{key: value for key, value in record.items() if key != 'path'}
                        for record in records]
@@ -6028,7 +6112,7 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
             _write_json(inventory, summary)
             inventory_hash = _hash(inventory, deadline)
             if inventory_hash is None:
-                raise RuntimeError('disk inventory identity incomplete before budget ended')
+                raise WorkLimit('disk inventory identity incomplete before budget ended')
             job['inventory_path'] = str(inventory)
             job['inventory_sha256'] = inventory_hash
             entries = 0
@@ -6069,7 +6153,7 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
             warnings = [f'{type(error).__name__}: {error}']
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = warnings[0]
             manifest['warnings'].append(f"disk job failed: {type(error).__name__}")
         finally:
@@ -6078,7 +6162,8 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'DF01' in manifest['coverage']:
-        manifest['coverage']['DF01']['status'] = ('failed' if not old and job['status'] == 'failed' else
+        manifest['coverage']['DF01']['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                                                  'failed' if reusable is None and job['status'] == 'failed' else
                                                   'truncated' if warnings else 'ran' if partitions else 'no finding')
         manifest['coverage']['DF01']['note'] = 'read-only partition and allocated-file inventory; exact targeted extraction'
 
@@ -6092,7 +6177,7 @@ def _disk_recovery_job(run, manifest, artifact, deadline, queue, depth):
         inventory = Path(old.get('inventory_path', ''))
         try:
             valid = (reusable is not None and inventory.is_file() and not inventory.is_symlink()
-                     and _hash(inventory, deadline) == old.get('inventory_sha256'))
+                     and _identity_matches(inventory, old.get('inventory_sha256'), deadline) is True)
         except OSError:
             valid = False
         if not valid:
@@ -6127,7 +6212,7 @@ def _disk_recovery_job(run, manifest, artifact, deadline, queue, depth):
                 Path(artifact['path']), staging, 2 * 1024 * 1024, 8,
                 min(16 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                 min(30, max(.01, deadline - time.monotonic())))
-            if _hash(Path(artifact['path']), deadline) != artifact['sha256']:
+            if not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
                 raise RuntimeError('disk image changed before recovery publication')
             summary = [{field: value for field, value in row.items() if field != 'path'}
                        for row in rows]
@@ -6135,7 +6220,7 @@ def _disk_recovery_job(run, manifest, artifact, deadline, queue, depth):
             _write_json(inventory, summary)
             inventory_hash = _hash(inventory, deadline)
             if inventory_hash is None:
-                raise RuntimeError('disk recovery inventory identity incomplete before budget ended')
+                raise WorkLimit('disk recovery inventory identity incomplete before budget ended')
             job['inventory_path'] = str(inventory)
             job['inventory_sha256'] = inventory_hash
             for row in rows:
@@ -6181,7 +6266,7 @@ def _disk_recovery_job(run, manifest, artifact, deadline, queue, depth):
             manifest['warnings'].extend(warnings[:100])
         except Exception as error:
             warnings = [f'{type(error).__name__}: {error}']
-            job['status'] = 'failed'
+            job['status'] = _error_status(error)
             job['warning'] = warnings[0]
             manifest['warnings'].append(f"disk recovery job failed: {type(error).__name__}")
         finally:
@@ -6190,7 +6275,8 @@ def _disk_recovery_job(run, manifest, artifact, deadline, queue, depth):
         _write_json(run / 'jobs' / f"{job['id']}.json", job)
         _write_json(run / 'manifest.json', manifest)
     if 'DF02' in manifest['coverage']:
-        manifest['coverage']['DF02']['status'] = ('failed' if not old and job['status'] == 'failed' else
+        manifest['coverage']['DF02']['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
+                                                  'failed' if reusable is None and job['status'] == 'failed' else
                                                   'truncated' if warnings else 'ran' if entries or count else 'no finding')
         manifest['coverage']['DF02']['note'] = 'deleted inode bytes uncertain; PNG/ZIP carves structurally verified'
 
@@ -6207,9 +6293,13 @@ def _reusable_children(manifest, job, deadline):
             return None
         path = Path(child['path'])
         try:
-            valid = not path.is_symlink() and path.is_file() and _hash(path, deadline) == child['sha256']
+            valid = (not path.is_symlink() and path.is_file() and
+                     _identity_matches(path, child['sha256'], deadline))
         except OSError:
             valid = False
+        if valid is None:
+            manifest['warnings'].append(f"stored artifact {child_id} identity incomplete; affected job will rerun")
+            return None
         if not valid:
             for item in manifest['artifacts']:
                 if item['path'] == child['path']:
@@ -6567,9 +6657,12 @@ def _scan_artifact(manifest, artifact, deadline, patterns, data=None, *, private
         findings, warnings = scan_candidates(data if data is not None else path,
                                              artifact['id'], patterns, deadline,
                                              private_crib=private_crib)
-        if data is None and _hash(path, deadline) != artifact['sha256']:
+        if data is None and not _require_identity(path, artifact['sha256'], deadline):
             manifest['warnings'].append(f"{artifact['id']}: bytes changed during candidate scan")
             return
+    except WorkLimit:
+        manifest['warnings'].append(f"{artifact['id']}: candidate scan identity incomplete before budget ended")
+        return
     except OSError as error:
         manifest['warnings'].append(f"{artifact['id']}: candidate scan failed: {type(error).__name__}")
         return
@@ -6697,7 +6790,7 @@ def _powershell_source(artifact):
 
 def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker=False):
     from .profiles.encoding import decode
-    from .profiles.xor import recover_repeating_key, recover_single_byte
+    from .profiles.xor import MIN_FLAG_TOKEN_BYTES, recover_repeating_key, recover_single_byte
     from .profiles.documents import extract_zip
     from .profiles.sevenzip import extract_7z
     from .profiles.images import extract_image_tail
@@ -6731,7 +6824,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         f'no candidate matched supplied literal crib ({len(crib)} bytes; '
         f'key length up to {min(16, max(0, len(crib) - 5))} bytes) '
         'or printable English-frequency thresholds'
-        if crib else 'no candidate met printable English-frequency thresholds')
+        if crib else 'no candidate met printable English-frequency or flag-shape thresholds')
     manifest['web_scope_origin'] = hints.get('scope_origin')
     manifest['jwt_hints_sha256'] = jwt_hint_hash
     manifest['rsa_parameters_sha256'] = rsa_hash
@@ -6940,7 +7033,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     try:
                         result = _run_image(path, min(MAX_CHILD, MAX_DERIVED - manifest['derived_bytes']),
                                             min(30, max(.01, deadline - time.monotonic())))
-                        if _hash(path, deadline) != artifact['sha256']:
+                        if not _require_identity(path, artifact['sha256'], deadline):
                             raise RuntimeError('image changed before tail publication')
                         if result:
                             data, evidence = result
@@ -6968,9 +7061,9 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         manifest['warnings'].append(str(error))
                         if 'IMG01' in manifest['coverage']:
                             manifest['coverage']['IMG01']['status'] = 'truncated'
-                            manifest['coverage']['IMG01']['note'] = f'{image_kind.upper()} trailing ZIP exceeds output bound'
+                            manifest['coverage']['IMG01']['note'] = f'{image_kind.upper()} tail inspection: {error}'
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"image tail job failed: {type(error).__name__}")
                     job['ended'] = time.time()
@@ -7060,7 +7153,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                                      min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
                                                      MAX_DERIVED - manifest['derived_bytes'], passwords,
                                                      min(30, max(.01, deadline - time.monotonic())))
-                        if _hash(path, deadline) != artifact['sha256']:
+                        source_digest = _hash(path, deadline)
+                        if source_digest is None:
+                            raise WorkLimit('archive source identity incomplete before work budget ended')
+                        if source_digest != artifact['sha256']:
                             raise RuntimeError('archive changed before member publication')
                         for record in records:
                             locator = {'archive_member': record['member'],
@@ -7087,8 +7183,16 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                 'ran' if encrypted
                                 else 'no finding')
                             manifest['coverage']['DOC02']['note'] = 'supplied ZIP password candidates only'
+                    except WorkLimit as error:
+                        job['status'] = 'truncated'
+                        job['warning'] = str(error)
+                        manifest['warnings'].append(str(error))
+                        _doc01_coverage(manifest, 'truncated')
+                        if 'DOC02' in manifest['coverage']:
+                            manifest['coverage']['DOC02']['status'] = 'truncated'
+                            manifest['coverage']['DOC02']['note'] = 'ZIP encryption outcome unverified before work budget ended'
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"ZIP job failed: {type(error).__name__}")
                         _doc01_coverage(manifest, 'failed')
@@ -7140,7 +7244,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             path, staging, min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
                             MAX_DERIVED - manifest['derived_bytes'], passwords, executable,
                             min(30, max(.01, deadline - time.monotonic())))
-                        if _hash(path, deadline) != artifact['sha256']:
+                        if not _require_identity(path, artifact['sha256'], deadline):
                             raise RuntimeError('archive changed before member publication')
                         for record in records:
                             locator = {'archive_member': record['member'],
@@ -7165,10 +7269,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             'skipped prerequisite' if job['encrypted_unresolved'] else
                             'ran' if job['encrypted_recovered'] else 'no finding')
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"7z job failed: {type(error).__name__}")
-                        _doc01_coverage(manifest, 'failed')
+                        _doc01_coverage(manifest, job['status'])
+                        manifest['coverage']['DOC02']['status'] = job['status']
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
@@ -7214,7 +7319,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                                       min(100, MAX_ARTIFACTS - len(manifest['artifacts'])),
                                                       min(64 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                                                       min(30, max(.01, deadline - time.monotonic())))
-                        if _hash(path, deadline) != artifact['sha256']:
+                        if not _require_identity(path, artifact['sha256'], deadline):
                             raise RuntimeError('MIME source changed before part publication')
                         for record in records:
                             locator = {'mime_part': record['part_path'], 'part_index': record['index'],
@@ -7235,9 +7340,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                 'truncated' if warnings else 'ran' if job['child_ids'] else 'no finding')
                             manifest['coverage']['DOC06']['note'] = 'bounded MIME leaf parts only'
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"MIME job failed: {type(error).__name__}")
+                        if 'DOC06' in manifest['coverage']:
+                            manifest['coverage']['DOC06']['status'] = job['status']
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
@@ -7275,7 +7382,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         records, warnings = _run_pdf(path, staging, 100,
                                                      min(64 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
                                                      min(30, max(.01, deadline - time.monotonic())))
-                        if _hash(path, deadline) != artifact['sha256']:
+                        if not _require_identity(path, artifact['sha256'], deadline):
                             raise RuntimeError('PDF source changed before output publication')
                         for record in records:
                             locator = {'pdf_locator': record['locator'], 'pdf_kind': record['kind'],
@@ -7298,9 +7405,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             manifest['coverage']['DOC04']['status'] = status
                             manifest['coverage']['DOC04']['note'] = 'bounded pypdf text, attachments and streams'
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"PDF job failed: {type(error).__name__}")
+                        if 'DOC04' in manifest['coverage']:
+                            manifest['coverage']['DOC04']['status'] = job['status']
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
@@ -7534,11 +7643,11 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                             _doc01_coverage(manifest, 'ran' if any(
                                 operation.startswith('gzip') for operation in produced) else 'truncated')
                     except Exception as error:
-                        job['status'] = 'failed'
+                        job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"encoding job failed: {type(error).__name__}")
                         if doc01_gzip:
-                            _doc01_coverage(manifest, 'failed')
+                            _doc01_coverage(manifest, job['status'])
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
@@ -7550,7 +7659,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 if 'ENC05' in manifest['coverage'] and manifest['coverage']['ENC05']['status'] != 'ran':
                     manifest['coverage']['ENC05']['status'] = 'truncated'
                     manifest['coverage']['ENC05']['note'] = 'XOR input limit'
-            elif len(data) >= 16 or (len(crib) >= 6 and len(data) >= len(crib)):
+            elif len(data) >= MIN_FLAG_TOKEN_BYTES or (len(crib) >= 6 and len(data) >= len(crib)):
                 fingerprint = hashlib.sha256(Path(recover_single_byte.__code__.co_filename).read_bytes()).hexdigest()
                 key = hashlib.sha256(f"{artifact['sha256']}:xor-search.v1:{fingerprint}:8:"
                                      f"{manifest['xor_crib_sha256']}".encode()).hexdigest()
@@ -7610,7 +7719,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                                     entry['note'] = ('XOR candidates retained' if job['child_ids'] else
                                                      xor_no_candidate_note)
                         except Exception as error:
-                            job['status'] = 'failed'
+                            job['status'] = _error_status(error)
                             job['warning'] = f'{type(error).__name__}: {error}'
                             manifest['warnings'].append(f"XOR job failed: {type(error).__name__}")
                         job['ended'] = time.time()
@@ -7620,7 +7729,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                   manifest['coverage']['ENC05']['status'] == 'not scheduled'):
                 manifest['coverage']['ENC05']['status'] = 'skipped prerequisite'
                 manifest['coverage']['ENC05']['note'] = (
-                    'fewer than 16 bytes; need text-frequency evidence or a six-byte literal crib')
+                    f'fewer than {MIN_FLAG_TOKEN_BYTES} bytes; need text-frequency evidence '
+                    'from more bytes or a six-byte literal crib')
         _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []),
                        data, private_crib=crib)
     if queue or time.monotonic() >= overall_deadline:

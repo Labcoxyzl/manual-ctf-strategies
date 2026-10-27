@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import lzma
+import mmap
 import multiprocessing
 import os
 import sqlite3
@@ -42,6 +43,10 @@ def _spawn_descendant(marker):
     child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'])
     Path(marker).write_text(str(child.pid))
     time.sleep(30)
+
+
+def _delayed_worker_entry(*args):
+    time.sleep(5)
 
 
 class AutosolveCoreTests(unittest.TestCase):
@@ -120,6 +125,19 @@ int main(int argc, char **argv) {
                     core._stop_worker(worker)
                 unrelated.terminate()
                 unrelated.wait(timeout=3)
+
+    def test_mime_timeout_during_spawn_startup_stops_worker_promptly(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'message.eml'
+            source.write_bytes(b'MIME-Version: 1.0\nContent-Type: text/plain\n\nhello')
+            before = {child.pid for child in multiprocessing.active_children()}
+            started = time.monotonic()
+            with patch.object(core, '_worker_entry', _delayed_worker_entry):
+                with self.assertRaises(TimeoutError):
+                    core._run_mime(source, root / 'staging', 8, 1024, .001)
+            self.assertLess(time.monotonic() - started, 3)
+            self.assertFalse({child.pid for child in multiprocessing.active_children()} - before)
 
     def test_source_resume_new_hints_and_changed_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -590,6 +608,406 @@ int main(int argc, char **argv) {
             for family in ('DOC01', 'ENC01', 'ENC02'):
                 self.assertEqual(manifest['coverage'][family]['status'], 'ran')
 
+    def test_zip_publication_distinguishes_expired_identity_from_changed_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input.zip'
+            with zipfile.ZipFile(source, 'w') as archive:
+                archive.writestr('payload', b'ZIP_IDENTITY_CONTROL')
+            original = source.read_bytes()
+            real_hash, real_run_zip = core._hash, core._run_zip
+            for identity, expected in (('expired', 'truncated'), ('changed', 'failed'),
+                                       ('matching', 'complete')):
+                with self.subTest(identity=identity):
+                    source.write_bytes(original)
+                    extracted = False
+
+                    def run_zip(*args):
+                        nonlocal extracted
+                        result = real_run_zip(*args)
+                        extracted = True
+                        if identity == 'changed':
+                            source.write_bytes(original + b'changed after extraction')
+                        return result
+
+                    def source_hash(path, deadline):
+                        if extracted and Path(path) == source and identity == 'expired':
+                            return None
+                        return real_hash(path, deadline)
+
+                    with patch.object(core, '_run_zip', side_effect=run_zip), \
+                         patch.object(core, '_hash', side_effect=source_hash):
+                        run, _ = core.analyze(source, category='documents', budget=3,
+                                              runs_root=root / 'runs')
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    job = next(job for job in manifest['jobs'] if job['adapter_id'] == 'zip')
+                    self.assertEqual(job['status'], expected)
+                    self.assertEqual(manifest['coverage']['DOC01']['status'],
+                                     'ran' if identity == 'matching'
+                                     else expected)
+                    self.assertEqual(bool(job['child_ids']), expected == 'complete')
+                    self.assertEqual(source.read_bytes() == original, identity != 'changed')
+                    if identity == 'expired':
+                        self.assertIn('identity incomplete', job['warning'])
+                        self.assertNotIn('changed', job['warning'])
+                        self.assertEqual(manifest['coverage']['DOC02']['status'], 'truncated')
+                    elif expected == 'failed':
+                        self.assertIn('archive changed', job['warning'])
+
+    def test_encrypted_zip_identity_expiry_marks_both_document_families_truncated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'encrypted.zip'
+            source.write_bytes(ENCRYPTED_ZIP)
+            password = root / 'passwords.txt'
+            password.write_text('correct horse\n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': password.name}))
+            real_hash, real_run_zip = core._hash, core._run_zip
+            extracted = False
+
+            def run_zip(*args):
+                nonlocal extracted
+                result = real_run_zip(*args)
+                extracted = True
+                return result
+
+            def source_hash(path, deadline):
+                if extracted and Path(path) == source:
+                    return None
+                return real_hash(path, deadline)
+
+            with patch.object(core, '_run_zip', side_effect=run_zip), \
+                 patch.object(core, '_hash', side_effect=source_hash):
+                run, _ = core.analyze(source, category='documents', hints_path=hints,
+                                      budget=3, runs_root=root / 'runs')
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'zip')
+            self.assertTrue(extracted)
+            self.assertEqual(job['status'], 'truncated')
+            self.assertFalse(job['child_ids'])
+            self.assertEqual(manifest['coverage']['DOC01']['status'], 'truncated')
+            self.assertEqual(manifest['coverage']['DOC02']['status'], 'truncated')
+            self.assertIn('identity incomplete', job['warning'])
+
+    def test_image_tail_identity_expiry_has_neutral_coverage_note(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as writer:
+                writer.writestr('payload.txt', b'IMAGE_TAIL_ORACLE')
+            source = root / 'image.png'
+            source.write_bytes(sample_png() + archive.getvalue())
+            real_hash, real_run_image = core._hash, core._run_image
+            inspected = False
+
+            def run_image(*args):
+                nonlocal inspected
+                result = real_run_image(*args)
+                inspected = True
+                return result
+
+            def source_hash(path, deadline):
+                if inspected and Path(path) == source:
+                    return None
+                return real_hash(path, deadline)
+
+            with patch.object(core, '_run_image', side_effect=run_image), \
+                 patch.object(core, '_hash', side_effect=source_hash):
+                run, _ = core.analyze(source, category='images', budget=3,
+                                      runs_root=root / 'runs')
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'image-tail')
+            self.assertTrue(inspected)
+            self.assertEqual(job['status'], 'truncated')
+            self.assertFalse(job['child_ids'])
+            self.assertEqual(manifest['coverage']['IMG01']['status'], 'truncated')
+            self.assertIn('identity incomplete', manifest['coverage']['IMG01']['note'])
+            self.assertNotIn('exceeds output bound', manifest['coverage']['IMG01']['note'])
+
+    def test_nullable_identity_never_reuses_child_or_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'child'
+            path.write_bytes(b'cached bytes')
+            child = {'id': 'child', 'sha256': None, 'path': str(path),
+                     'complete': True, 'current': True, 'parents': []}
+            manifest = {'artifacts': [child], 'warnings': []}
+            job = {'id': 'cache-job', 'child_ids': ['child'], 'input_ids': [], 'key': 'cache'}
+            with patch.object(core, '_hash', return_value=None):
+                self.assertIsNone(core._reusable_children(manifest, job, time.monotonic() + 1))
+            self.assertFalse(child['complete'])
+            child['sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+            child['complete'] = child['current'] = True
+            manifest['warnings'].clear()
+            with patch.object(core, '_hash', return_value=None):
+                self.assertIsNone(core._reusable_children(manifest, job, time.monotonic() + 1))
+            self.assertTrue(child['complete'])
+            self.assertTrue(child['current'])
+            self.assertIn('identity incomplete', manifest['warnings'][0])
+
+            source = Path(directory) / 'clue.txt'
+            source.write_text('See https://example.org/evidence')
+            run, _ = core.analyze(source, category='osint', budget=3,
+                                  runs_root=Path(directory) / 'runs')
+            stored = json.loads((run / 'manifest.json').read_text())
+            old = next(item for item in stored['jobs'] if item['adapter_id'] == 'osint-ids')
+            old['records_sha256'] = None
+            (run / 'manifest.json').write_text(json.dumps(stored))
+
+            def output_hash(path, deadline):
+                if str(path).endswith('.osint-ids.json'):
+                    return None
+                return real_hash(path, deadline)
+
+            real_hash = core._hash
+            with patch.object(core, '_hash', side_effect=output_hash):
+                core.resume(run, budget=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            jobs = [item for item in resumed['jobs'] if item['adapter_id'] == 'osint-ids']
+            self.assertEqual(len(jobs), 2)
+            self.assertEqual(jobs[0]['status'], 'invalidated')
+            self.assertEqual(jobs[1]['status'], 'truncated')
+            self.assertFalse(any(row['job_id'] == jobs[0]['id'] and row['current']
+                                 for row in resumed['intelligence']))
+
+    def test_expired_child_cache_invalidates_only_affected_job_and_runs_mime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = root / 'inputs'
+            inputs.mkdir()
+            source = inputs / 'bundle.zip'
+            with zipfile.ZipFile(source, 'w') as archive:
+                archive.writestr('flag.txt', b'FLAG{CACHE_RESUME_ORACLE}')
+            run, _ = core.analyze(inputs, category='documents', budget=3,
+                                  runs_root=root / 'runs')
+            first = json.loads((run / 'manifest.json').read_text())
+            old = next(item for item in first['jobs'] if item['adapter_id'] == 'zip')
+            child = next(item for item in first['artifacts'] if item['id'] in old['child_ids'])
+            message = EmailMessage()
+            message.set_content('A separate ready job.')
+            message.add_attachment(b'MIME_READY', maintype='application',
+                                   subtype='octet-stream', filename='ready.bin')
+            (inputs / 'note.eml').write_bytes(message.as_bytes())
+            real_hash = core._hash
+            expired = False
+
+            def child_hash(path, deadline):
+                nonlocal expired
+                if Path(path) == Path(child['path']):
+                    expired = True
+                    return None
+                return real_hash(path, deadline)
+
+            with patch.object(core, '_hash', side_effect=child_hash):
+                core.resume(run, budget=3)
+            self.assertTrue(expired)
+            partial = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(next(j for j in partial['jobs'] if j['id'] == old['id'])['status'],
+                             'invalidated')
+            self.assertTrue(next(a for a in partial['artifacts'] if a['id'] == child['id'])['complete'])
+            self.assertFalse(next(a for a in partial['artifacts'] if a['id'] == child['id'])['current'])
+            self.assertFalse(any(f['artifact_id'] == child['id'] and f['current']
+                                 for f in partial['findings']))
+            self.assertNotIn(child['path'], (run / 'report.md').read_text())
+            self.assertTrue(any('identity incomplete' in warning and 'changed' not in warning
+                                for warning in partial['warnings']))
+            mime = next(j for j in partial['jobs'] if j['adapter_id'] == 'mime')
+            self.assertEqual(mime['status'], 'complete')
+            self.assertTrue(any(a['current'] and a['id'] in mime['child_ids'] and
+                                Path(a['path']).read_bytes() == b'MIME_READY'
+                                for a in partial['artifacts']))
+
+            core.resume(run, budget=3)
+            fresh = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(any(j['adapter_id'] == 'zip' and j['id'] != old['id'] and
+                                j['status'] == 'complete' for j in fresh['jobs']))
+            self.assertTrue(any(a['current'] and a['depth'] > 0 and
+                                Path(a['path']).read_bytes() == b'FLAG{CACHE_RESUME_ORACLE}'
+                                for a in fresh['artifacts']))
+
+    def test_mime_worker_handles_large_parent_address_map(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'message.eml'
+            payload = b'MIME_MAP_ORACLE' + b'X' * (4 * 1024 * 1024)
+            message = EmailMessage()
+            message.set_content('See attached evidence.')
+            message.add_attachment(payload, maintype='application',
+                                   subtype='octet-stream', filename='evidence.bin')
+            source.write_bytes(message.as_bytes())
+            original = source.read_bytes()
+            with mmap.mmap(-1, 1024**3):
+                records, warnings = core._run_mime(source, root / 'staging', 8, 6 * 1024 * 1024, 10)
+            self.assertEqual(warnings, [])
+            self.assertTrue(any(Path(record['path']).read_bytes() == payload
+                                for record in records))
+            self.assertEqual(source.read_bytes(), original)
+
+    def test_candidate_scan_with_expired_source_identity_publishes_no_findings(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'large.bin'
+            with source.open('wb') as stream:
+                stream.truncate(core.MAX_READ + 1)
+            artifact = {'id': 'sample', 'path': str(source),
+                        'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                        'current': True}
+            manifest = {'findings': [], 'warnings': [], 'candidate_pattern_sha256': 'pattern'}
+            finding = {'state': 'candidate', 'artifact_id': 'sample', 'operation': 'user pattern'}
+            with patch.object(core, 'scan_candidates', return_value=([finding], [])), \
+                 patch.object(core, '_hash', return_value=None):
+                core._scan_artifact(manifest, artifact, time.monotonic() + 1, [])
+            self.assertFalse(manifest['findings'])
+            self.assertIn('identity incomplete', manifest['warnings'][0])
+
+    def test_sqlite_invalidated_cache_new_failure_keeps_failed_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'evidence.db'
+            with sqlite3.connect(source) as connection:
+                connection.execute('CREATE TABLE notes (value TEXT)')
+                connection.execute('INSERT INTO notes VALUES (?)', ('source row',))
+            run, _ = core.analyze(source, category='disk_memory', budget=5,
+                                  runs_root=root / 'runs')
+            first = json.loads((run / 'manifest.json').read_text())
+            old = next(item for item in first['jobs'] if item['adapter_id'] == 'sqlite')
+            self.assertEqual(old['status'], 'complete')
+            child = next(item for item in first['artifacts'] if item['id'] in old['child_ids'])
+            Path(child['path']).write_bytes(b'tampered stored output')
+            with patch.object(core, '_run_sqlite', side_effect=RuntimeError('controlled failure')):
+                core.resume(run, budget=5)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            jobs = [item for item in resumed['jobs'] if item['adapter_id'] == 'sqlite']
+            self.assertEqual([item['status'] for item in jobs], ['invalidated', 'failed'])
+            self.assertEqual(resumed['coverage']['DF04']['status'], 'failed')
+            self.assertFalse(next(item for item in resumed['artifacts'] if item['id'] == child['id'])['current'])
+
+    def test_osint_ids_publication_distinguishes_expired_identity_from_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'clue.txt'
+            source.write_text('A local clue: https://example.org/evidence')
+            original = source.read_bytes()
+            real_hash, real_runner = core._hash, core._run_osint_ids
+            for identity, expected in (('expired', 'truncated'), ('changed', 'failed'),
+                                       ('matching', 'complete')):
+                with self.subTest(identity=identity):
+                    source.write_bytes(original)
+                    inspected = False
+
+                    def run_ids(*args):
+                        nonlocal inspected
+                        result = real_runner(*args)
+                        inspected = True
+                        if identity == 'changed':
+                            source.write_bytes(original + b' changed')
+                        return result
+
+                    def source_hash(path, deadline):
+                        if inspected and Path(path) == source and identity == 'expired':
+                            return None
+                        return real_hash(path, deadline)
+
+                    with patch.object(core, '_run_osint_ids', side_effect=run_ids), \
+                         patch.object(core, '_hash', side_effect=source_hash):
+                        run, _ = core.analyze(source, category='osint', budget=3,
+                                              runs_root=root / f'runs-{identity}')
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'osint-ids')
+                    self.assertEqual(job['status'], expected)
+                    self.assertEqual(manifest['coverage']['OS02']['status'],
+                                     'ran' if identity == 'matching' else expected)
+                    self.assertEqual(any(row['job_id'] == job['id'] and row['current']
+                                         for row in manifest['intelligence']), identity == 'matching')
+
+    def test_tls_publication_distinguishes_expired_identity_from_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'wire.pcap'
+            source.write_bytes(object_pcap([]))
+            original = source.read_bytes()
+            keylog = root / 'secrets.log'
+            keylog.write_text('CLIENT_RANDOM ' + '1' * 64 + ' ' + '2' * 96 + '\n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'tls_keylog': keylog.name}))
+            real_hash = core._hash
+            for identity, expected in (('expired', 'truncated'), ('changed', 'failed'),
+                                       ('matching', 'complete')):
+                with self.subTest(identity=identity):
+                    source.write_bytes(original)
+                    inspected = False
+
+                    def run_tls(*args):
+                        nonlocal inspected
+                        inspected = True
+                        if identity == 'changed':
+                            source.write_bytes(original + b' changed')
+                        stage = Path(args[2])
+                        stage.mkdir(parents=True, exist_ok=True)
+                        payload = stage / 'body.bin'
+                        payload.write_bytes(b'TLS_DEADLINE_ORACLE')
+                        return [{'path': str(payload), 'size': payload.stat().st_size,
+                                 'sha256': hashlib.sha256(payload.read_bytes()).hexdigest(),
+                                 'length_verified': True, 'index': 0, 'name': 'body.bin',
+                                 'packet': 1, 'tcp_stream': 0, 'source_locators': [],
+                                 'decrypted_fields': {}}], []
+
+                    def source_hash(path, deadline):
+                        if inspected and Path(path) == source and identity == 'expired':
+                            return None
+                        return real_hash(path, deadline)
+
+                    with patch.object(core, '_run_packet_tls', side_effect=run_tls), \
+                         patch.object(core, '_hash', side_effect=source_hash):
+                        run, _ = core.analyze(source, category='packets', hints_path=hints,
+                                              budget=3, runs_root=root / f'runs-{identity}')
+                    self.assertTrue(inspected)
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'packet-tls')
+                    self.assertEqual(job['status'], expected)
+                    self.assertEqual(manifest['coverage']['NET05']['status'],
+                                     'ran' if identity == 'matching' else expected)
+                    self.assertEqual(bool(job['child_ids']), identity == 'matching')
+
+    def test_osint_snapshot_publication_distinguishes_expired_identity_from_mutation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'snapshot.html'
+            source.write_text('<link rel="canonical" href="https://example.org/archive">'
+                              '<article data-captured="2026-04-09T07:18:22Z">Note</article>')
+            original = source.read_bytes()
+            real_hash, real_runner = core._hash, core._run_snapshot
+            for identity, expected in (('expired', 'truncated'), ('changed', 'failed'),
+                                       ('matching', 'complete')):
+                with self.subTest(identity=identity):
+                    source.write_bytes(original)
+                    inspected = False
+
+                    def run_snapshot(*args):
+                        nonlocal inspected
+                        result = real_runner(*args)
+                        inspected = True
+                        if identity == 'changed':
+                            source.write_bytes(original + b' changed')
+                        return result
+
+                    def source_hash(path, deadline):
+                        if inspected and Path(path) == source and identity == 'expired':
+                            return None
+                        return real_hash(path, deadline)
+
+                    with patch.object(core, '_run_snapshot', side_effect=run_snapshot), \
+                         patch.object(core, '_hash', side_effect=source_hash):
+                        run, _ = core.analyze(source, category='osint', budget=3,
+                                              runs_root=root / f'runs-{identity}')
+                    self.assertTrue(inspected)
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    job = next(j for j in manifest['jobs'] if j['adapter_id'] == 'osint-snapshots')
+                    self.assertEqual(job['status'], expected)
+                    self.assertEqual(manifest['coverage']['OS03']['status'],
+                                     'ran' if identity == 'matching' else expected)
+                    self.assertEqual(any(row['job_id'] == job['id'] and row['current']
+                                         for row in manifest['intelligence']), identity == 'matching')
+
     def test_mime_attachment_to_encoded_payload_chain(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -973,6 +1391,44 @@ int main(int argc, char **argv) {
             self.assertTrue(any(f['artifact_id'] == recovered[0]['id'] and f['state'] == 'candidate'
                                 for f in manifest['findings']))
             self.assertFalse(any(f['state'] == 'challenge_accepted' for f in manifest['findings']))
+
+    def test_minimum_flag_shape_xor_from_public_cli(self):
+        for name, plaintext, key in (
+            ('ctf', b'ctf{123456}', 0x91),
+            ('flag', b'flag{123456}', 0x5c),
+            ('crypto', b'crypto{abcdef}', 0xd3),
+        ):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'cipher.bin'
+                source.write_bytes(bytes(byte ^ key for byte in plaintext))
+                run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                original = next(a for a in manifest['artifacts'] if a['depth'] == 0)
+                exact = [a for a in manifest['artifacts']
+                         if a['source_locator'].get('xor_key_hex') == f'{key:02x}' and
+                         Path(a['path']).read_bytes() == plaintext]
+                self.assertEqual(len(exact), 1)
+                self.assertEqual(exact[0]['parents'][0]['id'], original['id'])
+                self.assertTrue(any(f['artifact_id'] == exact[0]['id'] and f['state'] == 'candidate'
+                                    for f in manifest['findings']))
+                self.assertFalse(any(f['state'] == 'challenge_accepted'
+                                     for f in manifest['findings']))
+
+        for source_bytes in (bytes(byte ^ 0x5c for byte in b'not-a-flag!'),
+                             bytes(range(12))):
+            with self.subTest(control=source_bytes.hex()), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'cipher.bin'
+                source.write_bytes(source_bytes)
+                run = Path(self.run_cli('analyze', source, '--category', 'encoding',
+                                        '--runs-root', root / 'runs', code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                self.assertFalse(any(a['source_locator'].get('xor_key_hex')
+                                     for a in manifest['artifacts']))
+                self.assertFalse(any(f['state'] == 'challenge_accepted'
+                                     for f in manifest['findings']))
 
     def test_repeating_xor_candidate_from_public_cli(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -220,6 +220,7 @@ class DiskRecoveryTests(unittest.TestCase):
         self.assertEqual(resumed.returncode, 3, resumed.stderr + resumed.stdout)
         after = json.loads((run / 'manifest.json').read_text())
         self.assertEqual(len([row for row in after['jobs'] if row['adapter_id'] == 'disk-recovery']), 1)
+        self.assertEqual(len([row for row in after['jobs'] if row['adapter_id'] == 'disk']), 1)
         self.assertTrue(next(row for row in after['artifacts'] if row['id'] == child['id'])['current'])
         self.fs.write_bytes(bytes(8 * 1024 * 1024))
         subprocess.run(['mke2fs', '-q', '-F', '-t', 'ext2', str(self.fs)],

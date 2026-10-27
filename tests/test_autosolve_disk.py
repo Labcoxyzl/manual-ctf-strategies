@@ -181,6 +181,13 @@ class DiskInspectionTests(unittest.TestCase):
         self.assertEqual(children[0]['source_locator']['disk_path'], 'answer.txt')
         self.assertEqual(self.image.read_bytes(), before)
         self.assertFalse(any(a['path'] == str(hints) for a in manifest['artifacts']))
+        unchanged = subprocess.run(['/opt/ctf-tools/py312/bin/python', '-B', str(SCRIPT), '--json',
+                                    'resume', str(run), '--hints', str(hints)],
+                                   capture_output=True, timeout=30)
+        self.assertEqual(unchanged.returncode, 3, unchanged.stderr + unchanged.stdout)
+        same = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(len([job for job in same['jobs'] if job['adapter_id'] == 'disk']), 1)
+        self.assertTrue(next(a for a in same['artifacts'] if a['id'] == children[0]['id'])['current'])
         hints.write_text(json.dumps({'disk_target_paths': []}))
         result = subprocess.run(['/opt/ctf-tools/py312/bin/python', '-B', str(SCRIPT), '--json',
                                  'resume', str(run), '--hints', str(hints)],
