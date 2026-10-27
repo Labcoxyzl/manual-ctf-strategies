@@ -374,6 +374,23 @@ and OS03 4/4. These five raise the full named-row count from 23 to **28 of
 oracles do not establish challenge-platform acceptance. PDF metadata remains
 outside OS01 routing and is a separate breadth gap.
 
+The twentieth candidate repairs WEB01 URL scope classification when a caller
+supplies an HTTP(S) origin: relative form and link references resolve against
+that origin, while protocol-relative, external-base and browser backslash
+network paths remain cross-origin or conservative. The unchanged frozen WEB01
+oracle moved from 3/4 to 4/4 in isolation; sibling WEB02/04/05 cases stayed
+4/4 each. Focused tests, exact public CLI offsets and a zero-network trace
+passed, with independent review. Integrated release gates and published-hash
+WEB01 row acceptance remain pending.
+
+Another published-nineteenth replay passed ENC03's five exact classical-cipher
+recoveries and two negative controls, with candidate-only output and stable
+report/resume behavior. This raises full named-row proof to **29 of 57**;
+28 remain unproved. REV02 separately passed four independently compiled
+static stack/XOR fallback cases with exact file offsets and no target execution,
+but its full named row remains pending: FLOSS-dependent coverage was unavailable
+and each run truthfully remained `truncated`.
+
 ## Independent end-to-end evidence
 
 - A local ret2win ELF/service has an independently replayed exploit oracle.
