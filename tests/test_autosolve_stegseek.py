@@ -278,6 +278,56 @@ class StegseekTests(unittest.TestCase):
         self.assertEqual(jobs[-1]["status"], "complete")
         self.assertEqual(manifest["coverage"]["IMG03"]["status"], "no finding")
 
+    def test_mixed_carriers_do_not_report_global_no_seed(self):
+        sources = self.root / "sources"
+        sources.mkdir()
+        (sources / "a-stego.jpg").write_bytes(b"\xff\xd8\xff" + b"a" * 100)
+        (sources / "z-clean.jpg").write_bytes(b"\xff\xd8\xff" + b"z" * 100)
+        stub = self.root / "stegseek-mixed-stub"
+        stub.write_text("#!/usr/bin/env python3\n"
+                        "import pathlib, sys\n"
+                        "a = sys.argv[1:]\n"
+                        "if a == ['--version']:\n"
+                        "    print('StegSeek 0.6')\n"
+                        "    sys.exit(0)\n"
+                        "if '--crack' in a and pathlib.Path(a[-3]).name == 'a-stego.jpg':\n"
+                        "    pathlib.Path(a[-1]).write_bytes(b'EXTRACTED-PAYLOAD')\n"
+                        "    sys.exit(0)\n"
+                        "if '--seed' in a:\n"
+                        "    print('error: Could not find a valid seed.', file=sys.stderr)\n"
+                        "sys.exit(1)\n")
+        stub.chmod(0o700)
+        password = self.root / "passwords.txt"
+        password.write_text("private-test-password\n")
+        hints = self.root / "hints.json"
+        hints.write_text(json.dumps({"password_file": str(password), "stegseek_seed": True}))
+        env = os.environ.copy()
+        env["AUTOSOLVE_STEGSEEK"] = str(stub)
+        result = subprocess.run(
+            [sys.executable, "-B", str(SCRIPT), "--json", "analyze", str(sources),
+             "--category", "images", "--budget", "60", "--hints", str(hints),
+             "--runs-root", str(self.root / "runs")], env=env,
+            capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)["run"])
+        manifest = json.loads((run / "manifest.json").read_text())
+        jobs = [job for job in manifest["jobs"] if job["adapter_id"] == "stegseek"]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual([job.get("seed_outcome") for job in jobs], [None, "no_seed"])
+        self.assertEqual(len(jobs[0]["child_ids"]), 1)
+        self.assertEqual(jobs[1]["child_ids"], [])
+        self.assertIn("no supported Steghide seed", jobs[1]["warnings"][0])
+        self.assertEqual(manifest["coverage"]["IMG03"]["status"], "ran")
+        note = manifest["coverage"]["IMG03"]["note"]
+        self.assertNotIn("no supported Steghide seed", note)
+        self.assertIn("per-carrier", note)
+        report = (run / "report.md").read_text()
+        self.assertIn(f"| IMG03 | ran | {note} |", report)
+        self.assertNotIn("private-test-password", report)
+        self.assertEqual(len([item for item in manifest["artifacts"]
+                              if item["current"] and item["source_locator"].get("stego_engine")
+                              == "stegseek"]), 1)
+
 
 @unittest.skipUnless(shutil.which("stegseek") and shutil.which("steghide"),
                      "stegseek and steghide are required for real fixture")

@@ -3439,7 +3439,9 @@ def _stegseek_job(run, manifest, artifact, deadline, passwords, password_hash,
                           'truncated' if any('timed out' in warning or 'byte limit' in warning
                                              for warning in warnings) or previous == 'truncated' else
                           'ran' if children or previous == 'ran' else 'no finding')
-    coverage['note'] = (warnings[0] if seed_outcome and warnings else
+    coverage['note'] = ('Stegseek extracted bytes are candidates; see per-carrier jobs'
+                        if coverage['status'] == 'ran' else
+                        warnings[0] if seed_outcome and warnings else
                         'Stegseek with supplied passwords; outputs are candidates; absence is ambiguous')
     return children
 
