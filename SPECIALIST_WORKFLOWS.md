@@ -110,6 +110,15 @@ Begin with a working request to the assigned service. Send it unchanged twice in
 
 **Check:** Record the original, changed and negative-control responses and any downstream state. A status change, error message or reflected payload alone may leave multiple explanations; choose the next observation that separates them. Keep credentials and challenge content local. [Repeater guide](https://portswigger.net/burp/documentation/desktop/tools/repeater).
 
+<a id="web-output-context"></a>
+## Reflected input: separate output from execution
+
+Start with a working request to the **assigned** application. Replay it unchanged twice in Burp Repeater so redirects, session state and changing response fields are visible. Change one input to a unique inert marker and save the request, `Content-Type` and relevant raw response bytes. Locate the marker in its exact HTML text, quoted attribute, URL, script or other context. [http_probe.py](scripts/templates/http_probe.py) can record a single stateless request; use Repeater when cookies, CSRF or multi-request state matter.
+
+On the selected Repeater response, use **Show response in browser** and open the unique URL in Burp’s browser or Chrome configured through Burp. Burp serves the selected main response without forwarding a new request to the application; page assets may still generate requests. Compare its raw source with the parsed DOM and console; note enforced `Content-Security-Policy` separately from Report-Only. If a script-execution check is justified for the observed context, use a harmless local DOM marker and no cookie access or external request. For a plain HTML text insertion **only**, one candidate is `<script>document.documentElement.dataset.ctfProbe='case-marker'</script>`; other contexts need different syntax. Check that the marker appears in the DOM only for the changed request, then repeat the unchanged request and a nearby negative control. A reflected string or injected element without the expected effect is not proof of script execution. A CSP block is evidence about that test and policy, not a universal safety result.
+
+**Check:** Keep the source request, raw response, parsed context, browser/CSP observation and negative control together. If the value is missing or the response changed, recheck redirects, cache, encoding, session and client-side rendering before drawing a conclusion. Do not spray payload lists or access secrets. [OWASP reflected XSS testing](https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/07-Input_Validation_Testing/01-Testing_for_Reflected_Cross_Site_Scripting/) · [OWASP output contexts](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) · [MDN CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) · [Burp response in browser](https://portswigger.net/burp/documentation/desktop/tools/message-editor).
+
 <a id="sqli-differential"></a>
 ## Suspected SQL input: compare paired conditions
 

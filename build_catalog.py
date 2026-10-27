@@ -39,6 +39,8 @@ LOCAL_ROUTE_HELP = {
     "endpoint-discovery": (("Endpoint workflow", "SPECIALIST_WORKFLOWS.html#web-endpoints"),
                            ("Stateless HTTP probe", "scripts/templates/http_probe.py")),
     "targeted-web-test": (("Targeted test workflow", "SPECIALIST_WORKFLOWS.html#web-targeted"),),
+    "web-output-context": (("Output context workflow", "SPECIALIST_WORKFLOWS.html#web-output-context"),
+                           ("Stateless HTTP probe", "scripts/templates/http_probe.py")),
     "sqli-differential": (("SQL condition workflow", "SPECIALIST_WORKFLOWS.html#sqli-differential"),),
     "server-fetch": (("Server fetch workflow", "SPECIALIST_WORKFLOWS.html#server-fetch"),),
     "object-authorization": (("Authorization workflow", "SPECIALIST_WORKFLOWS.html#object-authorization"),),
@@ -106,7 +108,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 38
+    assert len(routes) == len({route["id"] for route in routes}) == 39
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

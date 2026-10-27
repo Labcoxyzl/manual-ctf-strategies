@@ -1158,5 +1158,43 @@
         "url": "https://github.com/abrignoni/iLEAPP/blob/main/README.md"
       }
     ]
+  },
+  {
+    "id": "web-output-context",
+    "category": "web",
+    "title": "Reflected input → browser output context",
+    "input": "A stable request to an assigned application that renders one controlled value in an HTML response.",
+    "tool_ids": [
+      "windows-5",
+      "windows-20",
+      "kali-23"
+    ],
+    "steps": [
+      "Replay the working request unchanged twice in approved Burp Repeater, then change one input to a unique inert marker. Keep the raw response status, Content-Type, response bytes and nearby HTML syntax.",
+      "Use Burp Repeater’s Show response in browser on the selected response; open its unique URL in Burp’s browser or Chrome configured through Burp. Compare the raw response, parsed DOM and console/CSP messages without issuing a new main request; watch for separate asset requests.",
+      "If a controlled execution check is justified, use only a local DOM marker with no network or secret access. Compare the changed request with baseline and negative controls; record whether code executed, merely appeared as text/markup, or was blocked by policy."
+    ],
+    "expected": "A reproducible output context and browser observation, with a source request and controls; a reflected string alone is not an execution finding.",
+    "fallback": "A missing or changed marker may be due to encoding, sanitization, redirect, cache, session/CSRF expiry, or client-side rendering. Re-establish the same response and sink before changing the hypothesis.",
+    "caveat": "Use only the assigned service and harmless local effects; no credential reads, external callbacks, or broad payload spraying. CSP blocking an inline test is a specific observation, not proof that all contexts are safe.",
+    "verification": "OWASP, MDN and Burp source-reviewed; locally exercised encoded text, unblocked execution and CSP-blocked markup on a synthetic loopback page; no live challenge tested.",
+    "references": [
+      {
+        "title": "OWASP reflected XSS testing",
+        "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/07-Input_Validation_Testing/01-Testing_for_Reflected_Cross_Site_Scripting/"
+      },
+      {
+        "title": "OWASP output encoding contexts",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"
+      },
+      {
+        "title": "MDN Content Security Policy",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP"
+      },
+      {
+        "title": "Burp Show response in browser",
+        "url": "https://portswigger.net/burp/documentation/desktop/tools/message-editor"
+      }
+    ]
   }
 ]
