@@ -35,6 +35,7 @@ LOCAL_ROUTE_HELP = {
                          ("Optional local toolkit", "TOOLKIT.html#setup")),
     "executable-triage": (("Executable workflow", "SPECIALIST_WORKFLOWS.html#malware-executable"),
                           ("File preview script", "scripts/templates/file_intel.py")),
+    "observed-file-creation": (("File creation workflow", "SPECIALIST_WORKFLOWS.html#malware-file-creation"),),
     "document-code": (("Document workflow", "SPECIALIST_WORKFLOWS.html#malware-document"),
                       ("PDF workflow", "CORE_WORKFLOWS.html#pdf")),
     "bundle-extraction": (("Bundle workflow", "SPECIALIST_WORKFLOWS.html#malware-bundle"),
@@ -128,7 +129,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 50
+    assert len(routes) == len({route["id"] for route in routes}) == 51
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]

@@ -276,6 +276,34 @@
     ]
   },
   {
+    "id": "observed-file-creation",
+    "category": "malware",
+    "title": "Triage result → observed file creation",
+    "input": "A statically triaged Linux executable, one input predicted to create a named file, and an independently isolated, authorized analysis environment.",
+    "tool_ids": [
+      "kali-138"
+    ],
+    "steps": [
+      "From static triage, name one output file and input worth checking. Do not run an unknown executable until an independently isolated, authorized analysis environment is ready; a temporary directory or resource limit is not containment.",
+      "Inside that environment, prepare identical clean states for the selected input and a no-action control. For the selected run, use `strace -f -e trace=%file -o NEW_PRIVATE_TRACE ./PROGRAM INPUT`; keep the trace private and check the relevant path, syscall arguments and return value.",
+      "Inspect the selected output file's actual bytes or absence after each run, then compare with the control state. Record the program/input hashes, environment, trace path and observed file delta."
+    ],
+    "expected": "A selected file-creation syscall with a checkable return value and an independently observed new file under the selected input but not the no-action control.",
+    "fallback": "If the new file is missing, inspect the input and static call path; try a justified alternate input in a reset isolated state. A failed call or quiet trace does not prove the program never creates files.",
+    "caveat": "`%file` traces filename-taking calls, not write contents or all behavior. A trace shows calls observed under that input, not intent, safety, or every possible path; loading shared libraries creates unrelated file calls. Check installed strace help/version on the competition Kali machine.",
+    "verification": "Official strace options reviewed; benign local action/control ELF fixture checked with strace 6.8. Workbook lists Kali strace 7.0; competition installation and unknown-sample behavior remain unverified.",
+    "references": [
+      {
+        "title": "strace — official project",
+        "url": "https://strace.io/"
+      },
+      {
+        "title": "strace manual — syscall filters, forks and output",
+        "url": "https://man7.org/linux/man-pages/man1/strace.1.html"
+      }
+    ]
+  },
+  {
     "id": "http-baseline",
     "category": "web",
     "title": "HTTP request → one controlled change",

@@ -162,6 +162,15 @@ Start with [file_intel.py](scripts/templates/file_intel.py) or `file`, then use 
 
 **Check:** Record the file type, one indicator with its offset/address, the code or bytes that support it, and one claim the evidence does *not* establish. If the packer or architecture is uncertain, resolve that before trusting a decompiler view. [capa usage](https://github.com/mandiant/capa/blob/master/doc/usage.md).
 
+<a id="malware-file-creation"></a>
+## Linux executable: check one observed file creation
+
+Use this [file-creation route](index.html#route-observed-file-creation) only after static triage suggests a specific new output file worth checking. Run an unknown executable only in an independently isolated, authorized analysis environment; a temporary directory and resource limits do not contain it. Disable access to host files and services as the analysis setup requires, and keep inputs and traces private. Start the selected run and a no-action control from identical clean states.
+
+Inside that environment, choose a new private trace path and run `strace -f -e trace=%file -o NEW_PRIVATE_TRACE ./PROGRAM INPUT`. Replace `PROGRAM` and `INPUT` with the inspected executable and selected input. `-f` follows child processes; `%file` selects filename-taking syscalls, including `openat`, but does not record `write` contents. For one expected output path, inspect the call's arguments and return value, then read the actual file bytes or confirm its absence. Reset to the same clean state, run the no-action input, and compare its trace and file state. Ignore routine loader/library opens unless they answer the question.
+
+**Check:** Keep program and input hashes, the isolation setup, exact command, relevant trace lines, output bytes, and the matched control outcome. A successful `openat` alone does not prove a write; the independent file check establishes the observed effect. A quiet trace or failed call under one input does not rule out other behavior. Check `strace --version` and `strace --help` on competition Kali; the prepared local image has 6.8 while the workbook lists 7.0. [strace manual](https://man7.org/linux/man-pages/man1/strace.1.html) · [strace project](https://strace.io/).
+
 <a id="malware-document"></a>
 ## Office or PDF: locate code without executing it
 
