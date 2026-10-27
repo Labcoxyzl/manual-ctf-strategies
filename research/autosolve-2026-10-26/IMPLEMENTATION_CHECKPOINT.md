@@ -306,8 +306,12 @@ doctor and their child tools, and per-run scratch for actual zsteg and checker
 jobs. An isolated combined copied-export setup and all-profile doctor trace
 found zero outside ordinary-file or directory write attempts, with PTY devices
 excluded; no-trace doctor passed its zsteg and GDB probes. This is not yet a
-same-hash release gate for the integrated candidate. Combined release gates and
-publication remain pending. Full CAN01, OS01 and PWN03 named-row credit awaits
+same-hash release gate for the integrated candidate. Integrated review then
+found generic text could overwrite valid CAN01 coverage, display-only CAN01 and
+CAN02 row limits could mark complete work partial, and a later clean image could
+overwrite an earlier OS01 warning or failure. Focused red-to-green repairs and
+independent review passed. Combined release gates and publication remain
+pending. Full CAN01, OS01 and PWN03 named-row credit awaits
 integrated published-hash replay. PDF metadata remains outside OS01 routing
 and is a separate breadth gap.
 

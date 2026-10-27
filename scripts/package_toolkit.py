@@ -159,6 +159,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_recipes/model_parity.json',
         'scripts/chatbot_recipes/calibrated_search.json',
         'tests/test_autosolve_core.py', 'tests/test_autosolve_product_scratch_scope.py',
+        'tests/test_autosolve_os01_aggregate.py',
         'tests/test_autosolve_encoding.py',
         'tests/test_autosolve_documents.py', 'tests/test_autosolve_setup.py',
         'scripts/README.md', 'requirements.txt', 'constraints.txt', 'tests/test_toolkit.py',
