@@ -93,6 +93,18 @@ def main(argv=None):
     release = commands.add_parser('chatbot-release-origin', help='clear an unresolved chatbot POST only after reviewing target state')
     release.add_argument('run')
     commands.add_parser('chatbot-strategies', help='list bounded chatbot playbooks and required parameters')
+    ret2win = commands.add_parser('pwn-ret2win', help='prepare an explicit local ret2win candidate')
+    ret2win.add_argument('--binary', required=True, help='local x86-64 ELF')
+    ret2win.add_argument('--offset', type=int, required=True, help='known overflow offset in bytes')
+    ret2win.add_argument('--symbol', required=True, help='target ELF function')
+    ret2win.add_argument('--prompt-hex', required=True, help='exact initial prompt delimiter')
+    ret2win.add_argument('--success-hex', required=True, help='nonsecret local success marker')
+    ret2win.add_argument('--budget', type=float, default=10)
+    ret2win.add_argument('--runs-root', help='directory for private run records')
+    ret2win.add_argument('--replay-local', action='store_true', help='run this local ELF once')
+    ret2win.add_argument('--runtime-base', help='PIE base from an observed process, candidate only')
+    ret2win.add_argument('--base-evidence', help='description of the observation that supports PIE base')
+    ret2win.add_argument('--library-path', help='explicit local shared-library directory for replay')
     args = parser.parse_args(argv)
     try:
         if args.command == 'analyze':
@@ -119,6 +131,9 @@ def main(argv=None):
             elif manifest.get('run_type') == 'service_inventory':
                 from autosolve_lib import service_inventory as inventory_module
                 run, status = inventory_module.resume(args.run)
+            elif manifest.get('run_type') == 'pwn_ret2win':
+                from autosolve_lib import pwn_ret2win as ret2win_module
+                run, status = ret2win_module.resume(args.run)
             elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
                                                'web_workflow'):
                 from autosolve_lib import web as web_module
@@ -142,6 +157,9 @@ def main(argv=None):
             elif manifest.get('run_type') == 'service_inventory':
                 from autosolve_lib import service_inventory as inventory_module
                 path = inventory_module.report(args.run)
+            elif manifest.get('run_type') == 'pwn_ret2win':
+                from autosolve_lib import pwn_ret2win as ret2win_module
+                path = ret2win_module.report(args.run)
             elif manifest.get('run_type') in ('web_discovery', 'web_sql', 'web_leads',
                                                'web_workflow'):
                 from autosolve_lib import web as web_module
@@ -213,6 +231,15 @@ def main(argv=None):
                 from autosolve_lib import service as service_module
                 run, status = service_module.start(args.host, args.port, args.protocol,
                                                    args.budget, args.runs_root)
+            result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
+            code = 3
+        elif args.command == 'pwn-ret2win':
+            from autosolve_lib import pwn_ret2win as ret2win_module
+            run, status = ret2win_module.start(args.binary, args.offset, args.symbol,
+                                               args.prompt_hex, args.success_hex, args.budget,
+                                               args.runs_root, args.replay_local,
+                                               args.runtime_base, args.base_evidence,
+                                               args.library_path)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3
         else:
