@@ -158,8 +158,12 @@ CAN02 passed their complete named row contracts on pinned published commits.
 AV03 later passed its eight-case named row, including Morse, AFSK and negative
 controls; IMG02 passed its nine-case named row under its explicitly partial
 contract, with four truncated runs and 873 unverified candidates on one public
-image. DOC02 passed 11/11 only on the isolated post-fourteenth repair; the
-other 50 rows remain unproved at named-row depth.
+image. DOC02 then passed 11/11 on the published fifteenth commit, and AV01
+passed 6/6 on the same hash. Eight named rows are now proved on pinned
+published commits; the other 49 remain unproved at named-row depth. IMG03
+recovered all four positive payloads in an eight-case transfer, but its named
+row remains partial because empty carrier and absent password share an
+ambiguous product warning rather than the distinct outcomes the plan requires.
 
 The fourteenth checkpoint adds an authored AV03 Morse/AFSK doctor probe, an
 opt-in hash-locked AI CPU environment, a separate wheel-only angr checker
@@ -180,14 +184,27 @@ writes, and eleven adverse controls behaved as expected. AIC01/AIC02,
 CryptoHack RSA/XOR, encrypted PyInstaller and two official ret2win handouts
 matched independent local oracles without platform acceptance claims.
 
-The fifteenth candidate repairs DOC02 leading-signature corruption, reports
+The fifteenth checkpoint repairs DOC02 leading-signature corruption, reports
 how many unverified findings exceed the report display limit, and adds opt-in
 PWN03 local crash-offset discovery from GDB evidence with controlled replay.
 Both pinned ROP Emporium and pwn.college handouts yielded independently known
 offset 40 with negative controls; this is local replay, not platform
-acceptance. The deterministic Offline kit now contains 250 verified files.
-The DOC02 full named row passed 11/11 on the isolated fix; combined full-suite,
-rootless and frozen release gates remain pending on the integrated candidate.
+acceptance. The deterministic Offline kit contains 250 verified files. Its
+Python 3.12 suite passed 831 tests (24 optional skipped); the repository
+pre-push gate passed 907 tests (44 optional skipped, 517 subtests). Commit
+`4f6dad8` is published and remote verified. On that exact candidate, the
+all-domain gate passed 22/22, X/F passed 20/20, 21 changed-path DOC02/PWN03/
+IMG02 checks passed, and 15 representative measurements passed with zero
+validated false solutions in two classified negatives. Clean directory and
+ZIP core setup passed 30/30 locked packages with 250/250 file parity, seven
+adverse controls, and zero outside ordinary-file writes. PWN03 copied-export
+controls passed 5/5. Doctor still lacks a dedicated GDB/PWN03 readiness row;
+the next candidate adds that distinction.
+
+The sixteenth candidate adds supplied-password PDF extraction and a dedicated
+GDB/PWN03 doctor self-test. Both isolated changes passed focused tests and
+independent review. Combined tests, full DOC04 named-row transfer, rootless
+setup, and frozen release gates remain pending on the integrated candidate.
 
 ## Independent end-to-end evidence
 
