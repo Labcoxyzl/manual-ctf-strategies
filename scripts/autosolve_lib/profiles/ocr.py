@@ -6,7 +6,6 @@ import re
 import resource
 import shutil
 import subprocess
-import tempfile
 import warnings
 from pathlib import Path
 
@@ -23,13 +22,20 @@ def _limit_output():
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 
 
+def _output_file():
+    try:
+        return os.fdopen(os.memfd_create("autosolve-ocr", os.MFD_CLOEXEC), "w+b")
+    except AttributeError as error:
+        raise OSError("anonymous OCR output unavailable") from error
+
+
 def english_traineddata_path() -> Path | None:
     """Resolve the English model reported by the selected Tesseract executable."""
     tool = shutil.which(TESSERACT)
     if not tool:
         return None
     try:
-        with tempfile.TemporaryFile() as output:
+        with _output_file() as output:
             result = subprocess.run([tool, "--list-langs"], stdout=output,
                                     stderr=subprocess.DEVNULL, timeout=3,
                                     check=False, preexec_fn=_limit_output)
@@ -72,7 +78,7 @@ def extract_printed_text(path: Path, *, timeout: float = 8,
     if not tool:
         return [], ["Tesseract unavailable; printed-text OCR skipped"]
     try:
-        with tempfile.TemporaryFile() as output:
+        with _output_file() as output:
             result = subprocess.run([tool, str(path), "stdout", "-l", "eng", "--psm", "6"],
                                     stdout=output, stderr=subprocess.DEVNULL,
                                     timeout=timeout, check=False, preexec_fn=_limit_output)

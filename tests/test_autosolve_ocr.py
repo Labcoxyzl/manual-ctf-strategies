@@ -148,6 +148,40 @@ class OCRTests(unittest.TestCase):
         self.assertNotEqual(first, second)
         self.assertEqual(unavailable, [])
 
+    def test_probe_and_extraction_do_not_create_default_temporary_files(self):
+        data_dir = self.root / "tessdata"
+        data_dir.mkdir()
+        trained = data_dir / "eng.traineddata"
+        trained.write_bytes(b"English model")
+        source = self.root / "blank.png"
+        Image.new("RGB", (80, 80), "white").save(source)
+        fake = self.root / "tesseract"
+        fake.write_text("#!/usr/bin/env python3\n"
+                        "import sys\n"
+                        f"print('List of available languages in \"{data_dir}\" (1):' "
+                        "if '--list-langs' in sys.argv else 'PRINTED CLUE')\n"
+                        "if '--list-langs' in sys.argv: print('eng')\n")
+        fake.chmod(0o755)
+        with (mock.patch.object(ocr, "TESSERACT", str(fake)),
+              mock.patch("tempfile.TemporaryFile", side_effect=AssertionError("unscoped temp"))):
+            self.assertEqual(ocr.english_traineddata_path(), trained)
+            rows, notices = ocr.extract_printed_text(source)
+        self.assertEqual(notices, [])
+        self.assertEqual([row["data"] for row in rows], [b"PRINTED CLUE\n"])
+
+    def test_unavailable_anonymous_output_withholds_ocr(self):
+        source = self.root / "blank.png"
+        Image.new("RGB", (80, 80), "white").save(source)
+        fake = self.root / "tesseract"
+        fake.write_text("#!/bin/sh\nexit 0\n")
+        fake.chmod(0o755)
+        with (mock.patch.object(ocr, "TESSERACT", str(fake)),
+              mock.patch.object(ocr.os, "memfd_create", side_effect=OSError("unsupported"))):
+            self.assertIsNone(ocr.english_traineddata_path())
+            rows, notices = ocr.extract_printed_text(source)
+        self.assertEqual(rows, [])
+        self.assertIn("Tesseract failed", notices[0])
+
 
 if __name__ == "__main__":
     unittest.main()
