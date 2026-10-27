@@ -200,7 +200,14 @@ class SnapshotRunnerTests(unittest.TestCase):
         self.assertTrue(any(row['tag'] == 'OSINT clue' and
                             row['value'] == 'https://maps.example.org/area'
                             for row in manifest['intelligence']))
-        self.assertIn('OS03 trail', (run / 'report.md').read_text())
+        report = (run / 'report.md').read_text()
+        conflict_line = next(line for line in report.splitlines()
+                             if 'OS03 trail' in line and 'date_conflict' in line)
+        self.assertIn('2025-03-01', conflict_line)
+        self.assertIn('2025-03-02', conflict_line)
+        self.assertIn('byte_offset', conflict_line)
+        self.assertNotIn('"claims"', conflict_line)
+        self.assertLess(len(conflict_line), 384)
 
         self.cli('resume', run, '--hints', hints, '--budget', 30)
         same = json.loads((run / 'manifest.json').read_text())

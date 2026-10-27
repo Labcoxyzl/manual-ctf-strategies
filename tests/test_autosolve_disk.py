@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.autosolve_lib.core import _kind
 from scripts.autosolve_lib.profiles.disk import inspect_disk
 
 
@@ -244,6 +245,31 @@ class DiskInspectionTests(unittest.TestCase):
         self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
         manifest = json.loads((Path(json.loads(result.stdout)['run']) / 'manifest.json').read_text())
         self.assertEqual(manifest['coverage']['DF01']['status'], 'skipped prerequisite')
+
+    def test_raw_ext_magic_with_invalid_geometry_does_not_schedule_disk(self):
+        header = bytearray(4096)
+        struct.pack_into('<H', header, 1024 + 56, 0xEF53)
+        struct.pack_into('<I', header, 1024 + 0, 16)
+        struct.pack_into('<I', header, 1024 + 4, 8)
+        struct.pack_into('<I', header, 1024 + 24, 31)
+        struct.pack_into('<I', header, 1024 + 32, 8)
+        struct.pack_into('<I', header, 1024 + 40, 16)
+        struct.pack_into('<H', header, 1024 + 88, 128)
+        self.image.write_bytes(header)
+        result = subprocess.run(['/opt/ctf-tools/py312/bin/python', '-B', str(SCRIPT), '--json',
+                                 'analyze', str(self.image), '--category', 'auto',
+                                 '--runs-root', str(self.root / 'runs')],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        manifest = json.loads((Path(json.loads(result.stdout)['run']) / 'manifest.json').read_text())
+        self.assertEqual(next(row for row in manifest['artifacts'] if row['depth'] == 0)
+                         ['kind_evidence'], 'binary')
+        self.assertFalse(any(row['adapter_id'] in ('disk', 'disk-recovery')
+                             for row in manifest['jobs']))
+        noisy_head = bytearray(bytes(range(256)) * 16)
+        noisy_head[1080:1082] = b'\x53\xef'
+        self.image.write_bytes(noisy_head)
+        self.assertNotEqual(_kind(self.image), 'disk_image')
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ import zipfile
 import zlib
 from pathlib import Path
 
-from .disk import FLS, ICAT, MMLS, _PARTITION, _run, _safe_target
+from .disk import FLS, ICAT, MMLS, _PARTITION, _run, _safe_target, is_raw_ext_image
 
 
 BINWALK = shutil.which('binwalk') or '/usr/bin/binwalk'
@@ -144,83 +144,90 @@ def recover_disk(path: Path, output_dir: Path, *, timeout: float,
     image = str(path.resolve())
     rows, warnings = [], []
     total = 0
-    listing, error = _run([MMLS, image], deadline, max_output)
-    if error:
-        warnings.append(f'partition listing: {error}')
+    with path.open('rb') as source_file:
+        raw = is_raw_ext_image(source_file.read(2048), size)
+    if raw:
+        sector, partitions = 512, [('raw', 0)]
     else:
-        match = re.search(rb'Units are in (\d+)-byte sectors', listing)
-        sector = int(match.group(1)) if match else 0
-        if sector not in (512, 1024, 2048, 4096):
-            warnings.append('unsupported or missing partition sector size')
+        partitions = []
+        listing, error = _run([MMLS, image], deadline, max_output)
+        if error:
+            warnings.append(f'partition listing: {error}')
         else:
-            partitions = []
-            for line in listing.decode('utf-8', 'replace').splitlines():
-                match = _PARTITION.match(line)
-                if not match:
-                    continue
-                slot, start, end, length, _ = match.groups()
-                start, end, length = int(start), int(end), int(length)
-                if length and end == start + length - 1 and (start + length) * sector <= size:
-                    partitions.append((slot, start))
-                else:
-                    warnings.append(f'partition {slot}: invalid or out-of-range offset')
-                if len(partitions) >= 16:
-                    warnings.append('partition count limit reached; deleted inventory incomplete')
-                    break
-            if not partitions:
-                warnings.append('no valid allocated partitions found')
-            count = 0
-            for slot, offset in partitions:
-                listing, error = _run([FLS, '-d', '-F', '-r', '-p', '-b', str(sector),
-                                       '-o', str(offset), image], deadline, max_output)
-                if error:
-                    warnings.append(f'partition {slot} deleted listing: {error}')
-                    continue
+            match = re.search(rb'Units are in (\d+)-byte sectors', listing)
+            sector = int(match.group(1)) if match else 0
+            if sector not in (512, 1024, 2048, 4096):
+                warnings.append('unsupported or missing partition sector size')
+            else:
                 for line in listing.decode('utf-8', 'replace').splitlines():
-                    match = _DELETED.match(line)
+                    match = _PARTITION.match(line)
                     if not match:
                         continue
-                    if count >= 256:
-                        warnings.append('deleted entry count limit reached; inventory incomplete')
+                    slot, start, end, length, _ = match.groups()
+                    start, end, length = int(start), int(end), int(length)
+                    if length and end == start + length - 1 and (start + length) * sector <= size:
+                        partitions.append((slot, start))
+                    else:
+                        warnings.append(f'partition {slot}: invalid or out-of-range offset')
+                    if len(partitions) >= 16:
+                        warnings.append('partition count limit reached; deleted inventory incomplete')
                         break
-                    count += 1
-                    inode, realloc, name = match.groups()
-                    if not _safe_target(name):
-                        warnings.append(f'partition {slot} inode {inode}: unsafe or unsupported path')
+                if not partitions:
+                    warnings.append('no valid allocated partitions found')
+    if partitions:
+        count = 0
+        for slot, offset in partitions:
+            volume = 'raw ext filesystem' if raw else f'partition {slot}'
+            listing, error = _run([FLS, '-d', '-F', '-r', '-p', '-b', str(sector),
+                                   '-o', str(offset), image], deadline, max_output)
+            if error:
+                warnings.append(f'{volume} deleted listing: {error}')
+                continue
+            for line in listing.decode('utf-8', 'replace').splitlines():
+                match = _DELETED.match(line)
+                if not match:
+                    continue
+                if count >= 256:
+                    warnings.append('deleted entry count limit reached; inventory incomplete')
+                    break
+                count += 1
+                inode, realloc, name = match.groups()
+                if not _safe_target(name):
+                    warnings.append(f'{volume} inode {inode}: unsafe or unsupported path')
+                    continue
+                locator = f'{volume} sector {offset} deleted inode {inode} path {name}'
+                row = {'kind': 'deleted_entry', 'slot': slot, 'offset_sectors': offset,
+                       'inode': inode, 'file_path': name, 'locator': locator,
+                       'uncertainty': 'deleted metadata may survive after content blocks are reused'}
+                rows.append(row)
+                if realloc:
+                    warnings.append(f'{locator}: inode reallocated; content attribution unsafe')
+                    continue
+                if len([item for item in rows if item['kind'] in ('deleted_file', 'carved_file')]) >= max_files:
+                    warnings.append('recovered file count limit reached; recovery incomplete')
+                    break
+                remaining = max_total_bytes - total
+                if remaining <= 0:
+                    warnings.append('recovered byte limit reached; recovery incomplete')
+                    break
+                fd, temporary = tempfile.mkstemp(prefix='.disk-recover-', dir=output_dir)
+                try:
+                    with os.fdopen(fd, 'wb') as target:
+                        _, error = _run([ICAT, '-r', '-b', str(sector), '-o', str(offset),
+                                         image, inode], deadline, remaining, target)
+                    if error:
+                        warnings.append(f'{locator}: {error}')
                         continue
-                    locator = f'partition {slot} sector {offset} deleted inode {inode} path {name}'
-                    row = {'kind': 'deleted_entry', 'slot': slot, 'offset_sectors': offset,
-                           'inode': inode, 'file_path': name, 'locator': locator,
-                           'uncertainty': 'deleted metadata may survive after content blocks are reused'}
-                    rows.append(row)
-                    if realloc:
-                        warnings.append(f'{locator}: inode reallocated; content attribution unsafe')
-                        continue
-                    if len([item for item in rows if item['kind'] in ('deleted_file', 'carved_file')]) >= max_files:
-                        warnings.append('recovered file count limit reached; recovery incomplete')
-                        break
-                    remaining = max_total_bytes - total
-                    if remaining <= 0:
-                        warnings.append('recovered byte limit reached; recovery incomplete')
-                        break
-                    fd, temporary = tempfile.mkstemp(prefix='.disk-recover-', dir=output_dir)
-                    try:
-                        with os.fdopen(fd, 'wb') as target:
-                            _, error = _run([ICAT, '-r', '-b', str(sector), '-o', str(offset),
-                                             image, inode], deadline, remaining, target)
-                        if error:
-                            warnings.append(f'{locator}: {error}')
-                            continue
-                        with open(temporary, 'rb') as stream:
-                            digest = hashlib.file_digest(stream, 'sha256').hexdigest()
-                        extracted = Path(temporary).stat().st_size
-                        published = _publish(output_dir, temporary, len(rows))
-                        total += extracted
-                        rows.append({**row, 'kind': 'deleted_file', 'path': published,
-                                     'sha256': digest, 'size': extracted,
-                                     'uncertainty': 'content may be stale, overwritten or fragmented; no original checksum'})
-                    finally:
-                        os.unlink(temporary)
+                    with open(temporary, 'rb') as stream:
+                        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+                    extracted = Path(temporary).stat().st_size
+                    published = _publish(output_dir, temporary, len(rows))
+                    total += extracted
+                    rows.append({**row, 'kind': 'deleted_file', 'path': published,
+                                 'sha256': digest, 'size': extracted,
+                                 'uncertainty': 'content may be stale, overwritten or fragmented; no original checksum'})
+                finally:
+                    os.unlink(temporary)
     if time.monotonic() >= deadline or total >= max_total_bytes:
         warnings.append('carving skipped after recovery budget')
         return rows, warnings

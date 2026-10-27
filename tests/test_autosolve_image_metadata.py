@@ -35,6 +35,124 @@ class ImageMetadataTests(unittest.TestCase):
                             for row in findings))
         self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), before)
 
+    def test_gps_sign_and_conflicting_time_basis_are_labeled_without_changing_raw_tags(self):
+        source = self.root / "metadata.jpg"
+        Image.new("RGB", (2, 2), "red").save(source)
+        subprocess.run(["/usr/bin/exiftool", "-overwrite_original",
+                        "-GPSLatitude=12.345678", "-GPSLatitudeRef=S",
+                        "-GPSLongitude=103.456789", "-GPSLongitudeRef=E",
+                        "-DateTimeOriginal=2022:01:02 03:04:05",
+                        "-OffsetTimeOriginal=+07:00",
+                        "-XMP:DateCreated=2033:06:07 08:09:10+09:00",
+                        str(source)], check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        latitude = next(row for row in rows if row["group"].startswith("GPS")
+                        and row["tag"] == "GPSLatitude")
+        signed = next(row for row in rows if row["group"] == "Composite"
+                      and row["tag"] == "GPSLatitude")
+        exif_time = next(row for row in rows if row["group"] == "ExifIFD"
+                         and row["tag"] == "DateTimeOriginal")
+        xmp_time = next(row for row in rows if row["tag"] == "DateCreated")
+        self.assertEqual((latitude["value"], signed["value"]), (12.345678, -12.345678))
+        self.assertIn("unsigned magnitude", latitude["interpretation"])
+        self.assertIn("GPSLatitudeRef", latitude["interpretation"])
+        self.assertIn("hemisphere-signed", signed["interpretation"])
+        self.assertIn("+07:00", exif_time["interpretation"])
+        self.assertIn("capture-time fields conflict", exif_time["interpretation"])
+        self.assertIn("capture-time fields conflict", xmp_time["interpretation"])
+        self.assertEqual(latitude["source_tag"], "GPS:Copy1:GPSLatitude")
+
+    def test_missing_timezone_and_gps_are_not_invented(self):
+        source = self.root / "no-gps.jpg"
+        Image.new("RGB", (2, 2), "blue").save(source)
+        subprocess.run(["/usr/bin/exiftool", "-overwrite_original",
+                        "-DateTimeOriginal=2022:01:02 03:04:05", str(source)],
+                       check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        exif_time = next(row for row in rows if row["tag"] == "DateTimeOriginal")
+        self.assertIn("timezone unknown", exif_time["interpretation"])
+        self.assertFalse(any(row["tag"].startswith("GPS") for row in rows))
+
+    def test_equivalent_capture_instants_in_different_timezones_are_not_conflicts(self):
+        source = self.root / "same-instant.jpg"
+        Image.new("RGB", (2, 2), "red").save(source)
+        subprocess.run(["/usr/bin/exiftool", "-overwrite_original",
+                        "-DateTimeOriginal=2022:01:02 03:04:05",
+                        "-OffsetTimeOriginal=+07:00",
+                        "-XMP:DateCreated=2022:01:01 20:04:05+00:00", str(source)],
+                       check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        captures = [row for row in rows if row['tag'] in ('DateTimeOriginal', 'DateCreated')]
+        self.assertEqual(len(captures), 2)
+        self.assertTrue(all('capture-time fields conflict' not in row['interpretation']
+                            for row in captures))
+
+    def test_different_raw_times_with_missing_timezone_are_uncertain(self):
+        source = self.root / "mixed-basis.jpg"
+        Image.new("RGB", (2, 2), "red").save(source)
+        subprocess.run(["/usr/bin/exiftool", "-overwrite_original",
+                        "-DateTimeOriginal=2022:01:02 03:04:05",
+                        "-XMP:DateCreated=2033:06:07 08:09:10+09:00", str(source)],
+                       check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        captures = [row for row in rows if row['tag'] in ('DateTimeOriginal', 'DateCreated')]
+        self.assertEqual(len(captures), 2)
+        self.assertTrue(all('raw capture-time fields differ' in row['interpretation']
+                            and 'timezone unknown' in row['interpretation'] for row in captures))
+        self.assertTrue(all('capture-time fields conflict' not in row['interpretation']
+                            for row in captures))
+
+    def test_partial_gps_reference_does_not_sign_entire_coordinate_pair(self):
+        source = self.root / 'one-ref.jpg'
+        Image.new('RGB', (2, 2), 'red').save(source)
+        subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                        '-GPSLatitude=12.345678', '-GPSLatitudeRef=S',
+                        '-GPSLongitude=103.456789', str(source)],
+                       check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        latitude = next(row for row in rows if row['source_tag'] == 'Composite:GPSLatitude')
+        pair = next(row for row in rows if row['source_tag'] == 'Composite:GPSPosition')
+        longitude = next(row for row in rows if row['source_tag'] == 'GPS:GPSLongitude')
+        self.assertEqual((latitude['value'], pair['value'], longitude['value']),
+                         (-12.345678, '-12.345678 103.456789', 103.456789))
+        self.assertIn('hemisphere-signed', latitude['interpretation'])
+        self.assertIn('sign unknown', longitude['interpretation'])
+        self.assertIn('incomplete hemisphere references', pair['interpretation'])
+        self.assertNotIn('hemisphere-signed coordinate', pair['interpretation'])
+
+    def test_invalid_exif_offset_does_not_establish_timezone_basis(self):
+        source = self.root / 'bad-offset.jpg'
+        Image.new('RGB', (2, 2), 'red').save(source)
+        subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                        '-DateTimeOriginal=2022:01:02 03:04:05',
+                        '-OffsetTimeOriginal=+25:00', str(source)],
+                       check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        capture = next(row for row in rows if row['tag'] == 'DateTimeOriginal')
+        offset = next(row for row in rows if row['tag'] == 'OffsetTimeOriginal')
+        self.assertEqual(offset['value'], '+25:00')
+        self.assertIn('timezone unknown', capture['interpretation'])
+        self.assertIn('invalid OffsetTimeOriginal', capture['interpretation'])
+        self.assertNotIn('timezone basis +25:00', capture['interpretation'])
+
     def test_exiftool_process_is_bounded_and_malformed_input_is_reported(self):
         source = self.root / "invalid.bin"
         source.write_bytes(b"")

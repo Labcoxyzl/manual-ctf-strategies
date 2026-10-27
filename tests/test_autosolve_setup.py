@@ -90,6 +90,34 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result['operations']['documents.mime']['functional_probe'], 'passed')
         self.assertEqual(result['operations']['documents.pdf']['functional_probe'], 'passed')
 
+    @unittest.skipUnless(capabilities.shutil.which('7z') or capabilities.shutil.which('7zz'),
+                         '7-Zip unavailable')
+    def test_document_sevenzip_probe_checks_encrypted_stream_and_public_doctor(self):
+        result = capabilities.doctor(['documents'], self_test=True)
+        self.assertEqual(result['operations']['documents.7z']['functional_probe'], 'passed')
+        self.assertEqual(result['operations']['documents.7z']['status'], 'ready')
+        self.assertEqual(result['engines']['archive']['status'], 'ready')
+        self.assertTrue(result['engines']['archive']['options_compatible'])
+        command = [sys.executable, '-m', 'scripts.autosolve', '--json', 'doctor',
+                   '--profiles', 'documents', '--self-test']
+        completed = subprocess.run(command, cwd=Path(__file__).resolve().parents[1],
+                                   capture_output=True, text=True)
+        self.assertIn(completed.returncode, (0, 3), completed.stderr)
+        public = json.loads(completed.stdout)
+        self.assertEqual(public['operations']['documents.7z']['functional_probe'], 'passed')
+        self.assertEqual(public['engines']['archive']['status'], 'ready')
+
+    def test_document_missing_sevenzip_isolated_from_zip(self):
+        original_which = capabilities.shutil.which
+        with mock.patch.object(capabilities.shutil, 'which',
+                               side_effect=lambda name: None if name in ('7z', '7zz')
+                               else original_which(name)):
+            result = capabilities.doctor(['documents'], self_test=True)
+        self.assertEqual(result['operations']['documents.7z']['status'], 'unavailable')
+        self.assertEqual(result['operations']['documents.7z']['functional_probe'], 'not_run')
+        self.assertEqual(result['engines']['archive']['found'], False)
+        self.assertEqual(result['operations']['documents.zip']['status'], 'ready')
+
     def test_image_tail_probe_checks_real_png_and_zip(self):
         result = capabilities.doctor(['images'], self_test=True)
         self.assertEqual(result['operations']['images.png_tail']['functional_probe'], 'passed')

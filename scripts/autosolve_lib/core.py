@@ -419,6 +419,7 @@ def _hash(path, deadline):
 def _kind(path):
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(fd, 'rb') as stream:
+        source_size = os.fstat(stream.fileno()).st_size
         head = stream.read(4096)
         header = head[:512]
         try:
@@ -470,6 +471,10 @@ def _kind(path):
             int.from_bytes(head[446 + index * 16 + 12:446 + index * 16 + 16], 'little')
             for index in range(4)):
         return 'disk_image'
+    if len(head) >= 2048:
+        from .profiles.disk import is_raw_ext_image
+        if is_raw_ext_image(head, source_size):
+            return 'disk_image'
     header = head.replace(b'\r\n', b'\n').split(b'\n\n', 1)[0].lower()
     if b'mime-version:' in header or b'content-type: multipart/' in header:
         return 'mime'
@@ -3020,11 +3025,14 @@ def _image_metadata_job(run, manifest, artifact, deadline, *, make_views):
                 value = tag['value']
                 if not isinstance(value, (str, int, float, bool, type(None))):
                     value = json.dumps(value, ensure_ascii=True)
-                manifest['intelligence'].append({
+                item = {
                     'artifact_id': artifact['id'], 'job_id': job['id'], 'current': True,
                     'tag': tag['tag'], 'group': tag['group'], 'value': str(value)[:512],
                     'source_locator': {'exif_tag': tag['source_tag']},
-                    'next_action': 'Correlate this metadata with the original artifact.'})
+                    'next_action': 'Correlate this metadata with the original artifact.'}
+                if tag.get('interpretation'):
+                    item['interpretation'] = tag['interpretation'][:256]
+                manifest['intelligence'].append(item)
             if len(tags) > 100:
                 metadata_warnings.append('ExifTool tag display limit reached')
             tags_found = bool(tags)
@@ -5767,7 +5775,7 @@ def _disk_job(run, manifest, artifact, targets, deadline, queue, depth):
                     partitions += 1
                     value = f"{record['description']}; sector {record['offset_sectors']}; " \
                             f"length {record['length_sectors']}; sector bytes {record['sector_size']}"
-                    tag = 'disk partition'
+                    tag = 'disk volume' if record['slot'] == 'raw' else 'disk partition'
                 elif record['kind'] == 'entry':
                     entries += 1
                     if entries > 40:
@@ -6328,10 +6336,28 @@ def _render_report(run, manifest):
                          f"locator {json.dumps(locator, ensure_ascii=True)}")
     for item in manifest.get('intelligence', []):
         if item['current']:
+            source = item.get('source_locator') or {}
+            coordinates = ('byte_offset', 'byte_length', 'line', 'file_offset',
+                           'raw_size', 'static_vaddr', 'symbol_file_offset',
+                           'iat_file_offset', 'entry_file_offset', 'entry_static_vaddr')
+            locator = {key: source[key] for key in coordinates
+                       if isinstance(source.get(key), int) and not isinstance(source[key], bool)}
+            if isinstance(source.get('exif_tag'), str):
+                locator['exif_tag'] = source['exif_tag'][:64]
+            if item['tag'] == 'OS03 trail' and item['group'] == 'date_conflict':
+                dates = sorted({claim['date'] for claim in source.get('claims') or []
+                                if isinstance(claim, dict) and
+                                isinstance(claim.get('date'), str) and
+                                re.fullmatch(r'\d{4}-\d{2}-\d{2}', claim['date'])})[:4]
+                if dates:
+                    locator['claim_dates'] = dates
             lines.append(f"- {json.dumps(item['tag'], ensure_ascii=True)} "
                          f"({json.dumps(item['group'], ensure_ascii=True)}): "
                          f"{json.dumps(item['value'], ensure_ascii=True)} "
-                         f"from artifact {item['artifact_id']}")
+                         f"from artifact {item['artifact_id']}" +
+                         (f"; locator {json.dumps(locator, ensure_ascii=True)}" if locator else '') +
+                         (f"; interpretation: {json.dumps(item['interpretation'][:256], ensure_ascii=True)}"
+                          if isinstance(item.get('interpretation'), str) else ''))
     for warning in manifest['warnings']:
         lines.append(f'- Limit or prerequisite: {warning}')
     historical = sum(not f.get('current', True) for f in manifest['findings'])

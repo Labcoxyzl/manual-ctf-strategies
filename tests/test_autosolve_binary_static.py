@@ -201,6 +201,14 @@ class BinaryStaticTests(unittest.TestCase):
         self.assertTrue(any(row["tag"] == "Binary import" and row["value"] == "LoadLibraryA"
                             and row["source_locator"]["iat_file_offset"] is not None
                             for row in manifest["intelligence"]))
+        section = next(row for row in manifest["intelligence"]
+                       if row["tag"] == "Binary section" and row["group"] == "PE")
+        section_line = next(line for line in (run / "report.md").read_text().splitlines()
+                            if '"Binary section"' in line and
+                            json.dumps(section["value"]) in line)
+        self.assertIn(f'"file_offset": {section["source_locator"]["file_offset"]}',
+                      section_line)
+        self.assertLess(len(section_line), 384)
         self.assertEqual(source.read_bytes(), original)
 
         self.run_cli("resume", run, "--budget", "10")

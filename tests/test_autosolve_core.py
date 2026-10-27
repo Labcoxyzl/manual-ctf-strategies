@@ -1617,6 +1617,77 @@ int main(int argc, char **argv) {
             self.assertFalse(any(a['source_locator'].get('preview') for a in osint['artifacts']))
         self.assertEqual(source.read_bytes(), original)
 
+    def test_osint_metadata_interpretation_keeps_source_and_resume_stable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'metadata.jpg'
+            from PIL import Image
+            Image.new('RGB', (2, 2), 'red').save(source)
+            subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                            '-GPSLatitude=12.345678', '-GPSLatitudeRef=S',
+                            '-GPSLongitude=103.456789', '-GPSLongitudeRef=E',
+                            '-DateTimeOriginal=2022:01:02 03:04:05',
+                            '-OffsetTimeOriginal=+07:00',
+                            '-XMP:DateCreated=2033:06:07 08:09:10+09:00', str(source)],
+                           check=True, capture_output=True)
+            original = source.read_bytes()
+            run = Path(self.run_cli('analyze', source, '--category', 'osint',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            before = json.loads((run / 'manifest.json').read_text())
+            rows = [row for row in before['intelligence'] if row['artifact_id'] ==
+                    before['artifacts'][0]['id'] and row['current']]
+            raw = next(row for row in rows if row['source_locator'].get('exif_tag') ==
+                       'GPS:Copy1:GPSLatitude')
+            signed = next(row for row in rows if row['source_locator'].get('exif_tag') ==
+                          'Composite:GPSLatitude')
+            self.assertEqual((raw['value'], signed['value']), ('12.345678', '-12.345678'))
+            self.assertIn('unsigned magnitude', raw['interpretation'])
+            self.assertIn('hemisphere-signed', signed['interpretation'])
+            report = (run / 'report.md').read_text()
+            for term in ('unsigned magnitude', 'hemisphere-signed',
+                         'capture-time fields conflict', '+07:00'):
+                self.assertIn(term, report)
+            self.assertNotIn('location:', report.lower())
+            self.run_cli('resume', run, code=3)
+            after = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(len(after['intelligence']), len(before['intelligence']))
+            self.assertEqual(source.read_bytes(), original)
+
+            subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                            '-DateTimeOriginal=2033:06:07 08:09:10',
+                            '-OffsetTimeOriginal=+09:00', str(source)],
+                           check=True, capture_output=True)
+            self.run_cli('resume', run, code=3)
+            changed = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(all(not row['current'] for row in changed['intelligence']
+                                if row['artifact_id'] == before['artifacts'][0]['id']))
+            self.assertNotIn('capture-time fields conflict', (run / 'report.md').read_text())
+
+    def test_osint_metadata_does_not_trust_partial_gps_or_invalid_timezone(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, arguments, source_tag, expected in (
+                ('one-ref', ('-GPSLatitude=12.345678', '-GPSLatitudeRef=S',
+                             '-GPSLongitude=103.456789'), 'Composite:GPSPosition',
+                 'incomplete hemisphere references'),
+                ('bad-offset', ('-DateTimeOriginal=2022:01:02 03:04:05',
+                                '-OffsetTimeOriginal=+25:00'),
+                 'ExifIFD:DateTimeOriginal', 'invalid OffsetTimeOriginal'),
+            ):
+                source = root / f'{name}.jpg'
+                Image.new('RGB', (2, 2), 'red').save(source)
+                subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                                *arguments, str(source)], check=True, capture_output=True)
+                run = Path(self.run_cli('analyze', source, '--category', 'osint',
+                                        '--runs-root', root / name, code=3)['run'])
+                manifest = json.loads((run / 'manifest.json').read_text())
+                row = next(item for item in manifest['intelligence'] if
+                           item['current'] and item['source_locator'].get('exif_tag') == source_tag)
+                self.assertIn(expected, row['interpretation'])
+                self.assertIn(expected, (run / 'report.md').read_text())
+                self.assertEqual(manifest['coverage']['OS01']['status'], 'ran')
+
     @unittest.skipUnless(shutil.which('gcc'), 'gcc is unavailable')
     def test_checker_cli_requires_explicit_execution_and_replay(self):
         with tempfile.TemporaryDirectory() as directory:

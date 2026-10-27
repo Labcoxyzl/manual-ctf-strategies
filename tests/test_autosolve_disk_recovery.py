@@ -235,3 +235,64 @@ class DiskRecoveryTests(unittest.TestCase):
         self.assertEqual(checked.returncode, 3, checked.stderr + checked.stdout)
         capabilities = json.loads(checked.stdout)
         self.assertEqual(capabilities['operations']['disk_memory.recovery']['functional_probe'], 'passed')
+
+    def test_raw_ext4_auto_recovers_deleted_inode_and_allocated_target(self):
+        self.fs.write_bytes(bytes(8 * 1024 * 1024))
+        subprocess.run(['mke2fs', '-q', '-F', '-t', 'ext4', str(self.fs)],
+                       check=True, capture_output=True)
+        live = b'RAW-EXT4-LIVE\x00\xff'
+        gone = b'RAW-EXT4-DELETED\x00\xfe'
+        for name, content in (('live.txt', live), ('gone.txt', gone)):
+            payload = self.root / f'{name}.source'
+            payload.write_bytes(content)
+            self.command(f'write {payload} {name}')
+        self.command('rm gone.txt')
+        # Independent TSK oracle: the image starts at filesystem sector zero.
+        listing = subprocess.run(['fls', '-d', '-F', '-r', '-p', str(self.fs)],
+                                 check=True, capture_output=True, text=True).stdout
+        inode = re.search(r'r/r \* (\d+):\s+gone\.txt', listing)
+        self.assertIsNotNone(inode, listing)
+        oracle = subprocess.run(['icat', '-r', str(self.fs), inode.group(1)],
+                                check=True, capture_output=True).stdout
+        self.assertEqual(oracle, gone)
+        hints = self.root / 'hints.json'
+        hints.write_text(json.dumps({'disk_target_paths': ['live.txt']}))
+        before = hashlib.sha256(self.fs.read_bytes()).hexdigest()
+        command = ['/opt/ctf-tools/py312/bin/python', '-B', str(SCRIPT), '--json']
+        started = subprocess.run([*command, 'analyze', str(self.fs), '--category', 'auto',
+                                  '--hints', str(hints), '--runs-root', str(self.root / 'runs')],
+                                 capture_output=True, timeout=90)
+        self.assertEqual(started.returncode, 3, started.stderr + started.stdout)
+        run = Path(json.loads(started.stdout)['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        source = next(row for row in manifest['artifacts'] if row['depth'] == 0)
+        self.assertEqual(source['kind_evidence'], 'disk_image')
+        self.assertEqual(manifest['coverage']['DF01']['status'], 'ran')
+        self.assertEqual(manifest['coverage']['DF02']['status'], 'ran')
+        children = [row for row in manifest['artifacts'] if row['depth'] == 1 and row['current']]
+        self.assertEqual({Path(row['path']).read_bytes() for row in children}, {live, gone})
+        self.assertTrue(all(row['source_locator']['disk_offset_sectors'] == 0 for row in children))
+        self.assertEqual({row['source_locator']['disk_path'] for row in children},
+                         {'live.txt', 'gone.txt'})
+        self.assertEqual(hashlib.sha256(self.fs.read_bytes()).hexdigest(), before)
+        resumed = subprocess.run([*command, 'resume', str(run), '--hints', str(hints)],
+                                 capture_output=True, timeout=90)
+        self.assertEqual(resumed.returncode, 3, resumed.stderr + resumed.stdout)
+        after = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(len([row for row in after['jobs'] if row['adapter_id'] == 'disk']), 1)
+        self.assertEqual(len([row for row in after['jobs'] if row['adapter_id'] == 'disk-recovery']), 1)
+
+    def test_raw_ext4_four_kib_blocks_use_sector_zero(self):
+        self.fs.write_bytes(bytes(16 * 1024 * 1024))
+        subprocess.run(['mke2fs', '-q', '-F', '-t', 'ext4', '-b', '4096', str(self.fs)],
+                       check=True, capture_output=True)
+        original = b'FOUR-KIB-BLOCK-RECOVERY\x00\xff'
+        self.write_deleted('large-block.txt', original)
+        rows, warnings = recover_disk(self.fs, self.output, timeout=10,
+                                      max_output=100_000, max_files=8,
+                                      max_total_bytes=1024 * 1024)
+        self.assertEqual(warnings, [])
+        recovered = next(row for row in rows if row['kind'] == 'deleted_file')
+        self.assertEqual(recovered['path'].read_bytes(), original)
+        self.assertEqual(recovered['offset_sectors'], 0)
+        self.assertIn('raw ext filesystem', recovered['locator'])

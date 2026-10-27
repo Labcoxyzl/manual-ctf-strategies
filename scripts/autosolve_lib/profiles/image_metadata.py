@@ -3,12 +3,14 @@
 import json
 import hashlib
 import os
+import re
 import selectors
 import shutil
 import tempfile
 import time
 import uuid
 import warnings
+from datetime import datetime
 from pathlib import Path
 
 
@@ -16,6 +18,70 @@ _EXIFTOOL = (shutil.which(os.environ.get('AUTOSOLVE_EXIFTOOL', 'exiftool'))
              or os.environ.get('AUTOSOLVE_EXIFTOOL') or '/usr/bin/exiftool')
 _MAX_METADATA_OUTPUT = 1024 * 1024
 _MAX_FRAMES = 8
+
+
+def _annotate_metadata(findings: list[dict]) -> None:
+    raw_offset = next((row['value'] for row in findings
+                       if row['group'] == 'ExifIFD' and row['tag'] == 'OffsetTimeOriginal'), None)
+    match = re.fullmatch(r'[+-](\d{2}):(\d{2})', str(raw_offset))
+    offset = (raw_offset if match and int(match[1]) < 24 and int(match[2]) < 60
+              else None)
+    references = {row['tag']: str(row['value']).upper() for row in findings
+                  if row['group'] and row['group'].split(':', 1)[0] == 'GPS'
+                  and row['tag'] in ('GPSLatitudeRef', 'GPSLongitudeRef')}
+    references = {tag for tag, value in references.items()
+                  if value in (('N', 'S') if tag == 'GPSLatitudeRef' else ('E', 'W'))}
+    capture = []
+    for row in findings:
+        group, tag = row['group'], row['tag']
+        if group == 'GPS' or (group and group.startswith('GPS:')):
+            if tag in ('GPSLatitude', 'GPSLongitude'):
+                ref = f'{tag}Ref'
+                row['interpretation'] = (f'unsigned magnitude; hemisphere sign is in {ref}'
+                                         if ref in references else
+                                         f'raw GPS magnitude; {ref} unavailable, sign unknown')
+        elif group == 'Composite' and tag in ('GPSLatitude', 'GPSLongitude', 'GPSPosition'):
+            required = ({'GPSLatitudeRef', 'GPSLongitudeRef'} if tag == 'GPSPosition' else
+                        {f'{tag}Ref'})
+            row['interpretation'] = ('hemisphere-signed coordinate derived from GPS refs; unverified clue'
+                                     if required <= references else
+                                     'incomplete hemisphere references; sign unknown for missing axis')
+        is_exif_capture = group == 'ExifIFD' and tag == 'DateTimeOriginal'
+        is_xmp_capture = bool(group and group.startswith('XMP-') and
+                              tag in ('DateCreated', 'CreateDate'))
+        if not (is_exif_capture or is_xmp_capture):
+            continue
+        raw = str(row['value'])
+        normalized = raw[:10].replace(':', '-') + raw[10:]
+        if is_exif_capture and offset:
+            normalized += str(offset)
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError:
+            parsed = None
+        if is_exif_capture:
+            row['interpretation'] = ('raw capture wall time; timezone basis '
+                                     f'{offset} from ExifIFD:OffsetTimeOriginal' if offset else
+                                     'raw capture wall time; timezone unknown'
+                                     + (' (invalid OffsetTimeOriginal)' if raw_offset is not None else ''))
+        else:
+            row['interpretation'] = ('raw XMP capture time; timezone basis in value' if
+                                     parsed and parsed.tzinfo else
+                                     'raw XMP capture wall time; timezone unknown')
+        capture.append((row, parsed))
+    parsed = [value for _, value in capture]
+    if len(parsed) < 2 or any(value is None for value in parsed):
+        return
+    if len({bool(value.tzinfo) for value in parsed}) > 1:
+        note = ('raw capture-time fields differ; timezone unknown for at least one field'
+                if len({value.replace(tzinfo=None) for value in parsed}) > 1 else
+                'capture-time basis differs; timezone unknown for at least one field')
+    elif len(set(parsed)) > 1:
+        note = 'capture-time fields conflict; do not select one without corroboration'
+    else:
+        return
+    for row, _ in capture:
+        row['interpretation'] += f'; {note}'
 
 
 def read_metadata(path: Path, *, timeout: float = 10) -> tuple[list[dict], list[str]]:
@@ -77,6 +143,7 @@ def read_metadata(path: Path, *, timeout: float = 10) -> tuple[list[dict], list[
         group, _, tag = key.rpartition(":")
         findings.append({"tag": tag or key, "group": group or None,
                          "value": value, "source": source, "source_tag": key})
+    _annotate_metadata(findings)
     messages = []
     if process.returncode:
         messages.append(f"ExifTool exited {process.returncode}")
