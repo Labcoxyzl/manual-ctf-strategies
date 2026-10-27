@@ -167,6 +167,12 @@ safetensors files can be compared when NumPy (and, for safetensors, that
 package) is installed. Parity runs two explicit wrapper commands on up to 20
 JSON canaries and requires `--execute-local`.
 
+**Competition restriction:** The approved-tool workbook forbids adding AI/ML
+libraries to Python or uv on competition systems. The PyTorch gradient command
+below is for permitted local preparation outside the competition. Do not add
+PyTorch on a competition machine; if an ML runtime is already provided there,
+confirm its use with the organiser first. See the [competition rules](../RULES.html).
+
 ```sh
 python3 scripts/ai_model.py inspect ./model.safetensors
 python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
@@ -199,11 +205,11 @@ needs `reset(seed)`, `policy_step(observation, previous_action, hidden)`, and
 per observed state, avoiding a duplicate hidden-state advance. Both modes
 execute the adapter only with `--execute-local`. That opt-in is not a sandbox.
 Gradient mode needs NumPy and PyTorch in the **same Python environment** that
-runs the script. They are not bundled in the offline kit or its core
-requirements. Before going offline, prepare compatible packages for your
-platform using the [NumPy install guide](https://numpy.org/install/) and
-[PyTorch's platform selector](https://pytorch.org/get-started/locally/), then
-check the exported script with:
+runs the script. These packages are not bundled in the offline kit or core
+requirements. For permitted preparation elsewhere, use the
+[NumPy install guide](https://numpy.org/install/)
+and [PyTorch's platform selector](https://pytorch.org/get-started/locally/),
+then check the exported script with:
 
 ```sh
 python3 -c 'import numpy, torch; print(numpy.__version__, torch.__version__)'
@@ -230,7 +236,7 @@ the candidate.
 | --- | --- | --- |
 | Sparse model or classical binary SVM | `ai_model.py inspect`; `svm` computes primal weight, margins and slack from exported JSON parameters | Recover exact preprocessing and verify decoded text through the checker. |
 | Deterministic sign verifier | `ai_model.py sign-gates` for exported affine gates; parity-check the scorer | Derive gates from the wrapper and verify a satisfying input. |
-| Differentiable evasion or inversion | `ai_model_attack.py gradient` and parity canaries | Supply the challenge adapter, input bounds, loss direction, serializer, and checker. |
+| Differentiable evasion or inversion | `ai_model_attack.py gradient` (permitted preparation only) and parity canaries | Supply the challenge adapter, input bounds, loss direction, serializer, and checker. |
 | Recurrent policy and world-model state | `ai_model_attack.py recurrent` and parity canaries | Supply environment, policy step, action list, and exact hidden-state contract. |
 | Adapter/delta and weight differences | `ai_model.py compare` and explicit NPZ `suppression` hypothesis | Reproduce merge arithmetic, quantization, and full-model behavior. |
 | Black-box extraction or membership | `scorer_batch` for bounded, explicit scorer inputs | Design controls, statistics, and independent membership oracle. |
@@ -267,7 +273,7 @@ mean the attack will succeed against an arbitrary challenge.
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
 | Non-LLM application agent | `api_plan` for an exposed API; otherwise the web, protocol or reverse workflow | Identify the actual non-chat transport and its validator. |
 | Sparse/SVM and sign-network verifiers | `ai_model.py inspect`, `svm`, `sign-gates`, `parity` | Export parameters/gates, check exact semantics, and run the supplied checker. |
-| Differentiable evasion and inversion | `ai_model_attack.py gradient` | Supply exact preprocessing, bounds, loss, and checker serialization. |
+| Differentiable evasion and inversion | `ai_model_attack.py gradient` (permitted preparation only) | Supply exact preprocessing, bounds, loss, and checker serialization. |
 | Recurrent policy/world-model alignment | `ai_model_attack.py recurrent` | Supply environment and policy step wrappers with the correct hidden-state timing. |
 | Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
 | Black-box extraction/membership | `scorer_batch` numeric observations | Supply representative inputs, statistics and an independent membership oracle. |

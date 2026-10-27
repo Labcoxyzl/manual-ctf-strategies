@@ -139,6 +139,11 @@ def main():
     assert "scripts/ctf.py" in toolkit.links
     assert "RULES.html" in toolkit.links
     assert "TOOLKIT.html#setup" in Page(outputs["RULES.html"]).links
+    assert "AI/ML" in Page(outputs["RULES.html"]).text
+    chatbot_text = Page(outputs["CHATBOT_STRATEGIES.html"]).text
+    assert "Do not add" in chatbot_text
+    assert chatbot_text.index("Do not add") < chatbot_text.index("python3 scripts/ai_model_attack.py")
+    assert "competition machine" in chatbot_text
     bad = check_pages({"negative.html": '<h1 id="same">x</h1><h2 id="same">y</h2><a href="#absent">x</a><a href="no-such-fixture.txt">x</a><a href="LEARNING_RESOURCES.md">x</a>'})
     assert len(bad) == 4, bad
     inputs = [ROOT / "build_notes.py", ROOT / "notes-template.html", *[ROOT / Path(name) for name in build_notes.NOTES]]

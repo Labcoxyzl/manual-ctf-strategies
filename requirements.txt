@@ -1,5 +1,5 @@
 # CTF preparation stack for CPython 3.11/3.12 on Linux, Kali, or WSL.
-# No AI/LLM packages or optional extras. The standard-library helpers work without this file.
+# No AI/ML packages or optional extras. The standard-library helpers work without this file.
 -c constraints.txt
 
 # Native exploits, binary inspection, and arithmetic

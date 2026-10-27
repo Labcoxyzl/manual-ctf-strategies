@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="5730fe8fe0a9a7ec6492ef130c0077e87e0310f5204c8b39b23bbd0da2b4d68d">
+  <meta name="source-sha256" content="9e5ce6df165395476afb2420186d89411b1c7fdd027c82ec87863944ec6803ee">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -267,6 +267,11 @@ zip-backed PyTorch files, and pickle globals. A small pair of NPZ or
 safetensors files can be compared when NumPy (and, for safetensors, that
 package) is installed. Parity runs two explicit wrapper commands on up to 20
 JSON canaries and requires <code>--execute-local</code>.</p>
+<p><strong>Competition restriction:</strong> The approved-tool workbook forbids adding AI/ML
+libraries to Python or uv on competition systems. The PyTorch gradient command
+below is for permitted local preparation outside the competition. Do not add
+PyTorch on a competition machine; if an ML runtime is already provided there,
+confirm its use with the organiser first. See the <a href="RULES.html">competition rules</a>.</p>
 <pre><code class="language-sh">python3 scripts/ai_model.py inspect ./model.safetensors
 python3 scripts/ai_model.py compare ./base.npz ./challenge.npz
 python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
@@ -296,11 +301,11 @@ needs <code>reset(seed)</code>, <code>policy_step(observation, previous_action, 
 per observed state, avoiding a duplicate hidden-state advance. Both modes
 execute the adapter only with <code>--execute-local</code>. That opt-in is not a sandbox.
 Gradient mode needs NumPy and PyTorch in the <strong>same Python environment</strong> that
-runs the script. They are not bundled in the offline kit or its core
-requirements. Before going offline, prepare compatible packages for your
-platform using the <a href="https://numpy.org/install/">NumPy install guide</a> and
-<a href="https://pytorch.org/get-started/locally/">PyTorch's platform selector</a>, then
-check the exported script with:</p>
+runs the script. These packages are not bundled in the offline kit or core
+requirements. For permitted preparation elsewhere, use the
+<a href="https://numpy.org/install/">NumPy install guide</a>
+and <a href="https://pytorch.org/get-started/locally/">PyTorch's platform selector</a>,
+then check the exported script with:</p>
 <pre><code class="language-sh">python3 -c 'import numpy, torch; print(numpy.__version__, torch.__version__)'
 python3 -B -m unittest discover -s tests -p test_ai_model_attack.py
 </code></pre>
@@ -338,7 +343,7 @@ the candidate.</p>
 </tr>
 <tr>
 <td>Differentiable evasion or inversion</td>
-<td><code>ai_model_attack.py gradient</code> and parity canaries</td>
+<td><code>ai_model_attack.py gradient</code> (permitted preparation only) and parity canaries</td>
 <td>Supply the challenge adapter, input bounds, loss direction, serializer, and checker.</td>
 </tr>
 <tr>
@@ -468,7 +473,7 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Differentiable evasion and inversion</td>
-<td><code>ai_model_attack.py gradient</code></td>
+<td><code>ai_model_attack.py gradient</code> (permitted preparation only)</td>
 <td>Supply exact preprocessing, bounds, loss, and checker serialization.</td>
 </tr>
 <tr>

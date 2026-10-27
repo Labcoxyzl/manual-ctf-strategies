@@ -6,6 +6,8 @@ Based on the organiser’s 15 October tool review workbook and Practice Environm
 
 The workbook has three sheets with sequentially numbered rows: **39 approved Windows entries**, **161 approved Kali entries**, and **82 unapproved entries**. These counts refer to workbook rows, not unique tool packages across platforms. The Windows sheet says listed tools are pre-approved and available on competition PCs. The Kali sheet says its tools were installed on a best-effort basis and explicitly does not guarantee that every tool operates. The unapproved sheet lists tools that could not be installed for this event. Check each entry’s version, location and remarks; some Windows-list tools are installed in WSL.
 
+The workbook adds a stricter package limit than the setup PDF's generative-AI wording: the Windows and Kali sheet headers prohibit adding AI-related libraries or sub-tools to extensible tools, and the Python 3 and uv rows explicitly exclude AI/ML packages. Treat ML frameworks such as PyTorch as excluded from competition-machine installation. See Windows cells B5, H14 and H15, and Kali cell B4; confirm any later organiser instruction before relying on an exception.
+
 ## Competition and practice rules from the PDF
 
 - **Categories:** Digital Forensics, Malware Analysis, Web Security, Reverse Engineering, OSINT, Cryptography, and Miscellaneous. The format is Jeopardy-style, flags are submitted through CTFd, and the challenge sets differ between 26 and 27 October. (pp. 2, 11)

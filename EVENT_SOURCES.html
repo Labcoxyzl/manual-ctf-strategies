@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="9dfd5f073d32fc60aed5ef9a2d3b652b7e63dfced9a0bb3695ff8f92dddb09f1">
+  <meta name="source-sha256" content="c0a670c05b0229085093dbc80668f2c0b82ec4c56fe69ffe89ea81256862abd6">
   <link rel="icon" href="data:,">
   <title>Event rules and tool availability · Manual CTF Strategies</title>
   <style>
@@ -47,6 +47,7 @@
 <p>Based on the organiser’s 15 October tool review workbook and Practice Environment Setup Guide supplied on 19 October 2026. The setup PDF is marked <strong>Internal Use Only</strong>; keep original documents and account details private.</p>
 <h2>Tool availability</h2>
 <p>The workbook has three sheets with sequentially numbered rows: <strong>39 approved Windows entries</strong>, <strong>161 approved Kali entries</strong>, and <strong>82 unapproved entries</strong>. These counts refer to workbook rows, not unique tool packages across platforms. The Windows sheet says listed tools are pre-approved and available on competition PCs. The Kali sheet says its tools were installed on a best-effort basis and explicitly does not guarantee that every tool operates. The unapproved sheet lists tools that could not be installed for this event. Check each entry’s version, location and remarks; some Windows-list tools are installed in WSL.</p>
+<p>The workbook adds a stricter package limit than the setup PDF's generative-AI wording: the Windows and Kali sheet headers prohibit adding AI-related libraries or sub-tools to extensible tools, and the Python 3 and uv rows explicitly exclude AI/ML packages. Treat ML frameworks such as PyTorch as excluded from competition-machine installation. See Windows cells B5, H14 and H15, and Kali cell B4; confirm any later organiser instruction before relying on an exception.</p>
 <h2>Competition and practice rules from the PDF</h2>
 <ul>
 <li><strong>Categories:</strong> Digital Forensics, Malware Analysis, Web Security, Reverse Engineering, OSINT, Cryptography, and Miscellaneous. The format is Jeopardy-style, flags are submitted through CTFd, and the challenge sets differ between 26 and 27 October. (pp. 2, 11)</li>

@@ -152,7 +152,7 @@ Read [TOOLKIT.html](TOOLKIT.html) for commands, limits and approved manual alter
 [Practice inputs](CORE_PRACTICE.html) and the [Hashcat cheatsheet](HASHCAT.md) are available offline; [Challenge templates](TEMPLATES.html)
 include file preview, JWT inspection, binary parsing, HTTP and browser-form experiments, and optional pwntools clients.
 [Python requirements](requirements.txt) and [reviewed dependency pins](constraints.txt)
-list the optional, non-AI packages for Linux/WSL CPython 3.11/3.12.
+list the optional, non-AI/ML packages for Linux/WSL CPython 3.11/3.12.
 
 From this folder, in Linux or WSL with CPython 3.10 or newer:
 

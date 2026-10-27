@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="84f26acfeb77d910d391c87be0d93f6009242f99cdb843150c148a21fd5b75f7">
+  <meta name="source-sha256" content="9d9b73b209ad64b6a03c55d2803fea24647fdeff93cfb6aa552f2efafa75e900">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -217,7 +217,7 @@ python -m pip check
 python scripts/ctf.py doctor --workflow bytes
 python scripts/templates/math_client.py --local python scripts/templates/math_demo.py
 </code></pre>
-<p>If you already have a checkout or the offline export, skip the first two commands and start from its root. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/LLM extras. Keep <a href="constraints.txt">constraints.txt</a> beside the requirements file: it pins the reviewed dependencies. <code>--only-binary</code> rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.</p>
+<p>If you already have a checkout or the offline export, skip the first two commands and start from its root. This optional set includes pwntools, crypto/math, packet/web, file-analysis and approved forensic libraries; it does not install AI/ML packages. The workbook excludes AI/ML libraries from competition Python and uv even where the setup PDF mentions only generative AI; this guide treats the PyTorch gradient helper as preparation-only unless the organiser confirms an already provided ML runtime may be used. Keep <a href="constraints.txt">constraints.txt</a> beside the requirements file: it pins the reviewed dependencies. <code>--only-binary</code> rejects a package without a compatible wheel instead of building unreviewed source on the competition machine. The helpers in this guide still run without this set.</p>
 <p>Run commands from the folder containing <code>index.html</code> and <code>scripts/</code>. The byte and file helpers in <a href="scripts/ctf.py">scripts/ctf.py</a> need no network access or Python package installation. The chatbot command contacts only its explicit origin, and the callback receiver listens only when started. Keep this folder structure when copying the toolkit offline.</p>
 <p>The declared runtime is <strong>CPython 3.10 or newer on Linux, including WSL</strong>. Check the interpreter before relying on the script:</p>
 <pre><code class="language-sh">python --version
