@@ -524,6 +524,18 @@ mixed-hint notices, report privacy and ZIP parity. Local full-row proof is now
 **39 of 57**; 18 remain unproved. Neither local marker nor candidate string is
 platform acceptance.
 
+Three further named-row replays on that published hash passed. WEB02 passed
+eight scoped local discovery cases covering hidden path, parameter and vhost,
+changed status/catch-all, all-path 200, dynamic catch-all, throttling and an
+off-origin redirect that was not followed. WEB04 passed ten frozen JWT/JWS
+cases, including weak HMAC, RSA verification, changed algorithm/key ID,
+expiry, invalid signatures, unsigned tokens and unsupported JWE; claims
+remained untrusted and server acceptance unknown. WEB05 passed eight local
+traversal and Jinja2/Mako template cases with safe/reflection negatives and a
+cross-origin redirect control; its off-origin listener received no requests.
+These raise full named-row local proof to **42 of 57**; 15 remain unproved.
+None of these local leads establishes a live platform solve.
+
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
 report/resume behavior. This raises full named-row proof to **29 of 57**;
