@@ -1,0 +1,15 @@
+{
+  "allow_state_change": true,
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "message_field": "message",
+    "response_field": "reply"
+  },
+  "bootstrap": {
+    "method": "GET",
+    "path": "/REPLACE_TOKEN_PATH",
+    "success_status": 204,
+    "token_header": "X-Session-Token",
+    "header": "Authorization"
+  }
+}

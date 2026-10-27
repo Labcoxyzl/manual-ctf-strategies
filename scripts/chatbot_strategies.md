@@ -32,6 +32,71 @@ to one to four increasing sizes, each 128–65,536 characters; `filler`,
 `anchor_prompt`, and `check_prompt` are optional. A lost marker is a behavior
 observation, never a validated challenge solve. The generated marker and queue
 survive resume. The client will not resend a POST whose outcome is uncertain.
+For a stateless chat API that expects the full conversation on every request,
+copy the [messages-array recipe](chatbot_recipes/messages_array.json) and set
+`chat.history_field` to its top-level JSON array field. The client sends prior
+confirmed user/assistant turns as `{role, content}` objects plus the new user
+prompt. It stores those turns in the private run for resume and stops before a
+POST if the accumulated body exceeds 128 KiB. This adapter assumes standard
+`user` and `assistant` roles; custom message shapes need a target adapter.
+
+The bounded local end-to-end fixture runs the real CLI against an independent
+loopback chat service:
+
+```sh
+pytest -q tests/test_autosolve_chatbot.py -k context_bloat_is_bounded_and_records_marker_loss
+```
+
+The fixture checks dry-run, live request counts, context retention, partial
+status, and resume behavior through the public CLI.
+
+If the frontend sends fixed body fields with each chat message, declare them
+under `chat.static_fields` as in the
+[static-fields recipe](chatbot_recipes/chat_static_fields.json). JSON fields
+may contain JSON values; form fields must be strings. The message, conversation
+ID, client ID, and captured bootstrap token remain dynamic fields. Static
+values are sent with each serial chat request but redacted in logged request
+bodies and reports; raw chatbot responses remain in the private transcript,
+including any value the target echoes. The private protocol is part of the
+resume identity. Bracketed form names such as `settings[mode]` are supported.
+Static JSON fields have an 8 KiB and 64-level nesting limit.
+
+If the frontend supplies a CSRF token in an HTML `<meta name="..." content="...">`
+tag, copy the [CSRF meta recipe](chatbot_recipes/csrf_meta_chat.json). Set the
+actual `page_path`, `chat.csrf_meta` name, and `chat.csrf_header`. The client
+requires one unique printable token on that page, stores it privately, and
+sends it only on same-origin state-changing requests. Missing tags, duplicate
+tags or attributes, and invalid values stop before chat. A target that rotates
+its token during a run needs a target-specific refresh plan.
+
+For a `text/event-stream` chat route that emits JSON `data:` events and a
+`data: [DONE]` terminator, copy the [SSE recipe](chatbot_recipes/sse_chat.json).
+Set `chat.response_format` to `sse` and `chat.response_field` to the event
+field containing each text delta. The client joins string deltas, ignores
+missing or null deltas, retains raw stream bytes and parsed events privately,
+and stops reading at `[DONE]` even if the server keeps the connection open.
+It can carry a declared conversation ID from an event into the next serial
+request. A missing terminator, invalid event, or timeout leaves the POST
+unresolved; inspect history/status before releasing the origin. Other stream
+framing or terminal markers need a target-specific adapter. If a route emits
+`text/event-stream` without the declared SSE fields, the client stops after
+one POST and keeps the raw bytes for inspection.
+An `application/x-ndjson` or `application/json-seq` reply is held for a
+target-specific adapter; the client records a bounded initial chunk and does
+not send another prompt.
+
+When a chat POST times out, the run sends at most one configured history/status
+GET. If that read-only check is incomplete, `resume` can repeat only the GET
+within the raised request ceiling. It never replays the timed-out chat POST or
+turns a status response into an accepted challenge result.
+Malformed or excessively nested declared JSON keeps exact consumed bytes in
+the private transcript and stops as `malformed_json`; a body shorter than its
+declared length or a broken chunked stream stops as `partial_response`. Neither
+sends another prompt. A broken 409 or 429 body keeps its lock or rate-limit
+signal and records the incomplete body.
+A 429 keeps its rate-limit signal. This applies to JSON and `+json` content
+types even when the body resembles ordinary chat text. A valid JSON `null`
+also stops as ambiguous. Plain `text/plain` replies remain usable.
 
 | Strategy | Required protocol fields | What the script does |
 | --- | --- | --- |
@@ -49,9 +114,9 @@ survive resume. The client will not resend a POST whose outcome is uncertain.
 | `guardrail_representation` | `item` | Ask for code points and a character array; reconstruct and verify separately. |
 | `refusal_policy` | none | Ask for the refusal label and prerequisite. |
 | `diagnostic_chat` | credentials in private `headers` or chat fields | Ask for diagnostic fields and status after the app authorizes the session. |
-| `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. |
+| `workflow_status` | `status_path` when exposed | Ask for stage and artifact; read the status route once if supplied. Set `status_after_each_chat` to inspect and pause after each prompt. |
 | `orchestrator_action` | `action_prompt`, `status_path`, `allow_state_change: true` | Send one explicit final action prompt, then read status once. |
-| `kb_injection` | an `injection` object | Write one exposed lower-trust KB item or multipart document and send its trigger prompt. A repeated marker stays unvalidated. |
+| `kb_injection` | an `injection` object with exact `success_status` | Write one exposed lower-trust KB item or multipart document, require its declared acceptance response, then send its trigger prompt. A repeated marker stays unvalidated. |
 | `custom_chat` | `prompts`: one to four strings | Run a target-specific prompt idea with the same session and evidence controls. |
 | `context_bloat` | none | Test context retention at bounded sizes. |
 | `scorer_batch` | `path`, `body_field`, `score_field`, `candidates`, `allow_state_change: true` | Score one to fifty explicit inputs serially; numerical scores are observations, not membership proof. |
@@ -65,12 +130,40 @@ output contains only status and file paths, including for `report`. `--max-reque
 also caps each response at 128 KiB, each request body at 128 KiB, and its
 transcript at 2 MiB.
 
-If the frontend requires one login, claim, or token-exchange POST before chat,
-add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.json).
-It declares the exact path/body and, when needed, the response token field to
-copy into a chat field or header. Set `allow_state_change: true`. The request
-runs once in the same cookie jar before prompts; a timeout leaves its outcome
-uncertain and resume will not replay it automatically. If the frontend also
+One live owner lock is held for each authorized origin across runs from the
+same local user account, even when run directories differ. A second live start
+or resume exits busy before sending requests; dry runs remain independent.
+The lock and its private state live under the account's `~/.local/state`
+directory, independent of the process `HOME` setting. A `Retry-After` cooldown
+also applies to fresh runs at that origin, including lock-labeled 429 replies.
+An uncertain POST leaves a private origin marker after the client exits. New
+live runs stay blocked, while resuming the recorded run can make a read-only
+history/status check. Once you have checked that the server-side attempt is no
+longer active, release that origin explicitly:
+
+```sh
+python3 scripts/autosolve.py resume .autosolve/runs/RUN_ID --budget 10
+python3 scripts/autosolve.py chatbot-release-origin .autosolve/runs/RUN_ID
+```
+
+The release command makes no network request and never replays the POST. It
+does not validate challenge success or bypass an active Retry-After cooldown.
+The lock is conservative for separate
+identities at one exact origin; aliases, machines and user accounts still need
+a single human-assigned chat owner.
+
+If the frontend requires one login, claim, or token exchange before chat,
+declare a `bootstrap` request using the [POST tab-claim example](chatbot_recipes/tab_claim.json)
+or [GET token example](chatbot_recipes/get_token_bootstrap.json). GET has no
+body; POST declares its exact JSON or form body. Set `allow_state_change: true`
+and the exact 2xx `success_status`. A token can come from `token_field` in the
+response JSON or one unique `token_header` in the response headers, then be
+copied into the declared chat `header` or `chat_field`. Header tokens are
+bounded to 4,096 printable characters. Optional `success_field`/
+`success_value` checks the response body. The request runs once with the same
+cookie jar before prompts; a redirect, timeout, missing token, or mismatched
+success field leaves its outcome uncertain. Resume can inspect a configured
+status route but never repeats the bootstrap automatically. If the frontend also
 requires a heartbeat, use the [tab-heartbeat example](chatbot_recipes/tab_heartbeat.json)
 to declare its path, body, exact success status, optional captured token field,
 optional success field/value, and interval. Due
@@ -123,6 +216,8 @@ file and decode it as a candidate. The tool-call audit helper compares
 `args_raw`, `args_validated`, `args_normalized`, and `args_applied` from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
 never proof of applied backend state.
+The helper caps local input at 128 KiB and returns `invalid_input` for malformed
+or excessively nested JSON; it does not print decoded candidate text.
 
 ```sh
 python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
@@ -142,11 +237,21 @@ contains one to ten declared GET or POST steps; POST requires
 `allow_state_change: true`. A configured `expect` compares an exact response
 field. Only an official checker/completion step marked `acceptance: true` can
 mark a result validated. An expected field match on a history or vector-store
-response is evidence, not a solve.
+response is evidence, not a solve. Same-origin redirects are logged, but their
+final response does not validate the originally declared checker route or
+provide a scorer observation.
+When a chat response exposes a same-origin route in `tool_calls` or JSON
+function arguments, the runner records that clue and stops broader prompting.
+Tool-only responses can supply the clue without assistant text. For SSE, the
+client joins bounded argument fragments by tool-call index before inspection.
+It directly checks only a configured GET verifier, history, status, or audit
+route. Unknown paths, POST-only verifiers, and routes with query values need an
+explicit API plan; a tool-call claim is never challenge acceptance by itself.
 
 Start from the [history](chatbot_recipes/history_idor.json),
 [vector-store](chatbot_recipes/vector_store.json),
 [debug/verifier](chatbot_recipes/debug_verifier.json),
+[fresh-nonce verifier](chatbot_recipes/nonce_verifier.json),
 [scorer-batch](chatbot_recipes/scorer_batch.json),
 [tool-audit](chatbot_recipes/tool_audit.json), or
 [workflow](chatbot_recipes/workflow_action.json) examples. Replace every
@@ -154,11 +259,36 @@ Start from the [history](chatbot_recipes/history_idor.json),
 The [KB example](chatbot_recipes/kb_article.json) shows a JSON/form write.
 The [document upload example](chatbot_recipes/document_upload.json) uses a
 synthetic text file and a multipart form. Replace its route, file field, and
-file content after inspecting the challenge. The upload file is limited to
+file content after inspecting the challenge. Set the write's exact
+`success_status` and optional `success_field`/`success_value` from the frontend;
+an unconfirmed write is never followed by its trigger prompt or replayed on
+resume. The upload file is limited to
 64 KiB and hashed into the run identity; changing it invalidates resume.
 Do not enumerate IDs, origins, or ports by changing a plan
 into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.
+
+For an exposed one-shot nonce route, one `api_plan` step may set
+`capture_field` to a scalar JSON response path or `capture_header` to one
+explicit response header. Use the [body-field nonce recipe](chatbot_recipes/nonce_verifier.json)
+or [response-header nonce recipe](chatbot_recipes/header_nonce_verifier.json).
+One later POST may set either
+`bind_body_field` or `bind_header` to place that fresh value in its declared
+request. The client keeps the same cookies, stores the captured value only in
+the private run, and redacts its later request body or header. A missing,
+non-scalar, oversized, duplicate-header, or redirected capture stops before the verifier POST.
+The bound POST is never replayed after an uncertain outcome. This adapter does
+not derive signatures, chain multiple tokens, or infer acceptance from a model
+claim; use the challenge's documented checker field.
+
+For a staged chat workflow, copy the
+[workflow-stage recipe](chatbot_recipes/workflow_stage.json) and set
+`status_after_each_chat: true` with the observed `status_path`. The runner
+reserves one GET after every completed chat prompt, stores its exact response
+in the private transcript, and pauses before the next prompt. Resume retries
+only an incomplete status GET; after a complete check, the next explicit
+resume sends the next chat prompt once. A stage number or artifact is an
+observation until the official completion state confirms the objective.
 
 ```sh
 python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
@@ -221,6 +351,24 @@ candidate. It does not identify historical weights from an ambiguous
 transformation. Check the producer's arithmetic and run parity before using
 the candidate.
 
+For a black-box scoring endpoint, `scorer_batch` can collect up to 50 explicit
+inputs serially. Put known member and nonmember controls at declared one-based
+positions, then compare their scalar scores offline:
+
+```sh
+python3 scripts/chatbot_evidence.py score-controls \
+  --input .autosolve/runs/RUN_ID/manifest.json \
+  --positive 1,2 --negative 3,4 --candidates 5,6 --direction higher
+```
+
+The private report gives control medians, whether the observed ranges strictly
+separate, and candidate rankings in the declared score direction. Calculations
+use decimal representations of the recorded scores and include the source
+manifest hash.
+It never
+labels a candidate as a member. Use repeated controls to assess stochasticity
+and the challenge's independent verifier to establish any membership claim.
+
 | CHY offline route | Ready script step | Target-specific work that remains |
 | --- | --- | --- |
 | Sparse model or classical binary SVM | `ai_model.py inspect`; `svm` computes primal weight, margins and slack from exported JSON parameters | Recover exact preprocessing and verify decoded text through the checker. |
@@ -228,7 +376,7 @@ the candidate.
 | Differentiable evasion or inversion | `ai_model_attack.py gradient` and parity canaries | Supply the challenge adapter, input bounds, loss direction, serializer, and checker. |
 | Recurrent policy and world-model state | `ai_model_attack.py recurrent` and parity canaries | Supply environment, policy step, action list, and exact hidden-state contract. |
 | Adapter/delta and weight differences | `ai_model.py compare` and explicit NPZ `suppression` hypothesis | Reproduce merge arithmetic, quantization, and full-model behavior. |
-| Black-box extraction or membership | `scorer_batch` for bounded, explicit scorer inputs | Design controls, statistics, and independent membership oracle. |
+| Black-box extraction or membership | `scorer_batch` plus `chatbot_evidence.py score-controls` | Supply known controls, repeated queries when needed, and an independent membership oracle. |
 | Token-identity parity and calibrated behavior search | `ai_model.py parity` on representative canaries | Supply tokenizer/model wrappers and calibrated controls. |
 
 These scripts cover repeatable mechanics, not arbitrary model semantics. A
@@ -255,17 +403,18 @@ mean the attack will succeed against an arbitrary challenge.
 | Exposed vector store | `api_plan` + `vector_store.json` | Fill collection ID and inspect returned documents and metadata. |
 | Model/agent switching | `agent_routing`, then `custom_chat` | Supply the observed trigger and verify a response field or backend state. |
 | DLP or guardrail representation | `guardrail_representation` + `chatbot_evidence.py decode` | Reconstruct a candidate and check the real verifier. |
-| Workflow validator and exact output | `output_validator` / `workflow_status` | Fill stage/status route and check persisted progress. |
+| Workflow validator and exact output | `output_validator` / `workflow_status` + `workflow_stage.json` | Fill stage/status route and inspect persisted progress between prompts when state can advance. |
 | Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
-| Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
-| Debug validator and direct verifier | `api_plan` + `debug_verifier.json` | Fill documented boundary input, nonce/signature rules, and official completion field. |
+| Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route, inspect applied state independently, and pivot on bounded tool-call route clues. |
+| Debug validator and direct verifier | `api_plan` + `debug_verifier.json`, `nonce_verifier.json`, or `header_nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar body or response-header nonce can be bound, while signature derivation remains target-specific. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
 | Non-LLM application agent | `api_plan` for an exposed API; otherwise the web, protocol or reverse workflow | Identify the actual non-chat transport and its validator. |
 | Sparse/SVM and sign-network verifiers | `ai_model.py inspect`, `svm`, `sign-gates`, `parity` | Export parameters/gates, check exact semantics, and run the supplied checker. |
+| Tiny neural scorer and validator payloads | `ai_model.py inspect`, `ai_model_attack.py gradient`, and `parity` when the scorer is differentiable | Reproduce the wrapper's forward path and checker constraints; discrete graph or integer payload search remains target-specific. |
 | Differentiable evasion and inversion | `ai_model_attack.py gradient` | Supply exact preprocessing, bounds, loss, and checker serialization. |
 | Recurrent policy/world-model alignment | `ai_model_attack.py recurrent` | Supply environment and policy step wrappers with the correct hidden-state timing. |
 | Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
-| Black-box extraction/membership | `scorer_batch` numeric observations | Supply representative inputs, statistics and an independent membership oracle. |
+| Black-box extraction/membership | `scorer_batch` numeric observations plus `score-controls` comparison | Supply representative controls and an independent membership oracle. |
 | Token-identity and inference parity | `ai_model.py parity` | Supply tokenizer/model wrappers and exact prompt boundaries. |
-| Calibrated unknown-behavior search | `ai_model.py parity` | Supply positive/negative controls and a target-specific bounded search objective. |
+| Calibrated unknown-behavior search | `ai_model.py parity` and `score-controls` when the wrapper exposes numeric scores | Supply known controls and a target-specific bounded search objective; rankings are exploratory. |

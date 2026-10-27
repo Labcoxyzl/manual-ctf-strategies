@@ -1,0 +1,21 @@
+{
+  "allow_state_change": true,
+  "strategy_params": {
+    "steps": [
+      {
+        "id": "fresh_nonce",
+        "path": "/REPLACE_NONCE_PATH",
+        "capture_header": "X-REPLACE-NONCE"
+      },
+      {
+        "id": "official_verifier",
+        "method": "POST",
+        "path": "/REPLACE_VERIFY_PATH",
+        "body": {"answer": "REPLACE_CANDIDATE"},
+        "bind_body_field": "nonce",
+        "expect": {"field": "accepted", "equals": true},
+        "acceptance": true
+      }
+    ]
+  }
+}

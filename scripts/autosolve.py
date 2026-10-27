@@ -90,6 +90,8 @@ def main(argv=None):
     chatbot.add_argument('--timeout', type=float, default=10)
     chatbot.add_argument('--runs-root')
     chatbot.add_argument('--dry-run', action='store_true')
+    release = commands.add_parser('chatbot-release-origin', help='clear an unresolved chatbot POST only after reviewing target state')
+    release.add_argument('run')
     commands.add_parser('chatbot-strategies', help='list bounded chatbot playbooks and required parameters')
     args = parser.parse_args(argv)
     try:
@@ -162,6 +164,10 @@ def main(argv=None):
                                                strategy=args.strategy)
             result = {'status': status, 'run': str(run), 'report': str(run / 'report.md')}
             code = 3 if status == 'partial' else 0
+        elif args.command == 'chatbot-release-origin':
+            from autosolve_lib.profiles import chatbot as chatbot_module
+            run = chatbot_module.release_origin(args.run)
+            result, code = {'status': 'complete', 'run': str(run), 'origin_released': True}, 0
         elif args.command == 'chatbot-strategies':
             from autosolve_lib.profiles.chatbot_strategies import listing
             result, code = {'status': 'complete', 'strategies': listing()}, 0

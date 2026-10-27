@@ -70,7 +70,17 @@ The seventh isolated snapshot adds Firefox visit provenance, 32-frame bounded
 AV06 inspection with old-run invalidation, and truthful REV07 failed-replay
 coverage. Its focused checks passed 112 core/OS/media tests and then 50
 checker/media/OS tests after the replay repair; nine copied-export tests also
-passed. Its full autosolve and repository pre-push gates remain pending.
+passed. Its full Python 3.12 autosolve suite passed 703 tests (20 optional
+skips), and its pre-push gate passed 760 tests (39 optional skips, 363
+subtests). Commit `8a4bbd3` is published and its remote hash was verified.
+
+The eighth local snapshot integrates declared chatbot checkers, bounded route
+and CSRF handling, and score-controls with redirect provenance. The isolated
+prep passed 69 chatbot/scorer tests and nine copied-export tests. An integrated
+fixed archive passed 18 frozen AIC01 local cases, and a separate first-use
+scorer transfer passed seven high-precision, overlap and redirect controls.
+The full branch and pre-push gates are still pending; no publisher acceptance
+is inferred from local toy services.
 
 ## Independent end-to-end evidence
 
@@ -145,11 +155,12 @@ pwn.college babyrop handout matched static `win`/gadget/mitigation observations
 and bounded service replay; autosolve did not synthesize the exploit or claim
 challenge acceptance. Detailed publisher exploit notes remain local.
 
-The sixth-branch evidence matrix credits 47 of 57 rows with four observed
-narrow case slots and 94 of 114 first-use held-out slots. Current shared work
-provisionally reaches 49/57 and 98/114 with AIC01 and REV02, pending their
-separate publication gate. These counts do not establish family-wide or release
-acceptance. Fresh X04 and X08 transfers recovered exact sourced outputs; X05
+The seventh published evidence matrix credits 51 of 57 rows with four observed
+narrow case slots and 105 of 114 first-use held-out slots. AIC01 and REV02
+remain outside that published tally; AIC01's eighth local transfer passed, but
+REV02 still awaits a later code checkpoint. These counts do not establish
+family-wide or release acceptance. Fresh X04 and X08 transfers recovered
+exact sourced outputs; X05
 joined a recovered browser visit to a supplied snapshot by exact URL/time,
 with mismatched and stale sources withheld and zero network requests.
 Independent CAN02 bit-level oracles matched multiplexed, signed, endian and
@@ -160,18 +171,19 @@ regression; a fresh 27-frame transfer recovered its exact QR and subtitle
 under the new 32-frame bound. DF05 post-repair public memory cases and the
 REV05 encrypted bundle recovered their frozen facts/resources, but retained
 explicit command/file and archive/decryption limits. The AIC02 model transfer
-passed artifact, gradient and recurrent checks; published scorer controls
-remain unavailable. A refreshed row/held-out audit is pending for these cases.
+passed artifact, gradient and recurrent checks; scorer controls are included
+in the eighth local snapshot but not yet published. A refreshed row/held-out
+audit is pending after its publication gate.
 
 ## Remaining order
 
-1. Publish the seventh isolated checkpoint through the repository gate, then
-   integrate the AIC01 checker/CSRF and AIC02 score-controls work. Keep REV02
-   separate until its code-linked XOR proof clears adversarial review.
+1. Publish the eighth isolated chatbot/scorer checkpoint through the repository
+   gate. Keep REV02 separate until its code-linked XOR proof clears adversarial
+   review and a fresh post-fix transfer.
 2. Freeze and execute each baseline row's positive, two independent held-out
    variations and negative controls. DF03 real EVTX/registry, DF05 partial
-   process coverage, REV05 complete archive/decryption evidence, REV11 and
-   AIC02 scorer controls remain open; local tests alone do not satisfy them.
+   process coverage, REV05 complete archive/decryption evidence and REV11
+   remain open; local tests alone do not satisfy these gates.
 3. Complete the cross-category and failure cases, approved-engine discovery
    in a clean copied export, and the three-publisher diversity requirement.
    Keep release status partial until all required evidence passes.
@@ -182,5 +194,5 @@ The repository has concurrent unrelated guide edits. At this checkpoint,
 local `core.bare` was also changed concurrently to `true`; use an explicit
 `--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
 state was changed here. The user subsequently authorized remote checkpoint
-pushes; six tested commits are published and the seventh repair set is under
-its isolated publication gate.
+pushes; seven tested commits are published and the eighth chatbot/scorer set is
+under its isolated publication gate.

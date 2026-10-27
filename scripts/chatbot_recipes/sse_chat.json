@@ -1,0 +1,11 @@
+{
+  "chat": {
+    "path": "/REPLACE_STREAM_CHAT_PATH",
+    "message_field": "message",
+    "response_format": "sse",
+    "response_field": "choices.0.delta.content",
+    "conversation_field": "conversation_id",
+    "conversation_response_field": "conversation_id"
+  },
+  "lanes": ["capability"]
+}

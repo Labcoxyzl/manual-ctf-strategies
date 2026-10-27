@@ -10,6 +10,7 @@
     "path": "/REPLACE_CLAIM_PATH",
     "encoding": "json",
     "body": {"force": false},
+    "success_status": 200,
     "token_field": "tab_token",
     "chat_field": "tab_token",
     "header": "X-Tab-Token"

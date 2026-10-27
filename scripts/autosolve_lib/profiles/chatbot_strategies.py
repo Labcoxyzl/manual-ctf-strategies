@@ -178,9 +178,9 @@ def plan(name, params, marker, origin, destinations, allow_state_change):
         steps = params.get('steps')
         if not isinstance(steps, list) or not 1 <= len(steps) <= 10:
             raise core.InvalidInput('api_plan needs 1-10 explicit steps')
-        seen, result = set(), []
+        seen, result, capture_index, bound = set(), [], None, False
         for index, step in enumerate(steps):
-            if not isinstance(step, dict) or set(step) - {'id', 'method', 'path', 'body', 'encoding', 'expect', 'acceptance', 'continue_on_error'}:
+            if not isinstance(step, dict) or set(step) - {'id', 'method', 'path', 'body', 'encoding', 'expect', 'acceptance', 'continue_on_error', 'capture_field', 'capture_header', 'bind_body_field', 'bind_header'}:
                 raise core.InvalidInput(f'invalid api_plan step {index + 1}')
             identifier = step.get('id', f'api_{index + 1}')
             method = step.get('method', 'GET')
@@ -206,8 +206,27 @@ def plan(name, params, marker, origin, destinations, allow_state_change):
                 raise core.InvalidInput('api_plan acceptance requires an explicit expected checker field')
             if type(step.get('acceptance', False)) is not bool or type(step.get('continue_on_error', False)) is not bool:
                 raise core.InvalidInput('api_plan flags must be booleans')
+            capture_field = step.get('capture_field')
+            capture_header = step.get('capture_header')
+            body_binding = step.get('bind_body_field')
+            header_binding = step.get('bind_header')
+            if capture_field is not None or capture_header is not None:
+                if (capture_index is not None or (capture_field is not None and capture_header is not None) or
+                        capture_field is not None and (not isinstance(capture_field, str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,160}', capture_field)) or
+                        capture_header is not None and (not isinstance(capture_header, str) or not re.fullmatch(r'[A-Za-z0-9-]{1,60}', capture_header))):
+                    raise core.InvalidInput('api_plan supports one bounded response capture field or header')
+                capture_index = index
+            if body_binding is not None or header_binding is not None:
+                if (bound or capture_index is None or capture_index == index or method != 'POST' or
+                        (body_binding is not None) == (header_binding is not None) or
+                        body_binding is not None and (not isinstance(body_binding, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.\[\]-]{0,79}', body_binding) or body_binding in (body or {})) or
+                        header_binding is not None and (not isinstance(header_binding, str) or not re.fullmatch(r'[A-Za-z0-9-]{1,60}', header_binding) or header_binding.lower() in ('host', 'connection', 'content-length', 'transfer-encoding', 'content-type', 'cookie') or header_binding.lower().startswith('proxy-'))):
+                    raise core.InvalidInput('api_plan capture binding needs one later POST body field or header')
+                bound = True
             result.append({'id': identifier, 'kind': 'api', 'method': method, 'path': path,
                            'body': body, 'encoding': encoding, 'expect': expect,
+                           'capture_field': capture_field, 'capture_header': capture_header, 'bind_body_field': body_binding,
+                           'bind_header': header_binding,
                            'acceptance': step.get('acceptance', False),
                            'continue_on_error': step.get('continue_on_error', False),
                            'hypothesis': f'{method} {path} exposes the target state',

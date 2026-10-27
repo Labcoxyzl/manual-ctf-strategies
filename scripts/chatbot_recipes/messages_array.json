@@ -1,0 +1,8 @@
+{
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "history_field": "messages",
+    "response_field": "choices.0.message.content"
+  },
+  "lanes": ["capability"]
+}
