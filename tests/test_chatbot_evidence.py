@@ -45,6 +45,14 @@ class EvidenceTests(unittest.TestCase):
             result = self.command(root, 'audit', '--input', source, '--line', '1', code=2)
             self.assertEqual(result['status'], 'invalid_input')
 
+    def test_overdeep_local_reply_is_invalid_input_without_traceback(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / 'deep.txt'
+            source.write_text('[' * 10_000 + '65' + ']' * 10_000)
+            result = self.command(root, 'decode', '--input', source, '--mode', 'codepoints', code=2)
+            self.assertEqual(result['status'], 'invalid_input')
+            self.assertNotIn('candidate_file', result)
+
     def test_audit_reports_changed_fields_without_values(self):
         with tempfile.TemporaryDirectory() as root:
             source = Path(root) / 'trace.jsonl'

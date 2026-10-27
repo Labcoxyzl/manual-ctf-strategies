@@ -223,7 +223,7 @@ def main(argv=None):
         print(json.dumps({'status': 'complete', 'report': str(report),
                           'candidate_file': result.get('candidate_file')}))
         return 0
-    except (OSError, ValueError, UnicodeError) as error:
+    except (OSError, ValueError, UnicodeError, RecursionError) as error:
         print(json.dumps({'status': 'invalid_input', 'reason': str(error)}))
         return 2
 

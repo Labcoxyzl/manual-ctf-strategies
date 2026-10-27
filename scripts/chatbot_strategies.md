@@ -188,6 +188,8 @@ file and decode it as a candidate. The tool-call audit helper compares
 `args_raw`, `args_validated`, `args_normalized`, and `args_applied` from a JSON
 response or a chosen transcript line. It reports changed paths and hashes,
 never proof of applied backend state.
+The helper caps local input at 128 KiB and returns `invalid_input` for malformed
+or excessively nested JSON; it does not print decoded candidate text.
 
 ```sh
 python3 scripts/chatbot_evidence.py decode --input ./private-reply.txt --mode codepoints
