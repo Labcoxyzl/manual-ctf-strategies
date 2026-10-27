@@ -383,6 +383,48 @@ oracle moved from 3/4 to 4/4 in isolation; sibling WEB02/04/05 cases stayed
 passed, with independent review. Integrated release gates and published-hash
 WEB01 row acceptance remain pending.
 
+The twentieth commit `bf18be0` is published on the remote progress branch and
+its hash was verified. Its Python 3.12 autosolve suite passed 898 tests (35
+optional skips); the repository pre-push gate passed 965 tests (56 skips, 532
+subtests). On that exact hash, frozen X/F passed 20/20, all-domain passed
+22/22 with every selected family `ran`, the unchanged WEB01 oracle passed
+4/4 from its previous 3/4, and 15 representative measurements passed with
+zero timeouts and zero validated false solutions in two classified negatives.
+The 252-member copied kit passed WEB01 tests 11/11 and an eight-URL public CLI
+trace with exact scopes, zero network calls and zero outside ordinary-file or
+directory write attempts. The core environment was relocated and verified
+against all 30 pins; fresh installation and unaffected path traces were
+covered by byte-identical earlier source. Published-hash WEB01 replay then
+passed its full four-case named contract with the original oracle unchanged.
+This raises local full named-row proof to **30 of 57**; 27 remain unproved.
+The strict F10 0.3-second gate passed but one repeat scheduled only two of
+three eligible families; the historical host-pause timing risk remains.
+
+Subsequent published-twentieth named-row replay passed REV01 10/10 with
+independent ELF/PE structural oracles and no target execution, OS02 ten exact
+source-byte clues across UTF-8, UTF-16BE and derived ZIP controls with zero
+network calls, and ENC01 7/7 layered-decoding cases with exact parent chains
+and no silent repair. These three raise full named-row proof to **33 of 57**;
+24 remain unproved. ENC01's positive runs recovered their target chains but
+reached the 256-artifact cap, so they remained honestly partial rather than
+exhaustive. OS02 testing separately found a generic runner defect: deleting a
+direct input before resume returns invalid input while leaving the manifest
+marked `running`; a focused repair is pending.
+An official pwn.college babyrop handout was independently downloaded and hash
+matched, then exercised on the published twentieth build: PWN02 static facts,
+PWN03 offset 40 and PWN04's 56-byte payload matched independent local
+oracles, with a local win marker and wrong-offset negative. This was local
+replay, not platform acceptance. The current workflow still needs a person
+to copy the verified PWN03 offset into PWN04 and supply the channel, symbol,
+prompt and marker; a source-hash-checked run handoff is the smallest next
+orchestration improvement identified by that transfer.
+PWN02 then passed its published-hash full named row in eight cases: independent
+x86-32 and x86-64 ELF samples, PIE, stripped and different-compiler held-outs,
+unsupported/malformed negatives, exact mitigation and instruction/VA locators,
+and source retirement. This raises local full named-row proof to **34 of 57**;
+23 remain unproved. The x86-32 case used hand assembly because 32-bit C
+startup libraries were unavailable; compiler variation was exercised on x86-64.
+
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
 report/resume behavior. This raises full named-row proof to **29 of 57**;
