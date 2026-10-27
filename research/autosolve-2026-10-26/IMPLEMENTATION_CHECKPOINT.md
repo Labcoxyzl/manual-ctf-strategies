@@ -203,8 +203,18 @@ the next candidate adds that distinction.
 
 The sixteenth candidate adds supplied-password PDF extraction and a dedicated
 GDB/PWN03 doctor self-test. Both isolated changes passed focused tests and
-independent review. Combined tests, full DOC04 named-row transfer, rootless
-setup, and frozen release gates remain pending on the integrated candidate.
+independent review. Its first integrated hash `2d0cc8c` passed 838 Python
+3.12 tests (24 optional skipped), all-domain 22/22, 18 changed-path checks and 15
+representative measurements. The strict X/F gate stayed 19/20: one F10
+0.3-second run exhausted its wall-clock budget during preflight/host delay;
+six quiet controls passed, and an injected pause reproduced the failure.
+No scheduler defect or truthful fix that guarantees work after an arbitrary
+pause was established. Rootless tracing then found 22 denied GDB Python
+bytecode-cache directory attempts outside the task root in both setup and
+doctor. A reviewed hotfix suppresses bytecode generation; focused PWN03/setup
+tests and direct file-syscall traces passed with zero outside ordinary-file
+write attempts. The hotfix candidate's combined gates, full DOC04 named row
+and remote publication remain pending.
 
 ## Independent end-to-end evidence
 
