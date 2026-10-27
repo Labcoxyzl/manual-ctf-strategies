@@ -330,6 +330,10 @@ chosen directory, and scopes child tool cache and temp variables. Its isolated
 24-test rule suite and CAN/supplied-rule reversing traces passed with zero
 outside ordinary-file or directory write attempts. The earlier failed trace
 remains evidence; final integrated rootless and release gates are pending.
+The first integrated full Python 3.12 run after that repair passed 893 tests
+with 35 optional skips but failed one chatbot test whose fixed sleep could end
+before the recorded Retry-After deadline. An independently reviewed test-only
+repair now waits for that deadline; the final full-suite rerun is pending.
 
 ## Independent end-to-end evidence
 
