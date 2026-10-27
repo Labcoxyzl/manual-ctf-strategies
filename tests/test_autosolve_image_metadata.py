@@ -114,6 +114,78 @@ class ImageMetadataTests(unittest.TestCase):
         self.assertTrue(all('capture-time fields conflict' not in row['interpretation']
                             for row in captures))
 
+    def test_xmp_exif_datetimeoriginal_reports_basis_and_conflicting_raw_time(self):
+        source = self.root / 'xmp-exif-date.jpg'
+        Image.new('RGB', (2, 2), 'red').save(source)
+        subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                        '-EXIF:DateTimeOriginal=2025:06:01 09:00:00',
+                        '-XMP-exif:DateTimeOriginal=2025:06:02 09:00:00+10:00',
+                        str(source)], check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        by_source = {row['source_tag']: row for row in rows}
+        exif = by_source['ExifIFD:DateTimeOriginal']
+        xmp = by_source['XMP-exif:Copy1:DateTimeOriginal']
+        self.assertEqual(exif['value'], '2025:06:01 09:00:00')
+        self.assertEqual(xmp['value'], '2025:06:02 09:00:00+10:00')
+        self.assertIn('timezone unknown', exif['interpretation'])
+        self.assertIn('raw capture-time fields differ', exif['interpretation'])
+        self.assertIn('timezone basis in value', xmp['interpretation'])
+        self.assertIn('raw capture-time fields differ', xmp['interpretation'])
+        self.assertFalse(any(row['tag'] in ('GPSLatitude', 'GPSLongitude', 'GPSPosition')
+                             for row in rows))
+
+    def test_xmp_modification_time_is_not_a_capture_claim(self):
+        source = self.root / 'modified.jpg'
+        Image.new('RGB', (2, 2), 'red').save(source)
+        subprocess.run(['/usr/bin/exiftool', '-overwrite_original',
+                        '-EXIF:DateTimeOriginal=2025:06:01 09:00:00',
+                        '-XMP-xmp:ModifyDate=2025:06:03 10:00:00+10:00',
+                        str(source)], check=True, capture_output=True)
+
+        rows, warnings = image_metadata.read_metadata(source)
+
+        self.assertEqual(warnings, [])
+        by_source = {row['source_tag']: row for row in rows}
+        exif = by_source['ExifIFD:DateTimeOriginal']
+        modified = next(row for row in rows if row['tag'] == 'ModifyDate'
+                        and row['group'].startswith('XMP-'))
+        self.assertIn('timezone unknown', exif['interpretation'])
+        self.assertNotIn('differ', exif['interpretation'])
+        self.assertNotIn('interpretation', modified)
+
+    def test_other_xmp_namespace_datetimeoriginal_is_not_assumed_capture(self):
+        rows = [
+            {'group': 'ExifIFD', 'tag': 'DateTimeOriginal',
+             'value': '2025:06:01 09:00:00'},
+            {'group': 'XMP-custom:Copy1', 'tag': 'DateTimeOriginal',
+             'value': '2025:06:02 09:00:00+10:00'},
+        ]
+
+        image_metadata._annotate_metadata(rows)
+
+        self.assertEqual(rows[0]['interpretation'], 'raw capture wall time; timezone unknown')
+        self.assertNotIn('interpretation', rows[1])
+
+    def test_invalid_xmp_capture_date_does_not_hide_valid_conflict(self):
+        rows = [
+            {'group': 'ExifIFD', 'tag': 'DateTimeOriginal',
+             'value': '2025:06:01 09:00:00'},
+            {'group': 'XMP-photoshop:Copy1', 'tag': 'DateCreated',
+             'value': '2025:06:02 09:00:00'},
+            {'group': 'XMP-exif:Copy1', 'tag': 'DateTimeOriginal',
+             'value': 'not-a-date'},
+        ]
+
+        image_metadata._annotate_metadata(rows)
+
+        self.assertTrue(all('capture-time fields conflict' in row['interpretation']
+                            for row in rows[:2]))
+        self.assertIn('invalid capture-time value', rows[2]['interpretation'])
+        self.assertNotIn('conflict', rows[2]['interpretation'])
+
     def test_partial_gps_reference_does_not_sign_entire_coordinate_pair(self):
         source = self.root / 'one-ref.jpg'
         Image.new('RGB', (2, 2), 'red').save(source)

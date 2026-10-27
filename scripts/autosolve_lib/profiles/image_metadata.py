@@ -48,7 +48,9 @@ def _annotate_metadata(findings: list[dict]) -> None:
                                      'incomplete hemisphere references; sign unknown for missing axis')
         is_exif_capture = group == 'ExifIFD' and tag == 'DateTimeOriginal'
         is_xmp_capture = bool(group and group.startswith('XMP-') and
-                              tag in ('DateCreated', 'CreateDate'))
+                              (tag in ('DateCreated', 'CreateDate') or
+                               (group.split(':', 1)[0] == 'XMP-exif' and
+                                tag == 'DateTimeOriginal')))
         if not (is_exif_capture or is_xmp_capture):
             continue
         raw = str(row['value'])
@@ -68,9 +70,12 @@ def _annotate_metadata(findings: list[dict]) -> None:
             row['interpretation'] = ('raw XMP capture time; timezone basis in value' if
                                      parsed and parsed.tzinfo else
                                      'raw XMP capture wall time; timezone unknown')
+        if parsed is None:
+            row['interpretation'] += '; invalid capture-time value'
         capture.append((row, parsed))
+    capture = [(row, value) for row, value in capture if value is not None]
     parsed = [value for _, value in capture]
-    if len(parsed) < 2 or any(value is None for value in parsed):
+    if len(parsed) < 2:
         return
     if len({bool(value.tzinfo) for value in parsed}) > 1:
         note = ('raw capture-time fields differ; timezone unknown for at least one field'
