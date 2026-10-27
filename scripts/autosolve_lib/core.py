@@ -701,7 +701,7 @@ def _refresh_current(manifest, source_ids):
         job = valid_producers.get(artifact['id'], {}).get(edge.get('job_key'))
         if edge['id'] not in current or job is None:
             return False
-        if (job['adapter_id'] in ('zip', '7z', 'stegseek') and
+        if (job['adapter_id'] in ('zip', '7z', 'stegseek', 'pdf') and
                 job.get('data_fingerprints', {}).get('password_file') != current_password):
             return False
         if (job['adapter_id'] == 'sqlite' and
@@ -1265,7 +1265,7 @@ def _run_mime(path, staging, max_parts, max_bytes, timeout):
         parent.close()
 
 
-def _pdf_worker(path, staging, max_pages, max_bytes, pipe):
+def _pdf_worker(path, staging, max_pages, max_bytes, passwords, pipe):
     from .profiles.pdf import extract_pdf
     # pypdf -> Pillow -> NumPy can reserve many OpenBLAS thread stacks before parsing.
     os.environ['OPENBLAS_NUM_THREADS'] = '1'
@@ -1273,7 +1273,8 @@ def _pdf_worker(path, staging, max_pages, max_bytes, pipe):
     resource.setrlimit(resource.RLIMIT_AS, (768 * 1024 * 1024, 768 * 1024 * 1024))
     resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024 * 1024, 64 * 1024 * 1024))
     try:
-        records, warnings = extract_pdf(path, staging, max_pages=max_pages, max_total_bytes=max_bytes)
+        records, warnings = extract_pdf(path, staging, max_pages=max_pages,
+                                        max_total_bytes=max_bytes, passwords=passwords)
         pipe.send(('ok', records, warnings))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
@@ -1281,11 +1282,12 @@ def _pdf_worker(path, staging, max_pages, max_bytes, pipe):
         pipe.close()
 
 
-def _run_pdf(path, staging, max_pages, max_bytes, timeout):
+def _run_pdf(path, staging, max_pages, max_bytes, passwords, timeout):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
     worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_pdf_worker, path, staging, max_pages, max_bytes, child))
+                                     args=(_pdf_worker, path, staging, max_pages,
+                                           max_bytes, passwords, child))
     worker.start()
     child.close()
     try:
@@ -7460,7 +7462,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             continue
         if documents_selected and artifact['kind_evidence'] == 'pdf':
             fingerprint = hashlib.sha256(Path(extract_pdf.__code__.co_filename).read_bytes()).hexdigest()
-            key = hashlib.sha256(f"{artifact['sha256']}:pdf.v1:{fingerprint}".encode()).hexdigest()
+            key = hashlib.sha256(f"{artifact['sha256']}:pdf.v2:{fingerprint}:{password_hash}".encode()).hexdigest()
             if key not in seen or not _descends_from(manifest, artifact['id'], seen[key]):
                 seen.setdefault(key, artifact['id'])
                 old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
@@ -7478,7 +7480,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'pdf',
                            'input_ids': [artifact['id']], 'operation': 'bounded PDF extraction',
-                           'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
+                           'tool_fingerprint': fingerprint,
+                           'data_fingerprints': {'password_file': password_hash}, 'cwd': str(run),
                            'limits': {'pages': 100, 'derived_bytes': 64 * 1024 * 1024},
                            'status': 'running', 'child_ids': [], 'started': time.time()}
                     manifest['jobs'].append(job)
@@ -7487,6 +7490,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     try:
                         records, warnings = _run_pdf(path, staging, 100,
                                                      min(64 * 1024 * 1024, MAX_DERIVED - manifest['derived_bytes']),
+                                                     passwords,
                                                      min(30, max(.01, deadline - time.monotonic())))
                         if not _require_identity(path, artifact['sha256'], deadline):
                             raise RuntimeError('PDF source changed before output publication')

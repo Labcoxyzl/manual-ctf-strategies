@@ -24,6 +24,7 @@ import zipfile
 from unittest.mock import patch
 
 from test_autosolve_documents import ENCRYPTED_ZIP
+from test_autosolve_pdf import handwritten_pdf
 from test_autosolve_checker import ANGR_IMPORT_READY
 from test_autosolve_images import sample_png
 from test_autosolve_packet_objects import pcap as object_pcap, transaction as http_transaction
@@ -1129,6 +1130,63 @@ int main(int argc, char **argv) {
             self.assertEqual(next(j for j in manifest['jobs'] if j['adapter_id'] == 'pdf')['status'],
                              'complete')
             self.assertEqual(manifest['coverage']['DOC04']['status'], 'truncated')
+
+    def test_encrypted_pdf_private_password_resume_and_retirement(self):
+        from pypdf import PdfWriter
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'encrypted.pdf'
+            writer = PdfWriter(clone_from=io.BytesIO(handwritten_pdf(b'DOC04 PRIVATE ORACLE')))
+            writer.add_attachment(filename='../proof.bin', data=b'attachment proof\x00')
+            writer.encrypt('pdf-private-pass')
+            with source.open('wb') as target:
+                writer.write(target)
+            original_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+            run = Path(self.run_cli('analyze', source, '--category', 'documents',
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            initial = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(initial['coverage']['DOC04']['status'], 'skipped prerequisite')
+            self.assertFalse(any(a['depth'] > 0 for a in initial['artifacts']))
+
+            password = root / 'private.txt'
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': str(password)}))
+            password.write_text('wrong\n')
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            wrong = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(wrong['coverage']['DOC04']['status'], 'skipped prerequisite')
+            self.assertTrue(any('passwords did not validate' in note for note in wrong['warnings']))
+            self.assertFalse(any(a['depth'] > 0 and a['current'] for a in wrong['artifacts']))
+
+            password.write_text('wrong\npdf-private-pass\n')
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            solved = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(solved['coverage']['DOC04']['status'], 'ran')
+            children = [a for a in solved['artifacts'] if a['depth'] > 0 and a['current']]
+            self.assertTrue(any(Path(a['path']).read_bytes() == b'attachment proof\x00'
+                                for a in children))
+            self.assertTrue(any(Path(a['path']).read_bytes() == b'DOC04 PRIVATE ORACLE'
+                                for a in children))
+            self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), original_hash)
+            for name in ('manifest.json', 'report.md', 'events.jsonl'):
+                self.assertNotIn('pdf-private-pass', (run / name).read_text())
+            self.assertFalse((root / 'proof.bin').exists())
+
+            password.write_text('wrong\n')
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            retired = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(retired['coverage']['DOC04']['status'], 'skipped prerequisite')
+            self.assertTrue(all(not a['current'] for a in retired['artifacts']
+                                if a['source_locator'].get('pdf_kind')))
+            self.assertNotIn('DOC04 PRIVATE ORACLE', (run / 'report.md').read_text())
+
+            password.write_text('wrong\npdf-private-pass\n')
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            restored = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(restored['coverage']['DOC04']['status'], 'ran')
+            self.assertTrue(any(a['current'] and a['id'] in {child['id'] for child in children}
+                                for a in restored['artifacts']))
 
     def test_can_log_public_cli_preserves_frame_lines_and_malformed_rows(self):
         examples = Path(__file__).resolve().parents[1] / 'examples/core'

@@ -162,7 +162,7 @@ partial setup results without changing the core environment. The generated
 probe is local and temporary; real model adapters still require deliberate
 `--execute-local` and independent validation of candidates.
 
-For an encrypted ZIP, put candidate passwords in a private file, one exact
+For an encrypted ZIP, 7z, or PDF, put candidate passwords in a private file, one exact
 byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing `{"password_file":
 "/path/to/private-passwords.txt"}` with `--hints`. The local `analyze` command never sends
 challenge data over the network. ZIP and TAR extraction keep originals

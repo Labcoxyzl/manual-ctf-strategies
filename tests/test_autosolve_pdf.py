@@ -99,9 +99,9 @@ class PdfExtractionTests(unittest.TestCase):
         self.source = self.root / "input.pdf"
         self.output = self.root / "staged"
 
-    def extract(self, *, max_pages=4, max_total_bytes=4096):
+    def extract(self, *, max_pages=4, max_total_bytes=4096, passwords=()):
         return extract_pdf(self.source, self.output, max_pages=max_pages,
-                           max_total_bytes=max_total_bytes)
+                           max_total_bytes=max_total_bytes, passwords=passwords)
 
     def check_record(self, record, oracle):
         self.assertEqual(record["path"].read_bytes(), oracle)
@@ -193,6 +193,58 @@ class PdfExtractionTests(unittest.TestCase):
         self.assertFalse(any(item["kind"] == "text" for item in records))
         self.assertTrue(any("no extractable text" in warning for warning in warnings))
         self.assertFalse(any(item["object_id"] == 6 for item in records))
+
+    def test_supplied_password_decrypts_text_attachment_and_stream(self):
+        from pypdf import PdfWriter
+
+        writer = PdfWriter(clone_from=io.BytesIO(handwritten_pdf(b"DOC04 ENCRYPTED ORACLE")))
+        writer.add_attachment(filename="\u00e9/../proof.bin", data=b"attachment oracle\x00")
+        writer.encrypt("private-pdf-password")
+        with self.source.open("wb") as target:
+            writer.write(target)
+        source_hash = hashlib.sha256(self.source.read_bytes()).hexdigest()
+
+        for passwords, expected in (((), "password required"),
+                                    ((b"wrong",), "passwords did not validate")):
+            records, warnings = self.extract(passwords=passwords)
+            self.assertEqual(records, [])
+            self.assertIn(expected, warnings[0])
+            self.assertFalse(self.output.exists())
+
+        records, warnings = self.extract(passwords=(b"wrong", b"private-pdf-password"))
+        self.assertEqual(warnings, [])
+        self.check_record(next(row for row in records if row["kind"] == "text"),
+                          b"DOC04 ENCRYPTED ORACLE")
+        self.check_record(next(row for row in records if row["kind"] == "attachment"),
+                          b"attachment oracle\x00")
+        self.assertTrue(any(row["kind"] == "stream" and
+                            b"DOC04 ENCRYPTED ORACLE" in row["path"].read_bytes()
+                            for row in records))
+        self.assertEqual(hashlib.sha256(self.source.read_bytes()).hexdigest(), source_hash)
+        self.assertFalse((self.root / "proof.bin").exists())
+
+        corrupt = self.root / "corrupt.pdf"
+        corrupt.write_bytes(self.source.read_bytes()[:100])
+        corrupt_output = self.root / "corrupt-staged"
+        records, warnings = extract_pdf(corrupt, corrupt_output, max_pages=4,
+                                        max_total_bytes=4096,
+                                        passwords=(b"private-pdf-password",))
+        self.assertEqual(records, [])
+        self.assertTrue(any("PDF parse failed" in warning for warning in warnings))
+        self.assertFalse(any("passwords did not validate" in warning for warning in warnings))
+        self.assertFalse(corrupt_output.exists())
+
+        encrypted = self.source.read_bytes()
+        self.assertIn(b"/Standard", encrypted)
+        corrupt.write_bytes(encrypted.replace(b"/Standard", b"/Bogus___", 1))
+        records, warnings = extract_pdf(corrupt, corrupt_output, max_pages=4,
+                                        max_total_bytes=4096,
+                                        passwords=(b"private-pdf-password",))
+        self.assertEqual(records, [])
+        self.assertTrue(any("parse failed" in warning or "decryption failed" in warning
+                            for warning in warnings))
+        self.assertFalse(any("passwords did not validate" in warning for warning in warnings))
+        self.assertFalse(corrupt_output.exists())
 
     def test_page_and_byte_limits_and_output_path_guard(self):
         self.source.write_bytes(handwritten_pdf())

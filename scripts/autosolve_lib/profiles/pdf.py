@@ -12,10 +12,13 @@ MAX_OBJECTS = 4096
 
 
 def extract_pdf(path: Path, output_dir: Path, *, max_pages: int,
-                max_total_bytes: int) -> tuple[list[dict], list[str]]:
+                max_total_bytes: int, passwords: tuple[bytes, ...] | list[bytes] = ()) -> tuple[list[dict], list[str]]:
     """Stage page text, attachments, and decoded nonimage streams with PDF locators."""
     if max_pages < 0 or max_total_bytes < 0:
         raise ValueError("PDF limits must be nonnegative")
+    if len(passwords) > 8 or any(not isinstance(value, bytes) or len(value) > 128
+                                  for value in passwords):
+        raise ValueError("PDF permits at most eight passwords of 128 bytes")
     if output_dir.is_symlink():
         raise ValueError("PDF output directory must not be a symlink")
     if output_dir.resolve() == path.resolve().parent:
@@ -55,7 +58,14 @@ def extract_pdf(path: Path, output_dir: Path, *, max_pages: int,
         with path.open("rb") as source:
             reader = PdfReader(source, strict=False)
             if reader.is_encrypted:
-                return [], ["encrypted PDF: password required"]
+                if not passwords:
+                    return [], ["encrypted PDF: password required"]
+                try:
+                    unlocked = any(reader.decrypt(password) for password in passwords)
+                except Exception as error:
+                    return [], [f"encrypted PDF: decryption failed ({type(error).__name__})"]
+                if not unlocked:
+                    return [], ["encrypted PDF: supplied passwords did not validate"]
 
             page_count = len(reader.pages)
             if page_count > max_pages:
