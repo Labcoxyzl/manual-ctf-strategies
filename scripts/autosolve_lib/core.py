@@ -530,6 +530,8 @@ def _kind(path):
         return 'mime'
     if head.lstrip().startswith(b'{\\rtf'):
         return 'office'
+    if head.startswith(b'LOGG') or path.suffix.lower() == '.blf':
+        return 'can_log'
     if (re.search(rb'(?m)^\(\d+(?:\.\d+)?\)\s+\S+\s+[0-9A-Fa-f]{3,8}(?:#|\s+\[)', head)
             or re.search(rb'(?m)^\S+\s+(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{8})(?:#|\s+\[)', head)
             or (re.search(rb'(?im)^base\s+(?:hex|dec)\s+timestamps', head)
@@ -3850,9 +3852,16 @@ def _tar_job(run, manifest, artifact, deadline):
 
 
 def _can_job(run, manifest, artifact, deadline):
+    from importlib import metadata
     from .profiles.canlog import parse_can_log
     path = Path(artifact['path'])
-    fingerprint = hashlib.sha256(Path(parse_can_log.__code__.co_filename).read_bytes()).hexdigest()
+    try:
+        parser_version = metadata.version('python-can')
+    except metadata.PackageNotFoundError:
+        parser_version = 'unavailable'
+    fingerprint = hashlib.sha256(
+        Path(parse_can_log.__code__.co_filename).read_bytes()
+        + f'python-can={parser_version}'.encode()).hexdigest()
     key = hashlib.sha256(f"{artifact['id']}:{artifact['sha256']}:can-log.v1:{fingerprint}".encode()).hexdigest()
     old = next((j for j in manifest['jobs'] if j['key'] == key and j['status'] == 'complete'), None)
     if old:
@@ -3873,7 +3882,7 @@ def _can_job(run, manifest, artifact, deadline):
     else:
         frames = []
         job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'can-log',
-               'input_ids': [artifact['id']], 'operation': 'bounded CAN text log normalization',
+               'input_ids': [artifact['id']], 'operation': 'bounded CAN log normalization',
                'tool_fingerprint': fingerprint, 'data_fingerprints': {}, 'cwd': str(run),
                'limits': {'frames': 10000, 'input_bytes': 8 * 1024 * 1024},
                'status': 'running', 'started': time.time()}
@@ -3900,6 +3909,7 @@ def _can_job(run, manifest, artifact, deadline):
                     'value': f"{frame['timestamp']} {frame['can_id']} {frame['payload_hex']} "
                              f"DLC={frame['dlc']} ({frame['frame_type']})",
                     'source_locator': {'line': frame['source_line'],
+                                       'object': frame.get('source_object'),
                                        'timestamp_basis': frame['timestamp_basis']},
                     'next_action': 'Interpret payload meaning only with a supplied schema.'})
             if len(frames) > 100:
@@ -3923,7 +3933,7 @@ def _can_job(run, manifest, artifact, deadline):
         manifest['coverage']['CAN01']['status'] = ('truncated' if old is None and job['status'] == 'truncated' else
                           'failed' if not old and job['status'] == 'failed' else
                                                    'truncated' if warnings else 'ran' if count else 'no finding')
-        manifest['coverage']['CAN01']['note'] = 'bounded candump/ASC text frames; no signal semantics'
+        manifest['coverage']['CAN01']['note'] = 'bounded candump/ASC/BLF frames; no signal semantics'
     return frames
 
 
@@ -4005,7 +4015,9 @@ def _can_dbc_job(run, manifest, artifact, frames, database_path, database_hash, 
                     'tag': 'CAN signal', 'group': record['message'],
                     'value': f"{item['name']}={item['value']} {item['unit'] or ''} "
                              f"(raw={item['raw']})".strip(),
-                    'source_locator': {'line': frame['source_line'], 'can_id': frame['can_id'],
+                    'source_locator': {'line': frame['source_line'],
+                                       'object': frame.get('source_object'),
+                                       'can_id': frame['can_id'],
                                        'payload_hex': frame['payload_hex'],
                                        'timestamp': frame['timestamp'],
                                        'timestamp_basis': frame['timestamp_basis'],

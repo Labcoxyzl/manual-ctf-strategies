@@ -1,8 +1,11 @@
 import tempfile
+import struct
 import unittest
+from importlib.util import find_spec
 from decimal import Decimal
 from pathlib import Path
 
+from scripts.autosolve_lib.core import _kind
 from scripts.autosolve_lib.profiles.canlog import parse_can_log
 
 
@@ -137,6 +140,156 @@ class CanLogTests(unittest.TestCase):
         self.assertEqual([row['payload_hex'] for row in frames], ['0102', 'AABB'])
         self.assertTrue(all(row['timestamp'] is None and row['timestamp_basis'] == 'unknown'
                             and row['format'] == 'candump_unstamped' for row in frames))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_genuine_blf_routes_and_preserves_frame_fields(self):
+        import can
+
+        source = self.root / 'capture.blf'
+        with can.BLFWriter(source) as writer:
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.125, channel=0, arbitration_id=0x123,
+                is_extended_id=False, data=b'\x01\x02', dlc=2, is_rx=True))
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.25, channel=1, arbitration_id=0x1ABCDEFF,
+                is_extended_id=True, is_fd=True, bitrate_switch=True,
+                data=bytes(range(12)), dlc=12, is_rx=False))
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.375, channel=0, arbitration_id=0x321,
+                is_extended_id=False, is_remote_frame=True, dlc=4))
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.5, channel=0, arbitration_id=0x456,
+                is_extended_id=False, data=b'', dlc=0))
+        before = source.read_bytes()
+        self.assertEqual(_kind(source), 'can_log')
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(warnings, [])
+        self.assertEqual([(row['bus'], row['can_id'], row['frame_type'], row['dlc'],
+                           row['payload_hex'], row['direction']) for row in rows], [
+            ('can0', '123', 'data', 2, '0102', 'Rx'),
+            ('can1', '1ABCDEFF', 'fd', 9, '000102030405060708090A0B', 'Tx'),
+            ('can0', '321', 'remote', 4, '', 'Rx'),
+            ('can0', '456', 'data', 0, '', 'Rx'),
+        ])
+        self.assertEqual([row['timestamp'] for row in rows],
+                         ['1700000000.125', '1700000000.25',
+                          '1700000000.375', '1700000000.5'])
+        self.assertEqual([row['source_object'] for row in rows], [1, 2, 3, 4])
+        self.assertTrue(all(row['format'] == 'blf' and row['source_line'] is None
+                            and row['timestamp_basis'] == 'unix_epoch' for row in rows))
+        self.assertEqual(rows[1]['fd_flags'], 3)
+        self.assertEqual(rows[1]['fd_flags_basis'], 'blf_wire_edl_brs_esi')
+        self.assertEqual(rows[1]['dlc_basis'], 'inferred_from_length')
+        self.assertEqual(source.read_bytes(), before)
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_rejects_truncation_and_respects_bounds(self):
+        import can
+
+        source = self.root / 'capture.blf'
+        with can.BLFWriter(source) as writer:
+            for index in range(3):
+                writer.on_message_received(can.Message(
+                    timestamp=1700000000 + index, channel=0,
+                    arbitration_id=0x123, is_extended_id=False,
+                    data=bytes([index]), dlc=1))
+        self.assertEqual(len(parse_can_log(source, max_frames=2, max_bytes=4096)[0]), 2)
+        self.assertTrue(any('frame limit' in note for note in
+                            parse_can_log(source, max_frames=2, max_bytes=4096)[1]))
+        self.assertTrue(any('byte limit' in note for note in
+                            parse_can_log(source, max_frames=10, max_bytes=32)[1]))
+        source.write_bytes(source.read_bytes()[:-5])
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(rows, [])
+        self.assertTrue(any('BLF' in note and 'truncat' in note.lower()
+                            for note in warnings))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_does_not_present_reader_padding_as_source_bytes(self):
+        source = self.root / 'padded-fd64.blf'
+        fd = struct.pack('<BBBBLLLLLLLHBBL', 1, 9, 12, 0, 0x123, 0,
+                         0x1000, 0, 0, 0, 0, 0, 0, 80, 0)
+        body = fd + bytes.fromhex('AABBCCDDEEFF001122334455')
+        message = (struct.pack('<4sHHLL', b'LOBJ', 32, 1, 32 + len(body), 101)
+                   + struct.pack('<LHHQ', 2, 0, 0, 0) + body)
+        container = (struct.pack('<4sHHLL', b'LOBJ', 16, 1, 32 + len(message), 10)
+                     + struct.pack('<H6xL4x', 0, len(message)) + message)
+        header = struct.pack('<4sLBBBBBBBBQQLL8H8H', b'LOGG', 144,
+                             5, 0, 0, 0, 2, 6, 8, 1, 144 + len(container),
+                             144 + 32 + len(message), 1, 0, *([0] * 16))
+        source.write_bytes(header.ljust(144, b'\0') + container)
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(rows, [])
+        self.assertTrue(any('padded' in note for note in warnings))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_accounts_for_non_can_objects_without_losing_later_frames(self):
+        import can
+
+        source = self.root / 'with-marker.blf'
+        with can.BLFWriter(source, compression_level=0) as writer:
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.0, channel=0, arbitration_id=0x123,
+                is_extended_id=False, data=b'\x01', dlc=1))
+            writer.log_event('xx', timestamp=1700000000.01)
+            writer.on_message_received(can.Message(
+                timestamp=1700000000.02, channel=0, arbitration_id=0x456,
+                is_extended_id=False, data=b'\x02', dlc=1))
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual([row['can_id'] for row in rows], ['123', '456'])
+        self.assertEqual([row['source_object'] for row in rows], [1, 3])
+        self.assertTrue(any('skipped 1 non-CAN object' in note for note in warnings))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_short_object_cannot_borrow_next_object_bytes(self):
+        source = self.root / 'short-object.blf'
+        short_body = struct.pack('<HBBL', 1, 0, 4, 0x123)
+        good_body = struct.pack('<HBBL8s', 1, 0, 1, 0x456, b'\x99')
+        messages = b''.join(
+            struct.pack('<4sHHLL', b'LOBJ', 32, 1, 32 + len(body), 1)
+            + struct.pack('<LHHQ', 2, 0, 0, index)
+            + body for index, body in enumerate((short_body, good_body)))
+        container = (struct.pack('<4sHHLL', b'LOBJ', 16, 1, 32 + len(messages), 10)
+                     + struct.pack('<H6xL4x', 0, len(messages)) + messages)
+        header = struct.pack('<4sLBBBBBBBBQQLL8H8H', b'LOGG', 144,
+                             5, 0, 0, 0, 2, 6, 8, 1, 144 + len(container),
+                             144 + 32 + len(messages), 2, 0, *([0] * 16))
+        source.write_bytes(header.ljust(144, b'\0') + container)
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(rows, [])
+        self.assertTrue(any('truncated' in note.lower() or 'short' in note.lower()
+                            for note in warnings))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_extended_object_header_cannot_be_parsed_as_frame(self):
+        source = self.root / 'extended-header.blf'
+        extra_header = struct.pack('<HBBL', 1, 0, 4, 0x123)
+        body = struct.pack('<HBBL8s', 1, 0, 1, 0x456, b'\x99')
+        message = (struct.pack('<4sHHLL', b'LOBJ', 40, 1, 40 + len(body), 1)
+                   + struct.pack('<LHHQ', 2, 0, 0, 0) + extra_header + body)
+        container = (struct.pack('<4sHHLL', b'LOBJ', 16, 1, 32 + len(message), 10)
+                     + struct.pack('<H6xL4x', 0, len(message)) + message)
+        header = struct.pack('<4sLBBBBBBBBQQLL8H8H', b'LOGG', 144,
+                             5, 0, 0, 0, 2, 6, 8, 1, 144 + len(container),
+                             144 + 32 + len(message), 1, 0, *([0] * 16))
+        source.write_bytes(header.ljust(144, b'\0') + container)
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(rows, [])
+        self.assertTrue(any('header' in note.lower() for note in warnings))
+
+    @unittest.skipUnless(find_spec('can'), 'python-can is optional outside core setup')
+    def test_blf_without_valid_start_time_does_not_claim_epoch(self):
+        import can
+
+        source = self.root / 'no-start-time.blf'
+        with can.BLFWriter(source) as writer:
+            writer.on_message_received(can.Message(
+                timestamp=42.0, channel=0, arbitration_id=0x123,
+                is_extended_id=False, data=b'\x01', dlc=1))
+        rows, warnings = parse_can_log(source, max_frames=10, max_bytes=4096)
+        self.assertEqual(warnings, [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['timestamp_basis'], 'unknown')
 
 
 if __name__ == "__main__":

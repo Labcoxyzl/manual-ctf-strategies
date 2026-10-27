@@ -214,9 +214,11 @@ The wordlist uses exact byte lines (LF separators), at most 4,096 entries of
 128 bytes. Spaces and CR bytes remain part of a password. Recovered bytes are
 hex in private findings; ordinary reports state only the verified index.
 
-Recorded candump and ASC CAN text logs produce bounded, line-linked frame
-records. Timing bases remain explicit; payload semantics require a supplied
-DBC or protocol schema and are not inferred from the raw bytes.
+Recorded candump and ASC text logs and BLF binary logs produce bounded CAN frame
+records, linked to a text line or BLF message index. BLF reading uses the pinned
+python-can parser and rejects damaged or oversized containers. Timing bases
+remain explicit; payload semantics require a supplied DBC or protocol schema
+and are not inferred from the raw bytes.
 
 Offline PCAP/PCAPNG inspection uses local TShark to report frame-linked DNS,
 HTTP, endpoints, and TCP stream IDs. Capture gaps and output limits remain

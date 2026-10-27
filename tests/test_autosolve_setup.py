@@ -257,6 +257,37 @@ class SetupTests(unittest.TestCase):
         result = capabilities.doctor(['can_misc'], self_test=True)
         self.assertEqual(result['operations']['can_misc.log']['functional_probe'], 'passed')
 
+    @unittest.skipUnless(capabilities.importlib.util.find_spec('can'),
+                         'python-can is optional outside core setup')
+    def test_can_log_probe_checks_genuine_blf_frame(self):
+        result = capabilities._can_probe(True)
+        self.assertEqual(result['blf_probe'], 'passed')
+        self.assertEqual(result['status'], 'ready')
+
+    def test_can_log_probe_reports_missing_blf_parser(self):
+        import builtins
+        original_import = builtins.__import__
+
+        def without_can(name, *args, **kwargs):
+            if name == 'can':
+                raise ImportError('python-can missing')
+            return original_import(name, *args, **kwargs)
+
+        with mock.patch.object(builtins, '__import__', side_effect=without_can):
+            result = capabilities._can_probe(True)
+        self.assertEqual(result['functional_probe'], 'passed')
+        self.assertEqual(result['blf_probe'], 'unavailable')
+        self.assertEqual(result['status'], 'partial')
+
+    @unittest.skipUnless(capabilities.importlib.util.find_spec('can'),
+                         'python-can is optional outside core setup')
+    def test_can_log_probe_reports_old_blf_parser(self):
+        import can
+        with mock.patch.object(can, '__version__', '4.5.0'):
+            result = capabilities._can_probe(True)
+        self.assertEqual(result['blf_probe'], 'unsupported_version')
+        self.assertEqual(result['status'], 'partial')
+
     def test_packet_probe_runs_offline_capture(self):
         result = capabilities.doctor(['packets'], self_test=True)
         self.assertEqual(result['operations']['packets.metadata']['functional_probe'], 'passed')

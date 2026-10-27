@@ -545,8 +545,30 @@ def _can_probe(self_test):
                          frames[0]['payload_hex'] == '0102' else 'failed')
         except Exception:
             probe = 'failed'
-    return {'implemented': True, 'functional_probe': probe,
-            'status': 'ready' if probe == 'passed' else 'partial'}
+    blf_probe = 'not_run'
+    try:
+        import can
+        version = tuple(int(part) for part in getattr(can, '__version__', '').split('.')[:3]
+                        if part.isdecimal())
+        if version < (4, 6, 1):
+            blf_probe = 'unsupported_version'
+        elif self_test:
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'capture.blf'
+                with can.BLFWriter(path) as writer:
+                    writer.on_message_received(can.Message(
+                        timestamp=1700000000.0, channel=0, arbitration_id=0x123,
+                        is_extended_id=False, data=b'\x01\x02', dlc=2))
+                frames, warnings = parse_can_log(path, max_frames=2, max_bytes=4096)
+                blf_probe = ('passed' if not warnings and len(frames) == 1 and
+                             frames[0]['format'] == 'blf' and
+                             frames[0]['payload_hex'] == '0102' else 'failed')
+    except ImportError:
+        blf_probe = 'unavailable'
+    except Exception:
+        blf_probe = 'failed'
+    return {'implemented': True, 'functional_probe': probe, 'blf_probe': blf_probe,
+            'status': 'ready' if probe == blf_probe == 'passed' else 'partial'}
 
 
 def _can_dbc_probe(self_test):

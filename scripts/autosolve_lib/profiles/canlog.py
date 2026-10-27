@@ -1,8 +1,12 @@
-"""Bounded, offline normalization of candump and common ASC text logs."""
+"""Bounded, offline normalization of candump, ASC, and BLF logs."""
 
+import io
+import math
 import os
 import re
 import stat
+import struct
+import zlib
 from pathlib import Path
 
 
@@ -13,6 +17,13 @@ _LONG = re.compile(r"^([0-9A-Fa-f]{3}|[0-9A-Fa-f]{8})\s+\[(\d{1,2})\]\s*(.*)$")
 _UNSTAMPED = re.compile(r"^\S+\s+(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{8})(?:#|\s+\[)")
 _HEX = re.compile(r"[0-9A-Fa-f]+\Z")
 _FD_LENGTHS = (0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64)
+_BLF_EXPANDED_LIMIT = 32 * 1024 * 1024
+_BLF_FD64 = struct.Struct('<BBBBLLLLLLLHBBL')
+_BLF_BODY_SIZES = {1: struct.calcsize('<HBBL8s'),
+                   86: struct.calcsize('<HBBL8s'),
+                   73: struct.calcsize('<HHLBBBxLLH2x8s'),
+                   100: struct.calcsize('<HBBLLBBB5x64s'),
+                   101: _BLF_FD64.size}
 
 
 def _id(token: str, *, asc: bool = False, base: int = 16) -> tuple[str, bool]:
@@ -176,6 +187,152 @@ def _asc(line: str, number: int, *, base: int, basis: str,
                    "asc", date_header=date_header, direction=direction)
 
 
+def _blf(raw: bytes, max_frames: int) -> tuple[list[dict], list[str]]:
+    try:
+        import can
+        from can.io.blf import BLFParseError, BLFReader
+    except ImportError:
+        return [], ['BLF parser unavailable: python-can 4.6.1 is required']
+    version = tuple(int(part) for part in getattr(can, '__version__', '').split('.')[:3]
+                    if part.isdecimal())
+    if version < (4, 6, 1):
+        return [], ['BLF parser too old: python-can 4.6.1 or newer is required']
+
+    # BLFReader can silently swallow incomplete object tails and unbounded zlib expansion.
+    if len(raw) < 144 or raw[:4] != b'LOGG':
+        return [], ['BLF header missing or truncated']
+    header_size = int.from_bytes(raw[4:8], 'little')
+    file_size = int.from_bytes(raw[16:24], 'little')
+    object_count = int.from_bytes(raw[32:36], 'little')
+    if header_size < 144 or header_size > len(raw) or file_size != len(raw):
+        return [], ['BLF header size mismatch or truncated file']
+    expanded = bytearray()
+    pos = header_size
+    try:
+        while pos < len(raw):
+            if len(raw) - pos < 32:
+                raise ValueError('truncated container')
+            signature, head_size, _, size, kind = struct.unpack_from('<4sHHLL', raw, pos)
+            if (signature != b'LOBJ' or head_size != 16 or kind != 10
+                    or size < 32 or pos + size > len(raw)):
+                raise ValueError('invalid or truncated container')
+            method, expected = struct.unpack_from('<H6xL', raw, pos + 16)
+            compressed = raw[pos + 32:pos + size]
+            if expected > _BLF_EXPANDED_LIMIT - len(expanded):
+                raise ValueError('expanded byte limit reached')
+            if method == 0:
+                data = compressed
+            elif method == 2:
+                decoder = zlib.decompressobj()
+                data = decoder.decompress(compressed, expected + 1)
+                if not decoder.eof or decoder.unused_data or decoder.unconsumed_tail:
+                    raise ValueError('truncated or overlong compressed container')
+            else:
+                raise ValueError('unsupported compression method')
+            if len(data) != expected:
+                raise ValueError('container length mismatch or truncated data')
+            expanded.extend(data)
+            pos += size + size % 4
+            if pos > len(raw):
+                raise ValueError('truncated container padding')
+
+        pos = 0
+        seen = 0
+        skipped = 0
+        can_objects = []
+        while pos < len(expanded):
+            if expanded[pos:pos + 4] != b'LOBJ':
+                next_object = expanded.find(b'LOBJ', pos, pos + 8)
+                if next_object < 0 and (len(expanded) - pos <= 7
+                                        and not expanded[pos:].strip(b'\0')):
+                    break
+                if next_object < 0 or expanded[pos:next_object].strip(b'\0'):
+                    raise ValueError('invalid object boundary')
+                pos = next_object
+            if len(expanded) - pos < 16:
+                raise ValueError('truncated object header')
+            _, head_size, version, size, kind = struct.unpack_from('<4sHHLL', expanded, pos)
+            expected_header = 32 if version == 1 else 40 if version == 2 else None
+            if (head_size != expected_header or size < head_size
+                    or pos + size > len(expanded)):
+                raise ValueError('invalid object header or truncated object')
+            if kind in _BLF_BODY_SIZES and size - head_size < _BLF_BODY_SIZES[kind]:
+                raise ValueError('truncated CAN object body')
+            if kind == 100:
+                fields = struct.unpack_from('<HBBLLBBB5x64s', expanded, pos + head_size)
+                if fields[2] > 15 or fields[7] > _FD_LENGTHS[fields[2]]:
+                    raise ValueError('invalid CAN FD length')
+            if kind == 101:
+                fields = _BLF_FD64.unpack_from(expanded, pos + head_size)
+                dlc_code, valid_bytes, ext_data_offset = fields[1], fields[2], fields[13]
+                data_end = ext_data_offset or size
+                if (dlc_code > 15 or valid_bytes > _FD_LENGTHS[dlc_code] or
+                        data_end > size or
+                        valid_bytes > data_end - head_size - _BLF_FD64.size):
+                    raise ValueError('CAN FD payload padded by reader')
+            if kind not in (1, 86, 73, 100, 101):
+                skipped += 1
+            else:
+                can_objects.append(seen + 1)
+            seen += 1
+            pos += size
+            while pos < len(expanded) and expanded[pos] == 0 and pos % 4:
+                pos += 1
+        if seen != object_count:
+            raise ValueError('object count mismatch or truncated objects')
+        with BLFReader(io.BytesIO(raw)) as reader:
+            frames = []
+            warnings = []
+            timestamp_basis = 'unix_epoch' if reader.start_timestamp > 0 else 'unknown'
+            emitted = 0
+            limited = False
+            for number, message in enumerate(reader, 1):
+                if len(frames) >= max_frames:
+                    warnings.append(f'BLF frame limit reached ({max_frames})')
+                    limited = True
+                    break
+                emitted = number
+                if number > len(can_objects):
+                    raise ValueError('reader emitted more CAN objects than source declares')
+                if message.is_error_frame:
+                    warnings.append(f'BLF message {number}: error frame skipped')
+                    continue
+                extended = message.is_extended_id
+                identifier = message.arbitration_id
+                data = bytes(message.data)
+                dlc = message.dlc
+                if (not math.isfinite(message.timestamp) or message.timestamp < 0
+                        or not isinstance(message.channel, int) or message.channel < 0
+                        or identifier < 0 or identifier > (0x1FFFFFFF if extended else 0x7FF)
+                        or message.is_fd and (dlc not in _FD_LENGTHS or len(data) > dlc)
+                        or not message.is_fd and (dlc > 8 or len(data) != (0 if message.is_remote_frame else dlc))
+                        or message.is_remote_frame and data):
+                    warnings.append(f'BLF message {number}: invalid CAN frame skipped')
+                    continue
+                code = _FD_LENGTHS.index(dlc) if message.is_fd else dlc
+                frame = _record(str(message.timestamp), timestamp_basis,
+                                f'can{message.channel}',
+                                f'{identifier:0{8 if extended else 3}X}', extended,
+                                code, data.hex().upper(),
+                                'remote' if message.is_remote_frame else 'fd' if message.is_fd else 'data',
+                                None, None, 'blf', direction='Rx' if message.is_rx else 'Tx',
+                                fd_flags=(1 | int(message.bitrate_switch) << 1
+                                          | int(message.error_state_indicator) << 2)
+                                if message.is_fd else None,
+                                dlc_basis='inferred_from_length' if message.is_fd else 'declared')
+                frame['source_object'] = can_objects[number - 1]
+                if message.is_fd:
+                    frame['fd_flags_basis'] = 'blf_wire_edl_brs_esi'
+                frames.append(frame)
+            if not limited and emitted != len(can_objects):
+                raise ValueError('reader skipped CAN objects')
+            if skipped:
+                warnings.append(f'BLF skipped {skipped} non-CAN objects')
+            return frames, warnings
+    except (OSError, ValueError, struct.error, zlib.error, BLFParseError) as error:
+        return [], [f'BLF invalid or truncated: {error}']
+
+
 def parse_can_log(path: Path, *, max_frames: int,
                   max_bytes: int) -> tuple[list[dict], list[str]]:
     """Preserve supported offline frames; report every rejected data row."""
@@ -194,6 +351,8 @@ def parse_can_log(path: Path, *, max_frames: int,
         return [], [f"CAN source byte limit reached ({max_bytes})"]
     if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
         return [], ["CAN source changed during reading"]
+    if raw.startswith(b'LOGG') or path.suffix.lower() == '.blf':
+        return _blf(raw, max_frames)
     try:
         lines = raw.decode("utf-8-sig").splitlines()
     except UnicodeDecodeError as error:
