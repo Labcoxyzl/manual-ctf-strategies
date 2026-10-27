@@ -346,8 +346,17 @@ returning a floating PyTorch tensor, and `loss(model, tensor, target)` returning
 one scalar to maximize. It applies bounded projected gradient steps and saves
 an NPY candidate; it does not serialize a challenge submission. Recurrent mode
 needs `reset(seed)`, `policy_step(observation, previous_action, hidden)`, and
-`env_step(action)`. It records pre/post auxiliary vectors with one policy call
-per observed state, avoiding a duplicate hidden-state advance. Both modes
+`env_step(action)`. Its private trace records pre/post auxiliary vectors and
+the observation, previous action, hidden input, and hidden output for each
+policy call. It makes one call per observed state, avoiding a duplicate hidden
+advance. A separate 0600 attempts file hashes each submitted action before
+dispatch; `attempted_actions` can exceed completed `actions` after a timeout,
+state error, or 2 MiB trace cap. Completed rows and a partial report remain
+available. The report hashes the actions bytes loaded before the rollout and
+the adapter source bytes actually executed, even if an adapter later rewrites
+either file. Each state snapshot is bounded to 64 KiB, 10,000 elements and 16
+levels. Nested tensors/arrays with known element counts are converted; custom
+or larger state shapes need an adapter-specific compact representation. Both modes
 execute the adapter only with `--execute-local`. That opt-in is not a sandbox.
 NumPy and PyTorch are optional local requirements for gradient mode.
 

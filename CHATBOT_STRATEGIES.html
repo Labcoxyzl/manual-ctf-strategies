@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="e2031f6bd5d170901d61524320814ce5ea4961318413fca5df946d7009707ee8">
+  <meta name="source-sha256" content="3f53fb047991c06ee804cf590fc977d8245902451019e12edacc74729ed87a7d">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -433,8 +433,17 @@ returning a floating PyTorch tensor, and <code>loss(model, tensor, target)</code
 one scalar to maximize. It applies bounded projected gradient steps and saves
 an NPY candidate; it does not serialize a challenge submission. Recurrent mode
 needs <code>reset(seed)</code>, <code>policy_step(observation, previous_action, hidden)</code>, and
-<code>env_step(action)</code>. It records pre/post auxiliary vectors with one policy call
-per observed state, avoiding a duplicate hidden-state advance. Both modes
+<code>env_step(action)</code>. Its private trace records pre/post auxiliary vectors and
+the observation, previous action, hidden input, and hidden output for each
+policy call. It makes one call per observed state, avoiding a duplicate hidden
+advance. A separate 0600 attempts file hashes each submitted action before
+dispatch; <code>attempted_actions</code> can exceed completed <code>actions</code> after a timeout,
+state error, or 2 MiB trace cap. Completed rows and a partial report remain
+available. The report hashes the actions bytes loaded before the rollout and
+the adapter source bytes actually executed, even if an adapter later rewrites
+either file. Each state snapshot is bounded to 64 KiB, 10,000 elements and 16
+levels. Nested tensors/arrays with known element counts are converted; custom
+or larger state shapes need an adapter-specific compact representation. Both modes
 execute the adapter only with <code>--execute-local</code>. That opt-in is not a sandbox.
 NumPy and PyTorch are optional local requirements for gradient mode.</p>
 <p>For a deterministic sign network, export the actual affine gates and input
