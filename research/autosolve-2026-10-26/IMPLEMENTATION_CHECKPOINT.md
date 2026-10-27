@@ -315,6 +315,13 @@ pending. Full CAN01, OS01 and PWN03 named-row credit awaits
 integrated published-hash replay. PDF metadata remains outside OS01 routing
 and is a separate breadth gap.
 
+Integrated core tests then exposed a forked CAN worker whose 256 MiB virtual
+memory limit failed after the parent imported Pillow. A reviewed fresh-process
+worker retains the limit, bounds private request and result pipes under one
+deadline, reaps timed-out process groups, and works for direct Python callers.
+The stable core/CAN focused suite passed 135 tests with one optional skip;
+final combined release checks and publication remain pending.
+
 ## Independent end-to-end evidence
 
 - A local ret2win ELF/service has an independently replayed exploit oracle.
