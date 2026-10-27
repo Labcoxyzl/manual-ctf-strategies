@@ -1737,23 +1737,25 @@ def _run_rev_powershell(path, timeout):
         parent.close()
 
 
-def _rev_rules_worker(path, paths, timeout, pipe):
+def _rev_rules_worker(path, paths, timeout, scratch_dir, pipe):
     from .profiles.rev_rules import inspect_rules
     resource.setrlimit(resource.RLIMIT_CPU, (61, 61))
     resource.setrlimit(resource.RLIMIT_AS, (3 * 1024**3, 3 * 1024**3))
     try:
-        pipe.send(('ok', *inspect_rules(path, timeout=timeout, **paths)))
+        pipe.send(('ok', *inspect_rules(path, timeout=timeout,
+                                        scratch_dir=scratch_dir, **paths)))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
     finally:
         pipe.close()
 
 
-def _run_rev_rules(path, paths, timeout):
+def _run_rev_rules(path, paths, timeout, scratch_dir=None):
     import multiprocessing
     parent, child = multiprocessing.Pipe(duplex=False)
     worker = multiprocessing.Process(target=_worker_entry,
-                                     args=(_rev_rules_worker, path, paths, timeout, child))
+                                     args=(_rev_rules_worker, path, paths, timeout,
+                                           scratch_dir, child))
     worker.start()
     child.close()
     try:
@@ -4683,7 +4685,7 @@ def _rev_rules_job(run, manifest, artifact, deadline, rule_paths):
     try:
         remaining = max(.01, deadline - time.monotonic())
         report, warnings = _run_rev_rules(Path(artifact['path']), rule_paths,
-                                          min(10, max(.01, (remaining - 5) / 2)))
+                                          min(10, max(.01, (remaining - 5) / 2)), run)
         if report['sample_sha256'] != artifact['sha256'] or not _require_identity(Path(artifact['path']), artifact['sha256'], deadline):
             raise RuntimeError('binary source changed before REV03 publication')
         output = run / 'jobs' / f"{job['id']}.rev-rules.json"
@@ -6689,7 +6691,7 @@ def _rev_strings_fingerprint(deadline):
     return hashlib.sha256(':'.join(parts).encode()).hexdigest()
 
 
-def _rev_rules_fingerprint(deadline):
+def _rev_rules_fingerprint(deadline, scratch_dir=None):
     from .profiles.rev_rules import _run
     source = Path(__file__).parent / 'profiles' / 'rev_rules.py'
     parts = [hashlib.sha256(source.read_bytes()).hexdigest()]
@@ -6698,7 +6700,8 @@ def _rev_rules_fingerprint(deadline):
         if not executable:
             parts.append(f'{name}-unavailable')
             continue
-        version, error = _run([executable, option], 2, 4096)
+        version, error = _run([executable, option], 2, 4096,
+                              scratch_dir=scratch_dir)
         parts.extend((executable, _hash(Path(executable), deadline) or 'unhashed',
                       hashlib.sha256(version).hexdigest() if version is not None else str(error)))
     return hashlib.sha256(':'.join(parts).encode()).hexdigest()
@@ -6785,7 +6788,7 @@ def _memory_symbol_identity(hints, hints_path, deadline):
     return directory, identity, None
 
 
-def _current_adapter_fingerprints(deadline):
+def _current_adapter_fingerprints(deadline, scratch_dir=None):
     import sqlite3
     from .profiles import disk, disk_recovery, image_metadata, media, memory, ocr, packet_objects, packet_streams, packet_tls, packets, sstv, stegseek, tones, zsteg
     profiles = Path(__file__).parent / 'profiles'
@@ -6893,7 +6896,7 @@ def _current_adapter_fingerprints(deadline):
         'binary-static': [_binary_fingerprint()],
         'rev-strings': [_rev_strings_fingerprint(deadline)],
         'rev-powershell': [module_hash('powershell')],
-        'rev-rules': [_rev_rules_fingerprint(deadline)],
+        'rev-rules': [_rev_rules_fingerprint(deadline, scratch_dir=scratch_dir)],
         'rev-packers': [hashlib.sha256(
             f'{packers_hash}:{upx_hash}:{packers_binwalk_hash}'.encode()).hexdigest()],
         'pyinstaller': [_pyinstaller_fingerprint(deadline)],
@@ -7157,7 +7160,8 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         if 'memory_symbol_dir' in hints and manifest['category'] in ('auto', 'disk_memory')
         else (None, None, 'memory symbol directory not supplied'))
     manifest['memory_symbols_sha256'] = memory_symbols_hash
-    manifest['current_adapter_fingerprints'] = _current_adapter_fingerprints(deadline)
+    manifest['current_adapter_fingerprints'] = _current_adapter_fingerprints(
+        deadline, scratch_dir=run)
     manifest['status'] = 'running'
     _write_json(run / 'manifest.json', manifest)
     active = []

@@ -34,6 +34,83 @@ class ReverseRuleTests(unittest.TestCase):
         path.chmod(0o700)
         return str(path)
 
+    def test_rule_tool_scratch_stays_inside_supplied_run_root(self):
+        run = self.root / 'runs' / 'one'
+        run.mkdir(parents=True)
+        observations = self.root / 'tool-locations.jsonl'
+        rules = self.root / 'rules.yar'
+        rules.write_text('rule x { condition: true }')
+        yara = self.tool('observed-yara', f'''import json, os, pathlib, sys
+with open({str(observations)!r}, 'a') as stream:
+ stream.write(json.dumps({{'cwd': os.getcwd(), 'home': os.environ['HOME'],
+  'cache': os.environ['XDG_CACHE_HOME'], 'tmp': os.environ['TMPDIR'],
+  'tmp_legacy': os.environ['TMP'], 'temp': os.environ['TEMP'],
+  'sample': sys.argv[-1] if '-v' not in sys.argv else None}}) + '\\n')
+if '-v' in sys.argv: print('YARA 4.5.2')
+''')
+        with mock.patch.dict(os.environ, {'TMP': str(self.root / 'outside'),
+                                      'TEMP': str(self.root / 'outside')}):
+            report, warnings = rev_rules.inspect_rules(
+                self.sample, yara_rules=rules, yara_path=yara, scratch_dir=run)
+        self.assertEqual(report['engines']['yara']['status'], 'no_match', warnings)
+        rows = [json.loads(line) for line in observations.read_text().splitlines()]
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            for key in ('cwd', 'home', 'cache', 'tmp', 'tmp_legacy', 'temp'):
+                self.assertTrue(Path(row[key]).is_relative_to(run), row)
+            if row['sample']:
+                self.assertTrue(Path(row['sample']).is_relative_to(run), row)
+        self.assertEqual(list(run.iterdir()), [])
+
+    def test_rule_fingerprint_probe_scratch_stays_inside_run_root(self):
+        run = self.root / 'runs' / 'one'
+        run.mkdir(parents=True)
+        observations = self.root / 'fingerprint-locations.jsonl'
+        probe = self.tool('observed-probe', f'''import json, os
+with open({str(observations)!r}, 'a') as stream:
+ stream.write(json.dumps({{'cwd': os.getcwd(), 'tmp': os.environ['TMPDIR']}}) + '\\n')
+print('tool 1.0')
+''')
+        with mock.patch.object(core.shutil, 'which', return_value=probe):
+            fingerprint = core._rev_rules_fingerprint(time.monotonic() + 5, scratch_dir=run)
+        self.assertEqual(len(fingerprint), 64)
+        rows = [json.loads(line) for line in observations.read_text().splitlines()]
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertTrue(Path(row['cwd']).is_relative_to(run), row)
+            self.assertTrue(Path(row['tmp']).is_relative_to(run), row)
+        self.assertEqual(list(run.iterdir()), [])
+
+    def test_rule_scratch_rejects_symlink_and_missing_directory(self):
+        run = self.root / 'runs' / 'one'
+        run.mkdir(parents=True)
+        linked = self.root / 'linked-run'
+        linked.symlink_to(run, target_is_directory=True)
+        for unsafe in (linked, linked / '..' / 'one', self.root / 'missing-run', self.sample):
+            with self.subTest(unsafe=unsafe):
+                with self.assertRaises(ValueError):
+                    rev_rules.inspect_rules(self.sample, scratch_dir=unsafe)
+                with self.assertRaises(ValueError):
+                    rev_rules._run([sys.executable, '-V'], 2, scratch_dir=unsafe)
+
+    def test_cli_fingerprint_accepts_real_runs_root_with_dotdot(self):
+        base = self.root / 'base'
+        (base / 'sub').mkdir(parents=True)
+        tools = self.root / 'tools'
+        tools.mkdir()
+        yara = tools / 'yara'
+        yara.write_text('#!/usr/bin/env python3\nprint("YARA 4.5.2")\n')
+        yara.chmod(0o700)
+        run_root = base / 'sub' / '..' / 'runs'
+        result = subprocess.run(
+            [sys.executable, '-B', str(SCRIPT), '--json', 'analyze', str(self.sample),
+             '--category', 'encoding', '--budget', '10', '--runs-root', str(run_root)],
+            capture_output=True, text=True, timeout=40,
+            env={**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']})
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        response = json.loads(result.stdout)
+        self.assertTrue((Path(response['run']) / 'manifest.json').is_file())
+
     def test_missing_rules_is_skipped_prerequisite_not_no_match(self):
         report, warnings = rev_rules.inspect_rules(self.sample)
         self.assertEqual(report['engines']['capa']['status'], 'skipped_prerequisite')

@@ -78,11 +78,27 @@ def _limits(timeout: float) -> None:
     resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
 
 
-def _run(command: list[str], timeout: float, limit: int = MAX_OUTPUT) -> tuple[bytes | None, str | None]:
+def _checked_scratch_dir(path: Path | None) -> Path | None:
+    if path is None:
+        return None
+    candidate = Path(path).absolute()
+    try:
+        if (not stat.S_ISDIR(candidate.lstat().st_mode) or
+                any(part.is_symlink() for part in (candidate, *candidate.parents))):
+            raise ValueError('rule scratch directory must be a real directory')
+    except OSError as error:
+        raise ValueError('rule scratch directory is unavailable') from error
+    return candidate.resolve()
+
+
+def _run(command: list[str], timeout: float, limit: int = MAX_OUTPUT,
+         *, scratch_dir: Path | None = None) -> tuple[bytes | None, str | None]:
     """Bound time, output, child processes and writes to a disposable work directory."""
-    with tempfile.TemporaryDirectory(prefix='autosolve-rules-') as work:
+    scratch_dir = _checked_scratch_dir(scratch_dir)
+    with tempfile.TemporaryDirectory(prefix='autosolve-rules-', dir=scratch_dir) as work:
         env = os.environ.copy()
-        env.update({'HOME': work, 'XDG_CACHE_HOME': work, 'TMPDIR': work})
+        env.update({'HOME': work, 'XDG_CACHE_HOME': work,
+                    'TMPDIR': work, 'TMP': work, 'TEMP': work})
         try:
             process = subprocess.Popen(command, cwd=work, env=env, stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, start_new_session=True,
@@ -212,10 +228,12 @@ def _parse_yara(output: bytes, path: Path, sample: bytes) -> list[dict]:
 def inspect_rules(path: Path, *, capa_rules: Path | None = None,
                   capa_signatures: Path | None = None, yara_rules: Path | None = None,
                   capa_path: str | None = None, yara_path: str | None = None,
-                  timeout: float = 10, max_bytes: int = MAX_SAMPLE_BYTES) -> tuple[dict, list[str]]:
+                  timeout: float = 10, max_bytes: int = MAX_SAMPLE_BYTES,
+                  scratch_dir: Path | None = None) -> tuple[dict, list[str]]:
     """Return rule matches as static clues; never infer execution or malicious behavior."""
     if not 0 < timeout <= 30 or not 0 < max_bytes <= MAX_SAMPLE_BYTES:
         raise ValueError('rule scan limits must be positive and bounded')
+    scratch_dir = _checked_scratch_dir(scratch_dir)
     path = Path(path).absolute()
     try:
         sample = _read_regular(path, max_bytes)
@@ -256,7 +274,8 @@ def inspect_rules(path: Path, *, capa_rules: Path | None = None,
             continue
         if executable and os.sep in executable:
             binary = str(Path(executable).absolute())
-        version, error = _run([str(binary), version_arg], min(2, timeout), 4096)
+        version, error = _run([str(binary), version_arg], min(2, timeout), 4096,
+                              scratch_dir=scratch_dir)
         if error:
             row['status'] = 'unavailable'
             warnings.append(f'{engine} version probe: {error}')
@@ -267,7 +286,8 @@ def inspect_rules(path: Path, *, capa_rules: Path | None = None,
             warnings.append(f'{engine} version probe returned no version')
             continue
         row['version'] = lines[0][:128]
-        with tempfile.TemporaryDirectory(prefix='autosolve-rule-sample-') as work:
+        with tempfile.TemporaryDirectory(prefix='autosolve-rule-sample-',
+                                         dir=scratch_dir) as work:
             scan_path = Path(work) / 'sample.bin'
             scan_path.write_bytes(sample)
             scan_path.chmod(0o400)
@@ -277,7 +297,7 @@ def inspect_rules(path: Path, *, capa_rules: Path | None = None,
             else:
                 command = [str(binary), '-s', '-L', '-e', str(Path(yara_rules).absolute()),
                            str(scan_path)]
-            output, error = _run(command, timeout)
+            output, error = _run(command, timeout, scratch_dir=scratch_dir)
             try:
                 changed = hashlib.sha256(_read_regular(scan_path, max_bytes)).hexdigest() != sample_hash
                 changed |= any(_identity(Path(item), kinds) != initial
