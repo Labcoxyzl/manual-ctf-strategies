@@ -46,6 +46,63 @@ sqlite3 -readonly COPY/places.sqlite "SELECT h.id,p.url,h.visit_date,datetime(h.
 
 Use only the query matching the source browser and confirmed schema. Keep raw times alongside UTC conversions; check the time basis before relying on a displayed date. SQLite may create a working `-shm` beside the copy. Compare a decisive row with a separate known log or download record and preserve the exact profile/database path. A stored visit may come from sync, import or another browser action; it does not identify a human viewer. A missing row can also mean a different profile, absent WAL, filtered output, unsupported schema or parser error. [Hindsight CLI](https://github.com/RyanDFIR/hindsight/blob/main/README.md) · [Chromium visits](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/history/core/browser/visit_database.cc) · [Chromium time](https://chromium.googlesource.com/chromium/src/+/bf34def0e76d2c8581f107759b0ec607a89fe2a6/base/time/time.h) · [Firefox Places](https://firefox-source-docs.mozilla.org/browser/places/architecture-overview.html) · [Firefox visit source](https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/places/History.cpp).
 
+<a id="android-preferences"></a>
+## Android app data: inspect one preference key
+
+Require a supplied, accessible app-data extraction; an APK does not contain a user's private app state. Preserve the original and record the Android user, package, source path and file hash before copying one evidenced SharedPreferences XML file **and any matching `.bak`**. Android may restore that backup on load, so compare both copies if present; an extraction made during a write may not identify one active value. App versions and users can have different files. If a complete extraction and the approved ALEAPP build are available, check its local help, create a private output directory first, then run `aleapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT` (or the installed `python3 aleapp.py` equivalent). Keep its version, module errors and source-file references; a report row is a lead, not proof that another file or user had the same state.
+
+For a **copied regular UTF-8 XML file of at most 1 MiB**, select one named string, boolean or decimal int/long key locally with approved Python. Do not dump every preference:
+
+```sh
+python3 - COPY.xml KEY <<'PYCODE'
+import os, re, stat, sys
+from xml.etree import ElementTree as ET
+if len(sys.argv) != 3:
+    raise SystemExit('supply a copied XML file and one key')
+fd = os.open(sys.argv[1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+with os.fdopen(fd, 'rb') as source:
+    if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+        raise SystemExit('not a regular file')
+    data = source.read(1024 * 1024 + 1)
+if len(data) > 1024 * 1024 or b'\x00' in data:
+    raise SystemExit('large or non-UTF-8 XML is unsupported')
+try:
+    data.decode('utf-8')
+except UnicodeDecodeError:
+    raise SystemExit('non-UTF-8 XML is unsupported') from None
+if b'<!DOCTYPE' in data.upper():
+    raise SystemExit('DTD-bearing XML is unsupported')
+try:
+    root = ET.fromstring(data)
+except ET.ParseError:
+    raise SystemExit('malformed XML') from None
+rows = [item for item in root if item.get('name') == sys.argv[2]]
+if root.tag != 'map' or len(rows) != 1 or len(rows[0]):
+    raise SystemExit('missing, duplicate, or structured key')
+item = rows[0]
+if item.tag not in ('string', 'boolean', 'int', 'long'):
+    raise SystemExit('unsupported preference value type')
+if item.tag == 'string':
+    value = item.text or ''
+else:
+    value = item.get('value')
+    if value is None or len(value) > 64 or (item.text or '').strip():
+        raise SystemExit('malformed primitive value')
+    if item.tag == 'boolean' and value not in ('true', 'false'):
+        raise SystemExit('invalid boolean value')
+    if item.tag in ('int', 'long'):
+        if not re.fullmatch(r'-?[0-9]+', value):
+            raise SystemExit('invalid integer value')
+        number = int(value)
+        bits = 32 if item.tag == 'int' else 64
+        if not -(1 << (bits - 1)) <= number < (1 << (bits - 1)):
+            raise SystemExit('integer exceeds Android type range')
+print(item.tag, repr(str(value)[:160]))
+PYCODE
+```
+
+**Check:** Tie the selected key, stored type and value to the copied XML and an independent app/configuration clue, database row, log or known case observation. For an app database, follow the [SQLite/WAL workflow](#sqlite-artifact) with its matching sidecars. A numeric preference has no universal time epoch. Missing keys, conflicting XML/`.bak`, non-UTF-8 or unsupported value types, malformed XML, a different Android user, unavailable/unsupported ALEAPP modules or an incomplete extraction leave absence inconclusive. Keep private values out of shared notes. [Android SharedPreferences](https://developer.android.com/training/data-storage/shared-preferences) · [AOSP XML implementation](https://android.googlesource.com/platform/frameworks/base/+/main/core/java/android/app/SharedPreferencesImpl.java) · [ALEAPP CLI](https://github.com/abrignoni/ALEAPP/blob/main/README.md) · [Python XML security](https://docs.python.org/3.12/library/xml.html).
+
 <a id="ios-plist"></a>
 ## iOS plist: inspect one named field
 

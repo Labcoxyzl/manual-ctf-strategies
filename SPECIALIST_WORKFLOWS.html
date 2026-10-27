@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="32a8bd9de3ea0efac3c404d02b1d9f79074626f3c12964c9490cc2be3c98824a">
+  <meta name="source-sha256" content="198755308b484e1da917340ceb616364255dd94880471a69e3c233788a28eec6">
   <link rel="icon" href="data:,">
   <title>Specialist task workflows · Manual CTF Strategies</title>
   <style>
@@ -70,6 +70,57 @@
 sqlite3 -readonly COPY/places.sqlite &quot;SELECT h.id,p.url,h.visit_date,datetime(h.visit_date/1000000,'unixepoch') FROM moz_historyvisits h JOIN moz_places p ON p.id=h.place_id WHERE p.url LIKE '%MARKER%' ORDER BY h.visit_date,h.id LIMIT 20;&quot;
 </code></pre>
 <p>Use only the query matching the source browser and confirmed schema. Keep raw times alongside UTC conversions; check the time basis before relying on a displayed date. SQLite may create a working <code>-shm</code> beside the copy. Compare a decisive row with a separate known log or download record and preserve the exact profile/database path. A stored visit may come from sync, import or another browser action; it does not identify a human viewer. A missing row can also mean a different profile, absent WAL, filtered output, unsupported schema or parser error. <a href="https://github.com/RyanDFIR/hindsight/blob/main/README.md">Hindsight CLI</a> · <a href="https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/history/core/browser/visit_database.cc">Chromium visits</a> · <a href="https://chromium.googlesource.com/chromium/src/+/bf34def0e76d2c8581f107759b0ec607a89fe2a6/base/time/time.h">Chromium time</a> · <a href="https://firefox-source-docs.mozilla.org/browser/places/architecture-overview.html">Firefox Places</a> · <a href="https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/components/places/History.cpp">Firefox visit source</a>.</p>
+<p><a id="android-preferences"></a></p>
+<h2>Android app data: inspect one preference key</h2>
+<p>Require a supplied, accessible app-data extraction; an APK does not contain a user's private app state. Preserve the original and record the Android user, package, source path and file hash before copying one evidenced SharedPreferences XML file <strong>and any matching <code>.bak</code></strong>. Android may restore that backup on load, so compare both copies if present; an extraction made during a write may not identify one active value. App versions and users can have different files. If a complete extraction and the approved ALEAPP build are available, check its local help, create a private output directory first, then run <code>aleapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT</code> (or the installed <code>python3 aleapp.py</code> equivalent). Keep its version, module errors and source-file references; a report row is a lead, not proof that another file or user had the same state.</p>
+<p>For a <strong>copied regular UTF-8 XML file of at most 1 MiB</strong>, select one named string, boolean or decimal int/long key locally with approved Python. Do not dump every preference:</p>
+<pre><code class="language-sh">python3 - COPY.xml KEY &lt;&lt;'PYCODE'
+import os, re, stat, sys
+from xml.etree import ElementTree as ET
+if len(sys.argv) != 3:
+    raise SystemExit('supply a copied XML file and one key')
+fd = os.open(sys.argv[1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+with os.fdopen(fd, 'rb') as source:
+    if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+        raise SystemExit('not a regular file')
+    data = source.read(1024 * 1024 + 1)
+if len(data) &gt; 1024 * 1024 or b'\x00' in data:
+    raise SystemExit('large or non-UTF-8 XML is unsupported')
+try:
+    data.decode('utf-8')
+except UnicodeDecodeError:
+    raise SystemExit('non-UTF-8 XML is unsupported') from None
+if b'&lt;!DOCTYPE' in data.upper():
+    raise SystemExit('DTD-bearing XML is unsupported')
+try:
+    root = ET.fromstring(data)
+except ET.ParseError:
+    raise SystemExit('malformed XML') from None
+rows = [item for item in root if item.get('name') == sys.argv[2]]
+if root.tag != 'map' or len(rows) != 1 or len(rows[0]):
+    raise SystemExit('missing, duplicate, or structured key')
+item = rows[0]
+if item.tag not in ('string', 'boolean', 'int', 'long'):
+    raise SystemExit('unsupported preference value type')
+if item.tag == 'string':
+    value = item.text or ''
+else:
+    value = item.get('value')
+    if value is None or len(value) &gt; 64 or (item.text or '').strip():
+        raise SystemExit('malformed primitive value')
+    if item.tag == 'boolean' and value not in ('true', 'false'):
+        raise SystemExit('invalid boolean value')
+    if item.tag in ('int', 'long'):
+        if not re.fullmatch(r'-?[0-9]+', value):
+            raise SystemExit('invalid integer value')
+        number = int(value)
+        bits = 32 if item.tag == 'int' else 64
+        if not -(1 &lt;&lt; (bits - 1)) &lt;= number &lt; (1 &lt;&lt; (bits - 1)):
+            raise SystemExit('integer exceeds Android type range')
+print(item.tag, repr(str(value)[:160]))
+PYCODE
+</code></pre>
+<p><strong>Check:</strong> Tie the selected key, stored type and value to the copied XML and an independent app/configuration clue, database row, log or known case observation. For an app database, follow the <a href="#sqlite-artifact">SQLite/WAL workflow</a> with its matching sidecars. A numeric preference has no universal time epoch. Missing keys, conflicting XML/<code>.bak</code>, non-UTF-8 or unsupported value types, malformed XML, a different Android user, unavailable/unsupported ALEAPP modules or an incomplete extraction leave absence inconclusive. Keep private values out of shared notes. <a href="https://developer.android.com/training/data-storage/shared-preferences">Android SharedPreferences</a> · <a href="https://android.googlesource.com/platform/frameworks/base/+/main/core/java/android/app/SharedPreferencesImpl.java">AOSP XML implementation</a> · <a href="https://github.com/abrignoni/ALEAPP/blob/main/README.md">ALEAPP CLI</a> · <a href="https://docs.python.org/3.12/library/xml.html">Python XML security</a>.</p>
 <p><a id="ios-plist"></a></p>
 <h2>iOS plist: inspect one named field</h2>
 <p>Work on a copy of a supplied XML or binary plist. Record its original path, application/container context and hash. The approved Python standard library reads both formats without an added dependency. Inspect a <strong>named</strong> key path, rather than dumping a whole potentially private file. Pass each nested dictionary key or list index as a separate argument:</p>

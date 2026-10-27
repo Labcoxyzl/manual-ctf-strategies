@@ -1230,5 +1230,42 @@
         "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie"
       }
     ]
+  },
+  {
+    "id": "android-preferences",
+    "category": "forensics",
+    "title": "Android app extraction → one preference key",
+    "input": "A supplied accessible app-data extraction with a named SharedPreferences XML file and any matching .bak, its app package/user context and original path; an APK alone is insufficient.",
+    "tool_ids": [
+      "kali-4",
+      "windows-7"
+    ],
+    "steps": [
+      "Preserve the source and work on a copy. Record Android user, app package, original XML/.bak paths and hashes; if a complete extraction and approved ALEAPP are available, check local help and parse the copied extraction into a precreated private output directory.",
+      "For one evidenced key, run the bundled bounded Python snippet separately on the copied XML and any matching .bak; record the stored type and a short local value preview from each without dumping all preferences.",
+      "Compare the key and meaning with app code/configuration, a second source artifact or a known case observation. Treat ALEAPP output as a lead and confirm any decisive value against the copied source file."
+    ],
+    "expected": "One named key/value/type tied to its source app, Android user, XML/backup path and independent context; or a documented parser/input limit.",
+    "fallback": "A missing key can reflect another user, app version, DataStore or another storage mechanism, incomplete/encrypted extraction, conflicting XML/.bak, unsupported type/encoding or malformed XML, or unavailable ALEAPP. Do not infer that the app never held the value.",
+    "caveat": "The snippet previews only a small copied UTF-8 SharedPreferences XML file and one string, boolean, or decimal int/long key; it rejects DTDs and large input. Other valid Android types or encodings need another parser. A backup can supersede the main XML when Android next loads preferences. Numeric fields need app-specific units and epoch before time conversion. Keep private values out of shared notes.",
+    "verification": "Android/ALEAPP/Python documentation source-reviewed; local synthetic string/boolean/int/long bounds, XML/.bak disagreement, missing, malformed, UTF-16 DTD, size, symlink and FIFO controls passed. ALEAPP and competition-machine execution unverified.",
+    "references": [
+      {
+        "title": "Android SharedPreferences storage",
+        "url": "https://developer.android.com/training/data-storage/shared-preferences"
+      },
+      {
+        "title": "AOSP SharedPreferences XML implementation",
+        "url": "https://android.googlesource.com/platform/frameworks/base/+/main/core/java/android/app/SharedPreferencesImpl.java"
+      },
+      {
+        "title": "ALEAPP CLI usage",
+        "url": "https://github.com/abrignoni/ALEAPP/blob/main/README.md"
+      },
+      {
+        "title": "Python XML parser security",
+        "url": "https://docs.python.org/3.12/library/xml.html"
+      }
+    ]
   }
 ]
