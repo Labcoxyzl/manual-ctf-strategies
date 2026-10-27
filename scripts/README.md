@@ -132,6 +132,18 @@ evidence, or a conflicting `--library-path` is refused. `--offset` and
 `--offset-run` are mutually exclusive. A local marker remains candidate
 evidence, not challenge acceptance.
 
+For a selected non-PIE x86-64 practice ELF needing exactly three imported
+calls, use `pwn-call-chain` with a verified stdin `--offset-run` and a private
+mode-0600 `--calls-json` file. The JSON has `schema_version: 1` and exactly
+three ordered records of `{"symbol":"stage_one","args":["0x1","0x2","0x3"]}`
+form, using the ELF's actual imported function names and three hex u64
+arguments per call. Pass `--binary`, `--prompt-hex`, and `--success-hex` as for
+`pwn-ret2win`; add `--replay-local` only to run the selected ELF and four local
+negative controls. The command verifies the PLT relocations, one three-pop
+gadget, source, offset and library identities. PIE, other calling conventions
+and general ROP chains are unsupported. A local marker does not establish
+challenge acceptance.
+
 Default setup uses only wheels and verifies hashes from
 [`core.lock.txt`](autosolve_requirements/core.lock.txt). It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
