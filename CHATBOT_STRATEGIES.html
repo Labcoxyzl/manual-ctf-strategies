@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="b98b90d50561a93abd029ab67b13600cc8993dc48bbcdd61db9e120b1572982a">
+  <meta name="source-sha256" content="8e75449048b7bcc359ed7165cb49e5ebf1997971846e0ba375e3b5c77dd691f2">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -77,6 +77,16 @@ values are sent with each serial chat request but redacted in logged request
 bodies and reports; raw chatbot responses remain in the private transcript,
 including any value the target echoes. The private protocol is part of the
 resume identity. Bracketed form names such as <code>settings[mode]</code> are supported.</p>
+<p>For a <code>text/event-stream</code> chat route that emits JSON <code>data:</code> events and a
+<code>data: [DONE]</code> terminator, copy the <a href="scripts/chatbot_recipes/sse_chat.json">SSE recipe</a>.
+Set <code>chat.response_format</code> to <code>sse</code> and <code>chat.response_field</code> to the event
+field containing each text delta. The client joins string deltas, ignores
+missing or null deltas, retains raw stream bytes and parsed events privately,
+and stops reading at <code>[DONE]</code> even if the server keeps the connection open.
+It can carry a declared conversation ID from an event into the next serial
+request. A missing terminator, invalid event, or timeout leaves the POST
+unresolved; inspect history/status before releasing the origin. Other stream
+framing or terminal markers need a target-specific adapter.</p>
 <p>When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, <code>resume</code> can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or

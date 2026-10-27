@@ -1,5 +1,6 @@
 """Independent HTTP fixtures for the public chatbot command."""
 
+import base64
 import json
 import fcntl
 import hashlib
@@ -248,6 +249,46 @@ class Toy:
                         toy.stage_checked = False
                         self.send(200, {'reply': 'stage advanced', 'answer': 'another'} if toy.mode == 'stage_ambiguous' else
                                   {'reply': 'flag{toy-candidate}' if toy.mode in ('stage_candidate', 'stage_candidate_partial_once') else 'stage advanced'})
+                    return
+                if self.path == '/stream/chat':
+                    if toy.mode == 'stream_rate_body':
+                        self.send(429, {'error': 'cooldown', 'retry_after_sec': 2})
+                        return
+                    if toy.mode == 'stream_rate_lock_body':
+                        self.send(429, {'error': 'Another request is already in progress'})
+                        return
+                    if len([path for method, path in toy.calls if method == 'POST' and path == '/stream/chat']) > 1 and body.get('thread') != 'stream-A':
+                        self.send(403, {'error': 'conversation missing'})
+                        return
+                    if toy.mode == 'stream_timeout_midline':
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'text/event-stream')
+                        self.end_headers()
+                        self.wfile.write(b'data: {"delta":{"content":"partial')
+                        self.wfile.flush()
+                        time.sleep(.18)
+                        return
+                    parts = [b'data: {"delta":{"content":null},"conversation":{"id":"stream-A"}}\n\n',
+                             b'data: {"delta":{"content":"role: "}}\n\n',
+                             b': heartbeat\n\n',
+                             b'data: {"delta":{"content":"assistant"},"choices":[{"delta":{"tool_calls":[{"name":"noop"}]}}]}\n\n']
+                    if toy.mode == 'stream_malformed':
+                        parts.append(b'data: {broken}\n\n')
+                    if toy.mode != 'stream_incomplete':
+                        parts.append(b'data: [DONE]\n\n')
+                    if toy.mode == 'stream_cr_only':
+                        parts = [part.replace(b'\n\n', b'\r\r') for part in parts]
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/event-stream')
+                    self.end_headers()
+                    for part in parts:
+                        self.wfile.write(part[:5]); self.wfile.flush()
+                        self.wfile.write(part[5:]); self.wfile.flush()
+                        if toy.mode == 'stream_timeout_after_chunk':
+                            time.sleep(.18)
+                            return
+                    if toy.mode in ('stream_delayed_close', 'stream_cr_only'):
+                        time.sleep(.18)
                     return
                 if self.path == '/apply' and toy.mode == 'api_redirect':
                     self.send(302, b'', {'Location': '/check-result'})
@@ -1483,6 +1524,7 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 0)
             self.assertIn('Planned workflow check: GET /stage-status', (dry_run / 'report.md').read_text())
             self.assertFalse(toy.calls)
+
             m, run, code = self.start(root, toy, protocol, requests=8, prompts=2)
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'workflow stage observed; inspect status before next prompt')
@@ -1548,6 +1590,62 @@ class ChatbotCLITests(unittest.TestCase):
                                         '--max-requests', '8')
             self.assertEqual(code, 2)
             self.assertIn('status_after_each_chat needs', result['reason'])
+            self.assertFalse(toy.calls)
+
+    def test_explicit_sse_chat_adapter_preserves_conversation_and_uncertain_streams(self):
+        config = {'chat': {'path': '/stream/chat', 'message_field': 'query', 'response_format': 'sse',
+                           'response_field': 'delta.content', 'conversation_field': 'thread',
+                           'conversation_response_field': 'conversation.id'},
+                  'lanes': ['capability']}
+        for mode in ('stream_delayed_close', 'stream_cr_only'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, run, code = self.start(root, toy, protocol, prompts=2, timeout=.05)
+                self.assertEqual(code, 0)
+                self.assertEqual(m['completed'], ['baseline', 'capability'])
+                self.assertEqual(m['conversation_id'], 'stream-A')
+                self.assertEqual(toy.received[-1]['thread'], 'stream-A')
+                records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+                self.assertEqual(records[-1]['response_format'], 'sse')
+                self.assertEqual(records[-1]['tool_call_evidence'][0]['name'], 'noop')
+                self.assertIn('raw_b64', records[-1]['response'])
+        for mode, reason in (('stream_incomplete', 'partial_response'),
+                             ('stream_malformed', 'ambiguous response; supply response_field')):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, run, code = self.start(root, toy, protocol, prompts=2)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], reason)
+                self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        for mode in ('stream_timeout_after_chunk', 'stream_timeout_midline'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, run, code = self.start(root, toy, protocol, prompts=2, timeout=.05)
+                self.assertEqual(code, 3)
+                self.assertIn('chat timed out', m['stop_reason'])
+                records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+                self.assertEqual(records[-1]['status'], 200)
+                self.assertTrue(base64.b64decode(records[-1]['response']['raw_b64']).startswith(b'data:'))
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+                self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        for mode, reason in (('stream_rate_body', 'rate_limit'), ('stream_rate_lock_body', 'lock')):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, _, code = self.start(root, toy, protocol, prompts=2)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], reason)
+                if mode == 'stream_rate_body':
+                    self.assertLess(m['cooldown_until'] - time.time(), 10)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/stream/chat', 'response_format': 'sse'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '8')
+            self.assertEqual(code, 2)
+            self.assertIn('response_field', result['reason'])
             self.assertFalse(toy.calls)
 
     def test_api_plan_preserves_scope_and_separates_candidate_from_acceptance(self):
@@ -1766,6 +1864,7 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('debug_verifier.json', 'api_plan'),
                                    ('nonce_verifier.json', 'api_plan'),
                                    ('header_nonce_verifier.json', 'api_plan'),
+                                   ('sse_chat.json', 'route_discovery'),
                                    ('scorer_batch.json', 'scorer_batch'),
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),

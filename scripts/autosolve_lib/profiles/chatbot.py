@@ -201,12 +201,14 @@ def _protocol(path):
     if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change', 'status_after_each_chat'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
-    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
+    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
         raise core.InvalidInput('invalid chat protocol')
     if chat:
         _path(chat.get('path'))
         if chat.get('method', 'POST') != 'POST' or chat.get('encoding', 'json') not in ('json', 'form'):
             raise core.InvalidInput('chat supports POST JSON or form only')
+        if chat.get('response_format', 'json') not in ('json', 'sse') or (chat.get('response_format') == 'sse' and not chat.get('response_field')):
+            raise core.InvalidInput('sse response_format needs an explicit response_field')
         for key in ('message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'):
             pattern = r'[\w.\[\]-]{1,80}' if key in ('message_field', 'conversation_field', 'client_id_field') else r'[\w.-]{1,80}'
             if key in chat and (not isinstance(chat[key], str) or not re.fullmatch(pattern, chat[key])):
@@ -454,7 +456,7 @@ class Client:
             self.cookies.load(ignore_discard=True, ignore_expires=True)
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies), _NoRedirect())
 
-    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None, capture_header=None):
+    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None, capture_header=None, response_format='json'):
         if method != 'GET' and self.pending_probe is not None:
             return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
@@ -503,6 +505,8 @@ class Client:
                 pending_marked = True
                 self.pending_probe = probe
             start = time.monotonic()
+            partial_chunks = []
+            status = None
             request = urllib.request.Request(url, data=data, headers=headers, method=method)
             try:
                 remaining = min(self.manifest['timeout'], max(.001, self.deadline - start))
@@ -513,11 +517,28 @@ class Client:
                         response = error
                     with response:
                         status = response.code
-                        raw = response.read(MAX_RESPONSE + 1)
+                        if response_format == 'sse':
+                            size, sse_done = 0, False
+                            while size <= MAX_RESPONSE:
+                                read_chunk = getattr(response, 'read1', response.read)
+                                chunk = read_chunk(min(4096, MAX_RESPONSE + 1 - size))
+                                if not chunk:
+                                    break
+                                partial_chunks.append(chunk)
+                                size += len(chunk)
+                                if re.search(rb'(^|[\r\n])data: ?\[DONE\](?:\r|\n)', b''.join(partial_chunks)):
+                                    sse_done = True
+                                    break
+                            raw = b''.join(partial_chunks)
+                        else:
+                            raw = response.read(MAX_RESPONSE + 1)
                         response_headers = response.headers
             except (socket.timeout, TimeoutError, urllib.error.URLError) as error:
                 signal = 'timeout' if isinstance(error, (socket.timeout, TimeoutError)) or isinstance(getattr(error, 'reason', None), socket.timeout) else 'network_error'
-                record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': None, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal}
+                record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal}
+                if response_format == 'sse':
+                    record['response_format'] = 'sse'
+                    record['response'] = {'raw_b64': base64.b64encode(b''.join(partial_chunks)).decode()}
                 self._save_cookies()
                 self._log(record)
                 return record
@@ -553,18 +574,38 @@ class Client:
                     continue
             else:
                 signal = 'partial_response' if len(raw) > MAX_RESPONSE else 'lock' if status == 409 else 'rate_limit' if status == 429 else None
+            if response_format == 'sse' and not sse_done and signal is None:
+                signal = 'partial_response'
             raw = raw[:MAX_RESPONSE]
-            parsed = None
-            try:
-                parsed = json.loads(raw)
-            except (ValueError, UnicodeError):
-                pass
+            if response_format == 'sse' and status in range(200, 300):
+                parsed = _sse_events(raw) if sse_done and signal is None else None
+            else:
+                parsed = None
+                try:
+                    parsed = json.loads(raw)
+                except (ValueError, UnicodeError):
+                    pass
             if signal == 'rate_limit' and isinstance(parsed, dict) and any(word in json.dumps(parsed).lower() for word in ('already in progress', 'active_other_tab', 'comms_locked')):
                 signal = 'lock'
             retry_after = response_headers.get('Retry-After') if status in (409, 429) else None
             if retry_after is None and status in (409, 429) and isinstance(parsed, dict):
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
-            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()}, 'tool_call_evidence': _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'), 'retry_after': retry_after}
+            response_value = ({'raw_b64': base64.b64encode(raw).decode(), 'sse_events': parsed} if response_format == 'sse' and status in range(200, 300) else
+                              parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()})
+            if response_format == 'sse' and isinstance(parsed, list):
+                tool_evidence = []
+                for event in parsed:
+                    if len(tool_evidence) >= 20:
+                        break
+                    calls = (_nested(event, 'tool_calls') or _nested(event, 'metadata.tool_calls') or
+                             _nested(event, 'choices.0.delta.tool_calls'))
+                    if isinstance(calls, list):
+                        tool_evidence.extend(calls[:20 - len(tool_evidence)])
+            else:
+                tool_evidence = _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls')
+            record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': response_value, 'tool_call_evidence': tool_evidence, 'retry_after': retry_after}
+            if response_format == 'sse':
+                record['response_format'] = 'sse'
             if capture_header:
                 values = response_headers.get_all(capture_header, [])
                 record['captured_response_header'] = ({'name': capture_header, 'value': values[0]}
@@ -636,8 +677,41 @@ def _retry_seconds(value):
     return None
 
 
+def _sse_events(raw):
+    try:
+        frames = raw.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n').split('\n\n')
+        events = []
+        for frame in frames:
+            data = [line[5:].removeprefix(' ') for line in frame.split('\n') if line.startswith('data:')]
+            if not data:
+                continue
+            payload = '\n'.join(data)
+            if payload == '[DONE]':
+                return events
+            event = json.loads(payload)
+            if not isinstance(event, dict):
+                return None
+            events.append(event)
+        return None
+    except (UnicodeError, ValueError):
+        return None
+
+
 def _text(record, field=None):
     value = record.get('response')
+    if record.get('response_format') == 'sse':
+        events = value.get('sse_events') if isinstance(value, dict) else None
+        if not isinstance(events, list) or not field:
+            return None
+        pieces = []
+        for event in events:
+            part = _nested(event, field, _MISSING)
+            if part is _MISSING or part is None:
+                continue
+            if not isinstance(part, str):
+                return None
+            pieces.append(part)
+        return ''.join(pieces) if pieces else None
     if isinstance(value, dict) and 'raw_b64' in value:
         return None if field else base64.b64decode(value['raw_b64']).decode(errors='replace')
     if field:
@@ -984,7 +1058,8 @@ def _run(client):
             body[chat['conversation_field']] = m['conversation_id']
         if chat.get('client_id_field'):
             body[chat['client_id_field']] = uuid.uuid4().hex
-        record = client.request('POST', chat['path'], body=body, encoding=chat.get('encoding', 'json'), probe=probe)
+        record = client.request('POST', chat['path'], body=body, encoding=chat.get('encoding', 'json'), probe=probe,
+                                response_format=chat.get('response_format', 'json'))
         if record.get('signal') == 'budget':
             m['stop_reason'] = 'budget after probe preparation; state uncertain'
             break
@@ -1008,7 +1083,12 @@ def _run(client):
             m['stop_reason'] = f"chat HTTP {record.get('status')}"
         else:
             response = record.get('response')
-            conversation = _nested(response, chat.get('conversation_response_field'))
+            if chat.get('response_format') == 'sse':
+                events = response.get('sse_events') if isinstance(response, dict) else None
+                conversation = next((value for event in reversed(events or [])
+                                     if isinstance(value := _nested(event, chat.get('conversation_response_field')), (str, int))), None)
+            else:
+                conversation = _nested(response, chat.get('conversation_response_field'))
             if isinstance(conversation, (str, int)):
                 m['conversation_id'] = conversation
             text = _text(record, chat.get('response_field'))
@@ -1107,7 +1187,7 @@ def _render(run, m):
              f"Strategy: {m.get('strategy') or 'selected default lanes'}",
              f"HTTP requests: {m['request_count']} / {m['max_requests']}; prompts: {m['prompt_count']} / {m['max_prompts']}",
              f"Transport: {transport}",
-            f"Response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
+            f"Response format: {chat.get('response_format') or 'json'}; response field: {chat.get('response_field') or 'inferred only when unambiguous'}; conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
             f"Status after each chat: {bool(m.get('status_after_each_chat'))}" + (f" via GET {_display_path(m['workflow_status_path'])}" if m.get('workflow_status_path') else ''),
@@ -1239,7 +1319,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
         chat = config.get('chat', {})
         manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
                     'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
-                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
+                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
                     'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
                     'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
                                           'encoding': config['bootstrap'].get('encoding', 'json'),

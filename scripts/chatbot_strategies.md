@@ -43,6 +43,17 @@ bodies and reports; raw chatbot responses remain in the private transcript,
 including any value the target echoes. The private protocol is part of the
 resume identity. Bracketed form names such as `settings[mode]` are supported.
 
+For a `text/event-stream` chat route that emits JSON `data:` events and a
+`data: [DONE]` terminator, copy the [SSE recipe](chatbot_recipes/sse_chat.json).
+Set `chat.response_format` to `sse` and `chat.response_field` to the event
+field containing each text delta. The client joins string deltas, ignores
+missing or null deltas, retains raw stream bytes and parsed events privately,
+and stops reading at `[DONE]` even if the server keeps the connection open.
+It can carry a declared conversation ID from an event into the next serial
+request. A missing terminator, invalid event, or timeout leaves the POST
+unresolved; inspect history/status before releasing the origin. Other stream
+framing or terminal markers need a target-specific adapter.
+
 When a chat POST times out, the run sends at most one configured history/status
 GET. If that read-only check is incomplete, `resume` can repeat only the GET
 within the raised request ceiling. It never replays the timed-out chat POST or
