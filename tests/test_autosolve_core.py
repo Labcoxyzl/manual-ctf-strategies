@@ -2042,24 +2042,71 @@ int main(int argc, char **argv) {
     def test_encrypted_zip_corrupt_member_withholds_other_decrypted_members(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = root / 'mixed.zip'
-            raw = bytearray(MIXED_PASSWORD_ZIP)
-            local = raw.index(b'PK\x03\x04')
-            raw[local + 30] ^= 1
-            source.write_bytes(raw)
-            with zipfile.ZipFile(source) as archive:
-                self.assertEqual(archive.read(archive.infolist()[1], pwd=b'two'), b'second secret')
             passwords = root / 'passwords.txt'
             passwords.write_bytes(b'one\ntwo\n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': str(passwords)}))
+            for corruption in ('member-name', 'leading-signature'):
+                with self.subTest(corruption=corruption):
+                    source = root / f'mixed-{corruption}.zip'
+                    raw = bytearray(MIXED_PASSWORD_ZIP)
+                    raw[30 if corruption == 'member-name' else 0] ^= 1
+                    source.write_bytes(raw)
+                    with zipfile.ZipFile(source) as archive:
+                        self.assertEqual(archive.read(archive.infolist()[1], pwd=b'two'),
+                                         b'second secret')
+                    run = Path(self.run_cli('analyze', source, '--category', 'documents',
+                                            '--hints', hints,
+                                            '--runs-root', root / f'runs-{corruption}', code=3)['run'])
+                    manifest = json.loads((run / 'manifest.json').read_text())
+                    self.assertEqual(manifest['coverage']['DOC02']['status'], 'failed')
+                    self.assertIn('corrupt ZIP local header', manifest['coverage']['DOC02']['note'])
+                    self.assertFalse(any(a['depth'] > 0 and a['source_locator'].get('encrypted')
+                                         for a in manifest['artifacts']))
+                    self.assertNotIn('second secret', (run / 'report.md').read_text())
+
+    def test_damaged_zip_leading_signature_needs_valid_central_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for offset in range(4):
+                variant = bytearray(ENCRYPTED_ZIP)
+                variant[offset] ^= 1
+                candidate = root / f'damaged-{offset}.dat'
+                candidate.write_bytes(variant)
+                self.assertEqual(core._kind(candidate), 'zip')
+            damaged = bytearray(ENCRYPTED_ZIP)
+            damaged[0] ^= 1
+            source = root / 'renamed.dat'
+            source.write_bytes(damaged)
+            with zipfile.ZipFile(source) as archive:
+                with self.assertRaises(zipfile.BadZipFile):
+                    archive.read(archive.infolist()[0], pwd=b'correct horse')
+            self.assertEqual(core._kind(source), 'zip')
+
+            passwords = root / 'passwords.txt'
+            passwords.write_bytes(b'correct horse\n')
             hints = root / 'hints.json'
             hints.write_text(json.dumps({'password_file': str(passwords)}))
             run = Path(self.run_cli('analyze', source, '--category', 'documents', '--hints', hints,
                                     '--runs-root', root / 'runs', code=3)['run'])
             manifest = json.loads((run / 'manifest.json').read_text())
             self.assertEqual(manifest['coverage']['DOC02']['status'], 'failed')
-            self.assertFalse(any(a['depth'] > 0 and a['source_locator'].get('encrypted')
-                                 for a in manifest['artifacts']))
-            self.assertNotIn('second secret', (run / 'report.md').read_text())
+            self.assertIn('corrupt ZIP local header', manifest['coverage']['DOC02']['note'])
+            self.assertFalse(any(a['depth'] > 0 for a in manifest['artifacts']))
+            self.assertNotIn('correct horse', (run / 'report.md').read_text())
+            self.run_cli('resume', run, '--hints', hints, code=3)
+            resumed = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(resumed['coverage']['DOC02']['status'], 'failed')
+            self.assertFalse(any(a['depth'] > 0 and a['current'] for a in resumed['artifacts']))
+
+            non_zip = root / 'not-an-archive.zip'
+            non_zip.write_bytes(b'XK\x03\x04' + b'plain unrelated data')
+            self.assertNotEqual(core._kind(non_zip), 'zip')
+            non_zip.write_bytes(b'XK\x03\x04junk' + b'PK\x05\x06' + b'\0' * 18)
+            self.assertNotEqual(core._kind(non_zip), 'zip')
+            damaged[damaged.index(b'PK\x01\x02')] ^= 1
+            source.write_bytes(damaged)
+            self.assertNotEqual(core._kind(source), 'zip')
 
     def test_equal_zip_members_keep_both_occurrences(self):
         with tempfile.TemporaryDirectory() as directory:

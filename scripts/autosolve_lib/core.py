@@ -449,6 +449,7 @@ def _kind(path):
     with os.fdopen(fd, 'rb') as stream:
         source_size = os.fstat(stream.fileno()).st_size
         head = stream.read(4096)
+        damaged_zip_bytes = None
         header = head[:512]
         if is_raw_tar_header(header):
             return 'tar'
@@ -469,6 +470,10 @@ def _kind(path):
         except (tarfile.TarError, OSError, EOFError, ValueError,
                 zlib.error, lzma.LZMAError):
             pass
+        if (30 <= source_size <= MAX_READ and
+                sum(actual != expected for actual, expected in zip(head[:4], b'PK\x03\x04')) == 1):
+            stream.seek(0)
+            damaged_zip_bytes = stream.read(source_size + 1)
     if len(head) >= 8 and head[4:8] == b'ftyp':
         return 'mp4'
     if head.startswith(b'MZ') and len(head) >= 0x40:
@@ -494,6 +499,21 @@ def _kind(path):
     for signature, kind in signatures:
         if head.startswith(signature):
             return kind
+    # shortcut: one damaged byte up to MAX_READ, broaden for larger or multiply damaged ZIPs.
+    if damaged_zip_bytes is not None and len(damaged_zip_bytes) == source_size:
+        try:
+            with zipfile.ZipFile(io.BytesIO(damaged_zip_bytes)) as archive:
+                first = next(iter(archive.infolist()), None)
+                name_size = int.from_bytes(head[26:28], 'little')
+                if (first is not None and first.header_offset == 0 and name_size and
+                        30 + name_size <= len(head) and
+                        int.from_bytes(head[6:8], 'little') == first.flag_bits and
+                        int.from_bytes(head[8:10], 'little') == first.compress_type and
+                        head[30:30 + name_size].decode(
+                            'utf-8' if first.flag_bits & 0x800 else 'cp437') == first.filename):
+                    return 'zip'
+        except (OSError, ValueError, UnicodeError, zipfile.BadZipFile, zipfile.LargeZipFile):
+            pass
     if len(head) >= 512 and head[510:512] == b'\x55\xaa' and any(
             head[446 + index * 16 + 4] and
             int.from_bytes(head[446 + index * 16 + 8:446 + index * 16 + 12], 'little') and
