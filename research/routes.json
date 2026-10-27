@@ -1405,8 +1405,8 @@
     ],
     "expected": "A named key path/value with original plist path, format, type, and justified meaning; or a documented unsupported/absent state.",
     "fallback": "Encrypted or incomplete backups, unsupported keyed archives, malformed plists and unavailable iLEAPP leave the question open. Inspect the raw copied file and choose another supported view without assuming missing data.",
-    "caveat": "Do not infer a universal timestamp epoch from a numeric plist field; confirm the field definition before conversion. iLEAPP source code stages matched source copies, paths and logs; keep the entire run directory private. Its temp and report behavior was not exercised here.",
-    "verification": "Python plistlib XML/binary and malformed controls checked locally on synthetic files; iLEAPP CLI, source-copy and temporary-file paths source-reviewed only, not installed or run here.",
+    "caveat": "Do not infer a universal timestamp epoch from a numeric plist field; confirm the field definition before conversion. iLEAPP can stage full matched source copies, paths and logs; keep the entire run directory private. A no-match result at one path does not prove the file or app state was absent elsewhere.",
+    "verification": "Python plistlib XML/binary and malformed controls checked locally. Isolated iLEAPP 2026.4.6-dev parsed three known fields from a self-authored SystemVersion.plist, staged an exact copy with source paths, and gave no match for identical bytes at an unrecognized path. Competition-machine build unverified.",
     "references": [
       {
         "title": "Python plistlib formats and load",
