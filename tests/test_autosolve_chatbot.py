@@ -77,7 +77,8 @@ class Toy:
                 elif self.path == '/app.js.map?v=42':
                     self.send(200, {'sourcesContent': ['fetch("/api/utter", {method:"POST", body: JSON.stringify({query: value})})']})
                 elif self.path == '/history':
-                    if toy.mode == 'heartbeat_history_partial':
+                    if toy.mode == 'heartbeat_history_partial' or toy.mode == 'timeout_check_partial' and any(
+                            method == 'POST' and path == '/api/utter' for method, path in toy.calls):
                         self.send(200, b'{"messages":[]}' + b' ' * 140_000)
                     else:
                         self.send(200, {'messages': toy.received, 'in_progress': toy.mode == 'timeout' and not toy.completed, 'complete': toy.completed})
@@ -231,7 +232,7 @@ class Toy:
                 if toy.mode == 'rate_lock':
                     self.send(429, {'error': 'Another request is already in progress'})
                     return
-                if toy.mode == 'timeout':
+                if toy.mode in ('timeout', 'timeout_check_partial'):
                     time.sleep(.18)
                     toy.completed = True
                     self.send(200, {'reply': 'completed later'})
@@ -740,6 +741,33 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'chat timed out; inspect history/status before any retry')
             self.assertIn('sid=rotated', (run / 'cookies.txt').read_text())
+
+    def test_timed_out_chat_rechecks_only_read_only_status_after_incomplete_check(self):
+        with tempfile.TemporaryDirectory() as root, Toy('timeout_check_partial') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'history_path': '/history', 'lanes': ['system']})
+            m, run, code = self.start(root, toy, protocol, timeout=.05, requests=12)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'chat timed out; inspect history/status before any retry')
+            self.assertTrue(m['chat_timeout_pending'])
+            self.assertFalse(m['chat_timeout_checked'])
+            self.assertEqual(m['completed'], [])
+            before_post = sum(method == 'POST' for method, _ in toy.calls)
+            before_history = sum(path == '/history' for _, path in toy.calls)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            current = json.loads((run / 'manifest.json').read_text())
+            self.assertFalse(current['chat_timeout_checked'])
+            self.assertEqual(sum(path == '/history' for _, path in toy.calls), before_history + 1)
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
+            toy.mode = 'normal'
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            current = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(current['chat_timeout_checked'])
+            self.assertFalse(current['validated'])
+            self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
+            before = len(toy.calls)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(len(toy.calls), before)
 
     def test_body_retry_after_huge_header_and_429_lock(self):
         for mode, expected in (('rate_body', 'rate_limit'), ('rate_huge', 'rate_limit'), ('rate_lock', 'lock')):

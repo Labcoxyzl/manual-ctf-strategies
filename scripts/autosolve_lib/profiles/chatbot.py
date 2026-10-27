@@ -687,6 +687,13 @@ def _run(client):
             m['heartbeat_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
         m['stop_reason'] = 'heartbeat outcome uncertain; inspect session state before a new run'
         return
+    if m.get('chat_timeout_pending'):
+        check = client.config.get('history_path') or client.config.get('status_path')
+        if check and not m.get('chat_timeout_checked'):
+            result = client.request('GET', check, probe='chat-timeout-status-check')
+            m['chat_timeout_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
+        m['stop_reason'] = 'chat timed out; inspect history/status before any retry'
+        return
     uncertain = [probe for probe in m['started'] if probe not in m['completed']]
     if uncertain:
         check = client.config.get('history_path') or client.config.get('status_path')
@@ -786,13 +793,17 @@ def _run(client):
             m['stop_reason'] = 'budget after probe preparation; state uncertain'
             break
         m['prompt_count'] += 1
-        m['completed'].append(probe)
         if record.get('signal') == 'timeout':
+            m['chat_timeout_pending'] = True
+            core._write_json(client.run / 'manifest.json', m)
             check = client.config.get('history_path') or client.config.get('status_path')
             if check:
-                client.request('GET', check, probe='timeout-check')
+                result = client.request('GET', check, probe='timeout-check')
+                m['chat_timeout_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
             m['stop_reason'] = 'chat timed out; inspect history/status before any retry'
-        elif record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'budget', 'network_error', 'log_limit'):
+            break
+        m['completed'].append(probe)
+        if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'budget', 'network_error', 'log_limit'):
             m['stop_reason'] = record['signal']
         elif record.get('status') != 200:
             m['stop_reason'] = f"chat HTTP {record.get('status')}"
@@ -898,6 +909,8 @@ def _render(run, m):
         entry = m['heartbeat_summary']
         lines.insert(11 if m.get('bootstrap_summary') else 10,
                      f"Heartbeat: POST {_display_path(entry['path'])}; interval={entry['interval_seconds']}s; uncertain={m.get('heartbeat_pending', False)}")
+    if m.get('chat_timeout_pending'):
+        lines.insert(11, f"Timed-out chat POST: status/history checked={m.get('chat_timeout_checked', False)}; no automatic chat replay")
     for probe in m['queue']:
         spec = strategy_meta.get(probe)
         hypothesis = spec['hypothesis'] if spec else 'Lower-trust document instruction influences reply' if probe == 'injection' else PROBES[probe][0]
@@ -1013,6 +1026,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                                       'encoding': config['heartbeat'].get('encoding', 'json'),
                                       'interval_seconds': config['heartbeat'].get('interval_seconds', 0)} if config.get('heartbeat') else None,
                 'heartbeat_pending': False, 'heartbeat_last_at': None,
+                'chat_timeout_pending': False, 'chat_timeout_checked': False,
                 'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                 'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                 'strategy': strategy, 'strategy_marker': marker,
@@ -1057,7 +1071,8 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
             raise core.InvalidInput('Retry-After cooldown is still active; resume later')
         if (m.get('stop_reason') in ('bootstrap unconfirmed', 'heartbeat unconfirmed') or
                 m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
-                m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked')) and (config.get('history_path') or config.get('status_path')):
+                m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked') or
+                m.get('stop_reason') == 'chat timed out; inspect history/status before any retry' and not m.get('chat_timeout_checked')) and (config.get('history_path') or config.get('status_path')):
             m['max_requests'] = max_requests or m['max_requests']
             m['max_prompts'] = max_prompts or m['max_prompts']
             m['stop_reason'] = None
