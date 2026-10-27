@@ -89,6 +89,26 @@ stay in a private JSONL file.
 python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 ```
 
+For an authorized fetch tool that retrieves a page you control, serve one
+bounded file on an exact GET path instead of the receiver's default empty
+response. The synthetic example below contains no challenge data:
+
+```sh
+python3 scripts/chatbot_callback.py \
+  --response-file scripts/chatbot_recipes/example_injection.txt \
+  --response-path '/payload?nonce=1' --content-type text/plain \
+  --max-requests 1 --duration 60
+```
+
+Use a regular response file without symlinked path components. It is capped at 64 KiB and copied into a private callback run. Only the
+exact path and query receive its bytes; other requests do not consume the
+one-request limit. Loopback is the default. A reachable bind needs an
+explicitly authorized destination and `--allow-public-bind`; use a private,
+unpredictable path and query because anyone who knows them can fetch the page
+and consume a request slot. The fetch log shows what was requested, while a
+page echo alone does not establish that the chatbot followed an instruction
+or that a checker accepted it.
+
 When a guardrail returns code points, character arrays, NATO words, initials,
 reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
 file and decode it as a candidate. The tool-call audit helper compares

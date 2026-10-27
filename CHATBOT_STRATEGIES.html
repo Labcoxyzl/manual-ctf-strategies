@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="d6d9946e4f1297bc13d29f91c1937ad06899e288f601321d52ad1d2e497cc05e">
+  <meta name="source-sha256" content="4552c975d480bfa62682fa26f8967de1d5cf103384b15b780cbea60a8a6066f9">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -203,6 +203,22 @@ authorized address; put that address in the protocol's
 stay in a private JSONL file.</p>
 <pre><code class="language-sh">python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 </code></pre>
+<p>For an authorized fetch tool that retrieves a page you control, serve one
+bounded file on an exact GET path instead of the receiver's default empty
+response. The synthetic example below contains no challenge data:</p>
+<pre><code class="language-sh">python3 scripts/chatbot_callback.py \
+  --response-file scripts/chatbot_recipes/example_injection.txt \
+  --response-path '/payload?nonce=1' --content-type text/plain \
+  --max-requests 1 --duration 60
+</code></pre>
+<p>Use a regular response file without symlinked path components. It is capped at 64 KiB and copied into a private callback run. Only the
+exact path and query receive its bytes; other requests do not consume the
+one-request limit. Loopback is the default. A reachable bind needs an
+explicitly authorized destination and <code>--allow-public-bind</code>; use a private,
+unpredictable path and query because anyone who knows them can fetch the page
+and consume a request slot. The fetch log shows what was requested, while a
+page echo alone does not establish that the chatbot followed an instruction
+or that a checker accepted it.</p>
 <p>When a guardrail returns code points, character arrays, NATO words, initials,
 reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
 file and decode it as a candidate. The tool-call audit helper compares
