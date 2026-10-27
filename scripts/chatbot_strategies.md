@@ -42,6 +42,7 @@ survive resume. The client will not resend a POST whose outcome is uncertain.
 | `tool_audit` | `audit_path` in the protocol when exposed | Ask for the tool call lifecycle; read the audit route once if supplied. |
 | `tool_filter` | `tool_name`, `filter_value` | Ask for one exact filter argument; inspect real tool evidence before using the web workflow. |
 | `fetch_tool`, `fetch_blocklist` | `fetch_url`; its origin in `authorized_destinations` | Send one explicit fetch request through the chatbot; no destination is chosen from scraped text. |
+| `retrieved_page_injection` | `fetch_url`, `attack_goal`; callback origin in `authorized_destinations` | Ask the assistant to summarize one controlled page while the page tries to redirect its behavior. Check callback evidence and the independent verifier. |
 | `route_discovery` | none | Ask for chat, history, status, audit and verifier paths. |
 | `agent_routing` | none | Ask for agent names, tiers and an escalation trigger. |
 | `output_validator` | none | Ask for exact output/schema constraints and missing fields. |
@@ -88,6 +89,33 @@ stay in a private JSONL file.
 ```sh
 python3 scripts/chatbot_callback.py --port 0 --max-requests 1 --duration 60
 ```
+
+For a fetched-page injection, serve a bounded local file with the callback
+instead of its default empty response. Copy the
+[retrieved-page protocol](chatbot_recipes/retrieved_page.json), replace the
+chat fields and callback URL with the observed authorized routes, and use
+`--strategy retrieved_page_injection`. The example page contains only a
+synthetic marker. The callback logs the actual fetch in its private run; the
+chatbot run records a redacted entry URL and the declared goal's SHA-256; the
+exact goal remains in the private protocol. A
+page echo alone is not prompt-injection evidence, and a challenge result is
+validated only by an independent checker or persisted state.
+
+```sh
+python3 scripts/chatbot_callback.py --response-file scripts/chatbot_recipes/example_retrieved_page.txt \
+  --response-path /payload \
+  --content-type text/plain --max-requests 1 --duration 60
+python3 scripts/autosolve.py chatbot --origin https://AUTHORIZED_ORIGIN \
+  --protocol ./private-retrieved-page.json --strategy retrieved_page_injection \
+  --budget 60 --max-requests 10 --max-prompts 3 --dry-run
+```
+
+Use a reachable callback address only when that destination is explicitly
+authorized. The receiver binds to loopback by default; a public bind needs
+`--allow-public-bind` and serves the file only for the declared GET path and
+optional exact query,
+request count and duration. The served file is capped at 64 KiB; the callback
+run stores an exact private snapshot and its SHA-256 in the request log.
 
 When a guardrail returns code points, character arrays, NATO words, initials,
 reversed text, groups, Base64, or byte-like embedding values, save the exact response in a private text
@@ -219,6 +247,7 @@ mean the attack will succeed against an arbitrary challenge.
 | --- | --- | --- |
 | Chat history IDOR | `api_plan` + `history_idor.json` | Supply one authorized account and an observed message ID; compare ownership evidence. |
 | Tool header capture | `fetch_tool` + `chatbot_callback.py` | Provide a reachable, separately authorized callback address. |
+| Retrieved-page tool-result injection | `retrieved_page_injection` + `chatbot_callback.py --response-file` | Supply the actual fetch URL, a controlled page and checker; compare behavior beyond a page echo. |
 | Tool-backed SQL/filter injection | `tool_filter` | Learn the exact callable/field, then use the web SQLi workflow for confirmed injection. |
 | Fetch-tool SSRF and blocklist bypass | `fetch_tool` / `fetch_blocklist` | Supply each authorized destination and verify the actual fetch, not a model claim. |
 | Trusted KB or document injection | `kb_injection` + JSON or multipart recipe | Fill the exposed write route and verify state beyond an echo. |

@@ -877,6 +877,10 @@ def _render(run, m):
     if m.get('injection_summary'):
         entry = m['injection_summary']
         lines += ['', f"Injection entry point: {_display_path(entry['entry_path'])} field {entry['entry_field']}; attempted redirection: {entry['attempted_redirection']}; payload SHA-256 {entry['payload_sha256']}."]
+    if m.get('strategy') == 'retrieved_page_injection':
+        entry = next((step for step in m.get('strategy_meta', []) if step.get('entry_point')), None)
+        if entry:
+            lines += ['', f"Retrieved-page injection entry: {_display_path(entry['entry_point'])}; URL SHA-256 {hashlib.sha256(entry['entry_point'].encode()).hexdigest()}; attempted redirection: follow fetched-page instructions instead of the user's summary task (declared goal SHA-256 {hashlib.sha256(entry['attempted_redirection'].encode()).hexdigest()}); fetch probe {'completed' if entry['id'] in m['completed'] else 'untested'}. Exact goal remains in the private protocol; callback evidence is in its separate private run."]
     if m['dry_run']:
         if m.get('bootstrap_summary'):
             entry = m['bootstrap_summary']
@@ -963,7 +967,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                 'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                 'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                 'strategy': strategy, 'strategy_marker': marker,
-                'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding') if key in step}
+                'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection') if key in step}
                                   | ({'body_fields': sorted(step['body']) if isinstance(step.get('body'), dict) else []} if step['kind'] == 'api' else {})
                                   for step in steps],
                 'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
