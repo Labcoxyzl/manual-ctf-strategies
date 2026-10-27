@@ -1061,6 +1061,38 @@
     ]
   },
   {
+    "id": "cbc-padding-oracle",
+    "category": "crypto",
+    "title": "CBC padding oracle → calibrated response → candidate plaintext",
+    "input": "An authorized endpoint accepting a supplied CBC ciphertext, with its IV layout and full block size known or evidenced.",
+    "tool_ids": [
+      "kali-101"
+    ],
+    "steps": [
+      "On a copied sample, preserve the original ciphertext and response. Change one byte in the IV or preceding block while keeping length, encoding, session and other fields fixed; repeat baseline and mutations to identify a stable padding-specific error distinct from a valid-padding response.",
+      "Check a nonpadding control and malformed-length response. Repeat the valid/invalid comparison with just the previous block plus target block in the exact field the tool would replace; stop if length, IV layout, MAC, AEAD tag, generic error, rate limit or authentication gates hide the padding result.",
+      "Only when the endpoint accepts that two-block payload in one injection field, use padding-oracle-attacker with the exact representation and observed error marker, `-c 1` and `--disable-cache`; bound requests and stop if response classes drift. Compare recovered bytes with independent known plaintext, source format, MAC or checker evidence."
+    ],
+    "expected": "A repeatable oracle classification and tentative recovered bytes with independent validation, or no distinguishable padding signal under the tested conditions.",
+    "fallback": "If valid and changed ciphertexts produce the same response, first check IV placement, encoding and session continuity. A separate IV field or fixed-length ciphertext may require a different method; do not feed a mismatched layout to this CLI.",
+    "caveat": "CBC/PKCS#7-style padding and editable previous-block bytes are prerequisites. One altered byte may accidentally leave valid padding, so use repeated controls. Default tool concurrency is 128 and its cache can retain responses; use conservative explicit options and keep challenge data private.",
+    "verification": "Source-reviewed and locally exercised with isolated padding-oracle-attacker 0.2.4 against a benign CBC oracle: recovered bytes matched known plaintext. A generic-response control produced false output, so response classes and independent validation remain required. Competition-machine behavior is unverified.",
+    "references": [
+      {
+        "title": "padding-oracle-attacker CLI",
+        "url": "https://github.com/KishanBagaria/padding-oracle-attacker"
+      },
+      {
+        "title": "NIST SP 800-38A CBC mode",
+        "url": "https://csrc.nist.gov/pubs/sp/800/38/a/final"
+      },
+      {
+        "title": "RFC 5652 padding rule",
+        "url": "https://datatracker.ietf.org/doc/html/rfc5652#section-6.3"
+      }
+    ]
+  },
+  {
     "id": "git-history",
     "category": "forensics",
     "title": "Git history → deleted or changed artifact",

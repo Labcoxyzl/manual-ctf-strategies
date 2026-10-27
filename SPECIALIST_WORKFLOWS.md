@@ -269,6 +269,25 @@ Determine the exact bytes represented by the key and ciphertext and collect the 
 
 **Check:** Preserve the mode, key size, representation, IV/nonce, tag/AAD or padding assumption and the independent result. Missing inputs mean the transform is unverified; do not silently try unrelated modes. [NIST confidentiality modes](https://csrc.nist.gov/pubs/sp/800/38/a/final) · [NIST GCM](https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-38d.pdf) · [OpenSSL enc limitations](https://docs.openssl.org/3.5/man1/openssl-enc/).
 
+<a id="cbc-padding-oracle"></a>
+## CBC padding oracle: establish the signal before recovery
+
+Use this only for an assigned endpoint that accepts an editable CBC ciphertext. Record the exact byte encoding, block size, IV location, HTTP method, session and unchanged baseline response. CBC decryption changes a plaintext block when its preceding ciphertext block (or IV for the first block) changes. A padding oracle exists only if otherwise comparable requests reveal whether the final plaintext padding is valid. An error from a malformed length, MAC, AEAD tag, session rejection or application parser does not establish that signal.
+
+On a copy of one sample, repeat the unchanged request, one prior-block mutation expected to disturb the final padding, and a control mutation outside the padding bytes where that position is known. Keep every other request field fixed; compare response status and body class rather than timing alone. Repeat each class to rule out transient behavior. A mutation can accidentally produce valid padding, so use more than one; stop if the responses are generic, unstable or rate-limited. For a one-block ciphertext with a prepended IV and a known one-byte PKCS#7 pad, flipping the IV's last byte by `0x01` forces a zero final byte, while flipping its first byte leaves that padding byte untouched. This is a calibration example, not an assumption about an unknown challenge.
+
+The approved tool sends a **two-block payload** for each guess: an editable first block followed by the target block. Before using it, repeat the valid/invalid comparison with that shortened, two-block shape in the exact request field it would replace. Also try an arbitrary first block and check that it reaches the same padding-error class as the known invalid mutation; the tool starts its guessed block from zero bytes. A full-length sample can leak padding errors while the shortened probes fail an application length or format check. The command below applies when the endpoint accepts a prepended IV and ciphertext together in one field. If IV and ciphertext occupy separate fields, or the service requires an unchanged prefix or fixed length, verify the installed tool can express that layout; otherwise stop at manual calibration.
+
+Only after this preflight, check `padding-oracle-attacker --help` on the approved Kali machine. The upstream CLI's positional arguments are URL, encoded ciphertext, block size and the observed error status or body substring. Replace every placeholder below with your own observed values; `{POPAYLOAD}` marks the single injection point. Use one concurrent request and disable its response cache:
+
+```bash
+padding-oracle-attacker decrypt 'https://ASSIGNED/decrypt?ciphertext={POPAYLOAD}' 'hex:IV_AND_CIPHERTEXT_HEX' 16 'OBSERVED_PADDING_ERROR' -c 1 --disable-cache
+```
+
+If the endpoint needs POST, a cookie or another encoding, use the installed CLI's `-X`, `-H`, `-d` and `-e` options after checking its help; do not guess their values. The upstream default is 128 concurrent requests and a local cache file. A benign one-block local exercise took 2,350 requests, so estimate the request count for the selected blocks and respect the assigned service's limits before running recovery. Keep ciphertext, session values and output in private local files. Recovered bytes are candidates until independent known plaintext, a strong source format, a valid MAC or the challenge checker supports them. On a generic-response control, this CLI even exited successfully with false plaintext; its exit status is not proof. Re-encryption and valid padding alone only check consistency.
+
+**Check:** Record repeated response classes for both the original and two-block shape, the exact error marker and injected byte location, the candidate bytes and the separate evidence supporting them. The approved tool's installed version and availability are not guaranteed. [Tool CLI](https://github.com/KishanBagaria/padding-oracle-attacker) · [NIST CBC mode](https://csrc.nist.gov/pubs/sp/800/38/a/final) · [PKCS#7 padding rule](https://datatracker.ietf.org/doc/html/rfc5652#section-6.3).
+
 <a id="zip-known-plaintext"></a>
 ## ZipCrypto: prove the known bytes match the stored stream
 
