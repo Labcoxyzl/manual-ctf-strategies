@@ -62,7 +62,17 @@ Use only the query matching the source browser and confirmed schema. Keep raw ti
 <a id="android-preferences"></a>
 ## Android app data: inspect one preference key
 
-Require a supplied, accessible app-data extraction; an APK does not contain a user's private app state. Preserve the original and record the Android user, package, source path and file hash before copying one evidenced SharedPreferences XML file **and any matching `.bak`**. Android may restore that backup on load, so compare both copies if present; an extraction made during a write may not identify one active value. App versions and users can have different files. If a complete extraction and the approved ALEAPP build are available, check its local help, create a private output directory first, then run `aleapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT` (or the installed `python3 aleapp.py` equivalent). Keep its version, module errors and source-file references; a report row is a lead, not proof that another file or user had the same state.
+Require a supplied, accessible app-data extraction; an APK does not contain a user's private app state. Preserve the original and record the Android user, package, source path and file hash before copying one evidenced SharedPreferences XML file **and any matching `.bak`**. Android may restore that backup on load, so compare both copies if present; an extraction made during a write may not identify one active value. App versions and users can have different files. If a complete extraction and the approved ALEAPP build are available, check its local help. On Kali/WSL, use the installed launcher with a fresh private run directory:
+
+```sh
+umask 077
+private_run=$(mktemp -d /tmp/aleapp.XXXXXXXX)
+mkdir "$private_run/report" "$private_run/tmp" "$private_run/config"
+TMPDIR="$private_run/tmp" XDG_CONFIG_HOME="$private_run/config" \
+  python3 aleapp.py -t fs -i EXTRACTION_DIR -o "$private_run/report"
+```
+
+Use `aleapp` instead of `python3 aleapp.py` if that is the installed launcher. ALEAPP can put exact copies of matched source files, source paths and logs under the report; keep the entire run directory private. The private `TMPDIR` covers standard-library temporary copies seen in its source, not every possible plugin file. A benign synthetic extraction produced two known preference rows from one source file and an exact report copy; an unrecognized app path produced no match. Keep parser/module errors and source-file references; a report row is a lead, not proof that another file or user had the same state.
 
 For a **copied regular UTF-8 XML file of at most 1 MiB**, select one named string, boolean or decimal int/long key locally with approved Python. Do not dump every preference:
 
@@ -151,7 +161,7 @@ print('/'.join(sys.argv[2:]), type(value).__name__, str(value)[:160] if scalar e
 PYCODE
 ```
 
-A missing key or out-of-range index raises an error; inspect the actual structure and field definition before choosing another path. If a complete extracted filesystem is supplied and approved iLEAPP is available, check its local help, create a private output directory, then run `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT`. The output directory must already exist. Tie a selected report field back to its original plist and independent app or case context. Numeric times need their field-specific epoch and units before conversion. Encrypted/incomplete backups, unsupported keyed archives, malformed plists and parser errors leave absence inconclusive. Do not paste private report values into shared notes. [Python plistlib](https://docs.python.org/3/library/plistlib.html) · [iLEAPP CLI](https://github.com/abrignoni/iLEAPP/blob/main/README.md).
+A missing key or out-of-range index raises an error; inspect the actual structure and field definition before choosing another path. If a complete extracted filesystem and approved iLEAPP are available, check its local help and create a fresh mode-700 parent with precreated report, tmp and config directories as in the Android example (use `/tmp/ileapp.XXXXXXXX`). Set `TMPDIR` and `XDG_CONFIG_HOME` to those private subdirectories before `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_REPORT` or the installed `python3 ileapp.py` equivalent. Its source code also stages matched source copies, paths and logs; keep the whole report private. This iLEAPP build was source-reviewed, not run here. Tie a selected report field back to its original plist and independent app or case context. Numeric times need their field-specific epoch and units before conversion. Encrypted/incomplete backups, unsupported keyed archives, malformed plists and parser errors leave absence inconclusive. Do not paste private report values into shared notes. [Python plistlib](https://docs.python.org/3/library/plistlib.html) · [iLEAPP CLI](https://github.com/abrignoni/iLEAPP/blob/main/README.md).
 
 <a id="git-history"></a>
 ## Git history: recover the exact source revision

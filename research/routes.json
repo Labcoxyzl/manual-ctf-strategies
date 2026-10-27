@@ -69,14 +69,14 @@
       "kali-151"
     ],
     "steps": [
-      "From the installed Volatility 3 directory, run `python3 vol.py -f memory.raw windows.info` to check image and symbol recognition.",
-      "Run `python3 vol.py -f memory.raw windows.pstree` to find unusual process/parent relationships.",
-      "Run `python3 vol.py -f memory.raw windows.cmdline`; correlate arguments with the PID and parent you selected."
+      "Confirm the installed `vol` launcher with help; use `python3 /PATH/vol.py` only for an actual source checkout. Before going offline, resolve the image's matching PDB database name, GUID and age, then prepare a local `./symbols/windows/` tree and writable `./vol-cache/` as shown in the bundled memory workflow.",
+      "Run `vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.info` to check image and symbol recognition; a symbol error means analysis did not run.",
+      "Run `vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.pstree` and `vol --offline --cache-path ./vol-cache -s ./symbols -f ./memory.raw windows.cmdline`; correlate the selected PID, parent and arguments with the source image."
     ],
     "expected": "A PID, parent and command line that identify the next artifact to inspect.",
     "fallback": "On symbol errors, resolve the matching symbols before trusting output. Use Volatility 2 only for a supported legacy image with its matching profile.",
     "caveat": "Volatility 3 runs in WSL and uses symbols, not Volatility 2 profiles. Prepare symbols before offline use; a missing process row does not prove absence.",
-    "verification": "Source-reviewed; not executed on competition machines.",
+    "verification": "Volatility 3 2.28.2 ran offline with matching local symbols on an official XP SP2 fixture: windows.info passed, pstree/cmdline each returned 47 process rows, and a known-address dump matched upstream expectations. A zero-filled image failed. Modern Windows and competition machines unverified.",
     "references": [
       {
         "title": "volatility3 — official documentation",
@@ -1400,13 +1400,13 @@
     ],
     "steps": [
       "Preserve a copy and record its path and hash. Use approved Python `plistlib.load` on a named plist and inspect a specific key path and value type; the bundled workflow gives a bounded local snippet for both XML and binary formats.",
-      "If a complete extracted filesystem is supplied and iLEAPP is available, check its local help, create a private output directory, then run `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_OUT`; keep parser/module version and any errors.",
+      "If a complete extracted filesystem and iLEAPP are available, check local help, create a mode-700 private parent with precreated report/tmp/config directories, set TMPDIR and XDG_CONFIG_HOME inside it, then run the installed `ileapp -t fs -i EXTRACTION_DIR -o PRIVATE_REPORT` launcher; keep parser/module version and errors.",
       "Tie the chosen key, value type and timestamp basis to the source plist and independent app or case context. Treat a parser report as a lead, not as proof of a different file or time epoch."
     ],
     "expected": "A named key path/value with original plist path, format, type, and justified meaning; or a documented unsupported/absent state.",
     "fallback": "Encrypted or incomplete backups, unsupported keyed archives, malformed plists and unavailable iLEAPP leave the question open. Inspect the raw copied file and choose another supported view without assuming missing data.",
-    "caveat": "Do not infer a universal timestamp epoch from a numeric plist field; confirm the field definition before conversion. Keep potentially private report content out of shared notes.",
-    "verification": "Python plistlib XML/binary and malformed controls checked locally on synthetic files; iLEAPP command source-reviewed only, not installed in this WSL environment.",
+    "caveat": "Do not infer a universal timestamp epoch from a numeric plist field; confirm the field definition before conversion. iLEAPP source code stages matched source copies, paths and logs; keep the entire run directory private. Its temp and report behavior was not exercised here.",
+    "verification": "Python plistlib XML/binary and malformed controls checked locally on synthetic files; iLEAPP CLI, source-copy and temporary-file paths source-reviewed only, not installed or run here.",
     "references": [
       {
         "title": "Python plistlib formats and load",
@@ -1500,14 +1500,14 @@
       "windows-7"
     ],
     "steps": [
-      "Preserve the source and work on a copy. Record Android user, app package, original XML/.bak paths and hashes; if a complete extraction and approved ALEAPP are available, check local help and parse the copied extraction into a precreated private output directory.",
+      "Preserve the source and work on a copy. Record Android user, app package, original XML/.bak paths and hashes; if a complete extraction and approved ALEAPP are available, check local help, create a mode-700 private parent with precreated report/tmp/config directories, set TMPDIR and XDG_CONFIG_HOME inside it, and parse the copied extraction there.",
       "For one evidenced key, run the bundled bounded Python snippet separately on the copied XML and any matching .bak; record the stored type and a short local value preview from each without dumping all preferences.",
       "Compare the key and meaning with app code/configuration, a second source artifact or a known case observation. Treat ALEAPP output as a lead and confirm any decisive value against the copied source file."
     ],
     "expected": "One named key/value/type tied to its source app, Android user, XML/backup path and independent context; or a documented parser/input limit.",
     "fallback": "A missing key can reflect another user, app version, DataStore or another storage mechanism, incomplete/encrypted extraction, conflicting XML/.bak, unsupported type/encoding or malformed XML, or unavailable ALEAPP. Do not infer that the app never held the value.",
-    "caveat": "The snippet previews only a small copied UTF-8 SharedPreferences XML file and one string, boolean, or decimal int/long key; it rejects DTDs and large input. Other valid Android types or encodings need another parser. A backup can supersede the main XML when Android next loads preferences. Numeric fields need app-specific units and epoch before time conversion. Keep private values out of shared notes.",
-    "verification": "Android/ALEAPP/Python documentation source-reviewed; local synthetic string/boolean/int/long bounds, XML/.bak disagreement, missing, malformed, UTF-16 DTD, size, symlink and FIFO controls passed. ALEAPP and competition-machine execution unverified.",
+    "caveat": "The snippet previews only a small copied UTF-8 SharedPreferences XML file and one string, boolean, or decimal int/long key; it rejects DTDs and large input. Other valid Android types or encodings need another parser. ALEAPP can copy full matched source files, paths and logs into a report; keep the whole run private. A backup can supersede the main XML when Android next loads preferences. Numeric fields need app-specific units and epoch before time conversion.",
+    "verification": "Local synthetic string/boolean/int/long bounds, XML/.bak disagreement, missing, malformed, UTF-16 DTD, size, symlink and FIFO controls passed. Isolated ALEAPP 2026.4.5-dev parsed two known synthetic preference rows from one source file with exact copy and path; an unrecognized app path gave no match. Competition-machine build unverified.",
     "references": [
       {
         "title": "Android SharedPreferences storage",
@@ -1544,7 +1544,7 @@
     "expected": "One named stored scalar type/value tied to its package, Android user, exact file and independent context, or a documented format/parser limit.",
     "fallback": "A missing key in one copy does not prove the app never held it: check extraction completeness, app/user/version, alternate files, and whether the app instead uses SharedPreferences XML or Proto DataStore.",
     "caveat": "The standard-library reader accepts only a regular .preferences_pb copy up to 1 MiB and rejects duplicate/malformed records. Selected float, double, string-set and byte-array values need another parser; app-defined Proto DataStore needs that app's schema. Numeric units and time epochs are app-specific.",
-    "verification": "AndroidX schema and Android documentation source-reviewed; benign official-proto values matched the local bounded reader, with mixed-type, missing-key, duplicate, truncation, unsupported-type, size, symlink and FIFO controls. ALEAPP, Android runtime and competition machines untested.",
+    "verification": "AndroidX schema and Android documentation source-reviewed; benign official-proto values matched the local bounded reader, with mixed-type, missing-key, duplicate, truncation, unsupported-type, size, symlink and FIFO controls. ALEAPP DataStore parsing, Android runtime and competition machines untested.",
     "references": [
       {
         "title": "Android DataStore overview",
