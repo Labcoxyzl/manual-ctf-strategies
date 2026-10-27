@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="9d9b73b209ad64b6a03c55d2803fea24647fdeff93cfb6aa552f2efafa75e900">
+  <meta name="source-sha256" content="aeca32a4e1c0effbbf6d90fbac7bae5e1b75171b1b947ac500c5ba23281e33dc">
   <link rel="icon" href="data:,">
   <title>Optional local toolkit · Manual CTF Strategies</title>
   <style>
@@ -50,7 +50,7 @@
 <p>For an editable local/remote connection scaffold, see <a href="TEMPLATES.html">Python challenge templates</a>. That optional starter requires pwntools; the byte and inspection helpers below do not.</p>
 <p><code>autosolve.py</code> is the developing local artifact runner. It handles bounded
 encoding/classical-cipher and XOR candidates, declared RSA/AES/hash checks,
-ZIP/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
+ZIP/7z/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
 offline packet and CAN inspection, SQLite, and static ELF leads. <code>setup</code>
 uses uv to install the hash pinned Python core into <code>.autosolve/envs/core/</code>
 with CPython 3.12, without changing the active Python or <code>/opt/ctf-tools</code>.
@@ -126,9 +126,14 @@ in this fixture with two permitted principals and a known object:</p>
 <a href="scripts/autosolve_requirements/core.lock.txt"><code>core.lock.txt</code></a>. It stops with a
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
 It does not delete an unexpected pre-existing <code>.autosolve/envs/core</code> directory.</p>
-<p>For an encrypted ZIP, put candidate passwords in a private file, one exact
-byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing <code>{&quot;password_file&quot;: &quot;/path/to/private-passwords.txt&quot;}</code> with <code>--hints</code>. The local <code>analyze</code> command never sends
-challenge data over the network. ZIP and TAR extraction keep originals
+<p>For an encrypted ZIP or 7z archive, put candidate passwords in a private file, one exact
+byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing <code>{&quot;password_file&quot;: &quot;/path/to/private-passwords.txt&quot;}</code> with <code>--hints</code>. An empty line supplies an empty
+password. The local <code>analyze</code> command never sends
+challenge data over the network. A 7z input also needs <code>7z</code> or <code>7zz</code> on the
+machine running the helper; <code>doctor --profiles documents --self-test</code> checks its
+command options and a synthetic encrypted round trip. The helper passes real
+password bytes through stdin, not command arguments, and keeps candidate files
+and reports private. ZIP, 7z and TAR extraction keep originals
 unchanged; files larger than 8 MiB are recorded but not passed to the
 encoding decoder. Runs remain partial while baseline families are unavailable.</p>
 <p>Candidate patterns scan raw bytes in bounded 1 MiB chunks with 4,095 bytes of

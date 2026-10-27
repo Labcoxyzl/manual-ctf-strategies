@@ -62,6 +62,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/autosolve_lib/family_catalog.json', 'scripts/autosolve_lib/profiles/__init__.py',
         'scripts/autosolve_lib/profiles/encoding.py', 'scripts/autosolve_lib/profiles/documents.py',
         'scripts/autosolve_lib/profiles/tar.py', 'tests/test_autosolve_tar.py',
+        'scripts/autosolve_lib/profiles/sevenzip.py', 'tests/test_autosolve_7z.py',
         'scripts/autosolve_lib/profiles/xor.py', 'tests/test_autosolve_xor.py',
         'scripts/autosolve_lib/profiles/rsa.py', 'tests/test_autosolve_rsa.py',
         'scripts/autosolve_lib/profiles/symmetric.py', 'tests/test_autosolve_symmetric.py',

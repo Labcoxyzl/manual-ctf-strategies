@@ -297,6 +297,44 @@ def _zip_probe(self_test):
             "status": "ready" if probe == "passed" else "partial"}
 
 
+def _sevenzip_probe(self_test):
+    path = shutil.which('7z') or shutil.which('7zz')
+    help_result = _command([path, '-h']) if path else None
+    help_text = (help_result.stdout + help_result.stderr).decode('utf-8', 'replace') if help_result else ''
+    compatible = bool(help_result and help_result.returncode == 0 and
+                      all(option in help_text for option in ('-slt', '-so', '-spd', '-scc', '-p{Password}')))
+    version = next((line.strip()[:120] for line in help_text.splitlines() if '7-Zip' in line), None)
+    probe = 'not_run'
+    if self_test and compatible:
+        try:
+            from .profiles.sevenzip import extract_7z
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                (root / 'probe.txt').write_bytes(b'7z-doctor-probe')
+                source = root / 'probe.7z'
+                created = subprocess.run(
+                    [path, 'a', '-t7z', '-mx=1', '-pautosolve-doctor-probe',
+                     '-mhe=on', str(source), 'probe.txt'], cwd=root,
+                    capture_output=True, timeout=10, check=False)
+                if created and created.returncode == 0:
+                    records, warnings = extract_7z(
+                        source, root / 'out', max_members=2, max_total_bytes=64,
+                        max_member_bytes=64, passwords=[b'autosolve-doctor-probe'], executable=path)
+                    probe = ('passed' if not warnings and len(records) == 1 and
+                             records[0]['member'] == 'probe.txt' and records[0]['encrypted'] and
+                             records[0]['path'].read_bytes() == b'7z-doctor-probe' else 'failed')
+                else:
+                    probe = 'failed'
+        except Exception:
+            probe = 'failed'
+    status = 'ready' if probe == 'passed' else 'partial' if path else 'unavailable'
+    operation = {'implemented': True, 'functional_probe': probe, 'status': status}
+    engine = {'found': bool(path), 'path': path, 'version': version,
+              'options_compatible': compatible, 'required_data': 'private password_file for encrypted archives',
+              'functional_probe': probe, 'status': status}
+    return operation, engine
+
+
 def _tar_probe(self_test):
     try:
         from .profiles.tar import extract_tar
@@ -1422,6 +1460,9 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations["encoding.password_hashes"] = _hash_probe(self_test)
     if "documents" in selected:
         operations["documents.zip"] = _zip_probe(self_test)
+        sevenzip_operation, sevenzip_engine = _sevenzip_probe(self_test)
+        operations["documents.7z"] = sevenzip_operation
+        engines['archive'] = sevenzip_engine
         operations["documents.tar"] = _tar_probe(self_test)
         operations["documents.mime"] = _mime_probe(self_test)
         operations["documents.pdf"] = _pdf_probe(self_test)

@@ -9,7 +9,7 @@ For an editable local/remote connection scaffold, see [Python challenge template
 
 `autosolve.py` is the developing local artifact runner. It handles bounded
 encoding/classical-cipher and XOR candidates, declared RSA/AES/hash checks,
-ZIP/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
+ZIP/7z/TAR, MIME, PDF, Office/RTF, image metadata/steganography/QR, media views,
 offline packet and CAN inspection, SQLite, and static ELF leads. `setup`
 uses uv to install the hash pinned Python core into `.autosolve/envs/core/`
 with CPython 3.12, without changing the active Python or `/opt/ctf-tools`.
@@ -105,10 +105,15 @@ Setup uses only wheels and verifies hashes from
 partial result if CPython 3.12, a compatible wheel, or uv is unavailable.
 It does not delete an unexpected pre-existing `.autosolve/envs/core` directory.
 
-For an encrypted ZIP, put candidate passwords in a private file, one exact
+For an encrypted ZIP or 7z archive, put candidate passwords in a private file, one exact
 byte line each (at most eight; LF or CRLF separators), and pass a JSON hints file containing `{"password_file":
-"/path/to/private-passwords.txt"}` with `--hints`. The local `analyze` command never sends
-challenge data over the network. ZIP and TAR extraction keep originals
+"/path/to/private-passwords.txt"}` with `--hints`. An empty line supplies an empty
+password. The local `analyze` command never sends
+challenge data over the network. A 7z input also needs `7z` or `7zz` on the
+machine running the helper; `doctor --profiles documents --self-test` checks its
+command options and a synthetic encrypted round trip. The helper passes real
+password bytes through stdin, not command arguments, and keeps candidate files
+and reports private. ZIP, 7z and TAR extraction keep originals
 unchanged; files larger than 8 MiB are recorded but not passed to the
 encoding decoder. Runs remain partial while baseline families are unavailable.
 

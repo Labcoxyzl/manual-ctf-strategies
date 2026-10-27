@@ -777,7 +777,8 @@
     "steps": [
       "Run `file artifact.bin`; use the content-based result to select the next parser.",
       "For a supported archive, run `7z l artifact.bin` to inspect names and sizes before extraction.",
-      "Run `7z x artifact.bin -oextracted-artifact` into a new directory; inspect the relevant extracted file without executing it."
+      "Run `7z x artifact.bin -oextracted-artifact` into a new directory; inspect the relevant extracted file without executing it.",
+      "For a 7z archive with supplied password candidates, put the exact bytes in a private password file and reference it as `password_file` in a private hints JSON. Run `python3 scripts/autosolve.py analyze ./archive.7z --category documents --hints ./private-hints.json`; see `scripts/README.md` for limits and prerequisites."
     ],
     "expected": "A likely format and an archive listing or extracted artifact.",
     "fallback": "If identification is vague, inspect header bytes; use binwalk only when embedded signatures are the clue.",
