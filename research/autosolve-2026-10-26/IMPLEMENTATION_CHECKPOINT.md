@@ -226,9 +226,13 @@ passed in isolation in 7.97 seconds. The quiet pre-push rerun passed 914 tests
 `ba86d98`. DOC04's full named row passed 10/10 on that hash. These checks
 do not establish the other 48 named rows or platform challenge acceptance.
 
-The next isolated candidate distinguishes PWN03 debugger startup failures
-from genuine noncrashing program exits. An opt-in StegSeek seed probe is under
-independent review for IMG03's still-unmet negative-classification clause.
+The seventeenth candidate distinguishes PWN03 debugger startup failures
+from genuine noncrashing program exits and adds an opt-in bounded StegSeek
+seed probe for IMG03's still-unmet negative-classification clause. The isolated
+PWN03 suite passed 15 tests; StegSeek passed 12 focused tests and three
+independently frozen real-carrier controls with stable resume and no published
+seed output. Full named IMG03 replay, integrated suites, rootless export and
+frozen release gates remain pending on the combined candidate.
 
 ## Independent end-to-end evidence
 
