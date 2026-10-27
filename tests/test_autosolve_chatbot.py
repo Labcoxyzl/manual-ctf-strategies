@@ -385,6 +385,9 @@ class Toy:
                     self.send(200, {'documents': ['toy document'], 'metadatas': [{'tier': 'public'}]})
                     return
                 if self.path == '/score':
+                    if toy.mode == 'score_rate':
+                        self.send(429, {'error': 'cooldown'}, {'Retry-After': '1'})
+                        return
                     if toy.mode == 'score_nonstandard':
                         data = b'{"score":NaN}'
                         self.send_response(200)
@@ -1193,6 +1196,8 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'ambiguous response; supply response_field')
             self.assertEqual(m['prompt_count'], 1)
+            self.assertEqual(m['completed'], [])
+            self.assertIn('Untested selected probes: baseline, capability.', (run / 'report.md').read_text())
             self.run_cli(root, 'chatbot-release-origin', run, code=0)
         with tempfile.TemporaryDirectory() as root, Toy('stream_delayed_close') as toy:
             protocol = self.protocol(root, {'chat': {'path': '/stream/chat', 'message_field': 'query'},
@@ -1927,6 +1932,25 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(again['stop_reason'], 'rate_limit')
             self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post + 1)
 
+    def test_lock_and_rate_limit_keep_chat_probe_untested_without_resume_replay(self):
+        for mode, reason in (('lock', 'lock'), ('rate_short', 'rate_limit')):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                                'lanes': ['capability']})
+                m, run, code = self.start(root, toy, protocol, requests=8, prompts=2)
+                self.assertEqual(code, 3)
+                self.assertEqual(m['stop_reason'], reason)
+                self.assertEqual(m['completed'], [])
+                self.assertEqual(m['prompt_count'], 1)
+                report = (run / 'report.md').read_text()
+                self.assertIn('Untested selected probes: baseline, capability.', report)
+                self.assertRegex(report, r'- baseline: .*; untested')
+                before = len(toy.calls)
+                if mode == 'rate_short':
+                    time.sleep(max(0, m['cooldown_until'] - time.time()) + .1)
+                self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                self.assertEqual(len(toy.calls), before)
+
     def test_definitive_409_and_429_lock_responses_do_not_leave_pending_marker(self):
         for mode in ('lock', 'rate_lock'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
@@ -2416,6 +2440,8 @@ class ChatbotCLITests(unittest.TestCase):
             m, run, code = self.start(root, toy, protocol, strategy='api_plan', timeout=.05)
             self.assertEqual(code, 3)
             self.assertEqual(m['stop_reason'], 'API timeout')
+            self.assertEqual(m['completed'], ['fresh_nonce'])
+            self.assertIn('Untested selected probes: official.', (run / 'report.md').read_text())
             self.assertTrue(toy.nonce_used)
             before_post = sum(path == '/verify-nonce' for _, path in toy.calls)
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
@@ -2586,6 +2612,23 @@ class ChatbotCLITests(unittest.TestCase):
             failed, _, code = self.start(root, toy, missing, strategy='scorer_batch')
             self.assertEqual(code, 3)
             self.assertEqual(failed['stop_reason'], 'model score unavailable')
+            self.assertEqual(failed['completed'], [])
+
+    def test_rate_limited_scorer_step_remains_untested_after_cooldown(self):
+        with tempfile.TemporaryDirectory() as root, Toy('score_rate') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score',
+                'candidates': ['first', 'second']}})
+            m, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'API rate_limit')
+            self.assertEqual(m['completed'], [])
+            self.assertEqual(m['api_checks'][0]['score'], None)
+            self.assertIn('Untested selected probes: score_1, score_2.', (run / 'report.md').read_text())
+            before = len(toy.calls)
+            time.sleep(max(0, m['cooldown_until'] - time.time()) + .1)
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertEqual(len(toy.calls), before)
 
     def test_scorer_batch_preserves_decimal_json_score_order_for_controls(self):
         with tempfile.TemporaryDirectory() as root, Toy('score_decimal_precision') as toy:

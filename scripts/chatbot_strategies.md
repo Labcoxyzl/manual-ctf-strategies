@@ -101,6 +101,14 @@ signal and records the incomplete body.
 A 429 keeps its rate-limit signal. This applies to JSON and `+json` content
 types even when the body resembles ordinary chat text. A valid JSON `null`
 also stops as ambiguous. Plain `text/plain` replies remain usable.
+An HTTP 409 lock or 429 cooldown charges the sent request and prompt but leaves
+that selected probe untested: no usable chatbot answer was observed. The
+report distinguishes started probes from completed observations, and `resume`
+does not resend a locked or rate-limited prompt after the cooldown. A 200 reply
+whose declared text field is missing also stays untested unless exposed tool
+evidence supplies a concrete route clue. `scorer_batch` similarly leaves a
+rate-limited or scoreless step untested; only a complete bounded scalar score
+counts as an observation.
 
 | Strategy | Required protocol fields | What the script does |
 | --- | --- | --- |
@@ -248,6 +256,9 @@ mark a result validated. An expected field match on a history or vector-store
 response is evidence, not a solve. Same-origin redirects are logged, but their
 final response does not validate the originally declared checker route or
 provide a scorer observation.
+A timed-out or rate-limited API-plan step stays started and untested; a
+definitive HTTP error remains a completed response observation, never
+challenge acceptance. Resume never replays an uncertain POST.
 When a chat response exposes a same-origin route in `tool_calls` or JSON
 function arguments, the runner records that clue and stops broader prompting.
 Tool-only responses can supply the clue without assistant text. For SSE, the

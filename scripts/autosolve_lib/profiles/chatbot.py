@@ -1167,7 +1167,6 @@ def _run(client):
             if result.get('signal') == 'budget':
                 m['stop_reason'] = 'budget after API step preparation; state uncertain'
                 break
-            m['completed'].append(probe)
             matched = (result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops') and
                        spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field'], _MISSING), spec['expect']['equals']))
             score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') and not result.get('redirect_hops') else None
@@ -1180,6 +1179,10 @@ def _run(client):
                                    1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
             except (OverflowError, ValueError, InvalidOperation):
                 valid_score = False
+            if (not result.get('signal') and result.get('status') is not None and
+                    (m.get('strategy') != 'scorer_batch' or
+                     result.get('status') in range(200, 300) and not result.get('redirect_hops') and valid_score)):
+                m['completed'].append(probe)
             capture_needed = spec.get('capture_field') or spec.get('capture_header')
             captured_value = (_nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else
                               _nested(result.get('captured_response_header'), 'value', _MISSING) if spec.get('capture_header') else _MISSING)
@@ -1273,7 +1276,6 @@ def _run(client):
         if record.get('redirect_hops'):
             m['stop_reason'] = 'chat redirected; inspect target state before continuing'
             break
-        m['completed'].append(probe)
         if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'malformed_json', 'unconfigured_stream', 'unsupported_stream', 'budget', 'network_error', 'log_limit'):
             m['stop_reason'] = ('event stream needs declared response_format and response_field'
                                 if record['signal'] == 'unconfigured_stream' else
@@ -1295,6 +1297,7 @@ def _run(client):
             if text is None and not any(hit['kind'] == 'route clue' for hit in hits):
                 m['stop_reason'] = 'ambiguous response; supply response_field'
             else:
+                m['completed'].append(probe)
                 client.confirm_post()
                 if chat.get('history_field') and text is not None:
                     m['chat_history'].extend(({'role': 'user', 'content': prompt}, {'role': 'assistant', 'content': text}))
@@ -1471,7 +1474,7 @@ def _render(run, m):
             lines.append(f"Planned workflow check: GET {_display_path(m['workflow_status_path'])} after each completed chat message, then pause before the next.")
     uncertain = [x for x in untested if x in m['started']]
     if uncertain:
-        lines.append(f"Started without a confirmed completed observation; never replayed automatically: {', '.join(uncertain)}.")
+        lines.append(f"Started without a completed probe observation; never replayed automatically: {', '.join(uncertain)}.")
     lines += ['', f"Untested selected probes: {', '.join(untested) or 'none'}.",
               'Other lanes require challenge-specific evidence or an exposed injection surface.',
               f"Private evidence: transcript.jsonl; cookies.txt; manifest.json in `{run}`.",
@@ -1602,7 +1605,7 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
                           m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
                           m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked') or
                           m.get('stop_reason') == 'chat timed out; inspect history/status before any retry' and not m.get('chat_timeout_checked')) and (config.get('history_path') or config.get('status_path'))
-            if not pending and not safe_check and (m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'chat redirected; inspect target state before continuing', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'origin POST unresolved; inspect history/status and release origin before new sends', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'event stream needs declared response_format and response_field', 'stream response needs a target-specific adapter', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'partial_response', 'malformed_json', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check '))):
+            if not pending and not safe_check and (m.get('stop_reason') in ('checker accepted', 'route clue; inspect direct check before more prompts', 'route clue with query; inspect private transcript before direct check', 'route clue requires explicit API plan', 'candidate checked; acceptance unproven', 'candidate needs explicit verifier', 'chat timed out; inspect history/status before any retry', 'chat redirected; inspect target state before continuing', 'bootstrap unconfirmed', 'bootstrap token missing or invalid', 'bootstrap outcome uncertain; inspect session state before a new run', 'heartbeat unconfirmed', 'heartbeat outcome uncertain; inspect session state before a new run', 'origin POST unresolved; inspect history/status and release origin before new sends', 'injection write unconfirmed', 'ambiguous response; supply response_field', 'event stream needs declared response_format and response_field', 'stream response needs a target-specific adapter', 'chat request shape ambiguous; supply --protocol', 'cross_origin_redirect', 'redirect_not_replayed', 'lock', 'rate_limit', 'partial_response', 'malformed_json', 'network_error', 'log_limit', 'API expectation unmet', 'model score unavailable', 'context marker not retained; challenge outcome unverified', 'interrupted state-changing probe; inspect history/status before continuing') or str(m.get('stop_reason')).startswith(('verification ', 'API ', 'state check '))):
                 _render(run, m)
                 return run, m['status']
             m['max_requests'] = max_requests or m['max_requests']
