@@ -1992,7 +1992,11 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertEqual(code, 2)
             self.assertIn('cooldown', blocked['reason'])
             self.assertEqual(sum(method == 'POST' for method, _ in toy.calls), before_post)
-            time.sleep(.85)
+            cooldown_end = m['cooldown_until'] + .05
+            wait_deadline = time.monotonic() + 5
+            while time.time() < cooldown_end:
+                self.assertLess(time.monotonic(), wait_deadline, 'Retry-After wall-clock deadline did not expire')
+                time.sleep(max(0, min(.05, cooldown_end - time.time())))
             again, _, code = self.start(root, toy, protocol, requests=10, prompts=1)
             self.assertEqual(code, 3)
             self.assertEqual(again['stop_reason'], 'rate_limit')
