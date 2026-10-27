@@ -76,7 +76,13 @@ def extract_zip(path: Path, output_dir: Path, *, max_members: int,
                                     "encrypted": bool(info.flag_bits & 1)})
                 except (zipfile.BadZipFile, RuntimeError, NotImplementedError, EOFError,
                         zlib.error, ValueError) as error:
-                    warnings.append(f"member {index} ({info.filename!r}): {error}")
+                    # zipfile checks these local headers before it checks the password.
+                    if isinstance(error, zipfile.BadZipFile) and str(error).startswith((
+                            "Truncated file header", "Bad magic number for file header",
+                            "File name in directory", "Overlapped entries")):
+                        warnings.append(f"member {index}: corrupt ZIP local header")
+                    else:
+                        warnings.append(f"member {index} ({info.filename!r}): {error}")
                 finally:
                     os.unlink(stage)
     except (zipfile.BadZipFile, zipfile.LargeZipFile) as error:

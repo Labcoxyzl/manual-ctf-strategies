@@ -1083,12 +1083,15 @@ def _zip_worker(path, staging, max_members, max_bytes, passwords, pipe):
         total = sum(record['size'] for record in records)
         warnings = [warning for warning in warnings if 'password required' not in warning]
         recovered = set()
+        corrupt = set()
         if passwords and encrypted_indices:
             for index, password in enumerate(passwords):
-                extracted, _ = extract_zip(
+                extracted, attempt_warnings = extract_zip(
                     path, staging / f'password-{index}', max_members=max_members,
                     max_total_bytes=max(0, max_bytes - total), password=password,
                     encrypted_only=True)
+                corrupt.update(member for member in encrypted_indices
+                               if f'member {member}: corrupt ZIP local header' in attempt_warnings)
                 for item in extracted:
                     if item['index'] not in recovered:
                         records.append(item)
@@ -1098,9 +1101,15 @@ def _zip_worker(path, staging, max_members, max_bytes, passwords, pipe):
                         item['path'].unlink()
                 if recovered >= encrypted_indices:
                     break
+        if corrupt:
+            for item in records:
+                if item['encrypted']:
+                    item['path'].unlink()
+            records = [item for item in records if not item['encrypted']]
         for index in sorted(encrypted_indices - recovered):
-            warnings.append(f'member {index}: ' + ('supplied passwords did not validate'
-                                                 if passwords else 'password required'))
+            warnings.append(f'encrypted member {index}: corrupt ZIP local header' if index in corrupt
+                            else f'member {index}: ' + ('supplied passwords did not validate'
+                                                         if passwords else 'password required'))
         pipe.send(('ok', records, warnings))
     except Exception as error:
         pipe.send(('error', f'{type(error).__name__}: {error}'))
@@ -7200,8 +7209,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     _doc01_coverage(manifest, old.get('coverage_status',
                                                      'ran' if reusable else 'no finding'))
                     _doc02_coverage(manifest,
+                                    'failed' if old.get('encrypted_corrupt') else
                                     'skipped prerequisite' if old.get('encrypted_unresolved') else
                                     'ran' if old.get('encrypted_recovered') else 'no finding',
+                                    'corrupt ZIP local header' if old.get('encrypted_corrupt') else
                                     'supplied ZIP password candidates only')
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'zip',
@@ -7237,15 +7248,22 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         manifest['warnings'].extend(warnings[:100])
                         job['warnings'] = warnings[:100]
                         job['status'] = 'complete'
-                        job['coverage_status'] = 'truncated' if warnings else 'ran' if records else 'no finding'
+                        job['coverage_status'] = ('failed' if any('corrupt ZIP local header' in w
+                                                                 for w in warnings) else
+                                                  'truncated' if warnings else 'ran' if records else 'no finding')
                         _doc01_coverage(manifest, job['coverage_status'])
                         encrypted = any(record['encrypted'] for record in records)
+                        corrupt = any(warning.startswith('encrypted member ') and
+                                      'corrupt ZIP local header' in warning for warning in warnings)
                         unresolved = any('password' in warning for warning in warnings)
                         job['encrypted_recovered'] = encrypted
+                        job['encrypted_corrupt'] = corrupt
                         job['encrypted_unresolved'] = unresolved
                         _doc02_coverage(manifest,
+                                        'failed' if corrupt else
                                         'skipped prerequisite' if unresolved else
                                         'ran' if encrypted else 'no finding',
+                                        'corrupt ZIP local header' if corrupt else
                                         'supplied ZIP password candidates only')
                     except WorkLimit as error:
                         job['status'] = 'truncated'

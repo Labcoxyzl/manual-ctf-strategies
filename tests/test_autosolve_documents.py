@@ -108,6 +108,16 @@ class ZipExtractionTests(unittest.TestCase):
         self.assertEqual(warnings_found, [])
         self.assertEqual(records[0]["path"].read_bytes(), b"verified zip payload")
 
+    def test_corrupt_encrypted_local_header_is_distinct_from_wrong_password(self):
+        raw = bytearray(ENCRYPTED_ZIP)
+        raw[raw.index(b'PK\x03\x04') + 30] ^= 1
+        self.archive.write_bytes(raw)
+        records, warnings_found = self._extract(password=b"correct horse")
+        self.assertEqual(records, [])
+        self.assertEqual(len(warnings_found), 1)
+        self.assertIn('corrupt ZIP local header', warnings_found[0])
+        self.assertEqual(list(self.output.iterdir()), [])
+
     def test_crc_failure_does_not_publish_partial_member(self):
         with zipfile.ZipFile(self.archive, "w") as archive:
             archive.writestr("data", b"marker-value")

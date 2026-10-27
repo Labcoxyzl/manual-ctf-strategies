@@ -1982,6 +1982,85 @@ int main(int argc, char **argv) {
             self.assertEqual(repeated['coverage']['DOC02']['status'], 'skipped prerequisite')
             self.assertTrue(any('passwords did not validate' in warning for warning in repeated['warnings']))
 
+    def test_encrypted_zip_local_header_corruption_is_not_wrong_password(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'encrypted.zip'
+            passwords = root / 'passwords.txt'
+            hints = root / 'hints.json'
+            passwords.write_bytes(b'correct horse\n')
+            hints.write_text(json.dumps({'password_file': str(passwords)}))
+
+            source.write_bytes(ENCRYPTED_ZIP)
+            intact = Path(self.run_cli('analyze', source, '--category', 'documents', '--hints', hints,
+                                       '--runs-root', root / 'intact-runs', code=3)['run'])
+            good = json.loads((intact / 'manifest.json').read_text())
+            self.assertEqual(good['coverage']['DOC02']['status'], 'ran')
+            self.assertIn(b'verified zip payload',
+                          [Path(a['path']).read_bytes() for a in good['artifacts'] if a['depth'] > 0])
+
+            passwords.write_bytes(b'wrong\n')
+            wrong = Path(self.run_cli('analyze', source, '--category', 'documents', '--hints', hints,
+                                      '--runs-root', root / 'wrong-runs', code=3)['run'])
+            wrong_manifest = json.loads((wrong / 'manifest.json').read_text())
+            self.assertEqual(wrong_manifest['coverage']['DOC02']['status'], 'skipped prerequisite')
+
+            raw = bytearray(ENCRYPTED_ZIP)
+            local = raw.index(b'PK\x03\x04')
+            central = raw.index(b'PK\x01\x02')
+            local_name_size = int.from_bytes(raw[local + 26:local + 28], 'little')
+            central_name_size = int.from_bytes(raw[central + 28:central + 30], 'little')
+            self.assertEqual(raw[local + 30:local + 30 + local_name_size],
+                             raw[central + 46:central + 46 + central_name_size])
+            raw[local + 30] ^= 1
+            self.assertNotEqual(raw[local + 30:local + 30 + local_name_size],
+                                raw[central + 46:central + 46 + central_name_size])
+            self.assertEqual(raw[central:], ENCRYPTED_ZIP[central:])
+            source.write_bytes(raw)
+            passwords.write_bytes(b'correct horse\n')
+            corrupt = Path(self.run_cli('analyze', source, '--category', 'documents', '--hints', hints,
+                                        '--runs-root', root / 'corrupt-runs', code=3)['run'])
+            broken = json.loads((corrupt / 'manifest.json').read_text())
+            self.assertEqual(broken['coverage']['DOC02']['status'], 'failed')
+            self.assertIn('corrupt ZIP local header', broken['coverage']['DOC02']['note'])
+            self.assertTrue(any('corrupt ZIP local header' in warning for warning in broken['warnings']))
+            self.assertFalse(any('passwords did not validate' in warning for warning in broken['warnings']))
+            self.assertFalse(any(a['depth'] > 0 for a in broken['artifacts']))
+            self.assertNotIn('correct horse', (corrupt / 'report.md').read_text())
+
+            self.run_cli('resume', corrupt, '--hints', hints, code=3)
+            resumed = json.loads((corrupt / 'manifest.json').read_text())
+            self.assertEqual(resumed['coverage']['DOC02']['status'], 'failed')
+            self.assertIn('corrupt ZIP local header', resumed['coverage']['DOC02']['note'])
+            self.assertFalse(any(a['depth'] > 0 and a['current'] for a in resumed['artifacts']))
+
+            self.run_cli('resume', intact, '--hints', hints, code=3)
+            changed = json.loads((intact / 'manifest.json').read_text())
+            self.assertEqual(changed['coverage']['DOC02']['status'], 'failed')
+            self.assertFalse(any(a['depth'] > 0 and a['current'] for a in changed['artifacts']))
+
+    def test_encrypted_zip_corrupt_member_withholds_other_decrypted_members(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'mixed.zip'
+            raw = bytearray(MIXED_PASSWORD_ZIP)
+            local = raw.index(b'PK\x03\x04')
+            raw[local + 30] ^= 1
+            source.write_bytes(raw)
+            with zipfile.ZipFile(source) as archive:
+                self.assertEqual(archive.read(archive.infolist()[1], pwd=b'two'), b'second secret')
+            passwords = root / 'passwords.txt'
+            passwords.write_bytes(b'one\ntwo\n')
+            hints = root / 'hints.json'
+            hints.write_text(json.dumps({'password_file': str(passwords)}))
+            run = Path(self.run_cli('analyze', source, '--category', 'documents', '--hints', hints,
+                                    '--runs-root', root / 'runs', code=3)['run'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(manifest['coverage']['DOC02']['status'], 'failed')
+            self.assertFalse(any(a['depth'] > 0 and a['source_locator'].get('encrypted')
+                                 for a in manifest['artifacts']))
+            self.assertNotIn('second secret', (run / 'report.md').read_text())
+
     def test_equal_zip_members_keep_both_occurrences(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
