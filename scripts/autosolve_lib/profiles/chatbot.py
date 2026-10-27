@@ -20,6 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+from decimal import Decimal, InvalidOperation
 from html.parser import HTMLParser
 from pathlib import Path
 from contextlib import contextmanager
@@ -31,6 +32,22 @@ from .chatbot_strategies import plan as strategy_plan
 MAX_RESPONSE = 128 * 1024
 MAX_LOG = 2 * 1024 * 1024
 _MISSING = object()
+
+
+class _JsonNumber(str):
+    """Keep a scorer's JSON numeric token exact until private evidence is written."""
+
+
+def _valid_score(value):
+    if type(value) not in (int, float, _JsonNumber) or len(str(value)) > 512:
+        return False
+    try:
+        number = Decimal(str(value))
+        return number.is_finite() and abs(number) <= Decimal('1e150')
+    except (InvalidOperation, OverflowError, ValueError):
+        return False
+
+
 SECRET = re.compile(r'(?:flag\{[^}\s]{1,200}\}|(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{3,})', re.I)
 PATH = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}')
 ROUTE = re.compile(r'(?<![\w/])/(?:api/)?[\w./-]{2,100}(?:\?[^\s"\'<>]{1,200})?')
@@ -515,6 +532,7 @@ class Client:
         if method != 'GET' and self.pending_probe is not None:
             return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
+        scorer_probe = self.manifest['strategy'] == 'scorer_batch' and probe.startswith('api:score_')
         url = self.manifest['origin'] + path
         headers = dict(self.config.get('headers', {}))
         chat = self.config.get('chat', {})
@@ -683,7 +701,7 @@ class Client:
             else:
                 parsed = None
                 try:
-                    parsed = json.loads(raw)
+                    parsed = json.loads(raw, parse_float=_JsonNumber) if scorer_probe and status in range(200, 300) else json.loads(raw)
                     parsed_ok = True
                 except (ValueError, UnicodeError, RecursionError):
                     pass
@@ -707,6 +725,9 @@ class Client:
             tool_evidence = (_sse_tool_evidence(parsed) if response_format == 'sse' and isinstance(parsed, list) else
                              _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'))
             record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': response_value, 'tool_call_evidence': tool_evidence, 'retry_after': retry_after, 'body_incomplete': forced_partial}
+            if scorer_probe and parsed_ok and signal is None:
+                record['response_raw_sha256'] = hashlib.sha256(raw).hexdigest()
+                record['response_raw_b64'] = base64.b64encode(raw).decode()
             if response_format == 'sse':
                 record['response_format'] = 'sse'
             if capture_header:
@@ -1151,11 +1172,8 @@ def _run(client):
             matched = (result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops') and
                        spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field'], _MISSING), spec['expect']['equals']))
             score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') and not result.get('redirect_hops') else None
-            try:
-                valid_score = (type(score) in (int, float) and math.isfinite(score)) or (isinstance(score, list) and
-                               1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
-            except OverflowError:
-                valid_score = False
+            valid_score = _valid_score(score) or (isinstance(score, list) and
+                           1 <= len(score) <= 100 and all(_valid_score(item) for item in score))
             capture_needed = spec.get('capture_field') or spec.get('capture_header')
             captured_value = (_nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else
                               _nested(result.get('captured_response_header'), 'value', _MISSING) if spec.get('capture_header') else _MISSING)

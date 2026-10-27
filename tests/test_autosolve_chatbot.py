@@ -48,6 +48,7 @@ class Toy:
         self.active_lock = threading.Lock()
         self.post_started = threading.Event()
         self.threads = []
+        self.score_tokens = {}
         toy = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -392,7 +393,12 @@ class Toy:
                     self.send(200, {'documents': ['toy document'], 'metadatas': [{'tier': 'public'}]})
                     return
                 if self.path == '/score':
-                    self.send(200, {'score': len(body.get('candidate', ''))})
+                    if toy.mode == 'score_redirect':
+                        self.send(302, b'', {'Location': '/score-final'})
+                    elif toy.mode == 'score_tokens':
+                        self.send(200, b'{"score":' + toy.score_tokens[body['candidate']].encode() + b'}')
+                    else:
+                        self.send(200, {'score': len(body.get('candidate', ''))})
                     return
                 if self.path.startswith('/api/utter?'):
                     self.send(200, {'reply': 'role: assistant'})
@@ -2652,6 +2658,78 @@ class ChatbotCLITests(unittest.TestCase):
             failed, _, code = self.start(root, toy, missing, strategy='scorer_batch')
             self.assertEqual(code, 3)
             self.assertEqual(failed['stop_reason'], 'model score unavailable')
+
+    def test_scorer_batch_preserves_numeric_fraction_digits_for_lower_score_controls(self):
+        values = ['0.' + '1' * 110 + digit for digit in '128937']
+        with tempfile.TemporaryDirectory() as root, Toy('score_tokens') as toy:
+            toy.score_tokens = dict(zip('abcdef', values))
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score',
+                'candidates': list('abcdef')}})
+            manifest, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=9)
+            self.assertEqual(code, 0)
+            self.assertEqual([row['score'] for row in manifest['api_checks']], values)
+            self.assertFalse(manifest['validated'])
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            first = next(row for row in records if row['probe_id'] == 'api:score_1')
+            self.assertEqual(first['response']['score'], values[0])
+            self.assertEqual(first['response_raw_sha256'], hashlib.sha256(
+                ('{"score":' + values[0] + '}').encode()).hexdigest())
+            self.assertEqual(base64.b64decode(first['response_raw_b64']),
+                             ('{"score":' + values[0] + '}').encode())
+            result = subprocess.run([sys.executable, '-B', str(SCRIPT.parent / 'chatbot_evidence.py'),
+                                     '--runs-root', str(Path(root) / 'evidence'), 'score-controls',
+                                     '--input', str(run / 'manifest.json'), '--positive', '1,2',
+                                     '--negative', '3,4', '--candidates', '5,6', '--direction', 'lower'],
+                                    capture_output=True, timeout=12)
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            report = json.loads(Path(json.loads(result.stdout)['report']).read_text())
+            self.assertTrue(report['observed_strict_separation'])
+            self.assertEqual([row['probe_id'] for row in report['ranked_candidates']], ['score_5', 'score_6'])
+            self.assertFalse(report['membership_validated'])
+
+    def test_scorer_batch_rejects_quoted_nonfinite_malformed_and_redirected_scores(self):
+        for mode, token in (('score_tokens', '"0.5"'), ('score_tokens', 'NaN'),
+                            ('score_tokens', '1e999'), ('score_tokens', '1e+'),
+                            ('score_tokens', '0.' + '1' * 513), ('score_redirect', '0.5')):
+            with self.subTest(mode=mode, token=token[:12]), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                toy.score_tokens = {'a': token}
+                protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                    'path': '/score', 'body_field': 'candidate', 'score_field': 'score', 'candidates': ['a']}})
+                manifest, _, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+                self.assertEqual(code, 3)
+                self.assertIsNone(manifest['api_checks'][0]['score'])
+                self.assertFalse(manifest['validated'])
+
+    def test_scorer_batch_retains_large_complete_wire_response_within_log_budget(self):
+        token = '0.5,"padding":"' + 'x' * 5000 + '"'
+        wire = ('{"score":' + token + '}').encode()
+        with tempfile.TemporaryDirectory() as root, Toy('score_tokens') as toy:
+            toy.score_tokens = {'a': token}
+            protocol = self.protocol(root, {'allow_state_change': True, 'strategy_params': {
+                'path': '/score', 'body_field': 'candidate', 'score_field': 'score', 'candidates': ['a']}})
+            manifest, run, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+            self.assertEqual(code, 0)
+            self.assertEqual(manifest['api_checks'][0]['score'], '0.5')
+            row = next(json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()
+                       if '"probe_id": "api:score_1"' in line)
+            self.assertEqual(base64.b64decode(row['response_raw_b64']), wire)
+            self.assertLess((run / 'transcript.jsonl').stat().st_size, 2 * 1024 * 1024)
+            self.assertNotIn('x' * 100, (run / 'report.md').read_text())
+
+    def test_scorer_batch_keeps_numeric_bootstrap_success_check(self):
+        with tempfile.TemporaryDirectory() as root, Toy('score_tokens') as toy:
+            toy.score_tokens = {'a': '0.5', 'b': '0.75'}
+            protocol = self.protocol(root, {'allow_state_change': True,
+                                            'bootstrap': {'path': '/score', 'body': {'candidate': 'a'},
+                                                          'success_status': 200, 'success_field': 'score',
+                                                          'success_value': 0.5},
+                                            'strategy_params': {'path': '/score', 'body_field': 'candidate',
+                                                                'score_field': 'score', 'candidates': ['b']}})
+            manifest, _, code = self.start(root, toy, protocol, strategy='scorer_batch', requests=8)
+            self.assertEqual(code, 0)
+            self.assertTrue(manifest['bootstrap_completed'])
+            self.assertEqual(manifest['api_checks'][0]['score'], '0.75')
 
 
 if __name__ == '__main__':
