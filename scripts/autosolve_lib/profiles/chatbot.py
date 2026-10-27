@@ -1249,7 +1249,8 @@ def _run(client):
         if record.get('redirect_hops'):
             m['stop_reason'] = 'chat redirected; inspect target state before continuing'
             break
-        m['completed'].append(probe)
+        if record.get('signal') != 'partial_response':
+            m['completed'].append(probe)
         if record.get('signal') in ('lock', 'rate_limit', 'cross_origin_redirect', 'redirect_not_replayed', 'partial_response', 'malformed_json', 'unconfigured_stream', 'unsupported_stream', 'budget', 'network_error', 'log_limit'):
             m['stop_reason'] = ('event stream needs declared response_format and response_field'
                                 if record['signal'] == 'unconfigured_stream' else

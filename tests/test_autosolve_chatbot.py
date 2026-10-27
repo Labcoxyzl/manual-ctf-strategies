@@ -2288,9 +2288,16 @@ class ChatbotCLITests(unittest.TestCase):
                 self.assertEqual(code, 3)
                 self.assertEqual(m['stop_reason'], reason)
                 self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
+                if mode == 'stream_incomplete':
+                    self.assertEqual(m['started'], ['baseline'])
+                    self.assertEqual(m['completed'], [])
+                    self.assertIn('Started without a confirmed completed observation', (run / 'report.md').read_text())
                 self.run_cli(root, 'resume', run, '--budget', '5', code=3)
                 self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
                 self.run_cli(root, 'chatbot-release-origin', run, code=0)
+                if mode == 'stream_incomplete':
+                    self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+                    self.assertEqual(sum(path == '/stream/chat' for method, path in toy.calls if method == 'POST'), 1)
         for mode in ('stream_timeout_after_chunk', 'stream_timeout_midline'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
                 protocol = self.protocol(root, config)
