@@ -161,11 +161,10 @@ contract, with four truncated runs and 873 unverified candidates on one public
 image. DOC02 then passed 11/11 on the published fifteenth commit, and AV01
 passed 6/6 on the same hash. DOC04 passed 10/10 on the published sixteenth
 commit, including encrypted PDF, incremental, Unicode and unsafe-name cases.
-Nine named rows are now proved on pinned published commits; the other 48
-remain unproved at named-row depth. IMG03
-recovered all four positive payloads in an eight-case transfer, but its named
-row remains partial because empty carrier and absent password share an
-ambiguous product warning rather than the distinct outcomes the plan requires.
+IMG03 later passed 9/9 with conservative no-seed, possible-seed and timeout
+outcomes; AV02 passed 7/7 DTMF cases, and IMG05 passed 8/8 with the pinned
+rootless DataMatrix decoder. Twelve named rows are now proved on pinned
+published commits; the other 45 remain unproved at named-row depth.
 
 The fourteenth checkpoint adds an authored AV03 Morse/AFSK doctor probe, an
 opt-in hash-locked AI CPU environment, a separate wheel-only angr checker
@@ -226,16 +225,31 @@ passed in isolation in 7.97 seconds. The quiet pre-push rerun passed 914 tests
 `ba86d98`. DOC04's full named row passed 10/10 on that hash. These checks
 do not establish the other 48 named rows or platform challenge acceptance.
 
-The seventeenth candidate distinguishes PWN03 debugger startup failures
+The seventeenth checkpoint distinguishes PWN03 debugger startup failures
 from genuine noncrashing program exits and adds an opt-in bounded StegSeek
-seed probe for IMG03's still-unmet negative-classification clause. The isolated
+seed probe for IMG03's negative-classification clause. The isolated
 PWN03 suite passed 15 tests; StegSeek passed 12 focused tests and three
 independently frozen real-carrier controls with stable resume and no published
 seed output. A two-carrier regression repaired an aggregate IMG03 report note
 that had implied no seed globally after a positive carrier; aggregate seed
-warnings now identify their source artifact and path. Full named IMG03 replay,
-integrated suites, rootless export and frozen release gates remain pending on
-the combined candidate.
+warnings now identify their source artifact and path. The final commit
+`615d966` passed 846 Python 3.12 tests (24 optional skipped), all-domain
+22/22, X/F 20/20, nine changed-path cases and 15 representative measurements.
+The earlier F10 host-pause failure remains a timing risk. Fresh directory and
+ZIP setup matched 250 files and 30 locked core packages; StegSeek seed
+controls passed 8/8, PWN03 startup controls 3/3, seven adverse controls passed,
+and setup/doctor traces made zero outside ordinary-file or directory write
+attempts. The first pre-push run failed a chatbot cooldown test that passed
+alone in 1.80 seconds. The quiet pre-push rerun passed 922 tests (44 optional
+skipped, 517 subtests), and the remote hash was verified as `615d966`.
+IMG03, AV02 and IMG05 then passed their full named rows on that published hash.
+This does not establish the other 45 named rows or platform acceptance.
+
+The eighteenth candidate investigates NET01's reordered-capture truncation:
+a gap-free reassembled stream can coexist with a transient TShark lost-segment
+warning. Isolated focused controls and independent review are in progress;
+the frozen publisher and genuine-gap transfer and integrated gates remain
+pending.
 
 ## Independent end-to-end evidence
 
