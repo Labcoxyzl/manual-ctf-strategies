@@ -5916,7 +5916,9 @@ def _sqlite_job(run, manifest, artifact, deadline, queue, depth):
     if 'DF04' in manifest['coverage']:
         manifest['coverage']['DF04']['status'] = ('truncated' if reusable is None and job['status'] == 'truncated' else
                                                   'failed' if reusable is None and job['status'] == 'failed' else
-                                                  'truncated' if warnings else 'ran' if count else 'no finding')
+                                                  'truncated' if any(warning != '-shm companion missing; SQLite will rebuild the WAL index on the copy'
+                                                                     for warning in warnings) else
+                                                  'ran' if count else 'no finding')
         manifest['coverage']['DF04']['note'] = 'bounded copied SQLite schema/rows; WAL basis reported'
 
 

@@ -6,6 +6,7 @@ import json
 import os
 import sqlite3
 import stat
+import struct
 import tempfile
 import uuid
 from contextlib import closing
@@ -29,6 +30,53 @@ def _text(value: bytes):
         return value.decode("utf-8")
     except UnicodeDecodeError:
         return {"type": "text", "base64": base64.b64encode(value).decode("ascii")}
+
+
+def _wal_integrity_warning(path: Path, database_header: bytes) -> str | None:
+    """Check the copied WAL before SQLite can silently discard invalid frames."""
+    if database_header[:16] != b"SQLite format 3\x00" or database_header[18:20] != b"\x02\x02":
+        return "WAL integrity incomplete: database is not in WAL mode"
+    with path.open("rb") as source:
+        header = source.read(32)
+        if len(header) != 32:
+            return "WAL integrity incomplete: header truncated"
+        magic, version, page_size = struct.unpack(">III", header[:12])
+        database_page_size = int.from_bytes(database_header[16:18], "big")
+        if database_page_size == 1:
+            database_page_size = 65536
+        if (magic not in (0x377F0682, 0x377F0683) or version != 3007000 or
+                page_size != database_page_size or page_size < 512 or page_size > 65536 or
+                page_size & (page_size - 1)):
+            return "WAL integrity incomplete: header invalid or page size mismatched"
+        word_order = "<" if magic == 0x377F0682 else ">"
+
+        def checksum(data: bytes, state: tuple[int, int]) -> tuple[int, int]:
+            s0, s1 = state
+            for x0, x1 in struct.iter_unpack(word_order + "II", data):
+                s0 = (s0 + x0 + s1) & 0xFFFFFFFF
+                s1 = (s1 + x1 + s0) & 0xFFFFFFFF
+            return s0, s1
+
+        state = checksum(header[:24], (0, 0))
+        if state != struct.unpack(">II", header[24:32]):
+            return "WAL integrity incomplete: header checksum invalid"
+        last_commit = True
+        while frame_header := source.read(24):
+            if len(frame_header) != 24:
+                return "WAL integrity incomplete: frame header truncated"
+            page = source.read(page_size)
+            if len(page) != page_size:
+                return "WAL integrity incomplete: frame page truncated"
+            if frame_header[:4] == b"\0" * 4 or frame_header[8:16] != header[16:24]:
+                return "WAL integrity incomplete: frame number or salt invalid"
+            state = checksum(frame_header[:8], state)
+            state = checksum(page, state)
+            if state != struct.unpack(">II", frame_header[16:24]):
+                return "WAL integrity incomplete: frame checksum invalid"
+            last_commit = frame_header[4:8] != b"\0" * 4
+        if not last_commit:
+            return "WAL integrity incomplete: final frame has no commit marker"
+    return None
 
 
 def inspect_sqlite(path: Path, output_dir: Path, *, max_rows: int,
@@ -127,6 +175,10 @@ def inspect_sqlite(path: Path, output_dir: Path, *, max_rows: int,
         if header[:16] == b"SQLite format 3\x00" and header[18:20] == b"\x02\x02" and wal not in sources:
             warnings.append("WAL-mode database has no -wal companion; recent rows may be missing")
         if wal in sources and path.with_name(path.name + "-shm") not in sources:
+            # shortcut: reset WAL tails remain partial without -shm; upgrade when active-prefix proof is available.
+            wal_warning = _wal_integrity_warning(Path(directory) / wal.name, header)
+            if wal_warning:
+                warnings.append(wal_warning)
             warnings.append("-shm companion missing; SQLite will rebuild the WAL index on the copy")
 
         try:

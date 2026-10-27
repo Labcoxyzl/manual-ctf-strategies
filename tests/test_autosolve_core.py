@@ -1279,6 +1279,135 @@ int main(int argc, char **argv) {
             finally:
                 connection.close()
 
+    def test_sqlite_wal_without_shm_is_complete_but_missing_wal_is_truncated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live = root / 'live.db'
+            connection = sqlite3.connect(live)
+            try:
+                connection.execute('PRAGMA journal_mode=WAL')
+                connection.execute('PRAGMA wal_autocheckpoint=0')
+                connection.execute('CREATE TABLE evidence (id INTEGER PRIMARY KEY, body TEXT)')
+                connection.commit()
+                connection.execute('INSERT INTO evidence VALUES (?, ?)', (1, 'wal_alpha'))
+                connection.commit()
+                connection.execute('INSERT INTO evidence VALUES (?, ?)', (2, 'wal_emoji_🐙'))
+                connection.commit()
+                original_wal = Path(str(live) + '-wal').read_bytes()
+                page_size = int.from_bytes(original_wal[8:12], 'big')
+                for case in ('complete', 'missing', 'wrong_db_mode', 'short_frame', 'bad_magic',
+                             'bad_header', 'bad_salt', 'bad_frame', 'bad_page'):
+                    with self.subTest(case=case):
+                        source = root / f'{case}.db'
+                        wal = Path(str(source) + '-wal')
+                        shutil.copyfile(live, source)
+                        if case == 'wrong_db_mode':
+                            data = bytearray(source.read_bytes())
+                            data[18:20] = b'\x01\x01'
+                            source.write_bytes(data)
+                        if case != 'missing':
+                            data = bytearray(original_wal)
+                            if case == 'short_frame':
+                                data.pop()
+                            elif case == 'bad_magic':
+                                data[0] ^= 1
+                            elif case == 'bad_header':
+                                data[24] ^= 1
+                            elif case == 'bad_salt':
+                                data[40] ^= 1
+                            elif case == 'bad_frame':
+                                data[-page_size - 24 + 16] ^= 1
+                            elif case == 'bad_page':
+                                data[-1] ^= 1
+                            wal.write_bytes(data)
+                        self.assertFalse(Path(str(source) + '-shm').exists())
+                        db_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+                        wal_hash = hashlib.sha256(wal.read_bytes()).hexdigest() if wal.exists() else None
+                        run = Path(self.run_cli('analyze', source, '--category', 'disk_memory',
+                                                '--runs-root', root / 'runs', code=3)['run'])
+                        for action in ('analyze', 'resume'):
+                            if action == 'resume':
+                                self.run_cli('resume', run, code=3)
+                            manifest = json.loads((run / 'manifest.json').read_text())
+                            expected_status = 'ran' if case == 'complete' else 'truncated'
+                            self.assertEqual(manifest['coverage']['DF04']['status'], expected_status)
+                            source_artifact = next(item for item in manifest['artifacts']
+                                                   if item['depth'] == 0 and item['current'])
+                            self.assertEqual(source_artifact['sha256'], db_hash)
+                            job = [item for item in manifest['jobs'] if item['adapter_id'] == 'sqlite'][-1]
+                            self.assertEqual(job['status'], 'complete')
+                            self.assertEqual(job['data_fingerprints']['-wal'], wal_hash)
+                            rows = [item for item in manifest['artifacts'] if item['current'] and
+                                    item['source_locator'].get('sqlite_kind') == 'row']
+                            if case == 'complete':
+                                self.assertEqual([Path(item['path']).read_bytes() for item in rows], [
+                                    b'{"primary_key":null,"rowid":1,"table":"evidence","values":{"body":"wal_alpha","id":1}}\n',
+                                    '{"primary_key":null,"rowid":2,"table":"evidence","values":{"body":"wal_emoji_🐙","id":2}}\n'.encode(),
+                                ])
+                                self.assertEqual([item['source_locator']['sqlite_locator'] for item in rows],
+                                                 ['table evidence rowid 1', 'table evidence rowid 2'])
+                                self.assertTrue(all(item['source_locator']['sqlite_companion_sha256'] ==
+                                                    manifest['sqlite_companions'][source_artifact['id']]
+                                                    for item in rows))
+                                self.assertIn('-shm companion missing', ' '.join(job['warnings']))
+                                self.assertIn('-shm companion missing', ' '.join(manifest['warnings']))
+                            elif case == 'missing':
+                                self.assertEqual(rows, [])
+                                self.assertIn('no -wal companion', ' '.join(job['warnings']))
+                            else:
+                                self.assertIn('WAL integrity incomplete', ' '.join(job['warnings']))
+                                if case != 'wrong_db_mode':
+                                    self.assertFalse(any(b'wal_emoji_' in Path(item['path']).read_bytes()
+                                                         for item in rows))
+                        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), db_hash)
+                        if wal.exists():
+                            self.assertEqual(hashlib.sha256(wal.read_bytes()).hexdigest(), wal_hash)
+            finally:
+                connection.close()
+
+    def test_sqlite_restart_wal_keeps_supplied_shm_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live = root / 'live.db'
+            connection = sqlite3.connect(live)
+            try:
+                connection.execute('PRAGMA journal_mode=WAL')
+                connection.execute('PRAGMA wal_autocheckpoint=0')
+                connection.execute('CREATE TABLE evidence (body TEXT)')
+                connection.commit()
+                for index in range(10):
+                    connection.execute('INSERT INTO evidence VALUES (?)', (f'base-{index}',))
+                    connection.commit()
+                old_size = Path(str(live) + '-wal').stat().st_size
+                self.assertEqual(connection.execute('PRAGMA wal_checkpoint(RESTART)').fetchone()[0], 0)
+                connection.execute('INSERT INTO evidence VALUES (?)', ('current-wal',))
+                connection.commit()
+                self.assertEqual(Path(str(live) + '-wal').stat().st_size, old_size)
+                for copy_shm, expected_status in ((True, 'ran'), (False, 'truncated')):
+                    with self.subTest(copy_shm=copy_shm):
+                        source = root / ('with-shm.db' if copy_shm else 'without-shm.db')
+                        shutil.copyfile(live, source)
+                        shutil.copyfile(Path(str(live) + '-wal'), Path(str(source) + '-wal'))
+                        if copy_shm:
+                            shutil.copyfile(Path(str(live) + '-shm'), Path(str(source) + '-shm'))
+                        run = Path(self.run_cli('analyze', source, '--category', 'disk_memory',
+                                                '--runs-root', root / 'runs', code=3)['run'])
+                        manifest = json.loads((run / 'manifest.json').read_text())
+                        job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'sqlite')
+                        self.assertEqual(manifest['coverage']['DF04']['status'], expected_status)
+                        self.assertEqual(job['status'], 'complete')
+                        if copy_shm:
+                            self.assertEqual(job['warnings'], [])
+                        else:
+                            self.assertIn('WAL integrity incomplete', ' '.join(job['warnings']))
+                        rows = [item for item in manifest['artifacts'] if item['current'] and
+                                item['source_locator'].get('sqlite_kind') == 'row']
+                        self.assertEqual([json.loads(Path(item['path']).read_bytes())['values']['body']
+                                          for item in rows],
+                                         [*(f'base-{index}' for index in range(10)), 'current-wal'])
+            finally:
+                connection.close()
+
     def test_auto_initial_pass_schedules_sqlite_before_packet_work(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
