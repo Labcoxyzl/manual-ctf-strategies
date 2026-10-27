@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="3766f9cd6a79ca8aac7bfdf6804f6df51652b79fdb75516d74f13441b958ca09">
+  <meta name="source-sha256" content="7f01f9331b243ca9b675daa3378525808cb793cb88967803e384728bd991b3c1">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -405,6 +405,7 @@ python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
 python3 scripts/ai_model.py svm ./private-svm-parameters.json
 python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
 python3 scripts/ai_model.py parity ./private-parity.json --execute-local
+python3 scripts/ai_model.py calibrated-search ./private-calibrated-search.json --execute-local
 python3 scripts/ai_model_attack.py --adapter ./private-adapter.py --execute-local \
   gradient --model ./model.pt --input ./input.npy --target chosen-class \
   --epsilon 0.1 --step-size 0.02 --steps 10
@@ -450,9 +451,25 @@ positions, then compare their scalar scores offline:</p>
 separate, and candidate rankings in the declared score direction. Calculations
 use decimal representations of the recorded scores and include the source
 manifest hash.
-It never
-labels a candidate as a member. Use repeated controls to assess stochasticity
+It never labels a candidate as a member. Use repeated controls to assess stochasticity
 and the challenge's independent verifier to establish any membership claim.</p>
+<p>For local unknown-behavior search, copy the <a href="scripts/chatbot_recipes/calibrated_search.json">calibrated-search recipe</a>
+and <a href="scripts/templates/ai_score_wrapper.py">score wrapper template</a>. The wrapper must
+reproduce the challenge's preprocessing, inference, and exact scored output
+boundary, then return one finite scalar for each JSON input. Put known behavior
+and frozen negative controls beside explicit candidates within a 50-case limit. The
+command runs one local wrapper process per case with a 30-second per-call and
+600-second total maximum. <code>--execute-local</code> runs that wrapper with the current
+account's access; it is not a sandbox. Each input is at most 8 KiB, and each
+finite score is at most 512 characters. The command records hashes of the
+exact JSON sent to the wrapper and score strings in a private report. It
+preserves completed scores if a later case times out and ranks only the
+supplied candidate set. If no positive control is known, the
+report remains uncalibrated. A separated control range is evidence that this
+statistic is worth testing further, not proof of a backdoor, identity, or
+challenge acceptance. Candidate generation and verifier serialization remain
+target-specific; run <code>parity</code> on representative canaries before scaling a
+model-specific scorer.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
 <thead>
 <tr>
@@ -494,8 +511,8 @@ and the challenge's independent verifier to establish any membership claim.</p>
 </tr>
 <tr>
 <td>Token-identity parity and calibrated behavior search</td>
-<td><code>ai_model.py parity</code> on representative canaries</td>
-<td>Supply tokenizer/model wrappers and calibrated controls.</td>
+<td><code>ai_model.py parity</code> on representative canaries; <code>calibrated-search</code> on an explicit bounded candidate set</td>
+<td>Supply tokenizer/model wrappers, known controls, candidate generation and an independent verifier.</td>
 </tr>
 </tbody>
 </table></div>
@@ -642,8 +659,8 @@ mean the attack will succeed against an arbitrary challenge.</p>
 </tr>
 <tr>
 <td>Calibrated unknown-behavior search</td>
-<td><code>ai_model.py parity</code> and <code>score-controls</code> when the wrapper exposes numeric scores</td>
-<td>Supply known controls and a target-specific bounded search objective; rankings are exploratory.</td>
+<td><code>ai_model.py parity</code>, <code>calibrated-search</code> for a local wrapper, or <code>score-controls</code> for an API manifest</td>
+<td>Supply known controls, an explicit candidate set and a target-specific objective; rankings are exploratory.</td>
 </tr>
 </tbody>
 </table></div>

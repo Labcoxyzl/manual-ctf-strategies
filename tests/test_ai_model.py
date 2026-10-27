@@ -102,6 +102,123 @@ class AIModelTests(unittest.TestCase):
             result = self.command(root, 'parity', config, '--execute-local', code=2)
             self.assertIn('timed out', result['reason'])
 
+    def test_calibrated_search_scores_controls_and_candidates_without_claiming_identity(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            scorer = root / 'scorer.py'
+            scorer.write_text('import json,sys\nx=json.load(sys.stdin)\n'
+                              'scores={"known":"9.0000000000000001","plain":"0",'
+                              '"candidate":"9.0000000000000001","decoy":"9.0"}\n'
+                              'print(scores[x])\n')
+            config = root / 'search.json'
+            plan = {'wrapper': [sys.executable, str(scorer)],
+                    'cases': [{'role': role, 'input': value} for role, value in (
+                        ('positive', 'known'), ('negative', 'plain'),
+                        ('candidate', 'candidate'), ('candidate', 'decoy'))],
+                    'direction': 'higher', 'timeout': 2, 'budget': 10}
+            config.write_text(json.dumps(plan))
+            self.assertIn('execute-local', self.command(root, 'calibrated-search', config, code=2)['reason'])
+            result = self.command(root, 'calibrated-search', config, '--execute-local')
+            record = json.loads(Path(result['report']).read_text())
+            self.assertTrue(record['control_ranges_separate'])
+            self.assertEqual(record['candidate_order'], [2, 3])
+            self.assertEqual(record['observations'][0]['score'], '9.0000000000000001')
+            self.assertEqual(record['observations'][2]['score'], '9.0000000000000001')
+            self.assertEqual(record['state'], 'exploratory_ranking')
+            self.assertNotIn('known', Path(result['report']).read_text())
+            plan['direction'] = 'lower'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local')
+            record = json.loads(Path(result['report']).read_text())
+            self.assertFalse(record['control_ranges_separate'])
+            self.assertEqual(record['candidate_order'], [3, 2])
+
+    def test_calibrated_search_rejects_unsafe_plan_and_keeps_partial_scores(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            scorer = root / 'scorer.py'
+            scorer.write_text('import json,sys,time\nx=json.load(sys.stdin)\n'
+                              'if x=="slow": time.sleep(2)\n'
+                              'print("["*10000+"0"+"]"*10000 if x=="deep" else '
+                              '"1e99999999999999999999" if x=="huge" else '
+                              'json.dumps("1" if x=="ok" else "NaN"))\n')
+            config = root / 'search.json'
+            plan = {'wrapper': [sys.executable, str(scorer)],
+                    'cases': [{'role': 'negative', 'input': 'ok'},
+                              {'role': 'candidate', 'input': 'slow'}],
+                    'direction': 'higher', 'timeout': .8, 'budget': 3}
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertEqual(len(record['observations']), 1)
+            self.assertIn('timed out', record['limits'][0])
+            self.assertIsNone(record['control_ranges_separate'])
+            plan['cases'][1]['input'] = 'ok'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertIn('no positive control', record['limits'][0])
+            self.assertEqual(record['candidate_order'], [1])
+            plan['cases'][1]['input'] = 'bad'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertIn('finite scalar', record['limits'][0])
+            plan['cases'][1]['input'] = 'huge'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertEqual(len(record['observations']), 1)
+            self.assertIn('one JSON result', record['limits'][0])
+            plan['cases'][1]['input'] = 'deep'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertEqual(len(record['observations']), 1)
+            self.assertIn('one JSON result', record['limits'][0])
+            plan['cases'] *= 26
+            config.write_text(json.dumps(plan))
+            self.assertIn('1-50 cases', self.command(root, 'calibrated-search', config, '--execute-local', code=2)['reason'])
+
+    def test_calibrated_search_hashes_exact_wrapper_input_order(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            scorer = root / 'ordered.py'
+            scorer.write_text('import json,sys\nx=json.load(sys.stdin)\n'
+                              'print(0 if isinstance(x,str) else 2 if next(iter(x))=="a" else 1)\n')
+            plan = {'wrapper': [sys.executable, str(scorer)], 'direction': 'higher',
+                    'cases': [{'role': 'positive', 'input': {'a': 0, 'b': 0}},
+                              {'role': 'negative', 'input': 'plain'},
+                              {'role': 'candidate', 'input': {'a': 1, 'b': 2}},
+                              {'role': 'candidate', 'input': {'b': 2, 'a': 1}}],
+                    'timeout': 2, 'budget': 10}
+            config = root / 'ordered.json'
+            config.write_text(json.dumps(plan))
+            result = self.command(root, 'calibrated-search', config, '--execute-local')
+            record = json.loads(Path(result['report']).read_text())
+            self.assertEqual(record['candidate_order'], [2, 3])
+            self.assertNotEqual(record['observations'][2]['input_sha256'],
+                                record['observations'][3]['input_sha256'])
+            self.assertEqual([row['score'] for row in record['observations'][2:]], ['2', '1'])
+
+    def test_calibrated_search_keeps_scores_if_wrapper_disappears(self):
+        with tempfile.TemporaryDirectory() as root:
+            root = Path(root)
+            scorer = root / 'one_use.py'
+            scorer.write_text('#!/usr/bin/env python3\nimport json,os,sys\n'
+                              'x=json.load(sys.stdin)\n'
+                              'if x=="first": os.unlink(__file__)\nprint(1)\n')
+            scorer.chmod(0o700)
+            config = root / 'search.json'
+            config.write_text(json.dumps({'wrapper': [str(scorer)],
+                                          'cases': [{'role': 'negative', 'input': 'first'},
+                                                    {'role': 'candidate', 'input': 'second'}],
+                                          'direction': 'higher', 'timeout': 2, 'budget': 10}))
+            result = self.command(root, 'calibrated-search', config, '--execute-local', code=3)
+            record = json.loads(Path(result['report']).read_text())
+            self.assertEqual(len(record['observations']), 1)
+            self.assertIn('wrapper start failed', record['limits'][0])
+
     def test_svm_parameters_reconstruct_primal_and_slack(self):
         with tempfile.TemporaryDirectory() as root:
             params = Path(root) / 'svm.json'

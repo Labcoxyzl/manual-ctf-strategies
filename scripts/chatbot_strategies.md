@@ -316,6 +316,7 @@ python3 scripts/ai_model.py suppression ./base.npz ./challenge.npz
 python3 scripts/ai_model.py svm ./private-svm-parameters.json
 python3 scripts/ai_model.py sign-gates ./private-sign-gates.json --timeout 10
 python3 scripts/ai_model.py parity ./private-parity.json --execute-local
+python3 scripts/ai_model.py calibrated-search ./private-calibrated-search.json --execute-local
 python3 scripts/ai_model_attack.py --adapter ./private-adapter.py --execute-local \
   gradient --model ./model.pt --input ./input.npy --target chosen-class \
   --epsilon 0.1 --step-size 0.02 --steps 10
@@ -369,9 +370,26 @@ The private report gives control medians, whether the observed ranges strictly
 separate, and candidate rankings in the declared score direction. Calculations
 use decimal representations of the recorded scores and include the source
 manifest hash.
-It never
-labels a candidate as a member. Use repeated controls to assess stochasticity
+It never labels a candidate as a member. Use repeated controls to assess stochasticity
 and the challenge's independent verifier to establish any membership claim.
+
+For local unknown-behavior search, copy the [calibrated-search recipe](chatbot_recipes/calibrated_search.json)
+and [score wrapper template](templates/ai_score_wrapper.py). The wrapper must
+reproduce the challenge's preprocessing, inference, and exact scored output
+boundary, then return one finite scalar for each JSON input. Put known behavior
+and frozen negative controls beside explicit candidates within a 50-case limit. The
+command runs one local wrapper process per case with a 30-second per-call and
+600-second total maximum. `--execute-local` runs that wrapper with the current
+account's access; it is not a sandbox. Each input is at most 8 KiB, and each
+finite score is at most 512 characters. The command records hashes of the
+exact JSON sent to the wrapper and score strings in a private report. It
+preserves completed scores if a later case times out and ranks only the
+supplied candidate set. If no positive control is known, the
+report remains uncalibrated. A separated control range is evidence that this
+statistic is worth testing further, not proof of a backdoor, identity, or
+challenge acceptance. Candidate generation and verifier serialization remain
+target-specific; run `parity` on representative canaries before scaling a
+model-specific scorer.
 
 | CHY offline route | Ready script step | Target-specific work that remains |
 | --- | --- | --- |
@@ -381,7 +399,7 @@ and the challenge's independent verifier to establish any membership claim.
 | Recurrent policy and world-model state | `ai_model_attack.py recurrent` and parity canaries | Supply environment, policy step, action list, and exact hidden-state contract. |
 | Adapter/delta and weight differences | `ai_model.py compare` and explicit NPZ `suppression` hypothesis | Reproduce merge arithmetic, quantization, and full-model behavior. |
 | Black-box extraction or membership | `scorer_batch` plus `chatbot_evidence.py score-controls` | Supply known controls, repeated queries when needed, and an independent membership oracle. |
-| Token-identity parity and calibrated behavior search | `ai_model.py parity` on representative canaries | Supply tokenizer/model wrappers and calibrated controls. |
+| Token-identity parity and calibrated behavior search | `ai_model.py parity` on representative canaries; `calibrated-search` on an explicit bounded candidate set | Supply tokenizer/model wrappers, known controls, candidate generation and an independent verifier. |
 
 These scripts cover repeatable mechanics, not arbitrary model semantics. A
 specialized solver still needs the challenge's wrapper, data constraints and
@@ -425,4 +443,4 @@ mean the attack will succeed against an arbitrary challenge.
 | Adapter/delta weight recovery | `ai_model.py compare`, `suppression`, and `parity` | Reproduce merge, casts, rounding and full-model behavior. |
 | Black-box extraction/membership | `scorer_batch` numeric observations plus `score-controls` comparison | Supply representative controls and an independent membership oracle. |
 | Token-identity and inference parity | `ai_model.py parity` | Supply tokenizer/model wrappers and exact prompt boundaries. |
-| Calibrated unknown-behavior search | `ai_model.py parity` and `score-controls` when the wrapper exposes numeric scores | Supply known controls and a target-specific bounded search objective; rankings are exploratory. |
+| Calibrated unknown-behavior search | `ai_model.py parity`, `calibrated-search` for a local wrapper, or `score-controls` for an API manifest | Supply known controls, an explicit candidate set and a target-specific objective; rankings are exploratory. |

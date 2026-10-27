@@ -34,6 +34,8 @@ class DistributionTests(unittest.TestCase):
                 self.assertNotIn(target, exporter.INTERNAL_EVIDENCE)
         self.assertIn(b'internal evidence; not distributed', self.files['RESOURCE_EVALUATION.html'])
         self.assertIn(b'RULES.html', self.files['index.html'])
+        self.assertIn('scripts/chatbot_recipes/calibrated_search.json', self.files)
+        self.assertIn('scripts/templates/ai_score_wrapper.py', self.files)
 
     def test_unknown_and_private_links_fail_before_destination(self):
         read = exporter.read_source

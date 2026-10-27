@@ -2,6 +2,7 @@
 """Safe AI artifact triage, bounded tensor comparison, and explicit wrapper parity."""
 
 import argparse
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
@@ -295,7 +296,7 @@ def sign_gates(path, timeout):
     return result
 
 
-def _child(argv, value, timeout, run):
+def _child(argv, value, timeout, run, *, exact_decimal=False):
     def cap_output():
         resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024, 64 * 1024))
 
@@ -307,15 +308,15 @@ def _child(argv, value, timeout, run):
         except subprocess.TimeoutExpired as error:
             os.killpg(process.pid, signal.SIGKILL)
             process.wait()
-            raise ValueError('wrapper timed out; parity incomplete') from error
+            raise ValueError('wrapper timed out; run incomplete') from error
         if process.returncode:
-            raise ValueError(f'wrapper exited {process.returncode}; parity incomplete')
+            raise ValueError(f'wrapper exited {process.returncode}; run incomplete')
         if stdout.tell() > 64 * 1024 or stderr.tell() > 64 * 1024:
             raise ValueError('wrapper output exceeded 64 KiB')
         stdout.seek(0)
         try:
-            return json.load(stdout)
-        except (ValueError, UnicodeError) as error:
+            return json.load(stdout, parse_float=Decimal) if exact_decimal else json.load(stdout)
+        except (ValueError, UnicodeError, InvalidOperation, RecursionError) as error:
             raise ValueError('wrapper did not return one JSON result') from error
 
 
@@ -348,6 +349,86 @@ def parity(config_path, run):
             'limit': 'checks the declared canary cases only; local wrapper code is executed'}
 
 
+def calibrated_search(config_path, run):
+    path = _regular(config_path)
+    if path.stat().st_size > 64 * 1024:
+        raise ValueError('calibrated-search config exceeds 64 KiB')
+    raw = path.read_bytes()
+    try:
+        config = json.loads(raw)
+    except RecursionError as error:
+        raise ValueError('calibrated-search config is too deeply nested') from error
+    if not isinstance(config, dict) or set(config) != {'wrapper', 'cases', 'direction', 'timeout', 'budget'}:
+        raise ValueError('calibrated-search needs wrapper, cases, direction, timeout, budget')
+    argv = config['wrapper']
+    cases = config['cases']
+    if not isinstance(argv, list) or not 1 <= len(argv) <= 16 or any(not isinstance(x, str) or not x or len(x) > 1024 for x in argv):
+        raise ValueError('wrapper must be an argv array')
+    if not isinstance(cases, list) or not 1 <= len(cases) <= 50:
+        raise ValueError('calibrated-search needs 1-50 cases')
+    if (config['direction'] not in ('higher', 'lower') or type(config['timeout']) not in (int, float) or
+            not 0 < config['timeout'] <= 30 or type(config['budget']) not in (int, float) or
+            not 0 < config['budget'] <= 600):
+        raise ValueError('calibrated-search needs higher/lower direction, timeout 0-30s and budget 0-600s')
+    encoded = []
+    roles = []
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != {'role', 'input'} or case['role'] not in ('positive', 'negative', 'candidate'):
+            raise ValueError('each case needs a role and input')
+        try:
+            value = json.dumps(case['input'], allow_nan=False).encode() + b'\n'
+        except (TypeError, ValueError, RecursionError) as error:
+            raise ValueError('case input must be bounded JSON') from error
+        if len(value) > 8192:
+            raise ValueError('case input exceeds 8192 bytes')
+        encoded.append(value)
+        roles.append(case['role'])
+    if 'negative' not in roles or 'candidate' not in roles:
+        raise ValueError('calibrated-search needs negative and candidate cases')
+    deadline = time.monotonic() + config['budget']
+    observations, scores, limits = [], [], []
+    for index, case in enumerate(cases):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            limits.append(f'budget exhausted before case {index}')
+            break
+        try:
+            output = _child(argv, case['input'], min(config['timeout'], remaining), run, exact_decimal=True)
+            if type(output) not in (str, int, float, Decimal):
+                raise ValueError('wrapper score must be a finite scalar')
+            if len(str(output)) > 512:
+                raise ValueError('wrapper score exceeds 512 characters')
+            try:
+                score = Decimal(str(output))
+            except InvalidOperation as error:
+                raise ValueError('wrapper score must be a finite scalar') from error
+            if not score.is_finite():
+                raise ValueError('wrapper score must be a finite scalar')
+        except ValueError as error:
+            limits.append(f'case {index}: {error}')
+            break
+        except OSError:
+            limits.append(f'case {index}: wrapper start failed; run incomplete')
+            break
+        scores.append(score)
+        observations.append({'case': index, 'role': case['role'], 'input_sha256': hashlib.sha256(encoded[index]).hexdigest(),
+                             'score': str(score)})
+    positive = [score for row, score in zip(observations, scores) if row['role'] == 'positive']
+    negative = [score for row, score in zip(observations, scores) if row['role'] == 'negative']
+    complete = len(observations) == len(cases)
+    separated = None
+    if complete and positive and negative:
+        separated = min(positive) > max(negative) if config['direction'] == 'higher' else max(positive) < min(negative)
+    if complete and not positive:
+        limits.append('no positive control; ranking is uncalibrated')
+    ranked = [row['case'] for row, score in sorted(zip(observations, scores),
+              key=lambda pair: pair[1], reverse=config['direction'] == 'higher') if row['role'] == 'candidate']
+    return {'state': 'exploratory_ranking', 'cases': len(cases), 'observations': observations,
+            'candidate_order': ranked, 'control_ranges_separate': separated, 'limits': limits,
+            'config_sha256': hashlib.sha256(raw).hexdigest(),
+            'limit': 'scores are exploratory; model behavior and identity require the supplied checker'}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--runs-root')
@@ -359,6 +440,9 @@ def main(argv=None):
     check = modes.add_parser('parity')
     check.add_argument('config')
     check.add_argument('--execute-local', action='store_true')
+    search = modes.add_parser('calibrated-search')
+    search.add_argument('config')
+    search.add_argument('--execute-local', action='store_true')
     svm_mode = modes.add_parser('svm')
     svm_mode.add_argument('parameters', help='JSON exported from the supplied binary-class SVM wrapper')
     gates_mode = modes.add_parser('sign-gates')
@@ -372,8 +456,8 @@ def main(argv=None):
     try:
         if args.mode in ('inspect', 'compare', 'suppression') and not 0 < args.max_bytes <= 1024 * 1024 * 1024:
             raise ValueError('max-bytes must be 1 to 1073741824')
-        if args.mode == 'parity' and not args.execute_local:
-            raise ValueError('parity executes supplied wrappers; pass --execute-local')
+        if args.mode in ('parity', 'calibrated-search') and not args.execute_local:
+            raise ValueError(f'{args.mode} executes a supplied wrapper; pass --execute-local')
         if args.mode == 'sign-gates' and not 0 < args.timeout <= 30:
             raise ValueError('sign-gate timeout must be 0-30 seconds')
         run = _private_run(args.runs_root)
@@ -387,6 +471,8 @@ def main(argv=None):
             result = sign_gates(args.description, args.timeout)
         elif args.mode == 'suppression':
             result = suppress(args.base, args.challenge, args.max_bytes, run)
+        elif args.mode == 'calibrated-search':
+            result = calibrated_search(args.config, run)
         else:
             result = parity(args.config, run)
         (run / 'result.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')

@@ -71,7 +71,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/autosolve_lib/profiles/chatbot_strategies.py',
         'scripts/ai_model.py', 'tests/test_ai_model.py', 'tests/test_autosolve_chatbot.py',
         'scripts/ai_model_attack.py', 'tests/test_ai_model_attack.py',
-        'scripts/templates/ai_model_adapter.py',
+        'scripts/templates/ai_model_adapter.py', 'scripts/templates/ai_score_wrapper.py',
         'scripts/chatbot_evidence.py', 'tests/test_chatbot_evidence.py',
         'scripts/chatbot_callback.py', 'tests/test_chatbot_callback.py',
         'scripts/chatbot_strategies.md',
@@ -101,6 +101,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_recipes/example_retrieved_page.txt',
         'scripts/chatbot_recipes/sign_network.json',
         'scripts/chatbot_recipes/model_parity.json',
+        'scripts/chatbot_recipes/calibrated_search.json',
         'tests/test_autosolve_core.py', 'tests/test_autosolve_encoding.py',
         'tests/test_autosolve_documents.py', 'tests/test_autosolve_setup.py',
         'scripts/README.md', 'requirements.txt', 'constraints.txt', 'tests/test_toolkit.py',
@@ -141,7 +142,8 @@ python3 scripts/autosolve.py --help
 `autosolve.py` supports bounded local encoding, declared AES/RSA checks,
 ZIP/MIME/PDF extraction, PNG trailing containers, image metadata/views, and an
 explicit-origin chatbot profile with selected plans. `ai_model.py` inspects
-offline model metadata and checks explicit wrapper parity. Chatbot runs keep
+offline model metadata, checks explicit wrapper parity, and ranks bounded
+local scorer candidates against declared controls. Chatbot runs keep
 private reports and resume records; offline model reports are private.
 Its reports mark remaining planned families as not implemented; a candidate
 is not a validated challenge answer.
