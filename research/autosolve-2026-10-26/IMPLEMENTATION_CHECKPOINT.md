@@ -286,9 +286,20 @@ The nineteenth candidate adds bounded binary BLF support to CAN01 using the
 pinned python-can environment, with conservative corrupt/truncated handling
 and a functional doctor probe. A separate OS01 repair interprets
 `XMP-exif:DateTimeOriginal` time basis and conflicts. Both isolated changes
-passed focused tests, independent review and frozen local transfers; combined
-release gates and publication remain pending. Full CAN01 and OS01 named-row
-credit awaits the integrated published-hash replay. PDF metadata remains
+passed focused tests, independent review and frozen local transfers. The first
+integrated suite reproduced a CAN source-reversion failure: BLF jobs and the
+current-adapter registry used different fingerprints. Review also found a
+valid non-CAN BLF marker wrongly marked truncated and malformed-then-valid
+directories wrongly marked complete. A reviewed follow-up aligns fingerprints,
+keeps informational marker notices without data-loss status, and aggregates
+coverage across current sources. Two existing chatbot 50 ms tests also timed
+out during preliminary inspection instead of their intended chat request;
+controlled delayed-GET checks supported a test-only timing repair without
+weakening the chat-timeout assertions. One deep-JSON helper exceeded its 12 s
+subprocess cap under the slower diagnostic suite; its cause remains unproved,
+so only sanitized failure diagnostics were added. Combined release gates and
+publication remain pending on the repaired candidate. Full CAN01 and OS01
+named-row credit awaits integrated published-hash replay. PDF metadata remains
 outside OS01 routing and is a separate breadth gap.
 
 ## Independent end-to-end evidence
