@@ -205,6 +205,59 @@ class SSTVTests(unittest.TestCase):
         self.assertEqual(no_decoder["coverage"]["AV04"]["status"], "skipped prerequisite")
         self.assertFalse(any(job["adapter_id"] == "sstv" for job in no_decoder["jobs"]))
 
+    @unittest.skipUnless(DECODER.is_file() and MARTIN.is_file() and shutil.which("ffmpeg")
+                         and shutil.which("tesseract"),
+                         "approved decoder, Martin fixture, FFmpeg and Tesseract required")
+    def test_ocr_binary_does_not_reprobe_sstv_or_media(self):
+        from scripts.autosolve_lib import core
+
+        ocr = [{"kind": "printed text", "line_start": 1, "line_end": 1,
+                "data": "—\n".encode()}]
+        with mock.patch.object(sstv, "SSTV", str(DECODER)), \
+                mock.patch.object(core, "_run_ocr", return_value=(ocr, [])):
+            run, _ = core.analyze(MARTIN, category="audio_video", budget=35,
+                                  runs_root=self.root / "runs")
+            first = json.loads((run / "manifest.json").read_text())
+            self.assertEqual(first["coverage"]["AV04"]["status"], "ran")
+            self.assertEqual(len([job for job in first["jobs"] if job["adapter_id"] == "sstv"]), 1)
+            ocr_child = next(item for item in first["artifacts"] if item["kind_evidence"] == "binary"
+                             and (item.get("source_locator") or {}).get("ocr_kind"))
+            self.assertFalse(any(ocr_child["id"] in job["input_ids"] for job in first["jobs"]
+                                 if job["adapter_id"] in ("sstv", "media")))
+
+            core.resume(run, budget=15)
+        resumed = json.loads((run / "manifest.json").read_text())
+        self.assertEqual(resumed["coverage"]["AV04"]["status"], "ran")
+        self.assertEqual(len([job for job in resumed["jobs"] if job["adapter_id"] == "sstv"]), 1)
+
+    @unittest.skipUnless(DECODER.is_file() and MARTIN.is_file() and shutil.which("ffmpeg"),
+                         "approved decoder, Martin fixture and FFmpeg required")
+    def test_root_unknown_audio_and_unrelated_binary(self):
+        from scripts.autosolve_lib import core
+
+        au = self.root / "unknown.au"
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(MARTIN),
+                        "-ar", "11025", "-ac", "1", "-c:a", "pcm_s16be", "-f", "au",
+                        str(au)], check=True, capture_output=True, timeout=15)
+        self.assertEqual(core._kind(au), "binary")
+        unrelated = self.root / "unrelated.bin"
+        unrelated.write_bytes(b"\x00\xff" * 512)
+        with mock.patch.object(sstv, "SSTV", str(DECODER)):
+            run, _ = core.analyze(au, category="audio_video", budget=35,
+                                  runs_root=self.root / "audio-runs")
+            bad_run, _ = core.analyze(unrelated, category="audio_video", budget=10,
+                                      runs_root=self.root / "negative-runs")
+        good = json.loads((run / "manifest.json").read_text())
+        bad = json.loads((bad_run / "manifest.json").read_text())
+        self.assertEqual(good["coverage"]["AV04"]["status"], "ran")
+        self.assertEqual(len([job for job in good["jobs"] if job["adapter_id"] == "sstv"]), 1)
+        self.assertTrue(any((item.get("source_locator") or {}).get("sstv_preview")
+                            for item in good["artifacts"]))
+        self.assertEqual(len([job for job in bad["jobs"] if job["adapter_id"] == "sstv"]), 1)
+        self.assertFalse(any((item.get("source_locator") or {}).get("sstv_preview")
+                             for item in bad["artifacts"]))
+        self.assertNotEqual(bad["coverage"]["AV04"]["status"], "ran")
+
 
 if __name__ == "__main__":
     unittest.main()

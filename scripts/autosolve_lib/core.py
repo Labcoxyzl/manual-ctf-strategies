@@ -7523,14 +7523,21 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
             _binary_job(run, manifest, artifact, deadline)
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
-        if media_selected and (artifact['kind_evidence'] in
-                               ('riff', 'flac', 'ogg', 'mp4', 'matroska', 'mp3') or
-                               manifest['category'] == 'audio_video' and
-                               artifact['kind_evidence'] in ('gif', 'binary')):
-            if artifact['kind_evidence'] == 'riff':
+        media_kind = artifact['kind_evidence']
+        audio_provenance = any(
+            str((edge.get('source_locator') or {}).get('media_type') or '').startswith('audio/')
+            for edge in artifact.get('parents', []))
+        unknown_audio = (media_kind == 'binary' and
+                         ((depth == 0 and manifest['category'] == 'audio_video') or
+                          audio_provenance))
+        recognized_media = media_kind in ('riff', 'flac', 'ogg', 'mp4', 'matroska', 'mp3')
+        if media_selected and (recognized_media or unknown_audio or
+                               (manifest['category'] == 'audio_video' and media_kind == 'gif')):
+            if media_kind == 'riff':
                 _tones_job(run, manifest, artifact, deadline)
-            for child in _sstv_job(run, manifest, artifact, deadline):
-                queue.append((child, depth + 1))
+            if recognized_media or unknown_audio:
+                for child in _sstv_job(run, manifest, artifact, deadline):
+                    queue.append((child, depth + 1))
             for child in _media_job(run, manifest, artifact, deadline):
                 queue.append((child, depth + 1))
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
