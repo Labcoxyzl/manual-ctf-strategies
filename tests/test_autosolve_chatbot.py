@@ -130,6 +130,12 @@ class Toy:
                             self.wfile.write(data)
                         except (BrokenPipeError, ConnectionResetError):
                             pass
+                    elif toy.mode == 'claim_redirect':
+                        self.send(302, b'', {'Location': '/result'})
+                    elif toy.mode == 'claim_false':
+                        self.send(200, {'ok': False, 'tab_token': 'toy-claim'})
+                    elif toy.mode == 'claim_true':
+                        self.send(200, {'ok': True, 'tab_token': 'toy-claim'}, {'Set-Cookie': 'sid=claimed; Path=/'})
                     else:
                         self.send(200, {'tab_token': 'toy-claim'}, {'Set-Cookie': 'sid=claimed; Path=/'})
                     return
@@ -653,7 +659,7 @@ class ChatbotCLITests(unittest.TestCase):
         config = {'chat': {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'},
                   'allow_state_change': True, 'lanes': [],
                   'bootstrap': {'path': '/claim', 'body': {'force': False}, 'token_field': 'tab_token',
-                                'chat_field': 'tab_token', 'header': 'X-Tab-Token'}}
+                                'chat_field': 'tab_token', 'header': 'X-Tab-Token', 'success_status': 200}}
         with tempfile.TemporaryDirectory() as root, Toy('claimed') as toy:
             protocol = self.protocol(root, config)
             m, run, code = self.start(root, toy, protocol, requests=4)
@@ -678,11 +684,51 @@ class ChatbotCLITests(unittest.TestCase):
             self.run_cli(root, 'resume', run, '--budget', '5', code=3)
             self.assertEqual(len(toy.calls), before)
 
+    def test_bootstrap_acceptance_and_incomplete_status_check(self):
+        config = {'chat': {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'},
+                  'allow_state_change': True, 'lanes': [],
+                  'bootstrap': {'path': '/claim', 'body': {'force': False}, 'token_field': 'tab_token',
+                                'success_status': 200, 'success_field': 'ok', 'success_value': True}}
+        for mode, completed in (('claim_true', True), ('claim_false', False), ('claim_redirect', False)):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, run, code = self.start(root, toy, protocol, requests=10, prompts=1)
+                self.assertEqual(m['bootstrap_completed'], completed)
+                self.assertEqual(m['prompt_count'], int(completed))
+                if not completed:
+                    self.assertEqual(code, 3)
+                    self.assertEqual(m['stop_reason'], 'bootstrap unconfirmed')
+                    self.assertEqual(sum(path == '/api/utter' for _, path in toy.calls), 0)
+                if mode == 'claim_redirect':
+                    self.assertIn('"redirect_hops": 1', (run / 'transcript.jsonl').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            for bad, reason in (({key: value for key, value in config['bootstrap'].items()
+                                 if key != 'success_status'}, 'bootstrap needs an exact 2xx success_status'),
+                                ({**config['bootstrap'], 'success_status': 204}, 'bodyless bootstrap success')):
+                protocol = self.protocol(root, {**config, 'bootstrap': bad})
+                result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                            '--dry-run', '--budget', '5', '--max-requests', '5')
+                self.assertEqual(code, 2)
+                self.assertIn(reason, result['reason'])
+            self.assertFalse(toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('claim_timeout') as toy:
+            protocol = self.protocol(root, {**config, 'status_path': '/history'})
+            m, run, code = self.start(root, toy, protocol, requests=12, prompts=1, timeout=.05)
+            self.assertEqual(code, 3)
+            self.assertTrue(m['bootstrap_started'])
+            toy.mode = 'heartbeat_history_partial'
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertFalse(json.loads((run / 'manifest.json').read_text())['bootstrap_checked'])
+            toy.mode = 'normal'
+            self.run_cli(root, 'resume', run, '--budget', '5', code=3)
+            self.assertTrue(json.loads((run / 'manifest.json').read_text())['bootstrap_checked'])
+            self.assertEqual(sum(path == '/claim' for _, path in toy.calls), 1)
+
     def test_serial_heartbeat_uses_claim_token_and_never_replays_uncertain_send(self):
         config = {'chat': {'path': '/api/utter', 'message_field': 'query', 'response_field': 'reply'},
                   'allow_state_change': True, 'lanes': ['capability'],
                   'bootstrap': {'path': '/claim', 'body': {'force': False}, 'token_field': 'tab_token',
-                                'chat_field': 'tab_token', 'header': 'X-Tab-Token'},
+                                'chat_field': 'tab_token', 'header': 'X-Tab-Token', 'success_status': 200},
                   'heartbeat': {'path': '/heartbeat', 'body': {}, 'token_field': 'tab_token',
                                 'interval_seconds': 0, 'success_status': 204}}
         with tempfile.TemporaryDirectory() as root, Toy('claimed_with_heartbeat') as toy:
@@ -839,6 +885,14 @@ class ChatbotCLITests(unittest.TestCase):
                                         '--dry-run', '--budget', '5', '--max-requests', '5')
             self.assertEqual(code, 2)
             self.assertIn('heartbeat interval/body', result['reason'])
+            self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter'}, 'allow_state_change': True,
+                          'heartbeat': {'path': '/heartbeat', 'body': {}, 'success_status': 204,
+                                        'success_field': 'ok', 'success_value': True}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '5')
+            self.assertEqual(code, 2)
+            self.assertIn('bodyless heartbeat success', result['reason'])
             self.assertFalse(toy.calls)
 
     def test_resume_lock_covers_manifest_before_mutation(self):

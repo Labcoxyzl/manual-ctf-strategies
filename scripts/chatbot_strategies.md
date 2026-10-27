@@ -68,9 +68,12 @@ transcript at 2 MiB.
 If the frontend requires one login, claim, or token-exchange POST before chat,
 add a `bootstrap` object like the [tab-claim example](chatbot_recipes/tab_claim.json).
 It declares the exact path/body and, when needed, the response token field to
-copy into a chat field or header. Set `allow_state_change: true`. The request
-runs once in the same cookie jar before prompts; a timeout leaves its outcome
-uncertain and resume will not replay it automatically. If the frontend also
+copy into a chat field or header. Set `allow_state_change: true`, the exact
+`success_status`, and optional `success_field`/`success_value` from the frontend.
+The request runs once in the same cookie jar before prompts; a redirect,
+timeout, or mismatched success field leaves its outcome uncertain. Resume can
+retry a read-only status check after an incomplete response, but never replays
+the claim POST. If the frontend also
 requires a heartbeat, use the [tab-heartbeat example](chatbot_recipes/tab_heartbeat.json)
 to declare its path, body, exact success status, optional captured token field,
 optional success field/value, and interval. Due

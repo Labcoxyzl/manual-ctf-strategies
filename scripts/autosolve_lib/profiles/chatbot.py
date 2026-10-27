@@ -148,7 +148,7 @@ def _protocol(path):
         raise core.InvalidInput('allow_state_change must be boolean')
     bootstrap = config.get('bootstrap')
     if bootstrap is not None:
-        if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'encoding', 'body', 'token_field', 'chat_field', 'header'} or not config.get('allow_state_change'):
+        if not isinstance(bootstrap, dict) or set(bootstrap) - {'path', 'encoding', 'body', 'token_field', 'chat_field', 'header', 'success_status', 'success_field', 'success_value'} or not config.get('allow_state_change'):
             raise core.InvalidInput('bootstrap needs allow_state_change=true and a declared request')
         _path(bootstrap.get('path'))
         if bootstrap.get('encoding', 'json') not in ('json', 'form') or not isinstance(bootstrap.get('body'), dict):
@@ -162,6 +162,12 @@ def _protocol(path):
                 raise core.InvalidInput(f'invalid bootstrap {key}')
         if ('header' in bootstrap or 'chat_field' in bootstrap) and 'token_field' not in bootstrap:
             raise core.InvalidInput('bootstrap header/chat_field needs token_field')
+        if type(bootstrap.get('success_status')) is not int or not 200 <= bootstrap['success_status'] <= 299:
+            raise core.InvalidInput('bootstrap needs an exact 2xx success_status')
+        if ('success_field' in bootstrap) != ('success_value' in bootstrap) or ('success_field' in bootstrap and (not isinstance(bootstrap['success_field'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', bootstrap['success_field']))):
+            raise core.InvalidInput('bootstrap success_field and success_value must be paired')
+        if bootstrap['success_status'] in (204, 205) and ('token_field' in bootstrap or 'success_field' in bootstrap):
+            raise core.InvalidInput('bodyless bootstrap success cannot provide a response token or field')
         if len(json.dumps(bootstrap['body']).encode()) > 64 * 1024:
             raise core.InvalidInput('bootstrap body exceeds 64 KiB')
     heartbeat = config.get('heartbeat')
@@ -182,6 +188,8 @@ def _protocol(path):
             raise core.InvalidInput('heartbeat needs an exact 2xx success_status')
         if ('success_field' in heartbeat) != ('success_value' in heartbeat) or ('success_field' in heartbeat and (not isinstance(heartbeat['success_field'], str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', heartbeat['success_field']))):
             raise core.InvalidInput('heartbeat success_field and success_value must be paired')
+        if heartbeat['success_status'] in (204, 205) and 'success_field' in heartbeat:
+            raise core.InvalidInput('bodyless heartbeat success cannot provide a response field')
     verify = config.get('verification')
     if verify is not None:
         if not isinstance(verify, dict) or set(verify) - {'path', 'method', 'candidate_field', 'success_field', 'success_value'} or 'path' not in verify or 'success_field' not in verify or 'success_value' not in verify:
@@ -581,8 +589,8 @@ def _bootstrap(client):
     if m.get('bootstrap_started'):
         check = client.config.get('history_path') or client.config.get('status_path')
         if check and not m.get('bootstrap_checked'):
-            client.request('GET', check, probe='bootstrap-status-check')
-            m['bootstrap_checked'] = True
+            result = client.request('GET', check, probe='bootstrap-status-check')
+            m['bootstrap_checked'] = result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops')
         m['stop_reason'] = 'bootstrap outcome uncertain; inspect session state before a new run'
         return
     if m['request_count'] >= m['max_requests'] or time.monotonic() >= client.deadline:
@@ -592,7 +600,8 @@ def _bootstrap(client):
     core._write_json(client.run / 'manifest.json', m)
     result = client.request('POST', config['path'], body=config['body'],
                             encoding=config.get('encoding', 'json'), probe='bootstrap')
-    if result.get('signal') or result.get('status') not in range(200, 300):
+    if (result.get('signal') or result.get('redirect_hops') or result.get('status') != config['success_status'] or
+            ('success_field' in config and not _same_json(_nested(result.get('response'), config['success_field'], _MISSING), config['success_value']))):
         m['stop_reason'] = 'bootstrap unconfirmed'
         return
     if config.get('token_field'):
@@ -845,7 +854,7 @@ def _render(run, m):
              f"Stop reason: {m.get('stop_reason') or 'queue complete'}", '', '## Probes', '']
     if m.get('bootstrap_summary'):
         entry = m['bootstrap_summary']
-        lines.insert(10, f"Bootstrap: POST {_display_path(entry['path'])}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
+        lines.insert(10, f"Bootstrap: POST {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; completed={m.get('bootstrap_completed', False)}; token captured={bool(m.get('bootstrap_token'))}")
     if m.get('heartbeat_summary'):
         entry = m['heartbeat_summary']
         lines.insert(11 if m.get('bootstrap_summary') else 10,
@@ -884,7 +893,7 @@ def _render(run, m):
     if m['dry_run']:
         if m.get('bootstrap_summary'):
             entry = m['bootstrap_summary']
-            lines += ['', f"Planned bootstrap: POST {_display_path(entry['path'])}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
+            lines += ['', f"Planned bootstrap: POST {_display_path(entry['path'])}; expected HTTP {entry.get('success_status')}; body fields: {', '.join(entry['body_fields']) or 'none'}; encoding: {entry['encoding']}."]
         if m.get('heartbeat_summary'):
             entry = m['heartbeat_summary']
             lines += ['', f"Planned serial heartbeat: POST {_display_path(entry['path'])}; interval: {entry['interval_seconds']}s; body fields: {', '.join(entry['body_fields']) or 'none'}."]
@@ -957,8 +966,9 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                 'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field')},
                 'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
                 'bootstrap_summary': {'path': config['bootstrap']['path'], 'body_fields': sorted(config['bootstrap']['body']),
-                                      'encoding': config['bootstrap'].get('encoding', 'json')} if config.get('bootstrap') else None,
-                'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_token': None,
+                                      'encoding': config['bootstrap'].get('encoding', 'json'),
+                                      'success_status': config['bootstrap']['success_status']} if config.get('bootstrap') else None,
+                'bootstrap_started': False, 'bootstrap_completed': False, 'bootstrap_checked': False, 'bootstrap_token': None,
                 'heartbeat_summary': {'path': config['heartbeat']['path'],
                                       'body_fields': sorted(set(config['heartbeat']['body']) | ({config['heartbeat']['token_field']} if config['heartbeat'].get('token_field') else set())),
                                       'encoding': config['heartbeat'].get('encoding', 'json'),
@@ -1007,6 +1017,7 @@ def resume(run_path, *, budget, protocol_path=None, max_requests=None, max_promp
         if m.get('cooldown_until', 0) > time.time():
             raise core.InvalidInput('Retry-After cooldown is still active; resume later')
         if (m.get('stop_reason') in ('bootstrap unconfirmed', 'heartbeat unconfirmed') or
+                m.get('stop_reason') == 'bootstrap outcome uncertain; inspect session state before a new run' and not m.get('bootstrap_checked') or
                 m.get('stop_reason') == 'heartbeat outcome uncertain; inspect session state before a new run' and not m.get('heartbeat_checked')) and (config.get('history_path') or config.get('status_path')):
             m['max_requests'] = max_requests or m['max_requests']
             m['max_prompts'] = max_prompts or m['max_prompts']
