@@ -17,6 +17,74 @@ from test_autosolve_checker import ANGR_IMPORT_READY
 
 
 class SetupTests(unittest.TestCase):
+    def test_pwn_offset_doctor_reports_missing_trusted_gdb_without_running(self):
+        with mock.patch.object(capabilities.shutil, 'which', return_value=None) as which, \
+             mock.patch.object(capabilities.subprocess, 'run') as run:
+            operation, engine = capabilities._pwn_offset_probe(True)
+        self.assertEqual(which.call_args, mock.call('gdb', path='/usr/bin:/bin'))
+        run.assert_not_called()
+        self.assertEqual(operation['status'], 'partial')
+        self.assertEqual(operation['reason'], 'gdb_missing')
+        self.assertFalse(engine['found'])
+        self.assertEqual(engine['status'], 'unavailable')
+
+    def test_pwn_offset_doctor_checks_ptrace_with_clean_environment(self):
+        def which(name, path=None):
+            self.assertEqual(path, '/usr/bin:/bin')
+            return f'/usr/bin/{name}'
+
+        completed = subprocess.CompletedProcess([], 0,
+                                                b'rip 0x401000\nrsp 0x7fff0000\n'
+                                                b'[Inferior 1 exited normally]\n', b'')
+        with mock.patch.object(capabilities.shutil, 'which', side_effect=which), \
+             mock.patch.object(capabilities.subprocess, 'run', return_value=completed) as run:
+            operation, engine = capabilities._pwn_offset_probe(True)
+        self.assertEqual(operation['status'], 'ready')
+        self.assertEqual(operation['functional_probe'], 'passed')
+        self.assertEqual(engine['status'], 'ready')
+        command = run.call_args.args[0]
+        self.assertIn('-batch', command)
+        self.assertEqual(command[command.index('set auto-load off') - 1], '-iex')
+        self.assertIn('starti', command)
+        self.assertIn('info registers rip rsp', command)
+        self.assertTrue(any(item.startswith('set inferior-tty /dev/pts/') for item in command))
+        self.assertIn('/usr/bin/true', command)
+        self.assertEqual(run.call_args.kwargs['env'], {'LC_ALL': 'C'})
+        self.assertEqual(run.call_args.kwargs['timeout'], 5)
+
+    def test_pwn_offset_doctor_reports_ptrace_failure_as_partial(self):
+        denied = subprocess.CompletedProcess([], 1, b'', b'ptrace: Operation not permitted')
+        with mock.patch.object(capabilities.shutil, 'which',
+                               side_effect=lambda name, path=None: f'/usr/bin/{name}'), \
+             mock.patch.object(capabilities.subprocess, 'run', return_value=denied):
+            operation, engine = capabilities._pwn_offset_probe(True)
+        self.assertEqual(operation['status'], 'partial')
+        self.assertEqual(operation['reason'], 'gdb_ptrace_probe_failed')
+        self.assertEqual(engine['functional_probe'], 'failed')
+        self.assertEqual(engine['status'], 'partial')
+
+    def test_pwn_offset_doctor_reports_pty_failure_as_partial(self):
+        with mock.patch.object(capabilities.shutil, 'which',
+                               side_effect=lambda name, path=None: f'/usr/bin/{name}'), \
+             mock.patch.object(capabilities.pty, 'openpty', side_effect=OSError('no ptmx')), \
+             mock.patch.object(capabilities.subprocess, 'run') as run:
+            operation, engine = capabilities._pwn_offset_probe(True)
+        run.assert_not_called()
+        self.assertEqual(operation['status'], 'partial')
+        self.assertEqual(operation['reason'], 'pty_unavailable')
+        self.assertEqual(engine['functional_probe'], 'failed')
+
+    def test_pwn_offset_doctor_row_is_separate_from_static_elf(self):
+        static = {'implemented': True, 'functional_probe': 'passed', 'status': 'ready'}
+        with mock.patch.object(capabilities, '_elf_probe', return_value=static), \
+             mock.patch.object(capabilities.shutil, 'which', return_value=None):
+            result = capabilities.doctor(['pwn_services'], self_test=False)
+        self.assertIn('gdb', result['engines'])
+        self.assertIn('pwn_services.offset', result['operations'])
+        self.assertEqual(result['operations']['pwn_services.offset']['status'], 'partial')
+        self.assertEqual(result['operations']['pwn_services.offset']['reason'], 'gdb_missing')
+        self.assertEqual(result['operations']['pwn_services.elf_static']['status'], 'ready')
+
     @unittest.skipUnless(capabilities.shutil.which('multimon-ng') and
                          capabilities.shutil.which('ffmpeg'),
                          'approved multimon-ng and ffmpeg required for the AV03 functional probe')

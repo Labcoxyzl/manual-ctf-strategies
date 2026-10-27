@@ -94,6 +94,11 @@ reconnecting.
 
 For a selected local x86-64 ELF that reads standard input, use
 `python3 scripts/autosolve.py pwn-offset --binary ./practice --channel stdin`.
+`python3 scripts/autosolve.py doctor --profiles pwn_services --self-test`
+reports `pwn_services.offset`
+separately from static ELF inspection and tests trusted system GDB and ptrace
+with a harmless local process. Missing or blocked GDB leaves offset readiness
+partial even when static ELF inspection is ready.
 Select `--channel argv` when it reads the first argument. This explicit command
 runs a bounded cyclic input under GDB, inspects the saved return bytes, then
 checks the offset with a changed payload and a shorter control. `--alphabet`

@@ -12,6 +12,7 @@ import json
 from email.message import EmailMessage
 import math
 import os
+import pty
 import shutil
 import socket
 import sqlite3
@@ -35,7 +36,7 @@ PROFILE_ENGINES = {
     "packets": ("archive", "hcxtools", "passwords", "scapy", "stdlib", "tshark", "zeek"),
     "disk_memory": ("binwalk", "dissect", "stdlib", "tsk", "volatility"),
     "malware_reversing": ("angr", "binwalk", "capa", "file", "floss", "ghidra", "jadx", "java", "javap", "pefile", "pwntools", "pyelftools", "pyinstaller", "refinery", "stdlib", "upx", "yara"),
-    "pwn_services": ("ghidra", "nmap", "pwntools", "pyelftools", "ropgadget"),
+    "pwn_services": ("gdb", "ghidra", "nmap", "pwntools", "pyelftools", "ropgadget"),
     "web": ("arjun", "ffuf", "http", "jwt", "sqlmap", "stdlib"),
     "osint": ("exif", "http", "image", "pywhat", "stdlib"),
     "can_misc": ("can", "image", "pwntools", "scapy", "stdlib"),
@@ -1379,6 +1380,58 @@ def _elf_probe(self_test):
             'status': 'ready' if probe == 'passed' else 'partial'}
 
 
+def _pwn_offset_probe(self_test):
+    # Keep discovery aligned with pwn_offset.start's trusted system path.
+    debugger = shutil.which('gdb', path='/usr/bin:/bin')
+    probe = 'not_run'
+    reason = 'gdb_missing' if not debugger else 'functional_probe_not_run'
+    if debugger and self_test:
+        target = shutil.which('true', path='/usr/bin:/bin')
+        if target:
+            try:
+                master, slave = pty.openpty()
+            except OSError:
+                probe = 'failed'
+                reason = 'pty_unavailable'
+            else:
+                try:
+                    command = [debugger, '-q', '-nx', '-nh', '-batch',
+                               '-iex', 'set auto-load off', '-iex', 'set debuginfod enabled off',
+                               '-ex', 'set startup-with-shell off',
+                               '-ex', f'set inferior-tty {os.ttyname(slave)}',
+                               '-ex', 'starti', '-ex', 'info registers rip rsp',
+                               '-ex', 'continue', '--args', target]
+                    with tempfile.TemporaryDirectory() as directory:
+                        result = subprocess.run(command, stdin=subprocess.DEVNULL,
+                                                capture_output=True, timeout=5,
+                                                cwd=directory, env={'LC_ALL': 'C'}, check=False)
+                    lines = result.stdout.splitlines()
+                    probe = ('passed' if result.returncode == 0 and
+                             b'exited normally' in result.stdout and
+                             all(any(line.lstrip().startswith(register + b' ') and b'0x' in line
+                                     for line in lines) for register in (b'rip', b'rsp'))
+                             else 'failed')
+                except (OSError, subprocess.TimeoutExpired):
+                    probe = 'failed'
+                finally:
+                    os.close(master)
+                    os.close(slave)
+                reason = None if probe == 'passed' else 'gdb_ptrace_probe_failed'
+        else:
+            reason = 'system_probe_target_missing'
+    engine = {'found': bool(debugger), 'path': debugger, 'version': None,
+              'options_compatible': probe == 'passed' if self_test else None,
+              'required_data': 'local_x86_64_elf_and_ptrace',
+              'functional_probe': probe,
+              'status': 'ready' if probe == 'passed' else
+                        'partial' if debugger else 'unavailable',
+              'reason': reason}
+    operation = {'implemented': True, 'functional_probe': probe,
+                 'status': 'ready' if probe == 'passed' else 'partial',
+                 'reason': reason}
+    return operation, engine
+
+
 def _binary_probe(self_test):
     if importlib.util.find_spec('elftools') is None or importlib.util.find_spec('pefile') is None:
         return {'implemented': True, 'functional_probe': 'not_run', 'status': 'unavailable',
@@ -1790,7 +1843,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
     selected = _profiles(profiles)
     planned = sorted({engine for profile in selected for engine in PROFILE_ENGINES[profile]})
     engines = {engine: _planned() for engine in planned
-               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "qr", "tshark", "tsk", "zsteg", "stegseek", "pyelftools", "pefile", "ffmpeg", "multimon", "can", "volatility", "tesseract")}
+               if engine not in ("stdlib", "file", "cryptolib", "exif", "image", "qr", "tshark", "tsk", "zsteg", "stegseek", "pyelftools", "pefile", "ffmpeg", "multimon", "can", "volatility", "tesseract", "gdb")}
     if "stdlib" in planned or "encoding" in selected:
         engines["stdlib"] = _stdlib(self_test)
     if "file" in planned:
@@ -1947,6 +2000,7 @@ def doctor(profiles: list[str], self_test: bool = False) -> dict:
         operations['disk_memory.os_artifacts'] = _os_artifact_probe(self_test)
         operations['disk_memory.windows_memory'] = memory_probes[0]
     if "pwn_services" in selected:
+        operations['pwn_services.offset'], engines['gdb'] = _pwn_offset_probe(self_test)
         operations['pwn_services.elf_static'] = elf_probe
         operations['pwn_services.service_transport'] = _service_probe(self_test)
         operations['pwn_services.service_inventory'] = _service_inventory_probe(self_test)
