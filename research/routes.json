@@ -493,6 +493,46 @@
     }
   },
   {
+    "id": "visual-landmark",
+    "category": "osint",
+    "title": "Public image → visual landmark",
+    "input": "An already-public image page or a permitted description of visible features; internet access is required.",
+    "tool_ids": [
+      "windows-5"
+    ],
+    "steps": [
+      "Keep the original image page and record two distinctive visible structural features before searching; separate its stated capture date from its upload date.",
+      "For an already-public, permitted image, use Chrome's Google Lens on its public page to search a selected landmark region. Otherwise search only feature words; never upload private challenge material.",
+      "Open the candidate venue's own architecture and location pages. Match the visible structure and surroundings, compare a same-city alternative, and distinguish camera viewpoint from the object's location."
+    ],
+    "expected": "A landmark candidate supported by visible features and an independent venue source, with viewpoint and date claims qualified.",
+    "fallback": "If results show only the same city or an uncertain crop, refine visible features or leave the landmark unresolved; a location label alone is insufficient.",
+    "caveat": "Google Lens receives selected public-page content. Search rank, captions, EXIF, geotags and upload dates are leads, not independent proof of the photographed object or capture date.",
+    "verification": "Source-reviewed against public CC0 Esplanade and Marina Bay Sands photos and official venue pages; Lens and competition-machine behavior were not exercised.",
+    "references": [
+      {
+        "title": "Chrome Help: Search with Google Lens",
+        "url": "https://support.google.com/chrome/answer/15086890?hl=en-GB"
+      },
+      {
+        "title": "CC0 Esplanade photo (Wikimedia Commons)",
+        "url": "https://commons.wikimedia.org/wiki/File:Esplanade_%E2%80%93_Theatres_on_the_Bay._Singapore_(12943310675).jpg"
+      },
+      {
+        "title": "Esplanade: architecture and waterfront location",
+        "url": "https://www.esplanade.com/visit/explore-and-discover/esplanade-for-tourists"
+      },
+      {
+        "title": "CC0 Marina Bay Sands photo (Wikimedia Commons)",
+        "url": "https://commons.wikimedia.org/wiki/File:Marina_Bay_Sands_seen_from_level_33_of_MBFC_Tower_1.jpg"
+      },
+      {
+        "title": "Marina Bay Sands hotel factsheet",
+        "url": "https://www.marinabaysands.com/content/dam/singapore/marinabaysands/master/main/home/company-information/media-centre/factsheets/amenities/marina-bay-sands-hotel.pdf"
+      }
+    ]
+  },
+  {
     "id": "public-source",
     "category": "osint",
     "title": "Public phrase/page → source and date",

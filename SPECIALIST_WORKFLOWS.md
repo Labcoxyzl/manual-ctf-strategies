@@ -286,6 +286,15 @@ For PYC, establish the Python bytecode version before `pycdc module.pyc`; compar
 
 **Check:** Name the exact function and branch that decide success, then verify a candidate and near miss against the supplied checker when safe. If a decompiler fails on the bytecode version, record that limit and switch to disassembly rather than guessing missing logic. [pycdc](https://github.com/zrax/pycdc) · [Fernflower](https://github.com/JetBrains/fernflower/blob/master/README.md) · [js-beautify](https://github.com/beautifier/js-beautify).
 
+<a id="osint-landmark"></a>
+## Public image: corroborate the visible landmark
+
+Start with the original **public** image page and record its URL, creator, stated capture date and upload date separately. Note the camera viewpoint and two distinctive visible features before searching. For a public or otherwise explicitly permitted image, Chrome's Google Lens can search a selected region of its public page. For private challenge material, keep the image local and search only a description of its visible features. Open a candidate venue's own architecture and location pages, compare the visible structure and surroundings, then check one plausible same-city alternative. A search rank, caption, geotag or EXIF field supplies a lead; none independently identifies the photographed object. A camera coordinate is a viewpoint, not necessarily the object's address.
+
+**Public example:** A [CC0 Commons photo of Esplanade](https://commons.wikimedia.org/wiki/File:Esplanade_%E2%80%93_Theatres_on_the_Bay._Singapore_(12943310675).jpg) shows a curved dome with patterned sunshades beside the waterfront and a bridge. [Esplanade's own architecture page](https://www.esplanade.com/visit/explore-and-discover/esplanade-for-tourists) describes its twin domes and triangular aluminium sunshades on Marina Bay; [its visit page](https://www.esplanade.com/visit) gives the venue's address. Only one dome is prominent in this photo. A [CC0 Marina Bay Sands photo](https://commons.wikimedia.org/wiki/File:Marina_Bay_Sands_seen_from_level_33_of_MBFC_Tower_1.jpg) is also in the Marina Bay area, but shows three towers joined by a roof deck, matching the [Marina Bay Sands hotel factsheet](https://www.marinabaysands.com/content/dam/singapore/marinabaysands/master/main/home/company-information/media-centre/factsheets/amenities/marina-bay-sands-hotel.pdf), not Esplanade's dome. Thus “Singapore/Marina Bay” alone fails the identification check. The Esplanade file page states 20 May 2012 for capture and 11 April 2021 for its Commons upload; those are different claims, and the camera date is not independently verified by the venue page.
+
+**Check:** Keep the original image, the matched structural features, a contrary candidate, the venue source, and separate viewpoint/object and capture/upload fields. If the features or provenance disagree, leave the result as a candidate. [Chrome Lens help](https://support.google.com/chrome/answer/15086890?hl=en-GB).
+
 <a id="osint-source"></a>
 ## Public source: retain the claim and its date context
 

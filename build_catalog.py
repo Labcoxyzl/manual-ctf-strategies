@@ -66,6 +66,7 @@ LOCAL_ROUTE_HELP = {
     "source-view": (("Source-view workflow", "SPECIALIST_WORKFLOWS.html#reverse-source"),),
     "metadata-corroboration": (("Image workflow", "CORE_WORKFLOWS.html#media"),
                                ("Source/date workflow", "SPECIALIST_WORKFLOWS.html#osint-source")),
+    "visual-landmark": (("Visual landmark workflow", "SPECIALIST_WORKFLOWS.html#osint-landmark"),),
     "public-source": (("Public-source workflow", "SPECIALIST_WORKFLOWS.html#osint-source"),),
     "public-domain": (("Public-domain workflow", "SPECIALIST_WORKFLOWS.html#osint-domain"),),
     "decode-bytes": (("Decoding workflow", "CORE_WORKFLOWS.html#decode"),),
@@ -123,7 +124,7 @@ def load_data():
         for reference in record["resources"]:
             validate_reference(reference)
             assert reference["verification"].strip(), record["id"]
-    assert len(routes) == len({route["id"] for route in routes}) == 47
+    assert len(routes) == len({route["id"] for route in routes}) == 48
     assert {route["category"] for route in routes} == set(CATEGORIES)
     for route in routes:
         assert re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', route["id"]), route["id"]
