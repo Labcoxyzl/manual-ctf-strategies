@@ -145,7 +145,9 @@ contains one to ten declared GET or POST steps; POST requires
 `allow_state_change: true`. A configured `expect` compares an exact response
 field. Only an official checker/completion step marked `acceptance: true` can
 mark a result validated. An expected field match on a history or vector-store
-response is evidence, not a solve.
+response is evidence, not a solve. Same-origin redirects are logged, but their
+final response does not validate the originally declared checker route or
+provide a scorer observation.
 
 Start from the [history](chatbot_recipes/history_idor.json),
 [vector-store](chatbot_recipes/vector_store.json),

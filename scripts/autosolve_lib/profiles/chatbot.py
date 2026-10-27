@@ -697,9 +697,9 @@ def _run(client):
                 m['stop_reason'] = 'budget after API step preparation; state uncertain'
                 break
             m['completed'].append(probe)
-            matched = (result.get('status') in range(200, 300) and not result.get('signal') and
+            matched = (result.get('status') in range(200, 300) and not result.get('signal') and not result.get('redirect_hops') and
                        spec['expect'] is not None and _same_json(_nested(result.get('response'), spec['expect']['field'], _MISSING), spec['expect']['equals']))
-            score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') else None
+            score = _nested(result.get('response'), spec['score_field']) if spec.get('score_field') and not result.get('signal') and not result.get('redirect_hops') else None
             try:
                 valid_score = (type(score) in (int, float) and math.isfinite(score)) or (isinstance(score, list) and
                                1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
@@ -708,6 +708,7 @@ def _run(client):
             m['api_checks'].append({'id': probe, 'path': _display_path(spec['path']), 'status': result.get('status'),
                                     'matched': matched if spec['expect'] is not None else None,
                                     'score': score if valid_score else None,
+                                    'redirect_hops': result.get('redirect_hops', 0),
                                     'evidence_line': m['transcript_lines']})
             response_text = json.dumps(result.get('response'), ensure_ascii=False)[:MAX_RESPONSE]
             for hit in SECRET.finditer(response_text):
@@ -805,9 +806,10 @@ def _run(client):
                     elif m['request_count'] < m['max_requests']:
                         direct = client.request('GET', route, probe='direct-route-check')
                         m['direct_checks'].append({'path_sha256': hashlib.sha256(route.encode()).hexdigest(), 'source': 'model',
-                                                    'status': direct.get('status'), 'evidence_line': m['transcript_lines']})
+                                                    'status': direct.get('status'), 'redirect_hops': direct.get('redirect_hops', 0),
+                                                    'evidence_line': m['transcript_lines']})
                         verify = client.config.get('verification', {})
-                        if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') == 200 and not direct.get('signal') and _same_json(_nested(direct.get('response'), verify.get('success_field'), _MISSING), verify.get('success_value')):
+                        if verify.get('path') == route and verify.get('method', 'GET') == 'GET' and direct.get('status') == 200 and not direct.get('signal') and not direct.get('redirect_hops') and _same_json(_nested(direct.get('response'), verify.get('success_field'), _MISSING), verify.get('success_value')):
                             m['validated'].append({'candidate_sha256': None, 'probe_id': probe, 'evidence_line': m['transcript_lines'], 'checker_path': route})
                     if not m.get('stop_reason'):
                         m['stop_reason'] = 'checker accepted' if m['validated'] else 'route clue; inspect direct check before more prompts'
@@ -820,8 +822,10 @@ def _run(client):
                         method = verify.get('method', 'GET')
                         payload = {verify['candidate_field']: candidate} if method == 'POST' else None
                         check = client.request(method, verify['path'], body=payload, probe='verification')
-                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and _same_json(_nested(check.get('response'), verify['success_field'], _MISSING), verify['success_value'])
-                        m['verification_checks'].append({'path': _display_path(verify['path']), 'status': check.get('status'), 'accepted': accepted, 'evidence_line': m['transcript_lines'] if check.get('signal') != 'budget' else None})
+                        accepted = check.get('status') in range(200, 300) and not check.get('signal') and not check.get('redirect_hops') and _same_json(_nested(check.get('response'), verify['success_field'], _MISSING), verify['success_value'])
+                        m['verification_checks'].append({'path': _display_path(verify['path']), 'status': check.get('status'),
+                                                         'redirect_hops': check.get('redirect_hops', 0),
+                                                         'accepted': accepted, 'evidence_line': m['transcript_lines'] if check.get('signal') != 'budget' else None})
                         if check.get('signal'):
                             m['stop_reason'] = f"verification {check['signal']}"
                             break
@@ -836,7 +840,8 @@ def _run(client):
                     followup = client.config.get('audit_path') if m['strategy'] == 'tool_audit' else client.config.get('status_path')
                     if followup:
                         check = client.request('GET', followup, probe='strategy-state-check')
-                        m['direct_checks'].append({'path': _display_path(followup), 'status': check.get('status'), 'evidence_line': m['transcript_lines']})
+                        m['direct_checks'].append({'path': _display_path(followup), 'status': check.get('status'),
+                                                   'redirect_hops': check.get('redirect_hops', 0), 'evidence_line': m['transcript_lines']})
                         if check.get('signal'):
                             m['stop_reason'] = f"state check {check['signal']}"
         core._write_json(client.run / 'manifest.json', m)
@@ -881,11 +886,11 @@ def _render(run, m):
         lines.append(f"- Validated by {_display_path(item['checker_path'])} at transcript line {item['evidence_line']}")
     for item in m['direct_checks']:
         label = f"route SHA-256 {item['path_sha256']}" if item.get('source') == 'model' else _display_path(item['path'])
-        lines.append(f"- Direct route {label}: HTTP {item['status']} at transcript line {item['evidence_line']}; acceptance unproven")
+        lines.append(f"- Direct route {label}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)} at transcript line {item['evidence_line']}; acceptance unproven")
     for item in m.get('verification_checks', []):
-        lines.append(f"- Checker {item['path']}: HTTP {item['status']}, accepted={item['accepted']}" + (f" at transcript line {item['evidence_line']}" if item['evidence_line'] else '; request budget prevented the check'))
+        lines.append(f"- Checker {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, accepted={item['accepted']}" + (f" at transcript line {item['evidence_line']}" if item['evidence_line'] else '; request budget prevented the check'))
     for item in m.get('api_checks', []):
-        lines.append(f"- API {item['id']} {item['path']}: HTTP {item['status']}, expected-field match={item['matched']}, score={item.get('score')} at transcript line {item['evidence_line']}")
+        lines.append(f"- API {item['id']} {item['path']}: final HTTP {item['status']}, redirects={item.get('redirect_hops', 0)}, expected-field match={item['matched']}, score={item.get('score')} at transcript line {item['evidence_line']}")
     for item in m.get('behavior_observations', []):
         lines.append(f"- Context {item['filler_chars']} characters: marker retained={item['marker_retained']} at transcript line {item['evidence_line']}; challenge outcome unverified")
     if not m['candidates'] and not m['validated']:

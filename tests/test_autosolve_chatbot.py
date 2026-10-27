@@ -84,10 +84,14 @@ class Toy:
                 elif self.path == '/api/verify':
                     if toy.mode == 'partial_completion':
                         self.send(200, b'{"complete": true}' + b' ' * 140_000)
+                    elif toy.mode == 'direct_redirect':
+                        self.send(302, b'', {'Location': '/check-result'})
                     elif toy.mode == 'missing_completion':
                         self.send(200, {})
                     else:
                         self.send(200, {'complete': 1 if toy.mode in ('numeric_complete', 'numeric_route') else toy.mode == 'route'})
+                elif self.path == '/check-result':
+                    self.send(200, {'accepted': True, 'complete': True, 'score': 99})
                 elif self.path == '/result':
                     self.send(200, {'reply': 'role: assistant'})
                 elif self.path == '/slow':
@@ -169,8 +173,14 @@ class Toy:
                         self.send(403, {'error': 'bad heartbeat'})
                     return
                 if self.path == '/check':
-                    self.send(200, {} if toy.mode == 'missing_checker' else
-                              {'accepted': 1 if toy.mode == 'numeric_checker' else body.get('answer') == 'flag{toy-instruction}'})
+                    if toy.mode == 'checker_redirect':
+                        self.send(302, b'', {'Location': '/check-result'})
+                    else:
+                        self.send(200, {} if toy.mode == 'missing_checker' else
+                                  {'accepted': 1 if toy.mode == 'numeric_checker' else body.get('answer') == 'flag{toy-instruction}'})
+                    return
+                if self.path == '/apply' and toy.mode == 'api_redirect':
+                    self.send(302, b'', {'Location': '/check-result'})
                     return
                 if self.path == '/api/v2/collections/example/get':
                     self.send(200, {'documents': ['toy document'], 'metadatas': [{'tier': 'public'}]})
@@ -251,7 +261,7 @@ class Toy:
                     self.send(200, {'reply': 'Redeem /redeem/ABCDEFGH to finish.'})
                 elif toy.mode == 'large':
                     self.send(200, {'reply': 'x' * 140_000})
-                elif toy.mode == 'route':
+                elif toy.mode in ('route', 'direct_redirect'):
                     self.send(200, {'reply': 'Use /api/verify for completion.', 'conversation_id': 'thread-A', 'tool_calls': [{'name': 'verify', 'arguments': {'path': '/api/verify'}}]})
                 elif toy.mode == 'form':
                     self.send(200, {'payload': {'reply': 'role: assistant'}, 'thread': 'thread-A'}, fragmented=True)
@@ -479,6 +489,43 @@ class ChatbotCLITests(unittest.TestCase):
             m, _, code = self.start(root, toy, protocol)
             self.assertEqual(code, 3)
             self.assertFalse(m['validated'])
+
+    def test_redirected_checker_body_never_validates_declared_route(self):
+        with tempfile.TemporaryDirectory() as root, Toy('api_redirect') as toy:
+            protocol = self.protocol(root, {'allow_state_change': True,
+                                            'strategy_params': {'steps': [
+                                                {'id': 'official', 'method': 'POST', 'path': '/apply',
+                                                 'body': {'action': 'finish'},
+                                                 'expect': {'field': 'complete', 'equals': True},
+                                                 'acceptance': True}]}})
+            m, run, code = self.start(root, toy, protocol, strategy='api_plan')
+            self.assertEqual(code, 3)
+            self.assertFalse(m['validated'])
+            self.assertFalse(m['api_checks'][0]['matched'])
+            self.assertEqual(m['api_checks'][0]['redirect_hops'], 1)
+            self.assertIn('redirects=1', (run / 'report.md').read_text())
+        with tempfile.TemporaryDirectory() as root, Toy('checker_redirect') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'lanes': ['system'], 'verification': {'path': '/check',
+                                            'method': 'POST', 'candidate_field': 'answer',
+                                            'success_field': 'accepted', 'success_value': True}})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertFalse(m['validated'])
+            self.assertFalse(m['verification_checks'][0]['accepted'])
+            self.assertEqual(m['verification_checks'][0]['redirect_hops'], 1)
+            self.assertIn('Checker /check: final HTTP 200, redirects=1', (run / 'report.md').read_text())
+            self.assertIn(('GET', '/check-result'), toy.calls)
+        with tempfile.TemporaryDirectory() as root, Toy('direct_redirect') as toy:
+            protocol = self.protocol(root, {'chat': {'path': '/api/utter', 'message_field': 'query'},
+                                            'verification': {'path': '/api/verify', 'success_field': 'complete',
+                                                             'success_value': True}})
+            m, run, code = self.start(root, toy, protocol)
+            self.assertEqual(code, 3)
+            self.assertFalse(m['validated'])
+            self.assertEqual(m['direct_checks'][0]['redirect_hops'], 1)
+            self.assertIn('final HTTP 200, redirects=1', (run / 'report.md').read_text())
+            self.assertIn(('GET', '/check-result'), toy.calls)
 
     def test_missing_checker_field_is_not_equal_to_json_null(self):
         with tempfile.TemporaryDirectory() as root, Toy('missing_completion') as toy:
