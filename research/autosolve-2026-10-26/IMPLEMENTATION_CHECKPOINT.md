@@ -103,11 +103,24 @@ verified candidate, without platform submission. A public XP memory transfer
 exposed missing late-row report sampling and stale rows after switching symbol
 paths back. Each failure remains in a preserved local evidence ledger.
 
-The next local checkpoint repairs independent memory-triage warnings, bounded
-job coverage, cross-archive DOC02 status, and PyInstaller metadata inventory.
-The affected focused tests and independent review have passed; the full suite
-and remote publication remain pending. REV02 proof and the IMG01/DOC05 and
-memory-resume repairs are in separate review/test lanes.
+The tenth checkpoint repairs independent memory-triage warnings, bounded job
+coverage, cross-archive DOC02 status, PyInstaller metadata inventory, IMG01
+image-tail ZIP routing, DOC05 resume provenance, REV02 supported decoder loops,
+and DF05 symbol-path resume and late-row sampling. Independent review cleared
+the repairs. Its Python 3.12 autosolve suite passed 766 tests (20 optional
+skipped); its repository pre-push gate passed 825 tests (39 optional skipped,
+483 subtests). Commit `559448a` is published and its remote hash was verified.
+On that exact candidate, the frozen two-family all-domain gate passed 22/22,
+the X01–X08/F01–F12 gate passed 20/20, and clean copied rootless setup and
+seven adverse controls passed. These are narrow gates, not 57-row acceptance.
+
+The next local checkpoint integrates AIC01 partial-stream reporting, AIC02
+model parity, recurrent traces, calibrated search and exact live scorer
+numbers, an opt-in supplied-offset local PWN04 ret2win path, and bounded
+PyInstaller 5 encrypted PYZ recovery. Focused checks and independent reviews
+have passed in their isolated lanes; combined full-suite and release replay
+remain pending. PWN03 autonomous offset discovery and unsupported REV02
+compiler layouts remain outside the proven paths.
 
 ## Independent end-to-end evidence
 
@@ -211,22 +224,16 @@ hash-deadline bug now included in the ninth repair set.
 ## Remaining order
 
 1. Publish the next reviewed checkpoint through the repository gate, then
-   rerun the frozen all-domain and X/F cases on that one remote hash. Keep
-   REV02 separate until its code-linked XOR proof clears adversarial review
-   and a fresh post-fix transfer.
-2. Freeze and execute each baseline row's positive, two independent held-out
-   variations and negative controls. DF05 process/file coverage, REV05 full
-   archive/decryption scope, AIC02 broader scorer/model behavior and REV02
-   remain partial; local tests alone do not satisfy those promises.
-3. Replay cross-category and failure gates on one pinned release candidate,
-   complete the remaining rootless approved-engine branches and all-domain
-   breadth/measurement checks. Keep release status partial until they pass.
+   rerun affected frozen challenge transfers and rootless checks on its exact
+   remote hash. Keep unsupported branches explicitly partial.
+2. Complete the baseline row matrix: each of 57 rows needs its positive, two
+   independently held-out variations and negative controls with named clause
+   coverage and exact source/oracle fingerprints. Current broad gates and
+   mixed-commit row examples do not prove that matrix.
+3. Extend portable rootless readiness and classified false-positive/limit
+   measurements across the accepted row corpus. Keep release status partial
+   until all required checks and provenance pass on one candidate.
 
-The repository has concurrent unrelated guide edits. At this checkpoint,
-`package_toolkit.py` expects 36 public task routes while `index.html` contains
-35, so the distribution gate stops before autosolve export smoke tests. Git's
-local `core.bare` was also changed concurrently to `true`; use an explicit
-`--git-dir=.git --work-tree=.` for read-only diff checks. Neither unrelated
-state was changed here. The user subsequently authorized remote checkpoint
-pushes; eight tested commits are published and the ninth repair set is under
-its isolated publication gate.
+Unrelated guide edits remain in the shared worktree; checkpoint publication
+uses an isolated worktree. Remote pushes are authorized for this autosolve
+progress branch and each published hash is verified after the repository gate.
