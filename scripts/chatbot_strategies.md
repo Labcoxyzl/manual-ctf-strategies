@@ -207,11 +207,14 @@ into a bulk scanner. For SQLi, SSRF, IDOR, auth bypass, or other ordinary web
 bugs, use the web workflow once the relevant primitive is observed.
 
 For an exposed one-shot nonce route, one `api_plan` step may set
-`capture_field` to a scalar JSON response path. One later POST may set either
+`capture_field` to a scalar JSON response path or `capture_header` to one
+explicit response header. Use the [body-field nonce recipe](chatbot_recipes/nonce_verifier.json)
+or [response-header nonce recipe](chatbot_recipes/header_nonce_verifier.json).
+One later POST may set either
 `bind_body_field` or `bind_header` to place that fresh value in its declared
 request. The client keeps the same cookies, stores the captured value only in
 the private run, and redacts its later request body or header. A missing,
-non-scalar, oversized, or redirected capture stops before the verifier POST.
+non-scalar, oversized, duplicate-header, or redirected capture stops before the verifier POST.
 The bound POST is never replayed after an uncertain outcome. This adapter does
 not derive signatures, chain multiple tokens, or infer acceptance from a model
 claim; use the challenge's documented checker field.
@@ -345,7 +348,7 @@ mean the attack will succeed against an arbitrary challenge.
 | Workflow validator and exact output | `output_validator` / `workflow_status` + `workflow_stage.json` | Fill stage/status route and inspect persisted progress between prompts when state can advance. |
 | Chat ownership locks and rate limits | Shared transport, one-step `bootstrap`, and declared `heartbeat` | Map claim/heartbeat fields from frontend; honor cooldowns. |
 | Tool-call audit lifecycle | `tool_audit` + `chatbot_evidence.py audit` | Fill audit route and check applied state independently. |
-| Debug validator and direct verifier | `api_plan` + `debug_verifier.json` or `nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar nonce can be bound, while signature derivation remains target-specific. |
+| Debug validator and direct verifier | `api_plan` + `debug_verifier.json`, `nonce_verifier.json`, or `header_nonce_verifier.json` | Fill documented boundary input and official completion field; one fresh scalar body or response-header nonce can be bound, while signature derivation remains target-specific. |
 | Credential-gated diagnostic chat | `diagnostic_chat` | Recover the credential from authorized firmware/log/source evidence and put it in private protocol fields. |
 | State-prepared AI orchestrator | `orchestrator_action` + `workflow_action.json` | Prepare backend state, fill exact action prompt, and confirm status. |
 | Non-LLM application agent | `api_plan` for an exposed API; otherwise the web, protocol or reverse workflow | Identify the actual non-chat transport and its validator. |

@@ -454,7 +454,7 @@ class Client:
             self.cookies.load(ignore_discard=True, ignore_expires=True)
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies), _NoRedirect())
 
-    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None):
+    def request(self, method, path, *, body=None, encoding='json', probe='inspect', extra_headers=None, capture_header=None):
         if method != 'GET' and self.pending_probe is not None:
             return {'signal': 'origin_unresolved', 'status': None}
         path = _path(path)
@@ -565,6 +565,11 @@ class Client:
             if retry_after is None and status in (409, 429) and isinstance(parsed, dict):
                 retry_after = parsed.get('retry_after_sec', parsed.get('retry_after'))
             record = {'at': time.time(), 'probe_id': probe, 'request': {'method': method, 'path': _display_path(url), 'body': logged_body, 'headers': logged_headers}, 'status': status, 'duration': round(time.monotonic() - start, 3), 'conversation_id': self.manifest.get('conversation_id'), 'signal': signal, 'redirect_hops': redirects, 'response': parsed if parsed is not None else {'raw_b64': base64.b64encode(raw).decode()}, 'tool_call_evidence': _nested(parsed, 'tool_calls') or _nested(parsed, 'metadata.tool_calls'), 'retry_after': retry_after}
+            if capture_header:
+                values = response_headers.get_all(capture_header, [])
+                record['captured_response_header'] = ({'name': capture_header, 'value': values[0]}
+                                                      if len(values) == 1 and _capture_scalar(values[0]) else
+                                                      {'name': capture_header, 'count': len(values)})
             delay = _retry_seconds(retry_after)
             if delay is None and signal == 'rate_limit':
                 delay = 60
@@ -896,7 +901,7 @@ def _run(client):
             if spec.get('bind_header'):
                 extra_headers = {spec['bind_header']: str(m['api_capture']['value'])}
             result = client.request(spec['method'], spec['path'], body=payload, encoding=spec['encoding'],
-                                    probe=f'api:{probe}', extra_headers=extra_headers)
+                                    probe=f'api:{probe}', extra_headers=extra_headers, capture_header=spec.get('capture_header'))
             if result.get('signal') == 'budget':
                 m['stop_reason'] = 'budget after API step preparation; state uncertain'
                 break
@@ -909,17 +914,19 @@ def _run(client):
                                1 <= len(score) <= 100 and all(type(item) in (int, float) and math.isfinite(item) for item in score))
             except OverflowError:
                 valid_score = False
-            captured_value = _nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else _MISSING
-            capture_valid = (not spec.get('capture_field') or
+            capture_needed = spec.get('capture_field') or spec.get('capture_header')
+            captured_value = (_nested(result.get('response'), spec['capture_field'], _MISSING) if spec.get('capture_field') else
+                              _nested(result.get('captured_response_header'), 'value', _MISSING) if spec.get('capture_header') else _MISSING)
+            capture_valid = (not capture_needed or
                              result.get('status') in range(200, 300) and not result.get('signal') and
                              not result.get('redirect_hops') and _capture_scalar(captured_value))
-            if spec.get('capture_field') and capture_valid:
+            if capture_needed and capture_valid:
                 m['api_capture'] = {'source_step': probe, 'value': captured_value,
                                     'sha256': hashlib.sha256(json.dumps(captured_value, ensure_ascii=False).encode()).hexdigest()}
             m['api_checks'].append({'id': probe, 'path': _display_path(spec['path']), 'status': result.get('status'),
                                     'matched': matched if spec['expect'] is not None else None,
                                     'score': score if valid_score else None,
-                                    'capture_sha256': m['api_capture']['sha256'] if spec.get('capture_field') and capture_valid else None,
+                                    'capture_sha256': m['api_capture']['sha256'] if capture_needed and capture_valid else None,
                                     'redirect_hops': result.get('redirect_hops', 0),
                                     'evidence_line': m['transcript_lines']})
             if (spec['method'] == 'POST' and result.get('status') in range(200, 300) and
@@ -1160,6 +1167,7 @@ def _render(run, m):
             if step['kind'] == 'api':
                 lines.append(f"Planned API request: {step['method']} {_display_path(step['path'])}; body fields: {', '.join(step['body_fields']) or 'none'}; encoding: {step['encoding']}" +
                              (f"; captures response field {step['capture_field']}" if step.get('capture_field') else '') +
+                             (f"; captures response header {step['capture_header']}" if step.get('capture_header') else '') +
                              (f"; captured value in header {step['bind_header']}" if step.get('bind_header') else '') + '.')
             elif step.get('filler_chars'):
                 lines.append(f"Planned context probe: {step['filler_chars']} filler characters plus the configured check prompt.")
@@ -1250,7 +1258,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                     'dry_run': dry_run, 'max_requests': max_requests, 'max_prompts': max_prompts,
                     'timeout': timeout, 'request_count': 0, 'prompt_count': 0,
                     'strategy': strategy, 'strategy_marker': marker,
-                    'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection', 'capture_field', 'bind_body_field', 'bind_header') if key in step}
+                    'strategy_meta': [{key: step[key] for key in ('id', 'kind', 'hypothesis', 'expected', 'pivot', 'filler_chars', 'method', 'path', 'encoding', 'entry_point', 'attempted_redirection', 'capture_field', 'capture_header', 'bind_body_field', 'bind_header') if key in step}
                                       | ({'body_fields': sorted(set(step['body'] or {}) | ({step['bind_body_field']} if step.get('bind_body_field') else set()))} if step['kind'] == 'api' else {})
                                       for step in steps],
                     'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
