@@ -6,8 +6,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
+from unittest import mock
 
+from scripts.autosolve_lib import core
 from scripts.autosolve_lib.profiles.sevenzip import extract_7z
 
 
@@ -28,6 +31,26 @@ class SevenZipTests(unittest.TestCase):
                 str(source), name]
         subprocess.run(args, cwd=self.root, check=True, capture_output=True)
         return source
+
+    def test_later_7z_does_not_hide_zip_timeout(self):
+        bundle = self.root / 'bundle'
+        bundle.mkdir()
+        with zipfile.ZipFile(bundle / 'a.zip', 'w') as archive:
+            archive.writestr('member.txt', b'zip member')
+        plain = self.root / 'plain.txt'
+        plain.write_bytes(b'7z member')
+        subprocess.run([self.tool, 'a', '-t7z', str(bundle / 'b.7z'), str(plain)],
+                       cwd=self.root, check=True, capture_output=True)
+        with mock.patch.object(core, '_run_zip', side_effect=TimeoutError('ZIP deadline')):
+            run, _ = core.analyze(bundle, category='documents', budget=20,
+                                  runs_root=self.root / 'runs')
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertTrue(any(job['adapter_id'] == 'zip' and job['status'] == 'truncated'
+                            for job in manifest['jobs']))
+        self.assertTrue(any(job['adapter_id'] == '7z' and job['status'] == 'complete'
+                            for job in manifest['jobs']))
+        self.assertEqual(manifest['coverage']['DOC02']['status'], 'truncated')
+        self.assertIn('ZIP deadline', manifest['coverage']['DOC02']['note'])
 
     def test_encrypted_header_exact_bytes_and_wrong_password(self):
         source = self.archive(hidden=True)

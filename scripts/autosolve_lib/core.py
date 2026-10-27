@@ -3641,6 +3641,17 @@ def _doc01_coverage(manifest, status):
     entry['note'] = 'bounded safe ZIP/7z/TAR members and gzip containers'
 
 
+def _doc02_coverage(manifest, status, note):
+    if 'DOC02' not in manifest['coverage']:
+        return
+    priority = {'not scheduled': 0, 'no finding': 1, 'ran': 2,
+                'skipped prerequisite': 3, 'truncated': 4, 'failed': 5}
+    entry = manifest['coverage']['DOC02']
+    if priority[status] > priority.get(entry['status'], 0):
+        entry['status'] = status
+        entry['note'] = note
+
+
 def _tar_job(run, manifest, artifact, deadline):
     from .profiles.tar import extract_tar, is_raw_tar_header
     path = Path(artifact['path'])
@@ -7136,11 +7147,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     manifest['warnings'].extend(old.get('warnings', []))
                     _doc01_coverage(manifest, old.get('coverage_status',
                                                      'ran' if reusable else 'no finding'))
-                    if 'DOC02' in manifest['coverage']:
-                        manifest['coverage']['DOC02']['status'] = (
-                            'skipped prerequisite' if old.get('encrypted_unresolved') else
-                            'ran' if old.get('encrypted_recovered') else 'no finding')
-                        manifest['coverage']['DOC02']['note'] = 'supplied ZIP password candidates only'
+                    _doc02_coverage(manifest,
+                                    'skipped prerequisite' if old.get('encrypted_unresolved') else
+                                    'ran' if old.get('encrypted_recovered') else 'no finding',
+                                    'supplied ZIP password candidates only')
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': 'zip',
                            'input_ids': [artifact['id']], 'operation': 'safe ZIP stream extraction',
@@ -7177,31 +7187,27 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         job['status'] = 'complete'
                         job['coverage_status'] = 'truncated' if warnings else 'ran' if records else 'no finding'
                         _doc01_coverage(manifest, job['coverage_status'])
-                        if 'DOC02' in manifest['coverage']:
-                            encrypted = any(record['encrypted'] for record in records)
-                            unresolved = any('password' in warning for warning in warnings)
-                            job['encrypted_recovered'] = encrypted
-                            job['encrypted_unresolved'] = unresolved
-                            manifest['coverage']['DOC02']['status'] = ('skipped prerequisite' if unresolved else
-                                'ran' if encrypted
-                                else 'no finding')
-                            manifest['coverage']['DOC02']['note'] = 'supplied ZIP password candidates only'
+                        encrypted = any(record['encrypted'] for record in records)
+                        unresolved = any('password' in warning for warning in warnings)
+                        job['encrypted_recovered'] = encrypted
+                        job['encrypted_unresolved'] = unresolved
+                        _doc02_coverage(manifest,
+                                        'skipped prerequisite' if unresolved else
+                                        'ran' if encrypted else 'no finding',
+                                        'supplied ZIP password candidates only')
                     except WorkLimit as error:
                         job['status'] = 'truncated'
                         job['warning'] = str(error)
                         manifest['warnings'].append(str(error))
                         _doc01_coverage(manifest, 'truncated')
-                        if 'DOC02' in manifest['coverage']:
-                            manifest['coverage']['DOC02']['status'] = 'truncated'
-                            manifest['coverage']['DOC02']['note'] = 'ZIP encryption outcome unverified before work budget ended'
+                        _doc02_coverage(manifest, 'truncated',
+                                        'ZIP encryption outcome unverified before work budget ended')
                     except Exception as error:
                         job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"ZIP job failed: {type(error).__name__}")
                         _doc01_coverage(manifest, job['status'])
-                        if 'DOC02' in manifest['coverage']:
-                            manifest['coverage']['DOC02']['status'] = job['status']
-                            manifest['coverage']['DOC02']['note'] = job['warning']
+                        _doc02_coverage(manifest, job['status'], job['warning'])
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
@@ -7212,8 +7218,7 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
         if documents_selected and artifact['kind_evidence'] == '7z':
             executable = shutil.which('7z') or shutil.which('7zz')
             if not executable:
-                manifest['coverage']['DOC02']['status'] = 'skipped prerequisite'
-                manifest['coverage']['DOC02']['note'] = '7-Zip executable unavailable'
+                _doc02_coverage(manifest, 'skipped prerequisite', '7-Zip executable unavailable')
                 manifest['warnings'].append('7z extraction requires 7z or 7zz')
                 continue
             fingerprint = manifest['current_adapter_fingerprints']['7z'][0]
@@ -7231,9 +7236,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                     manifest['warnings'].extend(old.get('warnings', []))
                     _doc01_coverage(manifest, old.get('coverage_status',
                                                      'ran' if reusable else 'no finding'))
-                    manifest['coverage']['DOC02']['status'] = (
-                        'skipped prerequisite' if old.get('encrypted_unresolved') else
-                        'ran' if old.get('encrypted_recovered') else 'no finding')
+                    _doc02_coverage(manifest,
+                                    'skipped prerequisite' if old.get('encrypted_unresolved') else
+                                    'ran' if old.get('encrypted_recovered') else 'no finding',
+                                    'supplied 7z password candidates only')
                 else:
                     job = {'id': uuid.uuid4().hex, 'key': key, 'adapter_id': '7z',
                            'input_ids': [artifact['id']], 'operation': 'bounded 7z member streaming',
@@ -7271,21 +7277,21 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         _doc01_coverage(manifest, job['coverage_status'])
                         job['encrypted_recovered'] = any(record['encrypted'] for record in records)
                         job['encrypted_unresolved'] = any('password' in warning for warning in warnings)
-                        manifest['coverage']['DOC02']['status'] = (
-                            'skipped prerequisite' if job['encrypted_unresolved'] else
-                            'ran' if job['encrypted_recovered'] else 'no finding')
+                        _doc02_coverage(manifest,
+                                        'skipped prerequisite' if job['encrypted_unresolved'] else
+                                        'ran' if job['encrypted_recovered'] else 'no finding',
+                                        'supplied 7z password candidates only')
                     except Exception as error:
                         job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"7z job failed: {type(error).__name__}")
                         _doc01_coverage(manifest, job['status'])
-                        manifest['coverage']['DOC02']['status'] = job['status']
+                        _doc02_coverage(manifest, job['status'], job['warning'])
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
                     _write_json(run / 'jobs' / f"{job['id']}.json", job)
                     _write_json(run / 'manifest.json', manifest)
-            manifest['coverage']['DOC02']['note'] = 'supplied 7z password candidates only'
             _scan_artifact(manifest, artifact, deadline, hints.get('flag_patterns', []), private_crib=crib)
             continue
         if documents_selected and artifact['kind_evidence'] == 'office':
