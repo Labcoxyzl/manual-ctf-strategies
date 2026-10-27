@@ -16,6 +16,7 @@ from email.message import EmailMessage
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import unittest
@@ -227,6 +228,65 @@ int main(int argc, char **argv) {
             self.assertEqual(manifest['coverage']['ENC01']['status'], 'ran')
             self.assertEqual(manifest['coverage']['ENC02']['status'], 'ran')
             self.assertEqual(source.read_bytes(), encoded)
+
+    def test_encoding_worker_error_updates_family_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input.txt'
+            source.write_bytes(b'SEVMTE8=')
+            for error, expected in ((core.WorkLimit('stored artifact identity incomplete'),
+                                     'truncated'),
+                                    (TimeoutError('encoding operation exceeded its time limit'),
+                                     'truncated'),
+                                    (RuntimeError('decoder broke'), 'failed')):
+                with self.subTest(expected=expected), patch.object(core, '_run_decode', side_effect=error):
+                    run, _ = core.analyze(source, category='encoding', budget=5,
+                                          runs_root=root / expected)
+                manifest = json.loads((run / 'manifest.json').read_text())
+                job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'encoding')
+                self.assertEqual(job['status'], expected)
+                for family in ('ENC01', 'ENC02', 'ENC03'):
+                    self.assertEqual(manifest['coverage'][family]['status'], expected)
+                    self.assertIn(str(error), manifest['coverage'][family]['note'])
+
+    def test_zip_worker_error_updates_both_document_families(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input.zip'
+            with zipfile.ZipFile(source, 'w') as archive:
+                archive.writestr('evidence.txt', b'ZIP_CONTROL')
+            for error, expected in ((TimeoutError('ZIP extraction exceeded its time limit'),
+                                     'truncated'),
+                                    (RuntimeError('extractor broke'), 'failed')):
+                with self.subTest(expected=expected), patch.object(core, '_run_zip', side_effect=error):
+                    run, _ = core.analyze(source, category='documents', budget=5,
+                                          runs_root=root / expected)
+                manifest = json.loads((run / 'manifest.json').read_text())
+                job = next(item for item in manifest['jobs'] if item['adapter_id'] == 'zip')
+                self.assertEqual(job['status'], expected)
+                for family in ('DOC01', 'DOC02'):
+                    self.assertEqual(manifest['coverage'][family]['status'], expected)
+
+    def test_compressed_tar_decode_error_updates_encoding_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input.tar.gz'
+            with tarfile.open(source, 'w:gz') as archive:
+                data = b'TAR_CONTROL'
+                member = tarfile.TarInfo('evidence.txt')
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+            with patch.object(core, '_run_decode', side_effect=TimeoutError('decode time limit')), \
+                 patch.object(core, '_run_tar', return_value=([], [])):
+                run, _ = core.analyze(source, category='auto', budget=5,
+                                      runs_root=root / 'runs')
+            manifest = json.loads((run / 'manifest.json').read_text())
+            job = next(item for item in manifest['jobs']
+                       if item['adapter_id'] == 'encoding' and 'TAR' in item['operation'])
+            self.assertEqual(job['status'], 'truncated')
+            self.assertEqual(manifest['coverage']['DOC01']['status'], 'truncated')
+            self.assertEqual(manifest['coverage']['ENC02']['status'], 'truncated')
+            self.assertIn('decode time limit', manifest['coverage']['ENC02']['note'])
 
     def test_encoded_concatenated_compression_reports_trailing_and_member_boundaries(self):
         with tempfile.TemporaryDirectory() as directory:

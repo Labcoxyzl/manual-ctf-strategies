@@ -440,7 +440,7 @@ def _require_identity(path, expected, deadline):
 
 
 def _error_status(error):
-    return 'truncated' if isinstance(error, WorkLimit) else 'failed'
+    return 'truncated' if isinstance(error, (WorkLimit, TimeoutError)) else 'failed'
 
 
 def _kind(path):
@@ -2579,11 +2579,11 @@ def _mark_encoding_coverage(manifest, operations, diagnostics=(), artifact_id=No
                 for label in operations}
     for family in ('ENC01', 'ENC02', 'ENC03'):
         if family in manifest['coverage']:
-            if family in produced and manifest['coverage'][family]['status'] != 'truncated':
+            if family in produced and manifest['coverage'][family]['status'] not in ('truncated', 'failed'):
                 manifest['coverage'][family]['status'] = 'ran'
             elif manifest['coverage'][family]['status'] == 'not scheduled':
                 manifest['coverage'][family]['status'] = 'no finding'
-            if manifest['coverage'][family]['status'] != 'truncated':
+            if manifest['coverage'][family]['status'] not in ('truncated', 'failed'):
                 manifest['coverage'][family]['note'] = 'finite stdlib transforms only'
     for record in diagnostics:
         if record['status'] == 'complete':
@@ -3716,6 +3716,9 @@ def _tar_job(run, manifest, artifact, deadline):
                 decoder_job['status'] = _error_status(error)
                 decoder_job['warning'] = f'{type(error).__name__}: {error}'
                 manifest['warnings'].append(f"compressed TAR decode failed: {type(error).__name__}")
+                if 'ENC02' in manifest['coverage']:
+                    manifest['coverage']['ENC02']['status'] = decoder_job['status']
+                    manifest['coverage']['ENC02']['note'] = decoder_job['warning']
             finally:
                 decoder_job['ended'] = time.time()
                 _write_json(run / 'jobs' / f"{decoder_job['id']}.json", decoder_job)
@@ -7195,7 +7198,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"ZIP job failed: {type(error).__name__}")
-                        _doc01_coverage(manifest, 'failed')
+                        _doc01_coverage(manifest, job['status'])
+                        if 'DOC02' in manifest['coverage']:
+                            manifest['coverage']['DOC02']['status'] = job['status']
+                            manifest['coverage']['DOC02']['note'] = job['warning']
                     finally:
                         shutil.rmtree(staging, ignore_errors=True)
                     job['ended'] = time.time()
@@ -7646,6 +7652,10 @@ def _execute(run, manifest, budget, hints, hint_hash, hints_path, replay_checker
                         job['status'] = _error_status(error)
                         job['warning'] = f'{type(error).__name__}: {error}'
                         manifest['warnings'].append(f"encoding job failed: {type(error).__name__}")
+                        for family in ('ENC01', 'ENC02', 'ENC03'):
+                            if family in manifest['coverage']:
+                                manifest['coverage'][family]['status'] = job['status']
+                                manifest['coverage'][family]['note'] = job['warning']
                         if doc01_gzip:
                             _doc01_coverage(manifest, job['status'])
                     job['ended'] = time.time()
