@@ -432,6 +432,41 @@ held-out nonce/tag/length settings, wrong-input negatives and no plaintext on
 GCM authentication failure. CBC remained candidate-only. These two raise
 full named-row proof to **36 of 57**; 21 remain unproved. No platform result
 is inferred from either local oracle.
+PWN01 then passed nine independent loopback transport cases on the published
+twentieth hash: newline, delimiter, length and fragmented/TLS framing, EOF,
+timeout and oversized negatives, exact server/CLI byte transcripts, and no
+second connection on resume. This raises full named-row proof to **37 of 57**;
+20 remain unproved. No live CTF service or platform flag was attempted.
+REV03 then passed seven independent named-row cases on that same published hash
+with genuine YARA 4.5.0: a benign capability rule matched exact ELF bytes and
+offsets after code relocation, rule revision retired old current evidence,
+and near-match, missing-pack and unchanged-resume controls had the required
+distinct outcomes. This raises local named-row proof to **38 of 57**; 19 remain
+unproved. The selected YARA fallback was exercised; genuine capa was not.
+Separately, nine frozen ENC04 local cases found no implemented Vigenere or
+rail-fence transform or accepted classical-key hint: 0/7 keyed positive
+plaintexts were recovered, while two negatives yielded no validated solution.
+ENC04 remains unproved and is the next explicit-key implementation target.
+
+The twenty-first candidate repairs direct-input resume after source removal:
+it retires stale current evidence, clears running state and memory routing,
+keeps unsafe symlink/FIFO replacements rejected, and can resume if the source
+is restored. It also adds an explicit `setup --floss` path for the official
+hash-verified FLOSS 3.2.0 standalone executable under private toolkit state,
+without changing default core setup. A shared verified resolver, private
+FLOSS child scratch and a genuine compiled stack-string doctor probe let REV02
+use that optional backend; isolated doctor/analyze and tamper/reversion tests
+passed. A frozen nine-case real-backend transfer recovered seven of eight
+independent stack/XOR positives and rejected its negative. GCC `-O2` with a
+frame-pointer-free tail-call decoder remained unrecovered by both upstream
+FLOSS and the conservative static fallback. A proposed broader static entry
+rule produced false plaintext on adversarial direct and indirect bypasses, so
+it was withheld; full A-REV02 named-row credit remains pending. Finally,
+`pwn-ret2win --offset-run` can consume a verified stdin PWN03 run after exact
+source and all library identities are rechecked; local replay remains explicit.
+The official babyrop handout passed this handoff locally, without platform
+acceptance or full PWN04 row credit. Combined release gates, copied rootless
+setup and remote publication remain pending.
 
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
