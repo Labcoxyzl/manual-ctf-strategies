@@ -6,12 +6,20 @@ import subprocess
 import sys
 import struct
 import tempfile
+import time
 import unittest
 import zlib
 from pathlib import Path
+from unittest import mock
+
+try:
+    from Crypto.Cipher import AES
+except ImportError:
+    AES = None
 
 from scripts.autosolve_lib.profiles.pyinstaller import inspect_pyinstaller, MAGIC
 from scripts.autosolve_lib import setup as autosolve_setup
+from scripts.autosolve_lib import core
 
 
 COOKIE = struct.Struct('!8sIIII64s')
@@ -29,6 +37,27 @@ def make_pyz(magic, modules):
     struct.pack_into('!I', body, 8, len(body))
     body += marshal.dumps(toc)
     return bytes(body)
+
+
+def make_encrypted_pyz(modules, key, *, ivs=None):
+    body = bytearray(b'PYZ\0\x6f\x0d\x0d\x0a' + b'\0' * 4)
+    toc = []
+    for index, (name, data) in enumerate(modules):
+        iv = ivs[index] if ivs and index in ivs else bytes([index + 1]) * 16
+        payload = iv + AES.new(key, AES.MODE_CTR, nonce=b'', initial_value=iv).encrypt(
+            zlib.compress(data))
+        position = len(body)
+        body += payload
+        toc.append((name, (0, position, len(payload))))
+    struct.pack_into('!I', body, 8, len(body))
+    body += marshal.dumps(toc)
+    return bytes(body)
+
+
+def make_key_module(key, *, interned=False):
+    tag = b'\xda\x10' if interned else b'z\x10'
+    return (b'\xe3' + b'\0' * 24 + b'\x64\x00\x5a\x00\x64\x01\x53\x00\x29\x02' + tag
+            + key + b'N\x29\x01\xda\x03key')
 
 
 def make_bundle(members, *, pyvers=312, prefix=b'MZ fake bootloader\n'):
@@ -248,6 +277,175 @@ class PyInstallerTests(unittest.TestCase):
         records, warnings, _ = self.inspect()
         self.assertEqual(records, [])
         self.assertTrue(any('encrypted or corrupt' in warning for warning in warnings))
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_encrypted_pyz_requires_two_distinct_validated_members(self):
+        key = b'fresh-16-key-abc'
+        modules = [('first', b'FIRST MARSHAL'), ('second', b'SECOND MARSHAL')]
+        pyz = make_encrypted_pyz(modules, key)
+        self.source.write_bytes(make_bundle([
+            ('pyimod00_crypto_key', make_key_module(key, interned=True), 'm', True),
+            ('PYZ-00.pyz', pyz, 'z', False)], pyvers=310))
+        records, warnings, inventory = self.inspect()
+        self.assertTrue(all('unsupported by Python' in warning for warning in warnings))
+        self.assertEqual([r['path'].read_bytes() for r in records],
+                         [b'FIRST MARSHAL', b'SECOND MARSHAL'])
+        self.assertEqual([r['kind'] for r in records], ['pyz_bytecode'] * 2)
+        self.assertTrue(all('AES-CTR' in r['bytecode_inspection'] for r in records))
+        self.assertTrue(inventory['pyz'][0]['complete'])
+        self.assertFalse(any(key in r['path'].read_bytes() for r in records))
+
+        self.staging = self.root / 'one-stage'
+        one_pyz = make_encrypted_pyz(modules[:1], key)
+        self.source.write_bytes(make_bundle([
+            ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+            ('PYZ-00.pyz', one_pyz, 'z', False)], pyvers=310))
+        records, warnings, _ = self.inspect()
+        self.assertEqual(records, [])
+        self.assertTrue(any('two distinct' in w for w in warnings))
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_wrong_ambiguous_and_corrupt_encrypted_key_withhold_output(self):
+        key = b'fresh-16-key-abc'
+        pyz = make_encrypted_pyz([('first', b'FIRST'), ('second', b'SECOND')], key)
+        cases = [
+            [('pyimod00_crypto_key', make_key_module(b'wrong-16-key-xyz'), 'm', True),
+             ('PYZ-00.pyz', pyz, 'z', False)],
+            [('pyimod00_crypto_key', make_key_module(key), 'm', True),
+             ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+             ('PYZ-00.pyz', pyz, 'z', False)],
+            [('pyimod00_crypto_key', make_key_module(key)[:-5], 'm', True),
+             ('PYZ-00.pyz', pyz, 'z', False)],
+        ]
+        for index, members in enumerate(cases):
+            with self.subTest(index=index):
+                self.staging = self.root / f'bad-stage-{index}'
+                self.source.write_bytes(make_bundle(members, pyvers=310))
+                records, warnings, _ = self.inspect()
+                self.assertEqual(records, [])
+                self.assertTrue(any('encrypted or corrupt' in w for w in warnings))
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_zlib_looking_iv_does_not_block_valid_encrypted_member(self):
+        key = b'fresh-16-key-abc'
+        modules = [('first', b'first'), ('second', b'second'), ('third', b'good')]
+        iv = zlib.compress(b'X' * 1000)[:16]
+        pyz = make_encrypted_pyz(modules, key, ivs={2: iv})
+        self.source.write_bytes(make_bundle([
+            ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+            ('PYZ-00.pyz', pyz, 'z', False)], pyvers=310))
+        records, warnings, _ = self.inspect(max_total_bytes=64)
+        self.assertEqual([r['path'].read_bytes() for r in records],
+                         [b'first', b'second', b'good'])
+        self.assertFalse(any('decoded byte limit' in warning for warning in warnings))
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_pyz_alias_cannot_validate_one_ciphertext_twice(self):
+        key = b'fresh-16-key-abc'
+        pyz = bytearray(make_encrypted_pyz([('first', b'FIRST')], key))
+        toc_offset = struct.unpack('!I', pyz[8:12])[0]
+        table = marshal.loads(pyz[toc_offset:])
+        table.append(('alias', table[0][1]))
+        del pyz[toc_offset:]
+        pyz += marshal.dumps(table)
+        self.source.write_bytes(make_bundle([
+            ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+            ('PYZ-00.pyz', bytes(pyz), 'z', False)], pyvers=310))
+        records, warnings, _ = self.inspect()
+        self.assertEqual(records, [])
+        self.assertTrue(any('two distinct' in warning for warning in warnings))
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_distinct_encrypted_spans_can_share_iv(self):
+        key = b'fresh-16-key-abc'
+        iv = b'0123456789abcdef'
+        pyz = make_encrypted_pyz([('first', b'FIRST'), ('second', b'SECOND')], key,
+                                 ivs={0: iv, 1: iv})
+        self.source.write_bytes(make_bundle([
+            ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+            ('PYZ-00.pyz', pyz, 'z', False)], pyvers=310))
+        records, _, _ = self.inspect()
+        self.assertEqual([record['path'].read_bytes() for record in records],
+                         [b'FIRST', b'SECOND'])
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_pyinstaller_fingerprint_changes_with_aes_availability(self):
+        ready = core._pyinstaller_fingerprint(time.monotonic() + 10)
+        original_import = core.importlib.import_module
+
+        def unavailable(name, *args, **kwargs):
+            if name == 'Crypto.Cipher.AES':
+                raise ModuleNotFoundError(name)
+            return original_import(name, *args, **kwargs)
+
+        with mock.patch.object(core.importlib, 'import_module', side_effect=unavailable):
+            missing = core._pyinstaller_fingerprint(time.monotonic() + 10)
+        self.assertNotEqual(ready, missing)
+
+    @unittest.skipUnless(AES is not None, 'pycryptodome unavailable')
+    def test_resume_invalidates_encrypted_children_when_aes_disappears(self):
+        key = b'fresh-16-key-abc'
+        pyz = make_encrypted_pyz([('first', b'FIRST'), ('second', b'SECOND')], key)
+        self.source.write_bytes(make_bundle([
+            ('data.bin', b'RESOURCE', 'x', False),
+            ('pyimod00_crypto_key', make_key_module(key), 'm', True),
+            ('PYZ-00.pyz', pyz, 'z', False)], pyvers=310))
+        script = Path(__file__).resolve().parents[1] / 'scripts/autosolve.py'
+        analyzed = subprocess.run(
+            [sys.executable, '-B', str(script), '--json', 'analyze', str(self.source),
+             '--category', 'reversing', '--budget', '20', '--runs-root', str(self.root / 'runs')],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(analyzed.returncode, 3, analyzed.stderr + analyzed.stdout)
+        run = Path(json.loads(analyzed.stdout)['run'])
+        before = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual({a['source_locator'].get('member') for a in before['artifacts']
+                          if a['depth'] > 0 and a['current'] and
+                          a['source_locator'].get('pyinstaller_kind') == 'pyz_bytecode'},
+                         {'first', 'second'})
+        missing = subprocess.run([sys.executable, '-S', '-B', str(script), '--json',
+                                  'resume', str(run), '--budget', '20'],
+                                 capture_output=True, text=True, timeout=30)
+        self.assertEqual(missing.returncode, 3, missing.stderr + missing.stdout)
+        after = json.loads((run / 'manifest.json').read_text())
+        self.assertNotEqual(before['current_adapter_fingerprints']['pyinstaller'],
+                            after['current_adapter_fingerprints']['pyinstaller'])
+        self.assertFalse(any(a['depth'] > 0 and a['current'] and
+                             a['source_locator'].get('pyinstaller_kind') == 'pyz_bytecode'
+                             for a in after['artifacts']))
+        self.assertTrue(any('AES-CTR support unavailable' in warning
+                            for job in after['jobs'] if job['adapter_id'] == 'pyinstaller'
+                            for warning in job.get('warnings', [])))
+        restored = subprocess.run([sys.executable, '-B', str(script), '--json',
+                                   'resume', str(run), '--budget', '20'],
+                                  capture_output=True, text=True, timeout=30)
+        self.assertEqual(restored.returncode, 3, restored.stderr + restored.stdout)
+        final = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual({a['source_locator'].get('member') for a in final['artifacts']
+                          if a['depth'] > 0 and a['current'] and
+                          a['source_locator'].get('pyinstaller_kind') == 'pyz_bytecode'},
+                         {'first', 'second'})
+        missing_first = subprocess.run(
+            [sys.executable, '-S', '-B', str(script), '--json', 'analyze', str(self.source),
+             '--category', 'reversing', '--budget', '20', '--runs-root',
+             str(self.root / 'missing-runs')], capture_output=True, text=True, timeout=30)
+        self.assertEqual(missing_first.returncode, 3,
+                         missing_first.stderr + missing_first.stdout)
+        missing_run = Path(json.loads(missing_first.stdout)['run'])
+        missing_manifest = json.loads((missing_run / 'manifest.json').read_text())
+        self.assertFalse(any(a['depth'] > 0 and a['current'] and
+                             a['source_locator'].get('pyinstaller_kind') == 'pyz_bytecode'
+                             for a in missing_manifest['artifacts']))
+        installed = subprocess.run([sys.executable, '-B', str(script), '--json',
+                                    'resume', str(missing_run), '--budget', '20'],
+                                   capture_output=True, text=True, timeout=30)
+        self.assertEqual(installed.returncode, 3, installed.stderr + installed.stdout)
+        installed_manifest = json.loads((missing_run / 'manifest.json').read_text())
+        self.assertNotEqual(missing_manifest['current_adapter_fingerprints']['pyinstaller'],
+                            installed_manifest['current_adapter_fingerprints']['pyinstaller'])
+        self.assertEqual({a['source_locator'].get('member') for a in installed_manifest['artifacts']
+                          if a['depth'] > 0 and a['current'] and
+                          a['source_locator'].get('pyinstaller_kind') == 'pyz_bytecode'},
+                         {'first', 'second'})
 
     def test_unsafe_link_and_oversize_are_skipped(self):
         self.source.write_bytes(make_bundle([('../escape', b'bad', 'x', False),

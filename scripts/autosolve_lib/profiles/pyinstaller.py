@@ -21,6 +21,10 @@ MAX_SOURCE_BYTES = 128 * 1024 * 1024
 MAX_COOKIE_SEARCH = 8 * 1024 * 1024
 MAX_TOC_BYTES = 2 * 1024 * 1024
 MAX_ENTRIES = 4096
+MAX_KEY_MODULE_BYTES = 4096
+MAX_KEY_PROBES = 32
+MAX_KEY_PROBE_BYTES = 1024 * 1024
+PY310_MAGIC = b"\x6f\x0d\x0d\x0a"
 
 
 def _safe_name(name: str) -> bool:
@@ -31,8 +35,18 @@ def _safe_name(name: str) -> bool:
             and all(part not in ("", ".", "..") for part in parts))
 
 
-def _inflate(source, offset: int, length: int, limit: int) -> bytes:
+def _inflate(source, offset: int, length: int, limit: int, *, key: bytes | None = None) -> bytes:
     source.seek(offset)
+    cipher = None
+    if key is not None:
+        if length <= 16:
+            raise ValueError("truncated encrypted member")
+        from Crypto.Cipher import AES
+        iv = source.read(16)
+        if len(iv) != 16:
+            raise ValueError("truncated encrypted member")
+        cipher = AES.new(key, AES.MODE_CTR, nonce=b"", initial_value=iv)
+        length -= 16
     decoder = zlib.decompressobj()
     output = io.BytesIO()
     remaining = length
@@ -41,6 +55,8 @@ def _inflate(source, offset: int, length: int, limit: int) -> bytes:
         if not chunk:
             raise ValueError("truncated compressed member")
         remaining -= len(chunk)
+        if cipher is not None:
+            chunk = cipher.decrypt(chunk)
         data = decoder.decompress(chunk, limit - output.tell() + 1)
         if len(data) > limit - output.tell() or decoder.unconsumed_tail:
             raise ValueError("decoded byte limit reached")
@@ -52,6 +68,26 @@ def _inflate(source, offset: int, length: int, limit: int) -> bytes:
     if not decoder.eof or decoder.unused_data:
         raise ValueError("invalid compressed member")
     return output.getvalue()
+
+
+def _py310_key(raw: bytes) -> bytes | None:
+    # PyInstaller 5 emits a single Python 3.10 `key = '...'` module. Do not unmarshal it.
+    marker = b"\x64\x00\x5a\x00\x64\x01\x53\x00\x29\x02"
+    suffix = b"N\x29\x01\xda\x03key"
+    candidates = []
+    cursor = 0
+    while (cursor := raw.find(marker, cursor)) >= 0:
+        start = cursor + len(marker)
+        if raw[start:start + 2] not in (b"z\x10", b"\xda\x10"):
+            cursor = start
+            continue
+        start += 2
+        candidate = raw[start:start + 16]
+        if (len(candidate) == 16 and all(32 <= byte <= 126 for byte in candidate)
+                and raw[start + 16:start + 16 + len(suffix)] == suffix):
+            candidates.append(candidate)
+        cursor = start
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
@@ -161,6 +197,33 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             "invalid name or type" in warning for warning in warnings))
         inventory["carchive"]["entry_count"] = toc_index
         metadata_remaining = MAX_ENTRIES - toc_index
+        key = None
+        key_entries = [entry for entry in entries
+                       if entry[0] == "pyimod00_crypto_key" and entry[1] == "m"]
+        if key_entries and py_version == "3.10":
+            if len(key_entries) != 1:
+                warnings.append("PyInstaller crypto key module is ambiguous")
+            else:
+                _, _, offset, length, decoded_length, compressed = key_entries[0]
+                if (offset < 0 or length <= 0 or offset + length > toc_offset or
+                        decoded_length > MAX_KEY_MODULE_BYTES or compressed not in (0, 1) or
+                        (compressed == 0 and length > MAX_KEY_MODULE_BYTES)):
+                    warnings.append("unsupported PyInstaller crypto key module")
+                else:
+                    try:
+                        if compressed:
+                            raw_key_module = _inflate(source, archive_start + offset, length,
+                                                      MAX_KEY_MODULE_BYTES)
+                        else:
+                            source.seek(archive_start + offset)
+                            raw_key_module = source.read(length)
+                        if len(raw_key_module) != decoded_length:
+                            raise ValueError("key module length mismatch")
+                        key = _py310_key(raw_key_module)
+                    except (ValueError, zlib.error):
+                        pass
+                    if key is None:
+                        warnings.append("unsupported PyInstaller crypto key module")
 
         def pyz_members(base: int, length: int, parent_name: str, parent_index: int) -> None:
             nonlocal metadata_remaining
@@ -199,6 +262,40 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             if not isinstance(table, (tuple, list)) or len(table) > MAX_ENTRIES:
                 warnings.append(f"CArchive member {parent_index}: unsupported PYZ table")
                 return
+            validated_key = None
+            if key is not None and bytecode_magic == PY310_MAGIC:
+                valid_spans = set()
+                probed = 0
+                for item in table:
+                    if len(valid_spans) >= 2 or probed >= MAX_KEY_PROBES:
+                        break
+                    if (not isinstance(item, (tuple, list)) or len(item) != 2 or
+                            not isinstance(item[0], str) or not _safe_name(item[0]) or
+                            not isinstance(item[1], (tuple, list)) or len(item[1]) != 3):
+                        continue
+                    kind, member_offset, member_length = item[1]
+                    if (not isinstance(kind, int) or kind == 3 or
+                            not all(isinstance(value, int) and not isinstance(value, bool)
+                                    for value in (member_offset, member_length)) or
+                            member_offset < 12 or member_length <= 16 or
+                            member_length > MAX_KEY_PROBE_BYTES or
+                            member_offset + member_length > pyz_toc_offset):
+                        continue
+                    probed += 1
+                    try:
+                        data = _inflate(source, base + member_offset, member_length,
+                                        min(MAX_KEY_PROBE_BYTES, max_total_bytes - total), key=key)
+                    except ModuleNotFoundError:
+                        warnings.append(f"CArchive member {parent_index}: AES-CTR support unavailable")
+                        break
+                    except (ValueError, zlib.error):
+                        continue
+                    if data and (member_offset, member_length) not in valid_spans:
+                        valid_spans.add((member_offset, member_length))
+                if len(valid_spans) >= 2:
+                    validated_key = key
+                elif not any("AES-CTR support unavailable" in warning for warning in warnings):
+                    warnings.append(f"CArchive member {parent_index}: crypto key not validated by two distinct PYZ members")
             pyz_inventory["entry_count"] = len(table)
             metadata_complete = len(table) <= metadata_remaining
             if not metadata_complete:
@@ -235,21 +332,35 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
                     if not any("member limit reached" in warning for warning in warnings):
                         warnings.append(f"{locator}: member limit reached")
                     continue
+                decrypted = False
                 try:
                     data = _inflate(source, base + member_offset, member_length,
                                     max_total_bytes - total)
-                except zlib.error:
-                    warnings.append(f"{locator}: encrypted or corrupt PYZ member; decryption unavailable")
-                    continue
-                except ValueError as error:
-                    warnings.append(f"{locator}: {error}")
-                    continue
+                except (ValueError, zlib.error) as error:
+                    if validated_key is None:
+                        if isinstance(error, ValueError) and str(error) != "invalid compressed member":
+                            warnings.append(f"{locator}: {error}")
+                        else:
+                            warnings.append(f"{locator}: encrypted or corrupt PYZ member; decryption unavailable")
+                        continue
+                    try:
+                        data = _inflate(source, base + member_offset, member_length,
+                                        max_total_bytes - total, key=validated_key)
+                        decrypted = True
+                    except (ValueError, zlib.error) as encrypted_error:
+                        if isinstance(encrypted_error, ValueError) and str(encrypted_error) == "decoded byte limit reached":
+                            warnings.append(f"{locator}: {encrypted_error}")
+                        else:
+                            warnings.append(f"{locator}: encrypted or corrupt PYZ member; AES-CTR validation failed")
+                        continue
                 stage(data, "pyz_bytecode", locator, member=name, index=pyz_index,
                       carchive_index=parent_index, offset=base + member_offset,
                       compressed_size=member_length, python_version=py_version,
                       bytecode_magic=bytecode_magic.hex(),
-                      bytecode_inspection=("same-version marshal; no decompilation" if same_version
-                                           else "unsupported version; raw marshal only"))
+                      bytecode_inspection=(("PyInstaller 5 AES-CTR, two-member zlib check; "
+                                            if decrypted else "") +
+                                           ("same-version marshal; no decompilation" if same_version
+                                            else "unsupported version; raw marshal only")))
             metadata_remaining -= min(len(table), metadata_remaining)
             pyz_inventory["complete"] = metadata_complete
 
@@ -262,6 +373,8 @@ def inspect_pyinstaller(path: Path, output_dir: Path, *, max_members: int,
             if not _safe_name(name) or typecode == "n":
                 warnings.append(f"{locator}: unsafe path or symbolic link")
                 continue
+            if name == "pyimod00_crypto_key" and typecode == "m":
+                continue  # Keep the decryption key in the original source only.
             if typecode in ("o", "d"):
                 continue
             if (offset < 0 or length < 0 or offset + length > toc_offset or

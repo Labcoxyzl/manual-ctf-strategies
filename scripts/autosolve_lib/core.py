@@ -6370,6 +6370,33 @@ def _cryptography_fingerprint(profile):
                            ':cryptography=' + version).encode()).hexdigest()
 
 
+def _pyinstaller_fingerprint(deadline):
+    from importlib import metadata
+    source = Path(__file__).parent / 'profiles' / 'pyinstaller.py'
+    try:
+        version = metadata.version('pycryptodome')
+    except metadata.PackageNotFoundError:
+        version = 'unavailable'
+    try:
+        aes = importlib.import_module('Crypto.Cipher.AES')
+        aes.new(b'\0' * 16, aes.MODE_CTR, nonce=b'', initial_value=b'\0' * 16).decrypt(b'\0')
+        available = 'ready'
+    except Exception as error:
+        available = f'unavailable:{type(error).__name__}'
+    parts = [hashlib.sha256(source.read_bytes()).hexdigest(), version, available]
+    for name in ('Crypto.Cipher.AES', 'Crypto.Cipher._mode_ctr',
+                 'Crypto.Cipher._raw_aes', 'Crypto.Cipher._raw_aesni',
+                 'Crypto.Cipher._raw_ctr', 'Crypto.Util._raw_api'):
+        try:
+            spec = importlib.util.find_spec(name)
+            path = Path(spec.origin) if spec and spec.origin else None
+            digest = _hash(path, deadline) if path else 'missing'
+            parts.append(digest if digest is not None else f'incomplete:{uuid.uuid4().hex}')
+        except (ImportError, OSError, ValueError, AttributeError):
+            parts.append('missing')
+    return hashlib.sha256(':'.join(parts).encode()).hexdigest()
+
+
 def _jwt_fingerprint():
     package = _cryptography_fingerprint('jwt')
     try:
@@ -6653,7 +6680,7 @@ def _current_adapter_fingerprints(deadline):
         'rev-rules': [_rev_rules_fingerprint(deadline)],
         'rev-packers': [hashlib.sha256(
             f'{packers_hash}:{upx_hash}:{packers_binwalk_hash}'.encode()).hexdigest()],
-        'pyinstaller': [module_hash('pyinstaller')],
+        'pyinstaller': [_pyinstaller_fingerprint(deadline)],
         'java-android': [hashlib.sha256(
             f'{java_hash}:{javap_hash}:{java_runtime_hash}'.encode()).hexdigest()],
         'checker': [hashlib.sha256(
