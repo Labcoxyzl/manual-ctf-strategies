@@ -132,14 +132,17 @@ class DistributionTests(unittest.TestCase):
                                  hashlib.sha256(data).digest(), name)
             self.run_smoke(destination, temp)
             if shutil.which('git'):
-                subprocess.run(['git', 'init', '-q', str(destination)], check=True, capture_output=True)
-                subprocess.run(['git', '-C', str(destination), 'add', '.'], check=True, capture_output=True)
+                git_env = os.environ.copy()
+                for name in subprocess.check_output(['git', 'rev-parse', '--local-env-vars'], cwd=ROOT, text=True).splitlines():
+                    git_env.pop(name, None)
+                subprocess.run(['git', 'init', '-q', str(destination)], check=True, capture_output=True, env=git_env)
+                subprocess.run(['git', '-C', str(destination), 'add', '.'], check=True, capture_output=True, env=git_env)
                 subprocess.run(['git', '-C', str(destination), '-c', 'user.name=Toolkit test',
                                 '-c', 'user.email=toolkit-test@example.invalid', '-c', 'commit.gpgsign=false',
-                                'commit', '-qm', 'Synthetic local export verification'], check=True, capture_output=True)
+                                'commit', '-qm', 'Synthetic local export verification'], check=True, capture_output=True, env=git_env)
                 clone = Path(temp) / 'local clone'
                 subprocess.run(['git', 'clone', '-q', '--no-hardlinks', str(destination), str(clone)],
-                               check=True, capture_output=True)
+                               check=True, capture_output=True, env=git_env)
                 self.run_smoke(clone, temp)
 
     def run_smoke(self, destination, cwd):
