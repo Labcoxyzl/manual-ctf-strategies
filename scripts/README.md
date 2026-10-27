@@ -217,6 +217,13 @@ overlap. Matches are limited to 4,096 bytes and retain byte offsets. At most
 64 MiB is scanned per artifact; a report states if that or a work limit leaves
 bytes unchecked. UTF-16 and other text encodings are not decoded by this scan.
 
+For declared Vigenere or rail-fence decoding, pass a private hints JSON file
+with `{"classical_parameters":[{"family":"vigenere","key":"ORBIT"},{"family":"rail_fence","rails":3}]}`.
+Keys are 1–32 ASCII letters; rails are 2–16. Vigenere preserves letter case
+and leaves punctuation and UTF-8 bytes unchanged. Rail fence moves raw bytes.
+Omit a key or rail count to record a missing prerequisite; unknown keys are not
+guessed. Decrypted output remains a candidate until independently validated.
+
 For bounded textbook RSA checks, pass `--hints` with
 `{"rsa_parameters":{"records":[{"n":"0x...","e":3,"c":"0x..."}]}}`.
 Records can also use `public_key_pem`, `public_key_der_hex`, or a
