@@ -159,8 +159,10 @@ AV03 later passed its eight-case named row, including Morse, AFSK and negative
 controls; IMG02 passed its nine-case named row under its explicitly partial
 contract, with four truncated runs and 873 unverified candidates on one public
 image. DOC02 then passed 11/11 on the published fifteenth commit, and AV01
-passed 6/6 on the same hash. Eight named rows are now proved on pinned
-published commits; the other 49 remain unproved at named-row depth. IMG03
+passed 6/6 on the same hash. DOC04 passed 10/10 on the published sixteenth
+commit, including encrypted PDF, incremental, Unicode and unsafe-name cases.
+Nine named rows are now proved on pinned published commits; the other 48
+remain unproved at named-row depth. IMG03
 recovered all four positive payloads in an eight-case transfer, but its named
 row remains partial because empty carrier and absent password share an
 ambiguous product warning rather than the distinct outcomes the plan requires.
@@ -201,11 +203,11 @@ adverse controls, and zero outside ordinary-file writes. PWN03 copied-export
 controls passed 5/5. Doctor still lacks a dedicated GDB/PWN03 readiness row;
 the next candidate adds that distinction.
 
-The sixteenth candidate adds supplied-password PDF extraction and a dedicated
+The sixteenth checkpoint adds supplied-password PDF extraction and a dedicated
 GDB/PWN03 doctor self-test. Both isolated changes passed focused tests and
 independent review. Its first integrated hash `2d0cc8c` passed 838 Python
-3.12 tests (24 optional skipped), all-domain 22/22, 18 changed-path checks and 15
-representative measurements. The strict X/F gate stayed 19/20: one F10
+3.12 tests (24 optional skipped), all-domain 22/22, 18 changed-path checks
+and 15 representative measurements. The strict X/F gate stayed 19/20: one F10
 0.3-second run exhausted its wall-clock budget during preflight/host delay;
 six quiet controls passed, and an injected pause reproduced the failure.
 No scheduler defect or truthful fix that guarantees work after an arbitrary
@@ -213,8 +215,20 @@ pause was established. Rootless tracing then found 22 denied GDB Python
 bytecode-cache directory attempts outside the task root in both setup and
 doctor. A reviewed hotfix suppresses bytecode generation; focused PWN03/setup
 tests and direct file-syscall traces passed with zero outside ordinary-file
-write attempts. The hotfix candidate's combined gates, full DOC04 named row
-and remote publication remain pending.
+write attempts. The repaired commit `ba86d98` passed 838 Python 3.12 tests
+(24 optional skipped), all-domain 22/22 and X/F 20/20; the earlier F10 failure
+remains a timing risk. Fresh copied directory/ZIP setup matched 250 files and
+30 locked packages, with GDB/PWN03 and PDF doctor probes ready and zero
+outside ordinary-file or directory write attempts in setup and doctor traces.
+The first pre-push run failed one 15-second PNG test timeout; that exact test
+passed in isolation in 7.97 seconds. The quiet pre-push rerun passed 914 tests
+(44 optional skipped, 517 subtests), and the remote hash was verified as
+`ba86d98`. DOC04's full named row passed 10/10 on that hash. These checks
+do not establish the other 48 named rows or platform challenge acceptance.
+
+The next isolated candidate distinguishes PWN03 debugger startup failures
+from genuine noncrashing program exits. An opt-in StegSeek seed probe is under
+independent review for IMG03's still-unmet negative-classification clause.
 
 ## Independent end-to-end evidence
 
