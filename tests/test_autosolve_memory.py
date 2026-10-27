@@ -341,6 +341,66 @@ class MemoryCLITest(unittest.TestCase):
         self.assertFalse(any(row.get('current') for row in updated['intelligence']
                              if row['job_id'] == jobs[0]['id']))
 
+    def test_symbol_path_roundtrip_reactivates_cached_memory_rows(self):
+        original = {'memory_image': True, 'memory_symbol_dir': str(self.symbols)}
+        relocated = self.root / 'relocated-symbols'
+        relocated.mkdir()
+        (relocated / 'ntkrnlmp.json.xz').write_bytes(
+            (self.symbols / 'ntkrnlmp.json.xz').read_bytes())
+        self.hints.write_text(json.dumps(original))
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        first = json.loads((run / 'manifest.json').read_text())
+        first_job = next(row['id'] for row in first['jobs'] if row['adapter_id'] == 'memory')
+        first_inventory = next(row['inventory_path'] for row in first['jobs']
+                               if row['id'] == first_job)
+        first_rows = [row for row in first['intelligence']
+                      if row['tag'] == 'memory row' and row['current']]
+        self.assertTrue(first_rows)
+
+        self.hints.write_text(json.dumps({**original, 'memory_symbol_dir': str(relocated)}))
+        self.call('resume', run, '--hints', self.hints, '--budget', '10')
+        middle = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(len([row for row in middle['jobs']
+                              if row['adapter_id'] == 'memory']), 2)
+        self.assertFalse(any(row['current'] for row in middle['intelligence']
+                             if row['job_id'] == first_job))
+        self.assertNotIn(first_inventory, (run / 'report.md').read_text())
+        relocated_inventory = next(row['inventory_path'] for row in middle['jobs']
+                                   if row['adapter_id'] == 'memory' and row['id'] != first_job)
+
+        self.hints.write_text(json.dumps(original))
+        self.call('resume', run, '--hints', self.hints, '--budget', '10')
+        last = json.loads((run / 'manifest.json').read_text())
+        current_rows = [row for row in last['intelligence']
+                        if row['tag'] == 'memory row' and row['current']]
+        self.assertEqual(len([row for row in last['jobs']
+                              if row['adapter_id'] == 'memory']), 2)
+        self.assertEqual({row['job_id'] for row in current_rows}, {first_job})
+        self.assertEqual(len(current_rows), len(first_rows))
+        self.assertEqual((run / 'report.md').read_text().count('"memory row" ('),
+                         len(first_rows))
+        self.assertIn(first_inventory, (run / 'report.md').read_text())
+        self.assertNotIn(relocated_inventory, (run / 'report.md').read_text())
+        self.assertEqual(last['coverage']['DF05']['status'], 'ran')
+
+    def test_zero_row_memory_job_still_links_raw_inventory(self):
+        self.hints.write_text(json.dumps({'memory_image': True,
+                                          'memory_symbol_dir': str(self.symbols)}))
+        self.environment['MEM_FAKE_MODE'] = 'no_symbols'
+        run = Path(self.call('analyze', self.image, '--category', 'memory',
+                             '--hints', self.hints, '--budget', '10',
+                             '--runs-root', self.root / 'runs')['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        job = next(row for row in manifest['jobs'] if row['adapter_id'] == 'memory')
+        self.assertEqual(job['status'], 'complete')
+        self.assertEqual(job['row_count'], 0)
+        self.assertTrue(Path(job['inventory_path']).is_file())
+        report = (run / 'report.md').read_text()
+        self.assertIn(job['inventory_path'], report)
+        self.assertIn(job['inventory_sha256'], report)
+
     def test_missing_symbols_and_unmatched_target_skip_safely(self):
         self.hints.write_text(json.dumps({'memory_image': True}))
         run = Path(self.call('analyze', self.image, '--category', 'memory',
@@ -471,6 +531,19 @@ class MemoryCLITest(unittest.TestCase):
         inventory = json.loads(Path(next(row['inventory_path'] for row in manifest['jobs']
                                          if row['adapter_id'] == 'memory')).read_text())
         self.assertEqual(len([row for row in inventory if row['kind'] == 'row']), 365)
+        self.assertTrue(any(row['group'] == 'windows.pslist' and
+                            row['source_locator']['memory_locator']['row'] == 119
+                            for row in rows))
+        self.assertTrue(any(row['group'] == 'windows.cmdline' and
+                            row['source_locator']['memory_locator']['row'] == 119
+                            for row in rows))
+        self.assertIn('process-119', (run / 'report.md').read_text())
+        self.assertIn('command-119', (run / 'report.md').read_text())
+        sampled_line = next(line for line in (run / 'report.md').read_text().splitlines()
+                            if '"memory row" ("windows.pslist")' in line and
+                            'process-119' in line)
+        self.assertIn('"memory_locator"', sampled_line)
+        self.assertIn('"row": 119', sampled_line)
 
     def test_symbol_hardlink_inside_bundle_is_not_analyzed(self):
         bundle = self.root / 'bundle'

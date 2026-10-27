@@ -5951,6 +5951,9 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
         for child in reusable:
             _attach_reused_child(child, old, artifact)
             queue.append((child, depth + 1))
+        for item in manifest['intelligence']:
+            if item['artifact_id'] == artifact['id'] and item['tag'] == 'memory row':
+                item['superseded'] = item['job_id'] != old['id']
         warnings = old.get('warnings', [])
         status = old.get('coverage_status', 'no finding')
         manifest['warnings'].extend(warnings)
@@ -6006,16 +6009,24 @@ def _memory_job(run, manifest, artifact, symbols_dir, symbols_error, targets,
             plugin_rows = {}
             for record in records:
                 if record['kind'] == 'row':
-                    plugin_rows.setdefault(record['plugin'], deque()).append(record)
-            report_rows = set()
-            while plugin_rows and len(report_rows) < 100:
-                for plugin in tuple(plugin_rows):
-                    record = plugin_rows[plugin].popleft()
-                    report_rows.add(id(record))
-                    if not plugin_rows[plugin]:
-                        del plugin_rows[plugin]
-                    if len(report_rows) == 100:
+                    plugin_rows.setdefault(record['plugin'], []).append(record)
+            quotas = dict.fromkeys(plugin_rows, 0)
+            active_plugins = list(plugin_rows)
+            remaining = 100
+            while active_plugins and remaining:
+                for plugin in tuple(active_plugins):
+                    quotas[plugin] += 1
+                    remaining -= 1
+                    if quotas[plugin] == len(plugin_rows[plugin]):
+                        active_plugins.remove(plugin)
+                    if not remaining:
                         break
+            report_rows = set()
+            for plugin, group in plugin_rows.items():
+                count = quotas[plugin]
+                for index in range(count):
+                    position = index * (len(group) - 1) // (count - 1) if count > 1 else 0
+                    report_rows.add(id(group[position]))
             rows = 0
             for record in records:
                 if record['kind'] == 'file':
@@ -6728,6 +6739,18 @@ def _render_report(run, manifest):
             lines.append(f"- {item['kind_evidence']}: {json.dumps(item['path'])}; {item['size']} bytes; "
                          f"SHA-256 {item['sha256'] or 'incomplete'}; "
                          f"locator {json.dumps(locator, ensure_ascii=True)}")
+    for job in manifest['jobs']:
+        if (job['adapter_id'] == 'memory' and job['status'] == 'complete' and
+                job['input_ids'][0] in manifest.get('memory_routed_input_ids', []) and
+                job.get('tool_fingerprint') in
+                manifest.get('current_adapter_fingerprints', {}).get('memory', []) and
+                job.get('data_fingerprints', {}).get('memory_symbols') ==
+                manifest.get('memory_symbols_sha256') and
+                job.get('data_fingerprints', {}).get('memory_targets') ==
+                manifest.get('memory_targets_sha256') and job.get('inventory_path') and
+                job.get('inventory_sha256')):
+            lines.append(f"- Full memory inventory: {json.dumps(job['inventory_path'])}; "
+                         f"SHA-256 {job['inventory_sha256']}")
     for item in manifest.get('intelligence', []):
         if item['current']:
             source = item.get('source_locator') or {}
@@ -6736,6 +6759,8 @@ def _render_report(run, manifest):
                            'iat_file_offset', 'entry_file_offset', 'entry_static_vaddr')
             locator = {key: source[key] for key in coordinates
                        if isinstance(source.get(key), int) and not isinstance(source[key], bool)}
+            if item['tag'] == 'memory row' and isinstance(source.get('memory_locator'), dict):
+                locator['memory_locator'] = source['memory_locator']
             if isinstance(source.get('exif_tag'), str):
                 locator['exif_tag'] = source['exif_tag'][:64]
             if item['tag'] == 'REV03 rule match' and item['group'] == 'yara':
