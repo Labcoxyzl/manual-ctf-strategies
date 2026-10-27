@@ -63,6 +63,14 @@ including any value the target echoes. The private protocol is part of the
 resume identity. Bracketed form names such as `settings[mode]` are supported.
 Static JSON fields have an 8 KiB and 64-level nesting limit.
 
+If the frontend supplies a CSRF token in an HTML `<meta name="..." content="...">`
+tag, copy the [CSRF meta recipe](chatbot_recipes/csrf_meta_chat.json). Set the
+actual `page_path`, `chat.csrf_meta` name, and `chat.csrf_header`. The client
+requires one unique printable token on that page, stores it privately, and
+sends it only on same-origin state-changing requests. Missing tags, duplicate
+tags or attributes, and invalid values stop before chat. A target that rotates
+its token during a run needs a target-specific refresh plan.
+
 For a `text/event-stream` chat route that emits JSON `data:` events and a
 `data: [DONE]` terminator, copy the [SSE recipe](chatbot_recipes/sse_chat.json).
 Set `chat.response_format` to `sse` and `chat.response_field` to the event

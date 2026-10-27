@@ -214,7 +214,7 @@ def _protocol(path):
     if not isinstance(config, dict) or set(config) - {'chat', 'headers', 'lanes', 'history_path', 'status_path', 'audit_path', 'verification', 'injection', 'bootstrap', 'heartbeat', 'page_path', 'strategy_params', 'authorized_destinations', 'allow_state_change', 'status_after_each_chat'}:
         raise core.InvalidInput('unknown protocol field')
     chat = config.get('chat', {})
-    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header', 'static_fields'}:
+    if not isinstance(chat, dict) or set(chat) - {'path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_meta', 'csrf_header', 'static_fields'}:
         raise core.InvalidInput('invalid chat protocol')
     if chat:
         _path(chat.get('path'))
@@ -226,10 +226,12 @@ def _protocol(path):
         if history_field is not None and (chat.get('encoding', 'json') != 'json' or 'message_field' in chat or
                                           not isinstance(history_field, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]{0,63}', history_field)):
             raise core.InvalidInput('history_field needs JSON chat, no message_field, and one top-level field name')
-        for key in ('message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_header'):
+        for key in ('message_field', 'response_field', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_meta', 'csrf_header'):
             pattern = r'[\w.\[\]-]{1,80}' if key in ('message_field', 'conversation_field', 'client_id_field') else r'[\w.-]{1,80}'
             if key in chat and (not isinstance(chat[key], str) or not re.fullmatch(pattern, chat[key])):
                 raise core.InvalidInput(f'invalid {key}')
+        if chat.get('csrf_meta') and (not chat.get('csrf_header') or chat.get('csrf_cookie')):
+            raise core.InvalidInput('csrf_meta needs csrf_header and cannot be combined with csrf_cookie')
         static = chat.get('static_fields', {})
         if (not isinstance(static, dict) or len(static) > 20 or
                 any(not isinstance(key, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.\[\]-]{0,79}', key) for key in static) or
@@ -247,6 +249,11 @@ def _protocol(path):
         raise core.InvalidInput('headers must be a JSON string map')
     if any(k.lower() in {'host', 'connection', 'content-length', 'transfer-encoding'} or k.lower().startswith('proxy-') for k in headers):
         raise core.InvalidInput('protocol may not override transport headers')
+    if chat.get('csrf_header') and chat['csrf_header'].lower() in {key.lower() for key in headers}:
+        raise core.InvalidInput('csrf_header conflicts with an existing request header')
+    if chat.get('csrf_header') and (chat['csrf_header'].lower() in ('host', 'connection', 'content-length', 'transfer-encoding', 'content-type', 'cookie') or
+                                    chat['csrf_header'].lower().startswith('proxy-')):
+        raise core.InvalidInput('csrf_header cannot override a transport header')
     lanes = config.get('lanes', ['capability'])
     if not isinstance(lanes, list) or len(lanes) > 5 or any(x not in PROBES or x == 'baseline' for x in lanes) or len(set(lanes)) != len(lanes):
         raise core.InvalidInput('lanes must be a unique selected probe list')
@@ -438,6 +445,7 @@ class _Forms(HTMLParser):
         super().__init__()
         self.forms = []
         self.scripts = []
+        self.metas = []
         self.current = None
 
     def handle_starttag(self, tag, attrs):
@@ -449,6 +457,13 @@ class _Forms(HTMLParser):
             self.current['fields'].append(a['name'])
         elif tag == 'script' and a.get('src'):
             self.scripts.append(a['src'])
+        elif tag == 'meta':
+            names = [value for key, value in attrs if key == 'name']
+            contents = [value for key, value in attrs if key == 'content']
+            for name in names:
+                if isinstance(name, str):
+                    self.metas.append((name, contents[0] if len(contents) == 1 else None,
+                                       len(names) != 1 or len(contents) != 1))
 
     def handle_endtag(self, tag):
         if tag == 'form':
@@ -505,7 +520,11 @@ class Client:
         bootstrap = self.config.get('bootstrap', {})
         if bootstrap.get('header') and self.manifest.get('bootstrap_token') and probe != 'bootstrap':
             headers[bootstrap['header']] = self.manifest['bootstrap_token']
-        if chat.get('csrf_cookie') and chat.get('csrf_header'):
+        if chat.get('csrf_meta') and chat.get('csrf_header') and method != 'GET':
+            token = self.manifest.get('csrf_meta_token')
+            if token:
+                headers[chat['csrf_header']] = token
+        elif chat.get('csrf_cookie') and chat.get('csrf_header'):
             token = next((cookie.value for cookie in self.cookies if cookie.name == chat['csrf_cookie']), None)
             if token:
                 headers[chat['csrf_header']] = token
@@ -611,6 +630,9 @@ class Client:
                         for key in extra_headers or {}:
                             headers.pop(key, None)
                             logged_headers.pop(key, None)
+                        if chat.get('csrf_meta'):
+                            headers.pop(chat['csrf_header'], None)
+                            logged_headers.pop(chat['csrf_header'], None)
                         logged_body = None
                     continue
             else:
@@ -820,6 +842,13 @@ def _inspect(client):
     forms = _Forms()
     forms.feed(html)
     m['transport_evidence'] = {'forms': forms.forms[:8], 'scripts': []}
+    configured_meta = client.config.get('chat', {}).get('csrf_meta')
+    if configured_meta:
+        tokens = [(value, ambiguous) for name, value, ambiguous in forms.metas if name.lower() == configured_meta.lower()]
+        if len(tokens) != 1 or tokens[0][1] or not _capture_scalar(tokens[0][0], 4096):
+            m['stop_reason'] = 'csrf meta token missing or ambiguous; inspect page before chat'
+            return
+        m['csrf_meta_token'] = tokens[0][0]
     inferred = []
     def inspect_js(content):
         for match in re.finditer(r'''fetch\(\s*['"](?P<path>/[^'"]+)['"]\s*,\s*\{(?P<options>.{0,1000}?)\}\s*\)''', content, re.S):
@@ -1303,6 +1332,7 @@ def _render(run, m):
              f"HTTP requests: {m['request_count']} / {m['max_requests']}; prompts: {m['prompt_count']} / {m['max_prompts']}",
              f"Transport: {transport}",
             f"Response format: {chat.get('response_format') or 'json'}; response field: {chat.get('response_field') or 'inferred only when unambiguous'}; history field: {chat.get('history_field') or 'none'} ({len(m.get('chat_history', []))} stored messages); conversation request/response: {chat.get('conversation_field') or 'none'} / {chat.get('conversation_response_field') or 'none'}; client ID field: {chat.get('client_id_field') or 'none'}; static fields: {', '.join(chat.get('static_field_names', [])) or 'none'}",
+             f"CSRF {'meta ' + chat['csrf_meta'] if chat.get('csrf_meta') else 'cookie ' + chat['csrf_cookie'] if chat.get('csrf_cookie') else 'none'} -> header {chat.get('csrf_header') or 'none'}",
              f"Header names: {', '.join(m.get('header_names', [])) or 'none'}; cookie names: {', '.join(m.get('session_cookie_names', [])) or 'none'}",
              f"Static same-origin route clues: {', '.join(static_routes[:20]) or 'none'}",
             f"Status after each chat: {bool(m.get('status_after_each_chat'))}" + (f" via GET {_display_path(m['workflow_status_path'])}" if m.get('workflow_status_path') else ''),
@@ -1434,7 +1464,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
         chat = config.get('chat', {})
         manifest = {'schema_version': core.SCHEMA, 'category': 'ai_chatbot', 'origin': origin,
                     'protocol_path': str(Path(protocol_path).absolute()) if protocol_path else None,
-                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
+                    'protocol_sha256': digest, 'chat_summary': {key: chat.get(key) for key in ('path', 'method', 'encoding', 'message_field', 'history_field', 'response_field', 'response_format', 'conversation_field', 'conversation_response_field', 'client_id_field', 'csrf_cookie', 'csrf_meta', 'csrf_header')} | {'static_field_names': sorted(chat.get('static_fields', {}))},
                     'header_names': sorted(config.get('headers', {})), 'session_cookie_names': [],
                     'bootstrap_summary': {'path': config['bootstrap']['path'], 'method': config['bootstrap'].get('method', 'POST'),
                                           'body_fields': sorted(config['bootstrap'].get('body', {})),
@@ -1458,7 +1488,7 @@ def start(origin, protocol_path, budget, max_requests, max_prompts, timeout, run
                                       | ({'body_fields': sorted(set(step['body'] or {}) | ({step['bind_body_field']} if step.get('bind_body_field') else set()))} if step['kind'] == 'api' else {})
                                       for step in steps],
                     'queue': _queue(config, strategy, steps), 'started': [], 'completed': [], 'inspected': False,
-                    'chat_history': [],
+                    'chat_history': [], 'csrf_meta_token': None,
                     'injection_plan': {'path': config['injection']['path'], 'field': config['injection'].get('file_field') or config['injection'].get('field'), 'encoding': config['injection'].get('encoding', 'json')} if config.get('injection') else None,
                     'injection_file_sha256': injection_file_sha256,
                     'transcript_lines': 0, 'candidates': [], 'validated': [], 'direct_checks': [], 'verification_checks': [],

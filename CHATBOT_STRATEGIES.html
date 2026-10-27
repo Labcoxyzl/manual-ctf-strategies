@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="source-sha256" content="215db7d01b8d731bb390be600fd1f9b216ad001cb5386f3af62a8aba29f427b0">
+  <meta name="source-sha256" content="c0b639a9afd1fd37a454ea3105ac4759d57200bc0425dc2e872b9224b31dd6b9">
   <link rel="icon" href="data:,">
   <title>AI/chatbot challenge scripts · Manual CTF Strategies</title>
   <style>
@@ -93,6 +93,13 @@ bodies and reports; raw chatbot responses remain in the private transcript,
 including any value the target echoes. The private protocol is part of the
 resume identity. Bracketed form names such as <code>settings[mode]</code> are supported.
 Static JSON fields have an 8 KiB and 64-level nesting limit.</p>
+<p>If the frontend supplies a CSRF token in an HTML <code>&lt;meta name=&quot;...&quot; content=&quot;...&quot;&gt;</code>
+tag, copy the <a href="scripts/chatbot_recipes/csrf_meta_chat.json">CSRF meta recipe</a>. Set the
+actual <code>page_path</code>, <code>chat.csrf_meta</code> name, and <code>chat.csrf_header</code>. The client
+requires one unique printable token on that page, stores it privately, and
+sends it only on same-origin state-changing requests. Missing tags, duplicate
+tags or attributes, and invalid values stop before chat. A target that rotates
+its token during a run needs a target-specific refresh plan.</p>
 <p>For a <code>text/event-stream</code> chat route that emits JSON <code>data:</code> events and a
 <code>data: [DONE]</code> terminator, copy the <a href="scripts/chatbot_recipes/sse_chat.json">SSE recipe</a>.
 Set <code>chat.response_format</code> to <code>sse</code> and <code>chat.response_field</code> to the event

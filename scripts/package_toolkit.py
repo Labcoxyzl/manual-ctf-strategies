@@ -97,6 +97,7 @@ CODE = ('scripts/ctf.py', 'scripts/autosolve.py', 'scripts/autosolve_lib/__init_
         'scripts/chatbot_recipes/tab_heartbeat.json',
         'scripts/chatbot_recipes/retrieved_page.json',
         'scripts/chatbot_recipes/chat_static_fields.json',
+        'scripts/chatbot_recipes/csrf_meta_chat.json',
         'scripts/chatbot_recipes/example_retrieved_page.txt',
         'scripts/chatbot_recipes/sign_network.json',
         'scripts/chatbot_recipes/model_parity.json',

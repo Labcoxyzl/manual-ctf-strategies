@@ -1,0 +1,11 @@
+{
+  "page_path": "/",
+  "chat": {
+    "path": "/REPLACE_CHAT_PATH",
+    "message_field": "message",
+    "response_field": "reply",
+    "csrf_meta": "csrf-token",
+    "csrf_header": "X-CSRF-Token"
+  },
+  "lanes": ["capability"]
+}

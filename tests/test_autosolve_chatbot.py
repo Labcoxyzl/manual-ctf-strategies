@@ -39,6 +39,7 @@ class Toy:
         for _ in range(500):
             self.deep_value = [self.deep_value]
         self.landing_nonce_header = None
+        self.landing_csrf_header = None
         self.stage = 0
         self.stage_checked = True
         self.stage_status_calls = 0
@@ -78,6 +79,16 @@ class Toy:
                         self.send(429, {'error': 'cooldown'}, {'Retry-After': '2'})
                     elif toy.mode == 'page_down':
                         self.send(503, {'error': 'temporarily unavailable'})
+                    elif toy.mode in ('csrf_meta', 'csrf_meta_missing', 'csrf_meta_duplicate', 'csrf_meta_invalid', 'csrf_meta_redirect', 'csrf_meta_dup_content', 'csrf_meta_dup_name'):
+                        tags = ('<meta name="csrf-token" content="bad&#10;value">' if toy.mode == 'csrf_meta_invalid' else
+                                '<meta name="csrf-token" content="private-meta-token">' if toy.mode != 'csrf_meta_missing' else '')
+                        if toy.mode == 'csrf_meta_duplicate':
+                            tags += '<meta name="CSRF-TOKEN" content="other-token">'
+                        if toy.mode == 'csrf_meta_dup_content':
+                            tags = '<meta name="csrf-token" content="first" content="private-meta-token">'
+                        if toy.mode == 'csrf_meta_dup_name':
+                            tags = '<meta name="other" name="csrf-token" content="private-meta-token">'
+                        self.send(200, ('<html><head>' + tags + '</head></html>').encode(), {'Set-Cookie': 'sid=meta; Path=/'})
                     elif toy.mode == 'same_redirect':
                         self.send(302, b'', {'Location': '/home'})
                     elif toy.mode == 'form':
@@ -146,6 +157,9 @@ class Toy:
                 elif self.path == '/nonce-landing':
                     toy.landing_nonce_header = self.headers.get('X-Nonce')
                     self.send(200, {'complete': True})
+                elif self.path == '/meta-landing':
+                    toy.landing_csrf_header = self.headers.get('X-CSRF-Token')
+                    self.send(200, {'reply': 'role: assistant'})
                 elif self.path == '/api/verify':
                     if toy.mode == 'partial_completion':
                         self.send(200, b'{"complete": true}' + b' ' * 140_000)
@@ -364,8 +378,17 @@ class Toy:
                 if self.path.startswith('/api/utter?'):
                     self.send(200, {'reply': 'role: assistant'})
                     return
-                if self.path not in ('/api/utter', '/talk', '/gate/ask'):
+                if self.path not in ('/api/utter', '/talk', '/gate/ask', '/meta-chat'):
                     self.send(404, {'error': 'missing'})
+                    return
+                if toy.mode.startswith('csrf_meta') and self.path == '/meta-chat':
+                    if self.headers.get('Cookie') != 'sid=meta' or self.headers.get('X-CSRF-Token') != 'private-meta-token':
+                        self.send(403, {'error': 'csrf meta token required'})
+                        return
+                    if toy.mode == 'csrf_meta_redirect':
+                        self.send(303, b'', {'Location': '/meta-landing'})
+                        return
+                    self.send(200, {'reply': 'role: assistant'})
                     return
                 if toy.mode == 'static_json' and (body.get('workspace') != 'toy' or
                                                    body.get('options') != {'mode': 'bounded'} or
@@ -569,6 +592,66 @@ class ChatbotCLITests(unittest.TestCase):
             self.assertIn('[redacted]', trace)
             self.assertNotIn('private-test', trace)
             self.assertEqual((run / 'cookies.txt').stat().st_mode & 0o777, 0o600)
+
+    def test_declared_csrf_meta_token_is_bound_privately_and_resume_safe(self):
+        config = {'chat': {'path': '/meta-chat', 'message_field': 'query', 'response_field': 'reply',
+                           'csrf_meta': 'csrf-token', 'csrf_header': 'X-CSRF-Token'}, 'lanes': []}
+        with tempfile.TemporaryDirectory() as root, Toy('csrf_meta') as toy:
+            protocol = self.protocol(root, config)
+            dry, dry_run, code = self.start(root, toy, protocol, dry=True, requests=2, prompts=1)
+            self.assertEqual(code, 0)
+            self.assertIn('CSRF meta csrf-token', (dry_run / 'report.md').read_text())
+            self.assertFalse(toy.calls)
+            m, run, code = self.start(root, toy, protocol, requests=1, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['csrf_meta_token'], 'private-meta-token')
+            self.assertEqual(m['prompt_count'], 0)
+            self.run_cli(root, 'resume', run, '--budget', '5', '--max-requests', '2', code=0)
+            m = json.loads((run / 'manifest.json').read_text())
+            self.assertEqual(m['prompt_count'], 1)
+            self.assertEqual(toy.calls[-1], ('POST', '/meta-chat'))
+            self.assertNotIn('private-meta-token', (run / 'report.md').read_text())
+            records = [json.loads(line) for line in (run / 'transcript.jsonl').read_text().splitlines()]
+            self.assertEqual(records[-1]['request']['headers']['X-CSRF-Token'], '[redacted]')
+        for mode in ('csrf_meta_missing', 'csrf_meta_duplicate', 'csrf_meta_invalid',
+                     'csrf_meta_dup_content', 'csrf_meta_dup_name'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as root, Toy(mode) as toy:
+                protocol = self.protocol(root, config)
+                m, _, code = self.start(root, toy, protocol, requests=4, prompts=1)
+                self.assertEqual(code, 3)
+                self.assertIn('csrf meta token', m['stop_reason'])
+                self.assertFalse(any(method == 'POST' for method, _ in toy.calls))
+        with tempfile.TemporaryDirectory() as root, Toy('csrf_meta_redirect') as toy:
+            protocol = self.protocol(root, config)
+            m, run, code = self.start(root, toy, protocol, requests=4, prompts=1)
+            self.assertEqual(code, 3)
+            self.assertEqual(m['stop_reason'], 'chat redirected; inspect target state before continuing')
+            self.assertIsNone(toy.landing_csrf_header)
+            self.assertIn(('GET', '/meta-landing'), toy.calls)
+            self.run_cli(root, 'chatbot-release-origin', run, code=0)
+        with tempfile.TemporaryDirectory() as root, Toy('normal') as toy:
+            for chat in ({'path': '/meta-chat', 'csrf_meta': 'csrf-token'},
+                         {'path': '/meta-chat', 'csrf_meta': 'csrf-token', 'csrf_cookie': 'sid',
+                          'csrf_header': 'X-CSRF-Token'}):
+                protocol = self.protocol(root, {'chat': chat})
+                result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                            '--dry-run', '--budget', '5', '--max-requests', '4')
+                self.assertEqual(code, 2)
+                self.assertIn('csrf_meta', result['reason'])
+                self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {**config, 'headers': {'x-csrf-token': 'fixed'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '4')
+            self.assertEqual(code, 2)
+            self.assertIn('csrf_header conflicts', result['reason'])
+            self.assertFalse(toy.calls)
+            protocol = self.protocol(root, {'chat': {'path': '/meta-chat', 'csrf_meta': 'csrf-token',
+                                                     'csrf_header': 'Content-Type'}})
+            result, code = self.run_cli(root, 'chatbot', '--origin', toy.origin, '--protocol', protocol,
+                                        '--dry-run', '--budget', '5', '--max-requests', '4')
+            self.assertEqual(code, 2)
+            self.assertIn('transport header', result['reason'])
+            self.assertFalse(toy.calls)
 
     def test_declared_static_chat_fields_work_for_json_and_form_without_log_values(self):
         for mode, chat, private in (
@@ -2260,7 +2343,8 @@ class ChatbotCLITests(unittest.TestCase):
                                    ('tab_claim.json', 'workflow_status'),
                                    ('tab_heartbeat.json', 'workflow_status'),
                                    ('retrieved_page.json', 'retrieved_page_injection'),
-                                   ('chat_static_fields.json', 'route_discovery')):
+                                   ('chat_static_fields.json', 'route_discovery'),
+                                   ('csrf_meta_chat.json', 'route_discovery')):
             with self.subTest(filename=filename), tempfile.TemporaryDirectory() as temp, Toy('normal') as toy:
                 recipe = root / filename
                 m, _, code = self.start(temp, toy, recipe, strategy=strategy, dry=True)
