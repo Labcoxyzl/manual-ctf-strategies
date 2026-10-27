@@ -16,7 +16,8 @@ from pathlib import Path
 TSHARK = (shutil.which(os.environ.get('AUTOSOLVE_TSHARK', 'tshark'))
           or os.environ.get('AUTOSOLVE_TSHARK') or '/usr/bin/tshark')
 FIELDS = ('frame.number', 'frame.cap_len', 'frame.len', 'tcp.stream',
-          'http.request.uri', 'http.response.code', 'http.response_for.uri', 'http.request_in',
+          'http.request.method', 'http.request.uri', 'http.response.code',
+          'http.response_for.uri', 'http.request_in',
           'http.content_length_header', 'http.content_encoding',
           'http.transfer_encoding', 'http.file_data')
 
@@ -108,6 +109,7 @@ def export_http_objects(path: Path, output_dir: Path, *, timeout: float,
     if error:
         return [], [error]
     responses = []
+    nonresponse_bodies = set()
     warnings = []
     saw_http = False
     try:
@@ -127,13 +129,23 @@ def export_http_objects(path: Path, output_dir: Path, *, timeout: float,
                 return values[0] if len(values) == 1 else ''
 
             bodies = fields.get('http_file_data', [])
+            if not isinstance(bodies, list) or any(not isinstance(value, str) for value in bodies):
+                raise ValueError('invalid TShark HTTP body field')
             if len(bodies) > 1:
+                for value in bodies:
+                    data = bytes.fromhex(value)
+                    nonresponse_bodies.add((hashlib.sha256(data).hexdigest(), len(data)))
                 warnings.append(f"frame {one('frame.number')}: multiple HTTP bodies unpaired")
                 continue
             body = one('http.file_data')
             if not body:
                 continue
             data = bytes.fromhex(body)
+            response_code = one('http.response.code')
+            if not response_code or one('http.request.method'):
+                nonresponse_bodies.add((hashlib.sha256(data).hexdigest(), len(data)))
+                warnings.append(f"frame {one('frame.number')}: HTTP body lacks unambiguous response evidence")
+                continue
             length = one('http.content_length_header')
             encoding = one('http.content_encoding')
             transfer = one('http.transfer_encoding')
@@ -151,7 +163,7 @@ def export_http_objects(path: Path, output_dir: Path, *, timeout: float,
                               'tcp_stream': int(one('tcp.stream')) if one('tcp.stream') else None,
                               'request_packet': int(one('http.request_in')) if one('http.request_in') else None,
                               'uri': one('http.response_for.uri') or None,
-                              'status': int(one('http.response.code')) if one('http.response.code') else None,
+                              'status': int(response_code),
                               'encoding': encoding or None,
                               'transfer_encoding': transfer or None,
                               'length_verified': bool(length and not encoding and not transfer)})
@@ -184,8 +196,13 @@ def export_http_objects(path: Path, output_dir: Path, *, timeout: float,
             while chunk := reader.read(65536):
                 digest.update(chunk)
         total += info.st_size
-        matches = [row for row in responses if row['sha256'] == digest.hexdigest()
-                   and row['size'] == info.st_size]
+        fingerprint = (digest.hexdigest(), info.st_size)
+        if fingerprint in nonresponse_bodies:
+            warnings.append(f'object {index}: identical bytes in a non-response HTTP body; provenance ambiguous')
+            item.unlink()
+            continue
+        matches = [row for row in responses if row['sha256'] == fingerprint[0]
+                   and row['size'] == fingerprint[1]]
         if not matches:
             warnings.append(f'object {index}: no exact frame-linked HTTP body match')
             item.unlink()

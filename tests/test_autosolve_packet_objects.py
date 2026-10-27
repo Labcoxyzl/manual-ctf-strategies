@@ -1,9 +1,12 @@
 import gzip
 import hashlib
 import io
+import json
 import os
 import socket
 import struct
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -64,6 +67,22 @@ def transaction(client_port, body, *, filename='bundle.zip', encoding=None,
     return rows
 
 
+def post_upload(body, response=None):
+    client, server, client_port, port = '198.51.100.10', '198.51.100.20', 41000, 80
+    request = (b'POST /upload HTTP/1.1\r\nHost: example.invalid\r\nContent-Length: '
+               + str(len(body)).encode() + b'\r\n\r\n' + body)
+    rows = [frame(client, server, client_port, port, 1000, 0, 2),
+            frame(server, client, port, client_port, 2000, 1001, 18),
+            frame(client, server, client_port, port, 1001, 2001, 16),
+            frame(client, server, client_port, port, 1001, 2001, 24, request)]
+    if response is not None:
+        payload = (b'HTTP/1.1 200 OK\r\nContent-Length: '
+                   + str(len(response)).encode() + b'\r\n\r\n' + response)
+        rows.append(frame(server, client, port, client_port, 2001,
+                          1001 + len(request), 24, payload))
+    return rows
+
+
 class PacketObjectTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -121,6 +140,73 @@ class PacketObjectTests(unittest.TestCase):
                 rows, warnings = self.export()
                 self.assertEqual(rows, [])
                 self.assertTrue(warnings)
+
+    def test_post_upload_without_response_is_not_a_response_object(self):
+        upload = b'POST-FILE-DATA-ORACLE'
+        self.source.write_bytes(pcap(post_upload(upload)))
+        rows, warnings = self.export()
+        self.assertEqual(rows, [])
+        self.assertTrue(any('frame 4' in warning and 'response evidence' in warning
+                            for warning in warnings), warnings)
+        self.assertEqual(list((self.output / 'objects').iterdir()), [])
+
+    def test_public_cli_post_upload_without_response_has_no_http_child(self):
+        self.source.write_bytes(pcap(post_upload(b'POST-FILE-DATA-ORACLE')))
+        script = Path(__file__).resolve().parents[1] / 'scripts/autosolve.py'
+        result = subprocess.run([sys.executable, '-B', str(script), '--json', 'analyze',
+                                 str(self.source), '--category', 'packets',
+                                 '--runs-root', str(self.root / 'runs')],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
+        run = Path(json.loads(result.stdout)['run'])
+        manifest = json.loads((run / 'manifest.json').read_text())
+        self.assertEqual(manifest['coverage']['NET02']['status'], 'truncated')
+        self.assertFalse(any('object_index' in item['source_locator']
+                             for item in manifest['artifacts']))
+        self.assertFalse(any(item['operation'] == 'HTTP object export'
+                             for item in manifest['findings']))
+
+    def test_post_upload_and_response_only_publish_response_body(self):
+        upload = b'POST-FILE-DATA-ORACLE'
+        response = b'RESPONSE-FILE-DATA-ORACLE'
+        self.source.write_bytes(pcap(post_upload(upload, response)))
+        rows, warnings = self.export()
+        self.assertEqual(len(rows), 1, warnings)
+        self.assertEqual(rows[0]['path'].read_bytes(), response)
+        self.assertEqual(rows[0]['packet'], 5)
+        self.assertEqual(rows[0]['source_locator']['request_packet'], 4)
+        self.assertTrue(any('frame 4' in warning and 'response evidence' in warning
+                            for warning in warnings))
+
+    def test_same_bytes_in_post_upload_and_response_have_ambiguous_provenance(self):
+        body = b'SAME-BYTES-ORACLE'
+        for index, frames in enumerate((post_upload(body, body),
+                                        post_upload(body) + transaction(42000, body, filename='public.bin'))):
+            with self.subTest(frames=len(frames)):
+                self.output = self.root / f'private-{index}' / 'objects'
+                self.source.write_bytes(pcap(frames))
+                rows, warnings = self.export()
+                self.assertEqual(rows, [])
+                self.assertTrue(any('provenance ambiguous' in warning for warning in warnings),
+                                warnings)
+                self.assertEqual(list((self.output / 'objects').iterdir()), [])
+
+    def test_pipelined_post_bodies_do_not_borrow_unrelated_response_locator(self):
+        payload = b''.join(
+            b'POST /' + path + b' HTTP/1.1\r\nHost: example.invalid\r\nContent-Length: 4\r\n\r\n' + body
+            for path, body in ((b'one', b'SAME'), (b'two', b'DIFF')))
+        frames = post_upload(b'')[:3]
+        frames.append(frame('198.51.100.10', '198.51.100.20', 41000, 80,
+                            1001, 2001, 24, payload))
+        frames += transaction(42000, b'SAME', filename='public.bin')
+        self.source.write_bytes(pcap(frames))
+        rows, warnings = self.export()
+        self.assertEqual(rows, [])
+        self.assertTrue(any('multiple HTTP bodies unpaired' in warning for warning in warnings),
+                        warnings)
+        self.assertTrue(any('provenance ambiguous' in warning for warning in warnings),
+                        warnings)
+        self.assertEqual(list((self.output / 'objects').iterdir()), [])
 
     def test_limits_and_unsafe_output_are_rejected(self):
         self.source.write_bytes(pcap(transaction(41000, b'1234567890')))
