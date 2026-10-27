@@ -99,6 +99,40 @@ class ReverseStringsTests(unittest.TestCase):
                 offset = row['source_locator']['file_offset']
                 self.assertEqual(binary.read_bytes()[offset:offset + len(encoded)], encoded)
 
+    def test_jump_past_zero_and_prologue_cannot_claim_xor_plaintext(self):
+        phrase = b'river beacon mossy path'
+        encoded = bytes(byte ^ 0x59 for byte in phrase)
+        prefixes = {
+            'call_before_main': ('dummy:\ncall decode\nret\nmain:\n'
+                                 'mov $10, %eax\njmp body\nback:\njmp main\n'),
+            'decoy_after_main': ('main:\nmov $22, %eax\njmp body\n'
+                                 'decoy:\njmp decode\nprior:\nnop\njmp prior\n'),
+            'window_evicts_bypass': ('main:\nmov $22, %eax\njmp body\n' +
+                                     'nop\n' * 120 +
+                                     'decoy:\njmp decode\nprior:\nnop\njmp prior\n'),
+            'indirect_bypass_with_decoy': ('main:\nlea body(%rip), %r9\n'
+                                           'jmp *%r9\ndecoy:\njmp decode\n'
+                                           'prior:\nnop\njmp prior\n'),
+        }
+        for name, prefix in prefixes.items():
+            with self.subTest(name=name):
+                source = self.root / f'{name}.S'
+                binary = self.root / name
+                source.write_text('.section .data\npayload:\n.byte ' +
+                                  ','.join(map(str, encoded + b'\0')) +
+                                  '\n.section .text\n.globl main\n' + prefix +
+                                  'decode:\nsub $8, %rsp\nxor %eax, %eax\n.p2align 4\n'
+                                  'body:\nmov %eax, %ecx\nadd $1, %eax\n'
+                                  'movzbl payload(%rcx), %edx\nxor $0x59, %edx\n'
+                                  'mov %dl, payload(%rcx)\ncmp $23, %eax\n'
+                                  'jne body\nadd $8, %rsp\nret\n'
+                                  '.section .note.GNU-stack,"",@progbits\n')
+                subprocess.run(['gcc', '-no-pie', '-o', str(binary), str(source)],
+                               check=True, capture_output=True)
+                rows, warnings = rev_strings.inspect_strings(binary, timeout=5)
+                self.assertFalse(any(row['data'] == phrase for row in rows),
+                                 (rows, warnings))
+
     def test_unrelated_xor_constant_does_not_decode_random_data(self):
         binary = self.build('unrelated_xor',
                             'volatile unsigned char constants[] = {' +
@@ -511,6 +545,25 @@ class ReverseStringsTests(unittest.TestCase):
              mock.patch.object(rev_strings.shutil, 'which', return_value='./floss'):
             self.assertEqual(rev_strings.resolve_floss(),
                              (str(Path('./floss').absolute()), 'floss_unpinned_path'))
+
+    def test_path_floss_survives_ordinary_unmanaged_autosolve_directory(self):
+        root = self.root / 'export'
+        autosolve = root / '.autosolve'
+        autosolve.mkdir(parents=True)
+        autosolve.chmod(0o755)
+        module = str(root / 'scripts/autosolve_lib/profiles/rev_strings.py')
+        with mock.patch.object(rev_strings, '__file__', module), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value='/usr/bin/floss'):
+            self.assertEqual(rev_strings.resolve_floss(),
+                             ('/usr/bin/floss', 'floss_unpinned_path'))
+        autosolve.rmdir()
+        outside = self.root / 'outside'
+        outside.mkdir()
+        autosolve.symlink_to(outside, target_is_directory=True)
+        with mock.patch.object(rev_strings, '__file__', module), \
+             mock.patch.object(rev_strings.shutil, 'which', return_value='/usr/bin/floss'):
+            self.assertEqual(rev_strings.resolve_floss(),
+                             (None, 'floss_managed_binary_mismatch'))
 
     def test_doctor_requires_obfuscated_marker_and_location(self):
         binary = self.root / 'floss'

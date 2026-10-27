@@ -33,15 +33,17 @@ def resolve_floss() -> tuple[str | None, str]:
                    root / '.autosolve/engines/floss')
     executable = directories[-1] / 'floss'
     try:
+        managed_present = (directories[-1].exists() or directories[-1].is_symlink() or
+                           executable.exists() or executable.is_symlink())
         for directory in directories:
             if directory.is_symlink():
                 return None, 'floss_managed_binary_mismatch'
             if directory.exists():
                 state = directory.stat(follow_symlinks=False)
                 if (not stat.S_ISDIR(state.st_mode) or state.st_uid != os.geteuid() or
-                        stat.S_IMODE(state.st_mode) != 0o700):
+                        managed_present and stat.S_IMODE(state.st_mode) != 0o700):
                     return None, 'floss_managed_binary_mismatch'
-        if executable.is_symlink() or executable.exists() or directories[-1].exists():
+        if managed_present:
             if (not executable.is_symlink() and _floss_binary_matches(executable) and
                     os.access(executable, os.X_OK)):
                 return str(executable), 'floss_managed_verified'
