@@ -468,6 +468,27 @@ The official babyrop handout passed this handoff locally, without platform
 acceptance or full PWN04 row credit. Combined release gates, copied rootless
 setup and remote publication remain pending.
 
+The final twenty-first commit `d663ae9193b9bf391e4a3a5e712dbab31b7be741`
+was pushed to the [remote progress branch](https://github.com/Labcoxyzl/manual-ctf-strategies/tree/autosolve-progress-2026-10-27),
+and the remote SHA was independently verified. Its 253-member Offline kit had
+exact source/ZIP byte parity. The Python 3.12 autosolve suite passed 923 tests
+(35 optional skips); the repository pre-push Python 3.13 gate passed 990 tests
+(56 skips, 554 subtests). Exact-hash frozen X/F passed 20/20, including three
+additional 0.3-second F10 repeats with all three families scheduled; the
+all-domain gate passed 22/22 with every selected family `ran`; 15 representative
+measurements passed with zero timeouts and zero validated false solutions in
+two classified negatives. Fresh copied directory and ZIP setup retained all
+30 core pins and doctor reported 46 ready, 9 partial, 1 unavailable without
+an unprobed ready entry. The genuine pinned FLOSS opt-in install, offline
+reuse, doctor and compiled ELF analysis passed, with two exact source-linked
+candidate strings and no target execution. Packaged missing-source resume
+passed 5/5, PWN offset handoff 19/19, and setup adverse controls 25/25.
+Non-install FLOSS phases made no internet connections and no outside ordinary
+content-file writes; its bundled Python created and removed `/dev/shm/sem.*`
+POSIX semaphore IPC objects, so a literal zero outside-root mutation claim is
+not made. A-REV02 remains at 7/8 positive local cases and is not counted among
+the 38 proved named rows. Local replay is not platform acceptance.
+
 Another published-nineteenth replay passed ENC03's five exact classical-cipher
 recoveries and two negative controls, with candidate-only output and stable
 report/resume behavior. This raises full named-row proof to **29 of 57**;
